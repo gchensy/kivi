@@ -39,7 +39,6 @@ class FrequencyBins(WOEMixin):
         self.variables = variables
         self.target = target
         self.bins = bins
-        self.max_leaf_nodes = bins
         self.fill_bin = fill_bin
         self.abnormal_vals = abnormal_vals
         self.decimal = decimal
