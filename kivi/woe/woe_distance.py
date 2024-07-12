@@ -8,9 +8,7 @@ __all__ = ["DistanceBins"]
 
 
 class DistanceBins(WOEMixin):
-    """
-
-    """
+    """等距分箱分析"""
     def __init__(
             self,
             variables: Series,
