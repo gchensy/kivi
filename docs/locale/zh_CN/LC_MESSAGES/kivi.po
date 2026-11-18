@@ -1,0 +1,296 @@
+# Simplified Chinese translations for kivi.
+msgid ""
+msgstr ""
+"Project-Id-Version: kivi 0.3.0.dev0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-17 23:20-0800\n"
+"Language: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "API reference"
+msgstr "API 参考"
+
+msgid "Fit numeric bin edges on a reference sample."
+msgstr "在基准样本上拟合数值变量的分箱边界。"
+
+msgid "Parameters"
+msgstr "参数"
+
+msgid "**values**"
+msgstr "**values**"
+
+msgid "pandas.Series"
+msgstr "pandas.Series"
+
+msgid "Numeric reference values. Missing values are omitted."
+msgstr "基准样本中的数值。拟合时忽略缺失值。"
+
+msgid "**bins**"
+msgstr "**bins**"
+
+msgid "int, default 5"
+msgstr "int，默认 5"
+
+msgid "Requested number of bins. Tied quantiles can reduce this number."
+msgstr "期望箱数。分位点重合时实际箱数可能减少。"
+
+msgid "**method**"
+msgstr "**method**"
+
+#, python-brace-format
+msgid "{\"quantile\", \"uniform\"}, default \"quantile\""
+msgstr "{\"quantile\", \"uniform\"}，默认 \"quantile\""
+
+msgid "Use sample quantiles or equally spaced edges."
+msgstr "使用样本分位点或等距边界。"
+
+msgid "Returns"
+msgstr "返回值"
+
+msgid "numpy.ndarray"
+msgstr "numpy.ndarray"
+
+msgid "Increasing edges with infinite endpoints, suitable for pandas.cut."
+msgstr "严格递增的边界数组，两端为负无穷和正无穷，可直接传给 pandas.cut。"
+
+msgid "Compute weight of evidence and information value for observed groups."
+msgstr "按观察到的分组计算证据权重（WOE）和信息值（IV）。"
+
+msgid "**groups**"
+msgstr "**groups**"
+
+msgid "Pre-binned values or category labels. Missing values form a group."
+msgstr "已分箱的数值或类别标签。缺失值独立成组。"
+
+msgid "**target**"
+msgstr "**target**"
+
+msgid "Binary labels on the same index, with 1 indicating the event."
+msgstr "与分组索引一致的二分类标签，1 表示事件发生。"
+
+msgid "**smoothing**"
+msgstr "**smoothing**"
+
+msgid "float, default 0.5"
+msgstr "float，默认 0.5"
+
+msgid "Positive replacement for a zero count when calculating shares."
+msgstr "计算占比时，用这个正数替代零计数。"
+
+msgid "pandas.DataFrame"
+msgstr "pandas.DataFrame"
+
+msgid ""
+"Event and non-event counts, their within-class shares, WOE and IV per group. Sum the iv column "
+"for the variable's information value."
+msgstr "各组的事件数、非事件数、各自在所属类别中的占比，以及 WOE 和 IV。将 iv 列求和即得到该变量的信息值。"
+
+msgid "Compare two samples using their population stability index."
+msgstr "通过群体稳定性指标（PSI）比较两个样本的分布。"
+
+msgid "**reference, current**"
+msgstr "**reference, current**"
+
+msgid ""
+"Labels or values binned using the same edges. Missing values and categories observed in only one "
+"sample are included."
+msgstr "类别标签或按相同边界分箱的数值。保留缺失值以及仅出现在一侧的类别。"
+
+msgid ""
+"Counts, normalized shares and the PSI contribution of each group. Sum the psi column for the "
+"population stability index."
+msgstr "各组的原始计数、归一化占比和 PSI 贡献。对 psi 列求和即得到总体 PSI。"
+
+msgid "Load 4,521 observations from UCI Bank Marketing."
+msgstr "读取 UCI Bank Marketing 的 4,521 条营销记录。"
+
+msgid "Sixteen features and the integer target. A value of 1 indicates a term deposit subscription."
+msgstr "返回 16 个特征和整数标签 target。1 表示客户认购了定期存款。"
+
+msgid "Development and project review"
+msgstr "开发指南与项目评审"
+
+msgid "Build and verify"
+msgstr "构建与验证"
+
+msgid ""
+"The HTML build writes English and simplified Chinese editions under docs/_build/html. API "
+"signatures come from the installed package. Keep translations in "
+"docs/locale/zh_CN/LC_MESSAGES/kivi.po synchronized with the English source."
+msgstr ""
+"HTML 构建会在 docs/_build/html 下生成英文和简体中文两套文档。API 签名从已安装的包提取。修改英文源文档后，请同步更新 "
+"docs/locale/zh_CN/LC_MESSAGES/kivi.po 中的译文。"
+
+msgid "Findings from the legacy implementation"
+msgstr "旧版实现中的问题"
+
+msgid ""
+"Packaging. The 0.2.8 wheel placed NumPy and pandas behind the all extra. A default installation "
+"could import kivi but failed on its dataset and WOE entry points."
+msgstr "打包。0.2.8 的 wheel 将 NumPy 和 pandas 列在 all 可选依赖中。默认安装后可以导入 kivi，但加载数据和调用 WOE 都会失败。"
+
+msgid ""
+"Dependencies. evaluate/BucketsUtils.py imported PySpark at module load even for pandas PSI. Its "
+"standalone CSI function also referenced an undefined self. The new metric functions depend on "
+"pandas and NumPy."
+msgstr ""
+"依赖。evaluate/BucketsUtils.py 在模块加载时导入 PySpark，连 pandas 版 PSI 也依赖 Spark。该文件的独立 CSI 函数引用了未定义的 "
+"self。新版指标函数只依赖 pandas 和 NumPy。"
+
+msgid ""
+"Numerical results. The old WOE zero-cell logic adjusted one class with an if/elif and used the "
+"original totals. The old PSI helper modified the displayed counts. Tests now check raw counts, "
+"normalized shares and hand-calculated metrics."
+msgstr "数值结果。旧版 WOE 使用 if/elif 处理零频数，一次只调整一类，还沿用调整前的分母。旧版 PSI 会更改展示的计数。新版测试检查原始计数、归一化占比及手算指标。"
+
+msgid ""
+"State. Model/Tree.py removed the target column from the caller's frame. Dataset generation also "
+"reset NumPy's global random state. Future estimators should preserve inputs and take a local "
+"random seed."
+msgstr "状态。Model/Tree.py 会从调用方传入的 DataFrame 中移除目标列。模拟数据生成器也会重置 NumPy 的全局随机状态。后续迁移估计器时，应保留输入并使用局部随机种子。"
+
+msgid ""
+"Coverage. Legacy scorecard and WOE tests printed tables without asserting the expected numbers. "
+"Use frozen datasets to check fitted boundaries, score direction, special values and row counts "
+"before porting these workflows."
+msgstr "测试。旧版评分卡与 WOE 用例打印结果表，却没有断言具体数值。迁移前应用固定样本核对分箱边界、评分方向、特殊值和总行数。"
+
+msgid ""
+"Project scope. The former source tree mixed modeling, databases, distributed execution, notebooks"
+" and deployment configuration. Keep infrastructure-specific imports inside optional integrations "
+"and keep business SQL and local configuration outside the distribution."
+msgstr "项目范围。旧目录混合了建模算法、数据库、分布式计算、笔记本与部署配置。新增集成时应在可选模块内导入相应依赖，将业务 SQL 和本地配置保留在分发包之外。"
+
+msgid "Migration order"
+msgstr "迁移顺序"
+
+msgid ""
+"Start with a fixed scorecard example. Compare old and new WOE on the same labeled rows, then "
+"validate score transformation and model evaluation against stored outputs. Port weighted or "
+"supervised binning next when a workflow requires it. Restore Spark and SQL independently after "
+"the core inputs and outputs are stable."
+msgstr "先固定一份评分卡样本，在相同标签和分箱上比较新旧 WOE，再用存档结果验证评分转换与模型评估。按业务需要迁移加权或监督分箱。核心输入输出稳定后，再分别接入 Spark 和 SQL。"
+
+msgid "User guide"
+msgstr "用户指南"
+
+msgid "Binning and missing values"
+msgstr "分箱与缺失值"
+
+msgid ""
+"Use quantile bins to divide the reference observations by rank, or uniform bins to divide their "
+"numeric range into equal widths. Tied cut points are collapsed. A constant reference produces one"
+" bin. Infinite endpoints cover finite future observations outside the training range. Use the "
+"saved edges with pandas.cut on every sample."
+msgstr "等频按基准样本中的秩划分，等距按取值范围划分。重复切点会合并。常量只有一个箱。两端延伸至无穷，因此可覆盖后续超出训练范围的有限值。保存边界，再对每期数据调用 pandas.cut。"
+
+msgid ""
+"Pass categorical labels directly to the metric functions. A missing label is a separate group. "
+"Only observed groups appear, in first-observed order. For WOE the group and target indices must "
+"match exactly."
+msgstr "类别变量可直接传给指标函数。缺失标签独立成组。输出仅列出实际观测到的组，按首次出现的次序排列。WOE 的分组索引和标签索引必须完全一致。"
+
+msgid "Reading WOE and IV"
+msgstr "解读 WOE 和 IV"
+
+msgid ""
+"An event is target 1. For a bin, let p be its share of all events and q its share of all non-"
+"events. WOE is log(p/q); a positive value means the bin is relatively more common among events. "
+"Its IV contribution is (p-q) times WOE. Sum the iv column across bins. Both target classes must "
+"be present."
+msgstr ""
+"标签 1 表示事件。令 p 为某箱的事件数占全部事件的比例，q 为该箱非事件数占全部非事件的比例。WOE 等于 log(p/q)，正值表示该箱在事件样本中占比更高。单箱 IV 为 (p-q) "
+"乘以 WOE，将 iv 列求和得到变量的 IV。数据须包含两类标签。"
+
+msgid ""
+"Smoothing replaces zero cells with 0.5 by default. Each column is then normalized separately. "
+"Counts in the result always report observations. Changing smoothing can materially change the "
+"result for sparse bins."
+msgstr "平滑默认用 0.5 替换零频数，再按列分别归一化。结果表中的计数始终是实际观测数。稀疏分箱对平滑参数敏感。"
+
+msgid "Reading PSI"
+msgstr "解读 PSI"
+
+msgid ""
+"For PSI, p and q are the current and reference shares. Each bin contributes (p-q) times log(p/q)."
+" Sum the psi column to obtain total drift. Categories appearing in only one sample are retained. "
+"PSI describes distribution change; it does not use the outcome label."
+msgstr ""
+"计算 PSI 时，p 和 q 分别为当前样本与基准样本中某组的占比。单组贡献为 (p-q) 乘以 log(p/q)。对 psi 列求和得到整体漂移指标。仅在一期出现的类别也会保留。计算 PSI "
+"只需两个样本的分布，无需目标标签。"
+
+msgid "Dataset and attribution"
+msgstr "示例数据和署名"
+
+msgid ""
+"Bank Marketing by S. Moro, P. Rita and P. Cortez (2014) is distributed under CC BY 4.0. The "
+"bundled CSV was converted from the legacy workbook. The loader encodes subscription as 1 and non-"
+"subscription as 0. See the `dataset record <https://doi.org/10.24432/C5K306>`_ and `license "
+"<https://creativecommons.org/licenses/by/4.0/>`_."
+msgstr ""
+"Bank Marketing 由 S. Moro、P. Rita 和 P. Cortez 于 2014 年发布，按 CC BY 4.0 授权。随包 CSV "
+"由旧版工作簿转换而来。加载时将认购存款编码为 1，未认购编码为 0。详见 `数据集说明 <https://doi.org/10.24432/C5K306>`_ 和 `许可证 "
+"<https://creativecommons.org/licenses/by/4.0/>`_。"
+
+msgid "kivi documentation"
+msgstr "kivi 使用文档"
+
+msgid ""
+"Analyze a binary response and track changes in a population with pandas. Use the same bin edges "
+"in development and monitoring so that counts remain comparable."
+msgstr "使用 pandas 分析二分类标签并监测样本分布变化。在开发和监测阶段复用同一套分箱边界，可以直接比较各组计数。"
+
+msgid "Migrating from 0.2.x"
+msgstr "从 0.2.x 迁移"
+
+msgid ""
+"The development release exposes four public operations. Dataset.bank_data() retains its import "
+"path and table schema. The target describes deposit subscription."
+msgstr "当前开发版提供四项公共操作。Dataset.bank_data() 保留原有的导入路径和表结构，标签表示客户是否认购定期存款。"
+
+msgid ""
+"DistanceBins and FrequencyBins previously calculated group assignments and statistics together. "
+"Use bin_edges with uniform or quantile, call pandas.cut, then pass the groups to woe_table. "
+"CategoryBins users can pass the label series directly."
+msgstr ""
+"旧版 DistanceBins 和 FrequencyBins 在同一步骤中完成分箱和统计。现在先用 bin_edges 选择 uniform 或 quantile，再用 pandas.cut "
+"分组，最后将结果传给 woe_table。原 CategoryBins 用户可直接传入类别标签序列。"
+
+msgid ""
+"For PSI.fit(), form both sets of groups using the same reference edges, then call psi_table. It "
+"returns raw counts and a contribution per bin. Previously the psi column repeated the overall "
+"total. The new smoothing rule preserves counts and normalizes each distribution after replacing "
+"zeros. Recheck thresholds when migrating saved analyses."
+msgstr ""
+"迁移 PSI.fit() 时，先用同一组基准边界划分两期样本，再调用 psi_table。新结果包含各组的真实计数和单组贡献；旧结果在 psi "
+"列逐行重复总值。新的平滑口径会在补零后归一化。迁移历史分析时应重新核对阈值。"
+
+msgid ""
+"The development release covers unweighted counts. Keep existing weighted, supervised binning and "
+"scorecard workflows on their original version until their outputs have been validated on fixed "
+"reference samples. Spark, SQL, AHP, feature selection, model wrappers and application code remain"
+" in the historical revisions."
+msgstr "当前开发版支持未加权统计。加权、监督分箱和评分卡流程应在固定样本上完成输出核对后再切换。历史版本中仍可查阅 Spark、SQL、AHP、特征选择、模型封装及应用代码。"
+
+msgid "Getting started"
+msgstr "快速开始"
+
+msgid "Install the development version from a local checkout. Python 3.10 or newer is required."
+msgstr "在本地项目根目录安装开发版，需要 Python 3.10 或更高版本。"
+
+msgid "Fit bins on the reference sample"
+msgstr "在基准样本上拟合分箱"
+
+msgid ""
+"The bundled bank marketing data records whether a customer subscribed to a term deposit. The "
+"split below demonstrates two samples; the rows do not represent a chronological validation split."
+msgstr "随包的营销数据记录了客户是否认购定期存款。下面按行切出两个样本演示用法，这一切分没有时间验证含义。"
+
+msgid ""
+"Read the per-bin contributions before interpreting a total. A group with few events can have a "
+"large WOE despite representing few customers."
+msgstr "解读总值前先检查每一箱的贡献。只有少量事件的箱也可能有很大的 WOE，但它代表的客户可能很少。"

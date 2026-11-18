@@ -1,53 +1,45 @@
-<div align="center">
+# kivi
 
-# KIVI
+用 pandas 做二分类建模中的变量分箱、证据权重（WOE）、信息值（IV）和群体稳定性指标（PSI）分析。支持 Python 3.10 及以上版本。
 
-[![Python package](https://img.shields.io/pypi/v/kivi)](https://pypi.org/project/kivi/)
-[![Python](https://img.shields.io/pypi/pyversions/kivi.svg)](https://pypi.python.org/pypi/kivi/)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/kivi)](https://pypi.org/project/kivi/)
-[![GitHub star chart](https://img.shields.io/github/stars/kivi-risk/kivi?style=flat-square)](https://star-history.com/#kivi-risk/kivi)
-[![GitHub Forks](https://img.shields.io/github/forks/kivi-risk/kivi.svg)](https://star-history.com/#kivi-risk/kivi)
-[![Doc](https://img.shields.io/badge/Doc-online-green)](https://kivi-risk.github.io/kivi-doc/)
-[![Issue](https://img.shields.io/github/issues/kivi-risk/kivi)](https://github.com/kivi-risk/kivi/issues/new/choose)
-[![Discussions](https://img.shields.io/github/discussions/kivi-risk/kivi)](https://github.com/kivi-risk/kivi/issues/new/choose)
-[![CONTRIBUTING](https://img.shields.io/badge/Contributing-8A2BE2)](https://github.com/kivi-risk/kivi/blob/main/CONTRIBUTING.md)
-[![License: MIT](https://img.shields.io/github/license/kivi-risk/kivi)](https://github.com/kivi-risk/kivi/blob/main/LICENSE)
+Kivi provides binning, weight of evidence (WOE), information value (IV) and population stability (PSI) for binary modeling with pandas. Requires Python 3.10 or newer.
 
-> 一款自动化风控建模工具集
-
-</div>
-
-## 简介
-
-[详细文档](https://kivi-risk.github.io/kivi-doc/)
-
------
-
-## 如何安装？
+**从源码安装 · Install from a local checkout**
 
 ```bash
-# [推荐] 安装最新版本ZLAI的所有模块
-pip install kivi[all] -U
-# [补充] 增加了一些 nlp 内容
-pip install kivi[jieba] -U
-# [补充] 增加了一些 pyspark 内容
-pip install kivi[pyspark] -U
+python -m pip install -e .
 ```
 
-您也可以在[GitHub](https://github.com/kivi-risk/kivi.git)/[PyPi](https://pypi.org/project/kivi/)查看最新代码与最新发行版本。
+```python
+import pandas as pd
+from kivi.datasets import Dataset
+from kivi.binning import bin_edges
+from kivi.woe import woe_table
+from kivi.evaluate import psi_table
 
-## Star History
+data = Dataset.bank_data()
+reference, current = data.iloc[:3000], data.iloc[3000:]
+edges = bin_edges(reference["age"], bins=5)
+before = pd.cut(reference["age"], edges)
+after = pd.cut(current["age"], edges)
+evidence = woe_table(before, reference["target"])
+stability = psi_table(before, after)
+print(evidence[["event", "non_event", "woe", "iv"]])
+print(stability["psi"].sum())
+```
 
-[![Star History Chart](https://api.star-history.com/svg?repos=kivi-risk/kivi&type=Date)](https://star-history.com/#kivi-risk/kivi&Date)
+文档包含快速开始、指标口径、API 参考和旧版迁移说明。
 
------
+**构建与测试 · Build and test**
 
-> Wechat
+Both the English and Chinese manuals include a quick start, metric definitions, API reference and migration guide.
 
-<center>
-<img src="https://raw.githubusercontent.com/zlai-llm/zlai/master/assets/wechat.jpg" width="160px">
-<h5>微信群</h5>
-</center>
+```bash
+python -m pip install -e '.[docs,test]'
+python -m pytest
+python docs/build.py
+```
 
------
-@2024/03/27
+构建后打开 `docs/_build/html/index.html`。Open `docs/_build/html/index.html` to choose a language. The code is MIT licensed.
+
+源代码采用 MIT 许可证。内置数据的作者、用途和授权见 [数据说明](DATA-LICENSE.txt)。

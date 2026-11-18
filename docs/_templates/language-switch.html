@@ -1,0 +1,5 @@
+{% set chinese = language.startswith("zh") %}
+<a class="nav-link" lang="{{ 'en' if chinese else 'zh-CN' }}"
+   href="{{ pathto('../' ~ ('en' if chinese else 'zh') ~ '/' ~ pagename ~ '.html', 1) }}">
+  {{ 'English' if chinese else '中文' }}
+</a>

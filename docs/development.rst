@@ -1,0 +1,29 @@
+Development and project review
+==============================
+
+Build and verify
+----------------
+
+.. code-block:: bash
+
+   python -m pip install -e '.[test,docs]'
+   python -m pytest
+   python -m sphinx -W -b doctest docs docs/_build/doctest
+   python docs/build.py
+
+The HTML build writes English and simplified Chinese editions under docs/_build/html. API signatures come from the installed package. Keep translations in docs/locale/zh_CN/LC_MESSAGES/kivi.po synchronized with the English source.
+
+Findings from the legacy implementation
+---------------------------------------
+
+* Packaging. The 0.2.8 wheel placed NumPy and pandas behind the all extra. A default installation could import kivi but failed on its dataset and WOE entry points.
+* Dependencies. evaluate/BucketsUtils.py imported PySpark at module load even for pandas PSI. Its standalone CSI function also referenced an undefined self. The new metric functions depend on pandas and NumPy.
+* Numerical results. The old WOE zero-cell logic adjusted one class with an if/elif and used the original totals. The old PSI helper modified the displayed counts. Tests now check raw counts, normalized shares and hand-calculated metrics.
+* State. Model/Tree.py removed the target column from the caller's frame. Dataset generation also reset NumPy's global random state. Future estimators should preserve inputs and take a local random seed.
+* Coverage. Legacy scorecard and WOE tests printed tables without asserting the expected numbers. Use frozen datasets to check fitted boundaries, score direction, special values and row counts before porting these workflows.
+* Project scope. The former source tree mixed modeling, databases, distributed execution, notebooks and deployment configuration. Keep infrastructure-specific imports inside optional integrations and keep business SQL and local configuration outside the distribution.
+
+Migration order
+---------------
+
+Start with a fixed scorecard example. Compare old and new WOE on the same labeled rows, then validate score transformation and model evaluation against stored outputs. Port weighted or supervised binning next when a workflow requires it. Restore Spark and SQL independently after the core inputs and outputs are stable.

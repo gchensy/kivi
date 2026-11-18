@@ -1,0 +1,9 @@
+Bank Marketing (bank.csv)
+S. Moro, P. Rita and P. Cortez (2014), UCI Machine Learning Repository.
+https://doi.org/10.24432/C5K306
+Source: https://archive.ics.uci.edu/dataset/222/bank+marketing
+License: Creative Commons Attribution 4.0 International
+https://creativecommons.org/licenses/by/4.0/
+
+The bundled bank.csv was converted from the legacy Kivi bank.xlsx sample (4,521 rows).
+The loader represents the subscription response y as a binary target.
