@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kivi 0.3.0.dev0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-19 02:54-0800\n"
+"POT-Creation-Date: 2026-11-19 03:14-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -394,6 +394,14 @@ msgid ""
 "large WOE despite representing few customers."
 msgstr "解读总值前先检查每一箱的贡献。只有少量事件的箱也可能有很大的 WOE，但它代表的客户可能很少。"
 
+msgid "Share of customers, subscription rate and WOE for each age bin"
+msgstr "每个年龄箱的客户占比、认购率和 WOE"
+
+msgid ""
+"The same table as a chart: the share of customers and the subscription rate per age bin (top) and"
+" the WOE (bottom). Younger and older customers subscribe more often."
+msgstr "同一张表的图形版本：上图为每个年龄箱的客户占比和认购率，下图为 WOE。年轻和年长的客户认购比例更高。"
+
 msgid "Categorical variables"
 msgstr "类别变量"
 
@@ -415,17 +423,47 @@ msgstr ":doc:`/user_guide/woe_iv` 和 :doc:`/user_guide/psi` 给出计算公式�
 msgid ":doc:`/api` lists every parameter."
 msgstr ":doc:`/api` 列出全部参数。"
 
-msgid "Binning, WOE, IV and PSI for pandas"
-msgstr "基于 pandas 的分箱、WOE、IV 与 PSI"
+msgid "Binning, WOE, IV and PSI for risk modeling"
+msgstr "面向风控建模的分箱、WOE、IV 与 PSI"
 
 msgid ""
-"kivi fits bin edges on a reference sample, measures how well each bin separates a binary target "
-"and tracks how the population shifts over time. Every result is a pandas DataFrame with one row "
-"per bin."
-msgstr "kivi 在基准样本上拟合分箱边界，衡量每一箱对二分类目标的区分能力，并跟踪样本分布随时间的变化。所有结果都是每箱一行的 pandas DataFrame。"
+"kivi is a pandas toolkit for credit risk and financial modeling. It fits bin edges on a "
+"development sample, measures how well each bin separates a binary outcome such as default, and "
+"tracks how the population shifts once a model is live. Every result is a pandas DataFrame with "
+"one row per bin."
+msgstr ""
+"kivi 是面向信用风险与金融建模的 pandas 工具包。它在开发样本上拟合分箱边界，衡量每一箱对违约等二分类结果的区分能力，并在模型上线后跟踪客群分布的变化。所有结果都是每箱一行的 "
+"pandas DataFrame。"
 
 msgid "At a glance"
 msgstr "速览"
+
+msgid "WOE chart for age with the share of customers and the event rate per bin"
+msgstr "age 的 WOE 图，含每箱的客户占比和事件率"
+
+msgid "The WOE chart for ``age``, drawn from ``evidence``."
+msgstr "根据 ``evidence`` 绘制的 ``age`` WOE 图。"
+
+msgid "Built for risk teams"
+msgstr "为风控团队打造"
+
+msgid "Scorecard development"
+msgstr "评分卡开发"
+
+msgid "Fine and coarse classing, special values and monotonic WOE for logistic regression scorecards."
+msgstr "细分箱与粗分箱、特殊值处理，以及用于逻辑回归评分卡的单调 WOE。"
+
+msgid "Variable screening"
+msgstr "变量筛选"
+
+msgid "Rank candidates by IV and catch leaks before they reach the model."
+msgstr "按 IV 给候选变量排序，在信息泄漏进入模型之前发现它。"
+
+msgid "Model monitoring"
+msgstr "模型监控"
+
+msgid "Compare live data with the development sample bin by bin and track PSI over time."
+msgstr "逐箱比较线上数据与开发样本，并按期跟踪 PSI。"
 
 msgid "How it works"
 msgstr "工作流程"
@@ -601,6 +639,12 @@ msgid ""
 "with the reference."
 msgstr "``bin_edges`` 在基准样本上拟合数值分箱边界，并以数组形式返回，供 ``pandas.cut`` 使用。请保存这个数组：与基准样本比较的每个样本都必须使用同一组边界。"
 
+msgid ""
+"In credit scoring, binning is the classing step of scorecard development: a continuous variable "
+"becomes a handful of groups whose WOE can be read, explained to the business and monitored over "
+"time. This page compares the ways to choose the edges."
+msgstr "在信用评分中，分箱是评分卡开发的变量分组环节：连续变量被划分为少数几组，每组的 WOE 都可以解读、向业务解释并持续监控。本页比较选择边界的几种方式。"
+
 msgid "Quantile and uniform edges"
 msgstr "等频与等距边界"
 
@@ -613,6 +657,79 @@ msgid ""
 "Quantile bins hold roughly equal numbers of observations, which suits skewed variables. Uniform "
 "bins keep equal widths, so a long tail can leave some bins nearly empty."
 msgstr "等频分箱中各箱的观测数大致相同，适合偏态变量。等距分箱保持宽度一致，长尾可能让部分箱几乎为空。"
+
+msgid ""
+"Account balances are typical of financial data: most customers hold small amounts and a few hold "
+"very large ones. On the bank data, quantile bins split the reference sample evenly, while uniform"
+" bins put almost everyone into the first bin."
+msgstr "账户余额是典型的金融数据：大多数客户余额不高，少数客户余额极大。在银行数据上，等频分箱把基准样本均匀切开，而等距分箱几乎把所有人都放进第一个箱。"
+
+msgid ""
+"Histogram of account balance with quantile and uniform edges, and the number of customers in each"
+" bin for both methods"
+msgstr "账户余额的直方图及等频、等距边界，以及两种方法下每箱的客户数"
+
+msgid ""
+"Left: the balance distribution, cut at its 99th percentile, with the quantile edges (solid) and "
+"the first uniform edge (dashed). Right: customers per bin. Uniform bins leave the upper bins "
+"almost empty, so their WOE would rest on a handful of customers."
+msgstr "左图：余额分布（截断于第 99 百分位），实线为等频边界，虚线为第一个等距边界。右图：每箱的客户数。等距分箱让高位的箱几乎为空，这些箱的 WOE 只能依赖极少数客户。"
+
+msgid "Custom edges and special values"
+msgstr "自定义边界与特殊值"
+
+msgid ""
+"The edges do not have to come from ``bin_edges``. Any increasing array works with ``pandas.cut`` "
+"and the metric functions, so policy bands and expert edges fit the same workflow. Keep infinite "
+"outer edges so that every future value is covered."
+msgstr ""
+"边界不一定来自 ``bin_edges``。任何递增数组都可以传给 ``pandas.cut`` "
+"和指标函数，因此政策分段和专家边界也能用于同一流程。请保留两端的无穷边界，确保之后的任何取值都有归属。"
+
+#, python-format
+msgid ""
+"Risk data often encode a state as a number, for example -1 for \"never contacted\" or 999 for "
+"\"no record\". In the bank data, 82% of the reference customers have ``pdays == -1``, so quantile"
+" binning collapses the variable into a single bin and its information value is lost. An edge at "
+"-1 gives the code a bin of its own."
+msgstr ""
+"风控数据常用数字编码某种状态，例如用 -1 表示“从未联系”，用 999 表示“无记录”。在银行数据中，82% 的基准样本客户 ``pdays == "
+"-1``，因此等频分箱会把该变量压缩成一个箱，信息值随之丢失。在 -1 处设置边界，可以让这个编码单独成箱。"
+
+msgid "WOE by age band and by days since the previous contact"
+msgstr "按年龄分段和距上次联系天数计算的 WOE"
+
+msgid ""
+"Left: age bands show a U shape, with the youngest and oldest customers more likely to subscribe. "
+"Right: customers contacted in a previous campaign within 200 days stand out once the -1 code has "
+"its own bin."
+msgstr "左图：年龄分段呈 U 形，最年轻和最年长的客户更可能认购。右图：-1 编码单独成箱后，200 天内在上一轮营销中被联系过的客户明显突出。"
+
+msgid "Merging fine bins"
+msgstr "合并细分箱"
+
+msgid ""
+"Scorecard development usually starts from many fine bins and merges neighbours, a step known as "
+"coarse classing, until each bin is large enough to be stable and the WOE follows a trend that can"
+" be explained. Select a subset of the fitted edges to merge bins; keeping the first and last edge"
+" keeps the infinite ends."
+msgstr ""
+"评分卡开发通常先做较多的细分箱，再合并相邻的箱（即粗分箱），直到每箱样本足够稳定，WOE "
+"也呈现可以解释的趋势。从已拟合的边界中选取一部分即可合并分箱；保留第一个和最后一个边界，就保留了两端的无穷边界。"
+
+msgid "WOE of ten fine balance bins next to WOE of three merged bins"
+msgstr "余额 10 个细分箱与合并后 3 个箱的 WOE 对比"
+
+msgid ""
+"Ten fine bins (left) zigzag; three merged bins (right) rise steadily with balance and give up "
+"little information value."
+msgstr "10 个细分箱（左）呈锯齿状；合并后的 3 个箱（右）随余额稳步上升，信息值损失很小。"
+
+msgid ""
+"Version 0.3 does not search for merges automatically. Supervised methods such as ChiMerge, "
+"decision-tree or monotonic binning are planned. Edges produced by any tool can already be passed "
+"to ``pandas.cut`` and the metric functions."
+msgstr "0.3 版不会自动搜索合并方案。ChiMerge、决策树和单调分箱等监督分箱方法已在计划中。任何工具生成的边界现在都可以直接传给 ``pandas.cut`` 和指标函数。"
 
 msgid "Ties and constant values"
 msgstr "重复切点与常量"
@@ -696,9 +813,10 @@ msgstr ""
 "<https://creativecommons.org/licenses/by/4.0/>`_。"
 
 msgid ""
-"Analyze a binary response and track changes in a population with pandas. Use the same bin edges "
-"in development and monitoring so that counts remain comparable."
-msgstr "使用 pandas 分析二分类标签并监测样本分布变化。在开发和监测阶段复用同一套分箱边界，可以直接比较各组计数。"
+"kivi covers the binning and stability steps of credit risk modeling: scorecard development, "
+"variable screening and model monitoring. Use the same bin edges in development and monitoring so "
+"that counts remain comparable."
+msgstr "kivi 覆盖信用风险建模中的分箱和稳定性环节：评分卡开发、变量筛选和模型监控。在开发和监测阶段复用同一套分箱边界，可以直接比较各组计数。"
 
 msgid ""
 "kivi keeps fitting and measuring apart. ``bin_edges`` fits edges on a reference sample, "
@@ -709,10 +827,16 @@ msgstr ""
 "kivi 将拟合与计算分开。``bin_edges`` 在基准样本上拟合边界，``pandas.cut`` 把每个样本划入这些箱，``woe_table`` 和 ``psi_table`` "
 "再汇总得到的分组。指标函数接受任意分组，因此类别标签可以直接传入。"
 
+msgid "Risk modeling workflow"
+msgstr "风控建模流程"
+
 msgid ""
-"Quantile and uniform edges, tied cut points, values outside the reference range and missing "
-"values."
-msgstr "等频与等距边界、重复切点、超出基准范围的值以及缺失值。"
+"An end-to-end example: screen variables by IV, bin the shortlist, encode it with WOE and report "
+"stability."
+msgstr "端到端示例：按 IV 筛选变量，对入选变量分箱，用 WOE 编码，并输出稳定性报告。"
+
+msgid "Quantile, uniform and custom edges, special values, merging fine bins and missing values."
+msgstr "等频、等距与自定义边界，特殊值，合并细分箱以及缺失值。"
 
 msgid "Weight of evidence and information value"
 msgstr "证据权重与信息值"
@@ -764,6 +888,23 @@ msgid ""
 "Their empty cells are smoothed exactly as in :doc:`woe_iv`, so every contribution stays finite."
 msgstr "缺失值单独成组，只在一个样本中出现的类别也会保留。它们的空单元格按 :doc:`woe_iv` 中的方式平滑，因此每一项贡献都是有限值。"
 
+msgid "Stable and shifted samples"
+msgstr "稳定与偏移的样本"
+
+msgid ""
+"Two samples from the same population give a PSI close to zero. When the population changes, the "
+"bins that moved stand out. Below, the current sample is replaced by single customers only, who "
+"are much younger than the reference."
+msgstr "来自同一客群的两个样本，PSI 接近于零。客群发生变化时，发生移动的箱会凸显出来。下面把当前样本换成只包含单身客户的样本，他们比基准样本年轻得多。"
+
+msgid "Reference and current age distributions for a random split and for single customers"
+msgstr "随机切分样本与单身客户样本的基准、当前年龄分布"
+
+msgid ""
+"Left: the remaining customers look like the reference sample. Right: single customers crowd into "
+"the youngest bin, and the youngest and oldest bins contribute most of the PSI."
+msgstr "左图：其余客户与基准样本基本一致。右图：单身客户集中在最年轻的箱，最年轻和最年长的两个箱贡献了大部分 PSI。"
+
 msgid "Reading the result"
 msgstr "解读结果"
 
@@ -796,6 +937,130 @@ msgid ""
 "above 0.25 as a large shift. The thresholds depend on the number of bins and on the smoothing "
 "rule, so recheck them when moving analyses from 0.2.x."
 msgstr "一种常见的经验口径是：PSI 低于 0.1 视为变化较小，0.1 到 0.25 为中等变化，高于 0.25 为显著变化。这些阈值取决于箱数和平滑规则，从 0.2.x 迁移分析时请重新核对。"
+
+msgid "Monitoring over time"
+msgstr "按期监控"
+
+msgid ""
+"In production, PSI is computed for every period against the development sample and compared with "
+"the conventions above. The bank data record the month of the last contact but not the year, so "
+"the months below mix several years; read them as an example of a monitoring report."
+msgstr "在生产环境中，每一期都要相对开发样本计算 PSI，并按上面的经验口径判断。银行数据只记录了最后一次联系的月份而没有年份，因此下面的月份混合了多个年份，请把它看作一份监控报告的示例。"
+
+msgid ""
+"PSI of age for each contact month, with the 0.1 and 0.25 thresholds and the sample size of each "
+"month"
+msgstr "每个联系月份 age 的 PSI，含 0.1 与 0.25 阈值及各月样本量"
+
+msgid ""
+"PSI of age for each contact month against the reference sample, with the number of customers "
+"under each month."
+msgstr "每个联系月份的 age 相对基准样本的 PSI，各月下方标注了客户数。"
+
+msgid ""
+"The months that cross the thresholds are also the smallest. With 20 customers, the December value"
+" mostly reflects sampling noise. Set a minimum sample size before a high PSI raises an alert."
+msgstr "越过阈值的月份恰好也是样本最少的月份。12 月只有 20 位客户，其 PSI 主要反映抽样噪声。在用高 PSI 触发预警之前，应先设定最小样本量。"
+
+msgid ""
+"This example follows the steps of a scorecard project with kivi: screen the candidate variables, "
+"bin the shortlist, encode it with WOE for a model and prepare the stability report used in "
+"monitoring. The bundled data record a marketing response rather than a default, but the steps are"
+" the same for a credit default flag: use the bad flag as ``target``."
+msgstr ""
+"本示例用 kivi 走一遍评分卡项目的主要步骤：筛选候选变量，对入选变量分箱，用 WOE "
+"编码供模型使用，并准备监控所需的稳定性报告。随包数据记录的是营销响应而非违约，但对信用违约标记来说步骤完全相同：把坏样本标记作为 ``target`` 即可。"
+
+msgid "Screen variables by IV"
+msgstr "按 IV 筛选变量"
+
+msgid ""
+"Start with a quick, uniform binning of every candidate: five quantile bins for numeric variables "
+"and the raw labels for categorical ones. The IV of each variable gives a first ranking."
+msgstr "先对每个候选变量做一次快速、统一的分箱：数值变量用 5 个等频箱，类别变量直接使用原始标签。各变量的 IV 给出初步排序。"
+
+msgid ""
+"Information value of every variable in the bank data, sorted, with the 0.02, 0.1 and 0.3 reading "
+"bands"
+msgstr "银行数据中各变量的信息值排序，含 0.02、0.1 和 0.3 的解读区间"
+
+msgid ""
+"IV of every candidate variable with quick binning. The dashed lines mark the 0.02, 0.1 and 0.3 "
+"bands; ``duration`` is cut off at the right edge of the chart."
+msgstr "快速分箱下各候选变量的 IV。虚线标出 0.02、0.1 和 0.3 三个区间；``duration`` 的柱子在图的右边缘被截断。"
+
+msgid "Read the ranking critically before building the shortlist:"
+msgstr "在确定入选名单之前，请审慎地解读这个排序："
+
+msgid ""
+"``duration`` is the length of the last call. It is only known after the call, when the outcome is"
+" largely decided, so its IV of 1.59 is a leak rather than a signal. The dataset's documentation "
+"recommends leaving it out of a realistic model. In credit risk, look for the same pattern in "
+"fields filled in after the decision, such as collection status."
+msgstr ""
+"``duration`` 是最后一次通话的时长。它只有在通话结束后才知道，而那时结果基本已经确定，因此它 1.59 的 IV "
+"是信息泄漏而非有效信号。数据集的说明建议在构建实际可用的模型时排除它。在信用风险中，也要警惕在决策之后才填写的字段，例如催收状态。"
+
+msgid ""
+"``month`` describes when the campaign ran rather than who the customer is, so it is left out as "
+"well."
+msgstr "``month`` 描述的是营销活动开展的时间，而不是客户本身，因此同样排除。"
+
+msgid ""
+"``pdays`` and ``previous`` show an IV of zero only because their tied values collapse into one "
+"quantile bin. Custom edges recover ``pdays``; see :ref:`special values <custom-edges>`."
+msgstr ""
+"``pdays`` 和 ``previous`` 的 IV 为零，只是因为大量重复值使它们被压缩进一个等频箱。自定义边界可以挽回 ``pdays``，见 :ref:`特殊值 <custom-"
+"edges>`。"
+
+msgid "Bin the shortlist"
+msgstr "对入选变量分箱"
+
+msgid ""
+"Each variable on the shortlist gets edges that can be explained: merged balance bins with a "
+"monotonic WOE, a bin of its own for the ``pdays == -1`` code, policy age bands, and the raw "
+"labels of the categorical variables. Keep the binning in one place so that development and "
+"monitoring data are grouped identically."
+msgstr ""
+"每个入选变量都使用可以解释的边界：余额采用合并后 WOE 单调的分箱，``pdays == -1`` "
+"编码单独成箱，年龄采用政策分段，类别变量使用原始标签。把分箱逻辑集中在一处，确保开发数据和监控数据的分组完全一致。"
+
+msgid ""
+"``tables`` holds one ``woe_table`` result per variable. Review each one as a WOE chart (see "
+":doc:`woe_iv`) before moving on. ``pdays`` and ``poutcome`` both describe the previous campaign, "
+"so check how strongly they are correlated before keeping both."
+msgstr ""
+"``tables`` 为每个变量保存一个 ``woe_table`` 结果。继续之前，请逐一以 WOE 图的形式复核（见 :doc:`woe_iv`）。``pdays`` 和 "
+"``poutcome`` 都描述上一轮营销，同时保留之前请先检查二者的相关性。"
+
+msgid "Encode with WOE"
+msgstr "WOE 编码"
+
+msgid ""
+"A logistic regression on WOE values is the classic scorecard model. Replace each group with the "
+"WOE from the development tables:"
+msgstr "基于 WOE 值的逻辑回归是经典的评分卡模型。用开发样本的表把每个分组替换为对应的 WOE："
+
+msgid ""
+"Fit the model with the library of your choice, for example scikit-learn or statsmodels; kivi "
+"depends on neither. A category that never appeared in development maps to a missing value, so "
+"decide on a default, such as a WOE of 0, before scoring new data."
+msgstr ""
+"可以用任意喜欢的库拟合模型，例如 scikit-learn 或 statsmodels；kivi "
+"不依赖其中任何一个。开发样本中从未出现的类别会映射为缺失值，因此在对新数据评分之前，请先确定默认值，例如 WOE 取 0。"
+
+msgid "Report stability"
+msgstr "稳定性报告"
+
+msgid ""
+"Group the monitoring sample with the same function and compare each variable with its development"
+" distribution. The status column applies the PSI conventions from :doc:`psi`."
+msgstr "用同一个函数对监控样本分组，并把每个变量与其开发样本分布比较。status 列采用 :doc:`psi` 中的 PSI 经验口径。"
+
+msgid ""
+"Every variable is stable here, as expected when the monitoring rows come from the same "
+"population. :doc:`psi` shows what a shift looks like and how to track PSI period by period."
+msgstr "这里所有变量都是稳定的，监控数据与开发数据来自同一客群时理应如此。:doc:`psi` 展示了偏移的样子以及如何按期跟踪 PSI。"
 
 msgid ""
 "``woe_table`` measures how each group separates a binary target. An event is target 1 and a non-"
@@ -892,4 +1157,33 @@ msgid ""
 msgstr ""
 "一种广泛使用的经验口径是：IV 低于 0.02 视为无预测力，0.02 到 0.1 为弱，0.1 到 0.3 为中等，高于 0.3 为强。这些区间只是参考起点，而非检验标准；IV "
 "过高往往意味着目标信息泄漏到了该变量中。"
+
+msgid "Charting WOE"
+msgstr "绘制 WOE 图"
+
+msgid ""
+"A WOE chart is the usual way to review a variable with the business: the share of customers and "
+"the event rate of each group on top, the WOE below. Categorical variables read best when sorted "
+"by WOE."
+msgstr "WOE 图是与业务方一起评审变量的常用方式：上图为每组的客户占比和事件率，下图为 WOE。类别变量按 WOE 排序后最易阅读。"
+
+msgid "Share of customers, subscription rate and WOE for each job"
+msgstr "每种职业的客户占比、认购率和 WOE"
+
+#, python-format
+msgid ""
+"WOE by job. Students and retired customers subscribe far more often than blue-collar workers, but"
+" students are only 2% of the sample, so their WOE rests on few customers."
+msgstr "按职业的 WOE。学生和退休客户的认购率远高于蓝领工人，但学生只占样本的 2%，其 WOE 依赖的客户很少。"
+
+msgid "Plotting code"
+msgstr "绘图代码"
+
+msgid ""
+"The documentation draws its WOE charts with this matplotlib function. It takes a ``woe_table`` "
+"result."
+msgstr "本文档用下面这个 matplotlib 函数绘制 WOE 图，它接收 ``woe_table`` 的结果。"
+
+msgid "To compare many variables at once, rank them by IV; see :doc:`risk_workflow`."
+msgstr "要同时比较多个变量，可以按 IV 排序，见 :doc:`risk_workflow`。"
 

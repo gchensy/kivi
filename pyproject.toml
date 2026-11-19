@@ -5,13 +5,13 @@ build-backend = "hatchling.build"
 [project]
 name = "kivi"
 version = "0.3.0"
-description = "Binning, weight of evidence and population stability for tabular models"
+description = "Binning, WOE, IV and PSI for credit risk modeling with pandas"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 license-files = ["LICENSE", "DATA-LICENSE.txt"]
 authors = [{name = "Chensy"}]
-keywords = ["binning", "weight of evidence", "woe", "information value", "psi", "population stability", "credit scoring", "pandas"]
+keywords = ["credit risk", "risk management", "scorecard", "credit scoring", "binning", "weight of evidence", "woe", "information value", "psi", "population stability", "model monitoring", "pandas"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Financial and Insurance Industry",
@@ -31,7 +31,7 @@ Issues = "https://github.com/gchensy/kivi/issues"
 
 [project.optional-dependencies]
 test = ["pytest>=8"]
-docs = ["sphinx>=7.2", "pydata-sphinx-theme>=0.15", "numpydoc>=1.7", "sphinx-design>=0.6", "sphinx-copybutton>=0.5"]
+docs = ["sphinx>=7.2", "pydata-sphinx-theme>=0.15", "numpydoc>=1.7", "sphinx-design>=0.6", "sphinx-copybutton>=0.5", "matplotlib>=3.7"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/kivi"]

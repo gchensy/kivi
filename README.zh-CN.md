@@ -4,10 +4,10 @@
 
 # kivi
 
-**基于 pandas 的分箱、WOE、IV 与 PSI**
+**面向金融风控建模的分箱、WOE、IV 与 PSI**
 
-拟合一次分箱边界，看清每一箱对二分类目标的区分能力，<br>
-并持续监测样本分布的漂移——结果都是普通的 pandas DataFrame。
+服务于评分卡开发、变量筛选和模型监控的 pandas 工具包：<br>
+拟合一次分箱边界，看清每一箱区分好坏客户的能力，并及时发现客群漂移。
 
 [![PyPI](https://img.shields.io/pypi/v/kivi?logo=pypi&logoColor=white&color=2f5bd3)](https://pypi.org/project/kivi/)
 [![Downloads](https://img.shields.io/pypi/dm/kivi?color=0b7a70)](https://pypi.org/project/kivi/)
@@ -32,12 +32,34 @@
 
 ## ✨ 特性
 
+- 🏦 **为风控团队打造。** 覆盖信用评分卡及其他风控模型中的分箱、变量筛选和监控环节，并提供特殊值、粗分箱和信息泄漏检查的示例。
 - 📐 **一次拟合，处处复用。** `bin_edges` 在基准样本上学习等频或等距边界，两端延伸至无穷，之后的任何取值都能落入某个箱。
 - 🔍 **结果透明。** `woe_table` 和 `psi_table` 返回每箱的原始计数、平滑后的占比和单箱贡献，而不只是一个总数。
 - 🧩 **不悄悄丢数据。** 缺失值、只在一个样本中出现的类别，都会单独成组。
 - 🧊 **平滑口径清楚。** 空单元格先按 `smoothing`（默认 0.5）替换再归一化，结果中的计数始终是实际观测数。
 - 🐼 **只依赖 pandas 和 NumPy。** 核心不依赖 Spark 和数据库驱动，也不修改全局随机状态。
 - 🌏 **中英双语文档，示例全部经过测试。** 两种语言文档中的每个示例都会在 CI 中运行。
+
+## 📊 图表示例
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <a href="https://gchensy.github.io/kivi/zh/user_guide/woe_iv.html#charting-woe"><img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/readme-woe.svg" alt="age 的 WOE 图"></a>
+      <br><b>WOE 图</b>：每箱的客户占比、事件率与 WOE。
+    </td>
+    <td width="50%" valign="top">
+      <a href="https://gchensy.github.io/kivi/zh/user_guide/risk_workflow.html"><img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/readme-iv.svg" alt="按信息值排序的变量"></a>
+      <br><b>变量筛选</b>：按 IV 排序并标出常用的解读区间；<code>duration</code> 存在信息泄漏。
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" valign="top">
+      <a href="https://gchensy.github.io/kivi/zh/user_guide/psi.html#monitoring-over-time"><img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/readme-psi.svg" alt="按月的 PSI 与阈值"></a>
+      <br><b>模型监控</b>：各期相对开发样本的 PSI，附 0.1 与 0.25 阈值及样本量。
+    </td>
+  </tr>
+</table>
 
 ## 🧭 工作流程
 
@@ -119,8 +141,9 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 
 - ✅ 基于 pandas 核心的等频与等距分箱、WOE、IV 和 PSI
 - ✅ 中英文文档，示例经过测试
+- ✅ 带图表的风控示例：特殊值、粗分箱、IV 筛选、PSI 监控
+- 🔜 监督分箱（ChiMerge、决策树、单调分箱）与加权统计
 - 🔜 评分卡流程，在固定参考样本上完成结果核对
-- 🔜 加权分箱与监督分箱
 - 🔜 Spark 与 SQL 作为可选集成
 
 ## 🤝 参与贡献
