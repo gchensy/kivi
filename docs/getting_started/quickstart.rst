@@ -95,6 +95,6 @@ PSI = 0.0024
 Next steps
 ----------
 
-* :doc:`/user_guide/binning` explains quantile and uniform edges, ties and missing values.
+* :doc:`/user_guide/binning` explains quantile, uniform and supervised edges, ties and missing values.
 * :doc:`/user_guide/woe_iv` and :doc:`/user_guide/psi` give the formulas and the smoothing rule.
 * :doc:`/api` lists every parameter.

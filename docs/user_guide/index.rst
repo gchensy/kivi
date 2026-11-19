@@ -18,7 +18,7 @@ kivi keeps fitting and measuring apart. ``bin_edges`` fits edges on a reference 
       :link: binning
       :link-type: doc
 
-      Quantile, uniform and custom edges, special values, merging fine bins and missing values.
+      Quantile, uniform and custom edges, special values, merging fine bins, supervised binning and missing values.
 
    .. grid-item-card:: Weight of evidence and information value
       :link: woe_iv

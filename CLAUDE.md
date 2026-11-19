@@ -17,11 +17,11 @@ No linter or formatter is configured. An editable install resolves to the checko
 
 ## Architecture
 
-`src/kivi` (src layout, hatchling) is the 0.3 rebuild of the legacy 0.2.x library, reduced to a small NumPy/pandas core. There are no top-level re-exports: the public API is imported from submodules, and `docs/api.rst` lists exactly the four public entry points.
+`src/kivi` (src layout, hatchling) is the 0.3 rebuild of the legacy 0.2.x library, reduced to a small NumPy/pandas core. There are no top-level re-exports: the public API is imported from submodules, and `docs/api.rst` lists every public entry point.
 
 Fitting edges and grouping are deliberately separate steps:
 
-1. `kivi.binning.bin_edges(values, bins, method)` fits edges on the reference sample only. Interior duplicate edges are collapsed and the endpoints are always `-inf`/`+inf`, so future out-of-range values still land in a bin (a constant reference yields one bin).
+1. `kivi.binning.bin_edges(values, bins, method)` fits edges on the reference sample only. Interior duplicate edges are collapsed and the endpoints are always `-inf`/`+inf`, so future out-of-range values still land in a bin (a constant reference yields one bin). The supervised `chimerge_edges`, `tree_edges` and `monotonic_edges(values, target, ...)` in the same module return edges of the same form. ChiMerge and monotonic binning start from `initial_bins` quantile bins (one bin per distinct value when there are no more distinct values than that) and merge adjacent pairs; the ChiMerge p-value uses `math.erfc` (one degree of freedom), so there is no scipy dependency. `monotonic_edges` checks the trend with `_counts.shares`, so `woe_table` with the same `smoothing` sees the same monotonic WOE. `tree_edges` grows best first and its interior edges are observed values; it matches scikit-learn's `DecisionTreeClassifier(max_leaf_nodes=max_bins, min_samples_leaf=min_bin_share)` splits, which is a useful cross-check but not a dependency.
 2. The caller applies `pd.cut(series, edges)` with the same edges to every sample. Categorical variables skip steps 1–2 and are passed as-is.
 3. `kivi.woe.woe_table(groups, target)` and `kivi.evaluate.psi_table(reference, current)` take already-grouped series and return one row per group. Totals are the caller's `.sum()` of the `iv` / `psi` column.
 
@@ -56,5 +56,5 @@ From `docs/development/legacy_review.rst` and `docs/release/migration.rst`:
 
 - The core depends only on NumPy and pandas. Infrastructure-specific code (Spark, SQL, etc.) belongs in optional integrations and must not be imported at module load.
 - Functions must not mutate caller inputs; anything random takes a local seed instead of touching NumPy's global state.
-- Weighted/supervised binning, scorecards, Spark, SQL, AHP, feature selection and model wrappers exist only in git history before commit 740ea6c. When porting one, validate against fixed reference samples first.
+- Weighted binning, scorecards, Spark, SQL, AHP, feature selection and model wrappers exist only in git history before commit 740ea6c. When porting one, validate against fixed reference samples first. Supervised binning was re-implemented rather than ported; `docs/release/migration.rst` lists how it differs from the legacy `Chi2Bins` and `TreeBins`.
 - Tests assert raw counts, normalized shares and hand-calculated metric values (the legacy tests only printed tables) — follow that pattern.

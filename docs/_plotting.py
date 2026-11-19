@@ -9,20 +9,22 @@ that the same images serve the English and Chinese editions.
 """
 
 from pathlib import Path
+from statistics import NormalDist
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from cycler import cycler
-from matplotlib.ticker import PercentFormatter
+from matplotlib.ticker import FixedLocator, FuncFormatter, PercentFormatter
 
-from kivi.binning import bin_edges
+from kivi.binning import bin_edges, chimerge_edges, monotonic_edges, tree_edges
 from kivi.datasets import Dataset
 from kivi.evaluate import psi_table
 from kivi.woe import woe_table
 
 BLUE = "#2f5bd3"
 LIGHT_BLUE = "#9fb4ee"
+LIGHT_TEAL = "#a7e0da"
 TEAL = "#14a397"
 AMBER = "#d97706"
 RED = "#dc2626"
@@ -116,18 +118,149 @@ def woe_chart(table: pd.DataFrame, title: str = ""):
     return fig
 
 
+def _woe_bars(ax, table: pd.DataFrame, title: str = "") -> None:
+    x = np.arange(len(table))
+    colors = [BLUE if value >= 0 else TEAL for value in table["woe"]]
+    ax.bar(x, table["woe"], color=colors, width=0.65)
+    ax.axhline(0, color=GRAY, linewidth=1)
+    _bar_values(ax, x, table["woe"])
+    ax.set_xticks(x, _labels(table.index), rotation=35, ha="right", fontsize=8.5)
+    ax.set_title(f"{title}    IV = {table['iv'].sum():.3f}".strip(), fontsize=10)
+    ax.set_ylabel("woe")
+
+
 def woe_panels(tables: dict[str, pd.DataFrame], height: float = 3.2):
     """WOE bars for several groupings side by side, one panel per table."""
     fig, axes = plt.subplots(1, len(tables), figsize=(8, height), squeeze=False)
     for ax, (title, table) in zip(axes[0], tables.items()):
-        x = np.arange(len(table))
-        colors = [BLUE if value >= 0 else TEAL for value in table["woe"]]
-        ax.bar(x, table["woe"], color=colors, width=0.65)
-        ax.axhline(0, color=GRAY, linewidth=1)
-        _bar_values(ax, x, table["woe"])
-        ax.set_xticks(x, _labels(table.index), rotation=35, ha="right", fontsize=8.5)
-        ax.set_title(f"{title}    IV = {table['iv'].sum():.3f}", fontsize=10)
-        ax.set_ylabel("woe")
+        _woe_bars(ax, table, title)
+    fig.tight_layout()
+    return fig
+
+
+def _method_axes():
+    return plt.subplots(1, 2, figsize=(8, 3.5), gridspec_kw={"width_ratios": [1.25, 1]})
+
+
+def _grouped_woe(values: pd.Series, target: pd.Series, edges: np.ndarray) -> pd.DataFrame:
+    return woe_table(pd.cut(values, edges), target).sort_index()
+
+
+def _pair_chi2(table: pd.DataFrame) -> np.ndarray:
+    """Chi-square of each adjacent pair of rows in a WOE table, from the 2x2 formula."""
+    a, b = table["non_event"].to_numpy()[:-1], table["event"].to_numpy()[:-1]
+    c, d = table["non_event"].to_numpy()[1:], table["event"].to_numpy()[1:]
+    n = a + b + c + d
+    return n * (a * d - b * c) ** 2 / ((a + b) * (c + d) * (a + c) * (b + d))
+
+
+def chimerge_path(values: pd.Series, target: pd.Series, max_bins: int = 5, alpha: float = 0.05,
+                  initial_bins: int = 20):
+    """Smallest adjacent chi-square as ChiMerge merges (left) and the resulting WOE (right)."""
+    start = len(chimerge_edges(values, target, max_bins=initial_bins, alpha=None,
+                               initial_bins=initial_bins)) - 1
+    bins = np.arange(start, 1, -1)
+    smallest = [_pair_chi2(_grouped_woe(values, target, chimerge_edges(
+        values, target, max_bins=k, alpha=None, initial_bins=initial_bins))).min() for k in bins]
+    edges = chimerge_edges(values, target, max_bins=max_bins, alpha=alpha, initial_bins=initial_bins)
+    chosen = len(edges) - 1
+    critical = NormalDist().inv_cdf(1 - alpha / 2) ** 2
+    fig, (left, right) = _method_axes()
+    left.plot(bins, smallest, color=BLUE, marker="o", markersize=4, linewidth=1.6)
+    left.axhline(critical, color=AMBER, linestyle="--", linewidth=1.2, label=f"alpha = {alpha:g}")
+    left.axvline(max_bins, color=GRAY, linestyle=":", linewidth=1.4, label=f"max_bins = {max_bins}")
+    stop = smallest[list(bins).index(chosen)]
+    left.plot([chosen], [stop], marker="o", markersize=9, color=RED, zorder=3)
+    left.annotate(f"{chosen}", (chosen, stop), xytext=(8, -4), textcoords="offset points",
+                  color=RED, fontsize=9, fontweight="bold")
+    left.text(1.005, critical, f"{critical:.2f}", transform=left.get_yaxis_transform(),
+              va="center", fontsize=8.5, color=AMBER)
+    left.set_yscale("symlog", linthresh=1)
+    left.yaxis.set_major_locator(FixedLocator([0, 0.5, 1, 2, 5, 10, 20]))
+    left.yaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:g}"))
+    left.yaxis.set_minor_locator(FixedLocator([]))
+    left.set_ylim(0, max(smallest) * 1.3)
+    left.set_xlim(start + 0.5, 1.5)
+    left.set_xticks([k for k in bins if k % 3 == 0 or k in (chosen, max_bins)])
+    left.set_xlabel("bins")
+    left.set_ylabel(r"$\chi^2$")
+    left.legend(loc="upper left")
+    _woe_bars(right, _grouped_woe(values, target, edges))
+    fig.tight_layout()
+    return fig
+
+
+def _cumulative_share(values: pd.Series, points) -> np.ndarray:
+    observed = np.sort(values.dropna().to_numpy(dtype=float))
+    return np.searchsorted(observed, points, side="right") / len(observed)
+
+
+def tree_splits(values: pd.Series, target: pd.Series, max_bins: int = 5, min_bin_share: float = 0.05):
+    """Information gain of every first cut (left) and the WOE of the tree's bins (right)."""
+    frame = pd.DataFrame({"value": values, "event": target}).dropna()
+    counts = frame.groupby("value")["event"].agg(["size", "sum"])
+    n, events = counts["size"].cumsum().to_numpy()[:-1], counts["sum"].cumsum().to_numpy()[:-1]
+    total, total_events = len(frame), frame["event"].sum()
+
+    def entropy(rate):
+        with np.errstate(divide="ignore", invalid="ignore"):
+            return np.nan_to_num(-(rate * np.log(rate) + (1 - rate) * np.log(1 - rate)))
+
+    gain = (entropy(total_events / total) - n / total * entropy(events / n)
+            - (total - n) / total * entropy((total_events - events) / (total - n)))
+    share = n / total
+    edges = tree_edges(values, target, max_bins=max_bins, min_bin_share=min_bin_share)
+    order = {}
+    for k in range(2, len(edges)):
+        for edge in tree_edges(values, target, max_bins=k, min_bin_share=min_bin_share)[1:-1]:
+            order.setdefault(edge, len(order) + 1)
+    fig, (left, right) = _method_axes()
+    left.plot(share, gain, color=BLUE, linewidth=1.4)
+    for low, high in ((0, min_bin_share), (1 - min_bin_share, 1)):
+        left.axvspan(low, high, color=GRID, zorder=0)
+    left.fill_between([], [], color=GRID, label=f"min_bin_share = {min_bin_share:g}")
+    top = gain.max() * 1.3
+    for edge, rank in order.items():
+        x = _cumulative_share(values, [edge])[0]
+        right_side = x < 0.75
+        left.axvline(x, color=AMBER, linewidth=1.2, linestyle="--")
+        left.annotate(f"#{rank}  {edge:g}", (x, top * (0.97 - 0.09 * (rank - 1))),
+                      xytext=(4 if right_side else -4, 0), textcoords="offset points",
+                      ha="left" if right_side else "right", va="top", fontsize=8.5, color=TEXT,
+                      bbox={"boxstyle": "square,pad=0.1", "facecolor": "white", "edgecolor": "none"})
+    left.set_ylim(0, top)
+    left.set_xlim(0, 1)
+    left.xaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+    left.set_xlabel(f"quantile ({values.name})")
+    left.set_ylabel(r"$\Delta$ entropy")
+    left.legend(loc="lower center", bbox_to_anchor=(0.5, 1.0), borderaxespad=0.2)
+    _woe_bars(right, _grouped_woe(values, target, edges))
+    fig.tight_layout()
+    return fig
+
+
+def monotonic_pooling(values: pd.Series, target: pd.Series, max_bins: int = 5, initial_bins: int = 20):
+    """Fine-bin WOE with the pooled monotonic WOE (left) and the final bins (right)."""
+    fine = _grouped_woe(values, target, bin_edges(values, bins=initial_bins))
+    pooled_edges = monotonic_edges(values, target, max_bins=None, initial_bins=initial_bins)
+    pooled = _grouped_woe(values, target, pooled_edges)
+    fig, (left, right) = _method_axes()
+    widths = (fine["event"] + fine["non_event"]) / len(values.dropna())
+    starts = np.r_[0, widths.cumsum().to_numpy()[:-1]]
+    colors = [LIGHT_BLUE if value >= 0 else LIGHT_TEAL for value in fine["woe"]]
+    left.bar(starts, fine["woe"], width=widths, align="edge", color=colors, edgecolor="white",
+             linewidth=0.6, label=f"initial_bins = {initial_bins}")
+    bounds = _cumulative_share(values, pooled_edges[1:-1])
+    left.stairs(pooled["woe"], np.r_[0, bounds, 1], color=BLUE, linewidth=2.2,
+                baseline=None, label="max_bins = None")
+    left.axhline(0, color=GRAY, linewidth=1)
+    left.set_xlim(0, 1)
+    left.xaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+    left.set_xlabel(f"quantile ({values.name})")
+    left.set_ylabel("woe")
+    left.legend(loc="upper left")
+    edges = monotonic_edges(values, target, max_bins=max_bins, initial_bins=initial_bins)
+    _woe_bars(right, _grouped_woe(values, target, edges), f"max_bins = {max_bins}")
     fig.tight_layout()
     return fig
 
@@ -254,6 +387,21 @@ def figure_coarse_classing():
         "bins=10": woe_table(pd.cut(reference["balance"], fine), reference["target"]).sort_index(),
         "fine[[0, 3, 7, 10]]": woe_table(pd.cut(reference["balance"], coarse), reference["target"]).sort_index(),
     }, height=3.6)
+
+
+def figure_chimerge():
+    _, reference, _ = _samples()
+    return chimerge_path(reference["balance"], reference["target"])
+
+
+def figure_tree():
+    _, reference, _ = _samples()
+    return tree_splits(reference["balance"], reference["target"])
+
+
+def figure_monotonic():
+    _, reference, _ = _samples()
+    return monotonic_pooling(reference["balance"], reference["target"])
 
 
 def figure_woe_job():

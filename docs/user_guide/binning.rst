@@ -102,9 +102,144 @@ IV 0.123 -> 0.115
 
    kp.figure_coarse_classing()
 
-.. note::
+Choosing the merges by hand works for a few variables. The supervised methods in the next section search for them automatically, and two of them start from fine quantile bins in the same way.
 
-   Version 0.3 does not search for merges automatically. Supervised methods such as ChiMerge, decision-tree or monotonic binning are planned. Edges produced by any tool can already be passed to ``pandas.cut`` and the metric functions.
+.. _supervised-binning:
+
+Supervised binning
+------------------
+
+Quantile and uniform edges ignore the target. The supervised methods use it to place edges between customers with different event rates, which is what the WOE of each bin measures. They take the values and a 0/1 target on the same index, omit missing values while fitting, and return edges in the same form as ``bin_edges``: increasing, with infinite outer edges, ready for ``pandas.cut``, ``woe_table`` and ``psi_table``. Each returns at most ``max_bins`` bins, 5 by default.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 50 25
+
+   * - Function
+     - How it fits the edges
+     - Main options
+   * - ``chimerge_edges``
+     - Merges adjacent fine bins whose event rates do not differ significantly.
+     - ``max_bins``, ``alpha``
+   * - ``tree_edges``
+     - Splits the values where a decision tree gains the most purity.
+     - ``max_bins``, ``min_bin_share``, ``criterion``
+   * - ``monotonic_edges``
+     - Merges adjacent fine bins until the WOE rises or falls steadily.
+     - ``max_bins``, ``direction``
+
+As with ``bin_edges``, fit the edges on the reference sample only and apply the saved array to every other sample.
+
+ChiMerge
+^^^^^^^^
+
+``chimerge_edges`` starts from fine quantile bins, 20 by default, and repeatedly merges the adjacent pair whose event rates are most alike, the pair with the smallest chi-square statistic. Merging continues while more than ``max_bins`` bins remain or while some adjacent pair does not differ significantly at level ``alpha``.
+
+>>> from kivi.binning import chimerge_edges, monotonic_edges, tree_edges
+>>> target = reference["target"]
+>>> chi_edges = chimerge_edges(balance, target)
+>>> chi_edges
+array([  -inf,  68.75, 895.7 ,    inf])
+>>> by_chi = woe_table(pd.cut(balance, chi_edges), target).sort_index()
+>>> by_chi[["event", "non_event", "woe"]].round(3)
+                event  non_event    woe
+bin
+(-inf, 68.75]      51        699 -0.587
+(68.75, 895.7]    131       1069 -0.068
+(895.7, inf]      166        884  0.358
+>>> print(f"IV = {by_chi['iv'].sum():.3f}")
+IV = 0.122
+
+Five bins were allowed, but with five and with four bins some adjacent pair still had a chi-square below 3.84, the critical value at ``alpha=0.05``, so merging went on to three bins. Pass ``alpha=None`` to merge down to ``max_bins`` only, or a larger ``alpha`` to keep more bins.
+
+.. plot::
+   :alt: Smallest chi-square between adjacent balance bins as ChiMerge merges them, and the WOE of the three final bins
+   :caption: Left: the smallest chi-square between adjacent bins as the fine bins are merged, read from left to right. Merging stops at the first count no larger than max_bins at which every pair lies above the alpha line. Right: the WOE of the final bins rises with balance.
+
+   kp.figure_chimerge()
+
+Decision tree
+^^^^^^^^^^^^^
+
+``tree_edges`` grows a decision tree on the one variable. Each split cuts a bin at the value that most reduces the impurity of the target, measured by entropy (the default) or by the Gini index with ``criterion="gini"``. The bin whose best split gains the most is split next, until there are ``max_bins`` bins or no allowed split reduces the impurity. ``min_bin_share`` keeps every bin above a share of the observations, 5% by default, so that its WOE rests on enough customers. The interior edges are observed values.
+
+>>> tree = tree_edges(balance, target)
+>>> tree
+array([ -inf,   99.,  888., 3276., 6046.,   inf])
+>>> by_tree = woe_table(pd.cut(balance, tree), target).sort_index()
+>>> by_tree[["event", "non_event", "woe"]].round(3)
+                  event  non_event    woe
+bin
+(-inf, 99.0]         56        767 -0.586
+(99.0, 888.0]       123        996 -0.061
+(888.0, 3276.0]     106        587  0.319
+(3276.0, 6046.0]     47        168  0.757
+(6046.0, inf]        16        134 -0.094
+>>> print(f"IV = {by_tree['iv'].sum():.3f}")
+IV = 0.158
+
+The tree separates the classes best, but it does not look for a trend: customers above 6,046 subscribe less often than those just below them. A scorecard needs a WOE pattern that can be explained, so check the trend of tree bins before using them, and merge bins where it breaks.
+
+.. plot::
+   :alt: Entropy reduction of every possible first cut of balance, and the WOE of the five tree bins
+   :caption: Left: the entropy reduction of every possible first cut. Cuts in the shaded areas would leave less than min_bin_share of the customers in a bin. The dashed lines are the tree's cuts, numbered in the order they were made. Right: the WOE of the five bins rises, then falls in the top bin.
+
+   kp.figure_tree()
+
+Monotonic binning
+^^^^^^^^^^^^^^^^^
+
+``monotonic_edges`` also starts from fine quantile bins. Whenever two adjacent bins break the trend, it merges them and recomputes the WOE (pool adjacent violators), so the WOE of the final bins is strictly increasing or strictly decreasing. If more than ``max_bins`` bins remain, it then merges the most similar adjacent pairs by chi-square. ``direction="auto"`` tries both trends and keeps the one with the larger information value; pass ``"increasing"`` or ``"decreasing"`` to impose the trend that the business expects.
+
+>>> mono = monotonic_edges(balance, target)
+>>> mono
+array([   -inf,   68.75,  125.7 ,  895.7 , 1136.6 ,     inf])
+>>> by_trend = woe_table(pd.cut(balance, mono), target).sort_index()
+>>> by_trend["woe"].round(3).tolist()
+[-0.587, -0.243, -0.045, 0.27, 0.373]
+>>> bool(by_trend["woe"].is_monotonic_increasing)
+True
+>>> print(f"IV = {by_trend['iv'].sum():.3f}")
+IV = 0.124
+
+The trend is checked with the same smoothing as ``woe_table``, so the WOE that ``woe_table`` reports for these bins is monotonic as well, even when a bin has no events.
+
+.. plot::
+   :alt: WOE of the fine balance bins with the pooled monotonic WOE, and the WOE of the five final bins
+   :caption: Left: the WOE of the fine quantile bins zigzags; pooling adjacent violators turns it into a rising step (max_bins=None). Right: merged further to max_bins=5, the WOE still rises with balance.
+
+   kp.figure_monotonic()
+
+Comparing the methods
+^^^^^^^^^^^^^^^^^^^^^
+
+Supervised edges are chosen to separate the sample they are fitted on, so the information value on that sample is optimistic. Compare the methods on a later sample as well, keeping the edges fixed.
+
+>>> current = data.iloc[3000:]
+>>> fitted = {
+...     "bin_edges": bin_edges(balance, bins=5),
+...     "chimerge_edges": chi_edges,
+...     "tree_edges": tree,
+...     "monotonic_edges": mono,
+... }
+>>> def information_value(sample, edges):
+...     groups = pd.cut(sample["balance"], edges)
+...     return woe_table(groups, sample["target"])["iv"].sum()
+>>> rows = {}
+>>> for name, edges in fitted.items():
+...     rows[name] = {
+...         "bins": len(edges) - 1,
+...         "iv_reference": information_value(reference, edges),
+...         "iv_current": information_value(current, edges),
+...     }
+>>> pd.DataFrame.from_dict(rows, orient="index").round(3)
+                 bins  iv_reference  iv_current
+bin_edges           5         0.099       0.084
+chimerge_edges      3         0.122       0.016
+tree_edges          5         0.158       0.065
+monotonic_edges     5         0.124       0.020
+
+On the reference sample all three supervised methods beat five quantile bins. On the later sample they fall behind: much of the extra separation they found in balance was noise, which is common for a weak variable and a few hundred events. Validate supervised edges on a later or held-out sample before adopting them, and keep the variable under PSI monitoring once it is in use.
 
 Ties and constant values
 ------------------------
@@ -152,3 +287,9 @@ Invalid input
 * ``method`` is neither ``"quantile"`` nor ``"uniform"``;
 * the reference values are not numeric;
 * the reference has no observations, or contains an infinite value.
+
+``chimerge_edges``, ``tree_edges`` and ``monotonic_edges`` raise ``ValueError`` for the same problems with the values, for an option outside its range, and when:
+
+* ``values`` and ``target`` do not have identical indices;
+* ``target`` contains a label other than 0 and 1, or a missing label;
+* the observed values do not cover both classes.
