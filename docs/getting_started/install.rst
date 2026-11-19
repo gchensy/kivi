@@ -5,6 +5,14 @@ kivi requires Python 3.10 or newer, NumPy 1.24 or newer and pandas 2.0 or newer.
 
 .. tab-set::
 
+   .. tab-item:: PyPI
+
+      Install the latest release:
+
+      .. code-block:: bash
+
+         python -m pip install kivi
+
    .. tab-item:: GitHub
 
       Install the development version directly from the repository:

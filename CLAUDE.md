@@ -47,7 +47,7 @@ Output columns: `woe_table` → `non_event, event, non_event_share, event_share,
 
 ## Releasing
 
-`.github/workflows/release.yml` publishes to PyPI with trusted publishing (GitHub environment `pypi`, no stored token) when a GitHub release is published. The release tag must be `v` plus the exact `version` in `pyproject.toml` (e.g. `v0.3.0`) or the build job fails before anything is uploaded; it also runs pytest and `twine check --strict` (which renders `README.md`). PyPI still serves the legacy 0.2.8 with a different API, which is why both READMEs install from GitHub; switch them to `pip install kivi` (and consider a PyPI badge) after the first 0.3 release.
+`.github/workflows/release.yml` publishes to PyPI with trusted publishing (GitHub environment `pypi`, no stored token) when a GitHub release is published. The release tag must be `v` plus the exact `version` in `pyproject.toml` (e.g. `v0.3.0`) or the build job fails before anything is uploaded; it also runs pytest and `twine check --strict` (which renders `README.md`). To release: bump `version`, date the entry in `docs/release/index.rst` (and translate it), merge to master, then publish a GitHub release tagged `v<version>`.
 
 ## Scope and design constraints
 

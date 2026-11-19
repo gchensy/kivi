@@ -1,8 +1,8 @@
 Release notes
 =============
 
-0.3.0 (in development)
-----------------------
+0.3.0 (2026-11-19)
+------------------
 
 A rewrite around a small pandas core. Read :doc:`migration` before upgrading code written for 0.2.x.
 

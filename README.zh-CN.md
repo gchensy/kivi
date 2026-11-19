@@ -9,6 +9,8 @@
 拟合一次分箱边界，看清每一箱对二分类目标的区分能力，<br>
 并持续监测样本分布的漂移——结果都是普通的 pandas DataFrame。
 
+[![PyPI](https://img.shields.io/pypi/v/kivi?logo=pypi&logoColor=white&color=2f5bd3)](https://pypi.org/project/kivi/)
+[![Downloads](https://img.shields.io/pypi/dm/kivi?color=0b7a70)](https://pypi.org/project/kivi/)
 [![Documentation](https://github.com/gchensy/kivi/actions/workflows/docs.yml/badge.svg)](https://github.com/gchensy/kivi/actions/workflows/docs.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![pandas 2.0+](https://img.shields.io/badge/pandas-2.0%2B-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
@@ -46,12 +48,12 @@
 ## 📦 安装
 
 ```bash
-pip install "git+https://github.com/gchensy/kivi"
+pip install kivi
 ```
 
-需要 Python 3.10+、NumPy 1.24+ 和 pandas 2.0+。
+需要 Python 3.10+、NumPy 1.24+ 和 pandas 2.0+。如需最新开发版，可使用 `pip install "git+https://github.com/gchensy/kivi"`。
 
-> **注意：** 目前 `pip install kivi` 安装的是 0.2.8，其 API 与当前版本不同。升级为 0.2.x 编写的代码前，请先阅读[迁移指南](https://gchensy.github.io/kivi/zh/release/migration.html)。
+> **从 0.2.x 升级？** 0.3 的 API 有较大变化，升级已有代码前请先阅读[迁移指南](https://gchensy.github.io/kivi/zh/release/migration.html)。
 
 ## 🚀 快速上手
 

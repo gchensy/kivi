@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "kivi"
-version = "0.3.0.dev0"
+version = "0.3.0"
 description = "Binning, weight of evidence and population stability for tabular models"
 readme = "README.md"
 requires-python = ">=3.10"

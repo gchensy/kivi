@@ -9,6 +9,8 @@
 Fit bin edges once, see how well every bin separates a binary target,<br>
 and watch your population drift — all as plain pandas DataFrames.
 
+[![PyPI](https://img.shields.io/pypi/v/kivi?logo=pypi&logoColor=white&color=2f5bd3)](https://pypi.org/project/kivi/)
+[![Downloads](https://img.shields.io/pypi/dm/kivi?color=0b7a70)](https://pypi.org/project/kivi/)
 [![Documentation](https://github.com/gchensy/kivi/actions/workflows/docs.yml/badge.svg)](https://github.com/gchensy/kivi/actions/workflows/docs.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![pandas 2.0+](https://img.shields.io/badge/pandas-2.0%2B-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
@@ -46,12 +48,12 @@ and watch your population drift — all as plain pandas DataFrames.
 ## 📦 Installation
 
 ```bash
-pip install "git+https://github.com/gchensy/kivi"
+pip install kivi
 ```
 
-Requires Python 3.10+, NumPy 1.24+ and pandas 2.0+.
+Requires Python 3.10+, NumPy 1.24+ and pandas 2.0+. For the latest development version, use `pip install "git+https://github.com/gchensy/kivi"`.
 
-> **Note:** `pip install kivi` currently installs 0.2.8, which has a different API. Read the [migration guide](https://gchensy.github.io/kivi/en/release/migration.html) before upgrading code written for 0.2.x.
+> **Upgrading from 0.2.x?** The API changed in 0.3. Read the [migration guide](https://gchensy.github.io/kivi/en/release/migration.html) before upgrading existing code.
 
 ## 🚀 Quickstart
 

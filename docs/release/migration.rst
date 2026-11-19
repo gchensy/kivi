@@ -1,7 +1,7 @@
 Migrating from 0.2.x
 ====================
 
-The development release exposes four public operations. Dataset.bank_data() retains its import path and table schema. The target describes deposit subscription.
+Release 0.3 exposes four public operations. Dataset.bank_data() retains its import path and table schema. The target describes deposit subscription.
 
 .. list-table::
    :header-rows: 1
@@ -33,4 +33,4 @@ For PSI.fit(), form both sets of groups using the same reference edges, then cal
 Not yet ported
 --------------
 
-The development release covers unweighted counts. Keep existing weighted, supervised binning and scorecard workflows on their original version until their outputs have been validated on fixed reference samples. Spark, SQL, AHP, feature selection, model wrappers and application code remain in the historical revisions.
+Release 0.3 covers unweighted counts. Keep existing weighted, supervised binning and scorecard workflows on their original version until their outputs have been validated on fixed reference samples. Spark, SQL, AHP, feature selection, model wrappers and application code remain in the historical revisions.

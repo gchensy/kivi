@@ -22,7 +22,7 @@ Binning, WOE, IV and PSI for pandas
 
 .. code-block:: bash
 
-   python -m pip install "git+https://github.com/gchensy/kivi"
+   python -m pip install kivi
 
 At a glance
 -----------
