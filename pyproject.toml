@@ -11,11 +11,23 @@ requires-python = ">=3.10"
 license = "MIT"
 license-files = ["LICENSE", "DATA-LICENSE.txt"]
 authors = [{name = "Chensy"}]
+keywords = ["binning", "weight of evidence", "woe", "information value", "psi", "population stability", "credit scoring", "pandas"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
 dependencies = ["numpy>=1.24", "pandas>=2.0"]
 
 [project.urls]
 Documentation = "https://gchensy.github.io/kivi/"
 Repository = "https://github.com/gchensy/kivi"
+Changelog = "https://gchensy.github.io/kivi/en/release/index.html"
+Issues = "https://github.com/gchensy/kivi/issues"
 
 [project.optional-dependencies]
 test = ["pytest>=8"]
@@ -25,7 +37,7 @@ docs = ["sphinx>=7.2", "pydata-sphinx-theme>=0.15", "numpydoc>=1.7", "sphinx-des
 packages = ["src/kivi"]
 
 [tool.hatch.build.targets.sdist]
-include = ["/src", "/tests", "/docs", "/README.md", "/LICENSE", "/DATA-LICENSE.txt", "/pyproject.toml"]
+include = ["/src", "/tests", "/docs", "/README.md", "/README.zh-CN.md", "/LICENSE", "/DATA-LICENSE.txt", "/pyproject.toml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

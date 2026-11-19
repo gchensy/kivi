@@ -43,7 +43,11 @@ Output columns: `woe_table` → `non_event, event, non_event_share, event_share,
 - `docs/build.py` deletes and rebuilds `docs/_build/html`: `en/` and `zh/` are separate Sphinx builds (separate search indices), `docs/landing.html` is copied to the root as the language chooser, and `.nojekyll` is added for GitHub Pages. The language switch links to the same page name in the other edition, so both editions must keep identical page names.
 - `conf.py` replaces Sphinx's Chinese search language with a subclass because Sphinx 9.0 emits `window.Stemmer = ChineseStemmer` (undefined), which breaks search on the zh pages. Keep the workaround until Sphinx fixes it.
 - `.github/workflows/docs.yml` runs pytest, the doctests and `docs/build.py` on every push and pull request, and on master force-pushes `docs/_build/html` to the `gh-pages` branch (served at https://gchensy.github.io/kivi/), replacing whatever was there.
-- `README.md` is bilingual (Chinese and English); keep both languages when editing it.
+- `README.md` (English, also the PyPI long description) and `README.zh-CN.md` (Chinese) mirror each other; keep them in sync. Because PyPI cannot resolve relative paths, every image and link in them is an absolute `raw.githubusercontent.com/.../master/` or `github.com/.../blob/master/` URL. The workflow diagrams are `docs/_static/kivi-workflow.svg` and `kivi-workflow.zh-CN.svg`, with dark-mode colors in an embedded `prefers-color-scheme` style. The quickstart output in both READMEs is pasted from a real run; regenerate it if the example or the data changes.
+
+## Releasing
+
+`.github/workflows/release.yml` publishes to PyPI with trusted publishing (GitHub environment `pypi`, no stored token) when a GitHub release is published. The release tag must be `v` plus the exact `version` in `pyproject.toml` (e.g. `v0.3.0`) or the build job fails before anything is uploaded; it also runs pytest and `twine check --strict` (which renders `README.md`). PyPI still serves the legacy 0.2.8 with a different API, which is why both READMEs install from GitHub; switch them to `pip install kivi` (and consider a PyPI badge) after the first 0.3 release.
 
 ## Scope and design constraints
 

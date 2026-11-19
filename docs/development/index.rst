@@ -36,10 +36,23 @@ After changing English text:
 
 Both editions must keep the same page names, because the language switch links each page to its counterpart.
 
-Publishing
-----------
+Publishing the documentation
+----------------------------
 
 The ``Documentation`` workflow on GitHub Actions runs the tests and builds both editions for every pull request. On the master branch it also publishes docs/_build/html to the gh-pages branch, which serves https://gchensy.github.io/kivi/.
+
+Releasing to PyPI
+-----------------
+
+The ``Release`` workflow publishes kivi to PyPI when a GitHub release is published. It uses PyPI trusted publishing, so no API token is stored in the repository.
+
+1. Set ``version`` in ``pyproject.toml`` to the new version, for example ``0.3.0``, and update :doc:`/release/index`.
+2. Merge the change into the master branch.
+3. Publish a GitHub release whose tag is ``v`` followed by the version, for example ``v0.3.0``.
+
+The workflow stops if the tag does not match the version. Otherwise it runs the tests, builds the source distribution and the wheel, checks them with twine and uploads them.
+
+Trusted publishing needs a one-time setup by an owner of the PyPI project: in the project's publishing settings, add a GitHub publisher for the repository ``gchensy/kivi`` with the workflow ``release.yml`` and the environment ``pypi``.
 
 .. toctree::
    :hidden:
