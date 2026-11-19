@@ -14,17 +14,18 @@ authors = [{name = "Chensy"}]
 dependencies = ["numpy>=1.24", "pandas>=2.0"]
 
 [project.urls]
+Documentation = "https://gchensy.github.io/kivi/"
 Repository = "https://github.com/gchensy/kivi"
 
 [project.optional-dependencies]
 test = ["pytest>=8"]
-docs = ["sphinx>=7.2", "pydata-sphinx-theme>=0.15", "numpydoc>=1.7"]
+docs = ["sphinx>=7.2", "pydata-sphinx-theme>=0.15", "numpydoc>=1.7", "sphinx-design>=0.6", "sphinx-copybutton>=0.5"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/kivi"]
 
 [tool.hatch.build.targets.sdist]
-include = ["/src", "/tests", "/docs/*.rst", "/docs/*.py", "/docs/_templates", "/docs/locale", "/README.md", "/LICENSE", "/DATA-LICENSE.txt", "/pyproject.toml"]
+include = ["/src", "/tests", "/docs", "/README.md", "/LICENSE", "/DATA-LICENSE.txt", "/pyproject.toml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

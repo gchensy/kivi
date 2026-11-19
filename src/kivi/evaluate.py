@@ -22,6 +22,18 @@ def psi_table(reference: pd.Series, current: pd.Series, *, smoothing: float = 0.
     pandas.DataFrame
         Counts, normalized shares and the PSI contribution of each group.
         Sum the psi column for the population stability index.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from kivi.evaluate import psi_table
+    >>> reference = pd.Series(["x", "x", "y", "y"])
+    >>> current = pd.Series(["x", "y", "y", "y"])
+    >>> psi_table(reference, current)[["reference", "current", "psi"]].round(4)
+         reference  current     psi
+    bin
+    x            2        1  0.1733
+    y            2        3  0.1014
     """
     if reference.empty or current.empty:
         raise ValueError("reference and current must both contain observations")

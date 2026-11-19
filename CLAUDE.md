@@ -8,8 +8,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 python -m pip install -e '.[test,docs]'    # required first: kivi.__version__ and docs/conf.py read installed package metadata
 python -m pytest                            # unit tests
 python -m pytest tests/test_core.py::test_woe_matches_hand_calculation   # single test
-python -m sphinx -W -b doctest docs docs/_build/doctest   # runs the >>> examples in docs/*.rst (pytest does not collect them)
-python docs/build.py                        # en + zh_CN HTML into docs/_build/html; uses -W, so any Sphinx warning fails the build
+python -m sphinx -W -b doctest docs docs/_build/doctest   # runs every >>> example in docs/**/*.rst and in docstrings (pytest does not collect them)
+python docs/build.py                        # checks the zh_CN catalog, then builds en + zh HTML into docs/_build/html with -W
+python docs/build.py --update-po            # after editing English text: merge new/changed strings into kivi.po
 ```
 
 No linter or formatter is configured. An editable install resolves to the checkout it was installed from; when working in a git worktree, prefix commands with `PYTHONPATH=src` (or reinstall) so they exercise the worktree's code.
@@ -35,14 +36,18 @@ Output columns: `woe_table` → `non_event, event, non_event_share, event_share,
 
 ## Bilingual documentation
 
-- Sphinx with pydata-sphinx-theme and numpydoc; docstrings are numpydoc-formatted and rendered through autodoc in `docs/api.rst`.
-- The Chinese edition comes from one gettext catalog, `docs/locale/zh_CN/LC_MESSAGES/kivi.po` (`gettext_compact = "kivi"`); `.mo` files are gitignored and compiled during the build. Each msgid is the exact English string, **including public docstring paragraphs**, so editing English text in `docs/*.rst` or a docstring requires updating the matching entry — otherwise that string silently falls back to English in the zh build. `python -m sphinx -b gettext docs docs/_build/gettext` writes `kivi.pot` to compare against.
-- `docs/build.py` builds `en/` and `zh/` as separate outputs (separate search indices) plus a root language-picker `index.html`. `_templates/language-switch.html` links to the same page name in the other language, so both editions must keep identical page names.
+- Sphinx with pydata-sphinx-theme, numpydoc, sphinx-design (cards, tabs, buttons), sphinx-copybutton and MathJax. Pages are grouped by section folder (`getting_started/`, `user_guide/`, `release/`, `development/`) plus top-level `index.rst` and `api.rst`; the hidden toctree in `index.rst` defines the navbar. Brand colors, fonts and the home-page layout live in `docs/_static/kivi.css`; navbar extras are `_templates/version-badge.html` and `_templates/language-switch.html`.
+- Examples are doctests with real output (`NORMALIZE_WHITESPACE` is on). If a change alters a printed DataFrame, regenerate the output by running the code rather than editing numbers by hand.
+- The Chinese edition comes from one gettext catalog, `docs/locale/zh_CN/LC_MESSAGES/kivi.po` (`gettext_compact = "kivi"`; `.mo` files are gitignored). Each msgid is the exact English string, **including public docstring paragraphs, table cells and math blocks**. `docs/build.py` regenerates `kivi.pot` and fails on untranslated, fuzzy or stale entries, so after any English edit run `--update-po`, fill the empty/fuzzy `msgstr`s and remove the `#, fuzzy` flags. In translations keep a space (or CJK punctuation) around RST inline markup such as ``` ``code`` ``` and `` :doc:`x` ``, or docutils fails to parse it.
+- sphinx-design button labels are not extracted for translation; the home-page buttons therefore have no explicit text and show the target page's (translated) title.
+- `docs/build.py` deletes and rebuilds `docs/_build/html`: `en/` and `zh/` are separate Sphinx builds (separate search indices), `docs/landing.html` is copied to the root as the language chooser, and `.nojekyll` is added for GitHub Pages. The language switch links to the same page name in the other edition, so both editions must keep identical page names.
+- `conf.py` replaces Sphinx's Chinese search language with a subclass because Sphinx 9.0 emits `window.Stemmer = ChineseStemmer` (undefined), which breaks search on the zh pages. Keep the workaround until Sphinx fixes it.
+- `.github/workflows/docs.yml` runs pytest, the doctests and `docs/build.py` on every push and pull request, and on master force-pushes `docs/_build/html` to the `gh-pages` branch (served at https://gchensy.github.io/kivi/), replacing whatever was there.
 - `README.md` is bilingual (Chinese and English); keep both languages when editing it.
 
 ## Scope and design constraints
 
-From `docs/development.rst` and `docs/migration.rst`:
+From `docs/development/legacy_review.rst` and `docs/release/migration.rst`:
 
 - The core depends only on NumPy and pandas. Infrastructure-specific code (Spark, SQL, etc.) belongs in optional integrations and must not be imported at module load.
 - Functions must not mutate caller inputs; anything random takes a local seed instead of touching NumPy's global state.

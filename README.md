@@ -28,11 +28,11 @@ print(evidence[["event", "non_event", "woe", "iv"]])
 print(stability["psi"].sum())
 ```
 
-文档包含快速开始、指标口径、API 参考和旧版迁移说明。
+**文档 · Documentation**: <https://gchensy.github.io/kivi/>
+
+文档包含快速上手、指标口径、API 参考和旧版迁移说明。Both the English and Chinese manuals include a quickstart, metric definitions, API reference and migration guide.
 
 **构建与测试 · Build and test**
-
-Both the English and Chinese manuals include a quick start, metric definitions, API reference and migration guide.
 
 ```bash
 python -m pip install -e '.[docs,test]'

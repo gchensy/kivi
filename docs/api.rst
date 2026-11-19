@@ -1,10 +1,33 @@
 API reference
 =============
 
+The public functions take pandas objects and return NumPy arrays or pandas DataFrames. Import them from their modules.
+
+.. currentmodule:: kivi
+
+.. autosummary::
+
+   binning.bin_edges
+   woe.woe_table
+   evaluate.psi_table
+   datasets.Dataset.bank_data
+
+Binning
+-------
+
 .. autofunction:: kivi.binning.bin_edges
+
+Weight of evidence
+------------------
 
 .. autofunction:: kivi.woe.woe_table
 
+Population stability
+--------------------
+
 .. autofunction:: kivi.evaluate.psi_table
+
+Example data
+------------
 
 .. automethod:: kivi.datasets.Dataset.bank_data

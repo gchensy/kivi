@@ -16,6 +16,15 @@ class Dataset:
         -------
         pandas.DataFrame
             Sixteen features and the integer target. A value of 1 indicates a term deposit subscription.
+
+        Examples
+        --------
+        >>> from kivi.datasets import Dataset
+        >>> data = Dataset.bank_data()
+        >>> data.shape
+        (4521, 17)
+        >>> data["target"].value_counts().to_dict()
+        {0: 4000, 1: 521}
         """
         with files(__package__).joinpath("bank.csv").open("rb") as source:
             data = pd.read_csv(source, sep=";")

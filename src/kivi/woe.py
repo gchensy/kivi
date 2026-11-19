@@ -23,6 +23,18 @@ def woe_table(groups: pd.Series, target: pd.Series, *, smoothing: float = 0.5) -
     pandas.DataFrame
         Event and non-event counts, their within-class shares, WOE and IV
         per group. Sum the iv column for the variable's information value.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from kivi.woe import woe_table
+    >>> groups = pd.Series(["a", "a", "a", "b", "b", "b"])
+    >>> target = pd.Series([1, 1, 0, 1, 0, 0])
+    >>> woe_table(groups, target)[["event", "non_event", "woe", "iv"]].round(4)
+         event  non_event     woe     iv
+    bin
+    a        2          1  0.6931  0.231
+    b        1          2 -0.6931  0.231
     """
     if not groups.index.equals(target.index):
         raise ValueError("groups and target must have identical indices")
