@@ -25,6 +25,17 @@ def bin_edges(
     -------
     numpy.ndarray
         Increasing edges with infinite endpoints, suitable for pandas.cut.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from kivi.binning import bin_edges
+    >>> values = pd.Series([0, 10, 20, 30, 40, 50, 60, 70, 80, 90])
+    >>> edges = bin_edges(values, bins=3)
+    >>> edges
+    array([-inf,  30.,  60.,  inf])
+    >>> pd.cut(pd.Series([-5, 45, 200]), edges, labels=False).tolist()
+    [0, 1, 2]
     """
     if isinstance(bins, bool) or not isinstance(bins, Integral) or bins < 1:
         raise ValueError("bins must be a positive integer")

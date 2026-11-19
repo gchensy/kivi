@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>kivi documentation · 使用文档</title>
+<meta name="description" content="Binning, WOE, IV and PSI for pandas. 基于 pandas 的分箱、WOE、IV 与 PSI。">
+<link rel="icon" href="en/_static/kivi-mark.svg" type="image/svg+xml">
+<link rel="alternate" hreflang="en" href="en/index.html">
+<link rel="alternate" hreflang="zh-CN" href="zh/index.html">
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #fff;
+    --surface: #f3f4f5;
+    --text: #222832;
+    --muted: #48566b;
+    --border: #d1d5da;
+    --primary: #2f5bd3;
+    --primary-text: #fff;
+    --glow: rgba(47, 91, 211, 0.10);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14181e;
+      --surface: #1a1f27;
+      --text: #ced6dd;
+      --muted: #9ca4af;
+      --border: #48566b;
+      --primary: #8aa8ff;
+      --primary-text: #14181e;
+      --glow: rgba(138, 168, 255, 0.10);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background: radial-gradient(circle at 50% 0, var(--glow), transparent 55%), var(--bg);
+    color: var(--text);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "PingFang SC",
+      "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  }
+  main { width: 100%; max-width: 34rem; text-align: center; }
+  .brand { display: inline-flex; align-items: center; gap: 0.75rem; margin: 0 0 1.25rem; }
+  .brand img { width: 3rem; height: 3rem; }
+  h1 { margin: 0; font-size: 2.75rem; letter-spacing: -0.02em; line-height: 1; }
+  p { margin: 0.25rem 0; color: var(--muted); }
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; }
+  .choice {
+    display: block;
+    padding: 1.1rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--text);
+    text-decoration: none;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .choice:hover, .choice:focus-visible { border-color: var(--primary); transform: translateY(-2px); }
+  .choice:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+  .choice strong { display: block; font-size: 1.15rem; }
+  .choice span { color: var(--muted); font-size: 0.9rem; }
+  .choice.preferred { background: var(--primary); border-color: var(--primary); color: var(--primary-text); }
+  .choice.preferred span { color: inherit; opacity: 0.85; }
+  footer { margin-top: 2.5rem; font-size: 0.875rem; }
+  footer a { color: var(--muted); }
+  @media (max-width: 420px) { .choices { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="brand">
+    <img src="en/_static/kivi-mark.svg" alt="">
+    <h1>kivi</h1>
+  </div>
+  <p lang="en">Binning, WOE, IV and PSI for pandas</p>
+  <p lang="zh-CN">基于 pandas 的分箱、WOE、IV 与 PSI</p>
+  <nav class="choices" aria-label="Language">
+    <a class="choice" id="choice-en" lang="en" hreflang="en" href="en/index.html">
+      <strong>English</strong><span>Documentation</span>
+    </a>
+    <a class="choice" id="choice-zh" lang="zh-CN" hreflang="zh-CN" href="zh/index.html">
+      <strong>中文</strong><span>使用文档</span>
+    </a>
+  </nav>
+  <footer><a href="https://github.com/gchensy/kivi">GitHub</a></footer>
+</main>
+<script>
+  var languages = navigator.languages || [navigator.language || ""];
+  var chinese = String(languages[0] || "").toLowerCase().indexOf("zh") === 0;
+  document.getElementById(chinese ? "choice-zh" : "choice-en").classList.add("preferred");
+</script>
+</body>
+</html>

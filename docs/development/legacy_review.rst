@@ -1,17 +1,5 @@
-Development and project review
-==============================
-
-Build and verify
-----------------
-
-.. code-block:: bash
-
-   python -m pip install -e '.[test,docs]'
-   python -m pytest
-   python -m sphinx -W -b doctest docs docs/_build/doctest
-   python docs/build.py
-
-The HTML build writes English and simplified Chinese editions under docs/_build/html. API signatures come from the installed package. Keep translations in docs/locale/zh_CN/LC_MESSAGES/kivi.po synchronized with the English source.
+Legacy review
+=============
 
 Findings from the legacy implementation
 ---------------------------------------
