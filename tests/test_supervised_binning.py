@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from kivi.binning import _pair_chi2, chimerge_edges, monotonic_edges, tree_edges
+from kivi.binning import _pair_chi2, chimerge_edges, cut, monotonic_edges, tree_edges
 from kivi.datasets import Dataset
 from kivi.woe import woe_table
 
@@ -142,6 +142,113 @@ def test_missing_values_are_omitted_and_inputs_are_kept(fit):
 
 
 @pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, monotonic_edges])
+def test_special_values_are_left_out_with_their_labels(fit):
+    # Codes at both ends of the range would change every fit if they were counted.
+    values = pd.concat([TREE_VALUES, pd.Series([-1, -1, -9, 999, np.nan], index=range(20, 25))])
+    target = pd.concat([TREE_TARGET, pd.Series([0, 0, 1, 0, 1], index=range(20, 25))])
+    before = values.copy(), target.copy()
+    expected = fit(TREE_VALUES, TREE_TARGET)
+    for special in ([-1, -9, 999], (999.0, -1.0, -9.0), np.array([-9, -1, 999, -1]), pd.Index([-1, -9, 999])):
+        np.testing.assert_equal(fit(values, target, special=special), expected)
+    assert not np.array_equal(fit(values, target), expected)
+    np.testing.assert_equal(fit(values.tolist(), target.to_numpy(), special=[-1, -9, 999]), expected)
+    np.testing.assert_equal(fit(TREE_VALUES, TREE_TARGET, special=[]), expected)
+    pd.testing.assert_series_equal(values, before[0])
+    pd.testing.assert_series_equal(target, before[1])
+    # A label such as "N/A" in an otherwise numeric column is a special value as well.
+    labelled = pd.Series(["N/A", *TREE_VALUES, "N/A"], dtype=object)
+    np.testing.assert_equal(fit(labelled, [0, *TREE_TARGET, 1], special=["N/A"]), expected)
+    infinite = pd.Series([-np.inf, *TREE_VALUES])
+    np.testing.assert_equal(fit(infinite, [1, *TREE_TARGET], special=[-np.inf]), expected)
+
+
+def test_chimerge_with_a_special_code_merges_only_the_real_values():
+    # Ten events at -1 form a pure bin of their own unless -1 is passed in special.
+    values, target = repeated([(-1, 0, 10), (1, 10, 0), (2, 5, 5), (3, 1, 9)])
+    np.testing.assert_equal(chimerge_edges(values, target, alpha=0.1), [-np.inf, -1, 1, 2, np.inf])
+    np.testing.assert_equal(chimerge_edges(values, target, alpha=0.1, special=[-1]),
+                            [-np.inf, 1, 2, np.inf])
+    np.testing.assert_equal(chimerge_edges(values, target, alpha=0.05, special=[-1]),
+                            [-np.inf, 1, np.inf])
+    groups = cut(values, [-np.inf, 1, 2, np.inf], special=[-1])
+    table = woe_table(groups, target)
+    assert table.index.tolist() == [-1, *groups.cat.categories[1:]]
+    assert table.non_event.tolist() == [0, 10, 5, 1] and table.event.tolist() == [10, 0, 5, 9]
+
+
+def test_tree_minimum_share_counts_only_the_fitted_values():
+    # Twelve non-events at -1 double the sample. Without special, half of 24 rows is 12,
+    # and the only allowed cut isolates -1; with special, half of the 12 fitted rows is 6.
+    values = pd.concat([TREE_VALUES, pd.Series([-1.0] * 12)], ignore_index=True)
+    target = pd.concat([TREE_TARGET, pd.Series([0] * 12)], ignore_index=True)
+    np.testing.assert_equal(tree_edges(values, target, min_bin_share=0.5), [-np.inf, -1, np.inf])
+    np.testing.assert_equal(tree_edges(values, target, min_bin_share=0.5, special=[-1]),
+                            [-np.inf, 6, np.inf])
+    np.testing.assert_equal(tree_edges(values, target, max_bins=2, special=[-1]), [-np.inf, 4, np.inf])
+
+
+def test_monotonic_trend_excludes_the_special_group():
+    # The code 999 has event rate 0.1. Counted as the top value it breaks the rising trend
+    # and pools everything above 1; left out, the bins match the MONO example.
+    values, target = repeated([(1, 9, 1), (2, 7, 3), (3, 8, 2), (4, 6, 4), (999, 9, 1)])
+    np.testing.assert_equal(monotonic_edges(values, target, max_bins=None, direction="increasing"),
+                            [-np.inf, 1, np.inf])
+    edges = monotonic_edges(values, target, max_bins=None, direction="increasing", special=[999])
+    np.testing.assert_equal(edges, [-np.inf, 1, 3, np.inf])
+    np.testing.assert_equal(monotonic_edges(values, target, max_bins=None, special=[999]), edges)
+    table = woe_table(cut(values, edges, special=[999]), target)
+    assert table.index[0] == 999
+    assert table.non_event.tolist() == [9, 9, 15, 6] and table.event.tolist() == [1, 1, 5, 4]
+    # The shares include the special group: WOE = ln((event / 11) / (non_event / 39)).
+    expected = np.log(np.array([1, 1, 5, 4]) / 11 / (np.array([9, 9, 15, 6]) / 39))
+    np.testing.assert_allclose(table.woe, expected)
+    # The special group shares the event rate of the first bin but is not merged into it.
+    assert table.woe.iloc[1:].is_monotonic_increasing
+    assert table.woe.iloc[0] == pytest.approx(table.woe.iloc[1])
+
+
+# Fitted on the 525 contacted customers of the reference sample; -1 marks the other 2475.
+PDAYS_EDGES = {
+    chimerge_edges: [-np.inf, 105, 175.6, 188, 371, np.inf],
+    tree_edges: [-np.inf, 100, 177, 192, 370, np.inf],
+    monotonic_edges: [-np.inf, 97, 105, 188, 211.2, np.inf],
+}
+
+
+@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, monotonic_edges])
+def test_bank_pdays_code_is_fitted_separately(reference, fit):
+    pdays, target = reference["pdays"], reference["target"]
+    is_special = pdays == -1
+    assert is_special.sum() == 2475
+    assert target[~is_special].value_counts().sort_index().tolist() == [405, 120]
+    edges = fit(pdays, target, special=[-1])
+    np.testing.assert_allclose(edges, PDAYS_EDGES[fit])
+    np.testing.assert_equal(edges, fit(pdays[~is_special], target[~is_special]))
+    contacted = pdays[~is_special]
+    if fit is tree_edges:
+        assert set(edges[1:-1]) <= set(contacted)
+    else:
+        assert set(edges[1:-1]) <= set(np.quantile(contacted, np.linspace(0, 1, 21)))
+    table = woe_table(cut(pdays, edges, special=[-1]), target)
+    assert table.index[0] == -1 and len(table) == len(edges)
+    assert table.loc[-1, ["non_event", "event"]].tolist() == [2247, 228]
+    intervals = pd.crosstab(pd.cut(contacted, edges), target[~is_special])
+    np.testing.assert_equal(table.iloc[1:][["non_event", "event"]].to_numpy(), intervals.to_numpy())
+    assert table.iloc[1:][["non_event", "event"]].sum().tolist() == [405, 120]
+    if fit is monotonic_edges:
+        assert table.woe.iloc[1:].is_monotonic_decreasing
+
+
+@pytest.mark.parametrize("fit", [chimerge_edges, monotonic_edges])
+def test_without_special_the_bank_pdays_code_shares_a_bin(reference, fit):
+    pdays = reference["pdays"]
+    edges = fit(pdays, reference["target"])
+    assert edges[1] == 96
+    first = pdays[pdays <= edges[1]]
+    assert (first == -1).sum() == 2475 and (first > -1).sum() == 78
+
+
+@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, monotonic_edges])
 @pytest.mark.parametrize("column", ["age", "balance", "duration", "campaign", "pdays"])
 def test_edges_on_bank_data_have_infinite_ends_and_at_most_max_bins(reference, fit, column):
     edges = fit(reference[column], reference["target"], max_bins=4)
@@ -215,6 +322,21 @@ def test_array_like_inputs_are_matched_by_position(fit):
 def test_invalid_supervised_inputs(fit, values, target, message):
     with pytest.raises(ValueError, match=message):
         fit(values, target)
+
+
+@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, monotonic_edges])
+@pytest.mark.parametrize("values,target,special,message", [
+    ([1, 2], [0, 1], -1, "special must be one-dimensional, got 0 dimensions"),
+    ([1, 2], [0, 1], [-1, np.nan], "special must not contain missing values"),
+    ([-1, -1, None], [0, 1, 1], [-1], "no finite observations apart from missing and special values"),
+    ([1, 2, np.inf], [0, 1, 1], [-1], "finite observations only; pass infinite codes in special"),
+    ([1, 2, -1], [0, 0, 1], [-1], "both 0 and 1 where values are observed and not special"),
+    (["N/A", 1, 2], [0, 0, 1], [-1], "Unable to parse string"),
+    ([1, 2, -1], [0, 1, 2], [-1], "only 0 and 1"),
+])
+def test_invalid_special_values(fit, values, target, special, message):
+    with pytest.raises(ValueError, match=message):
+        fit(values, target, special=special)
 
 
 @pytest.mark.parametrize("fit,options,message", [

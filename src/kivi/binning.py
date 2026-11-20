@@ -198,7 +198,6 @@ def cut(
     return groups
 
 
-
 def chimerge_edges(
     values: npt.ArrayLike,
     target: npt.ArrayLike,
@@ -206,6 +205,7 @@ def chimerge_edges(
     max_bins: int = 5,
     alpha: float | None = 0.05,
     initial_bins: int = 20,
+    special: npt.ArrayLike | None = None,
 ) -> npt.NDArray[np.float64]:
     """Fit edges by merging adjacent quantile bins with ChiMerge.
 
@@ -233,6 +233,10 @@ def chimerge_edges(
         None to merge down to ``max_bins`` only.
     initial_bins : int, default 20
         Number of quantile bins to start from. Tied quantiles can reduce it.
+    special : array_like, optional
+        Special values, such as codes for "not applicable", that are omitted
+        with their labels when the edges are fitted. Pass the same values to
+        `cut` so that each one forms its own group.
 
     Returns
     -------
@@ -243,15 +247,18 @@ def chimerge_edges(
     ------
     ValueError
         If `max_bins` or `initial_bins` is not a positive integer, `alpha` is
-        neither None nor between 0 and 1, `values` and `target` are not one-dimensional or their indices or
-        lengths do not match, `values` is not numeric or has no finite
-        observations, or `target` has labels other than 0 and 1 or lacks one
-        of them where `values` is observed.
+        neither None nor between 0 and 1, `values` and `target` are not
+        one-dimensional or their indices or lengths do not match, `special`
+        is not one-dimensional or contains a missing value, `values` is not
+        numeric or has no finite observations apart from missing and special
+        values, or `target` has labels other than 0 and 1 or lacks one of them
+        in the rows that are fitted.
 
     See Also
     --------
     tree_edges : Split the values recursively instead of merging.
     monotonic_edges : Merge until the WOE is monotonic.
+    cut : Assign values to bins, with a separate group for each special value.
 
     Notes
     -----
@@ -281,7 +288,7 @@ def chimerge_edges(
     _check_count(initial_bins, "initial_bins")
     if alpha is not None and not (isinstance(alpha, Real) and 0 < alpha < 1):
         raise ValueError(f"alpha must be None or between 0 and 1, got {alpha!r}")
-    observed, labels = _labeled(values, target)
+    observed, labels = _labeled(values, target, special)
     interior, counts = _fine_bins(observed, labels, initial_bins)
     while len(counts) > 1:
         statistic = _pair_chi2(counts)
@@ -300,6 +307,7 @@ def tree_edges(
     max_bins: int = 5,
     min_bin_share: float = 0.05,
     criterion: Literal["entropy", "gini"] = "entropy",
+    special: npt.ArrayLike | None = None,
 ) -> npt.NDArray[np.float64]:
     """Fit edges with the splits of a decision tree on one variable.
 
@@ -320,9 +328,14 @@ def tree_edges(
     max_bins : int, default 5
         Maximum number of bins, the leaves of the tree.
     min_bin_share : float, default 0.05
-        Minimum share of the observed values in every bin, from 0 to 0.5.
+        Minimum share of the fitted values in every bin, from 0 to 0.5.
+        Missing and special values do not count towards it.
     criterion : {"entropy", "gini"}, default "entropy"
         Impurity measure: entropy for information gain, or the Gini index.
+    special : array_like, optional
+        Special values, such as codes for "not applicable", that are omitted
+        with their labels when the edges are fitted. Pass the same values to
+        `cut` so that each one forms its own group.
 
     Returns
     -------
@@ -335,15 +348,18 @@ def tree_edges(
     ------
     ValueError
         If `max_bins` is not a positive integer, `min_bin_share` is not
-        between 0 and 0.5, `criterion` is not recognized, `values` and `target` are not one-dimensional or their indices or
-        lengths do not match, `values` is not numeric or has no finite
-        observations, or `target` has labels other than 0 and 1 or lacks one
-        of them where `values` is observed.
+        between 0 and 0.5, `criterion` is not recognized, `values` and
+        `target` are not one-dimensional or their indices or lengths do not
+        match, `special` is not one-dimensional or contains a missing value,
+        `values` is not numeric or has no finite observations apart from
+        missing and special values, or `target` has labels other than 0 and 1
+        or lacks one of them in the rows that are fitted.
 
     See Also
     --------
     chimerge_edges : Merge fine bins instead of splitting.
     monotonic_edges : Merge until the WOE is monotonic.
+    cut : Assign values to bins, with a separate group for each special value.
 
     Notes
     -----
@@ -373,7 +389,7 @@ def tree_edges(
         raise ValueError(f"min_bin_share must be between 0 and 0.5, got {min_bin_share!r}")
     if criterion not in ("entropy", "gini"):
         raise ValueError(f"criterion must be 'entropy' or 'gini', got {criterion!r}")
-    observed, labels = _labeled(values, target)
+    observed, labels = _labeled(values, target, special)
     unique, position = np.unique(observed, return_inverse=True)
     totals = np.cumsum(np.r_[0, np.bincount(position)])
     events = np.cumsum(np.r_[0, np.bincount(position, weights=labels)])
@@ -419,6 +435,7 @@ def monotonic_edges(
     direction: Literal["auto", "increasing", "decreasing"] = "auto",
     initial_bins: int = 20,
     smoothing: float = 0.5,
+    special: npt.ArrayLike | None = None,
 ) -> npt.NDArray[np.float64]:
     """Fit edges by merging adjacent quantile bins until the WOE is monotonic.
 
@@ -452,6 +469,11 @@ def monotonic_edges(
         Positive replacement for a zero count when calculating the WOE, as in
         :func:`kivi.woe.woe_table`. Use the same value there to see the same
         trend.
+    special : array_like, optional
+        Special values, such as codes for "not applicable", that are omitted
+        with their labels when the edges are fitted. Pass the same values to
+        `cut` so that each one forms its own group. The trend applies to the
+        intervals only; a special group can have any WOE.
 
     Returns
     -------
@@ -463,15 +485,18 @@ def monotonic_edges(
     ValueError
         If `max_bins` is neither None nor a positive integer, `initial_bins`
         is not a positive integer, `direction` is not recognized, `smoothing`
-        is not finite and positive, `values` and `target` are not one-dimensional or their indices or
-        lengths do not match, `values` is not numeric or has no finite
-        observations, or `target` has labels other than 0 and 1 or lacks one
-        of them where `values` is observed.
+        is not finite and positive, `values` and `target` are not
+        one-dimensional or their indices or lengths do not match, `special`
+        is not one-dimensional or contains a missing value, `values` is not
+        numeric or has no finite observations apart from missing and special
+        values, or `target` has labels other than 0 and 1 or lacks one of them
+        in the rows that are fitted.
 
     See Also
     --------
     chimerge_edges : Merge fine bins by a chi-square test.
     tree_edges : Split the values recursively.
+    cut : Assign values to bins, with a separate group for each special value.
 
     Examples
     --------
@@ -495,7 +520,7 @@ def monotonic_edges(
         raise ValueError(
             f"direction must be 'auto', 'increasing' or 'decreasing', got {direction!r}"
         )
-    observed, labels = _labeled(values, target)
+    observed, labels = _labeled(values, target, special)
     fine = _fine_bins(observed, labels, initial_bins)
     _woe(fine[1], smoothing)
     limit = len(fine[1]) if max_bins is None else max_bins
@@ -538,8 +563,14 @@ def _special_values(special: npt.ArrayLike | None) -> pd.Index:
     return special
 
 
-def _labeled(values: npt.ArrayLike, target: npt.ArrayLike) -> tuple[np.ndarray, np.ndarray]:
-    """Observed values and their 0/1 labels, matched by index or position like ``woe_table``."""
+def _labeled(
+    values: npt.ArrayLike, target: npt.ArrayLike, special: npt.ArrayLike | None = None
+) -> tuple[np.ndarray, np.ndarray]:
+    """Observed values and their 0/1 labels, matched by index or position like ``woe_table``.
+
+    Rows whose value is missing or, if ``special`` is given, a special value
+    are left out together with their labels.
+    """
     if isinstance(values, pd.Series) and isinstance(target, pd.Series):
         if not values.index.equals(target.index):
             raise ValueError("values and target must have identical indices")
@@ -550,10 +581,15 @@ def _labeled(values: npt.ArrayLike, target: npt.ArrayLike) -> tuple[np.ndarray, 
         )
     if not target.isin([0, 1]).all():
         raise ValueError("target must contain only 0 and 1 and no missing labels")
-    observed = _observed(values)
-    labels = target.to_numpy()[values.notna().to_numpy()].astype(np.intp)
+    fitted = values.notna()
+    if special is not None:
+        special = _special_values(special)
+        fitted = fitted & ~values.isin(special)
+    observed = _observed(values, special)
+    labels = target.to_numpy()[fitted.to_numpy()].astype(np.intp)
     if labels.min() == labels.max():
-        raise ValueError("target must contain both 0 and 1 where values are observed")
+        rows = "observed and not special" if special is not None else "observed"
+        raise ValueError(f"target must contain both 0 and 1 where values are {rows}")
     return observed, labels
 
 
