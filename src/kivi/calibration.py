@@ -450,8 +450,8 @@ def isotonic_fit(
     distinct, position = np.unique(values, return_inverse=True)
     position = position.ravel()  # NumPy 2.0 keeps the input's shape here
     total = np.bincount(position, weights=mass, minlength=len(distinct))
-    event = np.bincount(position, weights=labels if mass is None else mass * labels)
-    event = np.pad(event, (0, len(distinct) - len(event)))
+    event_mass = labels if mass is None else mass * labels
+    event = np.bincount(position, weights=event_mass, minlength=len(distinct))
     used = total > 0
     last, pooled_total, pooled_event = _pool_adjacent_violators(
         total[used], event[used], increasing=bool(increasing)
