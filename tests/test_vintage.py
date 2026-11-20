@@ -411,6 +411,12 @@ def test_transition_matrix_rejects_invalid_states():
     after = pd.Categorical(["b"], categories=["b", "a"])
     with pytest.raises(ValueError, match="before and after must have the same categories"):
         transition_matrix(before, after)
+    with pytest.raises(ValueError, match="values that cannot be sorted, such as 1 and 'a'"):
+        transition_matrix([1, "a"], ["a", 1])
+    assert transition_matrix([1, "a"], ["a", 1], states=["a", 1]).to_numpy().tolist() == [
+        [0, 1],
+        [1, 0],
+    ]
 
 
 def test_transition_matrix_rejects_empty_or_mismatched_inputs():

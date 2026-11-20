@@ -437,7 +437,14 @@ def _state_labels(before: pd.Series, after: pd.Series, states) -> pd.Index:
         )
     if categories:
         return categories[0]
-    return pd.Index(pd.concat([before, after], ignore_index=True).unique()).sort_values()
+    values = pd.Index(pd.concat([before, after], ignore_index=True).unique())
+    try:
+        return values.sort_values()
+    except TypeError:
+        raise ValueError(
+            f"before and after have values that cannot be sorted, such as {_scalar(values)!r} and "
+            f"{_scalar(values[1:])!r}; pass states to give their order"
+        ) from None
 
 
 def _state_codes(values: pd.Series, labels: pd.Index, name: str) -> np.ndarray:
