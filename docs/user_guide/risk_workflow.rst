@@ -1,7 +1,7 @@
 Risk modeling workflow
 ======================
 
-This example follows the steps of a scorecard project with kivi: screen the candidate variables, bin the shortlist, encode it with WOE, select the variables and fit the model, scale it to a scorecard, evaluate and calibrate it, and prepare the stability report used in monitoring. The bundled data record a marketing response rather than a default, but the steps are the same for a credit default flag: use the bad flag as ``target``.
+This example follows the steps of a scorecard project with kivi: screen the candidate variables, bin the shortlist, encode it with WOE and save the binning for production, select the variables and fit the model, scale it to a scorecard, evaluate and calibrate it, and prepare the stability report used in monitoring. The bundled data record a marketing response rather than a default, but the steps are the same for a credit default flag: use the bad flag as ``target``.
 
 >>> import warnings
 >>> import numpy as np
@@ -92,6 +92,21 @@ A logistic regression on WOE values is the classic scorecard model. Replace each
 2    0.373 -0.092 -0.032     0.214    0.241   -0.327  0.271
 
 ``woe_transform`` raises an error for a group that never appeared in development, such as a new category. Agree on a policy before scoring new data, for example ``unseen=0.0`` for a neutral WOE.
+
+Save the binning
+----------------
+
+Production systems must group and encode new applications exactly as the development sample was. ``fit_spec`` fits the edges and the WOE table of every column at once, and the resulting ``BinningSpec`` saves them as versioned JSON; see :doc:`spec`. Passing the edges of the shortlist as ``bins`` reproduces the encoding above:
+
+>>> from kivi.spec import BinningSpec, fit_spec
+>>> spec = fit_spec(development, development["target"], columns=list(dev_groups), bins=numeric_edges)
+>>> spec.woe_transform(development).equals(X_dev)
+True
+>>> restored = BinningSpec.from_json(spec.to_json())
+>>> restored == spec
+True
+
+Store the JSON with the model. A scoring service that loads it with ``BinningSpec.from_json`` encodes new data with ``restored.woe_transform(frame)``, without the code of the development project.
 
 Select variables and fit the model
 ----------------------------------
@@ -208,17 +223,28 @@ Compare each variable of the monitoring sample with its development distribution
 ... })
 >>> report["status"] = pd.cut(report["psi"], [-np.inf, 0.1, 0.25, np.inf],
 ...                           labels=["stable", "watch", "shift"])
+>>> from kivi.stability import csi_table
+>>> report["csi"] = pd.Series({
+...     column: csi_table(dev_groups[column], mon_groups[column], card.loc[[column]])["csi"].sum()
+...     for column in selected
+... })
 >>> report.sort_values("iv", ascending=False).round(3)
-             iv    psi  status
-poutcome  0.423  0.003  stable
-pdays     0.360  0.005  stable
-contact   0.215  0.008  stable
-job       0.137  0.005  stable
-balance   0.115  0.000  stable
-housing   0.108  0.000  stable
-age       0.061  0.005  stable
+             iv    psi  status    csi
+poutcome  0.423  0.003  stable -0.343
+pdays     0.360  0.005  stable -0.072
+contact   0.215  0.008  stable  0.310
+job       0.137  0.005  stable  0.176
+balance   0.115  0.000  stable -0.141
+housing   0.108  0.000  stable -0.033
+age       0.061  0.005  stable    NaN
 
-Every variable is stable here, as expected when the monitoring rows come from the same population. The score itself is monitored the same way, with bands fitted on the development scores:
+Every variable is stable here, as expected when the monitoring rows come from the same population. The ``csi`` column weights each group's change of share with its points, so it is the change of the variable's average points; ``age`` is not in the scorecard and has none. Over the variables of the scorecard, the CSI adds up to the change of the average score:
+
+>>> shift = mon_score.mean() - dev_score.mean()
+>>> print(f"sum of csi = {report['csi'].sum():.3f}, score shift = {shift:.3f}")
+sum of csi = -0.102, score shift = -0.102
+
+The score itself is monitored the same way, with bands fitted on the development scores:
 
 >>> score_edges = bin_edges(dev_score, bins=5).round(1)
 >>> score_psi = psi_table(pd.cut(dev_score, score_edges), pd.cut(mon_score, score_edges))

@@ -111,6 +111,12 @@ D         0.385      0.145     0.000     0.000
 E         0.412      0.315     0.269     0.193
 F         0.735      0.501     0.005     0.003
 
+.. plot::
+   :alt: Observed default rate against mean predicted PD for each grade, for the original and the scaled-down PDs
+   :caption: The grades of the original PDs lie close to the diagonal, while those of the scaled-down PDs lie above it: more defaults than predicted. Larger points hold more customers.
+
+   kp.figure_calibration()
+
 For the same counts, the Jeffreys p-value is always a little lower than the binomial one, so the Jeffreys test rejects slightly more readily. Both tests assume independent defaults; defaults that move together in a downturn make them reject more often than their nominal level.
 
 Testing all grades at once
