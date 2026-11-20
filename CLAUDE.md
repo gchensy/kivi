@@ -41,7 +41,7 @@ All metric functions share `_counts.py`, which defines the counting and smoothin
 - `shares` replaces zero cells with `smoothing` (default 0.5) and then normalizes each column independently. Count columns in the output stay raw; only the `*_share` columns reflect smoothing.
 - `divergence(counts, smoothing)` takes an `(n, 2)` count array and returns the shares, `ln(b / a)` and `(b - a) ln(b / a)` per row. With (non-event, event) columns these are WOE and IV, and with (reference, current) columns the PSI terms. `woe_table`, `psi_table`, the count-based `kivi.woe.woe` / `kivi.woe.iv` / `kivi.stability.psi` and the supervised binning helpers all go through it. The public count functions validate their input with `_validation.as_count_columns`.
 
-Output columns: `woe_table` → `non_event, event, non_event_share, event_share, woe, iv`; `psi_table` → `reference, current, reference_share, current_share, psi`. `woe_table` requires `groups` and `target` to have identical indices and both classes present.
+Output columns: `woe_table` → `non_event, event, total, non_event_share, event_share, total_share, event_rate, woe, iv` (only the two class shares are smoothed; `total_share` and `event_rate` use raw counts); `psi_table` → `reference, current, reference_share, current_share, psi`. `woe_table` requires `groups` and `target` to have identical indices and both classes present.
 
 `kivi.datasets.Dataset.bank_data()` loads the bundled `;`-separated `bank.csv` (UCI Bank Marketing, CC BY 4.0, see `DATA-LICENSE.txt`) via `importlib.resources` and maps `y` yes/no to `target` 1/0. Tests pin its shape (4521×17) and class counts.
 

@@ -40,8 +40,11 @@ def woe_table(
     Returns
     -------
     pandas.DataFrame
-        Event and non-event counts, their within-class shares, WOE and IV
-        per group. Sum the iv column for the variable's information value.
+        One row per group with the columns ``non_event``, ``event`` and
+        ``total`` (counts), ``non_event_share`` and ``event_share`` (smoothed
+        shares within each class), ``total_share`` (share of all
+        observations), ``event_rate``, ``woe`` and ``iv``. Sum the iv column
+        for the variable's information value.
 
     Raises
     ------
@@ -69,8 +72,8 @@ def woe_table(
        \mathrm{IV} = \sum_i \mathrm{IV}_i.
 
     Each zero count is replaced with `smoothing` before the shares are
-    normalized, so every WOE is finite. The ``non_event`` and ``event``
-    columns always report the observed counts.
+    normalized, so every WOE is finite. The count columns, ``total_share``
+    and ``event_rate`` always use the observed counts.
 
     Categorical groups, such as the result of `kivi.binning.cut` or
     ``pandas.cut``, follow the order of their categories with missing values
@@ -108,8 +111,15 @@ def woe_table(
     counts.columns = ["non_event", "event"]
     # Assign by position: aligning interval categories hashes them, which warns on NumPy < 2.2.
     share, log_ratio, contribution = divergence(counts.to_numpy(), smoothing)
+    total = counts["non_event"] + counts["event"]
     return counts.assign(
-        non_event_share=share[:, 0], event_share=share[:, 1], woe=log_ratio, iv=contribution
+        total=total,
+        non_event_share=share[:, 0],
+        event_share=share[:, 1],
+        total_share=total / total.sum(),
+        event_rate=counts["event"] / total,
+        woe=log_ratio,
+        iv=contribution,
     )
 
 
