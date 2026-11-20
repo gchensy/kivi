@@ -24,7 +24,7 @@ kivi keeps fitting and measuring apart. ``bin_edges`` fits edges on a reference 
       :link: woe_iv
       :link-type: doc
 
-      Definitions, the smoothing rule for empty cells and how to read the result.
+      Definitions, the smoothing rule for empty cells, how to read the result and how to encode new data.
 
    .. grid-item-card:: Population stability index
       :link: psi

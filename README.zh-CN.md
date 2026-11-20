@@ -127,6 +127,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | [`kivi.binning.tree_edges`](https://gchensy.github.io/kivi/zh/api.html#kivi.binning.tree_edges) | 按熵或基尼指数做决策树切分，并限制每箱最小占比 |
 | [`kivi.binning.monotonic_edges`](https://gchensy.github.io/kivi/zh/api.html#kivi.binning.monotonic_edges) | 合并等频细分箱，直到 WOE 单调 |
 | [`kivi.woe.woe_table`](https://gchensy.github.io/kivi/zh/api.html#kivi.woe.woe_table) | 每组的计数、占比、WOE 与 IV |
+| [`kivi.woe.woe_transform`](https://gchensy.github.io/kivi/zh/api.html#kivi.woe.woe_transform) | 用开发样本的 WOE 替换每个分组，未见过的分组需明确处理方式 |
 | [`kivi.evaluate.psi_table`](https://gchensy.github.io/kivi/zh/api.html#kivi.evaluate.psi_table) | 两个样本逐组的 PSI 贡献 |
 | [`kivi.datasets.Dataset.bank_data`](https://gchensy.github.io/kivi/zh/api.html#kivi.datasets.Dataset.bank_data) | 随包的银行营销示例数据 |
 
@@ -146,6 +147,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 - ✅ 中英文文档，示例经过测试
 - ✅ 带图表的风控示例：特殊值、粗分箱、IV 筛选、PSI 监控
 - ✅ 有监督分箱：ChiMerge、决策树与单调 WOE
+- ✅ 新数据的 WOE 编码，未见过的分组需明确处理方式
 - 🔜 加权统计
 - 🔜 评分卡流程，在固定参考样本上完成结果核对
 - 🔜 Spark 与 SQL 作为可选集成

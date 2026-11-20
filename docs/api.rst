@@ -12,6 +12,7 @@ The public functions take one-dimensional array-like inputs, such as lists, NumP
    binning.tree_edges
    binning.monotonic_edges
    woe.woe_table
+   woe.woe_transform
    evaluate.psi_table
    datasets.Dataset.bank_data
 
@@ -30,6 +31,8 @@ Weight of evidence
 ------------------
 
 .. autofunction:: kivi.woe.woe_table
+
+.. autofunction:: kivi.woe.woe_transform
 
 Population stability
 --------------------

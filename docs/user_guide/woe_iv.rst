@@ -121,3 +121,36 @@ student         15         44       0.254  0.955
       :pyobject: woe_chart
 
 To compare many variables at once, rank them by IV; see :doc:`risk_workflow`.
+
+Encoding new data
+-----------------
+
+A scorecard model takes WOE values as inputs. ``woe_transform`` replaces each group with its WOE from a development table, so the validation sample and later production data are encoded with exactly the same values. Group every sample with the edges fitted on the development sample:
+
+>>> from kivi.binning import bin_edges
+>>> from kivi.woe import woe_transform
+>>> edges = bin_edges(reference["age"], bins=5)
+>>> age_table = woe_table(pd.cut(reference["age"], edges), reference["target"])
+>>> current = data.iloc[3000:]
+>>> encoded = woe_transform(pd.cut(current["age"], edges), age_table)
+>>> pd.DataFrame({"age": current["age"], "woe": encoded}).head(4).round(3)
+      age    woe
+3000   45 -0.050
+3001   43 -0.050
+3002   27  0.114
+3003   33 -0.125
+
+The result keeps the index of the groups. A missing value takes the WOE of the missing group when the development sample had missing values.
+
+A group that is not in the table, such as a category that appears only in later data, raises an error by default, so a mapping problem cannot go unnoticed:
+
+>>> new_jobs = pd.Series(["student", "gig worker", None])
+>>> woe_transform(new_jobs, jobs)
+Traceback (most recent call last):
+    ...
+ValueError: 2 group(s) are not in table, such as 'gig worker', nan; pass unseen to give them a WOE
+
+Pass ``unseen`` to give such groups a WOE instead. A WOE of 0 is the neutral choice: it stands for the event rate of the whole development sample.
+
+>>> woe_transform(new_jobs, jobs, unseen=0.0).round(3).tolist()
+[0.955, 0.0, 0.0]
