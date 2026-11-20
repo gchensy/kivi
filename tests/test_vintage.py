@@ -176,6 +176,51 @@ def test_vintage_table_integer_weights_repeat_loans():
     pd.testing.assert_frame_equal(weighted, expected.reindex(weighted.index))
 
 
+def test_vintage_table_is_nan_before_a_cohort_is_observed():
+    # The panel starts at month on book 3 for cohort "b"; its first two months are unknown.
+    loan = [1, 1, 1, 2, 2, 2]
+    cohort = ["a", "a", "a", "b", "b", "b"]
+    month_on_book = [1, 2, 3, 3, 4, 5]
+    bad = [0, 1, 1, 0, 1, 1]
+    table = vintage_table(loan, cohort, month_on_book, bad)
+    np.testing.assert_allclose(
+        table.to_numpy(), [[0, 1, 1, np.nan, np.nan], [np.nan, np.nan, 0, 1, 1]]
+    )
+
+
+def test_vintage_table_of_a_panel_that_starts_after_origination(panel):
+    late = panel[panel["month"] >= pd.Period("2025-01", freq="M")]
+    table = vintage_table(
+        late["loan_id"], late["cohort"], late["month_on_book"], late["status"] >= "30-59"
+    )
+    row = table.loc[pd.Period("2024-06", freq="M")]
+    # The 2024-06 cohort is observed from month on book 7, in January 2025, to 13, in July.
+    assert row.loc[:6].isna().all() and row.loc[7:13].notna().all() and row.loc[14:].isna().all()
+    cohort = late[late["cohort"] == pd.Period("2024-06", freq="M")]
+    first_bad = cohort.loc[cohort["status"] >= "30-59"].groupby("loan_id")["month_on_book"].min()
+    expected = (first_bad <= 9).sum() / cohort["loan_id"].nunique()
+    assert row.loc[9] == pytest.approx(expected)
+
+
+def test_vintage_table_horizon_of_a_cohort_that_was_repaid():
+    # Cohort "a" is repaid after month on book 2 while "b" runs to 4: "a" is NaN afterwards,
+    # unless the repaid loans keep rows with a status that is not bad.
+    loan = [1, 1, 2, 2, 3, 3, 3, 3]
+    cohort = ["a"] * 4 + ["b"] * 4
+    month_on_book = [1, 2, 1, 2, 1, 2, 3, 4]
+    bad = [0, 1, 0, 0, 0, 0, 0, 1]
+    table = vintage_table(loan, cohort, month_on_book, bad)
+    np.testing.assert_allclose(table.loc["a"], [0, 0.5, np.nan, np.nan])
+    closed = vintage_table(
+        [*loan, 1, 1, 2, 2],
+        [*cohort, "a", "a", "a", "a"],
+        [*month_on_book, 3, 4, 3, 4],
+        [*bad, 0, 0, 0, 0],
+    )
+    np.testing.assert_allclose(closed.loc["a"], [0, 0.5, 0.5, 0.5])
+    np.testing.assert_allclose(closed.loc["b"], [0, 0, 0, 1])
+
+
 def test_vintage_table_drops_cohorts_without_weight():
     weights = [1.0] * 6 + [0.0] * 4
     table = vintage_table(LOAN, COHORT, MOB, BAD, weights=weights)
@@ -430,6 +475,17 @@ def test_transition_matrix_rejects_empty_or_mismatched_inputs():
         transition_matrix(["a"], ["a"], weights=[-1.0])
 
 
+def test_transition_matrix_checks_the_index_of_weights_against_every_series():
+    before = pd.Series(["a", "b"], index=[1, 2])
+    weights = pd.Series([1.0, 2.0], index=[7, 8])
+    with pytest.raises(ValueError, match="before and weights must have identical indices"):
+        transition_matrix(before, ["a", "b"], weights=weights)
+    with pytest.raises(ValueError, match="before and weights must have identical indices"):
+        roll_rates(before, ["a", "b"], states=["a", "b"], weights=weights)
+    matrix = transition_matrix(before, ["b", "b"], weights=weights.set_axis([1, 2]))
+    assert matrix.to_numpy().tolist() == [[0.0, 1.0], [0.0, 2.0]]
+
+
 # roll_rates
 
 
@@ -453,7 +509,7 @@ def test_roll_rates_count_only_the_next_state():
 
 
 def test_roll_rates_with_a_single_state_is_empty():
-    rates = roll_rates(["a", "a"], ["a", "a"])
+    rates = roll_rates(["a", "a"], ["a", "a"], states=["a"])
     assert rates.empty and rates.name == "roll_rate"
 
 
@@ -474,4 +530,24 @@ def test_roll_rates_rejects_what_transition_matrix_rejects():
     with pytest.raises(ValueError, match="after must contain only values in states, got 'x'"):
         roll_rates(["a"], ["x"], states=["a", "b"])
     with pytest.raises(ValueError, match="before must not contain missing values, got 1"):
-        roll_rates([None, "a"], ["a", "a"])
+        roll_rates([None, "a"], ["a", "a"], states=["a"])
+
+
+def test_roll_rates_need_the_order_of_the_states():
+    # Sorted, "current" would come after "90+": it would be the worst state and drop out, and
+    # the 90+ -> current cure would be reported as a roll.
+    before = ["current", "current", "60-89", "90+", "90+"]
+    after = ["current", "1-29", "90+", "current", "90+"]
+    message = "roll_rates needs the states from the best to the worst: pass states"
+    with pytest.raises(ValueError, match=message):
+        roll_rates(before, after)
+    with pytest.raises(ValueError, match=message):
+        roll_rates(pd.Series(before).astype("category"), pd.Series(after).astype("category"))
+    with pytest.raises(ValueError, match=message):
+        roll_rates(pd.Series(before, dtype=pd.CategoricalDtype(STATES, ordered=True)), after)
+    rates = roll_rates(before, after, states=STATES)
+    np.testing.assert_allclose(rates.to_numpy(), [0.5, np.nan, np.nan, 1.0])
+    dtype = pd.CategoricalDtype(STATES, ordered=True)
+    pd.testing.assert_series_equal(
+        roll_rates(pd.Series(before, dtype=dtype), pd.Series(after, dtype=dtype)), rates
+    )

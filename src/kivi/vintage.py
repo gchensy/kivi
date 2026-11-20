@@ -56,8 +56,9 @@ def vintage_table(
     -------
     pandas.DataFrame
         Cumulative bad rates with one row per cohort and one column per
-        distinct month on book of the panel. An entry is NaN when the cohort
-        has no row at or after that month on book.
+        distinct month on book of the panel. An entry is NaN outside the
+        months on book at which the cohort is observed, from the smallest to
+        the largest month on book of its rows.
 
     Raises
     ------
@@ -92,11 +93,25 @@ def vintage_table(
     counts as bad only if it was bad before it left. A loan that is bad once
     stays counted as bad, even if it later cures.
 
-    A cohort is observed up to the largest month on book of its rows. Its
-    later months on book are NaN, not 0, because the cohort is too young to
-    show whether its loans will go bad. Comparing the cohorts at the same
-    month on book compares them at the same age, which separates a change
-    in the quality of new lending from the seasoning of the portfolio.
+    A cohort is observed from the smallest to the largest month on book of
+    its rows, and its entries outside that range are NaN, not 0. Later
+    months on book are missing because the cohort is too young to show
+    whether its loans will go bad, and earlier ones because the panel starts
+    after the cohort was originated. Loans that were bad only before the
+    panel starts are not counted, so start the panel at origination where
+    possible. Comparing the cohorts at the same month on book compares them
+    at the same age, which separates a change in the quality of new lending
+    from the seasoning of the portfolio.
+
+    Two cases need care. If every loan of a cohort leaves the panel before
+    it ends, for example because all of them were repaid, the cohort's last
+    entry is final, yet its later months on book are NaN; to fill them, keep
+    a row for each month end after a loan left, with a status that is not
+    bad, such as ``"closed"``. And a cohort that spans several origination
+    months, such as a quarter, mixes loans of different ages: at its largest
+    months on book, its youngest loans count in the denominator although
+    they have not been observed that long, which biases those entries down.
+    Monthly cohorts avoid this.
 
     Examples
     --------
@@ -186,11 +201,14 @@ def vintage_table(
     ).reshape(n_cohorts, width)
     total = bad_mass.sum(axis=1)
     cumulative = np.cumsum(bad_mass[:, :-1], axis=1)
-    oldest = np.full(n_cohorts, columns[0])
+    # Each cohort is observed between its smallest and its largest month on book.
+    youngest, oldest = np.full(n_cohorts, columns[-1]), np.full(n_cohorts, columns[0])
+    np.minimum.at(youngest, cohort_code, mob)
     np.maximum.at(oldest, cohort_code, mob)
     keep = total > 0
     rate = cumulative[keep] / total[keep, None]
-    rate[columns[None, :] > oldest[keep, None]] = np.nan
+    outside = (columns[None, :] < youngest[keep, None]) | (columns[None, :] > oldest[keep, None])
+    rate[outside] = np.nan
     return pd.DataFrame(
         rate,
         index=cohort_label[keep].rename("cohort"),
@@ -228,6 +246,8 @@ def transition_matrix(
         the best to the worst. States without entities still get a row and a
         column. By default, the categories of categorical inputs, which must
         then be the same for both, or else the sorted distinct values.
+        Sorting puts labels such as ``"current"`` after ``"90+"``, so pass
+        `states` or ordered categoricals for delinquency buckets.
     normalize : bool, default False
         If True, divide each row by its total, so that it holds the shares of
         the state's entities that moved to each state. A row without entities
@@ -322,10 +342,10 @@ def roll_rates(
         State of each entity at the first and at the second observation, as
         in `transition_matrix`. Neither may contain missing values.
     states : array_like, optional
-        All states from the best to the worst. By default, the categories of
-        categorical inputs, which must then be the same for both, or else the
-        sorted distinct values. Pass `states` unless that order runs from the
-        best to the worst.
+        All states from the best to the worst. Required unless `before` and
+        `after` are ordered categoricals with the same categories, whose
+        order is then used. A sorted order would be wrong for most labels,
+        for example ``"current"`` would come after ``"90+"``.
     weights : array_like, optional
         Non-negative weight of each entity, such as its balance at the first
         observation, matched like `after`. The rates are then shares of
@@ -340,7 +360,8 @@ def roll_rates(
     Raises
     ------
     ValueError
-        In the same cases as `transition_matrix`.
+        In the same cases as `transition_matrix`, and if `states` is not
+        given while `before` and `after` are not ordered categoricals.
 
     See Also
     --------
@@ -376,6 +397,15 @@ def roll_rates(
     60         0.500
     Name: roll_rate, dtype: float64
     """
+    ordered = all(
+        isinstance(getattr(values, "dtype", None), pd.CategoricalDtype) and values.dtype.ordered
+        for values in (before, after)
+    )
+    if states is None and not ordered:
+        raise ValueError(
+            "roll_rates needs the states from the best to the worst: pass states, or pass "
+            "before and after as ordered categoricals"
+        )
     labels, before_code, after_code, mass = _transitions(before, after, states, weights)
     size = len(labels)
     total = np.bincount(before_code, weights=mass, minlength=size)[:-1]
@@ -389,9 +419,7 @@ def roll_rates(
 
 def _transitions(before, after, states, weights):
     """States as an Index, the state code of each entity before and after, and the weights."""
-    if isinstance(before, pd.Series) and isinstance(after, pd.Series):
-        if not before.index.equals(after.index):
-            raise ValueError("before and after must have identical indices")
+    _check_indices((before, after, weights), ("before", "after", "weights"))
     raw_after = after
     before, after = as_series(before, "before"), as_series(after, "after")
     if len(before) != len(after):
