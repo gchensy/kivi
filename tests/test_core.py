@@ -458,3 +458,105 @@ def test_woe_table_reports_totals_shares_and_event_rates():
     np.testing.assert_allclose(result.event_rate, [0.5, 0.0, 1.0])
     # The smoothed class shares are unchanged by the new columns.
     np.testing.assert_allclose(result.event_share, [0.4, 0.2, 0.4])
+
+
+def test_integer_weights_match_repeated_rows():
+    groups = pd.Series(["a", "a", "b", "b", "c"])
+    target = pd.Series([1, 0, 1, 0, 1])
+    weights = np.array([2, 1, 1, 3, 1])
+    repeated = woe_table(
+        pd.Series(np.repeat(groups.to_numpy(), weights)),
+        pd.Series(np.repeat(target.to_numpy(), weights)),
+    )
+    weighted = woe_table(groups, target, weights=weights)
+    pd.testing.assert_frame_equal(weighted, repeated, check_dtype=False)
+
+    reference, current = pd.Series(["x", "x", "y"]), pd.Series(["y", "y", "z"])
+    reference_weights, current_weights = [3, 1, 2], [1, 2, 4]
+    repeated = psi_table(
+        pd.Series(np.repeat(reference.to_numpy(), reference_weights)),
+        pd.Series(np.repeat(current.to_numpy(), current_weights)),
+    )
+    weighted = psi_table(
+        reference,
+        current,
+        reference_weights=reference_weights,
+        current_weights=current_weights,
+    )
+    pd.testing.assert_frame_equal(weighted, repeated, check_dtype=False)
+
+
+def test_reweighting_a_class_keeps_woe_and_changes_event_rates():
+    groups = pd.Series(["a", "a", "a", "b", "b", "b"])
+    target = pd.Series([1, 1, 0, 1, 0, 0])
+    plain = woe_table(groups, target)
+    weighted = woe_table(groups, target, weights=np.where(target == 0, 4.0, 1.0))
+    np.testing.assert_allclose(weighted.woe, plain.woe)
+    np.testing.assert_allclose(weighted.iv, plain.iv)
+    # a: 2 events and 1 non-event weighted 4; b: 1 event and 2 non-events weighted 4.
+    np.testing.assert_allclose(weighted.event_rate, [2 / 6, 1 / 9])
+    np.testing.assert_allclose(weighted.total_share, [6 / 15, 9 / 15])
+
+
+def test_zero_weight_groups_are_left_out():
+    result = woe_table(["a", "b", "b"], [1, 0, 1], weights=[0, 1, 1])
+    assert result.index.tolist() == ["b"]
+    assert result.total.tolist() == [2.0]
+    with pytest.raises(ValueError, match="both target classes a positive total"):
+        woe_table(["a", "b"], [1, 0], weights=[0, 1])
+    stability = psi_table(["x", "y"], ["x", "z"], reference_weights=[1, 0], current_weights=[1, 0])
+    assert stability.index.tolist() == ["x"]
+
+
+@pytest.mark.parametrize(
+    "weights,message",
+    [
+        ([1, 1], "weights must have one weight per value, got 2 for 3 values"),
+        ([1, -1, 1], "weights must be finite and non-negative"),
+        ([1, np.nan, 1], "weights must be finite and non-negative"),
+        ([0, 0, 0], "weights must have a positive total"),
+        ([[1, 1, 1]], "weights must be one-dimensional, got 2 dimensions"),
+        (["a", "b", "c"], "weights must be numeric"),
+        (pd.Series([1, 1, 1], index=[3, 4, 5]), "weights must have the same index"),
+    ],
+)
+def test_invalid_weights(weights, message):
+    values = pd.Series([1.0, 2.0, 3.0])
+    with pytest.raises(ValueError, match=message):
+        bin_edges(values, bins=2, weights=weights)
+    with pytest.raises(ValueError, match=message):
+        woe_table(values, pd.Series([0, 1, 1]), weights=weights)
+    with pytest.raises(ValueError, match="reference_weights must have one weight per value"):
+        psi_table(["x"], ["y"], reference_weights=[1, 2])
+
+
+def test_weighted_quantile_edges_match_repeated_values():
+    values = np.array([1.0, 2, 3, 4, 5, 6, 7, 8])
+    weights = np.array([3, 1, 1, 2, 1, 1, 4, 1])
+    probabilities = np.linspace(0, 1, 5)
+    expected = np.quantile(np.repeat(values, weights), probabilities, method="inverted_cdf")
+    np.testing.assert_equal(
+        bin_edges(values, bins=4, weights=weights),
+        np.r_[-np.inf, np.unique(expected)[1:-1], np.inf],
+    )
+    np.testing.assert_equal(
+        bin_edges([1, 2, 3, 4], bins=2, weights=[1, 1, 1, 3]), [-np.inf, 3, np.inf]
+    )
+    uniform = bin_edges([0, 10, 20, 100], bins=2, method="uniform", weights=[1, 1, 1, 0])
+    np.testing.assert_equal(uniform, [-np.inf, 10, np.inf])
+
+
+@pytest.mark.skipif(
+    np.lib.NumpyVersion(np.__version__) < "2.0.0", reason="np.quantile has weights since 2.0"
+)
+def test_weighted_quantile_edges_match_numpy():
+    rng = np.random.default_rng(0)
+    values, weights = rng.normal(size=500), rng.uniform(0.1, 3, size=500)
+    expected = np.quantile(values, np.linspace(0, 1, 11), weights=weights, method="inverted_cdf")
+    np.testing.assert_equal(bin_edges(values, bins=10, weights=weights)[1:-1], expected[1:-1])
+
+
+def test_tied_edges_warning_uses_weighted_shares():
+    with pytest.warns(UserWarning, match="the value 1 makes up 77% of the fitted values"):
+        edges = bin_edges([1, 2, 3, 4], bins=4, weights=[10, 1, 1, 1])
+    np.testing.assert_equal(edges, [-np.inf, np.inf])

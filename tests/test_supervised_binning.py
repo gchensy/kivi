@@ -415,3 +415,23 @@ def test_invalid_special_values(fit, values, target, special, message):
 def test_invalid_supervised_options(fit, options, message):
     with pytest.raises(ValueError, match=message):
         fit(TREE_VALUES, TREE_TARGET, **options)
+
+
+@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, monotonic_edges])
+def test_integer_weights_match_repeated_rows(fit):
+    values = np.arange(1, 13)
+    target = np.array([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1])
+    weights = np.array([1, 2, 1, 3, 1, 1, 2, 1, 1, 2, 1, 1])
+    repeated = fit(np.repeat(values, weights), np.repeat(target, weights))
+    np.testing.assert_equal(fit(values, target, weights=weights), repeated)
+
+
+def test_zero_weight_rows_are_left_out_with_their_labels():
+    values = np.arange(1, 13)
+    target = np.array([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1])
+    weights = np.r_[np.ones(12), 0.0]
+    padded_values, padded_target = np.r_[values, 1000], np.r_[target, 1]
+    for fit in (chimerge_edges, tree_edges, monotonic_edges):
+        np.testing.assert_equal(
+            fit(padded_values, padded_target, weights=weights), fit(values, target)
+        )

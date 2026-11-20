@@ -39,3 +39,31 @@ def as_count_columns(first, second, names: tuple[str, str]) -> np.ndarray:
             f"got {len(columns[0])} and {len(columns[1])}"
         )
     return np.column_stack(columns)
+
+
+def as_weights(weights, values, name: str = "weights") -> np.ndarray | None:
+    """Return observation weights as a float array matched to ``values``, or None.
+
+    Two Series must have identical indices; otherwise the weights are matched
+    by position, as the target is in ``woe_table``.
+    """
+    if weights is None:
+        return None
+    if isinstance(values, pd.Series) and isinstance(weights, pd.Series):
+        if not values.index.equals(weights.index):
+            raise ValueError(f"{name} must have the same index as the values it weights")
+    try:
+        array = as_series(weights, name).to_numpy(dtype=float)
+    except (TypeError, ValueError) as error:
+        if "one-dimensional" in str(error):
+            raise
+        raise ValueError(f"{name} must be numeric") from error
+    if len(array) != len(values):
+        raise ValueError(
+            f"{name} must have one weight per value, got {len(array)} for {len(values)} values"
+        )
+    if not np.isfinite(array).all() or (array < 0).any():
+        raise ValueError(f"{name} must be finite and non-negative")
+    if not array.sum() > 0:
+        raise ValueError(f"{name} must have a positive total")
+    return array
