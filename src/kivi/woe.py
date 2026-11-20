@@ -1,4 +1,9 @@
-"""Weight of evidence and information value."""
+"""Weight of evidence and information value.
+
+``woe_table`` measures groups against a binary target and ``woe_transform``
+encodes groups with the fitted WOE. ``woe`` and ``iv`` compute the same
+measures from counts that are already aggregated.
+"""
 
 from numbers import Real
 from typing import Literal
@@ -7,10 +12,10 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._counts import group_counts, shares
-from ._validation import as_series
+from ._counts import divergence, group_counts
+from ._validation import as_count_columns, as_series
 
-__all__ = ["woe_table", "woe_transform"]
+__all__ = ["iv", "woe", "woe_table", "woe_transform"]
 
 
 def woe_table(
@@ -35,8 +40,11 @@ def woe_table(
     Returns
     -------
     pandas.DataFrame
-        Event and non-event counts, their within-class shares, WOE and IV
-        per group. Sum the iv column for the variable's information value.
+        One row per group with the columns ``non_event``, ``event`` and
+        ``total`` (counts), ``non_event_share`` and ``event_share`` (smoothed
+        shares within each class), ``total_share`` (share of all
+        observations), ``event_rate``, ``woe`` and ``iv``. Sum the iv column
+        for the variable's information value.
 
     Raises
     ------
@@ -48,8 +56,9 @@ def woe_table(
     See Also
     --------
     woe_transform : Replace each group with its WOE.
+    woe, iv : The same measures from counts per group.
     kivi.binning.bin_edges : Fit edges for numeric variables.
-    kivi.evaluate.psi_table : Compare the distribution of two samples.
+    kivi.stability.psi_table : Compare the distribution of two samples.
 
     Notes
     -----
@@ -63,8 +72,8 @@ def woe_table(
        \mathrm{IV} = \sum_i \mathrm{IV}_i.
 
     Each zero count is replaced with `smoothing` before the shares are
-    normalized, so every WOE is finite. The ``non_event`` and ``event``
-    columns always report the observed counts.
+    normalized, so every WOE is finite. The count columns, ``total_share``
+    and ``event_rate`` always use the observed counts.
 
     Categorical groups, such as the result of `kivi.binning.cut` or
     ``pandas.cut``, follow the order of their categories with missing values
@@ -101,11 +110,119 @@ def woe_table(
     counts = group_counts(groups, target.to_numpy(dtype=np.intp))
     counts.columns = ["non_event", "event"]
     # Assign by position: aligning interval categories hashes them, which warns on NumPy < 2.2.
-    share = shares(counts, smoothing).to_numpy()
-    result = counts.assign(non_event_share=share[:, 0], event_share=share[:, 1])
-    result["woe"] = np.log(result.event_share / result.non_event_share)
-    result["iv"] = (result.event_share - result.non_event_share) * result.woe
-    return result
+    share, log_ratio, contribution = divergence(counts.to_numpy(), smoothing)
+    total = counts["non_event"] + counts["event"]
+    return counts.assign(
+        total=total,
+        non_event_share=share[:, 0],
+        event_share=share[:, 1],
+        total_share=total / total.sum(),
+        event_rate=counts["event"] / total,
+        woe=log_ratio,
+        iv=contribution,
+    )
+
+
+def woe(
+    event_counts: npt.ArrayLike, non_event_counts: npt.ArrayLike, *, smoothing: float = 0.5
+) -> npt.NDArray[np.float64]:
+    r"""Compute the weight of evidence of each group from its counts.
+
+    Use this when the counts are already aggregated, for example from a
+    database query or a report, instead of one label per observation.
+
+    Parameters
+    ----------
+    event_counts, non_event_counts : array_like
+        One-dimensional, non-negative counts of events and non-events in each
+        group, in the same group order. Weighted counts need not be integers.
+    smoothing : float, default 0.5
+        Positive replacement for a zero count when calculating shares.
+
+    Returns
+    -------
+    numpy.ndarray
+        The WOE of each group.
+
+    Raises
+    ------
+    ValueError
+        If the counts are not one-dimensional, numeric, finite and
+        non-negative, have different lengths or a zero total, or `smoothing`
+        is not finite and positive.
+
+    See Also
+    --------
+    iv : The information value of the same counts.
+    woe_table : Counts, shares, WOE and IV from group labels and a target.
+
+    Notes
+    -----
+    With :math:`p_i` and :math:`q_i` the smoothed shares of group :math:`i`
+    among all events and all non-events, :math:`\mathrm{WOE}_i = \ln(p_i / q_i)`,
+    as in the ``woe`` column of `woe_table`.
+
+    Examples
+    --------
+    >>> from kivi.woe import woe
+    >>> woe([2, 1], [1, 2]).round(4)
+    array([ 0.6931, -0.6931])
+    """
+    counts = as_count_columns(non_event_counts, event_counts, ("non_event_counts", "event_counts"))
+    return divergence(counts, smoothing)[1]
+
+
+def iv(
+    event_counts: npt.ArrayLike, non_event_counts: npt.ArrayLike, *, smoothing: float = 0.5
+) -> float:
+    r"""Compute the information value from counts per group.
+
+    The information value summarizes how well the groups separate events
+    from non-events, from counts that are already aggregated.
+
+    Parameters
+    ----------
+    event_counts, non_event_counts : array_like
+        One-dimensional, non-negative counts of events and non-events in each
+        group, in the same group order. Weighted counts need not be integers.
+    smoothing : float, default 0.5
+        Positive replacement for a zero count when calculating shares.
+
+    Returns
+    -------
+    float
+        The information value of the variable.
+
+    Raises
+    ------
+    ValueError
+        If the counts are not one-dimensional, numeric, finite and
+        non-negative, have different lengths or a zero total, or `smoothing`
+        is not finite and positive.
+
+    See Also
+    --------
+    woe : The weight of evidence of each group.
+    woe_table : The IV contribution of each group from labels and a target.
+    kivi.stability.psi : The same divergence between two samples.
+
+    Notes
+    -----
+    .. math::
+
+       \mathrm{IV} = \sum_i (p_i - q_i) \ln \frac{p_i}{q_i},
+
+    which equals the sum of the ``iv`` column of `woe_table` for the same
+    groups.
+
+    Examples
+    --------
+    >>> from kivi.woe import iv
+    >>> round(iv([2, 1], [1, 2]), 4)
+    0.4621
+    """
+    counts = as_count_columns(non_event_counts, event_counts, ("non_event_counts", "event_counts"))
+    return float(divergence(counts, smoothing)[2].sum())
 
 
 def woe_transform(

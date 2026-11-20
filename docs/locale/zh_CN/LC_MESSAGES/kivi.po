@@ -105,8 +105,10 @@ msgstr "**method**"
 msgid "{\"quantile\", \"uniform\"}, default \"quantile\""
 msgstr "{\"quantile\", \"uniform\"}，默认 \"quantile\""
 
-msgid "Use sample quantiles or equally spaced edges."
-msgstr "使用样本分位点或等距边界。"
+msgid ""
+"Use sample quantiles or equally spaced edges. Pass it by keyword: passing it by position is "
+"deprecated and stops working in kivi 0.6.0."
+msgstr "使用样本分位数或等距边界。请以关键字形式传入：按位置传入已弃用，并将在 kivi 0.6.0 中失效。"
 
 msgid "**special**"
 msgstr "**special**"
@@ -151,6 +153,12 @@ msgid ""
 "large share of the reference."
 msgstr "如果边界重合导致实际箱数少于期望箱数，例如某个取值在基准样本中占比很大。"
 
+msgid "FutureWarning"
+msgstr "FutureWarning"
+
+msgid "If `method` is passed by position."
+msgstr "如果按位置传入 `method` 。"
+
 msgid ":obj:`cut`"
 msgstr ":obj:`cut`"
 
@@ -172,8 +180,8 @@ msgstr ":obj:`kivi.woe.woe_table`"
 msgid "Weight of evidence of the resulting groups."
 msgstr "计算所得分组的证据权重。"
 
-msgid ":obj:`kivi.evaluate.psi_table`"
-msgstr ":obj:`kivi.evaluate.psi_table`"
+msgid ":obj:`kivi.stability.psi_table`"
+msgstr ":obj:`kivi.stability.psi_table`"
 
 msgid "Stability of the resulting groups."
 msgstr "计算所得分组的稳定性。"
@@ -984,87 +992,6 @@ msgstr ""
 msgid "[Re446c00e8929-1]_"
 msgstr "[Re446c00e8929-1]_"
 
-msgid "Population stability"
-msgstr "群体稳定性"
-
-msgid ""
-":py:obj:`psi_table <kivi.evaluate.psi_table>`\\ \\(reference\\, current\\, \\*\\[\\, "
-"smoothing\\]\\)"
-msgstr ""
-":py:obj:`psi_table <kivi.evaluate.psi_table>`\\ \\(reference\\, current\\, \\*\\[\\, "
-"smoothing\\]\\)"
-
-msgid "Compare two samples using their population stability index."
-msgstr "通过群体稳定性指标（PSI）比较两个样本的分布。"
-
-msgid ""
-"Each group's share of the current sample is compared with its share of the reference sample. Sum "
-"the ``psi`` column for the index."
-msgstr "比较每组在当前样本中的占比与在基准样本中的占比。将 ``psi`` 列求和即得到该指数。"
-
-msgid "**reference, current**"
-msgstr "**reference, current**"
-
-msgid ""
-"Labels or values binned using the same edges. Missing values and categories observed in only one "
-"sample are included."
-msgstr "类别标签或按相同边界分箱的数值。保留缺失值以及仅出现在一侧的类别。"
-
-msgid "Positive replacement for a zero count when calculating shares."
-msgstr "计算占比时，用这个正数替代零计数。"
-
-msgid ""
-"Counts, normalized shares and the PSI contribution of each group. Sum the psi column for the "
-"population stability index."
-msgstr "各组的原始计数、归一化占比和 PSI 贡献。对 psi 列求和即得到总体 PSI。"
-
-msgid "If either sample is empty or not one-dimensional, or `smoothing` is not finite and positive."
-msgstr "如果任一样本为空或不是一维，或者 `smoothing` 不是有限正数。"
-
-msgid ":obj:`kivi.binning.bin_edges`"
-msgstr ":obj:`kivi.binning.bin_edges`"
-
-msgid "Fit edges on the reference sample."
-msgstr "在基准样本上拟合分箱边界。"
-
-msgid "Relate the groups to a binary target."
-msgstr "将分组与二分类目标关联起来。"
-
-msgid ""
-"For group :math:`i`, let :math:`q_i` be its share of the reference sample and :math:`p_i` its "
-"share of the current sample. Then"
-msgstr "对第 :math:`i` 组，令 :math:`q_i` 为其在基准样本中的占比，:math:`p_i` 为其在当前样本中的占比，则"
-
-#, python-brace-format
-msgid ""
-"\\mathrm{PSI}_i = (p_i - q_i) \\ln \\frac{p_i}{q_i}, \\qquad\n"
-"\\mathrm{PSI} = \\sum_i \\mathrm{PSI}_i."
-msgstr ""
-"\\mathrm{PSI}_i = (p_i - q_i) \\ln \\frac{p_i}{q_i}, \\qquad\n"
-"\\mathrm{PSI} = \\sum_i \\mathrm{PSI}_i."
-
-msgid ""
-"Each zero count is replaced with `smoothing` before the shares are normalized, so a group "
-"observed in only one sample has a finite contribution. The ``reference`` and ``current`` columns "
-"always report the observed counts."
-msgstr "在归一化占比之前，每个零计数都会被替换为 `smoothing`，因此只在一个样本中出现的组也有有限的贡献值。 ``reference`` 和 ``current`` 列始终报告实际观测到的计数。"
-
-msgid ""
-"If both samples are categorical with the same categories, rows follow the order of the categories"
-" with missing values last. Otherwise they follow the order in which the groups first appear, in "
-"the reference sample and then in the current sample."
-msgstr "如果两个样本都是分类型且类别相同，各行按类别顺序排列，缺失值排在最后。否则按分组首次出现的次序排列，先看基准样本，再看当前样本。"
-
-msgid ""
-"N. Siddiqi, \"Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring\", "
-"Wiley, 2006."
-msgstr ""
-"N. Siddiqi, \"Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring\", "
-"Wiley, 2006."
-
-msgid "[Rb40ea4e016bb-1]_"
-msgstr "[Rb40ea4e016bb-1]_"
-
 msgid "Scorecard"
 msgstr "评分卡"
 
@@ -1317,6 +1244,13 @@ msgid ""
 "intercept and offset, so the points of a variable's groups differ only by their WOE term."
 msgstr "其中因子和偏移量来自 `score_scaling` 。每个变量分摊相同份额的截距和偏移量，因此同一变量各分组的分值只在 WOE 项上有差别。"
 
+msgid ""
+"N. Siddiqi, \"Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring\", "
+"Wiley, 2006."
+msgstr ""
+"N. Siddiqi, \"Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring\", "
+"Wiley, 2006."
+
 msgid "[Rc133f1fff48a-1]_"
 msgstr "[Rc133f1fff48a-1]_"
 
@@ -1407,6 +1341,146 @@ msgid ""
 "points that are rounded in the same way: the best group's points are read from `table`."
 msgstr "损失分数相同的变量保持 `points` 中的列顺序。请比较取整方式相同的分值：最佳分组的分值取自 `table` 。"
 
+msgid "Population stability"
+msgstr "群体稳定性"
+
+msgid ""
+":py:obj:`psi_table <kivi.stability.psi_table>`\\ \\(reference\\, current\\, \\*\\[\\, "
+"smoothing\\]\\)"
+msgstr ""
+":py:obj:`psi_table <kivi.stability.psi_table>`\\ \\(reference\\, current\\, \\*\\[\\, "
+"smoothing\\]\\)"
+
+msgid "Compare two samples using their population stability index."
+msgstr "通过群体稳定性指标（PSI）比较两个样本的分布。"
+
+msgid ""
+":py:obj:`psi <kivi.stability.psi>`\\ \\(reference\\_counts\\, current\\_counts\\, \\*\\[\\, "
+"...\\]\\)"
+msgstr ""
+":py:obj:`psi <kivi.stability.psi>`\\ \\(reference\\_counts\\, current\\_counts\\, \\*\\[\\, "
+"...\\]\\)"
+
+msgid "Compute the population stability index from counts per group."
+msgstr "根据每组的计数计算群体稳定性指标（PSI）。"
+
+msgid ""
+"Each group's share of the current sample is compared with its share of the reference sample. Sum "
+"the ``psi`` column for the index."
+msgstr "比较每组在当前样本中的占比与在基准样本中的占比。将 ``psi`` 列求和即得到该指数。"
+
+msgid "**reference, current**"
+msgstr "**reference, current**"
+
+msgid ""
+"Labels or values binned using the same edges. Missing values and categories observed in only one "
+"sample are included."
+msgstr "类别标签或按相同边界分箱的数值。保留缺失值以及仅出现在一侧的类别。"
+
+msgid "Positive replacement for a zero count when calculating shares."
+msgstr "计算占比时，用这个正数替代零计数。"
+
+msgid ""
+"Counts, normalized shares and the PSI contribution of each group. Sum the psi column for the "
+"population stability index."
+msgstr "各组的原始计数、归一化占比和 PSI 贡献。对 psi 列求和即得到总体 PSI。"
+
+msgid "If either sample is empty or not one-dimensional, or `smoothing` is not finite and positive."
+msgstr "如果任一样本为空或不是一维，或者 `smoothing` 不是有限正数。"
+
+msgid ":obj:`psi`"
+msgstr ":obj:`psi`"
+
+msgid "The same index from counts per group."
+msgstr "根据每组计数计算同一指标。"
+
+msgid ":obj:`kivi.binning.bin_edges`"
+msgstr ":obj:`kivi.binning.bin_edges`"
+
+msgid "Fit edges on the reference sample."
+msgstr "在基准样本上拟合分箱边界。"
+
+msgid "Relate the groups to a binary target."
+msgstr "将分组与二分类目标关联起来。"
+
+msgid ""
+"For group :math:`i`, let :math:`q_i` be its share of the reference sample and :math:`p_i` its "
+"share of the current sample. Then"
+msgstr "对第 :math:`i` 组，令 :math:`q_i` 为其在基准样本中的占比，:math:`p_i` 为其在当前样本中的占比，则"
+
+#, python-brace-format
+msgid ""
+"\\mathrm{PSI}_i = (p_i - q_i) \\ln \\frac{p_i}{q_i}, \\qquad\n"
+"\\mathrm{PSI} = \\sum_i \\mathrm{PSI}_i."
+msgstr ""
+"\\mathrm{PSI}_i = (p_i - q_i) \\ln \\frac{p_i}{q_i}, \\qquad\n"
+"\\mathrm{PSI} = \\sum_i \\mathrm{PSI}_i."
+
+msgid ""
+"Each zero count is replaced with `smoothing` before the shares are normalized, so a group "
+"observed in only one sample has a finite contribution. The ``reference`` and ``current`` columns "
+"always report the observed counts."
+msgstr "在归一化占比之前，每个零计数都会被替换为 `smoothing`，因此只在一个样本中出现的组也有有限的贡献值。 ``reference`` 和 ``current`` 列始终报告实际观测到的计数。"
+
+msgid ""
+"If both samples are categorical with the same categories, rows follow the order of the categories"
+" with missing values last. Otherwise they follow the order in which the groups first appear, in "
+"the reference sample and then in the current sample."
+msgstr "如果两个样本都是分类型且类别相同，各行按类别顺序排列，缺失值排在最后。否则按分组首次出现的次序排列，先看基准样本，再看当前样本。"
+
+msgid "[Rb11431c5e9a8-1]_"
+msgstr "[Rb11431c5e9a8-1]_"
+
+msgid ""
+"Use this when the samples are already aggregated, for example monthly counts per score band from "
+"a monitoring report."
+msgstr "适用于样本已经汇总的情况，例如监控报表中按分数段统计的月度计数。"
+
+msgid "**reference_counts, current_counts**"
+msgstr "**reference_counts, current_counts**"
+
+msgid ""
+"One-dimensional, non-negative counts of each group in the reference and the current sample, in "
+"the same group order. Weighted counts need not be integers."
+msgstr "基准样本和当前样本中每组的一维非负计数，两者的分组顺序须一致。加权计数不必是整数。"
+
+msgid "The population stability index."
+msgstr "群体稳定性指标。"
+
+msgid ""
+"If the counts are not one-dimensional, numeric, finite and non-negative, have different lengths "
+"or a zero total, or `smoothing` is not finite and positive."
+msgstr "如果计数不是一维、不是数值、不是有限非负数，两组计数长度不同或总和为零，或者 `smoothing` 不是有限正数。"
+
+msgid ":obj:`psi_table`"
+msgstr ":obj:`psi_table`"
+
+msgid "The index and its contributions from group labels."
+msgstr "根据分组标签计算该指标及各组贡献。"
+
+msgid ":obj:`kivi.woe.iv`"
+msgstr ":obj:`kivi.woe.iv`"
+
+msgid "The same divergence between events and non-events."
+msgstr "事件与非事件之间的同一种散度。"
+
+msgid ""
+"With :math:`q_i` and :math:`p_i` the smoothed shares of group :math:`i` in the reference and the "
+"current sample,"
+msgstr "记 :math:`q_i` 和 :math:`p_i` 为第 :math:`i` 组在基准样本和当前样本中平滑后的占比，则"
+
+#, python-brace-format
+msgid "\\mathrm{PSI} = \\sum_i (p_i - q_i) \\ln \\frac{p_i}{q_i},"
+msgstr "\\mathrm{PSI} = \\sum_i (p_i - q_i) \\ln \\frac{p_i}{q_i},"
+
+msgid "which equals the sum of the ``psi`` column of `psi_table` for the same groups."
+msgstr "它等于相同分组下 `psi_table` 中 ``psi`` 列之和。"
+
+msgid ""
+"``kivi.evaluate`` is a deprecated alias of this module. Importing ``psi_table`` from it raises a "
+"``FutureWarning``, and the alias is removed in kivi 0.6.0."
+msgstr "``kivi.evaluate`` 是本模块已弃用的别名。从中导入 ``psi_table`` 会发出 ``FutureWarning`` ，该别名将在 kivi 0.6.0 中移除。"
+
 msgid "Weight of evidence"
 msgstr "证据权重"
 
@@ -1422,6 +1496,18 @@ msgstr ":py:obj:`woe_transform <kivi.woe.woe_transform>`\\ \\(groups\\, table\\,
 msgid "Replace each group with its weight of evidence."
 msgstr "将每个分组替换为其证据权重（WOE）。"
 
+msgid ":py:obj:`woe <kivi.woe.woe>`\\ \\(event\\_counts\\, non\\_event\\_counts\\, \\*\\[\\, ...\\]\\)"
+msgstr ":py:obj:`woe <kivi.woe.woe>`\\ \\(event\\_counts\\, non\\_event\\_counts\\, \\*\\[\\, ...\\]\\)"
+
+msgid "Compute the weight of evidence of each group from its counts."
+msgstr "根据每组的计数计算其证据权重（WOE）。"
+
+msgid ":py:obj:`iv <kivi.woe.iv>`\\ \\(event\\_counts\\, non\\_event\\_counts\\, \\*\\[\\, ...\\]\\)"
+msgstr ":py:obj:`iv <kivi.woe.iv>`\\ \\(event\\_counts\\, non\\_event\\_counts\\, \\*\\[\\, ...\\]\\)"
+
+msgid "Compute the information value from counts per group."
+msgstr "根据每组的计数计算信息值（IV）。"
+
 msgid ""
 "Each group's share of events is compared with its share of non-events. Sum the ``iv`` column for "
 "the information value of the variable."
@@ -1436,9 +1522,13 @@ msgid ""
 msgstr "二分类标签，1 表示事件。如果 `groups` 和 `target` 都是 pandas Series，二者的索引必须完全相同；否则按位置对应。"
 
 msgid ""
-"Event and non-event counts, their within-class shares, WOE and IV per group. Sum the iv column "
-"for the variable's information value."
-msgstr "各组的事件数、非事件数、各自在所属类别中的占比，以及 WOE 和 IV。将 iv 列求和即得到该变量的信息值。"
+"One row per group with the columns ``non_event``, ``event`` and ``total`` (counts), "
+"``non_event_share`` and ``event_share`` (smoothed shares within each class), ``total_share`` "
+"(share of all observations), ``event_rate``, ``woe`` and ``iv``. Sum the iv column for the "
+"variable's information value."
+msgstr ""
+"每组一行，包含以下列： ``non_event`` 、 ``event`` 和 ``total`` （计数）， ``non_event_share`` 和 ``event_share`` "
+"（各自类别内平滑后的占比）， ``total_share`` （占全部观测的比例）， ``event_rate`` 、 ``woe`` 和 ``iv`` 。将 iv 列求和即得到该变量的信息值。"
 
 msgid ""
 "If the inputs are not one-dimensional, their indices or lengths do not match, `target` does not "
@@ -1450,6 +1540,12 @@ msgstr ":obj:`woe_transform`"
 
 msgid "Replace each group with its WOE."
 msgstr "将每个分组替换为其 WOE。"
+
+msgid ":obj:`woe`, :obj:`iv`"
+msgstr ":obj:`woe`, :obj:`iv`"
+
+msgid "The same measures from counts per group."
+msgstr "根据每组计数计算同样的指标。"
 
 msgid "Fit edges for numeric variables."
 msgstr "为数值变量拟合分箱边界。"
@@ -1474,8 +1570,10 @@ msgstr ""
 
 msgid ""
 "Each zero count is replaced with `smoothing` before the shares are normalized, so every WOE is "
-"finite. The ``non_event`` and ``event`` columns always report the observed counts."
-msgstr "在归一化占比之前，每个零计数都会被替换为 `smoothing`，因此每个 WOE 都是有限值。 ``non_event`` 和 ``event`` 列始终报告实际观测到的计数。"
+"finite. The count columns, ``total_share`` and ``event_rate`` always use the observed counts."
+msgstr ""
+"在归一化占比之前，每个零计数都会被替换为 `smoothing`，因此每个 WOE 都是有限值。计数列、 ``total_share`` 和 ``event_rate`` "
+"始终使用实际观测到的计数。"
 
 msgid ""
 "Categorical groups, such as the result of `kivi.binning.cut` or ``pandas.cut``, follow the order "
@@ -1543,6 +1641,69 @@ msgid ""
 "same edges in `table`. Use the edges fitted on the development sample for every sample that is "
 "transformed."
 msgstr "标签按相等关系匹配，因此 ``pandas.cut`` 得到的区间会与 `table` 中边界相同的区间对应。对每个要转换的样本，都请使用在开发样本上拟合的边界。"
+
+msgid ""
+"Use this when the counts are already aggregated, for example from a database query or a report, "
+"instead of one label per observation."
+msgstr "适用于计数已经汇总的情况，例如来自数据库查询或报表，而不是每个观测一个标签。"
+
+msgid "**event_counts, non_event_counts**"
+msgstr "**event_counts, non_event_counts**"
+
+msgid ""
+"One-dimensional, non-negative counts of events and non-events in each group, in the same group "
+"order. Weighted counts need not be integers."
+msgstr "每组事件和非事件的一维非负计数，两者的分组顺序须一致。加权计数不必是整数。"
+
+msgid "The WOE of each group."
+msgstr "每组的 WOE。"
+
+msgid ":obj:`iv`"
+msgstr ":obj:`iv`"
+
+msgid "The information value of the same counts."
+msgstr "同一组计数的信息值。"
+
+msgid "Counts, shares, WOE and IV from group labels and a target."
+msgstr "根据分组标签和目标计算计数、占比、WOE 和 IV。"
+
+#, python-brace-format
+msgid ""
+"With :math:`p_i` and :math:`q_i` the smoothed shares of group :math:`i` among all events and all "
+"non-events, :math:`\\mathrm{WOE}_i = \\ln(p_i / q_i)`, as in the ``woe`` column of `woe_table`."
+msgstr ""
+"记 :math:`p_i` 和 :math:`q_i` 为第 :math:`i` 组在全部事件和全部非事件中平滑后的占比，则 :math:`\\mathrm{WOE}_i = \\ln(p_i "
+"/ q_i)` ，与 `woe_table` 的 ``woe`` 列一致。"
+
+msgid ""
+"The information value summarizes how well the groups separate events from non-events, from counts"
+" that are already aggregated."
+msgstr "信息值概括了各组区分事件与非事件的能力，这里直接根据已汇总的计数计算。"
+
+msgid "The information value of the variable."
+msgstr "该变量的信息值。"
+
+msgid ":obj:`woe`"
+msgstr ":obj:`woe`"
+
+msgid "The weight of evidence of each group."
+msgstr "每组的证据权重。"
+
+msgid "The IV contribution of each group from labels and a target."
+msgstr "根据标签和目标计算每组的 IV 贡献。"
+
+msgid ":obj:`kivi.stability.psi`"
+msgstr ":obj:`kivi.stability.psi`"
+
+msgid "The same divergence between two samples."
+msgstr "两个样本之间的同一种散度。"
+
+#, python-brace-format
+msgid "\\mathrm{IV} = \\sum_i (p_i - q_i) \\ln \\frac{p_i}{q_i},"
+msgstr "\\mathrm{IV} = \\sum_i (p_i - q_i) \\ln \\frac{p_i}{q_i},"
+
+msgid "which equals the sum of the ``iv`` column of `woe_table` for the same groups."
+msgstr "它等于相同分组下 `woe_table` 中 ``iv`` 列之和。"
 
 msgid "Development"
 msgstr "开发"
@@ -2014,6 +2175,14 @@ msgstr ""
 "``jeffreys_test`` 和 ``hosmer_lemeshow`` 进行检验。 ``herfindahl_index`` 衡量各等级的集中程度。"
 
 msgid ""
+"``kivi.woe.woe``, ``kivi.woe.iv`` and ``kivi.stability.psi`` compute WOE, IV and PSI from counts "
+"that are already aggregated, including weighted counts."
+msgstr "``kivi.woe.woe`` 、 ``kivi.woe.iv`` 和 ``kivi.stability.psi`` 可直接根据已汇总的计数（包括加权计数）计算 WOE、IV 和 PSI。"
+
+msgid "``kivi.stability`` holds ``psi_table`` and ``psi``."
+msgstr "``kivi.stability`` 模块包含 ``psi_table`` 和 ``psi`` 。"
+
+msgid ""
 "The new module ``kivi.scorecard`` scales a logistic regression on WOE values into scorecard "
 "points. ``score_scaling``, ``pd_to_score`` and ``score_to_pd`` convert between probabilities and "
 "scores from the points to double the odds, a base score and base odds. ``points_table`` gives the"
@@ -2039,6 +2208,26 @@ msgid ""
 "The API reference has a page for each module. Links to a function on the former single page now "
 "go to the page of its module."
 msgstr "API 参考改为每个模块一页。原来指向单页中某个函数的链接，现在改为指向该函数所在模块的页面。"
+
+msgid ""
+"``method`` of ``bin_edges`` is keyword-only. Passing it by position raises a ``FutureWarning`` "
+"and stops working in 0.6.0."
+msgstr "``bin_edges`` 的 ``method`` 参数改为仅限关键字。按位置传入会发出 ``FutureWarning`` ，并将在 0.6.0 中失效。"
+
+msgid ""
+"``kivi.evaluate`` is deprecated in favour of ``kivi.stability``. Importing ``psi_table`` from it "
+"raises a ``FutureWarning``, and the module is removed in 0.6.0."
+msgstr ""
+"``kivi.evaluate`` 已弃用，请改用 ``kivi.stability`` 。从中导入 ``psi_table`` 会发出 ``FutureWarning`` ，该模块将在 "
+"0.6.0 中移除。"
+
+msgid ""
+"``woe_table`` also reports ``total``, ``total_share`` and ``event_rate`` for each group, the "
+"columns of a classing report. They use the observed counts; only ``non_event_share`` and "
+"``event_share`` are smoothed."
+msgstr ""
+"``woe_table`` 为每组新增 ``total`` 、 ``total_share`` 和 ``event_rate`` 三列，即分箱报表中常用的列。它们使用实际观测到的计数；只有 "
+"``non_event_share`` 和 ``event_share`` 经过平滑。"
 
 msgid "Fixed"
 msgstr "修复"
@@ -2935,6 +3124,11 @@ msgid ""
 "Their empty cells are smoothed exactly as in :doc:`woe_iv`, so every contribution stays finite."
 msgstr "缺失值单独成组，只在一个样本中出现的类别也会保留。它们的空单元格按 :doc:`woe_iv` 中的方式平滑，因此每一项贡献都是有限值。"
 
+msgid ""
+"When only the counts per group are available, for example from a monitoring report, ``psi`` gives"
+" the total from the counts of each sample in the same group order:"
+msgstr "如果只有每组的计数（例如来自监控报表），可以用 ``psi`` 按相同的分组顺序传入两个样本的计数，得到总的 PSI："
+
 msgid "Stable and shifted samples"
 msgstr "稳定与偏移的样本"
 
@@ -3283,6 +3477,19 @@ msgid ""
 "groups have opposite WOE values of :math:`\\pm\\ln 2`."
 msgstr "组 ``a`` 中三分之二是事件，组 ``b`` 中三分之二是非事件，因此两组的 WOE 互为相反数，等于 :math:`\\pm\\ln 2`。"
 
+msgid ""
+"The first columns describe each group on its own: its counts, its share of all observations and "
+"its event rate."
+msgstr "前几列描述每组本身：计数、占全部观测的比例和事件率。"
+
+msgid "The remaining columns compare the two classes:"
+msgstr "其余各列比较两个类别："
+
+msgid ""
+"When the counts are already aggregated, for example from a database query, ``woe`` and ``iv`` "
+"take the event and non-event counts of each group and give the same values:"
+msgstr "如果计数已经汇总（例如来自数据库查询），可以把每组的事件数和非事件数传给 ``woe`` 和 ``iv`` ，得到相同的结果："
+
 msgid "Smoothing empty cells"
 msgstr "空单元格的平滑"
 
@@ -3309,11 +3516,25 @@ msgid ""
 " several smoothing values, before relying on their WOE."
 msgstr "修改平滑参数可能显著改变稀疏分箱的结果。在依赖这些箱的 WOE 之前，请合并小箱，或比较多个平滑取值的结果。"
 
-msgid "``non_event``, ``event``"
-msgstr "``non_event``, ``event``"
+msgid "``non_event``, ``event``, ``total``"
+msgstr "``non_event``, ``event``, ``total``"
 
 msgid "``non_event_share``, ``event_share``"
 msgstr "``non_event_share``, ``event_share``"
+
+msgid "``total_share``"
+msgstr "``total_share``"
+
+msgid "The group's share of all observations, without smoothing."
+msgstr "该组占全部观测的比例，不做平滑。"
+
+msgid "``event_rate``"
+msgstr "``event_rate``"
+
+msgid ""
+"Events divided by the total of the group, without smoothing. For a default target this is the bad"
+" rate."
+msgstr "该组事件数除以该组总数，不做平滑。当目标为违约时，即为坏账率。"
 
 msgid "``woe``"
 msgstr "``woe``"

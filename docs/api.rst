@@ -11,5 +11,5 @@ Each page below documents one module.
 
    api/binning
    api/woe
-   api/evaluate
+   api/stability
    api/*

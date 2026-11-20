@@ -1,101 +1,19 @@
-"""Population stability measures."""
+"""Deprecated alias of :mod:`kivi.stability`, removed in kivi 0.6.0."""
 
-import numpy as np
-import numpy.typing as npt
-import pandas as pd
+import warnings
 
-from ._counts import group_counts, shares
-from ._validation import as_series
+from . import stability as _stability
 
-__all__ = ["psi_table"]
+__all__ = ["psi_table"]  # noqa: F822 -- provided by __getattr__ with a FutureWarning
 
 
-def psi_table(
-    reference: npt.ArrayLike, current: npt.ArrayLike, *, smoothing: float = 0.5
-) -> pd.DataFrame:
-    r"""Compare two samples using their population stability index.
-
-    Each group's share of the current sample is compared with its share of
-    the reference sample. Sum the ``psi`` column for the index.
-
-    Parameters
-    ----------
-    reference, current : array_like
-        Labels or values binned using the same edges. Missing values and
-        categories observed in only one sample are included.
-    smoothing : float, default 0.5
-        Positive replacement for a zero count when calculating shares.
-
-    Returns
-    -------
-    pandas.DataFrame
-        Counts, normalized shares and the PSI contribution of each group.
-        Sum the psi column for the population stability index.
-
-    Raises
-    ------
-    ValueError
-        If either sample is empty or not one-dimensional, or `smoothing` is
-        not finite and positive.
-
-    See Also
-    --------
-    kivi.binning.bin_edges : Fit edges on the reference sample.
-    kivi.woe.woe_table : Relate the groups to a binary target.
-
-    Notes
-    -----
-    For group :math:`i`, let :math:`q_i` be its share of the reference sample
-    and :math:`p_i` its share of the current sample. Then
-
-    .. math::
-
-       \mathrm{PSI}_i = (p_i - q_i) \ln \frac{p_i}{q_i}, \qquad
-       \mathrm{PSI} = \sum_i \mathrm{PSI}_i.
-
-    Each zero count is replaced with `smoothing` before the shares are
-    normalized, so a group observed in only one sample has a finite
-    contribution. The ``reference`` and ``current`` columns always report
-    the observed counts.
-
-    If both samples are categorical with the same categories, rows follow
-    the order of the categories with missing values last. Otherwise they
-    follow the order in which the groups first appear, in the reference
-    sample and then in the current sample.
-
-    References
-    ----------
-    .. [1] N. Siddiqi, "Credit Risk Scorecards: Developing and Implementing
-       Intelligent Credit Scoring", Wiley, 2006.
-
-    Examples
-    --------
-    >>> import pandas as pd
-    >>> from kivi.evaluate import psi_table
-    >>> reference = pd.Series(["x", "x", "y", "y"])
-    >>> current = pd.Series(["x", "y", "y", "y"])
-    >>> psi_table(reference, current)[["reference", "current", "psi"]].round(4)
-         reference  current     psi
-    bin
-    x            2        1  0.1733
-    y            2        3  0.1014
-    """
-    reference, current = as_series(reference, "reference"), as_series(current, "current")
-    if reference.empty or current.empty:
-        raise ValueError("reference and current must both contain observations")
-    # pd.concat and join hash interval categories, which warns on NumPy < 2.2, so samples
-    # binned with the same edges are joined by their codes and shares assigned by position.
-    if isinstance(reference.dtype, pd.CategoricalDtype) and reference.dtype == current.dtype:
-        codes = np.concatenate([reference.cat.codes, current.cat.codes])
-        groups = pd.Series(pd.Categorical.from_codes(codes, dtype=reference.dtype))
-    else:
-        groups = pd.concat([reference, current], ignore_index=True)
-    side = np.repeat([0, 1], [len(reference), len(current)])
-    counts = group_counts(groups, side)
-    counts.columns = ["reference", "current"]
-    share = shares(counts, smoothing).to_numpy()
-    result = counts.assign(reference_share=share[:, 0], current_share=share[:, 1])
-    result["psi"] = (result.current_share - result.reference_share) * np.log(
-        result.current_share / result.reference_share
-    )
-    return result
+def __getattr__(name: str):
+    if name in __all__:
+        warnings.warn(
+            "kivi.evaluate is deprecated and stops working in kivi 0.6.0; "
+            f"import {name} from kivi.stability instead",
+            FutureWarning,
+            stacklevel=2,
+        )
+        return getattr(_stability, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

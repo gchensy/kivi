@@ -21,7 +21,7 @@ Missing values and new categories
 Missing values form their own group, and categories appearing in only one sample are retained. Their empty cells are smoothed exactly as in :doc:`woe_iv`, so every contribution stays finite.
 
 >>> import pandas as pd
->>> from kivi.evaluate import psi_table
+>>> from kivi.stability import psi_table
 >>> reference = pd.Series(["A", "A", None])
 >>> current = pd.Series(["B", None, None])
 >>> psi_table(reference, current).round(4)
@@ -30,6 +30,12 @@ bin
 A            2        0           0.5714         0.1429  0.5941
 NaN          1        2           0.2857         0.5714  0.1980
 B            0        1           0.1429         0.2857  0.0990
+
+When only the counts per group are available, for example from a monitoring report, ``psi`` gives the total from the counts of each sample in the same group order:
+
+>>> from kivi.stability import psi
+>>> round(psi([2, 1, 0], [0, 2, 1]), 4)
+0.8912
 
 Stable and shifted samples
 --------------------------

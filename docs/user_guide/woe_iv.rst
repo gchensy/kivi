@@ -32,12 +32,31 @@ Two thirds of group ``a`` are events and two thirds of group ``b`` are non-event
 >>> groups = pd.Series(["a", "a", "a", "b", "b", "b"])
 >>> target = pd.Series([1, 1, 0, 1, 0, 0])
 >>> result = woe_table(groups, target)
->>> result.round(4)
-     non_event  event  non_event_share  event_share     woe     iv
+
+The first columns describe each group on its own: its counts, its share of all observations and its event rate.
+
+>>> result[["non_event", "event", "total", "total_share", "event_rate"]].round(4)
+     non_event  event  total  total_share  event_rate
 bin
-a            1      2           0.3333       0.6667  0.6931  0.231
-b            2      1           0.6667       0.3333 -0.6931  0.231
+a            1      2      3          0.5      0.6667
+b            2      1      3          0.5      0.3333
+
+The remaining columns compare the two classes:
+
+>>> result[["non_event_share", "event_share", "woe", "iv"]].round(4)
+     non_event_share  event_share     woe     iv
+bin
+a             0.3333       0.6667  0.6931  0.231
+b             0.6667       0.3333 -0.6931  0.231
 >>> print(f"{result['iv'].sum():.4f}")
+0.4621
+
+When the counts are already aggregated, for example from a database query, ``woe`` and ``iv`` take the event and non-event counts of each group and give the same values:
+
+>>> from kivi.woe import iv, woe
+>>> woe([2, 1], [1, 2]).round(4)
+array([ 0.6931, -0.6931])
+>>> round(iv([2, 1], [1, 2]), 4)
 0.4621
 
 Smoothing empty cells
@@ -54,7 +73,8 @@ and likewise for non-events. Smoothing replaces zero cells with 0.5 by default. 
 
 >>> groups = pd.Series(["a", "a", "b", "b", "c"])
 >>> target = pd.Series([1, 0, 0, 0, 1])
->>> woe_table(groups, target).round(3)
+>>> columns = ["non_event", "event", "non_event_share", "event_share", "woe", "iv"]
+>>> woe_table(groups, target)[columns].round(3)
      non_event  event  non_event_share  event_share    woe     iv
 bin
 a            1      1            0.286          0.4  0.336  0.038
@@ -74,10 +94,14 @@ Reading the result
 
    * - Column
      - Meaning
-   * - ``non_event``, ``event``
+   * - ``non_event``, ``event``, ``total``
      - Observed counts in each group.
    * - ``non_event_share``, ``event_share``
      - :math:`q_i` and :math:`p_i` after smoothing; each column sums to 1.
+   * - ``total_share``
+     - The group's share of all observations, without smoothing.
+   * - ``event_rate``
+     - Events divided by the total of the group, without smoothing. For a default target this is the bad rate.
    * - ``woe``
      - :math:`\ln(p_i / q_i)`.
    * - ``iv``
@@ -98,7 +122,6 @@ A WOE chart is the usual way to review a variable with the business: the share o
 >>> data = Dataset.bank_data()
 >>> reference = data.iloc[:3000]
 >>> jobs = woe_table(reference["job"], reference["target"]).sort_values("woe")
->>> jobs["event_rate"] = jobs["event"] / (jobs["event"] + jobs["non_event"])
 >>> jobs[["event", "non_event", "event_rate", "woe"]].round(3).iloc[[0, 1, -2, -1]]
              event  non_event  event_rate    woe
 bin

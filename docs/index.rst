@@ -34,7 +34,7 @@ At a glance
       import pandas as pd
       from kivi.binning import bin_edges
       from kivi.datasets import Dataset
-      from kivi.evaluate import psi_table
+      from kivi.stability import psi_table
       from kivi.woe import woe_table
 
       data = Dataset.bank_data()
