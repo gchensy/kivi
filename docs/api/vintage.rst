@@ -1,5 +1,5 @@
-Portfolio analysis
-==================
+Vintage and roll-rate analysis
+==============================
 
 .. currentmodule:: kivi.vintage
 
