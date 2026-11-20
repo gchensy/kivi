@@ -7,7 +7,7 @@ Binning, WOE, IV and PSI for risk modeling
 
 .. container:: kivi-lead
 
-   kivi is a pandas toolkit for credit risk and financial modeling. It fits bin edges on a development sample, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard, scales it to points, evaluates and calibrates it, and tracks how the population shifts once a model is live. Tables come back as pandas DataFrames with one row per bin, grade or variable.
+   kivi is a pandas toolkit for credit risk and financial modeling. It fits bin edges on a development sample, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard, scales it to points, evaluates and calibrates it, tracks how the population shifts once a model is live, and follows how the approved loans perform. Tables come back as pandas DataFrames with one row per bin, grade or variable.
 
 .. container:: kivi-actions
 
@@ -59,6 +59,12 @@ Built for risk teams
 .. grid:: 1 1 3 3
    :gutter: 3
 
+   .. grid-item-card:: End-to-end workflow
+      :link: user_guide/risk_workflow
+      :link-type: doc
+
+      One worked scorecard project, from IV screening to the stability report, with every step tested.
+
    .. grid-item-card:: Scorecard development
       :link: user_guide/binning
       :link-type: doc
@@ -87,13 +93,25 @@ Built for risk teams
       :link: user_guide/calibration
       :link-type: doc
 
-      Prior correction, master scales and binomial, Jeffreys and Hosmer-Lemeshow tests per grade.
+      Prior correction, master scales, binomial, Jeffreys and Hosmer-Lemeshow tests per grade, and Platt and isotonic recalibration.
+
+   .. grid-item-card:: Production scoring
+      :link: user_guide/spec
+      :link-type: doc
+
+      Save the binning and WOE of every variable as versioned JSON, so production groups new data exactly as development did.
 
    .. grid-item-card:: Model monitoring
       :link: user_guide/psi
       :link-type: doc
 
-      Compare live data with the development sample bin by bin and track PSI over time.
+      Compare live data with the development sample bin by bin, track PSI over time and measure each variable's effect on the score with CSI.
+
+   .. grid-item-card:: Portfolio analysis
+      :link: user_guide/vintage
+      :link-type: doc
+
+      Vintage curves by origination cohort, roll rates and transition matrices between delinquency buckets.
 
 How it works
 ------------

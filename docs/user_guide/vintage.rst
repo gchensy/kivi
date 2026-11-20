@@ -40,6 +40,12 @@ cohort
 2025-07        0.005    NaN    NaN    NaN
 2025-10          NaN    NaN    NaN    NaN
 
+.. plot::
+   :alt: Cumulative 90+ bad rate by month on book for one cohort in each quarter
+   :caption: Vintage curves of the cohorts in the table: each curve stops at the cohort's latest month on book.
+
+   kp.figure_vintage()
+
 Each row follows one cohort and never decreases from left to right, because a loan that was bad stays counted as bad even if it cures later. The entries a cohort has not reached are NaN, not 0: the 2025-04 cohort is observed up to month on book 9, so its bad rate at month 12 is not known yet. Reading down a column compares the cohorts at the same age, which separates the quality of new lending from the seasoning of the portfolio. The latest value of each cohort mixes the two, because older cohorts have had more time to go bad.
 
 Every cohort here has about 200 loans, so one bad loan moves its rate by half a percentage point. Compare small differences only after averaging several cohorts.

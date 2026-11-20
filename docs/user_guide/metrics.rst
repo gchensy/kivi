@@ -129,6 +129,12 @@ bin
 (-1.46, -0.38]    241     15       0.062  0.547            0.925  0.159
 (-inf, -1.46]     328     13       0.040  0.348            1.000  0.000
 
+.. plot::
+   :alt: Event rate and lift of each score band, and the cumulative share of events against the cumulative share of customers
+   :caption: Left: the event rate falls from the top score band to the bottom one; the dashed line is the event rate of the whole sample. Right: the gains curve rises well above the diagonal of a random ordering.
+
+   kp.figure_gains()
+
 The top band holds 17% of the validation customers (264 of 1,521) but 42% of the events, so its event rate is 2.4 times that of the whole sample. The table checks the gap between the two classes only at the four interior cut-offs, so its largest ``ks`` stays below the KS over all scores:
 
 >>> print(f"{gains['ks'].max():.3f} < {ks(val_score, y):.3f}")

@@ -1,0 +1,1 @@
+* The risk modeling workflow saves the shortlist's binning with ``fit_spec`` and adds the characteristic stability index of every scorecard variable to its stability report. The user guide has new charts for gains, calibration and vintage curves, and the README shows the gains and vintage charts.

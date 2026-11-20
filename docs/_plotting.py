@@ -19,9 +19,12 @@ from cycler import cycler
 from matplotlib.ticker import FixedLocator, FuncFormatter, PercentFormatter
 
 from kivi.binning import bin_edges, chimerge_edges, monotonic_edges, tree_edges
-from kivi.datasets import Dataset
+from kivi.calibration import calibration_table, prior_correction
+from kivi.datasets import Dataset, make_loan_panel
+from kivi.metrics import gains_table
 from kivi.stability import psi_table
-from kivi.woe import woe_table
+from kivi.vintage import vintage_table
+from kivi.woe import woe_table, woe_transform
 
 BLUE = "#2f5bd3"
 LIGHT_BLUE = "#9fb4ee"
@@ -457,6 +460,114 @@ def psi_monitor(psi: pd.Series, sizes: pd.Series):
     return fig
 
 
+def gains_chart(table: pd.DataFrame):
+    """Event rate per score band (left) and the cumulative gains curve (right)."""
+    fig, (left, right) = plt.subplots(
+        1, 2, figsize=(9, 3.6), gridspec_kw={"width_ratios": [1.25, 1]}
+    )
+    x = np.arange(len(table))
+    overall = table["event"].sum() / table["total"].sum()
+    left.bar(x, table["event_rate"], color=LIGHT_BLUE, width=0.6, label="event_rate")
+    left.axhline(overall, color=AMBER, linestyle="--", linewidth=1.4, label="lift = 1")
+    for xi, lift, rate in zip(x, table["lift"], table["event_rate"], strict=True):
+        left.annotate(
+            f"lift {lift:.2f}",
+            (xi, rate),
+            xytext=(0, 3),
+            textcoords="offset points",
+            ha="center",
+            fontsize=8.5,
+        )
+    left.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+    left.set_ylabel("event_rate")
+    left.margins(y=0.15)
+    left.set_xticks(x, _labels(table.index), rotation=25, ha="right", fontsize=8.5)
+    left.legend(loc="upper right")
+    share = np.r_[0, table["cum_total_share"]]
+    gains = np.r_[0, table["cum_event_share"]]
+    right.plot([0, 1], [0, 1], color=GRAY, linestyle="--", linewidth=1)
+    right.plot(share, gains, color=BLUE, marker="o", linewidth=2)
+    largest = int(np.argmax(table["ks"].to_numpy()))
+    right.annotate(
+        f"ks {table['ks'].iloc[largest]:.3f}",
+        (share[largest + 1], gains[largest + 1]),
+        xytext=(8, -14),
+        textcoords="offset points",
+        fontsize=8.5,
+        color=MUTED,
+    )
+    for axis in (right.xaxis, right.yaxis):
+        axis.set_major_formatter(PercentFormatter(1, decimals=0))
+    right.set_xlim(0, 1)
+    right.set_ylim(0, 1.02)
+    right.set_xlabel("cum_total_share")
+    right.set_ylabel("cum_event_share")
+    right.grid(True, axis="both")
+    fig.tight_layout()
+    return fig
+
+
+def reliability_chart(tables: dict[str, pd.DataFrame]):
+    """Observed event rate against mean predicted probability per group."""
+    fig, ax = plt.subplots(figsize=(5.6, 4.4))
+    limit = max(max(t["event_rate"].max(), t["mean_probability"].max()) for t in tables.values())
+    limit = min(1.0, limit * 1.1)
+    ax.plot([0, limit], [0, limit], color=GRAY, linestyle="--", linewidth=1)
+    for (label, table), color in zip(tables.items(), [BLUE, AMBER], strict=False):
+        ax.plot(
+            table["mean_probability"],
+            table["event_rate"],
+            color=color,
+            linewidth=1.2,
+            marker="o",
+            markersize=4,
+            label=label,
+        )
+        ax.scatter(
+            table["mean_probability"],
+            table["event_rate"],
+            s=20 + 300 * table["total"] / table["total"].sum(),
+            color=color,
+            zorder=3,
+        )
+        for grade, row in table.iterrows():
+            ax.annotate(
+                str(grade),
+                (row["mean_probability"], row["event_rate"]),
+                xytext=(5, -10),
+                textcoords="offset points",
+                fontsize=8.5,
+                color=color,
+            )
+    for axis in (ax.xaxis, ax.yaxis):
+        axis.set_major_formatter(PercentFormatter(1, decimals=0))
+    ax.set_xlim(0, limit)
+    ax.set_ylim(0, limit)
+    ax.set_xlabel("mean_probability")
+    ax.set_ylabel("event_rate")
+    ax.grid(True, axis="both")
+    ax.legend(loc="upper left")
+    fig.tight_layout()
+    return fig
+
+
+def vintage_curves(table: pd.DataFrame, title: str = ""):
+    """Cumulative bad rate of each cohort by month on book."""
+    fig, ax = plt.subplots(figsize=(8, 3.8))
+    shades = plt.get_cmap("Blues")(np.linspace(0.35, 0.95, len(table)))
+    for (cohort, row), color in zip(table.iterrows(), shades, strict=True):
+        observed = row.dropna()
+        ax.plot(observed.index, observed.to_numpy(), color=color, linewidth=1.8, label=str(cohort))
+    ax.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+    ax.set_xlabel("month_on_book")
+    ax.set_xlim(0, table.columns.max())
+    ax.set_ylim(bottom=0)
+    ax.set_title(title)
+    ax.legend(loc="lower right", ncols=2, fontsize=8.5)
+    fig.tight_layout()
+    return fig
+
+
 # Recipes for the documentation pages ---------------------------------------
 
 
@@ -578,10 +689,80 @@ def figure_psi_monitor():
     return psi_monitor(*monthly_psi(data, reference))
 
 
+def _woe_score_samples():
+    """The four-variable WOE score of the metrics guide, on both samples."""
+    _, development, validation = _samples()
+
+    def to_groups(frame):
+        return pd.DataFrame(
+            {
+                "poutcome": frame["poutcome"],
+                "contact": frame["contact"],
+                "housing": frame["housing"],
+                "age": pd.cut(frame["age"], [-np.inf, 25, 35, 45, 55, 65, np.inf]),
+            }
+        )
+
+    dev_groups = to_groups(development)
+    tables = {c: woe_table(dev_groups[c], development["target"]) for c in dev_groups}
+
+    def woe_score(frame):
+        groups = to_groups(frame)
+        return pd.DataFrame({c: woe_transform(groups[c], tables[c]) for c in groups}).sum(axis=1)
+
+    return woe_score(development), woe_score(validation), validation["target"]
+
+
+def figure_gains():
+    dev_score, val_score, target = _woe_score_samples()
+    edges = bin_edges(dev_score, bins=5).round(2)
+    return gains_chart(gains_table(val_score, target, bins=edges))
+
+
+def figure_calibration():
+    _, development, monitoring = _samples()
+    age_edges = np.array([-np.inf, 25, 35, 45, 55, 65, np.inf])
+
+    def to_groups(frame):
+        groups = frame[["poutcome", "contact", "housing"]].copy()
+        groups["age"] = pd.cut(frame["age"], age_edges)
+        return groups
+
+    dev_groups = to_groups(development)
+    tables = {c: woe_table(dev_groups[c], development["target"]) for c in dev_groups}
+    coefficients = pd.Series({"poutcome": 0.899, "contact": 0.658, "housing": 0.691, "age": 0.714})
+    groups = to_groups(monitoring)
+    woe = pd.DataFrame({c: woe_transform(groups[c], tables[c]) for c in groups})
+    probability = 1 / (1 + np.exp(2.028 - woe @ coefficients))
+    low = prior_correction(probability, sample_rate=0.116, population_rate=0.06)
+    pd_edges = [0, 0.05, 0.08, 0.12, 0.2, 0.4, 1]
+
+    def grade_table(p):
+        grades = pd.cut(p, pd_edges, labels=list("ABCDEF"), include_lowest=True)
+        return calibration_table(grades, monitoring["target"], p)
+
+    return reliability_chart(
+        {
+            "probability": grade_table(probability),
+            "population_rate=0.06": grade_table(low),
+        }
+    )
+
+
+def figure_vintage():
+    panel = make_loan_panel(rng=0)
+    ever_90 = vintage_table(
+        panel["loan_id"], panel["cohort"], panel["month_on_book"], panel["status"] == "90+"
+    )
+    return vintage_curves(ever_90.iloc[::3], "status == '90+'")
+
+
 README_FIGURES = {
     "readme-woe.svg": figure_quickstart_woe,
     "readme-iv.svg": figure_iv_ranking,
     "readme-psi.svg": figure_psi_monitor,
+    "readme-gains.svg": figure_gains,
+    "readme-vintage.svg": figure_vintage,
 }
 
 

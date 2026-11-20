@@ -1,7 +1,7 @@
 User guide
 ==========
 
-kivi covers the steps of credit risk modeling: binning, variable selection, scorecard scaling, model evaluation, calibration and monitoring. Use the same bin edges in development and monitoring so that counts remain comparable.
+kivi covers the steps of credit risk modeling: binning, variable selection, scorecard scaling, model evaluation, calibration, deployment and monitoring, and the vintage and roll-rate analysis of the loans a model approves. Use the same bin edges in development and monitoring so that counts remain comparable.
 
 kivi keeps fitting and measuring apart. ``bin_edges`` fits edges on a reference sample, ``pandas.cut`` assigns every sample to those bins, and ``woe_table`` and ``psi_table`` summarize the resulting groups. The metric functions accept any grouping, so category labels can be passed directly.
 
@@ -12,7 +12,7 @@ kivi keeps fitting and measuring apart. ``bin_edges`` fits edges on a reference 
       :link: risk_workflow
       :link-type: doc
 
-      An end-to-end example: screen variables by IV, bin the shortlist, encode it with WOE, fit and scale a scorecard, evaluate and calibrate it, and report stability.
+      An end-to-end example: screen variables by IV, bin the shortlist, encode it with WOE, save the binning, fit and scale a scorecard, evaluate and calibrate it, and report stability.
 
    .. grid-item-card:: Binning
       :link: binning
@@ -30,7 +30,13 @@ kivi keeps fitting and measuring apart. ``bin_edges`` fits edges on a reference 
       :link: psi
       :link-type: doc
 
-      Compare the distribution of two samples, including categories seen in only one of them.
+      Compare the distribution of two samples, including categories seen in only one of them, and measure each variable's effect on the score with CSI.
+
+   .. grid-item-card:: Binning specifications
+      :link: spec
+      :link-type: doc
+
+      Bin a whole data frame at once and save the edges and WOE tables as versioned JSON for production scoring.
 
    .. grid-item-card:: Variable selection
       :link: selection
@@ -54,13 +60,19 @@ kivi keeps fitting and measuring apart. ``bin_edges`` fits edges on a reference 
       :link: calibration
       :link-type: doc
 
-      Prior correction, master scales and statistical tests of each grade's PD.
+      Prior correction, master scales, statistical tests of each grade's PD, and Platt and isotonic recalibration.
+
+   .. grid-item-card:: Vintage and roll-rate analysis
+      :link: vintage
+      :link-type: doc
+
+      Cumulative bad rates by cohort and month on book, roll rates and transition matrices between delinquency buckets.
 
    .. grid-item-card:: Example data
       :link: datasets
       :link-type: doc
 
-      The bundled bank marketing data, its target and its license.
+      The bundled bank marketing data, its target and its license, and a synthetic loan panel for portfolio analysis.
 
 .. toctree::
    :hidden:

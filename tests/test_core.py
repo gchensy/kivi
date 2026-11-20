@@ -138,9 +138,42 @@ def test_special_value_bins_on_bank_pdays():
     assert result.iv.sum() == pytest.approx(0.298906, abs=1e-6)
 
 
+def test_numeric_strings_match_numeric_special_codes():
+    # Columns read from a file as text: "-1" is the code -1, not the number -1.
+    values = pd.Series(["-1", "15", "N/A", "35", None, "-1.0"])
+    groups = cut(values, [-np.inf, 25, np.inf], special=[-1, "N/A"])
+    assert groups.cat.categories[:2].tolist() == [-1, "N/A"]
+    np.testing.assert_equal(groups.cat.codes.to_numpy(), [0, 2, 1, 3, -1, 0])
+    numeric = pd.Series([-1, 15, -1, 35, None, -1.0])
+    np.testing.assert_equal(
+        bin_edges(values.mask(values == "N/A"), bins=2, special=[-1]),
+        bin_edges(numeric, bins=2, special=[-1]),
+    )
+    np.testing.assert_equal(bin_edges(numeric, bins=2, special=[-1]), [-np.inf, 25, np.inf])
+
+
+def test_special_codes_match_exactly():
+    # Booleans are not the numbers 0 and 1 here, and integers are compared as integers.
+    edges = [-np.inf, 0.5, np.inf]
+    flags = cut(pd.Series([True, False]), edges, special=[0])
+    np.testing.assert_equal(flags.cat.codes.to_numpy(), [2, 1])
+    big = pd.Series([2**53 + 1, 2**53, 5], dtype=np.int64)
+    groups = cut(big, [-np.inf, 10, np.inf], special=[float(2**53)])
+    np.testing.assert_equal(groups.cat.codes.to_numpy(), [2, 0, 1])
+    np.testing.assert_equal(
+        cut(pd.Series([-1, 3], dtype="Int64"), edges, special=[-1.0]).cat.codes.to_numpy(), [0, 2]
+    )
+
+
 @pytest.mark.parametrize(
     "special,message",
-    [([np.nan], "must not contain missing values"), (-1, "special must be one-dimensional")],
+    [
+        ([np.nan], "must not contain missing values"),
+        (-1, "special must be one-dimensional"),
+        ([-1, True], "special must not contain booleans, got True"),
+        ([1, True], "special must not contain booleans, got True"),
+        ([0, False], "special must not contain booleans, got False"),
+    ],
 )
 def test_invalid_special_values(special, message):
     with pytest.raises(ValueError, match=message):
@@ -414,28 +447,16 @@ def test_count_functions_validate_counts(first, second, message):
         psi([1, 2], [1, 2], smoothing=0)
 
 
-def test_positional_method_is_deprecated():
-    with pytest.warns(FutureWarning, match="passing method to bin_edges by position"):
-        edges = bin_edges([1, 2, 3, 4], 2, "uniform")
-    np.testing.assert_equal(edges, bin_edges([1, 2, 3, 4], 2, method="uniform"))
+def test_method_is_keyword_only():
     method = inspect.signature(bin_edges).parameters["method"]
     assert method.kind is inspect.Parameter.KEYWORD_ONLY
-    with pytest.raises(TypeError, match="multiple values for 'method'"):
-        bin_edges([1, 2], 2, "uniform", method="quantile")
-    with pytest.raises(TypeError, match="positional arguments"):
-        bin_edges([1, 2], 2, "uniform", None)
+    with pytest.raises(TypeError, match="positional argument"):
+        bin_edges([1, 2, 3, 4], 2, "uniform")
 
 
-def test_evaluate_is_a_deprecated_alias_of_stability():
-    import kivi.evaluate
-    import kivi.stability
-
-    with pytest.warns(FutureWarning, match="import psi_table from kivi.stability"):
-        from kivi.evaluate import psi_table as old
-
-    assert old is kivi.stability.psi_table
-    with pytest.raises(AttributeError, match="has no attribute 'psi'"):
-        kivi.evaluate.psi  # noqa: B018
+def test_evaluate_alias_is_removed():
+    with pytest.raises(ModuleNotFoundError, match="kivi.evaluate"):
+        import kivi.evaluate  # noqa: F401
 
 
 def test_woe_table_reports_totals_shares_and_event_rates():
@@ -502,7 +523,7 @@ def test_zero_weight_groups_are_left_out():
     result = woe_table(["a", "b", "b"], [1, 0, 1], weights=[0, 1, 1])
     assert result.index.tolist() == ["b"]
     assert result.total.tolist() == [2.0]
-    with pytest.raises(ValueError, match="both target classes a positive total"):
+    with pytest.raises(ValueError, match="positive total, got 1.0 for 0 and 0.0 for 1"):
         woe_table(["a", "b"], [1, 0], weights=[0, 1])
     stability = psi_table(["x", "y"], ["x", "z"], reference_weights=[1, 0], current_weights=[1, 0])
     assert stability.index.tolist() == ["x"]

@@ -29,8 +29,14 @@ The functions below replace the 0.2.x classes. Dataset.bank_data() retains its i
      - ``kivi.scorecard``: ``pd_to_score``, ``score_to_pd``, ``score_scaling`` and ``points_table``, from 0.5.0
    * - ``get_omega``, ``MasterScale``, ``BinomialTest``, ``herfindahl``
      - ``kivi.calibration``: ``prior_correction``, ``calibration_table``, ``binomial_test`` and ``herfindahl_index``, from 0.5.0
+   * - ``WOEBatch``, ``ManualBinsTool``
+     - ``kivi.spec``: ``fit_spec`` and ``BinningSpec``, from 0.6.0
+   * - ``CSI``
+     - ``kivi.stability.csi_table`` on groups formed with the same edges, from 0.6.0
+   * - ``VintagePd``
+     - ``kivi.vintage.vintage_table`` on a loan panel, from 0.6.0
    * - ``Dataset.bank_data()``
-     - Unchanged
+     - Unchanged; ``kivi.datasets.load_bank()`` returns the same data from 0.6.0
 
 Binning and WOE
 ---------------
@@ -62,3 +68,12 @@ Not yet ported
 --------------
 
 Sample weights, variable selection, scorecards, model evaluation and calibration arrive in 0.5.0. CSI, vintage analysis and strategy tools are planned. Spark, SQL, AHP, model wrappers and application code remain in the historical revisions.
+
+Portfolio analysis and production binning
+-----------------------------------------
+
+Version 0.6.0 replaces three more legacy classes. They are new implementations as well, so compare their output with the legacy code on a fixed reference sample before switching.
+
+* ``WOEBatch`` fitted the WOE of many columns at once, and ``ManualBinsTool`` merged bins by hand afterwards. ``fit_spec`` fits every column with the binning function chosen for it, and its ``BinningSpec`` saves the edges and WOE tables as versioned JSON. Nothing is re-binned automatically: to merge bins by hand, pass the merged edges for that column in ``bins``.
+* ``CSI`` matched the points to the bins by position and lost the missing group. ``csi_table`` matches the points to the groups by label, keeps the missing group, and raises for an observed group without points unless ``unseen_points`` gives them. Its contributions sum to the change of the variable's average points.
+* ``VintagePd`` built the vintage table from repayment schedules and observation dates. ``vintage_table`` takes a long panel with one row per loan and month on book and a bad flag that you define, for example ``status == "90+"``. Pass ``weights=amount`` for the amount-weighted rates of ``VintagePd``. Months that a cohort has not reached are NaN rather than 0.

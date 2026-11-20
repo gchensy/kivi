@@ -32,9 +32,10 @@ fit bin edges once, see how well every bin separates good from bad, and catch po
 
 ## ✨ Highlights
 
-- 🏦 **Built for risk teams.** Covers a credit scorecard project end to end: classing, variable selection, a logistic fit, scaling to points, evaluation, calibration and monitoring, with examples for special values, coarse classing and leakage checks.
+- 🏦 **Built for risk teams.** Covers a credit scorecard project end to end: classing, variable selection, a logistic fit, scaling to points, evaluation, calibration, deployment and monitoring, plus vintage and roll-rate analysis of the approved loans, with examples for special values, coarse classing and leakage checks.
 - 📐 **Fit once, reuse everywhere.** `bin_edges` learns quantile or uniform edges on a reference sample; `chimerge_edges`, `tree_edges` and `monotonic_edges` also use the target. The outer edges are infinite, so every future value still lands in a bin.
 - 🔍 **Transparent results.** `woe_table` and `psi_table` return raw counts, smoothed shares and a contribution per bin, not just one number.
+- 💾 **Reproducible in production.** `fit_spec` bins a whole data frame, and `BinningSpec` saves the edges and WOE tables as versioned JSON, so production groups new data exactly as development did.
 - 🧩 **Nothing silently dropped.** Missing values, special codes such as `-1` and categories seen in only one sample get their own group.
 - 🧊 **Honest smoothing.** Empty cells are replaced by `smoothing` (default 0.5) before normalizing, and the reported counts are never altered.
 - 🐼 **Just pandas and NumPy.** No Spark, no database drivers and no global random state in the core.
@@ -57,6 +58,16 @@ fit bin edges once, see how well every bin separates good from bad, and catch po
     <td colspan="2" valign="top">
       <a href="https://gchensy.github.io/kivi/en/user_guide/psi.html#monitoring-over-time"><img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/readme-psi.svg" alt="PSI by month with thresholds"></a>
       <br><b>Monitoring</b>: PSI per period against the development sample, with the 0.1 and 0.25 thresholds and sample sizes.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <a href="https://gchensy.github.io/kivi/en/user_guide/metrics.html#gains-table"><img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/readme-gains.svg" alt="Event rate per score band and the gains curve"></a>
+      <br><b>Gains</b>: event rate and lift per score band, and the share of events captured.
+    </td>
+    <td width="50%" valign="top">
+      <a href="https://gchensy.github.io/kivi/en/user_guide/vintage.html#vintage-curves"><img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/readme-vintage.svg" alt="Cumulative bad rate by month on book for several cohorts"></a>
+      <br><b>Vintage curves</b>: cumulative 90+ bad rate of each origination cohort.
     </td>
   </tr>
 </table>
@@ -139,7 +150,12 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | [`kivi.scorecard.pd_to_score`](https://gchensy.github.io/kivi/en/api/scorecard.html#kivi.scorecard.pd_to_score), [`kivi.scorecard.score_to_pd`](https://gchensy.github.io/kivi/en/api/scorecard.html#kivi.scorecard.score_to_pd) | Convert between PD and score |
 | [`kivi.calibration.calibration_table`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.calibration_table), [`kivi.calibration.binomial_test`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.binomial_test), [`kivi.calibration.jeffreys_test`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.jeffreys_test), [`kivi.calibration.hosmer_lemeshow`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.hosmer_lemeshow) | Event rate against predicted PD per grade, with binomial, Jeffreys and Hosmer-Lemeshow tests |
 | [`kivi.calibration.prior_correction`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.prior_correction), [`kivi.calibration.corrected_intercept`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.corrected_intercept), [`kivi.calibration.herfindahl_index`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.herfindahl_index) | Correct PDs for an oversampled sample, and measure grade concentration |
-| [`kivi.datasets.Dataset.bank_data`](https://gchensy.github.io/kivi/en/api/datasets.html#kivi.datasets.Dataset.bank_data) | The bundled bank marketing data |
+| [`kivi.stability.csi_table`](https://gchensy.github.io/kivi/en/api/stability.html#kivi.stability.csi_table) | Characteristic stability index: how much each variable's shift moves the average score |
+| [`kivi.calibration.platt_fit`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.platt_fit), [`kivi.calibration.platt_predict`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.platt_predict), [`kivi.calibration.isotonic_fit`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.isotonic_fit), [`kivi.calibration.isotonic_predict`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.isotonic_predict) | Recalibrate a score to probabilities with Platt scaling or isotonic regression |
+| [`kivi.spec.fit_spec`](https://gchensy.github.io/kivi/en/api/spec.html#kivi.spec.fit_spec), [`kivi.spec.BinningSpec`](https://gchensy.github.io/kivi/en/api/spec.html#kivi.spec.BinningSpec) | Bin and WOE-encode a whole data frame, and save the specification as versioned JSON |
+| [`kivi.vintage.vintage_table`](https://gchensy.github.io/kivi/en/api/vintage.html#kivi.vintage.vintage_table) | Cumulative bad rate of each origination cohort by month on book |
+| [`kivi.vintage.transition_matrix`](https://gchensy.github.io/kivi/en/api/vintage.html#kivi.vintage.transition_matrix), [`kivi.vintage.roll_rates`](https://gchensy.github.io/kivi/en/api/vintage.html#kivi.vintage.roll_rates) | Movements between delinquency buckets and the forward roll rate of each bucket |
+| [`kivi.datasets.load_bank`](https://gchensy.github.io/kivi/en/api/datasets.html#kivi.datasets.load_bank), [`kivi.datasets.make_loan_panel`](https://gchensy.github.io/kivi/en/api/datasets.html#kivi.datasets.make_loan_panel) | The bundled bank marketing data and a seeded synthetic loan panel |
 
 ## 📚 Documentation
 
@@ -154,6 +170,9 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | Scorecard | [Read](https://gchensy.github.io/kivi/en/user_guide/scorecard.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/scorecard.html) |
 | Model performance | [Read](https://gchensy.github.io/kivi/en/user_guide/metrics.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/metrics.html) |
 | Calibration | [Read](https://gchensy.github.io/kivi/en/user_guide/calibration.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/calibration.html) |
+| Binning specifications | [Read](https://gchensy.github.io/kivi/en/user_guide/spec.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/spec.html) |
+| Vintage and roll-rate analysis | [Read](https://gchensy.github.io/kivi/en/user_guide/vintage.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/vintage.html) |
+| Example data | [Read](https://gchensy.github.io/kivi/en/user_guide/datasets.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/datasets.html) |
 | Migrating from 0.2.x | [Read](https://gchensy.github.io/kivi/en/release/migration.html) | [阅读](https://gchensy.github.io/kivi/zh/release/migration.html) |
 
 ## 🗺️ Roadmap
@@ -166,8 +185,10 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 - ✅ WOE encoding of new data, with an explicit policy for unseen groups
 - ✅ Sample weights in binning, WOE and PSI
 - ✅ Scorecard workflow: variable selection, logistic regression, PDO scaling, reason codes, evaluation and calibration
-- 🔜 CSI, vintage and roll-rate analysis, batch binning with saved specifications
+- ✅ CSI, vintage and roll-rate analysis, batch binning with saved specifications
+- ✅ Platt and isotonic calibration, and sample weights in the metrics
 - 🔜 Strategy analysis: cut-offs, swap sets, reject inference and expected loss
+- 🔜 Master scales and univariate variable profiles
 
 ## 🤝 Contributing
 

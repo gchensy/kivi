@@ -124,8 +124,12 @@ def woe_table(
         raise ValueError("target must contain both 0 and 1 and no missing labels")
     mass = as_weights(weights, raw_groups, of="groups")
     counts = group_counts(groups, target.to_numpy(dtype=np.intp), mass)
-    if not (counts.to_numpy().sum(axis=0) > 0).all():
-        raise ValueError("weights must give both target classes a positive total")
+    totals = counts.to_numpy().sum(axis=0)
+    if not (totals > 0).all():
+        raise ValueError(
+            "weights must give both target classes a positive total, got "
+            f"{float(totals[0])!r} for 0 and {float(totals[1])!r} for 1"
+        )
     counts.columns = ["non_event", "event"]
     # Assign by position: aligning interval categories hashes them, which warns on NumPy < 2.2.
     share, log_ratio, contribution = divergence(counts.to_numpy(), smoothing)

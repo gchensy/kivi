@@ -16,13 +16,11 @@ import numpy.typing as npt
 import pandas as pd
 
 from ._counts import divergence
-from ._deprecation import positional_deprecated
 from ._validation import as_series, as_weights
 
 __all__ = ["bin_edges", "cut", "chimerge_edges", "tree_edges", "monotonic_edges"]
 
 
-@positional_deprecated("method", removed_in="0.6.0")
 def bin_edges(
     values: npt.ArrayLike,
     bins: int = 5,
@@ -44,8 +42,7 @@ def bin_edges(
     bins : int, default 5
         Requested number of bins. Tied quantiles can reduce this number.
     method : {"quantile", "uniform"}, default "quantile"
-        Use sample quantiles or equally spaced edges. Pass it by keyword:
-        passing it by position is deprecated and stops working in kivi 0.6.0.
+        Use sample quantiles or equally spaced edges.
     special : array_like, optional
         Special values, such as codes for "not applicable", that are omitted
         when the edges are fitted. Pass the same values to `cut` so that each
@@ -66,8 +63,9 @@ def bin_edges(
     ValueError
         If `bins` is not a positive integer, `method` is not recognized,
         `values` is not one-dimensional or not numeric, `special` is not
-        one-dimensional or contains a missing value, or the reference has no
-        observations or contains an infinite value apart from special values.
+        one-dimensional or contains a missing value or a boolean, or the
+        reference has no observations or contains an infinite value apart from
+        special values.
         Also if `weights` is not numeric, does not give each value one finite,
         non-negative weight with a positive total, or has an index other than
         that of `values`.
@@ -171,9 +169,9 @@ def cut(
     Raises
     ------
     ValueError
-        If `values` is not one-dimensional or is not numeric apart from
-        special values, `edges` does not increase, or `special` is not
-        one-dimensional or contains a missing value.
+        If `values` is not one-dimensional or is not numeric apart from special
+        values, `edges` does not increase, or `special` is not one-dimensional
+        or contains a missing value or a boolean.
 
     See Also
     --------
@@ -185,8 +183,11 @@ def cut(
     Notes
     -----
     A special value is matched by equality, so ``-1`` and ``-1.0`` are the
-    same code. Values outside the edges become missing, as with
-    ``pandas.cut``; the infinite outer edges of `bin_edges` avoid this.
+    same code. Values that are not numbers, such as strings read from a
+    file, are also matched after conversion with ``pandas.to_numeric``, so
+    the string ``"-1"`` falls into the group of the code ``-1``. Values
+    outside the edges become missing, as with ``pandas.cut``; the infinite
+    outer edges of `bin_edges` avoid this.
 
     Examples
     --------
@@ -204,13 +205,14 @@ def cut(
     """
     series = as_series(values, "values")
     special = _special_values(special)
-    is_special = series.isin(special).to_numpy(dtype=bool)
+    position = _special_positions(series, special)
+    is_special = position >= 0
     intervals = pd.cut(pd.to_numeric(series.mask(is_special), errors="raise"), edges)
     if special.empty:
         return intervals if isinstance(values, pd.Series) else intervals.array
     codes = intervals.cat.codes.to_numpy()
     codes = np.where(codes >= 0, codes + len(special), -1)
-    codes[is_special] = special.get_indexer(series[is_special])
+    codes[is_special] = position[is_special]
     groups = pd.Categorical.from_codes(codes, categories=special.append(intervals.cat.categories))
     if isinstance(values, pd.Series):
         return pd.Series(groups, index=series.index, name=series.name)
@@ -277,11 +279,11 @@ def chimerge_edges(
     ValueError
         If `max_bins` or `initial_bins` is not a positive integer, `alpha` is
         neither None nor between 0 and 1, `values` and `target` are not
-        one-dimensional or their indices or lengths do not match, `special`
-        is not one-dimensional or contains a missing value, `values` is not
-        numeric or has no finite observations apart from missing and special
-        values, or `target` has labels other than 0 and 1 or lacks one of them
-        in the rows that are fitted.
+        one-dimensional or their indices or lengths do not match, `special` is
+        not one-dimensional or contains a missing value or a boolean, `values`
+        is not numeric or has no finite observations apart from missing and
+        special values, or `target` has labels other than 0 and 1 or lacks one
+        of them in the rows that are fitted.
         Also if `weights` is not numeric, does not give each value one finite,
         non-negative weight with a positive total, or has an index other than
         that of `values`.
@@ -385,13 +387,13 @@ def tree_edges(
     Raises
     ------
     ValueError
-        If `max_bins` is not a positive integer, `min_bin_share` is not
-        between 0 and 0.5, `criterion` is not recognized, `values` and
-        `target` are not one-dimensional or their indices or lengths do not
-        match, `special` is not one-dimensional or contains a missing value,
-        `values` is not numeric or has no finite observations apart from
-        missing and special values, or `target` has labels other than 0 and 1
-        or lacks one of them in the rows that are fitted.
+        If `max_bins` is not a positive integer, `min_bin_share` is not between
+        0 and 0.5, `criterion` is not recognized, `values` and `target` are not
+        one-dimensional or their indices or lengths do not match, `special` is
+        not one-dimensional or contains a missing value or a boolean, `values`
+        is not numeric or has no finite observations apart from missing and
+        special values, or `target` has labels other than 0 and 1 or lacks one
+        of them in the rows that are fitted.
         Also if `weights` is not numeric, does not give each value one finite,
         non-negative weight with a positive total, or has an index other than
         that of `values`.
@@ -543,14 +545,14 @@ def monotonic_edges(
     Raises
     ------
     ValueError
-        If `max_bins` is neither None nor a positive integer, `initial_bins`
-        is not a positive integer, `direction` is not recognized, `smoothing`
-        is not finite and positive, `values` and `target` are not
-        one-dimensional or their indices or lengths do not match, `special`
-        is not one-dimensional or contains a missing value, `values` is not
-        numeric or has no finite observations apart from missing and special
-        values, or `target` has labels other than 0 and 1 or lacks one of them
-        in the rows that are fitted.
+        If `max_bins` is neither None nor a positive integer, `initial_bins` is
+        not a positive integer, `direction` is not recognized, `smoothing` is
+        not finite and positive, `values` and `target` are not one-dimensional
+        or their indices or lengths do not match, `special` is not
+        one-dimensional or contains a missing value or a boolean, `values` is
+        not numeric or has no finite observations apart from missing and
+        special values, or `target` has labels other than 0 and 1 or lacks one
+        of them in the rows that are fitted.
         Also if `weights` is not numeric, does not give each value one finite,
         non-negative weight with a positive total, or has an index other than
         that of `values`.
@@ -604,13 +606,22 @@ def _check_count(value, name: str) -> None:
 
 
 def _observed(
-    values: pd.Series, special: pd.Index | None = None, weights: np.ndarray | None = None
+    values: pd.Series,
+    special: pd.Index | None = None,
+    weights: np.ndarray | None = None,
+    *,
+    is_special: np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray | None]:
-    """Finite numeric values and their weights, without missing, special or zero-weight values."""
+    """Finite numeric values and their weights, without missing, special or zero-weight values.
+
+    ``is_special`` is the special mask when the caller has already computed it.
+    """
     keep = values.notna().to_numpy(dtype=bool, copy=True)
     excluded = ["missing"]
     if special is not None:
-        keep &= ~values.isin(special).to_numpy(dtype=bool)
+        if is_special is None:
+            is_special = _special_positions(values, special) >= 0
+        keep &= ~is_special
         excluded.append("special")
     if weights is not None:
         keep &= weights > 0
@@ -646,12 +657,55 @@ def _weighted_quantile(
 def _special_values(special: npt.ArrayLike | None) -> pd.Index:
     if special is None:
         return pd.Index([], dtype=object)
-    special = pd.Index(pd.unique(as_series(special, "special")))
+    codes = as_series(special, "special")
+    # Before pd.unique, which would merge True into 1 and False into 0.
+    flags = [value for value in codes if isinstance(value, (bool, np.bool_))]
+    if flags or pd.api.types.is_bool_dtype(codes.dtype):
+        raise ValueError(f"special must not contain booleans, got {(flags or [True])[0]!r}")
+    special = pd.Index(pd.unique(codes), dtype=object)
     if special.hasnans:
         raise ValueError(
             "special must not contain missing values; they always form their own group"
         )
     return special
+
+
+def _special_positions(values: pd.Series, special: pd.Index) -> np.ndarray:
+    """Position of each value's code in ``special``, or -1 for other values.
+
+    Values that are not numbers are matched both as given and after
+    ``pandas.to_numeric``, so the string ``"-1"`` matches the code ``-1``.
+    """
+    position = np.full(len(values), -1, dtype=np.intp)
+    if special.empty or pd.api.types.is_bool_dtype(values.dtype):
+        # Booleans are not numbers here, although True == 1 and False == 0.
+        return position
+    observed = values.notna().to_numpy(dtype=bool)
+    if pd.api.types.is_numeric_dtype(values.dtype):
+        # Fast path: look the numbers up among the numeric codes only. Integer
+        # values compare with integer codes, so 2**53 + 1 never matches 2.0**53.
+        integer = pd.api.types.is_integer_dtype(values.dtype)
+        numeric, codes = [], []
+        for i, code in enumerate(special):
+            if not isinstance(code, Real):
+                continue
+            if integer and not isinstance(code, Integral):
+                if not (math.isfinite(code) and float(code).is_integer()):
+                    continue
+                code = int(code)
+            numeric.append(i)
+            codes.append(code)
+        if numeric:
+            found = pd.Index(codes).get_indexer(values[observed])
+            position[observed] = np.where(found >= 0, np.asarray(numeric)[found], -1)
+        return position
+    candidates = pd.Index(values[observed].to_numpy(dtype=object), dtype=object)
+    found = special.get_indexer(candidates)
+    unmatched = found < 0
+    numeric = pd.to_numeric(pd.Series(candidates[unmatched]), errors="coerce")
+    found[unmatched] = special.get_indexer(pd.Index(numeric.to_numpy(dtype=object)))
+    position[observed] = found
+    return position
 
 
 def _labeled(
@@ -680,10 +734,13 @@ def _labeled(
     fitted = values.notna().to_numpy(dtype=bool, copy=True)
     if special is not None:
         special = _special_values(special)
-        fitted &= ~values.isin(special).to_numpy(dtype=bool)
+        is_special = _special_positions(values, special) >= 0
+        fitted &= ~is_special
+    else:
+        is_special = None
     if mass is not None:
         fitted &= mass > 0
-    observed, mass = _observed(values, special, mass)
+    observed, mass = _observed(values, special, mass, is_special=is_special)
     labels = target.to_numpy()[fitted].astype(np.intp)
     if labels.min() == labels.max():
         rows = "observed and not special" if special is not None else "observed"
