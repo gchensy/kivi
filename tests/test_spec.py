@@ -570,6 +570,7 @@ _DELETE = object()
         (_edit(["smoothing"], _DELETE), r"the specification lacks \['smoothing'\]"),
         (_edit(["smoothing"], 0), "smoothing must be finite and positive, got 0"),
         (_edit(["kivi_version"], 5), "kivi_version must be a string, got 5"),
+        (_edit(["kivi_version"], None), "kivi_version must be a string, got None"),
         (_edit(["variables"], {}), "variables must be a list, got dict"),
         (_edit(["variables"], []), "kinds must be a non-empty mapping"),
         (_edit(["variables", 0], 1), "each variable must be a mapping, got int"),

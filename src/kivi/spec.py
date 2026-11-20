@@ -12,7 +12,7 @@ import json
 import math
 import warnings
 from collections.abc import Iterator, Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from numbers import Integral, Real
 from types import MappingProxyType
 from typing import Any, ClassVar, Literal
@@ -40,10 +40,6 @@ _FITTERS = {
 }
 # Arguments that fit_spec passes itself and that options must therefore not contain.
 _SET_BY_FIT = {"bins", "max_bins", "method", "special", "weights", "smoothing"}
-
-
-def _installed_version() -> str:
-    return kivi.__version__
 
 
 @dataclass(frozen=True, eq=False, repr=False)
@@ -83,8 +79,8 @@ class BinningSpec:
     smoothing : float, default 0.5
         Smoothing with which the tables were computed.
     kivi_version : str, optional
-        Version of kivi that fitted the specification. By default the
-        installed version.
+        Version of kivi that fitted the specification. By default, or if
+        None, the installed version.
 
     Attributes
     ----------
@@ -143,7 +139,7 @@ class BinningSpec:
     tables: Mapping[str, pd.DataFrame]
     unseen: Mapping[str, float | Literal["raise"]]
     smoothing: float = 0.5
-    kivi_version: str = field(default_factory=_installed_version)
+    kivi_version: str | None = None
     format_version: ClassVar[int] = _FORMAT_VERSION
 
     def __post_init__(self):
@@ -170,14 +166,16 @@ class BinningSpec:
             for name, value in _entries(self.unseen, names, "unseen").items()
         }
         _check_smoothing(self.smoothing)
-        if not isinstance(self.kivi_version, str):
-            raise ValueError(f"kivi_version must be a string, got {self.kivi_version!r}")
+        version = kivi.__version__ if self.kivi_version is None else self.kivi_version
+        if not isinstance(version, str):
+            raise ValueError(f"kivi_version must be a string, got {version!r}")
         object.__setattr__(self, "kinds", MappingProxyType(kinds))
         object.__setattr__(self, "edges", MappingProxyType(edges))
         object.__setattr__(self, "special", MappingProxyType(special))
         object.__setattr__(self, "tables", _Tables(tables))
         object.__setattr__(self, "unseen", MappingProxyType(unseen))
         object.__setattr__(self, "smoothing", float(self.smoothing))
+        object.__setattr__(self, "kivi_version", version)
 
     def __repr__(self) -> str:
         """Name the columns, which is shorter than listing every field."""
@@ -523,6 +521,8 @@ class BinningSpec:
         _check_keys(
             data, {"format", "format_version", "kivi_version", "smoothing", "variables"}, ""
         )
+        if not isinstance(data["kivi_version"], str):
+            raise ValueError(f"kivi_version must be a string, got {data['kivi_version']!r}")
         variables = data["variables"]
         if not isinstance(variables, list):
             raise ValueError(f"variables must be a list, got {type(variables).__name__}")
