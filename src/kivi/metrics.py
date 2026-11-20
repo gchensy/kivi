@@ -1,8 +1,10 @@
 """Performance of a score for a binary target.
 
-The functions take a binary ``target`` and a score that is higher for a higher
-event probability, such as a predicted probability of default. Scorecard
-points run the other way, so negate them before passing them in.
+Every function takes the score first and the binary ``target`` second, as
+``kivi.woe.woe_table`` takes the groups first; scikit-learn's metrics take the
+target first. The score is higher for a higher event probability, such as a
+predicted probability of default. Scorecard points run the other way, so
+negate them before passing them in.
 """
 
 from numbers import Integral
@@ -17,21 +19,24 @@ from .binning import bin_edges
 __all__ = ["roc_auc", "gini", "ks", "gains_table", "brier_score"]
 
 
-def roc_auc(target: npt.ArrayLike, score: npt.ArrayLike) -> float:
+def roc_auc(score: npt.ArrayLike, target: npt.ArrayLike) -> float:
     r"""Compute the area under the ROC curve of a score.
 
     The AUC is the probability that a randomly chosen event has a higher
     score than a randomly chosen non-event, with ties counted as one half.
 
+    The score comes first and the target second, as in `kivi.woe.woe_table`;
+    scikit-learn's metrics take the target first.
+
     Parameters
     ----------
-    target : array_like
-        Binary labels, with 1 indicating the event. Both classes must be
-        present. If `target` and `score` are both pandas Series, they must
-        have identical indices; otherwise they are matched by position.
     score : array_like
         Finite numeric scores that are higher for a higher event probability.
         Negate scorecard points, which are higher for a lower risk.
+    target : array_like
+        Binary labels, with 1 indicating the event. Both classes must be
+        present. If `score` and `target` are both pandas Series, they must
+        have identical indices; otherwise they are matched by position.
 
     Returns
     -------
@@ -72,19 +77,19 @@ def roc_auc(target: npt.ArrayLike, score: npt.ArrayLike) -> float:
     Examples
     --------
     >>> from kivi.metrics import roc_auc
-    >>> target = [0, 0, 1, 0, 1, 1]
     >>> score = [0.1, 0.4, 0.4, 0.8, 0.7, 0.9]
-    >>> round(roc_auc(target, score), 4)
+    >>> target = [0, 0, 1, 0, 1, 1]
+    >>> round(roc_auc(score, target), 4)
     0.7222
 
     Scorecard points are higher for a lower risk, so negate them:
 
     >>> import numpy as np
     >>> points = np.array([720, 650, 650, 560, 590, 510])
-    >>> round(roc_auc(target, -points), 4)
+    >>> round(roc_auc(-points, target), 4)
     0.7222
     """
-    labels, values = _labels_and_scores(target, score, "score")
+    values, labels = _scores_and_labels(score, target, "score")
     non_event, event = _distinct_counts(labels, values).T
     # U counts each (event, non-event) pair in which the event scores higher, a tie as one half;
     # it equals R_1 - n_1 (n_1 + 1) / 2 without subtracting large rank sums.
@@ -93,21 +98,24 @@ def roc_auc(target: npt.ArrayLike, score: npt.ArrayLike) -> float:
     return float(u / (float(event.sum()) * float(non_event.sum())))
 
 
-def gini(target: npt.ArrayLike, score: npt.ArrayLike) -> float:
+def gini(score: npt.ArrayLike, target: npt.ArrayLike) -> float:
     r"""Compute the Gini coefficient of a score.
 
     The Gini coefficient rescales the AUC to run from -1 to 1, so that a score
     unrelated to the target gives about 0.
 
+    The score comes first and the target second, as in `kivi.woe.woe_table`;
+    scikit-learn's metrics take the target first.
+
     Parameters
     ----------
-    target : array_like
-        Binary labels, with 1 indicating the event. Both classes must be
-        present. If `target` and `score` are both pandas Series, they must
-        have identical indices; otherwise they are matched by position.
     score : array_like
         Finite numeric scores that are higher for a higher event probability.
         Negate scorecard points, which are higher for a lower risk.
+    target : array_like
+        Binary labels, with 1 indicating the event. Both classes must be
+        present. If `score` and `target` are both pandas Series, they must
+        have identical indices; otherwise they are matched by position.
 
     Returns
     -------
@@ -139,28 +147,31 @@ def gini(target: npt.ArrayLike, score: npt.ArrayLike) -> float:
     Examples
     --------
     >>> from kivi.metrics import gini
-    >>> target = [0, 0, 1, 0, 1, 1]
     >>> score = [0.1, 0.4, 0.4, 0.8, 0.7, 0.9]
-    >>> round(gini(target, score), 4)
+    >>> target = [0, 0, 1, 0, 1, 1]
+    >>> round(gini(score, target), 4)
     0.4444
     """
-    return 2 * roc_auc(target, score) - 1
+    return 2 * roc_auc(score, target) - 1
 
 
-def ks(target: npt.ArrayLike, score: npt.ArrayLike) -> float:
+def ks(score: npt.ArrayLike, target: npt.ArrayLike) -> float:
     r"""Compute the Kolmogorov-Smirnov statistic of a score.
 
     The KS statistic is the largest gap between the cumulative distribution
     of the scores of events and that of non-events.
 
+    The score comes first and the target second, as in `kivi.woe.woe_table`;
+    scikit-learn's metrics take the target first.
+
     Parameters
     ----------
-    target : array_like
-        Binary labels, with 1 indicating the event. Both classes must be
-        present. If `target` and `score` are both pandas Series, they must
-        have identical indices; otherwise they are matched by position.
     score : array_like
         Finite numeric scores, such as predicted event probabilities.
+    target : array_like
+        Binary labels, with 1 indicating the event. Both classes must be
+        present. If `score` and `target` are both pandas Series, they must
+        have identical indices; otherwise they are matched by position.
 
     Returns
     -------
@@ -207,34 +218,37 @@ def ks(target: npt.ArrayLike, score: npt.ArrayLike) -> float:
     Examples
     --------
     >>> from kivi.metrics import ks
-    >>> target = [0, 0, 1, 0, 1, 1]
     >>> score = [0.1, 0.4, 0.4, 0.8, 0.7, 0.9]
-    >>> round(ks(target, score), 4)
+    >>> target = [0, 0, 1, 0, 1, 1]
+    >>> round(ks(score, target), 4)
     0.3333
     """
-    labels, values = _labels_and_scores(target, score, "score")
+    values, labels = _scores_and_labels(score, target, "score")
     non_event, event = _distinct_counts(labels, values).T
     gap = np.cumsum(event) / event.sum() - np.cumsum(non_event) / non_event.sum()
     return float(np.max(np.abs(gap)))
 
 
 def gains_table(
-    target: npt.ArrayLike, score: npt.ArrayLike, *, bins: int | npt.ArrayLike = 10
+    score: npt.ArrayLike, target: npt.ArrayLike, *, bins: int | npt.ArrayLike = 10
 ) -> pd.DataFrame:
     """Summarize events by score band, from the highest scores to the lowest.
 
     Each row shows how many events a band holds and what share of all events
     is captured by reviewing that band and every band above it.
 
+    The score comes first and the target second, as in `kivi.woe.woe_table`;
+    scikit-learn's metrics take the target first.
+
     Parameters
     ----------
-    target : array_like
-        Binary labels, with 1 indicating the event. Both classes must be
-        present. If `target` and `score` are both pandas Series, they must
-        have identical indices; otherwise they are matched by position.
     score : array_like
         Finite numeric scores that are higher for a higher event probability.
         Negate scorecard points, which are higher for a lower risk.
+    target : array_like
+        Binary labels, with 1 indicating the event. Both classes must be
+        present. If `score` and `target` are both pandas Series, they must
+        have identical indices; otherwise they are matched by position.
     bins : int or array_like, default 10
         Number of quantile bands, or increasing band edges. An integer is the
         same as passing ``kivi.binning.bin_edges(score, bins=bins)``, so tied
@@ -295,9 +309,9 @@ def gains_table(
     Examples
     --------
     >>> from kivi.metrics import gains_table
-    >>> target = [0, 0, 1, 0, 1, 1, 0, 0]
     >>> score = [1, 2, 3, 3, 4, 5, 1, 2]
-    >>> table = gains_table(target, score, bins=3)
+    >>> target = [0, 0, 1, 0, 1, 1, 0, 0]
+    >>> table = gains_table(score, target, bins=3)
     >>> table[["total", "event", "event_rate", "cum_event_share", "ks", "lift"]].round(3)
                 total  event  event_rate  cum_event_share     ks  lift
     bin
@@ -305,7 +319,7 @@ def gains_table(
     (2.0, 3.0]      2      1         0.5            1.000  0.800  1.333
     (-inf, 2.0]     4      0         0.0            1.000  0.000  0.000
     """
-    labels, values = _labels_and_scores(target, score, "score")
+    values, labels = _scores_and_labels(score, target, "score")
     edges = _band_edges(values, bins)
     band = np.searchsorted(edges, values, side="left") - 1
     outside = (band < 0) | (band >= len(edges) - 1)
@@ -340,20 +354,23 @@ def gains_table(
     )
 
 
-def brier_score(target: npt.ArrayLike, probability: npt.ArrayLike) -> float:
+def brier_score(probability: npt.ArrayLike, target: npt.ArrayLike) -> float:
     r"""Compute the Brier score of predicted event probabilities.
 
     The Brier score is the mean squared difference between the predicted
     probability and the observed outcome, so a lower value is better.
 
+    The probabilities come first and the target second, as in
+    `kivi.woe.woe_table`; scikit-learn's metrics take the target first.
+
     Parameters
     ----------
-    target : array_like
-        Binary labels, with 1 indicating the event. If `target` and
-        `probability` are both pandas Series, they must have identical
-        indices; otherwise they are matched by position.
     probability : array_like
         Predicted event probabilities from 0 to 1.
+    target : array_like
+        Binary labels, with 1 indicating the event. If `probability` and
+        `target` are both pandas Series, they must have identical indices;
+        otherwise they are matched by position.
 
     Returns
     -------
@@ -394,37 +411,30 @@ def brier_score(target: npt.ArrayLike, probability: npt.ArrayLike) -> float:
     --------
     >>> from kivi.metrics import brier_score
     >>> target = [0, 0, 1, 1]
-    >>> round(brier_score(target, [0.1, 0.3, 0.6, 0.8]), 4)
+    >>> round(brier_score([0.1, 0.3, 0.6, 0.8], target), 4)
     0.075
     """
-    labels, values = _labels_and_scores(target, probability, "probability", both_classes=False)
+    values, labels = _scores_and_labels(probability, target, "probability", both_classes=False)
     outside = (values < 0) | (values > 1)
     if outside.any():
         raise ValueError(f"probability must be between 0 and 1, got {float(values[outside][0])!r}")
     return float(np.mean((values - labels) ** 2))
 
 
-def _labels_and_scores(
-    target: npt.ArrayLike, score: npt.ArrayLike, name: str, *, both_classes: bool = True
-) -> tuple[npt.NDArray[np.intp], npt.NDArray[np.float64]]:
-    """0/1 labels and finite float scores, matched by index or position like ``woe_table``."""
-    if isinstance(target, pd.Series) and isinstance(score, pd.Series):
-        if not target.index.equals(score.index):
-            raise ValueError(f"target and {name} must have identical indices")
-    target, score = as_series(target, "target"), as_series(score, name)
-    if len(target) != len(score):
+def _scores_and_labels(
+    score: npt.ArrayLike, target: npt.ArrayLike, name: str, *, both_classes: bool = True
+) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.intp]]:
+    """Finite float scores and 0/1 labels, matched by index or position like ``woe_table``."""
+    if isinstance(score, pd.Series) and isinstance(target, pd.Series):
+        if not score.index.equals(target.index):
+            raise ValueError(f"{name} and target must have identical indices")
+    score, target = as_series(score, name), as_series(target, "target")
+    if len(score) != len(target):
         raise ValueError(
-            f"target and {name} must have the same length, got {len(target)} and {len(score)}"
+            f"{name} and target must have the same length, got {len(score)} and {len(target)}"
         )
-    if not len(target):
-        raise ValueError(f"target and {name} must not be empty")
-    # For nullable dtypes pandas 2.0 returns an object array, which ~ would negate as integers.
-    invalid = ~target.isin([0, 1]).to_numpy(dtype=bool)
-    if invalid.any():
-        raise ValueError(f"target must contain only 0 and 1, got {_scalar(target[invalid])!r}")
-    labels = target.to_numpy(dtype=np.intp)
-    if both_classes and labels.sum() in (0, len(labels)):
-        raise ValueError(f"target must contain both 0 and 1, got only {labels[0]}")
+    if not len(score):
+        raise ValueError(f"{name} and target must not be empty")
     if not pd.api.types.is_numeric_dtype(score.dtype):
         raise ValueError(f"{name} must be numeric, got dtype {score.dtype}")
     if pd.api.types.is_complex_dtype(score.dtype):
@@ -436,7 +446,14 @@ def _labels_and_scores(
             f"{name} must be finite, got {(~finite).sum()} missing or infinite value(s) "
             f"such as {float(values[~finite][0])!r}"
         )
-    return labels, values
+    # For nullable dtypes pandas 2.0 returns an object array, which ~ would negate as integers.
+    invalid = ~target.isin([0, 1]).to_numpy(dtype=bool)
+    if invalid.any():
+        raise ValueError(f"target must contain only 0 and 1, got {_scalar(target[invalid])!r}")
+    labels = target.to_numpy(dtype=np.intp)
+    if both_classes and labels.sum() in (0, len(labels)):
+        raise ValueError(f"target must contain both 0 and 1, got only {labels[0]}")
+    return values, labels
 
 
 def _scalar(values: pd.Series):

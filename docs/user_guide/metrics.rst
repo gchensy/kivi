@@ -6,7 +6,9 @@ Model performance
 Score direction
 ---------------
 
-Every function expects a score that is higher for a higher event probability, such as a predicted probability of default (PD). Scorecard points run the other way, because more points mean a lower risk, so negate them before passing them in: ``roc_auc(target, -points)``.
+Every function expects a score that is higher for a higher event probability, such as a predicted probability of default (PD). Scorecard points run the other way, because more points mean a lower risk, so negate them before passing them in: ``roc_auc(-points, target)``.
+
+Every function takes the score first and the target second, as ``woe_table(groups, target)`` takes the groups first. scikit-learn's metrics take the target first, so check the order when porting code from them.
 
 As in ``woe_table``, the target is 1 for an event and 0 for a non-event. Two Series must share the same index; arrays and lists are matched by position. Scores must be finite, so decide how missing values are scored before evaluating the model.
 
@@ -36,16 +38,16 @@ A worked example
 Three of these six customers are events. Of the nine pairs of an event and a non-event, six are ordered correctly, two are not, and one is tied at 0.4, so the AUC is :math:`(6 + 0.5) / 9`:
 
 >>> from kivi.metrics import gini, ks, roc_auc
->>> target = [0, 0, 1, 0, 1, 1]
 >>> score = [0.1, 0.4, 0.4, 0.8, 0.7, 0.9]
->>> round(roc_auc(target, score), 4)
+>>> target = [0, 0, 1, 0, 1, 1]
+>>> round(roc_auc(score, target), 4)
 0.7222
->>> round(gini(target, score), 4)
+>>> round(gini(score, target), 4)
 0.4444
 
 At a cut-off of 0.4, two thirds of the non-events but only one third of the events score at or below it. No cut-off separates the two classes further, so the KS is one third:
 
->>> round(ks(target, score), 4)
+>>> round(ks(score, target), 4)
 0.3333
 
 Evaluating a WOE score
@@ -78,12 +80,12 @@ The bank data give a more realistic example. The score below adds up the WOE val
 Measure the score on both samples. The validation rows played no part in fitting the WOE values, so they show how the score holds up on new customers:
 
 >>> samples = {
-...     "development": (development["target"], dev_score),
-...     "validation": (validation["target"], val_score),
+...     "development": (dev_score, development["target"]),
+...     "validation": (val_score, validation["target"]),
 ... }
 >>> pd.DataFrame({
-...     name: {"auc": roc_auc(y, s), "gini": gini(y, s), "ks": ks(y, s)}
-...     for name, (y, s) in samples.items()
+...     name: {"auc": roc_auc(s, y), "gini": gini(s, y), "ks": ks(s, y)}
+...     for name, (s, y) in samples.items()
 ... }).round(3)
       development  validation
 auc         0.686       0.716
@@ -96,9 +98,9 @@ Points that fall as the risk rises rank the customers in the opposite order. Pas
 
 >>> points = 600 - 50 * val_score
 >>> y = validation["target"]
->>> [round(roc_auc(y, points), 3), round(roc_auc(y, -points), 3)]
+>>> [round(roc_auc(points, y), 3), round(roc_auc(-points, y), 3)]
 [0.284, 0.716]
->>> [round(ks(y, points), 3), round(ks(y, -points), 3)]
+>>> [round(ks(points, y), 3), round(ks(-points, y), 3)]
 [0.321, 0.321]
 
 .. note::
@@ -117,7 +119,7 @@ In monitoring, fix the bands on the development sample so that every later sampl
 >>> edges = bin_edges(dev_score, bins=5).round(2)
 >>> edges
 array([ -inf, -1.46, -0.38,  0.15,  0.32,   inf])
->>> gains = gains_table(y, val_score, bins=edges)
+>>> gains = gains_table(val_score, y, bins=edges)
 >>> gains[["total", "event", "event_rate", "lift", "cum_event_share", "ks"]].round(3)
                 total  event  event_rate   lift  cum_event_share     ks
 bin
@@ -129,13 +131,13 @@ bin
 
 The top band holds 17% of the validation customers (264 of 1,521) but 42% of the events, so its event rate is 2.4 times that of the whole sample. The table checks the gap between the two classes only at the four interior cut-offs, so its largest ``ks`` stays below the KS over all scores:
 
->>> print(f"{gains['ks'].max():.3f} < {ks(y, val_score):.3f}")
+>>> print(f"{gains['ks'].max():.3f} < {ks(val_score, y):.3f}")
 0.274 < 0.321
 
 Every band is reported, including a band that no customer falls into, so two samples cut on the same edges give tables with the same rows. Their ``total`` columns then give the PSI of the score bands, here far below 0.1, the usual upper bound of a small shift (see :doc:`psi`):
 
 >>> from kivi.stability import psi
->>> dev_gains = gains_table(development["target"], dev_score, bins=edges)
+>>> dev_gains = gains_table(dev_score, development["target"], bins=edges)
 >>> round(psi(dev_gains["total"], gains["total"]), 4)
 0.0025
 
@@ -178,7 +180,7 @@ The example below predicts the probability of each validation customer by the de
 >>> rates = development.groupby("poutcome")["target"].mean()
 >>> by_group = validation["poutcome"].map(rates)
 >>> overall = np.full(len(validation), development["target"].mean())
->>> [round(brier_score(y, by_group), 4), round(brier_score(y, overall), 4)]
+>>> [round(brier_score(by_group, y), 4), round(brier_score(overall, y), 4)]
 [0.0907, 0.1008]
 
 The group rates lower the Brier score by about 10% compared with the constant forecast. Unlike the ranking measures, the Brier score needs no events in the sample, so it can also be computed for a period without any.
