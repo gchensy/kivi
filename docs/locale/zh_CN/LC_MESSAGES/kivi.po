@@ -1050,6 +1050,326 @@ msgstr ""
 msgid "[Re446c00e8929-1]_"
 msgstr "[Re446c00e8929-1]_"
 
+msgid "Model performance"
+msgstr "模型表现"
+
+msgid ":py:obj:`roc_auc <kivi.metrics.roc_auc>`\\ \\(score\\, target\\)"
+msgstr ":py:obj:`roc_auc <kivi.metrics.roc_auc>`\\ \\(score\\, target\\)"
+
+msgid "Compute the area under the ROC curve of a score."
+msgstr "计算评分的 ROC 曲线下面积。"
+
+msgid ":py:obj:`gini <kivi.metrics.gini>`\\ \\(score\\, target\\)"
+msgstr ":py:obj:`gini <kivi.metrics.gini>`\\ \\(score\\, target\\)"
+
+msgid "Compute the Gini coefficient of a score."
+msgstr "计算评分的 Gini 系数。"
+
+msgid ":py:obj:`ks <kivi.metrics.ks>`\\ \\(score\\, target\\)"
+msgstr ":py:obj:`ks <kivi.metrics.ks>`\\ \\(score\\, target\\)"
+
+msgid "Compute the Kolmogorov-Smirnov statistic of a score."
+msgstr "计算评分的 Kolmogorov-Smirnov 统计量。"
+
+msgid ":py:obj:`gains_table <kivi.metrics.gains_table>`\\ \\(score\\, target\\, \\*\\[\\, bins\\]\\)"
+msgstr ":py:obj:`gains_table <kivi.metrics.gains_table>`\\ \\(score\\, target\\, \\*\\[\\, bins\\]\\)"
+
+msgid "Summarize events by score band, from the highest scores to the lowest."
+msgstr "按评分段汇总事件，从最高评分到最低评分排列。"
+
+msgid ":py:obj:`brier_score <kivi.metrics.brier_score>`\\ \\(probability\\, target\\)"
+msgstr ":py:obj:`brier_score <kivi.metrics.brier_score>`\\ \\(probability\\, target\\)"
+
+msgid "Compute the Brier score of predicted event probabilities."
+msgstr "计算预测事件概率的 Brier 分数。"
+
+msgid ""
+"The AUC is the probability that a randomly chosen event has a higher score than a randomly chosen"
+" non-event, with ties counted as one half."
+msgstr "AUC 是随机抽取的一个事件比随机抽取的一个非事件评分更高的概率，评分相同时计为二分之一。"
+
+msgid ""
+"The score comes first and the target second, as in `kivi.woe.woe_table`; scikit-learn's metrics "
+"take the target first."
+msgstr "评分在前、目标在后，与 `kivi.woe.woe_table` 相同；scikit-learn 的指标函数则把目标放在前面。"
+
+msgid "**score**"
+msgstr "**score**"
+
+msgid ""
+"Finite numeric scores that are higher for a higher event probability. Negate scorecard points, "
+"which are higher for a lower risk."
+msgstr "有限的数值评分，事件概率越高，评分越高。评分卡分数越高表示风险越低，因此须取负后再传入。"
+
+msgid ""
+"Binary labels, with 1 indicating the event. Both classes must be present. If `score` and `target`"
+" are both pandas Series, they must have identical indices; otherwise they are matched by "
+"position."
+msgstr "二分类标签，1 表示事件。两个类别都必须出现。如果 `score` 和 `target` 都是 pandas Series，二者的索引必须完全相同；否则按位置对应。"
+
+msgid ""
+"The AUC, from 0 to 1. A score unrelated to the target gives about 0.5, and a value below 0.5 "
+"suggests that the score runs the other way."
+msgstr "AUC，取值 0 到 1。与目标无关的评分约为 0.5，低于 0.5 则说明评分方向可能相反。"
+
+msgid ""
+"If the inputs are empty or not one-dimensional, their indices or lengths do not match, `target` "
+"has a label other than 0 and 1 or lacks one of them, or `score` is not real and numeric or has a "
+"missing or infinite value."
+msgstr "如果输入为空或不是一维的，索引或长度不一致，`target` 含有 0 和 1 以外的标签或缺少其中之一，或 `score` 不是实数数值或含有缺失值、无穷值。"
+
+msgid ":obj:`gini`"
+msgstr ":obj:`gini`"
+
+msgid "The same ranking measure on a scale from -1 to 1."
+msgstr "同一排序度量，取值范围为 -1 到 1。"
+
+msgid ":obj:`ks`"
+msgstr ":obj:`ks`"
+
+msgid "Largest gap between the score distributions of the two classes."
+msgstr "两个类别评分分布之间的最大差距。"
+
+msgid ":obj:`gains_table`"
+msgstr ":obj:`gains_table`"
+
+msgid "Event rates and captured events by score band."
+msgstr "各评分段的事件率和捕获的事件。"
+
+msgid ""
+"With :math:`n_1` events and :math:`n_0` non-events, let :math:`R_1` be the sum of the ranks of "
+"the events among all scores, where tied scores share their average rank. The Mann-Whitney "
+"statistic gives"
+msgstr "设有 :math:`n_1` 个事件和 :math:`n_0` 个非事件，:math:`R_1` 为事件在全部评分中的秩之和，相同评分取平均秩。由 Mann-Whitney 统计量得"
+
+#, python-brace-format
+msgid "\\mathrm{AUC} = \\frac{R_1 - n_1 (n_1 + 1) / 2}{n_1 n_0}."
+msgstr "\\mathrm{AUC} = \\frac{R_1 - n_1 (n_1 + 1) / 2}{n_1 n_0}."
+
+msgid ""
+"J. A. Hanley and B. J. McNeil, \"The meaning and use of the area under a receiver operating "
+"characteristic (ROC) curve\", Radiology, 143(1), pp. 29-36, 1982."
+msgstr ""
+"J. A. Hanley and B. J. McNeil, \"The meaning and use of the area under a receiver operating "
+"characteristic (ROC) curve\", Radiology, 143(1), pp. 29-36, 1982."
+
+msgid "[R8309ac12020d-1]_"
+msgstr "[R8309ac12020d-1]_"
+
+msgid "Scorecard points are higher for a lower risk, so negate them:"
+msgstr "评分卡分数越高表示风险越低，因此要取负："
+
+msgid ""
+"The Gini coefficient rescales the AUC to run from -1 to 1, so that a score unrelated to the "
+"target gives about 0."
+msgstr "Gini 系数把 AUC 换算到 -1 到 1 的范围，使与目标无关的评分约为 0。"
+
+msgid "The Gini coefficient, from -1 to 1. A negative value suggests that the score runs the other way."
+msgstr "Gini 系数，取值 -1 到 1。负值说明评分方向可能相反。"
+
+msgid ":obj:`roc_auc`"
+msgstr ":obj:`roc_auc`"
+
+msgid "The area under the ROC curve."
+msgstr "ROC 曲线下面积。"
+
+msgid "The Gini coefficient, also called the accuracy ratio, is"
+msgstr "Gini 系数也称为准确性比率（accuracy ratio），其定义为"
+
+#, python-brace-format
+msgid "\\mathrm{Gini} = 2\\,\\mathrm{AUC} - 1."
+msgstr "\\mathrm{Gini} = 2\\,\\mathrm{AUC} - 1."
+
+msgid ""
+"The KS statistic is the largest gap between the cumulative distribution of the scores of events "
+"and that of non-events."
+msgstr "KS 统计量是事件评分的累计分布与非事件评分的累计分布之间的最大差距。"
+
+msgid "Finite numeric scores, such as predicted event probabilities."
+msgstr "有限的数值评分，例如预测的事件概率。"
+
+msgid "The largest gap, from 0 to 1."
+msgstr "最大差距，取值 0 到 1。"
+
+msgid "The gap at the edge of each score band."
+msgstr "每个评分段边界处的差距。"
+
+msgid "The probability that an event scores higher than a non-event."
+msgstr "事件评分高于非事件评分的概率。"
+
+msgid ""
+"Let :math:`F_1` and :math:`F_0` be the empirical distribution functions of the scores of events "
+"and of non-events. Then"
+msgstr "设 :math:`F_1` 和 :math:`F_0` 分别为事件评分和非事件评分的经验分布函数，则"
+
+#, python-brace-format
+msgid "\\mathrm{KS} = \\max_t \\, \\lvert F_1(t) - F_0(t) \\rvert,"
+msgstr "\\mathrm{KS} = \\max_t \\, \\lvert F_1(t) - F_0(t) \\rvert,"
+
+msgid ""
+"where :math:`t` runs over the observed scores. As in the two-sample Kolmogorov-Smirnov test, the "
+"gap is taken in absolute value, so negated scores give the same KS; use the sign of `gini` to "
+"check the direction."
+msgstr "其中 :math:`t` 取遍观测到的评分。与双样本 Kolmogorov-Smirnov 检验一样，差距取绝对值，因此评分取负后 KS 不变；请用 `gini` 的符号检查方向。"
+
+msgid ""
+"The largest gap can come from a region where the score runs the wrong way, for example when "
+"events gather among the lowest scores as well as the highest. The KS then measures how far apart "
+"the two distributions are rather than how well the score ranks events above non-events. The "
+"cumulative shares in `gains_table` show where the gap occurs."
+msgstr ""
+"最大差距可能来自评分方向相反的区域，例如事件既集中在最高评分处，也集中在最低评分处。此时 KS 衡量的是两个分布相距多远，而不是评分把事件排在非事件之前的能力。`gains_table` "
+"中的累计占比可以显示差距出现的位置。"
+
+msgid "L. C. Thomas, D. B. Edelman and J. N. Crook, \"Credit Scoring and Its Applications\", SIAM, 2002."
+msgstr "L. C. Thomas, D. B. Edelman and J. N. Crook, \"Credit Scoring and Its Applications\", SIAM, 2002."
+
+msgid "[Rbfc1ea3c8bbd-1]_"
+msgstr "[Rbfc1ea3c8bbd-1]_"
+
+msgid ""
+"Each row shows how many events a band holds and what share of all events is captured by reviewing"
+" that band and every band above it."
+msgstr "每行给出该评分段的事件数，以及审查该段及其以上各段时捕获的事件占全部事件的比例。"
+
+msgid "int or array_like, default 10"
+msgstr "int 或 array_like，默认 10"
+
+msgid ""
+"Number of quantile bands, or increasing band edges. An integer is the same as passing "
+"``kivi.binning.bin_edges(score, bins=bins)``, so tied scores can leave fewer bands than "
+"requested. Pass the edges fitted on a development sample to compare later samples on the same "
+"bands."
+msgstr ""
+"分位数评分段的数量，或递增的分段边界。整数等同于传入 ``kivi.binning.bin_edges(score, "
+"bins=bins)``，因此相同评分可能使评分段少于请求的数量。传入在开发样本上拟合的边界，即可在同一组评分段上比较后续样本。"
+
+msgid ""
+"One row per score band, from the highest band to the lowest, indexed by the interval of the band."
+" The columns are described in the Notes."
+msgstr "每个评分段一行，从最高段到最低段排列，以评分段的区间为索引。各列含义见“说明”。"
+
+msgid ""
+"If the inputs are empty or not one-dimensional, their indices or lengths do not match, `target` "
+"has a label other than 0 and 1 or lacks one of them, `score` is not real and numeric or has a "
+"missing or infinite value, `bins` is neither a positive integer nor increasing edges, or a score "
+"lies outside the edges."
+msgstr ""
+"如果输入为空或不是一维的，索引或长度不一致，`target` 含有 0 和 1 以外的标签或缺少其中之一，`score` 不是实数数值或含有缺失值、无穷值，`bins` "
+"既不是正整数也不是递增的边界，或有评分落在边界之外。"
+
+msgid ""
+"If `bins` is an integer and tied scores leave fewer bands than requested, as in "
+"`kivi.binning.bin_edges`."
+msgstr "如果 `bins` 是整数，且相同评分使评分段少于请求的数量，与 `kivi.binning.bin_edges` 相同。"
+
+msgid "The largest gap over all scores rather than band edges."
+msgstr "在全部评分上而非仅在分段边界上取的最大差距。"
+
+msgid "Ranking quality over all pairs of events and non-events."
+msgstr "在全部事件与非事件配对上衡量的排序质量。"
+
+msgid ":obj:`kivi.binning.bin_edges`"
+msgstr ":obj:`kivi.binning.bin_edges`"
+
+msgid "Fit band edges on a development sample."
+msgstr "在开发样本上拟合分段边界。"
+
+msgid ""
+"Bands are intervals closed on the right, as in ``pandas.cut``, so tied scores always share a "
+"band. Every band is reported, including bands without observations, so samples cut on the same "
+"edges give tables with the same rows. An empty band has a NaN ``event_rate`` and ``lift``, and "
+"``cum_lift`` is NaN until the first band with observations."
+msgstr ""
+"评分段是右闭区间，与 ``pandas.cut`` 相同，因此相同评分总在同一段。结果列出每个评分段，包括没有观测的评分段，因此用相同边界切分的样本得到的表行相同。空评分段的 "
+"``event_rate`` 和 ``lift`` 为 NaN，在第一个有观测的评分段之前 ``cum_lift`` 也为 NaN。"
+
+msgid "The columns are:"
+msgstr "各列为："
+
+msgid "``non_event``, ``event`` and ``total``: non-events, events and all observations in the band;"
+msgstr "``non_event``、``event`` 和 ``total``：该段的非事件数、事件数和总观测数；"
+
+msgid "``event_rate``: ``event`` divided by ``total``;"
+msgstr "``event_rate``：``event`` 除以 ``total``；"
+
+msgid "``lift``: ``event_rate`` divided by the event rate of the sample;"
+msgstr "``lift``：``event_rate`` 除以整个样本的事件率；"
+
+msgid ""
+"``cum_non_event_share``, ``cum_event_share`` and ``cum_total_share``: shares of all non-events, "
+"events and observations in the band and the bands above it;"
+msgstr "``cum_non_event_share``、``cum_event_share`` 和 ``cum_total_share``：该段及其以上各段占全部非事件、事件和观测的比例；"
+
+msgid "``ks``: the absolute difference between ``cum_event_share`` and ``cum_non_event_share``;"
+msgstr "``ks``：``cum_event_share`` 与 ``cum_non_event_share`` 之差的绝对值；"
+
+msgid "``cum_lift``: ``cum_event_share`` divided by ``cum_total_share``."
+msgstr "``cum_lift``：``cum_event_share`` 除以 ``cum_total_share``。"
+
+msgid ""
+"The largest ``ks`` is at most the value of `ks`, and the two are equal when each distinct score "
+"forms its own band."
+msgstr "``ks`` 列的最大值不超过 `ks` 的结果；当每个不同的评分各自成段时，二者相等。"
+
+msgid ""
+"The Brier score is the mean squared difference between the predicted probability and the observed"
+" outcome, so a lower value is better."
+msgstr "Brier 分数是预测概率与观测结果之差的平方的均值，因此越低越好。"
+
+msgid ""
+"The probabilities come first and the target second, as in `kivi.woe.woe_table`; scikit-learn's "
+"metrics take the target first."
+msgstr "概率在前、目标在后，与 `kivi.woe.woe_table` 相同；scikit-learn 的指标函数则把目标放在前面。"
+
+msgid "**probability**"
+msgstr "**probability**"
+
+msgid "Predicted event probabilities from 0 to 1."
+msgstr "预测的事件概率，取值 0 到 1。"
+
+msgid ""
+"Binary labels, with 1 indicating the event. If `probability` and `target` are both pandas Series,"
+" they must have identical indices; otherwise they are matched by position."
+msgstr "二分类标签，1 表示事件。如果 `probability` 和 `target` 都是 pandas Series，二者的索引必须完全相同；否则按位置对应。"
+
+msgid "The Brier score, from 0 for perfect forecasts to 1."
+msgstr "Brier 分数，取值从 0（完美预测）到 1。"
+
+msgid ""
+"If the inputs are empty or not one-dimensional, their indices or lengths do not match, `target` "
+"has a label other than 0 and 1, or `probability` is not real and numeric or has a missing value "
+"or a value outside 0 to 1."
+msgstr "如果输入为空或不是一维的，索引或长度不一致，`target` 含有 0 和 1 以外的标签，或 `probability` 不是实数数值、含有缺失值或含有 0 到 1 以外的值。"
+
+msgid "Ranking quality, which ignores the probability scale."
+msgstr "排序质量，与概率的尺度无关。"
+
+msgid "For outcomes :math:`y_i` and probabilities :math:`p_i`,"
+msgstr "对结果 :math:`y_i` 和概率 :math:`p_i`，"
+
+#, python-brace-format
+msgid "\\mathrm{BS} = \\frac{1}{n} \\sum_{i=1}^{n} (p_i - y_i)^2."
+msgstr "\\mathrm{BS} = \\frac{1}{n} \\sum_{i=1}^{n} (p_i - y_i)^2."
+
+msgid ""
+"Unlike the ranking measures, the Brier score depends on the probability values themselves, so it "
+"rewards calibration, and it is defined even when the sample has only one class. Predicting the "
+"event rate :math:`\\bar y` for everyone scores :math:`\\bar y (1 - \\bar y)`, a useful baseline."
+msgstr ""
+"与排序度量不同，Brier 分数取决于概率值本身，因此会奖励校准良好的预测，并且在样本只有一个类别时也有定义。对所有人都预测事件率 :math:`\\bar y` 的得分为 "
+":math:`\\bar y (1 - \\bar y)`，可作为有用的基准。"
+
+msgid ""
+"G. W. Brier, \"Verification of forecasts expressed in terms of probability\", Monthly Weather "
+"Review, 78(1), pp. 1-3, 1950."
+msgstr ""
+"G. W. Brier, \"Verification of forecasts expressed in terms of probability\", Monthly Weather "
+"Review, 78(1), pp. 1-3, 1950."
+
+msgid "[R88e41552d980-1]_"
+msgstr "[R88e41552d980-1]_"
+
 msgid "Scorecard"
 msgstr "评分卡"
 
@@ -1212,9 +1532,6 @@ msgid ""
 "This is the inverse of `pd_to_score` for the same scaling, so it gives the probability of the "
 "event implied by each score."
 msgstr "在相同刻度下，这是 `pd_to_score` 的逆运算，给出每个分数所隐含的事件概率。"
-
-msgid "**score**"
-msgstr "**score**"
 
 msgid "Scores. Missing values give missing probabilities."
 msgstr "分数。缺失值对应的概率也为缺失。"
@@ -1508,9 +1825,6 @@ msgstr ":obj:`psi`"
 
 msgid "The same index from counts per group."
 msgstr "根据每组计数计算同一指标。"
-
-msgid ":obj:`kivi.binning.bin_edges`"
-msgstr ":obj:`kivi.binning.bin_edges`"
 
 msgid "Fit edges on the reference sample."
 msgstr "在基准样本上拟合分箱边界。"
@@ -2309,6 +2623,18 @@ msgstr "``kivi.woe.woe`` 、 ``kivi.woe.iv`` 和 ``kivi.stability.psi`` 可直�
 
 msgid "``kivi.stability`` holds ``psi_table`` and ``psi``."
 msgstr "``kivi.stability`` 模块包含 ``psi_table`` 和 ``psi`` 。"
+
+msgid ""
+"``kivi.metrics`` evaluates a score against a binary target. ``roc_auc``, ``gini`` and ``ks`` "
+"measure how well it ranks events above non-events, ``gains_table`` reports event rates, captured "
+"events, KS and lift by score band, and ``brier_score`` compares predicted probabilities with the "
+"outcomes. Like ``woe_table``, each takes the score first and the target second, the reverse of "
+"scikit-learn. A higher score must mean a higher event probability, so negate scorecard points "
+"before passing them in."
+msgstr ""
+"``kivi.metrics`` 根据二分类目标评估评分。``roc_auc``、``gini`` 和 ``ks`` 衡量评分把事件排在非事件之前的能力，``gains_table`` "
+"按评分段报告事件率、捕获的事件、KS 和提升度，``brier_score`` 将预测概率与实际结果进行比较。与 ``woe_table`` 一样，这些函数都是评分在前、目标在后，与 "
+"scikit-learn 的顺序相反。评分越高必须表示事件概率越高，因此评分卡分数须取负后再传入。"
 
 msgid ""
 "``bin_edges``, ``chimerge_edges``, ``tree_edges``, ``monotonic_edges`` and ``woe_table`` take "
@@ -3268,6 +3594,243 @@ msgid "The bundled bank marketing data, its target and its license."
 msgstr "随包的银行营销数据、其目标标签与许可证。"
 
 msgid ""
+"``kivi.metrics`` measures how well a score separates events from non-events. ``roc_auc``, "
+"``gini`` and ``ks`` summarize the ranking in one number, ``gains_table`` breaks it down by score "
+"band, and ``brier_score`` checks predicted probabilities against the outcomes."
+msgstr ""
+"``kivi.metrics`` 衡量评分区分事件与非事件的能力。``roc_auc``、``gini`` 和 ``ks`` 用一个数概括排序效果，``gains_table`` "
+"按评分段展开排序效果，``brier_score`` 将预测概率与实际结果对照。"
+
+msgid "Score direction"
+msgstr "评分方向"
+
+msgid ""
+"Every function expects a score that is higher for a higher event probability, such as a predicted"
+" probability of default (PD). Scorecard points run the other way, because more points mean a "
+"lower risk, so negate them before passing them in: ``roc_auc(-points, target)``."
+msgstr "所有函数都要求事件概率越高、评分越高，例如预测的违约概率（PD）。评分卡分数的方向相反，分数越高表示风险越低，因此须先取负再传入：``roc_auc(-points, target)``。"
+
+msgid ""
+"Every function takes the score first and the target second, as ``woe_table(groups, target)`` "
+"takes the groups first. scikit-learn's metrics take the target first, so check the order when "
+"porting code from them."
+msgstr ""
+"所有函数都是评分在前、目标在后，就像 ``woe_table(groups, target)`` 把分组放在前面。scikit-learn "
+"的指标函数把目标放在前面，从那里移植代码时请检查参数顺序。"
+
+msgid ""
+"As in ``woe_table``, the target is 1 for an event and 0 for a non-event. Two Series must share "
+"the same index; arrays and lists are matched by position. Scores must be finite, so decide how "
+"missing values are scored before evaluating the model."
+msgstr "与 ``woe_table`` 相同，目标为 1 表示事件，为 0 表示非事件。两个 Series 的索引必须相同；数组和列表按位置对应。评分必须是有限值，因此评估模型之前要先确定缺失值如何评分。"
+
+msgid "Definitions"
+msgstr "定义"
+
+msgid ""
+"For :math:`n_1` events and :math:`n_0` non-events, let :math:`R_1` be the sum of the ranks of the"
+" events among all scores, where tied scores share their average rank. The area under the ROC "
+"curve and the Gini coefficient are"
+msgstr "设有 :math:`n_1` 个事件和 :math:`n_0` 个非事件，:math:`R_1` 为事件在全部评分中的秩之和，相同评分取平均秩。ROC 曲线下面积和 Gini 系数为"
+
+#, python-brace-format
+msgid ""
+"\\mathrm{AUC} = \\frac{R_1 - n_1 (n_1 + 1) / 2}{n_1 n_0}, \\qquad\n"
+"\\mathrm{Gini} = 2\\,\\mathrm{AUC} - 1."
+msgstr ""
+"\\mathrm{AUC} = \\frac{R_1 - n_1 (n_1 + 1) / 2}{n_1 n_0}, \\qquad\n"
+"\\mathrm{Gini} = 2\\,\\mathrm{AUC} - 1."
+
+msgid ""
+"The AUC is the probability that a randomly chosen event scores higher than a randomly chosen non-"
+"event, with ties counted as one half. A score unrelated to the target gives an AUC of about 0.5 "
+"and a Gini of about 0."
+msgstr "AUC 是随机抽取的一个事件比随机抽取的一个非事件评分更高的概率，评分相同时计为二分之一。与目标无关的评分，AUC 约为 0.5，Gini 约为 0。"
+
+msgid ""
+"Let :math:`F_1` and :math:`F_0` be the empirical distribution functions of the scores of events "
+"and of non-events. The Kolmogorov-Smirnov statistic is their largest gap:"
+msgstr "设 :math:`F_1` 和 :math:`F_0` 分别为事件评分和非事件评分的经验分布函数。Kolmogorov-Smirnov 统计量是二者的最大差距："
+
+#, python-brace-format
+msgid "\\mathrm{KS} = \\max_t \\, \\lvert F_1(t) - F_0(t) \\rvert."
+msgstr "\\mathrm{KS} = \\max_t \\, \\lvert F_1(t) - F_0(t) \\rvert."
+
+msgid ""
+"The gap is taken in absolute value, as in the two-sample test. KS therefore says nothing about "
+"the direction of the score, and its largest gap can come from a range of scores where the ranking"
+" is reversed. Read it together with the Gini."
+msgstr "差距取绝对值，与双样本检验相同。因此 KS 不反映评分的方向，其最大差距也可能来自排序方向相反的评分区间。应与 Gini 一起解读。"
+
+msgid "A worked example"
+msgstr "计算示例"
+
+msgid ""
+"Three of these six customers are events. Of the nine pairs of an event and a non-event, six are "
+"ordered correctly, two are not, and one is tied at 0.4, so the AUC is :math:`(6 + 0.5) / 9`:"
+msgstr "下面六位客户中有三位是事件。在九对“事件—非事件”组合中，六对排序正确，两对错误，一对在 0.4 处并列，因此 AUC 为 :math:`(6 + 0.5) / 9`："
+
+msgid ""
+"At a cut-off of 0.4, two thirds of the non-events but only one third of the events score at or "
+"below it. No cut-off separates the two classes further, so the KS is one third:"
+msgstr "以 0.4 为切分点，三分之二的非事件评分不高于它，而事件只有三分之一。没有哪个切分点能把两类分得更开，因此 KS 为三分之一："
+
+msgid "Evaluating a WOE score"
+msgstr "评估 WOE 评分"
+
+msgid ""
+"The bank data give a more realistic example. The score below adds up the WOE values of four "
+"variables, fitted on the development sample. A higher WOE means a higher event rate, so the sum "
+"already runs in the direction the metrics expect. A scorecard would weight the variables with a "
+"logistic regression; the metrics treat any score in the same way."
+msgstr ""
+"银行数据提供了一个更贴近实际的例子。下面的评分把四个变量的 WOE 值相加，这些 WOE 在开发样本上拟合。WOE "
+"越高表示事件率越高，因此这个和的方向已经符合指标的要求。评分卡会用逻辑回归为各变量加权；对任何评分，这些指标的处理方式都一样。"
+
+msgid ""
+"Measure the score on both samples. The validation rows played no part in fitting the WOE values, "
+"so they show how the score holds up on new customers:"
+msgstr "在两个样本上分别衡量评分。验证样本没有参与 WOE 的拟合，因此能反映评分在新客户上的表现："
+
+msgid ""
+"A clear drop from development to validation would point to overfitting. Here the validation "
+"values are even slightly higher, which is within the sampling noise of 173 validation events."
+msgstr "如果指标从开发样本到验证样本明显下降，可能意味着过拟合。这里验证样本的数值甚至略高，仍在 173 个验证事件的抽样误差范围之内。"
+
+msgid ""
+"Points that fall as the risk rises rank the customers in the opposite order. Passed as they are, "
+"they give an AUC below 0.5 and a negative Gini; negated, they give the values above. KS is the "
+"same in both directions, so it cannot reveal a reversed score:"
+msgstr "风险越高分数越低的评分卡分数，会把客户按相反的顺序排列。直接传入时，AUC 低于 0.5，Gini 为负；取负后则得到上面的数值。KS 在两个方向上相同，因此无法发现评分方向反了："
+
+msgid ""
+"No threshold makes a Gini or a KS good in general: the values that can be reached depend on the "
+"portfolio, the target definition and the data available. Compare a new score with the one it "
+"replaces on the same validation sample."
+msgstr "Gini 或 KS 没有通用的合格线：能达到的水平取决于资产组合、目标定义和可用的数据。应在同一个验证样本上，把新评分与它要替换的评分进行比较。"
+
+msgid "Gains table"
+msgstr "增益表"
+
+msgid ""
+"``gains_table`` sorts the sample into score bands, from the highest scores to the lowest. Each "
+"row shows the event rate of its band and the share of all events found by reviewing that band and"
+" every band above it. The default ``bins=10`` cuts the sample at the edges of ``bin_edges(score, "
+"bins=10)``, and tied scores always share a band."
+msgstr ""
+"``gains_table`` 把样本按评分分段，从最高评分到最低评分排列。每行给出该段的事件率，以及审查该段及其以上各段时找到的事件占全部事件的比例。默认的 ``bins=10`` 在 "
+"``bin_edges(score, bins=10)`` 的边界处切分样本，相同评分总在同一段。"
+
+msgid ""
+"In monitoring, fix the bands on the development sample so that every later sample is cut at the "
+"same scores. Fit the edges with ``bin_edges`` and round them to readable cut-offs:"
+msgstr "在监控中，评分段应在开发样本上固定，使之后的每个样本都在相同的评分处切分。用 ``bin_edges`` 拟合边界，再取整为易读的切分点："
+
+#, python-format
+msgid ""
+"The top band holds 17% of the validation customers (264 of 1,521) but 42% of the events, so its "
+"event rate is 2.4 times that of the whole sample. The table checks the gap between the two "
+"classes only at the four interior cut-offs, so its largest ``ks`` stays below the KS over all "
+"scores:"
+msgstr ""
+"最高的评分段只占验证样本客户的 17%（1,521 人中的 264 人），却包含 42% 的事件，因此其事件率是整个样本的 2.4 倍。该表只在四个内部切分点上检查两类之间的差距，因此其 "
+"``ks`` 的最大值低于在全部评分上计算的 KS："
+
+msgid ""
+"Every band is reported, including a band that no customer falls into, so two samples cut on the "
+"same edges give tables with the same rows. Their ``total`` columns then give the PSI of the score"
+" bands, here far below 0.1, the usual upper bound of a small shift (see :doc:`psi`):"
+msgstr ""
+"结果列出每个评分段，包括没有客户落入的评分段，因此用相同边界切分的两个样本得到的表行相同。由二者的 ``total`` 列即可得到评分段的 PSI，这里远低于 "
+"0.1，即通常视为小幅变化的上限（见 :doc:`psi`）："
+
+msgid "Reading the result"
+msgstr "解读结果"
+
+msgid "Column"
+msgstr "列"
+
+msgid "Meaning"
+msgstr "含义"
+
+msgid "``non_event``, ``event``, ``total``"
+msgstr "``non_event``, ``event``, ``total``"
+
+msgid "Non-events, events and all observations in the band, as in ``woe_table``."
+msgstr "该段的非事件数、事件数和总观测数，与 ``woe_table`` 相同。"
+
+msgid "``event_rate``"
+msgstr "``event_rate``"
+
+msgid "``event`` divided by ``total``; NaN for an empty band."
+msgstr "``event`` 除以 ``total``；空评分段为 NaN。"
+
+msgid "``lift``"
+msgstr "``lift``"
+
+msgid "The event rate of the band divided by the event rate of the whole sample."
+msgstr "该段的事件率除以整个样本的事件率。"
+
+msgid "``cum_non_event_share``, ``cum_event_share``"
+msgstr "``cum_non_event_share``, ``cum_event_share``"
+
+msgid "Shares of all non-events and of all events in this band and the bands above it."
+msgstr "该段及其以上各段分别占全部非事件和全部事件的比例。"
+
+msgid "``cum_total_share``"
+msgstr "``cum_total_share``"
+
+msgid ""
+"Share of all observations in this band and the bands above it. Plotting ``cum_event_share`` "
+"against ``cum_total_share`` gives the gains chart."
+msgstr "该段及其以上各段占全部观测的比例。以 ``cum_total_share`` 为横轴、``cum_event_share`` 为纵轴作图，即为增益图。"
+
+msgid "``ks``"
+msgstr "``ks``"
+
+msgid ""
+"The absolute gap between ``cum_event_share`` and ``cum_non_event_share`` at the lower edge of the"
+" band. Like ``ks``, it can come from a band where the score runs the wrong way, with "
+"``cum_non_event_share`` above ``cum_event_share``."
+msgstr ""
+"在该段下边界处，``cum_event_share`` 与 ``cum_non_event_share`` 之差的绝对值。与 ``ks`` 一样，它可能来自评分方向相反的评分段，即 "
+"``cum_non_event_share`` 高于 ``cum_event_share``。"
+
+msgid "``cum_lift``"
+msgstr "``cum_lift``"
+
+msgid ""
+"``cum_event_share`` divided by ``cum_total_share``: the lift of reviewing this band and every "
+"band above it."
+msgstr "``cum_event_share`` 除以 ``cum_total_share``，即审查该段及其以上各段时的提升度。"
+
+msgid "Brier score"
+msgstr "Brier 分数"
+
+msgid ""
+"The ranking measures ignore the probability scale: any increasing transformation of the score "
+"gives the same AUC, Gini and KS. When a model predicts probabilities, for example a PD used for "
+"pricing or provisions, also compare them with the observed outcomes. ``brier_score`` is the mean "
+"squared difference between the probability :math:`p_i` and the outcome :math:`y_i`, so a lower "
+"value is better:"
+msgstr ""
+"排序度量与概率的尺度无关：对评分做任何递增变换，AUC、Gini 和 KS 都不变。如果模型预测的是概率，例如用于定价或拨备的 PD，还要把概率与观测结果对照。``brier_score`` "
+"是概率 :math:`p_i` 与结果 :math:`y_i` 之差的平方的均值，因此越低越好："
+
+msgid ""
+"The example below predicts the probability of each validation customer by the development event "
+"rate of the customer's ``poutcome`` group, and compares it with predicting the development event "
+"rate for everyone:"
+msgstr "下面的例子用客户所在 ``poutcome`` 组在开发样本中的事件率预测每位验证客户的概率，并与对所有人都预测开发样本事件率的做法进行比较："
+
+#, python-format
+msgid ""
+"The group rates lower the Brier score by about 10% compared with the constant forecast. Unlike "
+"the ranking measures, the Brier score needs no events in the sample, so it can also be computed "
+"for a period without any."
+msgstr "与常数预测相比，分组事件率使 Brier 分数降低了约 10%。与排序度量不同，Brier 分数不要求样本中有事件，因此在没有事件的时期也能计算。"
+
+msgid ""
 "``psi_table`` compares the distribution of a variable in two samples, typically the development "
 "sample and a later monitoring sample. Group both samples with the same edges or labels before "
 "calling it."
@@ -3315,15 +3878,6 @@ msgid ""
 "Left: the remaining customers look like the reference sample. Right: single customers crowd into "
 "the youngest bin, and the youngest and oldest bins contribute most of the PSI."
 msgstr "左图：其余客户与基准样本基本一致。右图：单身客户集中在最年轻的箱，最年轻和最年长的两个箱贡献了大部分 PSI。"
-
-msgid "Reading the result"
-msgstr "解读结果"
-
-msgid "Column"
-msgstr "列"
-
-msgid "Meaning"
-msgstr "含义"
 
 msgid "``reference``, ``current``"
 msgstr "``reference``, ``current``"
@@ -3623,9 +4177,6 @@ msgid ""
 "same index; arrays and lists are matched by position."
 msgstr "``woe_table`` 衡量每组对二分类目标的区分能力。标签 1 表示事件，0 表示非事件。数据须同时包含两类标签。分组与标签序列的索引必须相同；数组和列表按位置对应。"
 
-msgid "Definitions"
-msgstr "定义"
-
 msgid ""
 "For group :math:`i`, let :math:`E_i` and :math:`N_i` be its numbers of events and non-events. Its"
 " shares of all events and of all non-events are"
@@ -3642,9 +4193,6 @@ msgid ""
 "A positive WOE means that the group is relatively more common among events. Each IV contribution "
 "is zero or positive, because :math:`p_i - q_i` and :math:`\\ln(p_i / q_i)` always share a sign."
 msgstr "WOE 为正表示该组在事件中相对更常见。每组的 IV 贡献都大于或等于零，因为 :math:`p_i - q_i` 与 :math:`\\ln(p_i / q_i)` 的符号始终相同。"
-
-msgid "A worked example"
-msgstr "计算示例"
 
 msgid ""
 "Two thirds of group ``a`` are events and two thirds of group ``b`` are non-events, so the two "
@@ -3690,9 +4238,6 @@ msgid ""
 " several smoothing values, before relying on their WOE."
 msgstr "修改平滑参数可能显著改变稀疏分箱的结果。在依赖这些箱的 WOE 之前，请合并小箱，或比较多个平滑取值的结果。"
 
-msgid "``non_event``, ``event``, ``total``"
-msgstr "``non_event``, ``event``, ``total``"
-
 msgid "``non_event_share``, ``event_share``"
 msgstr "``non_event_share``, ``event_share``"
 
@@ -3701,9 +4246,6 @@ msgstr "``total_share``"
 
 msgid "The group's share of all observations, without smoothing."
 msgstr "该组占全部观测的比例，不做平滑。"
-
-msgid "``event_rate``"
-msgstr "``event_rate``"
 
 msgid ""
 "Events divided by the total of the group, without smoothing. For a default target this is the bad"
