@@ -56,9 +56,9 @@ Output columns: `woe_table` → `non_event, event, non_event_share, event_share,
 
 `.github/workflows/release.yml` runs when a `v*` tag is pushed. The build job fails before anything is uploaded unless the tag is `v` plus the exact `version` in `pyproject.toml` and the tagged commit is on master; it also runs pytest and `twine check --strict` (which renders `README.md`). The publish job uploads to PyPI with trusted publishing through the `pypi` environment (no stored token), and only after that succeeds does a third job create the GitHub release with `gh release create --verify-tag --generate-notes` and the dist files attached (`a`/`b`/`rc`/`dev` versions become pre-releases). Do not create the GitHub release by hand first: the job would fail on the existing release.
 
-Protection lives in repository settings, not in the code: the `pypi` environment only accepts deployments from `v*` tags and requires approval by `gchensy`; a tag ruleset ("Release tags") lets only admins create, move or delete `v*` tags; PyPI's trusted publisher is bound to `gchensy/kivi` + `release.yml` + environment `pypi`, so renaming the workflow file or environment breaks publishing until PyPI is updated.
+Protection lives in repository settings, not in the code: the `pypi` environment only accepts deployments from `v*` tags and has no required reviewers, so a pushed tag is uploaded without further approval; a tag ruleset ("Release tags") lets only admins create, move or delete `v*` tags; PyPI's trusted publisher is bound to `gchensy/kivi` + `release.yml` + environment `pypi`, so renaming the workflow file or environment breaks publishing until PyPI is updated.
 
-To release: bump `version`, run `python docs/build.py --release <version>` (it writes the dated section from the fragments and deletes them) and translate the new heading, merge to master, then `git tag v<version>` on the merged commit, `git push origin v<version>`, and approve the `pypi` deployment in the Actions run.
+To release: bump `version`, run `python docs/build.py --release <version>` (it writes the dated section from the fragments and deletes them) and translate the new heading, merge to master, then `git tag v<version>` on the merged commit, and `git push origin v<version>`. The push publishes to PyPI; there is no approval step to stop it.
 
 ## Development workflow
 
@@ -69,7 +69,7 @@ Several Claude sessions often work on this repository at once. These rules keep 
 - **Release notes go in fragments**: add `docs/release/unreleased/<topic>.<category>.rst` (category `new`, `changed`, `fixed` or `removed`) with one bullet item per user-facing change. Never edit the Unreleased section of `docs/release/index.rst`; the `release-fragments` directive in `docs/_fragments.py` renders the fragments there. A fragment is translated like any other text.
 - **master is protected** by the repository ruleset "master": no direct or force pushes and no deletion; a change lands through a pull request whose `build` check passed on a branch that is up to date with master, so every PR is tested on top of everything merged before it. Merged branches are deleted automatically.
 - **Merging is done on request.** A session merges only pull requests the user asked it to merge, in dependency order: bring the branch up to date by merging `origin/master` into it (not rebasing; PRs with Auto-fix must not be force-pushed), resolve a `kivi.po` conflict with `--merge-po`, wait for `build`, merge with `gh pr merge --merge`, then tell the sessions whose open PRs touch the same files to merge master.
-- **Decisions that stay with the user**: priorities and scope, changes to the public API, merges that were not delegated, and releases (pushing a `v*` tag and approving the `pypi` deployment).
+- **Decisions that stay with the user**: priorities and scope, changes to the public API, merges that were not delegated, and releases (pushing a `v*` tag, which publishes to PyPI at once and cannot be undone).
 
 ## Scope and design constraints
 
