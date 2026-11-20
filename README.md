@@ -128,6 +128,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | [`kivi.binning.tree_edges`](https://gchensy.github.io/kivi/en/api.html#kivi.binning.tree_edges) | Decision-tree splits by entropy or Gini, with a minimum share per bin |
 | [`kivi.binning.monotonic_edges`](https://gchensy.github.io/kivi/en/api.html#kivi.binning.monotonic_edges) | Merge fine quantile bins until the WOE is monotonic |
 | [`kivi.woe.woe_table`](https://gchensy.github.io/kivi/en/api.html#kivi.woe.woe_table) | Counts, shares, WOE and IV for every group |
+| [`kivi.woe.woe_transform`](https://gchensy.github.io/kivi/en/api.html#kivi.woe.woe_transform) | Replace each group with its development WOE, with an explicit policy for unseen groups |
 | [`kivi.evaluate.psi_table`](https://gchensy.github.io/kivi/en/api.html#kivi.evaluate.psi_table) | Per-group PSI contributions between two samples |
 | [`kivi.datasets.Dataset.bank_data`](https://gchensy.github.io/kivi/en/api.html#kivi.datasets.Dataset.bank_data) | The bundled bank marketing data |
 
@@ -148,6 +149,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 - ✅ Special values such as `-1` or `-999` in their own bins
 - ✅ Charted risk examples: special values, coarse classing, IV screening, PSI monitoring
 - ✅ Supervised binning: ChiMerge, decision tree and monotonic WOE
+- ✅ WOE encoding of new data, with an explicit policy for unseen groups
 - 🔜 Weighted counts
 - 🔜 Scorecard workflow, validated against fixed reference samples
 - 🔜 Spark and SQL as optional integrations

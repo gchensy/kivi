@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kivi 0.3.0.dev0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-19 19:19-0800\n"
+"POT-Creation-Date: 2026-11-19 19:22-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -69,6 +69,16 @@ msgstr ":py:obj:`woe.woe_table <kivi.woe.woe_table>`\\ \\(groups\\, target\\, \\
 
 msgid "Compute weight of evidence and information value for observed groups."
 msgstr "按观察到的分组计算证据权重（WOE）和信息值（IV）。"
+
+msgid ""
+":py:obj:`woe.woe_transform <kivi.woe.woe_transform>`\\ \\(groups\\, table\\, \\*\\[\\, "
+"unseen\\]\\)"
+msgstr ""
+":py:obj:`woe.woe_transform <kivi.woe.woe_transform>`\\ \\(groups\\, table\\, \\*\\[\\, "
+"unseen\\]\\)"
+
+msgid "Replace each group with its weight of evidence."
+msgstr "将每个分组替换为其证据权重（WOE）。"
 
 msgid ""
 ":py:obj:`evaluate.psi_table <kivi.evaluate.psi_table>`\\ \\(reference\\, current\\, \\*\\[\\, "
@@ -522,6 +532,12 @@ msgid ""
 "contain both 0 and 1 or has missing or other labels, or `smoothing` is not finite and positive."
 msgstr "如果输入不是一维、索引或长度不一致、 `target` 没有同时包含 0 和 1 或含有缺失值及其他标签，或者 `smoothing` 不是有限正数。"
 
+msgid ":obj:`woe_transform`"
+msgstr ":obj:`woe_transform`"
+
+msgid "Replace each group with its WOE."
+msgstr "将每个分组替换为其 WOE。"
+
 msgid ":obj:`kivi.binning.bin_edges`"
 msgstr ":obj:`kivi.binning.bin_edges`"
 
@@ -569,6 +585,70 @@ msgstr ""
 
 msgid "[R86ef760ac44f-1]_"
 msgstr "[R86ef760ac44f-1]_"
+
+msgid ""
+"The WOE values come from a table fitted on the development sample, so a scorecard model sees the "
+"same encoding in development, validation and production."
+msgstr "WOE 取自在开发样本上拟合的表，因此评分卡模型在开发、验证和生产环境中看到的是同一套编码。"
+
+msgid ""
+"One-dimensional group labels formed in the same way as those passed to `woe_table`, for example "
+"with the same edges and ``pandas.cut``."
+msgstr "一维分组标签，划分方式须与传给 `woe_table` 的分组相同，例如使用同一组边界和 ``pandas.cut`` 。"
+
+msgid "**table**"
+msgstr "**table**"
+
+msgid "pandas.DataFrame or pandas.Series"
+msgstr "pandas.DataFrame 或 pandas.Series"
+
+msgid ""
+"The result of `woe_table`, or a Series of WOE values indexed by group. A missing label in the "
+"index gives the WOE of missing values."
+msgstr "`woe_table` 的结果，或以分组为索引的 WOE 序列。索引中的缺失标签对应缺失值的 WOE。"
+
+msgid "**unseen**"
+msgstr "**unseen**"
+
+msgid "float or \"raise\", default \"raise\""
+msgstr "float 或 \"raise\"，默认 \"raise\""
+
+msgid ""
+"WOE for groups that are not in `table`, such as a new category, an interval without development "
+"observations, or missing values when `table` has no missing group. By default such groups raise "
+"an error."
+msgstr "不在 `table` 中的分组所用的 WOE，例如新类别、开发样本中没有观测值的区间，或 `table` 没有缺失组时的缺失值。默认情况下，这类分组会引发错误。"
+
+msgid "pandas.Series or numpy.ndarray"
+msgstr "pandas.Series 或 numpy.ndarray"
+
+msgid ""
+"Float WOE values in the order of `groups`. A Series input gives a Series with the same index and "
+"name."
+msgstr "按 `groups` 顺序排列的浮点 WOE 值。输入为 Series 时返回 Series，索引和名称保持不变。"
+
+msgid ""
+"If `groups` is not one-dimensional, `table` has no ``woe`` column or repeats a group, `unseen` is"
+" neither ``\"raise\"`` nor a number, or `unseen` is ``\"raise\"`` and some groups are not in "
+"`table`."
+msgstr ""
+"如果 `groups` 不是一维、 `table` 没有 ``woe`` 列或有重复的分组、 `unseen` 既不是 ``\"raise\"`` 也不是数值，或者 `unseen` 为 "
+"``\"raise\"`` 而部分分组不在 `table` 中。"
+
+msgid ":obj:`woe_table`"
+msgstr ":obj:`woe_table`"
+
+msgid "Fit the WOE of each group."
+msgstr "拟合每个分组的 WOE。"
+
+msgid "Fit the edges used to form numeric groups."
+msgstr "拟合用于划分数值分组的边界。"
+
+msgid ""
+"Labels are matched by equality, so an interval from ``pandas.cut`` matches the interval with the "
+"same edges in `table`. Use the edges fitted on the development sample for every sample that is "
+"transformed."
+msgstr "标签按相等关系匹配，因此 ``pandas.cut`` 得到的区间会与 `table` 中边界相同的区间对应。对每个要转换的样本，都请使用在开发样本上拟合的边界。"
 
 msgid "Population stability"
 msgstr "群体稳定性"
@@ -1084,8 +1164,8 @@ msgstr "每个公共函数的参数、返回值和示例。"
 msgid "Release notes"
 msgstr "版本说明"
 
-msgid "What changed in 0.3 and how to migrate code written for 0.2.x."
-msgstr "0.3 的变化，以及如何迁移为 0.2.x 编写的代码。"
+msgid "What changed in each release and how to migrate code written for 0.2.x."
+msgstr "各版本的变化，以及如何迁移为 0.2.x 编写的代码。"
 
 msgid "Unreleased"
 msgstr "未发布"
@@ -1095,6 +1175,17 @@ msgstr "上次发布以来合并的改动。"
 
 msgid "New"
 msgstr "新增"
+
+msgid ""
+"``woe_transform`` replaces each group with its WOE from a ``woe_table`` result, the encoding used"
+" by a scorecard model. Groups that are not in the table raise an error unless ``unseen`` gives "
+"their WOE."
+msgstr ""
+"``woe_transform`` 用 ``woe_table`` 结果中的 WOE 替换每个分组，这正是评分卡模型使用的编码。不在表中的分组会引发错误，除非用 ``unseen`` 指定其 "
+"WOE。"
+
+msgid "0.4.0 (2026-11-19)"
+msgstr "0.4.0（2026-11-19）"
 
 msgid ""
 "``bin_edges`` takes a ``special`` argument. Codes such as ``-1`` or ``-999`` are left out when "
@@ -1228,8 +1319,8 @@ msgstr "下表列出取代 0.2.x 各个类的函数。Dataset.bank_data() 保留
 msgid "0.2.x"
 msgstr "0.2.x"
 
-msgid "0.3"
-msgstr "0.3"
+msgid "0.4"
+msgstr "0.4"
 
 msgid "``DistanceBins``"
 msgstr "``DistanceBins``"
@@ -1254,6 +1345,14 @@ msgstr "``CategoryBins``"
 
 msgid "``woe_table(labels, target)``"
 msgstr "``woe_table(labels, target)``"
+
+msgid "``WOEScore``"
+msgstr "``WOEScore``"
+
+msgid ""
+"``woe_transform(groups, table)`` on groups formed with the development edges, from the release "
+"after 0.4.0"
+msgstr "对用开发样本边界划分的分组调用 ``woe_transform(groups, table)`` （0.4.0 之后的版本提供）"
 
 msgid "``PSI.fit()``"
 msgstr "``PSI.fit()``"
@@ -1282,7 +1381,18 @@ msgstr ""
 "pandas.cut。原 CategoryBins 用户可直接传入类别标签序列。"
 
 msgid ""
-"The release after 0.3.0 adds ``chimerge_edges`` and ``tree_edges`` in place of ``Chi2Bins`` and "
+"The release after 0.4.0 adds woe_transform in place of WOEScore. WOEScore matched raw values "
+"against the min_bin and max_bin columns of a WOE table. Form the groups with the development "
+"edges instead, then pass them to woe_transform with the woe_table result. A value that matches no"
+" group raises an error, as WOEScore did with error=\"error\"; pass unseen to choose its WOE "
+"instead."
+msgstr ""
+"0.4.0 之后的版本新增 woe_transform，取代 WOEScore。旧版 WOEScore 把原始取值与 WOE 表中的 min_bin 和 max_bin "
+"列逐一比对。现在请改用开发样本的边界划分分组，再把分组和 woe_table 的结果一起传给 woe_transform。与 WOEScore 设置 error=\"error\" "
+"时一样，匹配不到任何分组的取值会引发错误；也可以传入 unseen 指定其 WOE。"
+
+msgid ""
+"Version 0.4.0 adds ``chimerge_edges`` and ``tree_edges`` in place of ``Chi2Bins`` and "
 "``TreeBins``. They are new implementations rather than ports, so the edges can differ. "
 "``Chi2Bins`` started from 10 quantile bins, tested at a 0.9 confidence level, added 0.5 to every "
 "expected count and kept at least three bins; ``chimerge_edges(values, target, alpha=0.1, "
@@ -1290,7 +1400,7 @@ msgid ""
 "as thresholds, while ``tree_edges`` reports the largest observed value below each cut. Compare "
 "the edges on a fixed reference sample before switching."
 msgstr ""
-"0.3.0 之后的版本新增 ``chimerge_edges`` 和 ``tree_edges``，用来替代 ``Chi2Bins`` 和 "
+"0.4.0 新增 ``chimerge_edges`` 和 ``tree_edges``，用来替代 ``Chi2Bins`` 和 "
 "``TreeBins``。它们是重新实现而非移植，因此边界可能不同。``Chi2Bins`` 从 10 个等频箱开始，在 0.9 置信水平下检验，给每个期望计数加 "
 "0.5，并至少保留三个箱；最接近的写法是 ``chimerge_edges(values, target, alpha=0.1, initial_bins=10)``。``TreeBins`` "
 "报告 scikit-learn 选出的中点阈值，而 ``tree_edges`` 报告每个切分点下方的最大观测值。切换之前，请在固定的基准样本上核对边界。"
@@ -1316,11 +1426,11 @@ msgid "Not yet ported"
 msgstr "尚未迁移的功能"
 
 msgid ""
-"Release 0.3 covers unweighted counts. Keep existing weighted binning and scorecard workflows on "
-"their original version until their outputs have been validated on fixed reference samples. Spark,"
-" SQL, AHP, feature selection, model wrappers and application code remain in the historical "
-"revisions."
-msgstr "0.3 版支持未加权统计。加权分箱和评分卡流程应在固定样本上完成输出核对后再切换。历史版本中仍可查阅 Spark、SQL、AHP、特征选择、模型封装及应用代码。"
+"Releases 0.3 and 0.4 cover unweighted counts only. Keep existing weighted binning and scorecard "
+"workflows on their original version until their outputs have been validated on fixed reference "
+"samples. Spark, SQL, AHP, feature selection, model wrappers and application code remain in the "
+"historical revisions."
+msgstr "0.3 和 0.4 版仅支持未加权统计。加权分箱和评分卡流程应在固定样本上完成输出核对后再切换。历史版本中仍可查阅 Spark、SQL、AHP、特征选择、模型封装及应用代码。"
 
 msgid ""
 "``bin_edges`` fits numeric bin edges on a reference sample and returns them as an array for "
@@ -1803,8 +1913,10 @@ msgstr "等频、等距与自定义边界，特殊值，合并细分箱，有监
 msgid "Weight of evidence and information value"
 msgstr "证据权重与信息值"
 
-msgid "Definitions, the smoothing rule for empty cells and how to read the result."
-msgstr "定义、空单元格的平滑规则以及结果的解读方法。"
+msgid ""
+"Definitions, the smoothing rule for empty cells, how to read the result and how to encode new "
+"data."
+msgstr "定义、空单元格的平滑规则、结果的解读方法以及如何对新数据编码。"
 
 msgid "Population stability index"
 msgstr "群体稳定性指标"
@@ -1992,16 +2104,17 @@ msgstr "WOE 编码"
 
 msgid ""
 "A logistic regression on WOE values is the classic scorecard model. Replace each group with the "
-"WOE from the development tables:"
-msgstr "基于 WOE 值的逻辑回归是经典的评分卡模型。用开发样本的表把每个分组替换为对应的 WOE："
+"WOE from the development tables using ``woe_transform``:"
+msgstr "基于 WOE 值的逻辑回归是经典的评分卡模型。用 ``woe_transform`` 把每个分组替换为开发样本表中对应的 WOE："
 
 msgid ""
 "Fit the model with the library of your choice, for example scikit-learn or statsmodels; kivi "
-"depends on neither. A category that never appeared in development maps to a missing value, so "
-"decide on a default, such as a WOE of 0, before scoring new data."
+"depends on neither. ``woe_transform`` raises an error for a group that never appeared in "
+"development, such as a new category. Agree on a policy before scoring new data, for example "
+"``unseen=0.0`` for a neutral WOE."
 msgstr ""
-"可以用任意喜欢的库拟合模型，例如 scikit-learn 或 statsmodels；kivi "
-"不依赖其中任何一个。开发样本中从未出现的类别会映射为缺失值，因此在对新数据评分之前，请先确定默认值，例如 WOE 取 0。"
+"可以用任意喜欢的库拟合模型，例如 scikit-learn 或 statsmodels；kivi 不依赖其中任何一个。对开发样本中从未出现的分组（例如新类别）， "
+"``woe_transform`` 会引发错误。对新数据评分之前，请先约定处理方式，例如用 ``unseen=0.0`` 取中性的 WOE。"
 
 msgid "Report stability"
 msgstr "稳定性报告"
@@ -2130,4 +2243,30 @@ msgstr "本文档用下面这个 matplotlib 函数绘制 WOE 图，它接收 ``w
 
 msgid "To compare many variables at once, rank them by IV; see :doc:`risk_workflow`."
 msgstr "要同时比较多个变量，可以按 IV 排序，见 :doc:`risk_workflow`。"
+
+msgid "Encoding new data"
+msgstr "对新数据编码"
+
+msgid ""
+"A scorecard model takes WOE values as inputs. ``woe_transform`` replaces each group with its WOE "
+"from a development table, so the validation sample and later production data are encoded with "
+"exactly the same values. Group every sample with the edges fitted on the development sample:"
+msgstr ""
+"评分卡模型以 WOE 值作为输入。 ``woe_transform`` 用开发样本表中的 WOE "
+"替换每个分组，因此验证样本和之后的生产数据都会使用完全相同的编码。请用在开发样本上拟合的边界为每个样本分组："
+
+msgid ""
+"The result keeps the index of the groups. A missing value takes the WOE of the missing group when"
+" the development sample had missing values."
+msgstr "结果保留分组的索引。如果开发样本中有缺失值，缺失值会取缺失组的 WOE。"
+
+msgid ""
+"A group that is not in the table, such as a category that appears only in later data, raises an "
+"error by default, so a mapping problem cannot go unnoticed:"
+msgstr "不在表中的分组（例如只在后来的数据中出现的类别）默认会引发错误，因此映射问题不会被忽略："
+
+msgid ""
+"Pass ``unseen`` to give such groups a WOE instead. A WOE of 0 is the neutral choice: it stands "
+"for the event rate of the whole development sample."
+msgstr "也可以传入 ``unseen`` 为这类分组指定 WOE。WOE 为 0 是中性的选择：它代表整个开发样本的事件率。"
 

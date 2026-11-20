@@ -9,7 +9,7 @@ This example follows the steps of a scorecard project with kivi: screen the cand
 >>> from kivi.binning import bin_edges
 >>> from kivi.datasets import Dataset
 >>> from kivi.evaluate import psi_table
->>> from kivi.woe import woe_table
+>>> from kivi.woe import woe_table, woe_transform
 >>> data = Dataset.bank_data()
 >>> development, monitoring = data.iloc[:3000], data.iloc[3000:]
 
@@ -78,12 +78,11 @@ Each variable on the shortlist gets edges that can be explained: merged balance 
 Encode with WOE
 ---------------
 
-A logistic regression on WOE values is the classic scorecard model. Replace each group with the WOE from the development tables:
+A logistic regression on WOE values is the classic scorecard model. Replace each group with the WOE from the development tables using ``woe_transform``:
 
 >>> def to_woe(groups):
 ...     return pd.DataFrame({
-...         column: groups[column].map(tables[column]["woe"]).astype(float)
-...         for column in groups
+...         column: woe_transform(groups[column], tables[column]) for column in groups
 ...     })
 >>> X_dev = to_woe(dev_groups)
 >>> X_dev.head(3).round(3)
@@ -92,7 +91,7 @@ A logistic regression on WOE values is the classic scorecard model. Replace each
 1    0.373 -0.092 -0.032     0.214    0.241   -0.327 -0.339
 2    0.373 -0.092 -0.032     0.214    0.241   -0.327  0.271
 
-Fit the model with the library of your choice, for example scikit-learn or statsmodels; kivi depends on neither. A category that never appeared in development maps to a missing value, so decide on a default, such as a WOE of 0, before scoring new data.
+Fit the model with the library of your choice, for example scikit-learn or statsmodels; kivi depends on neither. ``woe_transform`` raises an error for a group that never appeared in development, such as a new category. Agree on a policy before scoring new data, for example ``unseen=0.0`` for a neutral WOE.
 
 Report stability
 ----------------

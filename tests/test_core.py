@@ -9,7 +9,7 @@ import kivi
 from kivi.binning import bin_edges, cut
 from kivi.datasets import Dataset
 from kivi.evaluate import psi_table
-from kivi.woe import woe_table
+from kivi.woe import woe_table, woe_transform
 
 
 def test_example_data():
@@ -283,3 +283,63 @@ def test_version_falls_back_without_metadata(monkeypatch):
         monkeypatch.undo()
         importlib.reload(kivi)
     assert kivi.__version__ == importlib.metadata.version("kivi")
+
+
+def test_woe_transform_returns_table_values():
+    table = woe_table(pd.Series(["a", "a", "a", "b", "b", "b"]), pd.Series([1, 1, 0, 1, 0, 0]))
+    new = pd.Series(["b", "a", "b"], index=[10, 11, 12], name="grade")
+    expected = pd.Series([-np.log(2), np.log(2), -np.log(2)], index=[10, 11, 12], name="grade")
+    pd.testing.assert_series_equal(woe_transform(new, table), expected)
+    np.testing.assert_allclose(woe_transform(["a", "b"], table["woe"]), [np.log(2), -np.log(2)])
+    assert isinstance(woe_transform(np.array(["a"]), table), np.ndarray)
+
+
+def test_woe_transform_maps_intervals_and_missing_values():
+    edges = [-np.inf, 4, np.inf]
+    development = pd.cut(pd.Series([1, 5, None, 9, 5, 2]), edges)
+    table = woe_table(development, pd.Series([1, 0, 1, 0, 1, 0]))
+    # (-inf, 4]: 1 event, 1 non-event; (4, inf]: 1 and 2; missing: 1 and 0, smoothed to 0.5
+    p = np.array([1, 1, 1]) / 3
+    q = np.array([1, 2, 0.5]) / 3.5
+    result = woe_transform(pd.cut(pd.Series([100, None, -100]), edges), table)
+    np.testing.assert_allclose(result, np.log(p / q)[[1, 2, 0]])
+
+
+def test_woe_transform_handles_unseen_groups():
+    table = woe_table(pd.Series(["a", "a", "b", "b"]), pd.Series([1, 0, 0, 1]))
+    with pytest.raises(ValueError, match=r"2 group\(s\) are not in table, such as 'c', nan"):
+        woe_transform(["a", "c", None, "c"], table)
+    np.testing.assert_equal(woe_transform(["a", "c", None], table, unseen=-1.5), [0.0, -1.5, -1.5])
+    assert np.isnan(woe_transform(["c"], table, unseen=np.nan)).all()
+    edges = [-np.inf, 0, 10, np.inf]
+    by_interval = woe_table(pd.cut(pd.Series([5, 15, 5, 15]), edges), pd.Series([1, 0, 0, 1]))
+    with pytest.raises(ValueError, match=r"1 group\(s\) are not in table, such as Interval\(-inf, 0.0"):
+        woe_transform(pd.cut(pd.Series([-5, 5]), edges), by_interval)
+
+
+def test_woe_transform_on_bank_matches_lookup():
+    bank = Dataset.bank_data()
+    development, monitoring = bank.iloc[:3000], bank.iloc[3000:]
+    edges = bin_edges(development["age"], bins=5)
+    table = woe_table(pd.cut(development["age"], edges), development["target"])
+    result = woe_transform(pd.cut(monitoring["age"], edges), table)
+    lookup = dict(zip(table.index, table["woe"]))
+    expected = [lookup[interval] for interval in pd.cut(monitoring["age"], edges)]
+    np.testing.assert_allclose(result.to_numpy(), expected)
+    assert result.index.equals(monitoring.index)
+
+
+@pytest.mark.parametrize(
+    "groups,table,unseen,message",
+    [(["a"], pd.DataFrame({"iv": [0.1]}, index=["a"]), "raise", "must have a woe column"),
+     (["a"], pd.Series([0.1, 0.2], index=["a", "a"]), "raise", "one row per group"),
+     (["a"], pd.Series([0.1, 0.2], index=[np.nan, None]), "raise", "one row per group"),
+     (["a"], {"a": 0.1}, "raise", "woe_table result or a Series, got dict"),
+     (["a"], pd.Series([0.1], index=["a"]), "zero", "'raise' or a number, got 'zero'"),
+     (["a"], pd.Series([0.1], index=["a"]), True, "'raise' or a number, got True"),
+     (["a"], pd.Series([0.1], index=["a"]), None, "'raise' or a number, got None"),
+     (np.ones((2, 2)), pd.Series([0.1], index=["a"]), "raise", "groups must be one-dimensional")],
+)
+def test_woe_transform_validates_inputs(groups, table, unseen, message):
+    with pytest.raises(ValueError, match=message):
+        woe_transform(groups, table, unseen=unseen)
