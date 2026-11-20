@@ -84,7 +84,8 @@ def make_loan_panel(n_loans: int = 5000, n_months: int = 24, *, rng=None) -> pd.
     and one of its cohort, so cohorts differ in quality. A delinquent loan
     pays all its arrears and becomes current, pays one instalment and keeps
     its status, or pays nothing and rolls to the next bucket; the chance of
-    curing falls and that of rolling rises with the days past due. A ``90+``
+    curing falls and that of rolling rises with the days past due. After the
+    term no instalment falls due, so paying one reduces the arrears. A ``90+``
     loan makes no further payments, so its balance stays the same. A loan
     leaves the panel after its last instalment is paid; loans are not
     charged off.
