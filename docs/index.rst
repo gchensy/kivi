@@ -86,7 +86,7 @@ How it works
 
    .. grid-item-card:: Fit edges once
 
-      Call ``bin_edges`` on the reference sample. The outer edges are infinite, so later values always fall into a bin.
+      Call ``bin_edges`` on the reference sample, or a supervised method such as ``monotonic_edges`` that also uses the target. The outer edges are infinite, so later values always fall into a bin.
 
    .. grid-item-card:: Cut every sample
 

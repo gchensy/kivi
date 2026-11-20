@@ -3,6 +3,7 @@ Risk modeling workflow
 
 This example follows the steps of a scorecard project with kivi: screen the candidate variables, bin the shortlist, encode it with WOE for a model and prepare the stability report used in monitoring. The bundled data record a marketing response rather than a default, but the steps are the same for a credit default flag: use the bad flag as ``target``.
 
+>>> import warnings
 >>> import numpy as np
 >>> import pandas as pd
 >>> from kivi.binning import bin_edges
@@ -15,14 +16,20 @@ This example follows the steps of a scorecard project with kivi: screen the cand
 Screen variables by IV
 ----------------------
 
-Start with a quick, uniform binning of every candidate: five quantile bins for numeric variables and the raw labels for categorical ones. The IV of each variable gives a first ranking.
+Start with a quick, uniform binning of every candidate: five quantile bins for numeric variables and the raw labels for categorical ones. The IV of each variable gives a first ranking. ``bin_edges`` warns when tied values leave fewer bins than requested; the loop records those variables instead of printing the warnings.
 
->>> iv = {}
+>>> iv, tied = {}, []
 >>> for column in development.columns.drop("target"):
 ...     values = development[column]
 ...     if pd.api.types.is_numeric_dtype(values):
-...         values = pd.cut(values, bin_edges(values, bins=5))
+...         with warnings.catch_warnings(record=True) as caught:
+...             warnings.simplefilter("always")
+...             values = pd.cut(values, bin_edges(values, bins=5))
+...         if caught:
+...             tied.append(column)
 ...     iv[column] = woe_table(values, development["target"])["iv"].sum()
+>>> tied
+['campaign', 'pdays', 'previous']
 >>> iv = pd.Series(iv).sort_values(ascending=False)
 >>> iv.round(3).head(8)
 duration    1.594

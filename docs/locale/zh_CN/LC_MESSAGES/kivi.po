@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kivi 0.3.0.dev0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-19 18:47-0800\n"
+"POT-Creation-Date: 2026-11-19 18:59-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -33,6 +33,36 @@ msgstr ":py:obj:`binning.cut <kivi.binning.cut>`\\ \\(values\\, edges\\, \\*\\[\
 
 msgid "Assign values to bins, with a separate group for each special value."
 msgstr "将取值分配到各箱，每个特殊值单独成组。"
+
+msgid ""
+":py:obj:`binning.chimerge_edges <kivi.binning.chimerge_edges>`\\ \\(values\\, target\\, \\*\\[\\,"
+" ...\\]\\)"
+msgstr ""
+":py:obj:`binning.chimerge_edges <kivi.binning.chimerge_edges>`\\ \\(values\\, target\\, \\*\\[\\,"
+" ...\\]\\)"
+
+msgid "Fit edges by merging adjacent quantile bins with ChiMerge."
+msgstr "用 ChiMerge（卡方分箱）合并相邻的等频箱，拟合分箱边界。"
+
+msgid ""
+":py:obj:`binning.tree_edges <kivi.binning.tree_edges>`\\ \\(values\\, target\\, \\*\\[\\, "
+"...\\]\\)"
+msgstr ""
+":py:obj:`binning.tree_edges <kivi.binning.tree_edges>`\\ \\(values\\, target\\, \\*\\[\\, "
+"...\\]\\)"
+
+msgid "Fit edges with the splits of a decision tree on one variable."
+msgstr "用单变量决策树的切分点拟合分箱边界。"
+
+msgid ""
+":py:obj:`binning.monotonic_edges <kivi.binning.monotonic_edges>`\\ \\(values\\, target\\, "
+"\\*\\[\\, ...\\]\\)"
+msgstr ""
+":py:obj:`binning.monotonic_edges <kivi.binning.monotonic_edges>`\\ \\(values\\, target\\, "
+"\\*\\[\\, ...\\]\\)"
+
+msgid "Fit edges by merging adjacent quantile bins until the WOE is monotonic."
+msgstr "合并相邻的等频箱，直到 WOE 单调，以此拟合分箱边界。"
 
 msgid ":py:obj:`woe.woe_table <kivi.woe.woe_table>`\\ \\(groups\\, target\\, \\*\\[\\, smoothing\\]\\)"
 msgstr ":py:obj:`woe.woe_table <kivi.woe.woe_table>`\\ \\(groups\\, target\\, \\*\\[\\, smoothing\\]\\)"
@@ -234,6 +264,211 @@ msgstr ""
 "特殊值按相等关系匹配，因此 ``-1`` 和 ``-1.0`` 视为同一个编码。与 ``pandas.cut`` 一样，超出边界的值会变为缺失； `bin_edges` "
 "两端的无穷边界可以避免这种情况。"
 
+msgid ""
+"The values are first cut into ``initial_bins`` quantile bins, or into one bin per distinct value "
+"if there are no more distinct values than that. The adjacent pair with the smallest chi-square "
+"statistic, the pair whose event rates are most alike, is then merged, and merging is repeated "
+"while more than ``max_bins`` bins remain or while some adjacent pair is not significantly "
+"different at level ``alpha``."
+msgstr ""
+"先将数值切成 ``initial_bins`` 个等频箱；若不同取值的个数不超过该数，则每个取值单独成一箱。随后合并卡方统计量最小、即事件率最接近的一对相邻箱。只要箱数仍多于 "
+"``max_bins``，或仍有相邻两箱在显著性水平 ``alpha`` 下差异不显著，就继续合并。"
+
+msgid ""
+"One-dimensional numeric values, such as a list, a NumPy array or a pandas Series. Missing values "
+"and their labels are omitted."
+msgstr "一维数值，可以是列表、NumPy 数组或 pandas Series。缺失值及其标签会被忽略。"
+
+msgid "**target**"
+msgstr "**target**"
+
+msgid ""
+"Binary labels, with 1 indicating the event. If `values` and `target` are both pandas Series, they"
+" must have identical indices; otherwise they are matched by position."
+msgstr "二分类标签，1 表示事件。如果 `values` 和 `target` 都是 pandas Series，二者的索引必须完全相同；否则按位置对应。"
+
+msgid "**max_bins**"
+msgstr "**max_bins**"
+
+msgid "Maximum number of bins."
+msgstr "最大箱数。"
+
+msgid "**alpha**"
+msgstr "**alpha**"
+
+msgid "float or None, default 0.05"
+msgstr "float 或 None，默认 0.05"
+
+msgid ""
+"Significance level of the chi-square test with one degree of freedom. Adjacent bins are merged "
+"until every pair differs at this level. Pass None to merge down to ``max_bins`` only."
+msgstr "自由度为 1 的卡方检验的显著性水平。相邻箱会一直合并，直到每一对在该水平下都差异显著。传入 None 时只合并到 ``max_bins`` 个箱。"
+
+msgid "**initial_bins**"
+msgstr "**initial_bins**"
+
+msgid "int, default 20"
+msgstr "int，默认 20"
+
+msgid "Number of quantile bins to start from. Tied quantiles can reduce it."
+msgstr "起始的等频箱数。分位点重合时实际箱数可能减少。"
+
+msgid ""
+"If `max_bins` or `initial_bins` is not a positive integer, `alpha` is neither None nor between 0 "
+"and 1, `values` and `target` are not one-dimensional or their indices or lengths do not match, "
+"`values` is not numeric or has no finite observations, or `target` has labels other than 0 and 1 "
+"or lacks one of them where `values` is observed."
+msgstr ""
+"`max_bins` 或 `initial_bins` 不是正整数，`alpha` 既不是 None 也不在 0 与 1 之间，`values` 与 `target` "
+"不是一维、索引或长度不一致，`values` 不是数值或没有有限观测值，或者 `target` 含有 0 和 1 以外的标签、在 `values` 有观测的位置缺少其中一类，都会引发此异常。"
+
+msgid ":obj:`tree_edges`"
+msgstr ":obj:`tree_edges`"
+
+msgid "Split the values recursively instead of merging."
+msgstr "递归切分数值，而不是合并。"
+
+msgid ":obj:`monotonic_edges`"
+msgstr ":obj:`monotonic_edges`"
+
+msgid "Merge until the WOE is monotonic."
+msgstr "合并到 WOE 单调为止。"
+
+#, python-brace-format
+msgid ""
+"For an adjacent pair of bins with observed counts :math:`O_{ij}` (bin :math:`i`, class :math:`j`)"
+" and expected counts :math:`E_{ij} = R_i C_j / N` under equal event rates,"
+msgstr ""
+"对相邻的两个箱，记观测计数为 :math:`O_{ij}` （箱 :math:`i`，类别 :math:`j`），事件率相同假设下的期望计数为 :math:`E_{ij} = R_i C_j /"
+" N`，则"
+
+msgid "\\chi^2 = \\sum_{i=1}^{2} \\sum_{j=0}^{1} \\frac{(O_{ij} - E_{ij})^2}{E_{ij}}"
+msgstr "\\chi^2 = \\sum_{i=1}^{2} \\sum_{j=0}^{1} \\frac{(O_{ij} - E_{ij})^2}{E_{ij}}"
+
+#, python-brace-format
+msgid ""
+"where cells with :math:`E_{ij} = 0` contribute nothing. A pair stays separate when the p-value of"
+" :math:`\\chi^2` is below ``alpha``."
+msgstr "其中 :math:`E_{ij} = 0` 的单元格不计入。当 :math:`\\chi^2` 的 p 值小于 ``alpha`` 时，这两个箱保持分开。"
+
+msgid ""
+"The tree grows best first: of all current bins, the one whose best split most reduces the total "
+"impurity is split next, until there are ``max_bins`` bins or no split reduces the impurity while "
+"leaving at least ``min_bin_share`` of the observations on each side."
+msgstr ""
+"决策树按最优优先的顺序生长：在当前所有箱中，最优切分能让总不纯度下降最多的箱先被切分，直到箱数达到 ``max_bins``，或者在两侧都保留至少 ``min_bin_share`` "
+"观测的前提下，已没有能降低不纯度的切分。"
+
+msgid "Maximum number of bins, the leaves of the tree."
+msgstr "最大箱数，即决策树的叶节点数。"
+
+msgid "**min_bin_share**"
+msgstr "**min_bin_share**"
+
+msgid "float, default 0.05"
+msgstr "float，默认 0.05"
+
+msgid "Minimum share of the observed values in every bin, from 0 to 0.5."
+msgstr "每个箱至少包含的观测占比，取值范围为 0 到 0.5。"
+
+msgid "**criterion**"
+msgstr "**criterion**"
+
+#, python-brace-format
+msgid "{\"entropy\", \"gini\"}, default \"entropy\""
+msgstr "{\"entropy\", \"gini\"}，默认 \"entropy\""
+
+msgid "Impurity measure: entropy for information gain, or the Gini index."
+msgstr "不纯度指标：熵（即信息增益）或基尼指数。"
+
+msgid ""
+"Increasing edges with infinite endpoints, suitable for pandas.cut. Every interior edge is an "
+"observed value, the largest one in the bin to its left."
+msgstr "严格递增的边界数组，两端为负无穷和正无穷，可直接传给 pandas.cut。每个内部边界都是一个观测值，即其左侧箱中的最大值。"
+
+msgid ""
+"If `max_bins` is not a positive integer, `min_bin_share` is not between 0 and 0.5, `criterion` is"
+" not recognized, `values` and `target` are not one-dimensional or their indices or lengths do not"
+" match, `values` is not numeric or has no finite observations, or `target` has labels other than "
+"0 and 1 or lacks one of them where `values` is observed."
+msgstr ""
+"`max_bins` 不是正整数，`min_bin_share` 不在 0 与 0.5 之间，`criterion` 无法识别，`values` 与 `target` "
+"不是一维、索引或长度不一致，`values` 不是数值或没有有限观测值，或者 `target` 含有 0 和 1 以外的标签、在 `values` 有观测的位置缺少其中一类，都会引发此异常。"
+
+msgid ":obj:`chimerge_edges`"
+msgstr ":obj:`chimerge_edges`"
+
+msgid "Merge fine bins instead of splitting."
+msgstr "合并细分箱，而不是切分。"
+
+msgid ""
+"For a bin with :math:`n` observations and event rate :math:`p`, the impurity is :math:`H(p) = -p "
+"\\ln p - (1 - p) \\ln(1 - p)` (entropy) or :math:`G(p) = 2p(1 - p)` (Gini). A split into "
+":math:`n_L` and :math:`n_R` observations reduces the total impurity by :math:`n H(p) - n_L H(p_L)"
+" - n_R H(p_R)`, and the largest reduction over all bins and cut points is chosen."
+msgstr ""
+"对含 :math:`n` 个观测、事件率为 :math:`p` 的箱，不纯度为 :math:`H(p) = -p \\ln p - (1 - p) \\ln(1 - p)` （熵）或 "
+":math:`G(p) = 2p(1 - p)` （基尼指数）。把它切成 :math:`n_L` 和 :math:`n_R` 个观测的两部分，总不纯度下降 :math:`n H(p) - n_L"
+" H(p_L) - n_R H(p_R)`；在所有箱和切分点中选择下降最多的一个。"
+
+msgid ""
+"The values are first cut into ``initial_bins`` quantile bins, or into one bin per distinct value "
+"if there are no more distinct values than that. While two adjacent bins break the trend, the "
+"first such pair is merged and the WOE is recomputed (pool adjacent violators), so the WOE of the "
+"final bins is strictly increasing or strictly decreasing. While more than ``max_bins`` bins "
+"remain, the adjacent pair with the smallest chi-square statistic is merged as in "
+":func:`chimerge_edges`, and the trend is checked again."
+msgstr ""
+"先将数值切成 ``initial_bins`` 个等频箱；若不同取值的个数不超过该数，则每个取值单独成一箱。只要有相邻两箱违背趋势，就合并第一对这样的箱并重新计算 "
+"WOE（合并相邻违序者，pool adjacent violators），因此最终各箱的 WOE 严格递增或严格递减。若箱数仍多于 ``max_bins``，则像 "
+":func:`chimerge_edges` 一样合并卡方统计量最小的相邻两箱，再重新检查趋势。"
+
+msgid "int or None, default 5"
+msgstr "int 或 None，默认 5"
+
+msgid "Maximum number of bins. Pass None to stop as soon as the WOE is monotonic."
+msgstr "最大箱数。传入 None 时，WOE 一旦单调即停止合并。"
+
+msgid "**direction**"
+msgstr "**direction**"
+
+#, python-brace-format
+msgid "{\"auto\", \"increasing\", \"decreasing\"}, default \"auto\""
+msgstr "{\"auto\", \"increasing\", \"decreasing\"}，默认 \"auto\""
+
+msgid ""
+"Trend of the WOE as the values grow. ``\"auto\"`` fits both directions and keeps the one with the"
+" larger information value, preferring ``\"increasing\"`` on a tie."
+msgstr "随数值增大时 WOE 的趋势。``\"auto\"`` 会两个方向都拟合，保留信息值较大的一个；两者相等时取 ``\"increasing\"``。"
+
+msgid "**smoothing**"
+msgstr "**smoothing**"
+
+msgid "float, default 0.5"
+msgstr "float，默认 0.5"
+
+msgid ""
+"Positive replacement for a zero count when calculating the WOE, as in :func:`kivi.woe.woe_table`."
+" Use the same value there to see the same trend."
+msgstr "计算 WOE 时用这个正数替代零计数，含义与 :func:`kivi.woe.woe_table` 相同。在那里使用同一取值，才能看到同样的趋势。"
+
+msgid ""
+"If `max_bins` is neither None nor a positive integer, `initial_bins` is not a positive integer, "
+"`direction` is not recognized, `smoothing` is not finite and positive, `values` and `target` are "
+"not one-dimensional or their indices or lengths do not match, `values` is not numeric or has no "
+"finite observations, or `target` has labels other than 0 and 1 or lacks one of them where "
+"`values` is observed."
+msgstr ""
+"`max_bins` 既不是 None 也不是正整数，`initial_bins` 不是正整数，`direction` 无法识别，`smoothing` 不是有限正数，`values` 与 "
+"`target` 不是一维、索引或长度不一致，`values` 不是数值或没有有限观测值，或者 `target` 含有 0 和 1 以外的标签、在 `values` "
+"有观测的位置缺少其中一类，都会引发此异常。"
+
+msgid "Merge fine bins by a chi-square test."
+msgstr "按卡方检验合并细分箱。"
+
+msgid "Split the values recursively."
+msgstr "递归切分数值。"
+
 msgid "Weight of evidence"
 msgstr "证据权重"
 
@@ -248,19 +483,10 @@ msgstr "**groups**"
 msgid "Pre-binned values or category labels. Missing values form a group."
 msgstr "已分箱的数值或类别标签。缺失值独立成组。"
 
-msgid "**target**"
-msgstr "**target**"
-
 msgid ""
 "Binary labels, with 1 indicating the event. If `groups` and `target` are both pandas Series, they"
 " must have identical indices; otherwise they are matched by position."
 msgstr "二分类标签，1 表示事件。如果 `groups` 和 `target` 都是 pandas Series，二者的索引必须完全相同；否则按位置对应。"
-
-msgid "**smoothing**"
-msgstr "**smoothing**"
-
-msgid "float, default 0.5"
-msgstr "float，默认 0.5"
 
 msgid "Positive replacement for a zero count when calculating shares."
 msgstr "计算占比时，用这个正数替代零计数。"
@@ -696,9 +922,9 @@ msgid "Next steps"
 msgstr "后续阅读"
 
 msgid ""
-":doc:`/user_guide/binning` explains quantile and uniform edges, ties, special values and missing "
-"values."
-msgstr ":doc:`/user_guide/binning` 介绍等频与等距边界、重复切点、特殊值和缺失值。"
+":doc:`/user_guide/binning` explains quantile, uniform and supervised edges, ties, special values "
+"and missing values."
+msgstr ":doc:`/user_guide/binning` 介绍等频、等距与有监督分箱边界、重复切点、特殊值和缺失值。"
 
 msgid ":doc:`/user_guide/woe_iv` and :doc:`/user_guide/psi` give the formulas and the smoothing rule."
 msgstr ":doc:`/user_guide/woe_iv` 和 :doc:`/user_guide/psi` 给出计算公式与平滑规则。"
@@ -755,9 +981,9 @@ msgid "Fit edges once"
 msgstr "拟合一次边界"
 
 msgid ""
-"Call ``bin_edges`` on the reference sample. The outer edges are infinite, so later values always "
-"fall into a bin."
-msgstr "在基准样本上调用 ``bin_edges``。最外侧边界为无穷，因此后续数据总能落入某个箱。"
+"Call ``bin_edges`` on the reference sample, or a supervised method such as ``monotonic_edges`` "
+"that also uses the target. The outer edges are infinite, so later values always fall into a bin."
+msgstr "在基准样本上调用 ``bin_edges``，或调用同时利用目标变量的有监督方法，例如 ``monotonic_edges``。最外侧边界为无穷，因此后续数据总能落入某个箱。"
 
 msgid "Cut every sample"
 msgstr "对每个样本分箱"
@@ -811,6 +1037,19 @@ msgid ""
 "``kivi.binning.cut`` assigns values to the fitted bins and gives each special value its own "
 "group. Without special values it returns the same result as ``pandas.cut``."
 msgstr "``kivi.binning.cut`` 把取值分配到拟合好的各箱，并让每个特殊值单独成组。不传特殊值时，结果与 ``pandas.cut`` 相同。"
+
+msgid ""
+"``chimerge_edges``, ``tree_edges`` and ``monotonic_edges`` fit edges from a binary target: "
+"ChiMerge merging of fine quantile bins, decision-tree splits by entropy or Gini with a minimum "
+"bin share, and merging until the WOE is monotonic. They accept the same array-like inputs as "
+"``woe_table``, return infinite-ended edges like ``bin_edges`` and need only NumPy and pandas."
+msgstr ""
+"``chimerge_edges``、``tree_edges`` 和 ``monotonic_edges`` 依据二分类目标拟合边界：分别是对等频细分箱做 ChiMerge "
+"合并、按熵或基尼指数做决策树切分（可设定最小箱占比），以及合并到 WOE 单调为止。它们接受与 ``woe_table`` 相同的类数组输入，与 ``bin_edges`` "
+"一样返回两端为无穷的边界，只依赖 NumPy 和 pandas。"
+
+msgid "The binning guide compares the three methods on the bank data, with a chart for each."
+msgstr "分箱指南在银行数据上对比了这三种方法，并为每种方法配有图表。"
 
 msgid "Changed"
 msgstr "变更"
@@ -956,6 +1195,20 @@ msgstr ""
 "pandas.cut。原 CategoryBins 用户可直接传入类别标签序列。"
 
 msgid ""
+"The release after 0.3.0 adds ``chimerge_edges`` and ``tree_edges`` in place of ``Chi2Bins`` and "
+"``TreeBins``. They are new implementations rather than ports, so the edges can differ. "
+"``Chi2Bins`` started from 10 quantile bins, tested at a 0.9 confidence level, added 0.5 to every "
+"expected count and kept at least three bins; ``chimerge_edges(values, target, alpha=0.1, "
+"initial_bins=10)`` comes closest. ``TreeBins`` reported the midpoints that scikit-learn chooses "
+"as thresholds, while ``tree_edges`` reports the largest observed value below each cut. Compare "
+"the edges on a fixed reference sample before switching."
+msgstr ""
+"0.3.0 之后的版本新增 ``chimerge_edges`` 和 ``tree_edges``，用来替代 ``Chi2Bins`` 和 "
+"``TreeBins``。它们是重新实现而非移植，因此边界可能不同。``Chi2Bins`` 从 10 个等频箱开始，在 0.9 置信水平下检验，给每个期望计数加 "
+"0.5，并至少保留三个箱；最接近的写法是 ``chimerge_edges(values, target, alpha=0.1, initial_bins=10)``。``TreeBins`` "
+"报告 scikit-learn 选出的中点阈值，而 ``tree_edges`` 报告每个切分点下方的最大观测值。切换之前，请在固定的基准样本上核对边界。"
+
+msgid ""
 "For PSI.fit(), form both sets of groups using the same reference edges, then call psi_table. It "
 "returns raw counts and a contribution per bin. Previously the psi column repeated the overall "
 "total. The new smoothing rule preserves counts and normalizes each distribution after replacing "
@@ -968,11 +1221,11 @@ msgid "Not yet ported"
 msgstr "尚未迁移的功能"
 
 msgid ""
-"Release 0.3 covers unweighted counts. Keep existing weighted, supervised binning and scorecard "
-"workflows on their original version until their outputs have been validated on fixed reference "
-"samples. Spark, SQL, AHP, feature selection, model wrappers and application code remain in the "
-"historical revisions."
-msgstr "0.3 版支持未加权统计。加权、监督分箱和评分卡流程应在固定样本上完成输出核对后再切换。历史版本中仍可查阅 Spark、SQL、AHP、特征选择、模型封装及应用代码。"
+"Release 0.3 covers unweighted counts. Keep existing weighted binning and scorecard workflows on "
+"their original version until their outputs have been validated on fixed reference samples. Spark,"
+" SQL, AHP, feature selection, model wrappers and application code remain in the historical "
+"revisions."
+msgstr "0.3 版支持未加权统计。加权分箱和评分卡流程应在固定样本上完成输出核对后再切换。历史版本中仍可查阅 Spark、SQL、AHP、特征选择、模型封装及应用代码。"
 
 msgid ""
 "``bin_edges`` fits numeric bin edges on a reference sample and returns them as an array for "
@@ -1077,10 +1330,178 @@ msgid ""
 msgstr "10 个细分箱（左）呈锯齿状；合并后的 3 个箱（右）随余额稳步上升，信息值损失很小。"
 
 msgid ""
-"Version 0.3 does not search for merges automatically. Supervised methods such as ChiMerge, "
-"decision-tree or monotonic binning are planned. Edges produced by any tool can already be passed "
-"to ``pandas.cut`` and the metric functions."
-msgstr "0.3 版不会自动搜索合并方案。ChiMerge、决策树和单调分箱等监督分箱方法已在计划中。任何工具生成的边界现在都可以直接传给 ``pandas.cut`` 和指标函数。"
+"Choosing the merges by hand works for a few variables. The supervised methods in the next section"
+" search for them automatically, and two of them start from fine quantile bins in the same way."
+msgstr "变量不多时，可以手工选择合并方式。下一节的有监督方法会自动搜索合并方案，其中两种同样从等频细分箱出发。"
+
+msgid "Supervised binning"
+msgstr "有监督分箱"
+
+msgid ""
+"Quantile and uniform edges ignore the target. The supervised methods use it to place edges "
+"between customers with different event rates, which is what the WOE of each bin measures. They "
+"take the values and a 0/1 target, as Series on the same index or as arrays and lists matched by "
+"position, omit missing values while fitting, and return edges in the same form as ``bin_edges``: "
+"increasing, with infinite outer edges, ready for ``pandas.cut``, ``woe_table`` and ``psi_table``."
+" Each returns at most ``max_bins`` bins, 5 by default."
+msgstr ""
+"等频与等距边界不考虑目标变量。有监督方法则利用目标变量，把边界放在事件率不同的客户之间，而这正是每箱 WOE 所度量的差异。它们接收数值和 0/1 目标变量：二者是 Series "
+"时须索引相同，是数组或列表时按位置对应；拟合时忽略缺失值，返回的边界与 ``bin_edges`` 形式相同：严格递增、两端为无穷，可直接用于 "
+"``pandas.cut``、``woe_table`` 和 ``psi_table``。每种方法最多返回 ``max_bins`` 个箱，默认为 5。"
+
+msgid "Function"
+msgstr "函数"
+
+msgid "How it fits the edges"
+msgstr "拟合边界的方式"
+
+msgid "Main options"
+msgstr "主要参数"
+
+msgid "``chimerge_edges``"
+msgstr "``chimerge_edges``"
+
+msgid "Merges adjacent fine bins whose event rates do not differ significantly."
+msgstr "合并事件率没有显著差异的相邻细分箱。"
+
+msgid "``max_bins``, ``alpha``"
+msgstr "``max_bins``、``alpha``"
+
+msgid "``tree_edges``"
+msgstr "``tree_edges``"
+
+msgid "Splits the values where a decision tree gains the most purity."
+msgstr "在决策树纯度提升最大的位置切分数值。"
+
+msgid "``max_bins``, ``min_bin_share``, ``criterion``"
+msgstr "``max_bins``、``min_bin_share``、``criterion``"
+
+msgid "``monotonic_edges``"
+msgstr "``monotonic_edges``"
+
+msgid "Merges adjacent fine bins until the WOE rises or falls steadily."
+msgstr "合并相邻细分箱，直到 WOE 稳定上升或下降。"
+
+msgid "``max_bins``, ``direction``"
+msgstr "``max_bins``、``direction``"
+
+msgid ""
+"As with ``bin_edges``, fit the edges on the reference sample only and apply the saved array to "
+"every other sample."
+msgstr "与 ``bin_edges`` 一样，只在基准样本上拟合边界，再把保存的数组用于其他所有样本。"
+
+msgid "ChiMerge"
+msgstr "ChiMerge（卡方分箱）"
+
+msgid ""
+"``chimerge_edges`` starts from fine quantile bins, 20 by default, and repeatedly merges the "
+"adjacent pair whose event rates are most alike, the pair with the smallest chi-square statistic. "
+"Merging continues while more than ``max_bins`` bins remain or while some adjacent pair does not "
+"differ significantly at level ``alpha``."
+msgstr ""
+"``chimerge_edges`` 从等频细分箱（默认 20 个）开始，反复合并事件率最接近、即卡方统计量最小的一对相邻箱。只要箱数仍多于 ``max_bins``，或仍有相邻两箱在显著性水平"
+" ``alpha`` 下差异不显著，就继续合并。"
+
+msgid ""
+"Five bins were allowed, but with five and with four bins some adjacent pair still had a chi-"
+"square below 3.84, the critical value at ``alpha=0.05``, so merging went on to three bins. Pass "
+"``alpha=None`` to merge down to ``max_bins`` only, or a larger ``alpha`` to keep more bins."
+msgstr ""
+"虽然允许 5 个箱，但在 5 箱和 4 箱时，仍有相邻两箱的卡方值低于 ``alpha=0.05`` 对应的临界值 3.84，因此继续合并到 3 个箱。传入 ``alpha=None`` "
+"只合并到 ``max_bins`` 个箱；传入更大的 ``alpha`` 可保留更多箱。"
+
+msgid ""
+"Smallest chi-square between adjacent balance bins as ChiMerge merges them, and the WOE of the "
+"three final bins"
+msgstr "ChiMerge 合并余额分箱过程中相邻箱的最小卡方值，以及最终 3 个箱的 WOE"
+
+msgid ""
+"Left: the smallest chi-square between adjacent bins as the fine bins are merged, read from left "
+"to right. Merging stops at the first count no larger than max_bins at which every pair lies above"
+" the alpha line. Right: the WOE of the final bins rises with balance."
+msgstr "左图：细分箱逐步合并时相邻箱之间的最小卡方值，从左向右阅读。当箱数不超过 max_bins 且所有相邻箱都位于 alpha 线上方时，合并停止。右图：最终各箱的 WOE 随余额上升。"
+
+msgid "Decision tree"
+msgstr "决策树"
+
+msgid ""
+"``tree_edges`` grows a decision tree on the one variable. Each split cuts a bin at the value that"
+" most reduces the impurity of the target, measured by entropy (the default) or by the Gini index "
+"with ``criterion=\"gini\"``. The bin whose best split gains the most is split next, until there "
+"are ``max_bins`` bins or no allowed split reduces the impurity. ``min_bin_share`` keeps every bin"
+" above a share of the observations, 5% by default, so that its WOE rests on enough customers. The"
+" interior edges are observed values."
+msgstr ""
+"``tree_edges`` 在单个变量上生长一棵决策树。每次切分都选在使目标变量不纯度下降最多的取值处，不纯度默认用熵度量，传入 ``criterion=\"gini\"`` "
+"则用基尼指数。最优切分收益最大的箱先被切分，直到箱数达到 ``max_bins``，或没有允许的切分能降低不纯度。``min_bin_share`` 要求每箱的观测占比不低于给定值（默认 "
+"5%），使每箱的 WOE 建立在足够多的客户之上。内部边界都是观测值。"
+
+msgid ""
+"The tree separates the classes best, but it does not look for a trend: customers above 6,046 "
+"subscribe less often than those just below them. A scorecard needs a WOE pattern that can be "
+"explained, so check the trend of tree bins before using them, and merge bins where it breaks."
+msgstr ""
+"决策树对两类客户的区分最好，但它并不追求趋势：余额高于 6,046 的客户，认购比例反而低于余额略低于该值的客户。评分卡需要可以解释的 WOE "
+"形态，因此使用决策树分箱前应检查趋势，并在趋势被打破处合并分箱。"
+
+msgid "Entropy reduction of every possible first cut of balance, and the WOE of the five tree bins"
+msgstr "余额每个可能的第一次切分带来的熵下降，以及决策树 5 个箱的 WOE"
+
+msgid ""
+"Left: the entropy reduction of every possible first cut. Cuts in the shaded areas would leave "
+"less than min_bin_share of the customers in a bin. The dashed lines are the tree's cuts, numbered"
+" in the order they were made. Right: the WOE of the five bins rises, then falls in the top bin."
+msgstr ""
+"左图：每个可能的第一次切分带来的熵下降。阴影区域内的切分会让某个箱的客户占比低于 min_bin_share。虚线是决策树的切分点，编号为切分的先后顺序。右图：5 个箱的 WOE "
+"先上升，在最高的箱中回落。"
+
+msgid "Monotonic binning"
+msgstr "单调分箱"
+
+msgid ""
+"``monotonic_edges`` also starts from fine quantile bins. Whenever two adjacent bins break the "
+"trend, it merges them and recomputes the WOE (pool adjacent violators), so the WOE of the final "
+"bins is strictly increasing or strictly decreasing. If more than ``max_bins`` bins remain, it "
+"then merges the most similar adjacent pairs by chi-square. ``direction=\"auto\"`` tries both "
+"trends and keeps the one with the larger information value; pass ``\"increasing\"`` or "
+"``\"decreasing\"`` to impose the trend that the business expects."
+msgstr ""
+"``monotonic_edges`` 同样从等频细分箱开始。每当相邻两箱违背趋势，就将它们合并并重新计算 WOE（合并相邻违序者，pool adjacent "
+"violators），因此最终各箱的 WOE 严格递增或严格递减。若箱数仍多于 ``max_bins``，再按卡方统计量合并最相近的相邻箱。``direction=\"auto\"`` "
+"会尝试两种趋势，保留信息值较大的一种；传入 ``\"increasing\"`` 或 ``\"decreasing\"`` 可以指定业务预期的趋势。"
+
+msgid ""
+"The trend is checked with the same smoothing as ``woe_table``, so the WOE that ``woe_table`` "
+"reports for these bins is monotonic as well, even when a bin has no events."
+msgstr "趋势检查使用与 ``woe_table`` 相同的平滑规则，因此即使某个箱没有事件，``woe_table`` 对这些箱给出的 WOE 也是单调的。"
+
+msgid "WOE of the fine balance bins with the pooled monotonic WOE, and the WOE of the five final bins"
+msgstr "余额细分箱的 WOE 与合并后的单调 WOE，以及最终 5 个箱的 WOE"
+
+msgid ""
+"Left: the WOE of the fine quantile bins zigzags; pooling adjacent violators turns it into a "
+"rising step (max_bins=None). Right: merged further to max_bins=5, the WOE still rises with "
+"balance."
+msgstr "左图：等频细分箱的 WOE 呈锯齿状；合并相邻违序箱后变为上升的阶梯（max_bins=None）。右图：进一步合并到 max_bins=5 后，WOE 仍随余额上升。"
+
+msgid "Comparing the methods"
+msgstr "方法对比"
+
+msgid ""
+"Supervised edges are chosen to separate the sample they are fitted on, so the information value "
+"on that sample is optimistic. Compare the methods on a later sample as well, keeping the edges "
+"fixed."
+msgstr "有监督边界是为区分拟合样本而选出的，因此在该样本上算出的信息值偏乐观。保持边界不变，在之后的样本上也对比一次各方法。"
+
+msgid ""
+"On the reference sample all three supervised methods beat five quantile bins. On the later sample"
+" they fall behind: much of the extra separation they found in balance was noise, which is common "
+"for a weak variable and a few hundred events. Validate supervised edges on a later or held-out "
+"sample before adopting them, and keep the variable under PSI monitoring once it is in use."
+msgstr ""
+"在基准样本上，三种有监督方法都优于 5 "
+"个等频箱；在之后的样本上却落在后面：它们在余额上多找到的区分度，很大一部分是噪声。对于较弱的变量和仅有几百个事件的样本，这种情况很常见。采用有监督边界之前，应先在之后的样本或留出样本上验证；变量投入使用后，还要持续做"
+" PSI 监控。"
 
 msgid "Ties and constant values"
 msgstr "重复切点与常量"
@@ -1185,6 +1606,22 @@ msgid ""
 msgstr "除缺失值和特殊值外，基准样本没有观测值，或含有不属于特殊值的无穷值。"
 
 msgid ""
+"``chimerge_edges``, ``tree_edges`` and ``monotonic_edges`` raise ``ValueError`` for the same "
+"problems with the values, for an option outside its range, and when:"
+msgstr ""
+"``chimerge_edges``、``tree_edges`` 和 ``monotonic_edges`` 在数值出现上述同样的问题、参数超出取值范围，以及以下情况下会抛出 "
+"``ValueError``："
+
+msgid "``values`` and ``target`` are Series without identical indices, or have different lengths;"
+msgstr "``values`` 与 ``target`` 是索引不完全相同的 Series，或者长度不同；"
+
+msgid "``target`` contains a label other than 0 and 1, or a missing label;"
+msgstr "``target`` 含有 0 和 1 以外的标签，或含有缺失标签；"
+
+msgid "the observed values do not cover both classes."
+msgstr "非缺失数值对应的标签没有同时包含两个类别。"
+
+msgid ""
 "``Dataset.bank_data()`` loads 4,521 customers from the Bank Marketing data set. It has sixteen "
 "features and an integer ``target``: 1 means that the customer subscribed to a term deposit."
 msgstr ""
@@ -1232,8 +1669,10 @@ msgid ""
 "stability."
 msgstr "端到端示例：按 IV 筛选变量，对入选变量分箱，用 WOE 编码，并输出稳定性报告。"
 
-msgid "Quantile, uniform and custom edges, special values, merging fine bins and missing values."
-msgstr "等频、等距与自定义边界，特殊值，合并细分箱以及缺失值。"
+msgid ""
+"Quantile, uniform and custom edges, special values, merging fine bins, supervised binning and "
+"missing values."
+msgstr "等频、等距与自定义边界，特殊值，合并细分箱，有监督分箱以及缺失值。"
 
 msgid "Weight of evidence and information value"
 msgstr "证据权重与信息值"
@@ -1360,8 +1799,12 @@ msgstr "按 IV 筛选变量"
 
 msgid ""
 "Start with a quick, uniform binning of every candidate: five quantile bins for numeric variables "
-"and the raw labels for categorical ones. The IV of each variable gives a first ranking."
-msgstr "先对每个候选变量做一次快速、统一的分箱：数值变量用 5 个等频箱，类别变量直接使用原始标签。各变量的 IV 给出初步排序。"
+"and the raw labels for categorical ones. The IV of each variable gives a first ranking. "
+"``bin_edges`` warns when tied values leave fewer bins than requested; the loop records those "
+"variables instead of printing the warnings."
+msgstr ""
+"先对每个候选变量做一次快速、统一的分箱：数值变量用 5 个等频箱，类别变量直接使用原始标签。各变量的 IV 给出初步排序。重复取值使箱数少于要求时， ``bin_edges`` "
+"会发出警告；这里的循环把这些变量记录下来，而不是打印警告。"
 
 msgid ""
 "Information value of every variable in the bank data, sorted, with the 0.02, 0.1 and 0.3 reading "

@@ -51,9 +51,9 @@ def test_bin_edges_accepts_array_like(values):
 
 @pytest.mark.parametrize(
     "values,bins,method,message",
-    [([], 2, "quantile", "no observations apart from missing and special values"),
-     ([None], 2, "quantile", "no observations apart from missing and special values"),
-     ([np.inf], 2, "quantile", "must be finite; pass infinite codes in special"),
+    [([], 2, "quantile", "no finite observations apart from missing and special values"),
+     ([None], 2, "quantile", "no finite observations apart from missing and special values"),
+     ([np.inf], 2, "quantile", "finite observations only; pass infinite codes in special"),
      ([1], 0, "quantile", "positive integer, got 0"),
      ([1], True, "quantile", "positive integer, got True"),
      ([1], 2.0, "quantile", "positive integer, got 2.0"),
@@ -141,7 +141,7 @@ def test_invalid_cut_inputs(values, edges, message):
 
 
 def test_all_special_reference_cannot_be_fitted():
-    with pytest.raises(ValueError, match="no observations apart from missing and special"):
+    with pytest.raises(ValueError, match="no finite observations apart from missing and special"):
         bin_edges([-1, -1, None], special=[-1])
 
 

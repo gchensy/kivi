@@ -36,6 +36,8 @@ extensions = [
     "matplotlib.sphinxext.plot_directive",
 ]
 numpydoc_show_class_members = False
+# The numpydoc Parameters section documents the types; npt.ArrayLike would expand to a long union.
+autodoc_typehints = "none"
 numpydoc_validation_checks = {"all"}
 doctest_default_flags = (
     doctest.ELLIPSIS
