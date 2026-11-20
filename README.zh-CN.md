@@ -35,7 +35,7 @@
 - 🏦 **为风控团队打造。** 覆盖信用评分卡及其他风控模型中的分箱、变量筛选和监控环节，并提供特殊值、粗分箱和信息泄漏检查的示例。
 - 📐 **一次拟合，处处复用。** `bin_edges` 在基准样本上学习等频或等距边界；`chimerge_edges`、`tree_edges` 和 `monotonic_edges` 还会利用目标变量。边界两端延伸至无穷，之后的任何取值都能落入某个箱。
 - 🔍 **结果透明。** `woe_table` 和 `psi_table` 返回每箱的原始计数、平滑后的占比和单箱贡献，而不只是一个总数。
-- 🧩 **不悄悄丢数据。** 缺失值、只在一个样本中出现的类别，都会单独成组。
+- 🧩 **不悄悄丢数据。** 缺失值、`-1` 这类特殊编码、只在一个样本中出现的类别，都会单独成组。
 - 🧊 **平滑口径清楚。** 空单元格先按 `smoothing`（默认 0.5）替换再归一化，结果中的计数始终是实际观测数。
 - 🐼 **只依赖 pandas 和 NumPy。** 核心不依赖 Spark 和数据库驱动，也不修改全局随机状态。
 - 🌏 **中英双语文档，示例全部经过测试。** 两种语言文档中的每个示例都会在 CI 中运行。
@@ -93,8 +93,8 @@ edges = bin_edges(reference["age"], bins=5)     # 1. 只在基准样本上拟合
 before = pd.cut(reference["age"], edges)        # 2. 每个样本复用同一组边界
 after = pd.cut(current["age"], edges)
 
-evidence = woe_table(before, reference["target"]).sort_index()   # 3. 计算指标
-stability = psi_table(before, after).sort_index()
+evidence = woe_table(before, reference["target"])  # 3. 计算指标
+stability = psi_table(before, after)
 
 print(evidence[["event", "non_event", "woe", "iv"]].round(3))
 print(f"IV = {evidence['iv'].sum():.3f}, PSI = {stability['psi'].sum():.4f}")
@@ -123,6 +123,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | 函数 | 用途 |
 | --- | --- |
 | [`kivi.binning.bin_edges`](https://gchensy.github.io/kivi/zh/api.html#kivi.binning.bin_edges) | 在基准样本上拟合等频或等距边界，两端为无穷 |
+| [`kivi.binning.cut`](https://gchensy.github.io/kivi/zh/api.html#kivi.binning.cut) | 将取值分配到各箱，每个特殊值（如 `-1`）单独成组 |
 | [`kivi.binning.chimerge_edges`](https://gchensy.github.io/kivi/zh/api.html#kivi.binning.chimerge_edges) | 用 ChiMerge 合并等频细分箱，直到相邻箱差异显著 |
 | [`kivi.binning.tree_edges`](https://gchensy.github.io/kivi/zh/api.html#kivi.binning.tree_edges) | 按熵或基尼指数做决策树切分，并限制每箱最小占比 |
 | [`kivi.binning.monotonic_edges`](https://gchensy.github.io/kivi/zh/api.html#kivi.binning.monotonic_edges) | 合并等频细分箱，直到 WOE 单调 |
@@ -144,6 +145,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 
 - ✅ 基于 pandas 核心的等频与等距分箱、WOE、IV 和 PSI
 - ✅ 中英文文档，示例经过测试
+- ✅ `-1`、`-999` 等特殊值单独分箱
 - ✅ 带图表的风控示例：特殊值、粗分箱、IV 筛选、PSI 监控
 - ✅ 有监督分箱：ChiMerge、决策树与单调 WOE
 - 🔜 加权统计

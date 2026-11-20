@@ -35,7 +35,7 @@ fit bin edges once, see how well every bin separates good from bad, and catch po
 - 🏦 **Built for risk teams.** Covers the classing, screening and monitoring steps of credit scorecards and other risk models, with examples for special values, coarse classing and leakage checks.
 - 📐 **Fit once, reuse everywhere.** `bin_edges` learns quantile or uniform edges on a reference sample; `chimerge_edges`, `tree_edges` and `monotonic_edges` also use the target. The outer edges are infinite, so every future value still lands in a bin.
 - 🔍 **Transparent results.** `woe_table` and `psi_table` return raw counts, smoothed shares and a contribution per bin, not just one number.
-- 🧩 **Nothing silently dropped.** Missing values and categories seen in only one sample get their own group.
+- 🧩 **Nothing silently dropped.** Missing values, special codes such as `-1` and categories seen in only one sample get their own group.
 - 🧊 **Honest smoothing.** Empty cells are replaced by `smoothing` (default 0.5) before normalizing, and the reported counts are never altered.
 - 🐼 **Just pandas and NumPy.** No Spark, no database drivers and no global random state in the core.
 - 🌏 **Bilingual, tested docs.** Every example in the English and Chinese manuals runs in CI.
@@ -93,8 +93,8 @@ edges = bin_edges(reference["age"], bins=5)     # 1. fit once on the reference
 before = pd.cut(reference["age"], edges)        # 2. cut every sample
 after = pd.cut(current["age"], edges)
 
-evidence = woe_table(before, reference["target"]).sort_index()   # 3. measure
-stability = psi_table(before, after).sort_index()
+evidence = woe_table(before, reference["target"])  # 3. measure
+stability = psi_table(before, after)
 
 print(evidence[["event", "non_event", "woe", "iv"]].round(3))
 print(f"IV = {evidence['iv'].sum():.3f}, PSI = {stability['psi'].sum():.4f}")
@@ -123,6 +123,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | Function | What it does |
 | --- | --- |
 | [`kivi.binning.bin_edges`](https://gchensy.github.io/kivi/en/api.html#kivi.binning.bin_edges) | Fit quantile or uniform edges on a reference sample, with infinite outer edges |
+| [`kivi.binning.cut`](https://gchensy.github.io/kivi/en/api.html#kivi.binning.cut) | Assign values to bins, with a separate group for each special value such as `-1` |
 | [`kivi.binning.chimerge_edges`](https://gchensy.github.io/kivi/en/api.html#kivi.binning.chimerge_edges) | Merge fine quantile bins with ChiMerge until neighbours differ significantly |
 | [`kivi.binning.tree_edges`](https://gchensy.github.io/kivi/en/api.html#kivi.binning.tree_edges) | Decision-tree splits by entropy or Gini, with a minimum share per bin |
 | [`kivi.binning.monotonic_edges`](https://gchensy.github.io/kivi/en/api.html#kivi.binning.monotonic_edges) | Merge fine quantile bins until the WOE is monotonic |
@@ -144,6 +145,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 
 - ✅ Quantile and uniform binning, WOE, IV and PSI on a pandas core
 - ✅ English and Simplified Chinese documentation with tested examples
+- ✅ Special values such as `-1` or `-999` in their own bins
 - ✅ Charted risk examples: special values, coarse classing, IV screening, PSI monitoring
 - ✅ Supervised binning: ChiMerge, decision tree and monotonic WOE
 - 🔜 Weighted counts

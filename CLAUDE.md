@@ -24,14 +24,14 @@ No linter or formatter is configured. pytest runs with `filterwarnings = error`,
 Fitting edges and grouping are deliberately separate steps:
 
 1. `kivi.binning.bin_edges(values, bins, method)` fits edges on the reference sample only. Interior duplicate edges are collapsed and the endpoints are always `-inf`/`+inf`, so future out-of-range values still land in a bin (a constant reference yields one bin). The supervised `chimerge_edges`, `tree_edges` and `monotonic_edges(values, target, ...)` in the same module return edges of the same form. ChiMerge and monotonic binning start from `initial_bins` quantile bins (one bin per distinct value when there are no more distinct values than that) and merge adjacent pairs; the ChiMerge p-value uses `math.erfc` (one degree of freedom), so there is no scipy dependency. `monotonic_edges` checks the trend with `_counts.shares`, so `woe_table` with the same `smoothing` sees the same monotonic WOE. `tree_edges` grows best first and its interior edges are observed values; it matches scikit-learn's `DecisionTreeClassifier(max_leaf_nodes=max_bins, min_samples_leaf=min_bin_share)` splits, which is a useful cross-check but not a dependency.
-2. The caller applies `pd.cut(series, edges)` with the same edges to every sample. Categorical variables skip steps 1–2 and are passed as-is.
+2. The caller applies the same edges to every sample with `kivi.binning.cut(series, edges, special=...)`, or `pd.cut` when there are no special values. `special` codes (e.g. bank `pdays == -1`) are left out of the fit in step 1, and `cut` gives each its own category ahead of the intervals; without `special` it returns exactly `pd.cut`'s result. Categorical variables skip steps 1–2 and are passed as-is.
 3. `kivi.woe.woe_table(groups, target)` and `kivi.evaluate.psi_table(reference, current)` take already-grouped series and return one row per group. Totals are the caller's `.sum()` of the `iv` / `psi` column.
 
 Public functions accept one-dimensional array_like input through `_validation.as_series`, which leaves Series untouched. `woe_table` and the supervised binning functions require identical indices only when both inputs are Series; otherwise they match by position. Error messages name the argument and the value received, and tests check them with `pytest.raises(..., match=)`.
 
 Both metric functions share `_counts.py`, which defines the counting and smoothing semantics — change behavior there, not per metric:
 
-- `group_counts` uses `pd.factorize(sort=False, use_na_sentinel=False)`: missing values form their own group, groups appear in first-observed order, and unused categorical levels are dropped. The result index is named `bin`.
+- `group_counts` uses `pd.factorize(use_na_sentinel=False)`: missing values form their own group and unused categorical levels are dropped. Categorical groups are factorized with `sort=True` (category order, missing last); other groups with `sort=False` (first-observed order). The result index is named `bin`.
 - Counting uses `np.bincount` on `2 * code + side`.
 - `shares` replaces zero cells with `smoothing` (default 0.5) and then normalizes each column independently. Count columns in the output stay raw; only the `*_share` columns reflect smoothing.
 

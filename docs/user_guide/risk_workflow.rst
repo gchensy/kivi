@@ -52,7 +52,7 @@ Read the ranking critically before building the shortlist:
 
 * ``duration`` is the length of the last call. It is only known after the call, when the outcome is largely decided, so its IV of 1.59 is a leak rather than a signal. The dataset's documentation recommends leaving it out of a realistic model. In credit risk, look for the same pattern in fields filled in after the decision, such as collection status.
 * ``month`` describes when the campaign ran rather than who the customer is, so it is left out as well.
-* ``pdays`` and ``previous`` show an IV of zero only because their tied values collapse into one quantile bin. Custom edges recover ``pdays``; see :ref:`special values <custom-edges>`.
+* ``pdays`` and ``previous`` show an IV of zero only because their tied values collapse into one quantile bin. Custom edges or the ``special`` argument recover ``pdays``; see :ref:`custom-edges` and :ref:`special-values`.
 
 Bin the shortlist
 -----------------

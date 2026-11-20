@@ -8,6 +8,7 @@ The public functions take one-dimensional array-like inputs, such as lists, NumP
 .. autosummary::
 
    binning.bin_edges
+   binning.cut
    binning.chimerge_edges
    binning.tree_edges
    binning.monotonic_edges
@@ -19,6 +20,8 @@ Binning
 -------
 
 .. autofunction:: kivi.binning.bin_edges
+
+.. autofunction:: kivi.binning.cut
 
 .. autofunction:: kivi.binning.chimerge_edges
 
