@@ -29,18 +29,18 @@ A loan is *ever bad* by month on book :math:`k` if it was bad at any month on bo
 ...     panel["loan_id"], panel["cohort"], panel["month_on_book"], panel["status"] == "90+"
 ... )
 >>> ever_90[[6, 12, 18, 24]].iloc[::3].round(3)
-month_on_book     6      12     18    24
+month_on_book     6      12     18     24
 cohort
-2024-01        0.000  0.068  0.090  0.09
-2024-04        0.020  0.034  0.079   NaN
-2024-07        0.005  0.051  0.076   NaN
-2024-10        0.010  0.025    NaN   NaN
-2025-01        0.005  0.034    NaN   NaN
-2025-04        0.010    NaN    NaN   NaN
-2025-07        0.005    NaN    NaN   NaN
-2025-10          NaN    NaN    NaN   NaN
+2024-01        0.000  0.068  0.094  0.094
+2024-04        0.020  0.034  0.084    NaN
+2024-07        0.005  0.051  0.081    NaN
+2024-10        0.010  0.025    NaN    NaN
+2025-01        0.005  0.034    NaN    NaN
+2025-04        0.010    NaN    NaN    NaN
+2025-07        0.005    NaN    NaN    NaN
+2025-10          NaN    NaN    NaN    NaN
 
-Each row follows one cohort and never decreases from left to right, because a loan that was bad stays counted as bad even if it cures later. The entries a cohort has not reached are NaN, not 0: the 2025-04 cohort has been on book for ten months, so its bad rate at month 12 is not known yet. Reading down a column compares the cohorts at the same age, which separates the quality of new lending from the seasoning of the portfolio. The latest value of each cohort mixes the two, because older cohorts have had more time to go bad.
+Each row follows one cohort and never decreases from left to right, because a loan that was bad stays counted as bad even if it cures later. The entries a cohort has not reached are NaN, not 0: the 2025-04 cohort is observed up to month on book 9, so its bad rate at month 12 is not known yet. Reading down a column compares the cohorts at the same age, which separates the quality of new lending from the seasoning of the portfolio. The latest value of each cohort mixes the two, because older cohorts have had more time to go bad.
 
 Every cohort here has about 200 loans, so one bad loan moves its rate by half a percentage point. Compare small differences only after averaging several cohorts.
 
@@ -72,9 +72,9 @@ To weight each loan by the amount lent, pass ``weights``. The table then reports
 >>> by_amount[[6, 12, 18, 24]].iloc[::3].round(3)
 month_on_book     6      12     18     24
 cohort
-2024-01        0.000  0.068  0.091  0.091
-2024-04        0.026  0.035  0.081    NaN
-2024-07        0.009  0.058  0.078    NaN
+2024-01        0.000  0.068  0.094  0.094
+2024-04        0.026  0.035  0.091    NaN
+2024-07        0.009  0.058  0.080    NaN
 2024-10        0.010  0.018    NaN    NaN
 2025-01        0.003  0.030    NaN    NaN
 2025-04        0.018    NaN    NaN    NaN
@@ -86,35 +86,37 @@ The weight must be the same on every row of a loan, so pass the amount lent rath
 Roll rates
 ----------
 
-A roll rate is the share of the loans in a delinquency bucket at one month end that are in the next worse bucket at the next month end. To pair each row with the status a month later, shift the status within each loan. The last row of a loan has no next month, because the loan was repaid or the panel ends, so keep only the rows with a next status:
+A roll rate is the share of the loans in a delinquency bucket at one month end that are in the next worse bucket at the next month end. To pair each row with the row of the same loan one month on book later, merge the panel with itself shifted by one month. The last row of a loan has no partner, because the loan was repaid or the panel ends, and drops out. Unlike shifting the rows within each loan, the merge pairs the right months however the rows are sorted and wherever a month is missing:
 
 >>> from kivi.vintage import roll_rates, transition_matrix
->>> next_status = panel.groupby("loan_id")["status"].shift(-1)
->>> observed = next_status.notna()
->>> before, after = panel["status"][observed], next_status[observed]
+>>> later = panel[["loan_id", "month_on_book", "status"]].assign(
+...     month_on_book=panel["month_on_book"] - 1
+... )
+>>> pairs = panel.merge(later, on=["loan_id", "month_on_book"], suffixes=("", "_next"))
+>>> before, after = pairs["status"], pairs["status_next"]
 >>> roll_rates(before, after).round(3)
 before
 current    0.023
-1-29       0.287
-30-59      0.536
-60-89      0.674
+1-29       0.295
+30-59      0.553
+60-89      0.712
 Name: roll_rate, dtype: float64
 
-The states are the categories of the status, from the best to the worst. Each month about 2.3% of the current loans miss an instalment, and the share that rolls on rises with the days past due: two thirds of the loans at 60 to 89 days are 90 days past due a month later.
+Both columns are ordered categoricals, so ``roll_rates`` takes the order of the states, from the best to the worst, from their categories. For plain labels, pass ``states``: sorted, ``"current"`` would come after ``"90+"``. Each month about 2.3% of the current loans miss an instalment, and the share that rolls on rises with the days past due: seven in ten of the loans at 60 to 89 days are 90 days past due a month later.
 
 A loan falls at most one bucket further behind per month, so the only way from current to 90+ in four months is to roll every month. If the movements follow a Markov chain, the product of the roll rates is the share of current loans that are 90+ four months later:
 
 >>> print(f"{roll_rates(before, after).prod():.5f}")
-0.00236
+0.00264
 
 Balance roll rates weight each loan by its balance at the first month end, as loss forecasts do:
 
->>> roll_rates(before, after, weights=panel["balance"][observed]).round(3)
+>>> roll_rates(before, after, weights=pairs["balance"]).round(3)
 before
 current    0.023
-1-29       0.291
-30-59      0.552
-60-89      0.719
+1-29       0.292
+30-59      0.555
+60-89      0.732
 Name: roll_rate, dtype: float64
 
 Transition matrices
@@ -126,10 +128,10 @@ Transition matrices
 after    current  1-29  30-59  60-89   90+
 before
 current    49436  1150      0      0     0
-1-29         723   290    408      0     0
-30-59        127     2     96    260     0
-60-89         29     0      3     63   196
-90+            0     0      0      0  1489
+1-29         716   277    415      0     0
+30-59        126     0     91    268     0
+60-89         31     0      0     52   205
+90+            0     0      0      0  1528
 
 With ``normalize=True``, each row holds the shares of its loans and sums to 1:
 
@@ -138,9 +140,9 @@ With ``normalize=True``, each row holds the shares of its loans and sums to 1:
 after    current   1-29  30-59  60-89    90+
 before
 current    0.977  0.023  0.000  0.000  0.000
-1-29       0.509  0.204  0.287  0.000  0.000
-30-59      0.262  0.004  0.198  0.536  0.000
-60-89      0.100  0.000  0.010  0.216  0.674
+1-29       0.509  0.197  0.295  0.000  0.000
+30-59      0.260  0.000  0.188  0.553  0.000
+60-89      0.108  0.000  0.000  0.181  0.712
 90+        0.000  0.000  0.000  0.000  1.000
 
 The diagonal holds the loans that stayed in their bucket, the ``current`` column the cures and the entries just right of the diagonal the roll rates. A loan that reaches 90+ stays there in this data, so the last row is all 90+.
@@ -157,13 +159,13 @@ The same function compares any two observations of the same entities, such as th
 >>> six_months.round(3)
 after    current   1-29  30-59  60-89    90+
 before
-current    0.954  0.019  0.011  0.007  0.009
+current    0.953  0.019  0.011  0.006  0.011
 1-29       0.775  0.034  0.000  0.000  0.191
 30-59      0.211  0.000  0.000  0.000  0.789
-60-89      0.190  0.000  0.048  0.000  0.762
+60-89      0.150  0.000  0.000  0.000  0.850
 90+        0.000  0.000  0.000  0.000  1.000
 
-Missing values raise an error instead of being counted, so first decide what to do with the entities observed only once: drop them, as here, or give them a state of their own, such as ``"closed"``.
+Only the loans on book at both month ends are compared. The 226 loans repaid in between, almost all of them current in June, drop out, so the ``current`` row describes the loans that stayed on book. Missing values raise an error instead of being counted, so first decide what to do with the entities observed only once: drop them, as here, or give them a state of their own, such as ``"closed"``, to keep them in the shares.
 
 If the monthly movements followed a time-homogeneous Markov chain, the sixth power of the monthly matrix would give the six-month matrix. Comparing the shares that end in 90+ shows how far that holds:
 
@@ -171,10 +173,10 @@ If the monthly movements followed a time-homogeneous Markov chain, the sixth pow
 >>> pd.DataFrame({"projected": projected[:, -1], "observed": six_months["90+"]}).round(3)
          projected  observed
 before
-current      0.010     0.009
-1-29         0.208     0.191
-30-59        0.581     0.789
-60-89        0.868     0.762
+current      0.011     0.011
+1-29         0.218     0.191
+30-59        0.592     0.789
+60-89        0.869     0.850
 90+          1.000     1.000
 
 The projection is of the right size but not exact: loans differ in risk, and the chance of missing an instalment depends on the month on book, so the movements are not a time-homogeneous Markov chain. Few loans are 30 to 89 days past due in June, so those rows are also uncertain.

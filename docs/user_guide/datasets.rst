@@ -27,7 +27,7 @@ Synthetic loan panel
 >>> from kivi.datasets import make_loan_panel
 >>> panel = make_loan_panel(n_loans=5000, n_months=24, rng=0)
 >>> panel.shape
-(59272, 8)
+(59295, 8)
 >>> panel.groupby("cohort")["loan_id"].nunique().agg(["min", "max"]).to_dict()
 {'min': 188, 'max': 234}
 
@@ -59,10 +59,10 @@ The loans are spread at random over ``n_months`` origination months from January
 How the panel is simulated
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Each loan is repaid in equal monthly instalments at 1% interest a month. Its status counts the instalments past due: one is ``1-29``, two ``30-59``, three ``60-89`` and four or more ``90+``. Every month:
+Each loan is repaid in equal monthly instalments at 1% interest a month. Its status counts the months since its oldest unpaid instalment fell due: one is ``1-29``, two ``30-59``, three ``60-89`` and four or more ``90+``. Within the term this is the number of instalments past due. Every month:
 
 * a current loan misses its instalment with a probability that peaks at its sixth month on book and then declines, scaled by a risk factor of the loan and one of its cohort;
-* a delinquent loan pays all its arrears and becomes current, pays one instalment and keeps its status, or pays nothing and rolls to the next bucket, and the later the bucket, the less likely it cures and the more likely it rolls. After the term no instalment falls due, so paying one moves the loan up a bucket;
+* a delinquent loan pays all its arrears and becomes current, pays one instalment and keeps its status, or pays nothing and rolls to the next bucket, also after its term, and the later the bucket, the less likely it cures and the more likely it rolls;
 * a ``90+`` loan pays nothing more, so its status and balance stay the same.
 
 A loan leaves the panel in the month it pays its last instalment, which can come after its term if it was behind. Loans are not charged off or prepaid.
