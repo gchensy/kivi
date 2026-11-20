@@ -1,7 +1,7 @@
 API reference
 =============
 
-The public functions take pandas objects and return NumPy arrays or pandas DataFrames. Import them from their modules.
+The public functions take one-dimensional array-like inputs, such as lists, NumPy arrays or pandas Series, and return NumPy arrays or pandas DataFrames. Import them from their modules.
 
 .. currentmodule:: kivi
 

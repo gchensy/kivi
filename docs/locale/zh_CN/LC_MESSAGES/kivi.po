@@ -18,9 +18,9 @@ msgid "API reference"
 msgstr "API 参考"
 
 msgid ""
-"The public functions take pandas objects and return NumPy arrays or pandas DataFrames. Import "
-"them from their modules."
-msgstr "公共函数接收 pandas 对象，返回 NumPy 数组或 pandas DataFrame。请从各自所在的模块导入。"
+"The public functions take one-dimensional array-like inputs, such as lists, NumPy arrays or "
+"pandas Series, and return NumPy arrays or pandas DataFrames. Import them from their modules."
+msgstr "公共函数接收一维类数组输入（如列表、NumPy 数组或 pandas Series），返回 NumPy 数组或 pandas DataFrame。请从各自所在的模块导入。"
 
 msgid ":py:obj:`binning.bin_edges <kivi.binning.bin_edges>`\\ \\(values\\[\\, bins\\, method\\]\\)"
 msgstr ":py:obj:`binning.bin_edges <kivi.binning.bin_edges>`\\ \\(values\\[\\, bins\\, method\\]\\)"
@@ -53,17 +53,24 @@ msgstr "读取 UCI Bank Marketing 的 4,521 条营销记录。"
 msgid "Binning"
 msgstr "分箱"
 
+msgid ""
+"The edges are fitted once and then applied with ``pandas.cut`` to the reference and to every "
+"sample compared with it."
+msgstr "边界只拟合一次，然后用 ``pandas.cut`` 应用到基准样本以及每个与之比较的样本上。"
+
 msgid "Parameters"
 msgstr "参数"
 
 msgid "**values**"
 msgstr "**values**"
 
-msgid "pandas.Series"
-msgstr "pandas.Series"
+msgid "array_like"
+msgstr "array_like"
 
-msgid "Numeric reference values. Missing values are omitted."
-msgstr "基准样本中的数值。拟合时忽略缺失值。"
+msgid ""
+"One-dimensional numeric reference values, such as a list, a NumPy array or a pandas Series. "
+"Missing values are omitted."
+msgstr "一维数值型基准取值，可以是列表、NumPy 数组或 pandas Series。拟合时忽略缺失值。"
 
 msgid "**bins**"
 msgstr "**bins**"
@@ -93,11 +100,76 @@ msgstr "numpy.ndarray"
 msgid "Increasing edges with infinite endpoints, suitable for pandas.cut."
 msgstr "严格递增的边界数组，两端为负无穷和正无穷，可直接传给 pandas.cut。"
 
+msgid "Raises"
+msgstr "异常"
+
+msgid "ValueError"
+msgstr "ValueError"
+
+msgid ""
+"If `bins` is not a positive integer, `method` is not recognized, `values` is not one-dimensional "
+"or not numeric, or the reference has no observations or contains an infinite value."
+msgstr "如果 `bins` 不是正整数、 `method` 无法识别、 `values` 不是一维或不是数值，或者基准样本没有观测值或含有无穷值。"
+
+msgid "Warns"
+msgstr "警告"
+
+msgid "UserWarning"
+msgstr "UserWarning"
+
+msgid ""
+"If tied edges leave fewer bins than requested, for example when a single value accounts for a "
+"large share of the reference."
+msgstr "如果边界重合导致实际箱数少于期望箱数，例如某个取值在基准样本中占比很大。"
+
+msgid ":obj:`pandas.cut`"
+msgstr ":obj:`pandas.cut`"
+
+msgid "Assign values to the bins defined by the edges."
+msgstr "按边界把取值分配到各箱。"
+
+msgid ":obj:`numpy.quantile`"
+msgstr ":obj:`numpy.quantile`"
+
+msgid "Compute the quantile edges."
+msgstr "计算分位数边界。"
+
+msgid ":obj:`kivi.woe.woe_table`"
+msgstr ":obj:`kivi.woe.woe_table`"
+
+msgid "Weight of evidence of the resulting groups."
+msgstr "计算所得分组的证据权重。"
+
+msgid ":obj:`kivi.evaluate.psi_table`"
+msgstr ":obj:`kivi.evaluate.psi_table`"
+
+msgid "Stability of the resulting groups."
+msgstr "计算所得分组的稳定性。"
+
+msgid "Notes"
+msgstr "说明"
+
+msgid ""
+"Quantile edges are the sample quantiles at equally spaced probabilities, computed with the "
+"default linear interpolation of ``numpy.quantile``. Uniform edges divide the range from the "
+"smallest to the largest value into equal widths."
+msgstr "分位数边界是在等间距概率处取的样本分位数，使用 ``numpy.quantile`` 默认的线性插值计算。等距边界把从最小值到最大值的区间等分。"
+
+msgid ""
+"Repeated edges are merged, and the outer edges are replaced with infinities, so every finite "
+"value falls into exactly one interval. The intervals of ``pandas.cut`` are closed on the right."
+msgstr "重复的边界会被合并，最外侧的两个边界替换为无穷，因此每个有限值都恰好落入一个区间。 ``pandas.cut`` 的区间为左开右闭。"
+
 msgid "Examples"
 msgstr "示例"
 
 msgid "Weight of evidence"
 msgstr "证据权重"
+
+msgid ""
+"Each group's share of events is compared with its share of non-events. Sum the ``iv`` column for "
+"the information value of the variable."
+msgstr "比较每组在全部事件中的占比与在全部非事件中的占比。将 ``iv`` 列求和即得到该变量的信息值。"
 
 msgid "**groups**"
 msgstr "**groups**"
@@ -108,8 +180,10 @@ msgstr "已分箱的数值或类别标签。缺失值独立成组。"
 msgid "**target**"
 msgstr "**target**"
 
-msgid "Binary labels on the same index, with 1 indicating the event."
-msgstr "与分组索引一致的二分类标签，1 表示事件发生。"
+msgid ""
+"Binary labels, with 1 indicating the event. If `groups` and `target` are both pandas Series, they"
+" must have identical indices; otherwise they are matched by position."
+msgstr "二分类标签，1 表示事件。如果 `groups` 和 `target` 都是 pandas Series，二者的索引必须完全相同；否则按位置对应。"
 
 msgid "**smoothing**"
 msgstr "**smoothing**"
@@ -128,8 +202,65 @@ msgid ""
 "for the variable's information value."
 msgstr "各组的事件数、非事件数、各自在所属类别中的占比，以及 WOE 和 IV。将 iv 列求和即得到该变量的信息值。"
 
+msgid ""
+"If the inputs are not one-dimensional, their indices or lengths do not match, `target` does not "
+"contain both 0 and 1 or has missing or other labels, or `smoothing` is not finite and positive."
+msgstr "如果输入不是一维、索引或长度不一致、 `target` 没有同时包含 0 和 1 或含有缺失值及其他标签，或者 `smoothing` 不是有限正数。"
+
+msgid ":obj:`kivi.binning.bin_edges`"
+msgstr ":obj:`kivi.binning.bin_edges`"
+
+msgid "Fit edges for numeric variables."
+msgstr "为数值变量拟合分箱边界。"
+
+msgid "Compare the distribution of two samples."
+msgstr "比较两个样本的分布。"
+
+msgid ""
+"For group :math:`i`, let :math:`p_i` and :math:`q_i` be its shares of all events and of all non-"
+"events. Then"
+msgstr "对第 :math:`i` 组，令 :math:`p_i` 和 :math:`q_i` 分别为其在全部事件和全部非事件中的占比。则"
+
+#, python-brace-format
+msgid ""
+"\\mathrm{WOE}_i = \\ln \\frac{p_i}{q_i}, \\qquad\n"
+"\\mathrm{IV}_i = (p_i - q_i)\\,\\mathrm{WOE}_i, \\qquad\n"
+"\\mathrm{IV} = \\sum_i \\mathrm{IV}_i."
+msgstr ""
+"\\mathrm{WOE}_i = \\ln \\frac{p_i}{q_i}, \\qquad\n"
+"\\mathrm{IV}_i = (p_i - q_i)\\,\\mathrm{WOE}_i, \\qquad\n"
+"\\mathrm{IV} = \\sum_i \\mathrm{IV}_i."
+
+msgid ""
+"Each zero count is replaced with `smoothing` before the shares are normalized, so every WOE is "
+"finite. The ``non_event`` and ``event`` columns always report the observed counts."
+msgstr "在归一化占比之前，每个零计数都会被替换为 `smoothing`，因此每个 WOE 都是有限值。 ``non_event`` 和 ``event`` 列始终报告实际观测到的计数。"
+
+msgid ""
+"Rows follow the order in which the groups first appear. Categories that are never observed are "
+"omitted."
+msgstr "各行按分组首次出现的次序排列。从未出现的类别不会列出。"
+
+msgid "References"
+msgstr "参考文献"
+
+msgid ""
+"N. Siddiqi, \"Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring\", "
+"Wiley, 2006."
+msgstr ""
+"N. Siddiqi, \"Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring\", "
+"Wiley, 2006."
+
+msgid "[R86ef760ac44f-1]_"
+msgstr "[R86ef760ac44f-1]_"
+
 msgid "Population stability"
 msgstr "群体稳定性"
+
+msgid ""
+"Each group's share of the current sample is compared with its share of the reference sample. Sum "
+"the ``psi`` column for the index."
+msgstr "比较每组在当前样本中的占比与在基准样本中的占比。将 ``psi`` 列求和即得到该指数。"
 
 msgid "**reference, current**"
 msgstr "**reference, current**"
@@ -144,11 +275,68 @@ msgid ""
 "population stability index."
 msgstr "各组的原始计数、归一化占比和 PSI 贡献。对 psi 列求和即得到总体 PSI。"
 
+msgid "If either sample is empty or not one-dimensional, or `smoothing` is not finite and positive."
+msgstr "如果任一样本为空或不是一维，或者 `smoothing` 不是有限正数。"
+
+msgid "Fit edges on the reference sample."
+msgstr "在基准样本上拟合分箱边界。"
+
+msgid "Relate the groups to a binary target."
+msgstr "将分组与二分类目标关联起来。"
+
+msgid ""
+"For group :math:`i`, let :math:`q_i` be its share of the reference sample and :math:`p_i` its "
+"share of the current sample. Then"
+msgstr "对第 :math:`i` 组，令 :math:`q_i` 为其在基准样本中的占比，:math:`p_i` 为其在当前样本中的占比，则"
+
+#, python-brace-format
+msgid ""
+"\\mathrm{PSI}_i = (p_i - q_i) \\ln \\frac{p_i}{q_i}, \\qquad\n"
+"\\mathrm{PSI} = \\sum_i \\mathrm{PSI}_i."
+msgstr ""
+"\\mathrm{PSI}_i = (p_i - q_i) \\ln \\frac{p_i}{q_i}, \\qquad\n"
+"\\mathrm{PSI} = \\sum_i \\mathrm{PSI}_i."
+
+msgid ""
+"Each zero count is replaced with `smoothing` before the shares are normalized, so a group "
+"observed in only one sample has a finite contribution. The ``reference`` and ``current`` columns "
+"always report the observed counts."
+msgstr "在归一化占比之前，每个零计数都会被替换为 `smoothing`，因此只在一个样本中出现的组也有有限的贡献值。 ``reference`` 和 ``current`` 列始终报告实际观测到的计数。"
+
+msgid ""
+"Rows follow the order in which the groups first appear, in the reference sample and then in the "
+"current sample."
+msgstr "各行按分组首次出现的次序排列，先看基准样本，再看当前样本。"
+
+msgid "[Rb40ea4e016bb-1]_"
+msgstr "[Rb40ea4e016bb-1]_"
+
 msgid "Example data"
 msgstr "示例数据"
 
+msgid "The ``y`` response of the original data is returned as the binary ``target`` column."
+msgstr "原始数据中的响应列 ``y`` 以二分类的 ``target`` 列返回。"
+
 msgid "Sixteen features and the integer target. A value of 1 indicates a term deposit subscription."
 msgstr "返回 16 个特征和整数标签 target。1 表示客户认购了定期存款。"
+
+msgid "Relate a feature to ``target``."
+msgstr "将某个特征与 ``target`` 关联起来。"
+
+msgid ""
+"Bank Marketing by S. Moro, P. Rita and P. Cortez (2014) is distributed under CC BY 4.0. The "
+"bundled CSV was converted from the legacy workbook."
+msgstr "Bank Marketing 由 S. Moro、P. Rita 和 P. Cortez 于 2014 年发布，按 CC BY 4.0 授权。随包 CSV 由旧版工作簿转换而来。"
+
+msgid ""
+"S. Moro, P. Rita and P. Cortez, \"Bank Marketing\", UCI Machine Learning Repository, 2014. "
+"https://doi.org/10.24432/C5K306"
+msgstr ""
+"S. Moro, P. Rita and P. Cortez, \"Bank Marketing\", UCI Machine Learning Repository, 2014. "
+"https://doi.org/10.24432/C5K306"
+
+msgid "[Re446c00e8929-1]_"
+msgstr "[Re446c00e8929-1]_"
 
 msgid "Development"
 msgstr "开发"
@@ -535,6 +723,37 @@ msgstr "版本说明"
 msgid "What changed in 0.3 and how to migrate code written for 0.2.x."
 msgstr "0.3 的变化，以及如何迁移为 0.2.x 编写的代码。"
 
+msgid "Unreleased"
+msgstr "未发布"
+
+msgid "Changed"
+msgstr "变更"
+
+msgid ""
+"``bin_edges``, ``woe_table`` and ``psi_table`` accept any one-dimensional array-like input, such "
+"as a list or a NumPy array. Group and target series passed to ``woe_table`` must still share an "
+"index; arrays and lists are matched by position."
+msgstr ""
+"``bin_edges`` 、 ``woe_table`` 和 ``psi_table`` 接受任意一维类数组输入，例如列表或 NumPy 数组。传给 ``woe_table`` "
+"的分组与标签序列仍须共享同一索引；数组和列表按位置对应。"
+
+msgid "``bin_edges`` issues a ``UserWarning`` when tied edges leave fewer bins than requested."
+msgstr "边界重合导致实际箱数少于期望箱数时， ``bin_edges`` 会发出 ``UserWarning`` 。"
+
+msgid "Error messages name the argument and report the value received."
+msgstr "错误信息会写明参数名以及收到的值。"
+
+msgid ""
+"``kivi.__version__`` is ``\"0+unknown\"`` when kivi is imported from a source tree that is not "
+"installed, instead of raising an error."
+msgstr "从未安装的源码目录导入 kivi 时， ``kivi.__version__`` 为 ``\"0+unknown\"`` ，不再抛出错误。"
+
+msgid "Group counts use ``numpy.bincount``, which is faster on large samples."
+msgstr "分组计数改用 ``numpy.bincount`` ，在大样本上更快。"
+
+msgid "The API reference documents errors, warnings, formulas and related functions."
+msgstr "API 参考补充了异常、警告、公式和相关函数的说明。"
+
 msgid "0.3.0 (2026-11-19)"
 msgstr "0.3.0（2026-11-19）"
 
@@ -558,9 +777,6 @@ msgstr "``woe_table`` 和 ``psi_table`` 返回每组的原始计数、平滑后�
 
 msgid "Documentation in English and Simplified Chinese."
 msgstr "提供英文和简体中文文档。"
-
-msgid "Changed"
-msgstr "变更"
 
 msgid "NumPy and pandas are required dependencies. The 0.2.8 wheel placed them behind the ``all`` extra."
 msgstr "NumPy 和 pandas 成为必需依赖。0.2.8 的 wheel 曾将它们放在 ``all`` 可选依赖中。"
@@ -657,9 +873,11 @@ msgstr "0.3 版支持未加权统计。加权、监督分箱和评分卡流程�
 
 msgid ""
 "``bin_edges`` fits numeric bin edges on a reference sample and returns them as an array for "
-"``pandas.cut``. Keep the array: the same edges must be applied to every sample that is compared "
-"with the reference."
-msgstr "``bin_edges`` 在基准样本上拟合数值分箱边界，并以数组形式返回，供 ``pandas.cut`` 使用。请保存这个数组：与基准样本比较的每个样本都必须使用同一组边界。"
+"``pandas.cut``. The reference can be a list, a NumPy array or a pandas Series. Keep the array: "
+"the same edges must be applied to every sample that is compared with the reference."
+msgstr ""
+"``bin_edges`` 在基准样本上拟合数值分箱边界，并以数组形式返回，供 ``pandas.cut`` 使用。基准样本可以是列表、NumPy 数组或 pandas "
+"Series。请保存这个数组：与基准样本比较的每个样本都必须使用同一组边界。"
 
 msgid ""
 "In credit scoring, binning is the classing step of scorecard development: a continuous variable "
@@ -760,9 +978,13 @@ msgid "Tied cut points are collapsed. A constant reference produces one bin."
 msgstr "重复的切点会被合并。常量基准样本只产生一个箱。"
 
 msgid ""
-"The number of bins can therefore be smaller than requested. Check ``len(edges) - 1`` when the "
-"count matters."
-msgstr "因此实际箱数可能少于请求的箱数。需要确认箱数时，请检查 ``len(edges) - 1``。"
+"The number of bins can therefore be smaller than requested, and ``bin_edges`` then issues a "
+"``UserWarning``. A single value that covers much of the reference, such as a code for \"not "
+"applicable\", often causes this. Group that value separately before fitting edges on the "
+"remaining values."
+msgstr ""
+"因此实际箱数可能少于期望箱数，此时 ``bin_edges`` 会发出 ``UserWarning`` "
+"。某个取值（例如表示“不适用”的编码）在基准样本中占比很大时，常会出现这种情况。请先将该取值单独成组，再对其余取值拟合边界。"
 
 msgid "Applying the edges"
 msgstr "应用边界"
@@ -787,9 +1009,9 @@ msgstr "拟合边界时会忽略基准样本中的缺失值，``pandas.cut`` 也
 
 msgid ""
 "Pass categorical labels directly to the metric functions. A missing label is a separate group. "
-"Only observed groups appear, in first-observed order. For WOE the group and target indices must "
-"match exactly."
-msgstr "类别变量可直接传给指标函数。缺失标签独立成组。输出仅列出实际观测到的组，按首次出现的次序排列。WOE 的分组索引和标签索引必须完全一致。"
+"Only observed groups appear, in first-observed order. For WOE, group and target series must have "
+"identical indices; arrays and lists are matched by position."
+msgstr "类别变量可直接传给指标函数。缺失标签独立成组。输出仅列出实际观测到的组，按首次出现的次序排列。计算 WOE 时，分组与标签序列的索引必须完全一致；数组和列表按位置对应。"
 
 msgid "Invalid input"
 msgstr "无效输入"
@@ -803,8 +1025,8 @@ msgstr "``bins`` 不是正整数；"
 msgid "``method`` is neither ``\"quantile\"`` nor ``\"uniform\"``;"
 msgstr "``method`` 既不是 ``\"quantile\"`` 也不是 ``\"uniform\"``；"
 
-msgid "the reference values are not numeric;"
-msgstr "基准样本的取值不是数值；"
+msgid "the reference values are not one-dimensional or not numeric;"
+msgstr "基准样本的取值不是一维或不是数值；"
 
 msgid "the reference has no observations, or contains an infinite value."
 msgstr "基准样本没有观测值，或包含无穷值。"
@@ -883,19 +1105,6 @@ msgstr "``psi_table`` 比较一个变量在两个样本中的分布，通常是�
 
 msgid "Definition"
 msgstr "定义"
-
-msgid ""
-"For group :math:`i`, let :math:`q_i` be its share of the reference sample and :math:`p_i` its "
-"share of the current sample. Then"
-msgstr "对第 :math:`i` 组，令 :math:`q_i` 为其在基准样本中的占比，:math:`p_i` 为其在当前样本中的占比，则"
-
-#, python-brace-format
-msgid ""
-"\\mathrm{PSI}_i = (p_i - q_i) \\ln \\frac{p_i}{q_i}, \\qquad\n"
-"\\mathrm{PSI} = \\sum_i \\mathrm{PSI}_i."
-msgstr ""
-"\\mathrm{PSI}_i = (p_i - q_i) \\ln \\frac{p_i}{q_i}, \\qquad\n"
-"\\mathrm{PSI} = \\sum_i \\mathrm{PSI}_i."
 
 msgid ""
 "Each contribution is zero or positive. PSI describes distribution change; it does not use the "
@@ -1086,9 +1295,9 @@ msgstr "这里所有变量都是稳定的，监控数据与开发数据来自同
 
 msgid ""
 "``woe_table`` measures how each group separates a binary target. An event is target 1 and a non-"
-"event is target 0. Both target classes must be present, and the group and target series must "
-"share the same index."
-msgstr "``woe_table`` 衡量每组对二分类目标的区分能力。标签 1 表示事件，0 表示非事件。数据须同时包含两类标签，且分组与标签两个序列的索引必须相同。"
+"event is target 0. Both target classes must be present. Group and target series must share the "
+"same index; arrays and lists are matched by position."
+msgstr "``woe_table`` 衡量每组对二分类目标的区分能力。标签 1 表示事件，0 表示非事件。数据须同时包含两类标签。分组与标签序列的索引必须相同；数组和列表按位置对应。"
 
 msgid "Definitions"
 msgstr "定义"
@@ -1104,16 +1313,6 @@ msgstr "p_i = \\frac{E_i}{\\sum_j E_j}, \\qquad q_i = \\frac{N_i}{\\sum_j N_j}."
 
 msgid "The weight of evidence and the information value contribution of the group are"
 msgstr "该组的证据权重和信息值贡献为"
-
-#, python-brace-format
-msgid ""
-"\\mathrm{WOE}_i = \\ln \\frac{p_i}{q_i}, \\qquad\n"
-"\\mathrm{IV}_i = (p_i - q_i)\\,\\mathrm{WOE}_i, \\qquad\n"
-"\\mathrm{IV} = \\sum_i \\mathrm{IV}_i."
-msgstr ""
-"\\mathrm{WOE}_i = \\ln \\frac{p_i}{q_i}, \\qquad\n"
-"\\mathrm{IV}_i = (p_i - q_i)\\,\\mathrm{WOE}_i, \\qquad\n"
-"\\mathrm{IV} = \\sum_i \\mathrm{IV}_i."
 
 msgid ""
 "A positive WOE means that the group is relatively more common among events. Each IV contribution "
