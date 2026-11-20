@@ -109,28 +109,30 @@ def test_prior_correction_matches_hand_calculation():
 def test_prior_correction_agrees_with_the_intercept():
     linear = np.array([-3.0, -1.2, 0.0, 0.7, 2.5])
     intercept = -1.5
-    prob = 1 / (1 + np.exp(-(intercept + linear)))
+    probability = 1 / (1 + np.exp(-(intercept + linear)))
     rates = {"sample_rate": 0.3, "population_rate": 0.04}
     shifted = corrected_intercept(intercept, **rates)
     np.testing.assert_allclose(
-        prior_correction(prob, **rates), 1 / (1 + np.exp(-(shifted + linear))), rtol=1e-13
+        prior_correction(probability, **rates), 1 / (1 + np.exp(-(shifted + linear))), rtol=1e-13
     )
-    np.testing.assert_allclose(prior_correction(prob, sample_rate=0.3, population_rate=0.3), prob)
+    np.testing.assert_allclose(
+        prior_correction(probability, sample_rate=0.3, population_rate=0.3), probability
+    )
 
 
 def test_prior_correction_keeps_shapes_and_missing_values():
-    prob = pd.Series([0.5, np.nan], index=[4, 2], name="pd")
-    corrected = prior_correction(prob, sample_rate=0.5, population_rate=0.02)
+    probability = pd.Series([0.5, np.nan], index=[4, 2], name="pd")
+    corrected = prior_correction(probability, sample_rate=0.5, population_rate=0.02)
     assert corrected.index.tolist() == [4, 2] and corrected.name == "pd"
     assert corrected[4] == pytest.approx(0.02) and np.isnan(corrected[2])
     assert isinstance(prior_correction(0.5, sample_rate=0.5, population_rate=0.02), float)
 
 
 @pytest.mark.parametrize(
-    "prob,rates,message",
+    "probability,rates,message",
     [
-        (1.2, {}, "prob must be between 0 and 1, got 1.2"),
-        ([0.5, -0.1], {}, "prob must be between 0 and 1, got -0.1"),
+        (1.2, {}, "probability must be between 0 and 1, got 1.2"),
+        ([0.5, -0.1], {}, "probability must be between 0 and 1, got -0.1"),
         (0.5, {"sample_rate": 0}, "sample_rate must be strictly between 0 and 1, got 0"),
         (
             0.5,
@@ -140,9 +142,9 @@ def test_prior_correction_keeps_shapes_and_missing_values():
         (0.5, {"sample_rate": True}, "sample_rate must be strictly between 0 and 1, got True"),
     ],
 )
-def test_invalid_prior_correction(prob, rates, message):
+def test_invalid_prior_correction(probability, rates, message):
     with pytest.raises(ValueError, match=message):
-        prior_correction(prob, **{"sample_rate": 0.5, "population_rate": 0.02, **rates})
+        prior_correction(probability, **{"sample_rate": 0.5, "population_rate": 0.02, **rates})
 
 
 def test_invalid_intercept_correction():
@@ -153,15 +155,15 @@ def test_invalid_intercept_correction():
 def test_calibration_table_counts_and_rates():
     grades = pd.Series(["B", "A", "B", "A", "B", "C"])
     target = pd.Series([1, 0, 0, 0, 1, 0])
-    prob = pd.Series([0.4, 0.1, 0.2, 0.3, 0.6, 0.05])
-    table = calibration_table(grades, target, prob)
+    probability = pd.Series([0.4, 0.1, 0.2, 0.3, 0.6, 0.05])
+    table = calibration_table(grades, target, probability)
     assert table.index.name == "bin"
     assert table.index.tolist() == ["B", "A", "C"]
-    assert table.columns.tolist() == ["total", "event", "event_rate", "mean_prob"]
+    assert table.columns.tolist() == ["total", "event", "event_rate", "mean_probability"]
     assert table["total"].tolist() == [3, 2, 1]
     assert table["event"].tolist() == [2, 0, 0]
     np.testing.assert_allclose(table["event_rate"], [2 / 3, 0, 0])
-    np.testing.assert_allclose(table["mean_prob"], [0.4, 0.2, 0.05])
+    np.testing.assert_allclose(table["mean_probability"], [0.4, 0.2, 0.05])
     assert table["total"].dtype == np.int64 and table["event"].dtype == np.int64
 
 
@@ -171,7 +173,7 @@ def test_calibration_table_follows_category_order_with_missing_last():
     assert table.index[:2].tolist() == ["high", "low"]
     assert pd.isna(table.index[2])
     assert table["total"].tolist() == [1, 2, 1]
-    np.testing.assert_allclose(table["mean_prob"], [0.9, 0.15, 0.5])
+    np.testing.assert_allclose(table["mean_probability"], [0.9, 0.15, 0.5])
 
 
 def test_calibration_table_puts_missing_labels_in_their_own_group():
@@ -180,44 +182,44 @@ def test_calibration_table_puts_missing_labels_in_their_own_group():
     assert table.index[[0, 2]].tolist() == ["B", "A"] and pd.isna(table.index[1])
     assert table["total"].tolist() == [2, 2, 1]
     assert table["event"].tolist() == [2, 1, 0]
-    np.testing.assert_allclose(table["mean_prob"], [0.5, 0.2, 0.2])
+    np.testing.assert_allclose(table["mean_probability"], [0.5, 0.2, 0.2])
 
 
 def test_master_scale_on_bank_data():
     data = Dataset.bank_data()
     # A stand-in PD: the balance rank, mapped to [0.01, 0.3].
-    prob = 0.01 + 0.29 * data["balance"].rank(pct=True)
+    probability = 0.01 + 0.29 * data["balance"].rank(pct=True)
     edges = [0, 0.05, 0.1, 0.2, 1]
-    grades = pd.cut(prob, edges, labels=[1, 2, 3, 4])
-    table = calibration_table(grades, data["target"], prob)
+    grades = pd.cut(probability, edges, labels=[1, 2, 3, 4])
+    table = calibration_table(grades, data["target"], probability)
     assert table.index.tolist() == [1, 2, 3, 4]
     assert table["total"].sum() == len(data)
     assert table["event"].sum() == data["target"].sum()
     codes = grades.cat.codes.to_numpy()
     np.testing.assert_array_equal(table["total"], np.bincount(codes))
     np.testing.assert_array_equal(table["event"], np.bincount(codes, weights=data["target"]))
-    np.testing.assert_allclose(table["mean_prob"], prob.groupby(codes).mean())
+    np.testing.assert_allclose(table["mean_probability"], probability.groupby(codes).mean())
     # Interval labels from pandas.cut keep their order too.
-    intervals = calibration_table(pd.cut(prob, edges), data["target"], prob)
+    intervals = calibration_table(pd.cut(probability, edges), data["target"], probability)
     np.testing.assert_array_equal(intervals["total"], table["total"])
 
 
 @pytest.mark.parametrize(
-    "groups,target,prob,message",
+    "groups,target,probability,message",
     [
         (pd.Series([1, 2]), pd.Series([0, 1], index=[1, 2]), [0.1, 0.2], "identical indices"),
         ([1, 2], [0, 1, 1], [0.1, 0.2], "same length, got 2, 3 and 2"),
         ([], [], [], "must contain observations"),
         ([1, 2], [0, 2], [0.1, 0.2], "target must contain only 0 and 1, got 2"),
         ([1, 2], [0, None], [0.1, 0.2], "target must contain only 0 and 1, got nan"),
-        ([1, 2], [0, 1], [0.1, np.nan], "prob must not have missing values"),
-        ([1, 2], [0, 1], [0.1, 1.5], "prob must be between 0 and 1, got 1.5"),
+        ([1, 2], [0, 1], [0.1, np.nan], "probability must not have missing values"),
+        ([1, 2], [0, 1], [0.1, 1.5], "probability must be between 0 and 1, got 1.5"),
         (np.ones((2, 2)), [0, 1], [0.1, 0.2], "groups must be one-dimensional, got 2 dimensions"),
     ],
 )
-def test_invalid_calibration_table_inputs(groups, target, prob, message):
+def test_invalid_calibration_table_inputs(groups, target, probability, message):
     with pytest.raises(ValueError, match=message):
-        calibration_table(groups, target, prob)
+        calibration_table(groups, target, probability)
 
 
 def test_binomial_test_matches_hand_calculation():
@@ -242,15 +244,18 @@ def test_jeffreys_test_matches_closed_forms():
 
 def test_tests_agree_on_the_direction():
     # More events than predicted gives small p-values; fewer gives large ones.
-    event, count, prob = np.array([1, 4, 12]), 200, 0.02
-    for pvalues in (binomial_test(event, count, prob), jeffreys_test(event, count, prob)):
+    event, count, probability = np.array([1, 4, 12]), 200, 0.02
+    for pvalues in (
+        binomial_test(event, count, probability),
+        jeffreys_test(event, count, probability),
+    ):
         assert pvalues[0] > 0.9 and pvalues[2] < 0.01
         assert np.all(np.diff(pvalues) < 0)
 
 
 @pytest.mark.parametrize("test", [binomial_test, jeffreys_test])
 @pytest.mark.parametrize(
-    "event,count,prob,message",
+    "event,count,probability,message",
     [
         (1, 0, 0.1, "total must be a positive whole number, got 0.0"),
         (1, 2.5, 0.1, "total must be a positive whole number, got 2.5"),
@@ -258,14 +263,14 @@ def test_tests_agree_on_the_direction():
         (-1, 5, 0.1, "event must be a non-negative whole number, got -1.0"),
         (np.nan, 5, 0.1, "event must be a non-negative whole number, got nan"),
         (6, 5, 0.1, "event must not exceed total, got 6.0 events among 5.0"),
-        (1, 5, 1.1, "prob must be between 0 and 1, got 1.1"),
-        (1, 5, np.nan, "prob must not have missing values"),
+        (1, 5, 1.1, "probability must be between 0 and 1, got 1.1"),
+        (1, 5, np.nan, "probability must not have missing values"),
         ([1, 2], [5, 5, 5], 0.1, "cannot be broadcast together"),
     ],
 )
-def test_invalid_grade_test_inputs(test, event, count, prob, message):
+def test_invalid_grade_test_inputs(test, event, count, probability, message):
     with pytest.raises(ValueError, match=message):
-        test(event, count, prob)
+        test(event, count, probability)
 
 
 @pytest.mark.parametrize("test", [binomial_test, jeffreys_test])
@@ -283,13 +288,13 @@ def test_grade_tests_keep_the_series_index(test):
 
 
 def test_hosmer_lemeshow_matches_hand_calculation():
-    event, count, prob = [2, 6, 15], [100, 100, 100], [0.03, 0.06, 0.12]
+    event, count, probability = [2, 6, 15], [100, 100, 100], [0.03, 0.06, 0.12]
     # (2 - 3)^2 / (3 * 0.97) + 0 + (15 - 12)^2 / (12 * 0.88)
     expected = 1 / 2.91 + 9 / 10.56
-    statistic, pvalue = hosmer_lemeshow(event, count, prob)
+    statistic, pvalue = hosmer_lemeshow(event, count, probability)
     assert statistic == pytest.approx(expected, rel=1e-14)
     assert pvalue == pytest.approx(math.erfc(math.sqrt(expected / 2)), rel=1e-12)
-    statistic, pvalue = hosmer_lemeshow(event, count, prob, ddof=0)
+    statistic, pvalue = hosmer_lemeshow(event, count, probability, ddof=0)
     tail3 = math.erfc(math.sqrt(expected / 2)) + math.sqrt(2 * expected / math.pi) * math.exp(
         -expected / 2
     )
@@ -297,16 +302,16 @@ def test_hosmer_lemeshow_matches_hand_calculation():
 
 
 def test_hosmer_lemeshow_from_a_calibration_table():
-    prob = np.repeat([0.1, 0.2, 0.3, 0.4], 10)
+    probability = np.repeat([0.1, 0.2, 0.3, 0.4], 10)
     target = np.zeros(40, dtype=int)
     target[[0, 10, 11, 20, 21, 22, 30, 31, 32, 33]] = 1
-    table = calibration_table(prob, target, prob)
-    statistic, _ = hosmer_lemeshow(table["event"], table["total"], table["mean_prob"])
+    table = calibration_table(probability, target, probability)
+    statistic, _ = hosmer_lemeshow(table["event"], table["total"], table["mean_probability"])
     assert statistic == pytest.approx(0, abs=1e-12)
 
 
 @pytest.mark.parametrize(
-    "event,count,prob,ddof,message",
+    "event,count,probability,ddof,message",
     [
         ([1, 2], [10, 10], [0.1, 0.2], 2, "2 group\\(s\\) with ddof=2 leave 0 degrees of freedom"),
         ([1, 2, 3], [10, 10, 10], [0.1, 0, 0.3], 2, "strictly between 0 and 1, got 0.0"),
@@ -315,9 +320,9 @@ def test_hosmer_lemeshow_from_a_calibration_table():
         (1, 10, 0.1, 0, "one-dimensional, got 0 dimensions"),
     ],
 )
-def test_invalid_hosmer_lemeshow_inputs(event, count, prob, ddof, message):
+def test_invalid_hosmer_lemeshow_inputs(event, count, probability, ddof, message):
     with pytest.raises(ValueError, match=message):
-        hosmer_lemeshow(event, count, prob, ddof=ddof)
+        hosmer_lemeshow(event, count, probability, ddof=ddof)
 
 
 def test_hosmer_lemeshow_rejects_misaligned_series():
@@ -358,13 +363,13 @@ def test_invalid_herfindahl_inputs(counts, normalize, message):
 def test_inputs_are_not_modified():
     grades = pd.Series(["a", "b", "a"])
     target = pd.Series([0, 1, 1])
-    prob = pd.Series([0.2, 0.4, 0.6])
-    copies = grades.copy(), target.copy(), prob.copy()
-    table = calibration_table(grades, target, prob)
-    prior_correction(prob, sample_rate=0.5, population_rate=0.1)
+    probability = pd.Series([0.2, 0.4, 0.6])
+    copies = grades.copy(), target.copy(), probability.copy()
+    table = calibration_table(grades, target, probability)
+    prior_correction(probability, sample_rate=0.5, population_rate=0.1)
     event, count = table["event"].to_numpy(), table["total"].to_numpy()
     binomial_test(event, count, 0.3)
     jeffreys_test(event, count, 0.3)
-    for original, copy in zip((grades, target, prob), copies, strict=True):
+    for original, copy in zip((grades, target, probability), copies, strict=True):
         pd.testing.assert_series_equal(original, copy)
     np.testing.assert_array_equal(table["event"], [1, 1])

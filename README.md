@@ -32,7 +32,7 @@ fit bin edges once, see how well every bin separates good from bad, and catch po
 
 ## ✨ Highlights
 
-- 🏦 **Built for risk teams.** Covers the classing, screening and monitoring steps of credit scorecards and other risk models, with examples for special values, coarse classing and leakage checks.
+- 🏦 **Built for risk teams.** Covers a credit scorecard project end to end: classing, variable selection, a logistic fit, scaling to points, evaluation, calibration and monitoring, with examples for special values, coarse classing and leakage checks.
 - 📐 **Fit once, reuse everywhere.** `bin_edges` learns quantile or uniform edges on a reference sample; `chimerge_edges`, `tree_edges` and `monotonic_edges` also use the target. The outer edges are infinite, so every future value still lands in a bin.
 - 🔍 **Transparent results.** `woe_table` and `psi_table` return raw counts, smoothed shares and a contribution per bin, not just one number.
 - 🧩 **Nothing silently dropped.** Missing values, special codes such as `-1` and categories seen in only one sample get their own group.
@@ -131,6 +131,14 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | [`kivi.woe.woe_transform`](https://gchensy.github.io/kivi/en/api/woe.html#kivi.woe.woe_transform) | Replace each group with its development WOE, with an explicit policy for unseen groups |
 | [`kivi.woe.woe`](https://gchensy.github.io/kivi/en/api/woe.html#kivi.woe.woe), [`kivi.woe.iv`](https://gchensy.github.io/kivi/en/api/woe.html#kivi.woe.iv), [`kivi.stability.psi`](https://gchensy.github.io/kivi/en/api/stability.html#kivi.stability.psi) | WOE, IV and PSI from counts that are already aggregated |
 | [`kivi.stability.psi_table`](https://gchensy.github.io/kivi/en/api/stability.html#kivi.stability.psi_table) | Per-group PSI contributions between two samples |
+| [`kivi.metrics.roc_auc`](https://gchensy.github.io/kivi/en/api/metrics.html#kivi.metrics.roc_auc), [`kivi.metrics.gini`](https://gchensy.github.io/kivi/en/api/metrics.html#kivi.metrics.gini), [`kivi.metrics.ks`](https://gchensy.github.io/kivi/en/api/metrics.html#kivi.metrics.ks), [`kivi.metrics.brier_score`](https://gchensy.github.io/kivi/en/api/metrics.html#kivi.metrics.brier_score) | AUC, Gini, KS and Brier score of a score or PD against a binary target |
+| [`kivi.metrics.gains_table`](https://gchensy.github.io/kivi/en/api/metrics.html#kivi.metrics.gains_table) | Gains and lift by score band, with cumulative capture and KS |
+| [`kivi.selection.correlation_filter`](https://gchensy.github.io/kivi/en/api/selection.html#kivi.selection.correlation_filter), [`kivi.selection.vif`](https://gchensy.github.io/kivi/en/api/selection.html#kivi.selection.vif) | Drop correlated variables by IV, and variance inflation factors |
+| [`kivi.selection.logistic_regression`](https://gchensy.github.io/kivi/en/api/selection.html#kivi.selection.logistic_regression), [`kivi.selection.stepwise`](https://gchensy.github.io/kivi/en/api/selection.html#kivi.selection.stepwise) | NumPy logistic regression and stepwise selection that keeps every coefficient positive |
+| [`kivi.scorecard.points_table`](https://gchensy.github.io/kivi/en/api/scorecard.html#kivi.scorecard.points_table), [`kivi.scorecard.woe_to_points`](https://gchensy.github.io/kivi/en/api/scorecard.html#kivi.scorecard.woe_to_points), [`kivi.scorecard.reason_codes`](https://gchensy.github.io/kivi/en/api/scorecard.html#kivi.scorecard.reason_codes) | Points per group with PDO scaling, scores for new data, and reason codes |
+| [`kivi.scorecard.pd_to_score`](https://gchensy.github.io/kivi/en/api/scorecard.html#kivi.scorecard.pd_to_score), [`kivi.scorecard.score_to_pd`](https://gchensy.github.io/kivi/en/api/scorecard.html#kivi.scorecard.score_to_pd) | Convert between PD and score |
+| [`kivi.calibration.calibration_table`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.calibration_table), [`kivi.calibration.binomial_test`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.binomial_test), [`kivi.calibration.jeffreys_test`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.jeffreys_test), [`kivi.calibration.hosmer_lemeshow`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.hosmer_lemeshow) | Event rate against predicted PD per grade, with binomial, Jeffreys and Hosmer-Lemeshow tests |
+| [`kivi.calibration.prior_correction`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.prior_correction), [`kivi.calibration.corrected_intercept`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.corrected_intercept), [`kivi.calibration.herfindahl_index`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.herfindahl_index) | Correct PDs for an oversampled sample, and measure grade concentration |
 | [`kivi.datasets.Dataset.bank_data`](https://gchensy.github.io/kivi/en/api/datasets.html#kivi.datasets.Dataset.bank_data) | The bundled bank marketing data |
 
 ## 📚 Documentation
@@ -141,6 +149,11 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | Binning | [Read](https://gchensy.github.io/kivi/en/user_guide/binning.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/binning.html) |
 | WOE and IV | [Read](https://gchensy.github.io/kivi/en/user_guide/woe_iv.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/woe_iv.html) |
 | PSI | [Read](https://gchensy.github.io/kivi/en/user_guide/psi.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/psi.html) |
+| Risk modeling workflow | [Read](https://gchensy.github.io/kivi/en/user_guide/risk_workflow.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/risk_workflow.html) |
+| Variable selection | [Read](https://gchensy.github.io/kivi/en/user_guide/selection.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/selection.html) |
+| Scorecard | [Read](https://gchensy.github.io/kivi/en/user_guide/scorecard.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/scorecard.html) |
+| Model performance | [Read](https://gchensy.github.io/kivi/en/user_guide/metrics.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/metrics.html) |
+| Calibration | [Read](https://gchensy.github.io/kivi/en/user_guide/calibration.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/calibration.html) |
 | Migrating from 0.2.x | [Read](https://gchensy.github.io/kivi/en/release/migration.html) | [阅读](https://gchensy.github.io/kivi/zh/release/migration.html) |
 
 ## 🗺️ Roadmap
@@ -152,8 +165,9 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 - ✅ Supervised binning: ChiMerge, decision tree and monotonic WOE
 - ✅ WOE encoding of new data, with an explicit policy for unseen groups
 - ✅ Sample weights in binning, WOE and PSI
-- 🔜 Scorecard workflow, validated against fixed reference samples
-- 🔜 Spark and SQL as optional integrations
+- ✅ Scorecard workflow: variable selection, logistic regression, PDO scaling, reason codes, evaluation and calibration
+- 🔜 CSI, vintage and roll-rate analysis, batch binning with saved specifications
+- 🔜 Strategy analysis: cut-offs, swap sets, reject inference and expected loss
 
 ## 🤝 Contributing
 
