@@ -334,3 +334,103 @@ def test_gains_table_rejects_scores_outside_the_edges():
     message = r"score has 2 value\(s\) outside the edges in bins, such as 0.0; use infinite"
     with pytest.raises(ValueError, match=message):
         gains_table([0.0, 0.5, 3.0, 1.0], [0, 1, 0, 1], bins=[0, 1, 2])
+
+
+def test_weighted_ranking_measures_match_hand_calculation():
+    weights = [1, 2, 1, 1, 3, 1]
+    # Events 0.4 (1), 0.7 (3), 0.9 (1); non-events 0.1 (1), 0.4 (2), 0.8 (1). Weighted pairs
+    # ordered correctly: 1 + 0.5 * 2 for the event at 0.4, 3 + 6 for 0.7 and 4 for 0.9, of 5 * 4.
+    assert roc_auc(SCORE, TARGET, weights=weights) == pytest.approx(15 / 20)
+    assert gini(SCORE, TARGET, weights=weights) == pytest.approx(0.5)
+    # Cumulative shares at 0.1, 0.4, 0.7, 0.8: events 0, 1/5, 4/5, 4/5; non-events 1/4, 3/4, ...
+    assert ks(SCORE, TARGET, weights=weights) == pytest.approx(3 / 4 - 1 / 5)
+    # Squared errors 0.01, 0.09, 0.16 and 0.04 with weights 1, 0, 2 and 1.
+    brier = brier_score([0.1, 0.3, 0.6, 0.8], [0, 0, 1, 1], weights=[1, 0, 2, 1])
+    assert brier == pytest.approx((0.01 + 2 * 0.16 + 0.04) / 4)
+
+
+def test_integer_weights_equal_repeated_rows():
+    data = Dataset.bank_data()
+    score, target = data["duration"].to_numpy(float), data["target"].to_numpy()
+    weights = np.random.default_rng(11).integers(0, 4, len(data))
+    rows = np.repeat(np.arange(len(data)), weights)
+    for metric in (roc_auc, gini, ks):
+        assert metric(score, target, weights=weights) == pytest.approx(
+            metric(score[rows], target[rows]), rel=1e-12
+        )
+    probability = np.clip(score / score.max(), 0, 1)
+    assert brier_score(probability, target, weights=weights) == pytest.approx(
+        brier_score(probability[rows], target[rows]), rel=1e-12
+    )
+    edges = bin_edges(score, bins=5)
+    weighted = gains_table(score, target, bins=edges, weights=weights)
+    pd.testing.assert_frame_equal(
+        weighted, gains_table(score[rows], target[rows], bins=edges), check_dtype=False
+    )
+    assert weighted["total"].dtype == float
+
+
+def test_zero_weights_drop_rows():
+    weights = np.array([1, 0, 1, 1, 0, 1])
+    kept = weights > 0
+    score, target = np.array(SCORE), np.array(TARGET)
+    for metric in (roc_auc, ks):
+        assert metric(score, target, weights=weights) == pytest.approx(
+            metric(score[kept], target[kept])
+        )
+
+
+def test_gains_table_weighted_quantile_bands():
+    score = [1, 2, 3, 4, 5, 6]
+    target = [0, 0, 1, 0, 1, 1]
+    weights = [3, 1, 1, 1, 1, 3]
+    edges = bin_edges(score, bins=2, weights=weights)
+    np.testing.assert_array_equal(edges, [-np.inf, 3, np.inf])
+    table = gains_table(score, target, bins=2, weights=weights)
+    assert table.index.right.tolist() == [np.inf, 3]
+    assert table["total"].tolist() == [5.0, 5.0] and table["event"].tolist() == [4.0, 1.0]
+    np.testing.assert_allclose(table["lift"], [0.8 / 0.5, 0.2 / 0.5])
+
+
+def test_weights_match_like_target():
+    score = pd.Series([0.2, 0.9, 0.4, 0.6], index=[10, 11, 12, 13])
+    target = pd.Series([0, 1, 0, 1], index=[10, 11, 12, 13])
+    weights = pd.Series([1.0, 2.0, 1.0, 1.0], index=[10, 11, 12, 13])
+    assert roc_auc(score, target, weights=weights) == 1.0
+    assert roc_auc(score, target, weights=weights.to_numpy()) == 1.0
+    with pytest.raises(ValueError, match="weights must have the same index as score"):
+        roc_auc(score, target, weights=weights.reset_index(drop=True))
+    nullable = pd.Series([1, 2, 1, 1], index=score.index, dtype="Int64")
+    assert ks(score, target, weights=nullable) == 1.0
+
+
+@pytest.mark.parametrize("metric", [roc_auc, gini, ks, gains_table])
+@pytest.mark.parametrize(
+    "weights,message",
+    [
+        ([1, 1, 1, 0, 0, 0], "weights must give both target classes a positive total"),
+        ([0, 0, 0, 0, 0, 0], "weights must have a finite, positive total, got 0.0"),
+        ([1, 1, 1, 1, 1, -1], "weights must be finite and non-negative"),
+        ([1, 1, 1, 1, 1, np.nan], "weights must be finite and non-negative"),
+        ([1, 1], "weights must have one weight per value of score, got 2 for 6"),
+        (["a"] * 6, "weights must be numeric, got dtype"),
+    ],
+)
+def test_invalid_weights(metric, weights, message):
+    target = [0, 0, 0, 1, 1, 1]
+    with pytest.raises(ValueError, match=message):
+        metric([1, 2, 3, 4, 5, 6], target, weights=weights)
+
+
+def test_brier_score_weights_need_a_positive_total_only():
+    assert brier_score([0.2, 0.4], [0, 0], weights=[1, 0]) == pytest.approx(0.04)
+    with pytest.raises(ValueError, match="weights must have a finite, positive total"):
+        brier_score([0.2, 0.4], [0, 1], weights=[0, 0])
+
+
+@pytest.mark.parametrize("scale", [1e-300, 1e-170, 1e160, 1e300])
+def test_ranking_measures_do_not_depend_on_the_weight_scale(scale):
+    weights = np.array([1, 2, 1, 1, 3, 1]) * scale
+    assert roc_auc(SCORE, TARGET, weights=weights) == pytest.approx(15 / 20)
+    assert gini(SCORE, TARGET, weights=weights) == pytest.approx(0.5)
+    assert ks(SCORE, TARGET, weights=weights) == pytest.approx(3 / 4 - 1 / 5)

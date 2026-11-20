@@ -133,6 +133,27 @@ Applicant 3000 was contacted by telephone, 21.3 points below the best contact gr
 
 The scaling does not change the order of the reasons, because every shortfall is :math:`\mathrm{factor} \cdot \beta_j` times a difference in WOE. Points that match no group of the table within ``atol``, for example points computed with another intercept, raise an error instead of giving reasons against the wrong groups.
 
+Applicants in a group without development observations, such as a new category, have no group of their own in the table. Their WOE comes from ``unseen`` in ``woe_transform``, a value chosen for the group rather than evidence about the applicant, so by default their points raise an error too. Pass their points as ``unseen_points`` to count them as costing nothing: the variable is then not a reason for those applicants. ``unseen_points`` holds points, not a WOE. Run ``woe_to_points`` on a one-row frame that holds the WOE given to ``unseen``; a WOE of 0 gives the base points, the same for every variable. Below, the first applicant has a housing status that the development sample did not have:
+
+>>> new = pd.DataFrame({"housing": ["rented", "no"], "contact": ["telephone", "unknown"]})
+>>> new_woe = pd.DataFrame({
+...     "housing": woe_transform(new["housing"], tables["housing"], unseen=0.0),
+...     "contact": woe_transform(new["contact"], tables["contact"]),
+... })
+>>> two = {"housing": coefficients["housing"], "contact": coefficients["contact"]}
+>>> new_table = points_table(tables, two, intercept, **scale)
+>>> new_points = woe_to_points(new_woe, two, intercept, **scale)
+>>> zero = woe_to_points(pd.DataFrame({"housing": [0.0], "contact": [0.0]}), two, intercept, **scale)
+>>> zero.round(2)
+   housing  contact
+0   272.82   272.82
+>>> reason_codes(new_points, new_table, unseen_points=zero.iloc[0])
+  reason_1 reason_2 reason_3
+0  contact     None     None
+1  housing     None     None
+
+The first applicant's housing points are those of a WOE of 0, so only the telephone contact is a reason. The second applicant has no housing loan, the less favourable housing group, and is in the best contact group, ``unknown``. Only points near ``unseen_points`` are exempt: points from another model, or WOE values rounded more coarsely than ``atol`` allows, still raise an error.
+
 .. note::
 
    A model developed on a sample that over- or undersamples bad outcomes has an intercept for that sample. Correct it with :func:`kivi.calibration.corrected_intercept` before building the points table; see :doc:`calibration`.

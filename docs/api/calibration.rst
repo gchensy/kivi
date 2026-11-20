@@ -12,6 +12,10 @@ Calibration
    jeffreys_test
    hosmer_lemeshow
    herfindahl_index
+   platt_fit
+   platt_predict
+   isotonic_fit
+   isotonic_predict
 
 .. autofunction:: prior_correction
 
@@ -26,3 +30,11 @@ Calibration
 .. autofunction:: hosmer_lemeshow
 
 .. autofunction:: herfindahl_index
+
+.. autofunction:: platt_fit
+
+.. autofunction:: platt_predict
+
+.. autofunction:: isotonic_fit
+
+.. autofunction:: isotonic_predict

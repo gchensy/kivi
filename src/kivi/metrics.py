@@ -13,13 +13,15 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._validation import as_series
+from ._validation import as_series, as_weights
 from .binning import bin_edges
 
 __all__ = ["roc_auc", "gini", "ks", "gains_table", "brier_score"]
 
 
-def roc_auc(score: npt.ArrayLike, target: npt.ArrayLike) -> float:
+def roc_auc(
+    score: npt.ArrayLike, target: npt.ArrayLike, *, weights: npt.ArrayLike | None = None
+) -> float:
     r"""Compute the area under the ROC curve of a score.
 
     The AUC is the probability that a randomly chosen event has a higher
@@ -37,6 +39,10 @@ def roc_auc(score: npt.ArrayLike, target: npt.ArrayLike) -> float:
         Binary labels, with 1 indicating the event. Both classes must be
         present. If `score` and `target` are both pandas Series, they must
         have identical indices; otherwise they are matched by position.
+    weights : array_like, optional
+        Non-negative weight of each observation, such as the inverse of its
+        sampling rate, matched like `target`. Every count becomes a sum of
+        weights, so integer weights give the same result as repeating rows.
 
     Returns
     -------
@@ -50,7 +56,9 @@ def roc_auc(score: npt.ArrayLike, target: npt.ArrayLike) -> float:
         If the inputs are empty or not one-dimensional, their indices or
         lengths do not match, `target` has a label other than 0 and 1 or
         lacks one of them, or `score` is not real and numeric or has a
-        missing or infinite value.
+        missing or infinite value. Also if `weights` is not numeric, does
+        not give each observation one finite, non-negative weight, has an
+        index other than that of `score`, or leaves a class without weight.
 
     See Also
     --------
@@ -67,6 +75,10 @@ def roc_auc(score: npt.ArrayLike, target: npt.ArrayLike) -> float:
     .. math::
 
        \mathrm{AUC} = \frac{R_1 - n_1 (n_1 + 1) / 2}{n_1 n_0}.
+
+    With weights, each pair of an event :math:`i` and a non-event :math:`j`
+    counts with weight :math:`w_i w_j`, and :math:`n_1` and :math:`n_0` are
+    the total weights of the two classes.
 
     References
     ----------
@@ -89,8 +101,11 @@ def roc_auc(score: npt.ArrayLike, target: npt.ArrayLike) -> float:
     >>> round(roc_auc(-points, target), 4)
     0.7222
     """
-    values, labels = _scores_and_labels(score, target, "score")
-    non_event, event = _distinct_counts(labels, values).T
+    values, labels, mass = _scores_and_labels(score, target, "score", weights=weights)
+    if mass is not None:
+        # Scaling by a power of two is exact and keeps the product of the class totals finite.
+        mass = np.ldexp(mass, -int(np.frexp(mass.max())[1]))
+    non_event, event = _distinct_counts(labels, values, mass).T
     # U counts each (event, non-event) pair in which the event scores higher, a tie as one half;
     # it equals R_1 - n_1 (n_1 + 1) / 2 without subtracting large rank sums.
     below = np.cumsum(non_event) - non_event
@@ -98,7 +113,9 @@ def roc_auc(score: npt.ArrayLike, target: npt.ArrayLike) -> float:
     return float(u / (float(event.sum()) * float(non_event.sum())))
 
 
-def gini(score: npt.ArrayLike, target: npt.ArrayLike) -> float:
+def gini(
+    score: npt.ArrayLike, target: npt.ArrayLike, *, weights: npt.ArrayLike | None = None
+) -> float:
     r"""Compute the Gini coefficient of a score.
 
     The Gini coefficient rescales the AUC to run from -1 to 1, so that a score
@@ -116,6 +133,10 @@ def gini(score: npt.ArrayLike, target: npt.ArrayLike) -> float:
         Binary labels, with 1 indicating the event. Both classes must be
         present. If `score` and `target` are both pandas Series, they must
         have identical indices; otherwise they are matched by position.
+    weights : array_like, optional
+        Non-negative weight of each observation, such as the inverse of its
+        sampling rate, matched like `target`. Every count becomes a sum of
+        weights, so integer weights give the same result as repeating rows.
 
     Returns
     -------
@@ -129,7 +150,9 @@ def gini(score: npt.ArrayLike, target: npt.ArrayLike) -> float:
         If the inputs are empty or not one-dimensional, their indices or
         lengths do not match, `target` has a label other than 0 and 1 or
         lacks one of them, or `score` is not real and numeric or has a
-        missing or infinite value.
+        missing or infinite value. Also if `weights` is not numeric, does
+        not give each observation one finite, non-negative weight, has an
+        index other than that of `score`, or leaves a class without weight.
 
     See Also
     --------
@@ -152,10 +175,12 @@ def gini(score: npt.ArrayLike, target: npt.ArrayLike) -> float:
     >>> round(gini(score, target), 4)
     0.4444
     """
-    return 2 * roc_auc(score, target) - 1
+    return 2 * roc_auc(score, target, weights=weights) - 1
 
 
-def ks(score: npt.ArrayLike, target: npt.ArrayLike) -> float:
+def ks(
+    score: npt.ArrayLike, target: npt.ArrayLike, *, weights: npt.ArrayLike | None = None
+) -> float:
     r"""Compute the Kolmogorov-Smirnov statistic of a score.
 
     The KS statistic is the largest gap between the cumulative distribution
@@ -172,6 +197,10 @@ def ks(score: npt.ArrayLike, target: npt.ArrayLike) -> float:
         Binary labels, with 1 indicating the event. Both classes must be
         present. If `score` and `target` are both pandas Series, they must
         have identical indices; otherwise they are matched by position.
+    weights : array_like, optional
+        Non-negative weight of each observation, such as the inverse of its
+        sampling rate, matched like `target`. Every count becomes a sum of
+        weights, so integer weights give the same result as repeating rows.
 
     Returns
     -------
@@ -184,7 +213,9 @@ def ks(score: npt.ArrayLike, target: npt.ArrayLike) -> float:
         If the inputs are empty or not one-dimensional, their indices or
         lengths do not match, `target` has a label other than 0 and 1 or
         lacks one of them, or `score` is not real and numeric or has a
-        missing or infinite value.
+        missing or infinite value. Also if `weights` is not numeric, does
+        not give each observation one finite, non-negative weight, has an
+        index other than that of `score`, or leaves a class without weight.
 
     See Also
     --------
@@ -200,7 +231,8 @@ def ks(score: npt.ArrayLike, target: npt.ArrayLike) -> float:
 
        \mathrm{KS} = \max_t \, \lvert F_1(t) - F_0(t) \rvert,
 
-    where :math:`t` runs over the observed scores. As in the two-sample
+    where :math:`t` runs over the observed scores. With weights, the
+    distribution functions are weighted. As in the two-sample
     Kolmogorov-Smirnov test, the gap is taken in absolute value, so negated
     scores give the same KS; use the sign of `gini` to check the direction.
 
@@ -223,14 +255,18 @@ def ks(score: npt.ArrayLike, target: npt.ArrayLike) -> float:
     >>> round(ks(score, target), 4)
     0.3333
     """
-    values, labels = _scores_and_labels(score, target, "score")
-    non_event, event = _distinct_counts(labels, values).T
+    values, labels, mass = _scores_and_labels(score, target, "score", weights=weights)
+    non_event, event = _distinct_counts(labels, values, mass).T
     gap = np.cumsum(event) / event.sum() - np.cumsum(non_event) / non_event.sum()
     return float(np.max(np.abs(gap)))
 
 
 def gains_table(
-    score: npt.ArrayLike, target: npt.ArrayLike, *, bins: int | npt.ArrayLike = 10
+    score: npt.ArrayLike,
+    target: npt.ArrayLike,
+    *,
+    bins: int | npt.ArrayLike = 10,
+    weights: npt.ArrayLike | None = None,
 ) -> pd.DataFrame:
     """Summarize events by score band, from the highest scores to the lowest.
 
@@ -254,6 +290,14 @@ def gains_table(
         same as passing ``kivi.binning.bin_edges(score, bins=bins)``, so tied
         scores can leave fewer bands than requested. Pass the edges fitted on
         a development sample to compare later samples on the same bands.
+        With `weights`, an integer gives weighted quantile edges, as
+        ``bin_edges(score, bins=bins, weights=weights)`` does.
+    weights : array_like, optional
+        Non-negative weight of each observation, such as the inverse of its
+        sampling rate, matched like `target`. The counts become sums of
+        weights. On the same edges, integer weights give the same table as
+        repeating rows; an integer `bins` can give other edges, because
+        weighted quantiles use the inverted CDF.
 
     Returns
     -------
@@ -268,7 +312,10 @@ def gains_table(
         lengths do not match, `target` has a label other than 0 and 1 or
         lacks one of them, `score` is not real and numeric or has a missing
         or infinite value, `bins` is neither a positive integer nor
-        increasing edges, or a score lies outside the edges.
+        increasing edges, or a score lies outside the edges. Also if
+        `weights` is not numeric, does not give each observation one finite,
+        non-negative weight, has an index other than that of `score`, or
+        leaves a class without weight.
 
     Warns
     -----
@@ -293,7 +340,7 @@ def gains_table(
     The columns are:
 
     - ``non_event``, ``event`` and ``total``: non-events, events and all
-      observations in the band;
+      observations in the band, or the sums of their weights;
     - ``event_rate``: ``event`` divided by ``total``;
     - ``lift``: ``event_rate`` divided by the event rate of the sample;
     - ``cum_non_event_share``, ``cum_event_share`` and ``cum_total_share``:
@@ -319,8 +366,8 @@ def gains_table(
     (2.0, 3.0]      2      1         0.5            1.000  0.800  1.333
     (-inf, 2.0]     4      0         0.0            1.000  0.000  0.000
     """
-    values, labels = _scores_and_labels(score, target, "score")
-    edges = _band_edges(values, bins)
+    values, labels, mass = _scores_and_labels(score, target, "score", weights=weights)
+    edges = _band_edges(values, bins, mass)
     band = np.searchsorted(edges, values, side="left") - 1
     outside = (band < 0) | (band >= len(edges) - 1)
     if outside.any():
@@ -328,7 +375,8 @@ def gains_table(
             f"score has {outside.sum()} value(s) outside the edges in bins, such as "
             f"{float(values[outside][0])!r}; use infinite outer edges"
         )
-    counts = np.bincount(2 * band + labels, minlength=2 * (len(edges) - 1)).reshape(-1, 2)
+    counts = np.bincount(2 * band + labels, weights=mass, minlength=2 * (len(edges) - 1))
+    counts = counts.reshape(-1, 2)
     # Highest band first; empty bands stay so that tables cut on the same edges line up.
     index = pd.IntervalIndex.from_breaks(edges, closed="right", name="bin")[::-1]
     non_event, event = counts[::-1].T
@@ -354,7 +402,12 @@ def gains_table(
     )
 
 
-def brier_score(probability: npt.ArrayLike, target: npt.ArrayLike) -> float:
+def brier_score(
+    probability: npt.ArrayLike,
+    target: npt.ArrayLike,
+    *,
+    weights: npt.ArrayLike | None = None,
+) -> float:
     r"""Compute the Brier score of predicted event probabilities.
 
     The Brier score is the mean squared difference between the predicted
@@ -371,6 +424,9 @@ def brier_score(probability: npt.ArrayLike, target: npt.ArrayLike) -> float:
         Binary labels, with 1 indicating the event. If `probability` and
         `target` are both pandas Series, they must have identical indices;
         otherwise they are matched by position.
+    weights : array_like, optional
+        Non-negative weight of each observation, matched like `target`. The
+        score is then the weighted mean of the squared differences.
 
     Returns
     -------
@@ -383,7 +439,9 @@ def brier_score(probability: npt.ArrayLike, target: npt.ArrayLike) -> float:
         If the inputs are empty or not one-dimensional, their indices or
         lengths do not match, `target` has a label other than 0 and 1, or
         `probability` is not real and numeric or has a missing value or a
-        value outside 0 to 1.
+        value outside 0 to 1. Also if `weights` is not numeric, does not
+        give each observation one finite, non-negative weight with a positive
+        total, or has an index other than that of `probability`.
 
     See Also
     --------
@@ -395,7 +453,9 @@ def brier_score(probability: npt.ArrayLike, target: npt.ArrayLike) -> float:
 
     .. math::
 
-       \mathrm{BS} = \frac{1}{n} \sum_{i=1}^{n} (p_i - y_i)^2.
+       \mathrm{BS} = \frac{1}{n} \sum_{i=1}^{n} (p_i - y_i)^2,
+
+    or :math:`\sum_i w_i (p_i - y_i)^2 / \sum_i w_i` with weights.
 
     Unlike the ranking measures, the Brier score depends on the probability
     values themselves, so it rewards calibration, and it is defined even when
@@ -414,20 +474,32 @@ def brier_score(probability: npt.ArrayLike, target: npt.ArrayLike) -> float:
     >>> round(brier_score([0.1, 0.3, 0.6, 0.8], target), 4)
     0.075
     """
-    values, labels = _scores_and_labels(probability, target, "probability", both_classes=False)
+    values, labels, mass = _scores_and_labels(
+        probability, target, "probability", both_classes=False, weights=weights
+    )
     outside = (values < 0) | (values > 1)
     if outside.any():
         raise ValueError(f"probability must be between 0 and 1, got {float(values[outside][0])!r}")
-    return float(np.mean((values - labels) ** 2))
+    return float(np.average((values - labels) ** 2, weights=mass))
 
 
 def _scores_and_labels(
-    score: npt.ArrayLike, target: npt.ArrayLike, name: str, *, both_classes: bool = True
-) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.intp]]:
-    """Finite float scores and 0/1 labels, matched by index or position like ``woe_table``."""
+    score: npt.ArrayLike,
+    target: npt.ArrayLike,
+    name: str,
+    *,
+    both_classes: bool = True,
+    weights: npt.ArrayLike | None = None,
+) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.intp], npt.NDArray[np.float64] | None]:
+    """Finite float scores, 0/1 labels and weights, matched by index or position like ``woe_table``.
+
+    The weights are None without `weights`. With `both_classes`, both classes
+    must be present and, with `weights`, have a positive total weight.
+    """
     if isinstance(score, pd.Series) and isinstance(target, pd.Series):
         if not score.index.equals(target.index):
             raise ValueError(f"{name} and target must have identical indices")
+    raw_score = score
     score, target = as_series(score, name), as_series(target, "target")
     if len(score) != len(target):
         raise ValueError(
@@ -453,7 +525,15 @@ def _scores_and_labels(
     labels = target.to_numpy(dtype=np.intp)
     if both_classes and labels.sum() in (0, len(labels)):
         raise ValueError(f"target must contain both 0 and 1, got only {labels[0]}")
-    return values, labels
+    mass = as_weights(weights, raw_score, of=name)
+    if both_classes and mass is not None:
+        totals = np.bincount(labels, weights=mass, minlength=2)
+        if not (totals > 0).all():
+            raise ValueError(
+                "weights must give both target classes a positive total, got "
+                f"{float(totals[0])!r} for 0 and {float(totals[1])!r} for 1"
+            )
+    return values, labels, mass
 
 
 def _scalar(values: pd.Series):
@@ -462,10 +542,14 @@ def _scalar(values: pd.Series):
     return value.item() if isinstance(value, np.generic) else value
 
 
-def _distinct_counts(labels: np.ndarray, values: np.ndarray) -> npt.NDArray[np.int64]:
+def _distinct_counts(
+    labels: np.ndarray, values: np.ndarray, weights: np.ndarray | None = None
+) -> npt.NDArray[np.int64] | npt.NDArray[np.float64]:
     """(non_event, event) counts at each distinct score, from the lowest score to the highest."""
     distinct, position = np.unique(values, return_inverse=True)
-    counts = np.bincount(2 * position.ravel() + labels, minlength=2 * len(distinct))
+    counts = np.bincount(
+        2 * position.ravel() + labels, weights=weights, minlength=2 * len(distinct)
+    )
     return counts.reshape(-1, 2)
 
 
@@ -475,14 +559,14 @@ def _ratio(numerator: np.ndarray, denominator: np.ndarray) -> npt.NDArray[np.flo
     return np.divide(numerator, denominator, out=result, where=denominator > 0)
 
 
-def _band_edges(values: np.ndarray, bins) -> npt.NDArray[np.float64]:
+def _band_edges(values: np.ndarray, bins, weights: np.ndarray | None) -> npt.NDArray[np.float64]:
     """Increasing band edges: quantile edges for an integer ``bins``, else ``bins`` itself."""
     message = "bins must be a positive integer or at least two increasing edges, got {!r}"
     if isinstance(bins, Integral) and not isinstance(bins, bool):
         if bins < 1:
             raise ValueError(message.format(bins))
         # The same edges, and the same warning for tied quantiles, as bin_edges.
-        return bin_edges(values, bins=int(bins))
+        return bin_edges(values, bins=int(bins), weights=weights)
     try:
         edges = np.asarray(bins, dtype=float)
     except (TypeError, ValueError):

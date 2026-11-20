@@ -1,7 +1,7 @@
 Calibration
 ===========
 
-A PD model is calibrated when its probabilities match the default rates that are later observed. Calibration is a separate question from ranking: a model can order applicants well and still predict default rates that are too low for the whole portfolio. :mod:`kivi.calibration` corrects probabilities for the sampling of the development data, summarizes the grades of a master scale and tests them.
+A PD model is calibrated when its probabilities match the default rates that are later observed. Calibration is a separate question from ranking: a model can order applicants well and still predict default rates that are too low for the whole portfolio. :mod:`kivi.calibration` corrects probabilities for the sampling of the development data, summarizes the grades of a master scale and tests them, and maps a score to probabilities with Platt scaling or isotonic regression.
 
 Correcting for oversampling
 ---------------------------
@@ -159,3 +159,74 @@ A master scale differentiates risk poorly when most obligors fall into a few gra
 0.097
 
 ``calibration_table`` leaves out empty grades. To count them, pass the counts of every grade of the scale, for example ``grades.value_counts(sort=False)``.
+
+Calibrating a score
+-------------------
+
+A score that ranks applicants well need not be a probability, and the PDs of a model may need recalibrating on recent data. ``kivi.calibration`` fits two common mappings from a score to probabilities. Like ``bin_edges`` and ``cut``, each comes as a pair: the fit returns plain numbers, fitted once on a calibration sample, and the predict function applies them to the scores of any later sample.
+
+Platt scaling
+^^^^^^^^^^^^^
+
+Platt scaling fits a logistic regression of the target on the score :math:`s`:
+
+.. math::
+
+   p(s) = \frac{1}{1 + \exp(-(a s + b))}.
+
+For a score that is already the log odds of a model, this is the logistic recalibration of Cox: a slope of 1 and an intercept of 0 mean that the model is calibrated on the sample. Take the PDs that were scaled down to a 6% default rate above. On the development sample, the fit keeps the slope at 1 and raises the intercept by about 0.72, the log of the odds ratio that the correction applied:
+
+>>> from kivi.calibration import platt_fit, platt_predict
+>>> def log_odds(p):
+...     return np.log(p / (1 - p))
+>>> dev_low = prior_correction(dev_prob, sample_rate=0.116, population_rate=0.06)
+>>> slope, intercept = platt_fit(log_odds(dev_low), target)
+>>> print(f"slope = {slope:.4f}, intercept = {intercept:.4f}")
+slope = 0.9996, intercept = 0.7192
+
+Apply the slope and intercept to the low PDs of the monitoring sample. The recalibrated grades have the counts and rates of the grades of the original PDs again:
+
+>>> recalibrated = platt_predict(log_odds(low), slope, intercept)
+>>> recal_grades = pd.cut(recalibrated, pd_edges, labels=list("ABCDEF"), include_lowest=True)
+>>> calibration_table(recal_grades, monitoring["target"], recalibrated).round(3)
+     total  event  event_rate  mean_probability
+bin
+A      328     13       0.040             0.042
+B      234     13       0.056             0.071
+C      276     28       0.101             0.093
+D      572     66       0.115             0.136
+E       65     22       0.338             0.260
+F       46     31       0.674             0.636
+
+The score need not be log odds. Platt scaling fits any score, and a score that falls as the risk rises, such as scorecard points, gets a negative slope. When the score separates the classes, the slope that maximizes the likelihood is infinite, and ``platt_fit`` raises :class:`kivi.selection.SeparationError`.
+
+Isotonic regression
+^^^^^^^^^^^^^^^^^^^
+
+Isotonic regression assumes only that the event rate rises with the score. The pool-adjacent-violators algorithm merges adjacent score bands until their event rates increase, and each band gets its event rate. ``isotonic_fit`` returns the band edges, from ``-inf`` to ``inf`` like those of ``bin_edges``, and the probability of each band:
+
+>>> from kivi.calibration import isotonic_fit, isotonic_predict
+>>> edges, probabilities = isotonic_fit(dev_low, target)
+>>> len(probabilities)
+16
+>>> probabilities[:4].round(4)
+array([0.0397, 0.0459, 0.069 , 0.0805])
+
+The bands are closed on the right, as in ``pandas.cut``, so they can also serve as grades. ``isotonic_predict`` gives each monitoring PD the probability of its band, and scores outside the development range get the probability of the lowest or the highest band. A score that falls between the observed scores of two bands gets the upper band; with ``increasing=False``, as for scorecard points, that is the band with the lower risk:
+
+>>> iso = isotonic_predict(low, edges, probabilities)
+>>> iso_table = calibration_table(pd.cut(low, edges), monitoring["target"], iso)
+>>> statistic, pvalue = hosmer_lemeshow(
+...     iso_table["event"], iso_table["total"], iso_table["mean_probability"], ddof=0
+... )
+>>> print(f"H = {statistic:.2f}, p = {pvalue:.3f}")
+H = 13.94, p = 0.530
+>>> int(iso_table["total"].min())
+4
+
+The step function follows the development sample closely, so some bands are small: the smallest holds four customers of the monitoring sample. Fit isotonic regression on a large sample, and check its bands on another sample as above. A band without events has a probability of 0, so floor the probabilities where a PD of zero is not allowed.
+
+Weighted samples
+----------------
+
+A development sample that keeps every bad but only some of the goods can be weighted back to the portfolio, with each observation weighted by the inverse of its sampling rate. ``calibration_table``, ``platt_fit`` and ``isotonic_fit`` take such weights in ``weights``: counts become sums of weights, and integer weights give the same result as repeating rows. The binomial, Jeffreys and Hosmer-Lemeshow tests need whole numbers of observations and events, so run them on an unweighted table.

@@ -1,7 +1,7 @@
 Population stability index
 ==========================
 
-``psi_table`` compares the distribution of a variable in two samples, typically the development sample and a later monitoring sample. Group both samples with the same edges or labels before calling it.
+``psi_table`` compares the distribution of a variable in two samples, typically the development sample and a later monitoring sample. Group both samples with the same edges or labels before calling it. ``csi_table`` measures how much such a change moves a scorecard's score; see :ref:`characteristic-stability`.
 
 Definition
 ----------
@@ -114,3 +114,87 @@ dtype: float64
    kp.figure_psi_monitor()
 
 The months that cross the thresholds are also the smallest. With 20 customers, the December value mostly reflects sampling noise. Set a minimum sample size before a high PSI raises an alert.
+
+.. _characteristic-stability:
+
+Characteristic stability index
+------------------------------
+
+PSI shows that a distribution has moved, but not what the move does to the score. The characteristic stability index (CSI) weights the change of each group's share with the scorecard points :math:`s_i` of the group:
+
+.. math::
+
+   \mathrm{CSI}_i = (p_i - q_i)\, s_i, \qquad
+   \mathrm{CSI} = \sum_i \mathrm{CSI}_i = \sum_i p_i s_i - \sum_i q_i s_i.
+
+The CSI is the change of the variable's average points from the reference to the current sample: a negative CSI means that the variable now gives fewer points on average. Over all the variables of a scorecard, the CSI values add up to the change of the average score. Since the shares of each sample sum to 1, adding the same number to the points of every group leaves the CSI unchanged, so only the differences between the groups matter.
+
+.. note::
+
+   Some texts call the PSI of a single variable its CSI. kivi follows the score-weighted definition of the characteristic analysis report; for the PSI of a variable, use ``psi_table`` on its groups as above.
+
+The example uses the scorecard of :doc:`scorecard`. Fit the WOE of four variables on the development sample and turn the model into points:
+
+>>> import numpy as np
+>>> from kivi.scorecard import points_table
+>>> from kivi.stability import csi_table
+>>> from kivi.woe import woe_table
+>>> development, monitoring = data.iloc[:3000], data.iloc[3000:]
+>>> age_edges = np.array([-np.inf, 25, 35, 45, 55, 65, np.inf])
+>>> def to_groups(frame):
+...     groups = frame[["poutcome", "contact", "housing"]].copy()
+...     groups["age"] = pd.cut(frame["age"], age_edges)
+...     return groups
+>>> dev_groups, mon_groups = to_groups(development), to_groups(monitoring)
+>>> tables = {column: woe_table(dev_groups[column], development["target"]) for column in dev_groups}
+>>> coefficients = {"poutcome": 0.899, "contact": 0.658, "housing": 0.691, "age": 0.714}
+>>> scale = dict(pdo=20, base_score=600, base_odds=50)
+>>> table = points_table(tables, coefficients, -2.028, **scale)
+
+``csi_table`` takes the groups of both samples and the points of the variable's groups, here the rows of the points table for age:
+
+>>> age = csi_table(dev_groups["age"], mon_groups["age"], table.loc[["age"]])
+>>> age[["reference_share", "current_share", "points", "csi"]].round(4)
+              reference_share  current_share    points     csi
+bin
+(-inf, 25.0]           0.0267         0.0204  120.0498 -0.7546
+(25.0, 35.0]           0.3460         0.3307  137.0775 -2.0968
+(35.0, 45.0]           0.3067         0.3077  139.8369  0.1434
+(45.0, 55.0]           0.2127         0.2288  136.4122  2.2004
+(55.0, 65.0]           0.0917         0.0901  135.6178 -0.2162
+(65.0, inf]            0.0163         0.0224  113.4475  0.6830
+
+The shares are not smoothed, unlike those of ``psi_table``. A contribution has no logarithm, so an empty group contributes a finite amount as it is, and a smoothed share would credit an empty group with customers it does not have: the sum would no longer be the change of the average points.
+
+A characteristic analysis report lists both indices for every variable of the scorecard. The CSI column adds up to the change of the average score, here less than a fifth of a point:
+
+>>> def stability_report(reference, current):
+...     return pd.DataFrame({
+...         column: {
+...             "psi": psi_table(reference[column], current[column])["psi"].sum(),
+...             "csi": csi_table(reference[column], current[column], table.loc[[column]])[
+...                 "csi"
+...             ].sum(),
+...         }
+...         for column in coefficients
+...     }).T
+>>> report = stability_report(dev_groups, mon_groups)
+>>> report.round(4)
+             psi     csi
+poutcome  0.0031 -0.4595
+contact   0.0082  0.3520
+housing   0.0000 -0.0381
+age       0.0055 -0.0408
+>>> print(f"change of the average score: {report['csi'].sum():.2f} points")
+change of the average score: -0.19 points
+
+The two indices answer different questions. Single customers, from the shifted sample above, have a very different age distribution, but the age bands they crowd into have about the same points as the others, so age lowers their average score by less than half a point:
+
+>>> stability_report(dev_groups, to_groups(single)).round(4)
+             psi     csi
+poutcome  0.0050 -0.6173
+contact   0.0119 -0.9260
+housing   0.0050 -0.4637
+age       0.5311 -0.4126
+
+A group without points, such as a category that the development sample did not have, raises an error unless ``unseen_points`` gives the points that its customers receive. These are points, not a WOE: if ``woe_transform`` encoded the category with ``unseen=0.0``, pass the points of a WOE of 0, ``woe_to_points`` of a one-row frame of zeros, which are the same for every variable. For weighted samples, pass ``reference_weights`` and ``current_weights`` as for ``psi_table``.
