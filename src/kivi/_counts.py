@@ -7,8 +7,13 @@ from ._validation import check_smoothing
 
 
 def group_counts(groups: pd.Series, side: np.ndarray) -> pd.DataFrame:
-    """Count observations per group for the two sides coded 0 and 1 in ``side``."""
-    codes, levels = pd.factorize(groups, sort=False, use_na_sentinel=False)
+    """Count observations per group for the two sides coded 0 and 1 in ``side``.
+
+    Categorical groups follow category order with missing values last; other
+    groups follow first appearance.
+    """
+    ordered = isinstance(groups.dtype, pd.CategoricalDtype)
+    codes, levels = pd.factorize(groups, sort=ordered, use_na_sentinel=False)
     counts = np.bincount(2 * codes + side, minlength=2 * len(levels)).reshape(-1, 2)
     return pd.DataFrame(counts, index=pd.Index(levels, name="bin"))
 

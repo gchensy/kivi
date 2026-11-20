@@ -76,6 +76,8 @@ IV = 0.360
 
    kp.figure_custom_edges()
 
+The edge at -1 works because no real value of ``pdays`` lies below the code. To fit the other edges from the data instead, or for a code inside the range of real values, pass the code in ``special``; see :ref:`special-values`.
+
 Merging fine bins
 -----------------
 
@@ -251,7 +253,39 @@ array([-inf, 0.75,  inf])
 >>> bin_edges(pd.Series([7, 7, 7]))
 array([-inf,  inf])
 
-The number of bins can therefore be smaller than requested, and ``bin_edges`` then issues a ``UserWarning``. A single value that covers much of the reference, such as a code for "not applicable", often causes this. Group that value separately before fitting edges on the remaining values.
+The number of bins can therefore be smaller than requested, and ``bin_edges`` then issues a ``UserWarning``. A single value that covers much of the reference, such as a code for "not applicable", often causes this. Pass that value in ``special``, as described in the next section.
+
+.. _special-values:
+
+Special values
+--------------
+
+Many credit variables use codes such as ``-1`` or ``-999`` for "not applicable" or "no record". Such a code is not a measurement, so it should neither shape the edges nor share an interval with real values. Pass the codes in ``special`` to ``bin_edges`` to leave them out of the fit, and pass the same codes to ``kivi.binning.cut`` to give each one its own group.
+
+In the bundled data, ``pdays`` is ``-1`` for the 82% of customers who were not contacted in an earlier campaign. Without ``special``, every quantile is tied at ``-1``: ``bin_edges`` returns a single bin and warns that ``-1`` makes up 82% of the fitted values. With ``special=[-1]`` the remaining values are divided into five bins:
+
+>>> from kivi.binning import cut
+>>> from kivi.datasets import Dataset
+>>> from kivi.woe import woe_table
+>>> data = Dataset.bank_data()
+>>> edges = bin_edges(data["pdays"], bins=5, special=[-1])
+>>> edges
+array([-inf, 112., 179., 254., 343.,  inf])
+>>> groups = cut(data["pdays"], edges, special=[-1])
+>>> result = woe_table(groups, data["target"])
+>>> result[["event", "non_event", "woe", "iv"]].round(3)
+                event  non_event    woe     iv
+bin
+-1                337       3368 -0.264  0.051
+(-inf, 112.0]      66        101  1.613  0.164
+(112.0, 179.0]     22        138  0.202  0.002
+(179.0, 254.0]     48        115  1.165  0.074
+(254.0, 343.0]     21        144  0.113  0.000
+(343.0, inf]       27        134  0.436  0.008
+>>> print(f"IV = {result['iv'].sum():.3f}")
+IV = 0.299
+
+The single bin had an IV of zero; separating the code shows that ``pdays`` is informative. The categories of the result are the special values in the order given, followed by the intervals, and ``woe_table`` and ``psi_table`` list the rows in that order. Special values are matched by equality, so ``-1`` and ``-1.0`` are the same code. Without ``special``, ``cut`` returns the same result as ``pandas.cut``.
 
 Applying the edges
 ------------------
@@ -276,7 +310,7 @@ Missing values and categories
 
 Missing reference values are ignored when the edges are fitted, and ``pandas.cut`` leaves them missing. The metric functions then count them as a separate group.
 
-Pass categorical labels directly to the metric functions. A missing label is a separate group. Only observed groups appear, in first-observed order. For WOE, group and target series must have identical indices; arrays and lists are matched by position.
+Pass categorical labels directly to the metric functions. A missing label is a separate group. Only observed groups appear. Categorical groups, including the result of ``pandas.cut``, follow the order of their categories with missing values last; other labels follow the order in which they first appear. For WOE, group and target series must have identical indices; arrays and lists are matched by position.
 
 Invalid input
 -------------
@@ -286,7 +320,8 @@ Invalid input
 * ``bins`` is not a positive integer;
 * ``method`` is neither ``"quantile"`` nor ``"uniform"``;
 * the reference values are not one-dimensional or not numeric;
-* the reference has no observations, or contains an infinite value.
+* ``special`` is not one-dimensional or contains a missing value;
+* the reference has no observations apart from missing and special values, or contains an infinite value that is not special.
 
 ``chimerge_edges``, ``tree_edges`` and ``monotonic_edges`` raise ``ValueError`` for the same problems with the values, for an option outside its range, and when:
 
