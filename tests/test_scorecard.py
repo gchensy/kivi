@@ -387,3 +387,56 @@ def test_inputs_are_not_modified():
         pd.testing.assert_series_equal(tables[name], original)
     pd.testing.assert_series_equal(coefficients, before[0])
     pd.testing.assert_frame_equal(woe, before[1])
+
+
+def test_reason_codes_raise_or_ignore_points_of_unseen_groups():
+    table = points_table(TABLES, COEFFICIENTS, INTERCEPT, **SCALE)
+    housing = pd.Series(["no", "rented", "yes"], index=[7, 8, 9])
+    contact = pd.Series(["unknown", "unknown", "cellular"], index=[7, 8, 9])
+    woe = pd.DataFrame(
+        {
+            "housing": woe_transform(housing, TABLES["housing"], unseen=0.0),
+            "contact": woe_transform(contact, TABLES["contact"]),
+        }
+    )
+    points = woe_to_points(woe, COEFFICIENTS, INTERCEPT, **SCALE)
+    # A WOE of 0 gives housing the base points, 0.4 * 0.8 * factor = 9.2 below its best group.
+    assert points.loc[8, "housing"] == pytest.approx(
+        _points_of(table, "housing", "no") - 9.23, abs=0.01
+    )
+    with pytest.raises(
+        ValueError, match=r"points of 'housing' must match a group .*unseen='ignore'"
+    ):
+        reason_codes(points, table)
+    reasons = reason_codes(points, table, unseen="ignore")
+    assert reasons.index.tolist() == [7, 8, 9]
+    assert reasons.to_numpy().tolist() == [
+        ["contact", None, None],
+        ["contact", None, None],
+        ["housing", None, None],
+    ]
+    # Without unseen points, ignore changes nothing.
+    matched = points.drop(index=8)
+    pd.testing.assert_frame_equal(
+        reason_codes(matched, table, unseen="ignore"), reason_codes(matched, table)
+    )
+
+
+def test_unseen_points_within_atol_of_a_group_match_that_group():
+    table = points_table(TABLES, COEFFICIENTS, INTERCEPT, **SCALE)
+    # An unseen WOE equal to that of group yes is indistinguishable from it.
+    woe = pd.DataFrame({"housing": [0.3], "contact": [-0.2]})
+    points = woe_to_points(woe, COEFFICIENTS, INTERCEPT, **SCALE)
+    assert reason_codes(points, table, unseen="ignore").to_numpy().tolist() == [
+        ["housing", None, None]
+    ]
+
+
+@pytest.mark.parametrize("unseen", ["skip", None, 0.0, True])
+def test_invalid_reason_code_unseen(unseen):
+    table = points_table(TABLES, COEFFICIENTS, INTERCEPT, **SCALE)
+    points = woe_to_points(
+        pd.DataFrame({"housing": [0.3], "contact": [-0.2]}), COEFFICIENTS, INTERCEPT, **SCALE
+    )
+    with pytest.raises(ValueError, match="unseen must be 'raise' or 'ignore', got"):
+        reason_codes(points, table, unseen=unseen)

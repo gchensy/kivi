@@ -3,6 +3,7 @@
 import math
 from collections.abc import Mapping
 from numbers import Integral, Real
+from typing import Literal
 
 import numpy as np
 import numpy.typing as npt
@@ -409,7 +410,12 @@ def woe_to_points(
 
 
 def reason_codes(
-    points: pd.DataFrame, table: pd.DataFrame, *, top: int = 3, atol: float = 1e-4
+    points: pd.DataFrame,
+    table: pd.DataFrame,
+    *,
+    top: int = 3,
+    atol: float = 1e-4,
+    unseen: Literal["raise", "ignore"] = "raise",
 ) -> pd.DataFrame:
     """Name the variables that cost each applicant the most points.
 
@@ -430,6 +436,12 @@ def reason_codes(
         Largest difference, in points, between an applicant's points and the
         points of a group for the applicant to be in that group. It absorbs
         rounding, for example of WOE values stored with six decimals.
+    unseen : {"raise", "ignore"}, default "raise"
+        What to do with points that match no group of the variable, such as
+        those of applicants whose WOE came from ``unseen`` in
+        `kivi.woe.woe_transform`. By default they raise an error;
+        ``"ignore"`` counts them as costing nothing, so the variable is not
+        a reason for those applicants.
 
     Returns
     -------
@@ -443,9 +455,10 @@ def reason_codes(
     ValueError
         If `points` is not a DataFrame or has non-finite values, `table` is
         not a `points_table` result or lacks a variable of `points`, some
-        points are farther than `atol` from every group of their variable,
-        `top` is not a positive integer, or `atol` is not a finite positive
-        number.
+        points are farther than `atol` from every group of their variable
+        and `unseen` is ``"raise"``, `top` is not a positive integer, `atol`
+        is not a finite positive number, or `unseen` is neither ``"raise"``
+        nor ``"ignore"``.
 
     See Also
     --------
@@ -461,9 +474,15 @@ def reason_codes(
     a cost below about `atol` is no cost.
 
     Points that match no group, such as those from a different intercept or
-    scaling, or from WOE values given with ``unseen`` in
-    `kivi.woe.woe_transform`, raise an error rather than giving reasons
-    against the wrong groups.
+    scaling, raise an error rather than giving reasons against the wrong
+    groups. So do, by default, the points of applicants in a group that had
+    no development observations, such as a new category, whose WOE came
+    from ``unseen`` in `kivi.woe.woe_transform`. That WOE is a value chosen
+    for the group, not evidence about the applicant, so ``unseen="ignore"``
+    gives no reason for it instead of the distance to the best group. It
+    also hides points from another model, so check the model first. Points
+    that lie within `atol` of a group are matched to that group, even when
+    their WOE came from ``unseen``.
 
     Examples
     --------
@@ -482,6 +501,15 @@ def reason_codes(
     0     None     None
     1  housing  contact
     2  housing     None
+
+    An applicant with a housing status that the development sample did not
+    have was given a WOE of 0. With ``unseen="ignore"``, housing is not one
+    of the applicant's reasons:
+
+    >>> new = pd.DataFrame({"housing": [0.0], "contact": [0.6]})
+    >>> reason_codes(woe_to_points(new, *model, **scale), table, top=2, unseen="ignore")
+      reason_1 reason_2
+    0  contact     None
     """
     if not isinstance(points, pd.DataFrame):
         raise ValueError(f"points must be a DataFrame, got {type(points).__name__}")
@@ -489,6 +517,8 @@ def reason_codes(
         raise ValueError(f"top must be a positive integer, got {top!r}")
     if isinstance(atol, bool) or not isinstance(atol, Real) or not 0 < atol < math.inf:
         raise ValueError(f"atol must be a finite positive number, got {atol!r}")
+    if not (isinstance(unseen, str) and unseen in ("raise", "ignore")):
+        raise ValueError(f"unseen must be 'raise' or 'ignore', got {unseen!r}")
     if not isinstance(table, pd.DataFrame) or table.index.name != "variable":
         raise ValueError(f"table must be a points_table result, got {_describe(table)}")
     if "points" not in table.columns:
@@ -506,13 +536,14 @@ def reason_codes(
         group_points = np.sort(groups[variable].to_numpy(dtype=float))
         nearest = _nearest(group_points, values[:, column])
         far = np.abs(values[:, column] - nearest) > atol
-        if far.any():
+        if far.any() and unseen == "raise":
             row = np.flatnonzero(far)[0]
             raise ValueError(
                 f"points of {variable!r} must match a group of table within atol={atol!r}, "
-                f"got {float(values[row, column])!r}, nearest group {float(nearest[row])!r}"
+                f"got {float(values[row, column])!r}, nearest group {float(nearest[row])!r}; "
+                "pass unseen='ignore' to count such points as costing nothing"
             )
-        cost[:, column] = group_points[-1] - nearest
+        cost[:, column] = np.where(far, 0.0, group_points[-1] - nearest)
     # Costs that differ by less than atol tie, so the stable sort keeps the column order.
     steps = np.round(cost / atol)
     order = np.argsort(-steps, axis=1, kind="stable")[:, :top]
