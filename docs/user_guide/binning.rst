@@ -55,8 +55,14 @@ The edges do not have to come from ``bin_edges``. Any increasing array works wit
 
 Risk data often encode a state as a number, for example -1 for "never contacted" or 999 for "no record". In the bank data, 82% of the reference customers have ``pdays == -1``, so quantile binning collapses the variable into a single bin and its information value is lost. An edge at -1 gives the code a bin of its own.
 
->>> bin_edges(reference["pdays"], bins=5)
+>>> import warnings
+>>> with warnings.catch_warnings(record=True) as caught:
+...     warnings.simplefilter("always")
+...     collapsed = bin_edges(reference["pdays"], bins=5)
+>>> collapsed
 array([-inf,  inf])
+>>> print(caught[0].message)
+tied edges leave 1 of the 5 requested bins; the value -1 makes up 82% of the fitted values, consider passing it in special
 >>> pdays_edges = np.array([-np.inf, -1, 100, 200, 300, np.inf])
 >>> pdays = woe_table(pd.cut(reference["pdays"], pdays_edges), reference["target"]).sort_index()
 >>> pdays[["event", "non_event", "woe"]].round(3)
@@ -75,6 +81,8 @@ IV = 0.360
    :caption: Left: age bands show a U shape, with the youngest and oldest customers more likely to subscribe. Right: customers contacted in a previous campaign within 200 days stand out once the -1 code has its own bin.
 
    kp.figure_custom_edges()
+
+The edge at -1 works because no real value of ``pdays`` lies below the code. To fit the other edges from the data instead, or for a code inside the range of real values, pass the code in ``special``; see :ref:`special-values`.
 
 Merging fine bins
 -----------------
@@ -109,7 +117,7 @@ Choosing the merges by hand works for a few variables. The supervised methods in
 Supervised binning
 ------------------
 
-Quantile and uniform edges ignore the target. The supervised methods use it to place edges between customers with different event rates, which is what the WOE of each bin measures. They take the values and a 0/1 target, as Series on the same index or as arrays and lists matched by position, omit missing values while fitting, and return edges in the same form as ``bin_edges``: increasing, with infinite outer edges, ready for ``pandas.cut``, ``woe_table`` and ``psi_table``. Each returns at most ``max_bins`` bins, 5 by default.
+Quantile and uniform edges ignore the target. The supervised methods use it to place edges between customers with different event rates, which is what the WOE of each bin measures. They take the values and a 0/1 target, as Series on the same index or as arrays and lists matched by position, omit missing values and any codes passed in ``special`` while fitting, and return edges in the same form as ``bin_edges``: increasing, with infinite outer edges, ready for ``pandas.cut``, ``woe_table`` and ``psi_table``. Each returns at most ``max_bins`` bins, 5 by default.
 
 .. list-table::
    :header-rows: 1
@@ -241,17 +249,92 @@ monotonic_edges     5         0.124       0.020
 
 On the reference sample all three supervised methods beat five quantile bins. On the later sample they fall behind: much of the extra separation they found in balance was noise, which is common for a weak variable and a few hundred events. Validate supervised edges on a later or held-out sample before adopting them, and keep the variable under PSI monitoring once it is in use.
 
+.. _supervised-special:
+
+Special codes
+^^^^^^^^^^^^^
+
+A code such as ``pdays == -1`` is fitted as an ordinary value unless it is passed in ``special``. Monotonic binning then puts the 2,475 reference customers coded -1, who were never contacted before, into one bin with the 78 customers contacted within 96 days, the group most likely to subscribe:
+
+>>> from kivi.binning import cut
+>>> mixed = monotonic_edges(reference["pdays"], target, max_bins=4)
+>>> mixed
+array([-inf,  96.,  inf])
+>>> print(f"IV = {woe_table(pd.cut(reference['pdays'], mixed), target)['iv'].sum():.3f}")
+IV = 0.069
+
+With ``special=[-1]`` the code and its labels are left out of the fit, and ``cut`` with the same code gives it a group of its own ahead of the intervals:
+
+>>> mono_pdays = monotonic_edges(reference["pdays"], target, max_bins=4, special=[-1])
+>>> mono_pdays
+array([ -inf, 105. , 188. , 211.2,   inf])
+>>> by_pdays = woe_table(cut(reference["pdays"], mono_pdays, special=[-1]), target)
+>>> by_pdays[["event", "non_event", "woe"]].round(3)
+                event  non_event    woe
+bin
+-1                228       2247 -0.257
+(-inf, 105.0]      49         57  1.880
+(105.0, 188.0]     41        116  0.991
+(188.0, 211.2]      5         21  0.596
+(211.2, inf]       25        211 -0.102
+>>> print(f"IV = {by_pdays['iv'].sum():.3f}")
+IV = 0.352
+
+Fitted on the contacted customers alone, the WOE falls steadily: the more recent the previous contact, the more likely a customer is to subscribe. ``max_bins`` and the trend apply to the intervals only, so each special group comes on top of them with a WOE of its own. ``chimerge_edges`` and ``tree_edges`` take ``special`` in the same way, and ``min_bin_share`` counts only the values that are fitted.
+
 Ties and constant values
 ------------------------
 
 Tied cut points are collapsed. A constant reference produces one bin.
 
->>> bin_edges(pd.Series([0, 0, 0, 0, 1, 2]), bins=4)
+>>> with warnings.catch_warnings(record=True) as caught:
+...     warnings.simplefilter("always")
+...     tied = bin_edges(pd.Series([0, 0, 0, 0, 1, 2]), bins=4)
+...     constant = bin_edges(pd.Series([7, 7, 7]))
+>>> tied
 array([-inf, 0.75,  inf])
->>> bin_edges(pd.Series([7, 7, 7]))
+>>> constant
 array([-inf,  inf])
+>>> for warning in caught:
+...     print(warning.message)
+tied edges leave 2 of the 4 requested bins; the value 0 makes up 67% of the fitted values, consider passing it in special
+tied edges leave 1 of the 5 requested bins; the value 7 makes up 100% of the fitted values, consider passing it in special
 
-The number of bins can therefore be smaller than requested, and ``bin_edges`` then issues a ``UserWarning``. A single value that covers much of the reference, such as a code for "not applicable", often causes this. Group that value separately before fitting edges on the remaining values.
+The number of bins can therefore be smaller than requested, and ``bin_edges`` then issues a ``UserWarning``. A single value that covers much of the reference, such as a code for "not applicable", often causes this. Pass that value in ``special``, as described in the next section.
+
+.. _special-values:
+
+Special values
+--------------
+
+Many credit variables use codes such as ``-1`` or ``-999`` for "not applicable" or "no record". Such a code is not a measurement, so it should neither shape the edges nor share an interval with real values. Pass the codes in ``special`` to ``bin_edges`` to leave them out of the fit, and pass the same codes to ``kivi.binning.cut`` to give each one its own group.
+
+In the bundled data, ``pdays`` is ``-1`` for the 82% of customers who were not contacted in an earlier campaign. Without ``special``, every quantile is tied at ``-1``: ``bin_edges`` returns a single bin and warns that ``-1`` makes up 82% of the fitted values. With ``special=[-1]`` the remaining values are divided into five bins:
+
+>>> from kivi.binning import cut
+>>> from kivi.datasets import Dataset
+>>> from kivi.woe import woe_table
+>>> data = Dataset.bank_data()
+>>> edges = bin_edges(data["pdays"], bins=5, special=[-1])
+>>> edges
+array([-inf, 112., 179., 254., 343.,  inf])
+>>> groups = cut(data["pdays"], edges, special=[-1])
+>>> result = woe_table(groups, data["target"])
+>>> result[["event", "non_event", "woe", "iv"]].round(3)
+                event  non_event    woe     iv
+bin
+-1                337       3368 -0.264  0.051
+(-inf, 112.0]      66        101  1.613  0.164
+(112.0, 179.0]     22        138  0.202  0.002
+(179.0, 254.0]     48        115  1.165  0.074
+(254.0, 343.0]     21        144  0.113  0.000
+(343.0, inf]       27        134  0.436  0.008
+>>> print(f"IV = {result['iv'].sum():.3f}")
+IV = 0.299
+
+The single bin had an IV of zero; separating the code shows that ``pdays`` is informative. The categories of the result are the special values in the order given, followed by the intervals, and ``woe_table`` and ``psi_table`` list the rows in that order. Special values are matched by equality, so ``-1`` and ``-1.0`` are the same code. Without ``special``, ``cut`` returns the same result as ``pandas.cut``.
+
+The supervised methods take ``special`` as well; see :ref:`supervised-special`.
 
 Applying the edges
 ------------------
@@ -276,7 +359,7 @@ Missing values and categories
 
 Missing reference values are ignored when the edges are fitted, and ``pandas.cut`` leaves them missing. The metric functions then count them as a separate group.
 
-Pass categorical labels directly to the metric functions. A missing label is a separate group. Only observed groups appear, in first-observed order. For WOE, group and target series must have identical indices; arrays and lists are matched by position.
+Pass categorical labels directly to the metric functions. A missing label is a separate group. Only observed groups appear. Categorical groups, including the result of ``pandas.cut``, follow the order of their categories with missing values last; other labels follow the order in which they first appear. For WOE, group and target series must have identical indices; arrays and lists are matched by position.
 
 Invalid input
 -------------
@@ -286,10 +369,11 @@ Invalid input
 * ``bins`` is not a positive integer;
 * ``method`` is neither ``"quantile"`` nor ``"uniform"``;
 * the reference values are not one-dimensional or not numeric;
-* the reference has no observations, or contains an infinite value.
+* ``special`` is not one-dimensional or contains a missing value;
+* the reference has no observations apart from missing and special values, or contains an infinite value that is not special.
 
 ``chimerge_edges``, ``tree_edges`` and ``monotonic_edges`` raise ``ValueError`` for the same problems with the values, for an option outside its range, and when:
 
 * ``values`` and ``target`` are Series without identical indices, or have different lengths;
 * ``target`` contains a label other than 0 and 1, or a missing label;
-* the observed values do not cover both classes.
+* the observed values, apart from special values, do not cover both classes.

@@ -66,8 +66,10 @@ def woe_table(
     normalized, so every WOE is finite. The ``non_event`` and ``event``
     columns always report the observed counts.
 
-    Rows follow the order in which the groups first appear. Categories that
-    are never observed are omitted.
+    Categorical groups, such as the result of `kivi.binning.cut` or
+    ``pandas.cut``, follow the order of their categories with missing values
+    last. Other groups follow the order in which they first appear.
+    Categories that are never observed are omitted.
 
     References
     ----------
