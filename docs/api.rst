@@ -8,6 +8,7 @@ The public functions take one-dimensional array-like inputs, such as lists, NumP
 .. autosummary::
 
    binning.bin_edges
+   binning.cut
    woe.woe_table
    evaluate.psi_table
    datasets.Dataset.bank_data
@@ -16,6 +17,8 @@ Binning
 -------
 
 .. autofunction:: kivi.binning.bin_edges
+
+.. autofunction:: kivi.binning.cut
 
 Weight of evidence
 ------------------

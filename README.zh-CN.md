@@ -34,7 +34,7 @@
 
 - 📐 **一次拟合，处处复用。** `bin_edges` 在基准样本上学习等频或等距边界，两端延伸至无穷，之后的任何取值都能落入某个箱。
 - 🔍 **结果透明。** `woe_table` 和 `psi_table` 返回每箱的原始计数、平滑后的占比和单箱贡献，而不只是一个总数。
-- 🧩 **不悄悄丢数据。** 缺失值、只在一个样本中出现的类别，都会单独成组。
+- 🧩 **不悄悄丢数据。** 缺失值、`-1` 这类特殊编码、只在一个样本中出现的类别，都会单独成组。
 - 🧊 **平滑口径清楚。** 空单元格先按 `smoothing`（默认 0.5）替换再归一化，结果中的计数始终是实际观测数。
 - 🐼 **只依赖 pandas 和 NumPy。** 核心不依赖 Spark 和数据库驱动，也不修改全局随机状态。
 - 🌏 **中英双语文档，示例全部经过测试。** 两种语言文档中的每个示例都会在 CI 中运行。
@@ -71,8 +71,8 @@ edges = bin_edges(reference["age"], bins=5)     # 1. 只在基准样本上拟合
 before = pd.cut(reference["age"], edges)        # 2. 每个样本复用同一组边界
 after = pd.cut(current["age"], edges)
 
-evidence = woe_table(before, reference["target"]).sort_index()   # 3. 计算指标
-stability = psi_table(before, after).sort_index()
+evidence = woe_table(before, reference["target"])  # 3. 计算指标
+stability = psi_table(before, after)
 
 print(evidence[["event", "non_event", "woe", "iv"]].round(3))
 print(f"IV = {evidence['iv'].sum():.3f}, PSI = {stability['psi'].sum():.4f}")
@@ -101,6 +101,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | 函数 | 用途 |
 | --- | --- |
 | [`kivi.binning.bin_edges`](https://gchensy.github.io/kivi/zh/api.html#kivi.binning.bin_edges) | 在基准样本上拟合等频或等距边界，两端为无穷 |
+| [`kivi.binning.cut`](https://gchensy.github.io/kivi/zh/api.html#kivi.binning.cut) | 将取值分配到各箱，每个特殊值（如 `-1`）单独成组 |
 | [`kivi.woe.woe_table`](https://gchensy.github.io/kivi/zh/api.html#kivi.woe.woe_table) | 每组的计数、占比、WOE 与 IV |
 | [`kivi.evaluate.psi_table`](https://gchensy.github.io/kivi/zh/api.html#kivi.evaluate.psi_table) | 两个样本逐组的 PSI 贡献 |
 | [`kivi.datasets.Dataset.bank_data`](https://gchensy.github.io/kivi/zh/api.html#kivi.datasets.Dataset.bank_data) | 随包的银行营销示例数据 |
@@ -119,6 +120,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 
 - ✅ 基于 pandas 核心的等频与等距分箱、WOE、IV 和 PSI
 - ✅ 中英文文档，示例经过测试
+- ✅ `-1`、`-999` 等特殊值单独分箱
 - 🔜 评分卡流程，在固定参考样本上完成结果核对
 - 🔜 加权分箱与监督分箱
 - 🔜 Spark 与 SQL 作为可选集成

@@ -36,9 +36,9 @@ The outer edges are infinite, so an age outside the reference range still falls 
 Weight of evidence
 ------------------
 
-``woe_table`` returns one row per bin. Groups appear in the order they are first observed; ``sort_index`` puts interval bins in numeric order.
+``woe_table`` returns one row per bin, in the order of the intervals.
 
->>> evidence = woe_table(before, reference["target"]).sort_index()
+>>> evidence = woe_table(before, reference["target"])
 >>> evidence[["event", "non_event", "woe", "iv"]].round(3)
               event  non_event    woe     iv
 bin
@@ -74,7 +74,7 @@ Population stability
 
 ``psi_table`` compares the two samples bin by bin. It does not use the target.
 
->>> stability = psi_table(before, after).sort_index()
+>>> stability = psi_table(before, after)
 >>> stability[["reference", "current", "psi"]].round(4)
               reference  current     psi
 bin
@@ -89,6 +89,6 @@ PSI = 0.0024
 Next steps
 ----------
 
-* :doc:`/user_guide/binning` explains quantile and uniform edges, ties and missing values.
+* :doc:`/user_guide/binning` explains quantile and uniform edges, ties, special values and missing values.
 * :doc:`/user_guide/woe_iv` and :doc:`/user_guide/psi` give the formulas and the smoothing rule.
 * :doc:`/api` lists every parameter.

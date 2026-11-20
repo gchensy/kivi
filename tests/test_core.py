@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 
 import kivi
-from kivi.binning import bin_edges
+from kivi.binning import bin_edges, cut
 from kivi.datasets import Dataset
 from kivi.evaluate import psi_table
 from kivi.woe import woe_table
@@ -36,7 +36,7 @@ def test_constant_reference_and_repeated_edges():
 
 def test_special_value_mass_is_reported():
     pdays = Dataset.bank_data()["pdays"]
-    with pytest.warns(UserWarning, match="leave 1 of the 5 requested bins"):
+    with pytest.warns(UserWarning, match="value -1 makes up 82% of the fitted values"):
         np.testing.assert_equal(bin_edges(pdays), [-np.inf, np.inf])
 
 
@@ -51,8 +51,9 @@ def test_bin_edges_accepts_array_like(values):
 
 @pytest.mark.parametrize(
     "values,bins,method,message",
-    [([], 2, "quantile", "finite observations"),
-     ([np.inf], 2, "quantile", "finite observations"),
+    [([], 2, "quantile", "no observations apart from missing and special values"),
+     ([None], 2, "quantile", "no observations apart from missing and special values"),
+     ([np.inf], 2, "quantile", "must be finite; pass infinite codes in special"),
      ([1], 0, "quantile", "positive integer, got 0"),
      ([1], True, "quantile", "positive integer, got True"),
      ([1], 2.0, "quantile", "positive integer, got 2.0"),
@@ -64,6 +65,84 @@ def test_bin_edges_accepts_array_like(values):
 def test_invalid_binning_inputs(values, bins, method, message):
     with pytest.raises(ValueError, match=message):
         bin_edges(values, bins=bins, method=method)
+
+
+def test_special_values_are_left_out_of_the_fit():
+    values = [-1, -1, -1, 10, 20, 30, 40, None]
+    np.testing.assert_equal(bin_edges(values, bins=2, special=[-1]), [-np.inf, 25, np.inf])
+    np.testing.assert_equal(
+        bin_edges(values, bins=2, method="uniform", special=[-1, -1]), [-np.inf, 25, np.inf]
+    )
+    np.testing.assert_equal(bin_edges(["N/A", 1, 3, 5], bins=2, special=["N/A"]), [-np.inf, 3, np.inf])
+    np.testing.assert_equal(bin_edges([-np.inf, 1, 3, 5], bins=2, special=[-np.inf]), [-np.inf, 3, np.inf])
+
+
+def test_cut_gives_each_special_value_a_group():
+    values = pd.Series([-1, 15, 35, None, -9, -1.0], index=list("abcdef"), name="x")
+    edges = [-np.inf, 25, np.inf]
+    groups = cut(values, edges, special=[-9, -1])
+    assert groups.index.equals(values.index) and groups.name == "x"
+    assert groups.cat.categories.tolist() == [-9, -1, pd.Interval(-np.inf, 25), pd.Interval(25, np.inf)]
+    np.testing.assert_equal(groups.cat.codes.to_numpy(), [1, 2, 3, -1, 0, 1])
+    as_array = cut(values.tolist(), edges, special=[-9, -1])
+    assert isinstance(as_array, pd.Categorical)
+    np.testing.assert_equal(as_array.codes, groups.cat.codes.to_numpy())
+    labels = cut(["N/A", 1, 30], edges, special=["N/A"])
+    assert labels.categories[0] == "N/A" and labels.codes.tolist() == [0, 1, 2]
+
+
+def test_cut_without_special_matches_pandas():
+    values = pd.Series([1, 5, None, 9], index=[3, 2, 1, 0])
+    edges = [-np.inf, 4, np.inf]
+    pd.testing.assert_series_equal(cut(values, edges), pd.cut(values, edges))
+    pd.testing.assert_extension_array_equal(
+        cut(values.to_numpy(), edges), pd.cut(values.to_numpy(), edges)
+    )
+
+
+def test_special_value_bins_on_bank_pdays():
+    bank = Dataset.bank_data()
+    is_special = bank.pdays == -1
+    edges = bin_edges(bank.pdays, bins=5, special=[-1])
+    probabilities = np.linspace(0, 1, 6)[1:-1]
+    np.testing.assert_equal(edges[1:-1], np.quantile(bank.pdays[~is_special], probabilities))
+    result = woe_table(cut(bank.pdays, edges, special=[-1]), bank.target)
+    special_counts = bank.target[is_special].value_counts().reindex([0, 1]).to_numpy()
+    interval_counts = pd.crosstab(pd.cut(bank.pdays[~is_special], edges), bank.target[~is_special])
+    expected = np.vstack([special_counts, interval_counts.to_numpy()])
+    assert result.index[0] == -1 and result.index[1:].tolist() == interval_counts.index.tolist()
+    np.testing.assert_equal(result[["non_event", "event"]].to_numpy(), expected)
+    p, q = expected[:, 1] / expected[:, 1].sum(), expected[:, 0] / expected[:, 0].sum()
+    assert result.iv.sum() == pytest.approx(((p - q) * np.log(p / q)).sum())
+    # legacy FrequencyBins(bins=5, abnormal_vals=[-1]) reported an IV of 0.298906
+    assert result.iv.sum() == pytest.approx(0.298906, abs=1e-6)
+
+
+@pytest.mark.parametrize(
+    "special,message",
+    [([np.nan], "must not contain missing values"), (-1, "special must be one-dimensional")],
+)
+def test_invalid_special_values(special, message):
+    with pytest.raises(ValueError, match=message):
+        bin_edges([1, 2], special=special)
+    with pytest.raises(ValueError, match=message):
+        cut([1, 2], [-np.inf, np.inf], special=special)
+
+
+@pytest.mark.parametrize(
+    "values,edges,message",
+    [(["a", 1], [-np.inf, np.inf], "Unable to parse string"),
+     ([1], [3, 1], "increase monotonically"),
+     ([[1]], [-np.inf, np.inf], "values must be one-dimensional")],
+)
+def test_invalid_cut_inputs(values, edges, message):
+    with pytest.raises(ValueError, match=message):
+        cut(values, edges)
+
+
+def test_all_special_reference_cannot_be_fitted():
+    with pytest.raises(ValueError, match="no observations apart from missing and special"):
+        bin_edges([-1, -1, None], special=[-1])
 
 
 def test_woe_matches_hand_calculation():
@@ -91,17 +170,26 @@ def test_woe_matches_arrays_by_position():
     expected = woe_table(pd.Series(groups.to_numpy()), pd.Series(target))
     pd.testing.assert_frame_equal(woe_table(groups, target), expected)
     pd.testing.assert_frame_equal(woe_table(groups.to_numpy(), np.array(target)), expected)
-    cut = pd.cut(np.array([1, 2, 3, 4]), [-np.inf, 2, np.inf])
-    assert woe_table(cut, [1, 0, 0, 1]).event.tolist() == [1, 1]
+    intervals = pd.cut(np.array([1, 2, 3, 4]), [-np.inf, 2, np.inf])
+    assert woe_table(intervals, [1, 0, 0, 1]).event.tolist() == [1, 1]
+
+
+def test_categorical_groups_follow_category_order():
+    groups = pd.cut(pd.Series([35, None, 5, 15, 35]), [-np.inf, 10, 20, np.inf])
+    result = woe_table(groups, pd.Series([1, 0, 0, 1, 0]))
+    assert result.index[:3].tolist() == groups.cat.categories.tolist()
+    assert pd.isna(result.index[3])
+    assert result.event.tolist() == [0, 1, 1, 0]
+    assert result.non_event.tolist() == [1, 0, 1, 1]
 
 
 def test_missing_categories_and_smoothing_preserve_counts():
     labels = pd.Series(pd.Categorical(["x", None, "y", "y"], categories=["unused", "x", "y"]))
     target = pd.Series([0, 1, 0, 0])
     result = woe_table(labels, target)
-    assert len(result) == 3 and result.index.isna().sum() == 1
-    assert result.event.tolist() == [0, 1, 0]
-    np.testing.assert_allclose(result.event_share, [0.25, 0.5, 0.25])
+    assert result.index[:2].tolist() == ["x", "y"] and pd.isna(result.index[2])
+    assert result.event.tolist() == [0, 0, 1]
+    np.testing.assert_allclose(result.event_share, [0.25, 0.25, 0.5])
     assert result.non_event_share.sum() == pytest.approx(1)
 
 
@@ -129,6 +217,20 @@ def test_psi_contributions_with_new_categories_and_missing_values():
     np.testing.assert_equal(result.current.to_numpy(), [0, 2, 1])
     np.testing.assert_allclose(result.psi, (p - q) * np.log(p / q))
     assert psi_table(before, before).psi.sum() == 0
+
+
+def test_psi_keeps_category_order_and_absent_special_values():
+    edges = [-np.inf, 2, np.inf]
+    reference = cut([-1, -1, 1, 3], edges, special=[-1])
+    current = cut([1, 3, 3, None], edges, special=[-1])
+    result = psi_table(reference, current)
+    assert result.index[:3].tolist() == [-1, pd.Interval(-np.inf, 2), pd.Interval(2, np.inf)]
+    assert pd.isna(result.index[3])
+    np.testing.assert_equal(result.reference.to_numpy(), [2, 1, 1, 0])
+    np.testing.assert_equal(result.current.to_numpy(), [0, 1, 2, 1])
+    q = np.array([2, 1, 1, 0.5]) / 4.5
+    p = np.array([0.5, 1, 2, 1]) / 4.5
+    np.testing.assert_allclose(result.psi, (p - q) * np.log(p / q))
 
 
 def test_psi_accepts_array_like():

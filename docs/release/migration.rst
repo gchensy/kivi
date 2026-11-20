@@ -1,7 +1,7 @@
 Migrating from 0.2.x
 ====================
 
-Release 0.3 exposes four public operations. Dataset.bank_data() retains its import path and table schema. The target describes deposit subscription.
+The functions below replace the 0.2.x classes. Dataset.bank_data() retains its import path and table schema. The target describes deposit subscription.
 
 .. list-table::
    :header-rows: 1
@@ -13,6 +13,8 @@ Release 0.3 exposes four public operations. Dataset.bank_data() retains its impo
      - ``bin_edges(values, method="uniform")``, then ``pandas.cut`` and ``woe_table``
    * - ``FrequencyBins``
      - ``bin_edges(values, method="quantile")``, then ``pandas.cut`` and ``woe_table``
+   * - ``abnormal_vals=[...]``
+     - ``special=[...]`` in ``bin_edges`` and ``kivi.binning.cut``
    * - ``CategoryBins``
      - ``woe_table(labels, target)``
    * - ``PSI.fit()``
@@ -23,7 +25,7 @@ Release 0.3 exposes four public operations. Dataset.bank_data() retains its impo
 Binning and WOE
 ---------------
 
-DistanceBins and FrequencyBins previously calculated group assignments and statistics together. Use bin_edges with uniform or quantile, call pandas.cut, then pass the groups to woe_table. CategoryBins users can pass the label series directly.
+DistanceBins and FrequencyBins previously calculated group assignments and statistics together. Use bin_edges with uniform or quantile, call pandas.cut, then pass the groups to woe_table. Codes listed in abnormal_vals become the special argument: pass them to bin_edges, and use kivi.binning.cut with the same codes in place of pandas.cut. CategoryBins users can pass the label series directly.
 
 Population stability
 --------------------

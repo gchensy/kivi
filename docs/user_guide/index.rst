@@ -12,7 +12,7 @@ kivi keeps fitting and measuring apart. ``bin_edges`` fits edges on a reference 
       :link: binning
       :link-type: doc
 
-      Quantile and uniform edges, tied cut points, values outside the reference range and missing values.
+      Quantile and uniform edges, tied cut points, special values, values outside the reference range and missing values.
 
    .. grid-item-card:: Weight of evidence and information value
       :link: woe_iv
