@@ -581,9 +581,8 @@ def calibration_table(
     in which the groups first appear. Categories that are never observed are
     omitted.
 
-    The binomial, Jeffreys and Hosmer-Lemeshow tests need whole counts.
-    With weights that only correct for sampling, pass the counts of the
-    unweighted table to the tests and compare the weighted rates.
+    The binomial, Jeffreys and Hosmer-Lemeshow tests need whole numbers of
+    observations and events, so run them on an unweighted table.
 
     Examples
     --------
