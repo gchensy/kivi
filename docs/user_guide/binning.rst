@@ -336,6 +336,18 @@ The single bin had an IV of zero; separating the code shows that ``pdays`` is in
 
 The supervised methods take ``special`` as well; see :ref:`supervised-special`.
 
+Sample weights
+--------------
+
+``bin_edges`` and the supervised methods take ``weights``, for example the inverse sampling rates of a stratified development sample, so that quantile edges and bin counts describe the population rather than the sample. Weighted quantiles use the inverted CDF, so every interior edge is an observed value, while unweighted quantile edges interpolate between observations:
+
+>>> bin_edges([1, 2, 3, 4], bins=2)
+array([-inf,  2.5,  inf])
+>>> bin_edges([1, 2, 3, 4], bins=2, weights=[1, 1, 1, 3])
+array([-inf,   3.,  inf])
+
+Observations with zero weight are left out; the supervised methods leave out their labels too. :doc:`woe_iv` shows the same weights in ``woe_table``.
+
 Applying the edges
 ------------------
 

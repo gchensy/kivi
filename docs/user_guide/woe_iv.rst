@@ -177,3 +177,26 @@ Pass ``unseen`` to give such groups a WOE instead. A WOE of 0 is the neutral cho
 
 >>> woe_transform(new_jobs, jobs, unseen=0.0).round(3).tolist()
 [0.955, 0.0, 0.0]
+
+Sample weights
+--------------
+
+Development samples are often stratified: every bad account is kept, but only a fraction of the good ones. Pass the inverse of each observation's sampling rate as ``weights`` so that the counts describe the population. Below, the sample keeps every subscriber and every fourth other customer, so each non-subscriber stands for four customers.
+
+>>> import numpy as np
+>>> sample = data[(data["target"] == 1) | (np.arange(len(data)) % 4 == 0)]
+>>> weights = np.where(sample["target"] == 1, 1.0, 4.0)
+>>> columns = ["event_rate", "woe"]
+>>> tables = {
+...     "full": woe_table(data["housing"], data["target"])[columns],
+...     "sample": woe_table(sample["housing"], sample["target"])[columns],
+...     "weighted": woe_table(sample["housing"], sample["target"], weights=weights)[columns],
+... }
+>>> pd.concat(tables, axis=1).round(3)
+          full            sample          weighted
+    event_rate    woe event_rate    woe event_rate    woe
+bin
+no       0.153  0.330      0.431  0.365      0.159  0.365
+yes      0.086 -0.326      0.270 -0.349      0.085 -0.349
+
+The unweighted sample overstates the event rate, and the weights bring it back to the population level. The WOE does not change, because it compares shares within each class and the weights of a class scale all of its counts alike. That holds while no group is empty in either class: ``smoothing`` replaces an empty cell in units of weight, so with weights that do not sum to the number of observations, scale ``smoothing`` along with them. In a weighted result the counts are sums of weights, and groups whose weights sum to zero are left out; ``woe_transform`` treats them as unseen.

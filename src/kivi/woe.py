@@ -13,13 +13,17 @@ import numpy.typing as npt
 import pandas as pd
 
 from ._counts import divergence, group_counts
-from ._validation import as_count_columns, as_series
+from ._validation import as_count_columns, as_series, as_weights
 
 __all__ = ["iv", "woe", "woe_table", "woe_transform"]
 
 
 def woe_table(
-    groups: npt.ArrayLike, target: npt.ArrayLike, *, smoothing: float = 0.5
+    groups: npt.ArrayLike,
+    target: npt.ArrayLike,
+    *,
+    smoothing: float = 0.5,
+    weights: npt.ArrayLike | None = None,
 ) -> pd.DataFrame:
     r"""Compute weight of evidence and information value for observed groups.
 
@@ -36,6 +40,13 @@ def woe_table(
         they are matched by position.
     smoothing : float, default 0.5
         Positive replacement for a zero count when calculating shares.
+    weights : array_like, optional
+        Non-negative weight of each observation, for example the inverse of
+        its sampling rate, matched like `target`. The counts are then sums of
+        weights, and groups whose weights sum to zero are left out, so
+        `woe_transform` treats them as unseen. `smoothing` is then in units of
+        weight: scale the weights to sum to the number of observations, or
+        scale `smoothing` with them.
 
     Returns
     -------
@@ -51,7 +62,10 @@ def woe_table(
     ValueError
         If the inputs are not one-dimensional, their indices or lengths do
         not match, `target` does not contain both 0 and 1 or has missing or
-        other labels, or `smoothing` is not finite and positive.
+        other labels, or `smoothing` is not finite and positive. Also if
+        `weights` is not numeric, does not give each observation one finite,
+        non-negative weight, has an index other than that of `groups`, or
+        leaves a class with a zero total.
 
     See Also
     --------
@@ -100,6 +114,7 @@ def woe_table(
     if isinstance(groups, pd.Series) and isinstance(target, pd.Series):
         if not groups.index.equals(target.index):
             raise ValueError("groups and target must have identical indices")
+    raw_groups = groups
     groups, target = as_series(groups, "groups"), as_series(target, "target")
     if len(groups) != len(target):
         raise ValueError(
@@ -107,7 +122,10 @@ def woe_table(
         )
     if not target.isin([0, 1]).all() or target.nunique() != 2:
         raise ValueError("target must contain both 0 and 1 and no missing labels")
-    counts = group_counts(groups, target.to_numpy(dtype=np.intp))
+    mass = as_weights(weights, raw_groups, of="groups")
+    counts = group_counts(groups, target.to_numpy(dtype=np.intp), mass)
+    if not (counts.to_numpy().sum(axis=0) > 0).all():
+        raise ValueError("weights must give both target classes a positive total")
     counts.columns = ["non_event", "event"]
     # Assign by position: aligning interval categories hashes them, which warns on NumPy < 2.2.
     share, log_ratio, contribution = divergence(counts.to_numpy(), smoothing)

@@ -415,3 +415,66 @@ def test_invalid_special_values(fit, values, target, special, message):
 def test_invalid_supervised_options(fit, options, message):
     with pytest.raises(ValueError, match=message):
         fit(TREE_VALUES, TREE_TARGET, **options)
+
+
+@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, monotonic_edges])
+def test_integer_weights_match_repeated_rows(fit):
+    values = np.arange(1, 13)
+    target = np.array([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1])
+    weights = np.array([1, 2, 1, 3, 1, 1, 2, 1, 1, 2, 1, 1])
+    repeated = fit(np.repeat(values, weights), np.repeat(target, weights))
+    np.testing.assert_equal(fit(values, target, weights=weights), repeated)
+
+
+def test_zero_weight_rows_are_left_out_with_their_labels():
+    values = np.arange(1, 13)
+    target = np.array([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1])
+    weights = np.r_[np.ones(12), 0.0]
+    padded_values, padded_target = np.r_[values, 1000], np.r_[target, 1]
+    for fit in (chimerge_edges, tree_edges, monotonic_edges):
+        np.testing.assert_equal(
+            fit(padded_values, padded_target, weights=weights), fit(values, target)
+        )
+
+
+def test_tree_min_bin_share_is_measured_in_weight():
+    values = np.arange(1, 11)
+    target = np.array([1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    weights = np.r_[10, np.ones(9)]
+    # The first value carries 10 of the 19 units of weight, so it can form a bin of its own
+    # under min_bin_share=0.3 although it is one row of ten.
+    edges = tree_edges(values, target, weights=weights, min_bin_share=0.3)
+    np.testing.assert_equal(edges, [-np.inf, 1, np.inf])
+    repeated = tree_edges(
+        np.repeat(values, [10] + [1] * 9), np.repeat(target, [10] + [1] * 9), min_bin_share=0.3
+    )
+    np.testing.assert_equal(edges, repeated)
+    # Counted in rows, the first bin needs three of the ten values.
+    np.testing.assert_equal(tree_edges(values, target, min_bin_share=0.3), [-np.inf, 3, np.inf])
+
+
+def test_supervised_weights_need_matching_index_and_weighted_classes():
+    values = pd.Series(np.arange(1, 13))
+    target = pd.Series([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1])
+    with pytest.raises(ValueError, match="weights must have the same index as values"):
+        chimerge_edges(values, target, weights=pd.Series(np.ones(12), index=np.arange(1, 13)))
+    with pytest.raises(ValueError, match="observed with a positive weight"):
+        tree_edges(values, target, weights=target.to_numpy(dtype=float))
+
+
+def test_special_codes_and_weights_in_supervised_binning():
+    values = np.r_[np.arange(1, 13), -1, -1]
+    target = np.r_[[0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1], 1, 0]
+    weights = np.r_[[1, 2, 1, 3, 1, 1, 2, 1, 1, 2, 1, 1], 7, 7]
+    for fit in (chimerge_edges, tree_edges, monotonic_edges):
+        np.testing.assert_equal(
+            fit(values, target, special=[-1], weights=weights),
+            fit(values[:12], target[:12], weights=weights[:12]),
+        )
+
+
+def test_nullable_values_with_special_codes_in_supervised_binning():
+    values = pd.Series([*range(1, 13), -1, None], dtype="Int64")
+    target = pd.Series([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0])
+    expected = chimerge_edges(np.arange(1, 13), target[:12].to_numpy())
+    np.testing.assert_equal(chimerge_edges(values, target, special=[-1]), expected)
