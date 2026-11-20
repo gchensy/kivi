@@ -43,7 +43,10 @@ def woe_table(
     weights : array_like, optional
         Non-negative weight of each observation, for example the inverse of
         its sampling rate, matched like `target`. The counts are then sums of
-        weights, and groups whose weights sum to zero are left out.
+        weights, and groups whose weights sum to zero are left out, so
+        `woe_transform` treats them as unseen. `smoothing` is then in units of
+        weight: scale the weights to sum to the number of observations, or
+        scale `smoothing` with them.
 
     Returns
     -------
@@ -60,8 +63,9 @@ def woe_table(
         If the inputs are not one-dimensional, their indices or lengths do
         not match, `target` does not contain both 0 and 1 or has missing or
         other labels, or `smoothing` is not finite and positive. Also if
-        `weights` does not give each observation one finite, non-negative
-        weight, or leaves a class with a zero total.
+        `weights` is not numeric, does not give each observation one finite,
+        non-negative weight, has an index other than that of `groups`, or
+        leaves a class with a zero total.
 
     See Also
     --------
@@ -110,7 +114,7 @@ def woe_table(
     if isinstance(groups, pd.Series) and isinstance(target, pd.Series):
         if not groups.index.equals(target.index):
             raise ValueError("groups and target must have identical indices")
-    mass = as_weights(weights, groups)
+    raw_groups = groups
     groups, target = as_series(groups, "groups"), as_series(target, "target")
     if len(groups) != len(target):
         raise ValueError(
@@ -118,6 +122,7 @@ def woe_table(
         )
     if not target.isin([0, 1]).all() or target.nunique() != 2:
         raise ValueError("target must contain both 0 and 1 and no missing labels")
+    mass = as_weights(weights, raw_groups, of="groups")
     counts = group_counts(groups, target.to_numpy(dtype=np.intp), mass)
     if not (counts.to_numpy().sum(axis=0) > 0).all():
         raise ValueError("weights must give both target classes a positive total")

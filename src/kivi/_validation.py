@@ -41,29 +41,31 @@ def as_count_columns(first, second, names: tuple[str, str]) -> np.ndarray:
     return np.column_stack(columns)
 
 
-def as_weights(weights, values, name: str = "weights") -> np.ndarray | None:
+def as_weights(weights, values, name: str = "weights", of: str = "values") -> np.ndarray | None:
     """Return observation weights as a float array matched to ``values``, or None.
 
-    Two Series must have identical indices; otherwise the weights are matched
-    by position, as the target is in ``woe_table``.
+    ``values`` is the argument as the caller passed it, after it has been
+    validated. Two Series must have identical indices; otherwise the weights
+    are matched by position, as the target is in ``woe_table``.
     """
     if weights is None:
         return None
     if isinstance(values, pd.Series) and isinstance(weights, pd.Series):
         if not values.index.equals(weights.index):
-            raise ValueError(f"{name} must have the same index as the values it weights")
-    try:
-        array = as_series(weights, name).to_numpy(dtype=float)
-    except (TypeError, ValueError) as error:
-        if "one-dimensional" in str(error):
-            raise
-        raise ValueError(f"{name} must be numeric") from error
+            raise ValueError(f"{name} must have the same index as {of}")
+    series = as_series(weights, name)
+    dtype = series.dtype
+    if not pd.api.types.is_numeric_dtype(dtype) or pd.api.types.is_bool_dtype(dtype):
+        raise ValueError(f"{name} must be numeric, got dtype {dtype}")
+    array = series.to_numpy(dtype=float, na_value=np.nan)
     if len(array) != len(values):
         raise ValueError(
-            f"{name} must have one weight per value, got {len(array)} for {len(values)} values"
+            f"{name} must have one weight per value of {of}, got {len(array)} for {len(values)}"
         )
     if not np.isfinite(array).all() or (array < 0).any():
         raise ValueError(f"{name} must be finite and non-negative")
-    if not array.sum() > 0:
-        raise ValueError(f"{name} must have a positive total")
+    with np.errstate(over="ignore"):
+        total = array.sum()
+    if not (np.isfinite(total) and total > 0):
+        raise ValueError(f"{name} must have a finite, positive total, got {float(total)!r}")
     return array

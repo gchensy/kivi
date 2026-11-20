@@ -22,10 +22,13 @@ def group_counts(
     ordered = isinstance(groups.dtype, pd.CategoricalDtype)
     codes, levels = pd.factorize(groups, sort=ordered, use_na_sentinel=False)
     counts = np.bincount(2 * codes + side, weights=weights, minlength=2 * len(levels))
-    counts = pd.DataFrame(counts.reshape(-1, 2), index=pd.Index(levels, name="bin"))
+    counts = counts.reshape(-1, 2)
     if weights is not None:
-        counts = counts[counts.to_numpy().sum(axis=1) > 0]
-    return counts
+        # Filter the arrays, not a DataFrame: indexing a frame by interval categories hashes
+        # them, which warns on NumPy < 2.2.
+        keep = counts.sum(axis=1) > 0
+        counts, levels = counts[keep], levels[keep]
+    return pd.DataFrame(counts, index=pd.Index(levels, name="bin"))
 
 
 def shares(counts: np.ndarray, smoothing: float) -> np.ndarray:

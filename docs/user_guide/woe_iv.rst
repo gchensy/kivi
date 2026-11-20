@@ -199,4 +199,4 @@ bin
 no       0.153  0.330      0.431  0.365      0.159  0.365
 yes      0.086 -0.326      0.270 -0.349      0.085 -0.349
 
-The unweighted sample overstates the event rate, and the weights bring it back to the population level. The WOE does not change, because it compares shares within each class and the weights of a class scale all of its counts alike. In a weighted result the counts are sums of weights, and groups whose weights sum to zero are left out.
+The unweighted sample overstates the event rate, and the weights bring it back to the population level. The WOE does not change, because it compares shares within each class and the weights of a class scale all of its counts alike. That holds while no group is empty in either class: ``smoothing`` replaces an empty cell in units of weight, so with weights that do not sum to the number of observations, scale ``smoothing`` along with them. In a weighted result the counts are sums of weights, and groups whose weights sum to zero are left out; ``woe_transform`` treats them as unseen.

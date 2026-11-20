@@ -68,9 +68,9 @@ def bin_edges(
         `values` is not one-dimensional or not numeric, `special` is not
         one-dimensional or contains a missing value, or the reference has no
         observations or contains an infinite value apart from special values.
-        Also if `weights` does not give each value one finite, non-negative
-        weight with a positive total, or its index differs from that of
-        `values`.
+        Also if `weights` is not numeric, does not give each value one finite,
+        non-negative weight with a positive total, or has an index other than
+        that of `values`.
 
     Warns
     -----
@@ -261,7 +261,9 @@ def chimerge_edges(
         Non-negative weight of each observation, for example the inverse of
         its sampling rate, matched like `target`. Observations with zero
         weight are left out, and the counts in each bin are sums of weights.
-        The initial quantile bins then use weighted quantiles.
+        The initial quantile bins then use weighted quantiles by the inverted
+        CDF, so unit weights can give other edges than no weights when there
+        are more distinct values than `initial_bins`.
         The chi-square test treats the weighted counts as counts, so scale
         the weights to sum to the sample size when the p-values matter.
 
@@ -280,9 +282,9 @@ def chimerge_edges(
         numeric or has no finite observations apart from missing and special
         values, or `target` has labels other than 0 and 1 or lacks one of them
         in the rows that are fitted.
-        Also if `weights` does not give each value one finite, non-negative
-        weight with a positive total, or its index differs from that of
-        `values`.
+        Also if `weights` is not numeric, does not give each value one finite,
+        non-negative weight with a positive total, or has an index other than
+        that of `values`.
 
     See Also
     --------
@@ -359,8 +361,9 @@ def tree_edges(
     max_bins : int, default 5
         Maximum number of bins, the leaves of the tree.
     min_bin_share : float, default 0.05
-        Minimum share of the fitted values in every bin, from 0 to 0.5.
-        Missing and special values do not count towards it.
+        Minimum share of the fitted values in every bin, from 0 to 0.5, or of
+        their total weight when `weights` is given. Missing and special values
+        do not count towards it.
     criterion : {"entropy", "gini"}, default "entropy"
         Impurity measure: entropy for information gain, or the Gini index.
     special : array_like, optional
@@ -389,9 +392,9 @@ def tree_edges(
         `values` is not numeric or has no finite observations apart from
         missing and special values, or `target` has labels other than 0 and 1
         or lacks one of them in the rows that are fitted.
-        Also if `weights` does not give each value one finite, non-negative
-        weight with a positive total, or its index differs from that of
-        `values`.
+        Also if `weights` is not numeric, does not give each value one finite,
+        non-negative weight with a positive total, or has an index other than
+        that of `values`.
 
     See Also
     --------
@@ -401,7 +404,8 @@ def tree_edges(
 
     Notes
     -----
-    For a bin with :math:`n` observations and event rate :math:`p`, the
+    For a bin with :math:`n` observations (their total weight, with
+    `weights`) and event rate :math:`p`, the
     impurity is :math:`H(p) = -p \ln p - (1 - p) \ln(1 - p)` (entropy) or
     :math:`G(p) = 2p(1 - p)` (Gini). A split into :math:`n_L` and
     :math:`n_R` observations reduces the total impurity by
@@ -526,7 +530,10 @@ def monotonic_edges(
         Non-negative weight of each observation, for example the inverse of
         its sampling rate, matched like `target`. Observations with zero
         weight are left out, and the counts in each bin are sums of weights.
-        The initial quantile bins then use weighted quantiles.
+        The initial quantile bins then use weighted quantiles by the inverted
+        CDF, so unit weights can give other edges than no weights when there
+        are more distinct values than `initial_bins`. `smoothing` is then in
+        units of weight.
 
     Returns
     -------
@@ -544,9 +551,9 @@ def monotonic_edges(
         numeric or has no finite observations apart from missing and special
         values, or `target` has labels other than 0 and 1 or lacks one of them
         in the rows that are fitted.
-        Also if `weights` does not give each value one finite, non-negative
-        weight with a positive total, or its index differs from that of
-        `values`.
+        Also if `weights` is not numeric, does not give each value one finite,
+        non-negative weight with a positive total, or has an index other than
+        that of `values`.
 
     See Also
     --------
@@ -623,11 +630,16 @@ def _observed(
 def _weighted_quantile(
     values: np.ndarray, weights: np.ndarray, probabilities: np.ndarray
 ) -> np.ndarray:
-    """Weighted quantiles by the inverted CDF, as NumPy's ``method="inverted_cdf"``."""
+    """Weighted quantiles by the inverted CDF, as NumPy's ``method="inverted_cdf"``.
+
+    A probability within a relative 1e-10 of a step of the CDF selects that
+    step, so rounding in ``probabilities`` (``np.linspace(0, 1, 6)[3]`` is
+    0.6000000000000001) neither skips a value nor depends on the weight scale.
+    """
     order = np.argsort(values, kind="stable")
-    cdf = np.cumsum(weights[order])
-    cdf /= cdf[-1]
-    index = np.searchsorted(cdf, probabilities, side="left")
+    cumulative = np.cumsum(weights[order])
+    targets = (np.asarray(probabilities) - 1e-10) * cumulative[-1]
+    index = np.searchsorted(cumulative, targets, side="left")
     return values[order][np.minimum(index, len(values) - 1)]
 
 
@@ -675,6 +687,8 @@ def _labeled(
     labels = target.to_numpy()[fitted].astype(np.intp)
     if labels.min() == labels.max():
         rows = "observed and not special" if special is not None else "observed"
+        if mass is not None:
+            rows += " with a positive weight"
         raise ValueError(f"target must contain both 0 and 1 where values are {rows}")
     return observed, labels, mass
 

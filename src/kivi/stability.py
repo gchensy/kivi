@@ -37,8 +37,8 @@ def psi_table(
     reference_weights, current_weights : array_like, optional
         Non-negative weight of each observation in the reference and the
         current sample, matched like the samples. The counts are then sums of
-        weights, and groups whose weights sum to zero in both samples are
-        left out.
+        weights, and groups whose weights sum to zero in both samples are left
+        out. `smoothing` is then in units of weight.
 
     Returns
     -------
@@ -50,9 +50,9 @@ def psi_table(
     ------
     ValueError
         If either sample is empty or not one-dimensional, or `smoothing` is
-        not finite and positive. Also if a weight array does not give each
-        observation of its sample one finite, non-negative weight with a
-        positive total.
+        not finite and positive. Also if a weight array is not numeric, does
+        not give each observation of its sample one finite, non-negative weight
+        with a positive total, or has an index other than that of its sample.
 
     See Also
     --------
@@ -97,11 +97,12 @@ def psi_table(
     x            2        1  0.1733
     y            2        3  0.1014
     """
-    reference_mass = as_weights(reference_weights, reference, "reference_weights")
-    current_mass = as_weights(current_weights, current, "current_weights")
+    raw_reference, raw_current = reference, current
     reference, current = as_series(reference, "reference"), as_series(current, "current")
     if reference.empty or current.empty:
         raise ValueError("reference and current must both contain observations")
+    reference_mass = as_weights(reference_weights, raw_reference, "reference_weights", "reference")
+    current_mass = as_weights(current_weights, raw_current, "current_weights", "current")
     # pd.concat and join hash interval categories, which warns on NumPy < 2.2, so samples
     # binned with the same edges are joined by their codes and shares assigned by position.
     if isinstance(reference.dtype, pd.CategoricalDtype) and reference.dtype == current.dtype:
