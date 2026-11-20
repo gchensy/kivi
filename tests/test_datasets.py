@@ -74,15 +74,31 @@ def test_loan_attributes_are_constant(panel):
 
 
 def test_balance_follows_the_instalments_paid(panel):
-    # Below 90+, the status counts the instalments past due, so the instalments paid are the
-    # instalments due minus the status code; the balance is that of an annuity at 1% a month.
+    # Below 90+, the status counts the months since the oldest unpaid instalment fell due, so a
+    # delinquent loan has paid month_on_book - status instalments and a current one every
+    # instalment due; the balance is that of an annuity at 1% a month.
     code = panel["status"].cat.codes.to_numpy()
     rows = panel[code < 4]
     term = rows["term"].to_numpy()
-    paid = np.minimum(rows["month_on_book"], term) - code[code < 4]
+    month_on_book = rows["month_on_book"].to_numpy()
+    late = code[code < 4]
+    paid = np.where(late == 0, np.minimum(month_on_book, term), month_on_book - late)
     expected = rows["amount"] * (1.01**term - 1.01**paid) / (1.01**term - 1)
     np.testing.assert_allclose(rows["balance"], expected.round(2), atol=1e-9)
     assert (panel["balance"] <= panel["amount"]).all()
+
+
+def test_a_month_without_payment_rolls_the_loan_also_after_its_term(panel):
+    # Every instalment lowers the balance, so an unchanged balance means that nothing was paid.
+    code = panel["status"].cat.codes
+    loan = panel["loan_id"]
+    previous_code = code.groupby(loan).shift()
+    unpaid = (panel["balance"] == panel["balance"].groupby(loan).shift()) & (previous_code < 4)
+    assert (code[unpaid] == previous_code[unpaid] + 1).all()
+    # Before the fix, a loan that was behind at the end of its term stopped rolling.
+    after_term = panel["month_on_book"] > panel["term"]
+    assert (unpaid & after_term).any()
+    assert ((code == 4) & after_term).any()
 
 
 def test_ninety_plus_is_absorbing_and_stops_payments(panel):
@@ -138,23 +154,25 @@ def test_default_panel_rolls_more_and_cures_less_the_later_the_bucket():
 def test_panel_is_reproducible_and_leaves_global_state_alone():
     # Reads the legacy global state only to check that the generator does not touch it.
     state = np.random.get_state()  # noqa: NPY002
-    first = make_loan_panel(200, 6, rng=3)
+    first = make_loan_panel(n_loans=200, n_months=6, rng=3)
     after = np.random.get_state()  # noqa: NPY002
     assert all(np.array_equal(a, b) for a, b in zip(state, after, strict=True))
-    pd.testing.assert_frame_equal(first, make_loan_panel(200, 6, rng=3))
-    pd.testing.assert_frame_equal(first, make_loan_panel(200, 6, rng=np.random.default_rng(3)))
-    assert not first.equals(make_loan_panel(200, 6, rng=4))
+    pd.testing.assert_frame_equal(first, make_loan_panel(n_loans=200, n_months=6, rng=3))
+    pd.testing.assert_frame_equal(
+        first, make_loan_panel(n_loans=200, n_months=6, rng=np.random.default_rng(3))
+    )
+    assert not first.equals(make_loan_panel(n_loans=200, n_months=6, rng=4))
 
 
 def test_panel_advances_a_generator():
     generator = np.random.default_rng(5)
-    first = make_loan_panel(50, 4, rng=generator)
-    second = make_loan_panel(50, 4, rng=generator)
+    first = make_loan_panel(n_loans=50, n_months=4, rng=generator)
+    second = make_loan_panel(n_loans=50, n_months=4, rng=generator)
     assert not first.equals(second)
 
 
 def test_smallest_panel():
-    panel = make_loan_panel(1, 1, rng=0)
+    panel = make_loan_panel(n_loans=1, n_months=1, rng=0)
     assert len(panel) == 1
     row = panel.iloc[0]
     assert row["loan_id"] == 1 and row["month_on_book"] == 1
@@ -164,8 +182,14 @@ def test_smallest_panel():
 
 def test_numpy_integer_sizes_are_accepted():
     pd.testing.assert_frame_equal(
-        make_loan_panel(np.int64(20), np.int32(3), rng=1), make_loan_panel(20, 3, rng=1)
+        make_loan_panel(n_loans=np.int64(20), n_months=np.int32(3), rng=1),
+        make_loan_panel(n_loans=20, n_months=3, rng=1),
     )
+
+
+def test_sizes_are_keyword_only():
+    with pytest.raises(TypeError, match="positional argument"):
+        make_loan_panel(20, 3)
 
 
 @pytest.mark.parametrize("value", [0, -3, 2.5, True, "10", None])

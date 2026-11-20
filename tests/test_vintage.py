@@ -161,7 +161,7 @@ def test_vintage_table_weights_give_shares_of_the_amount():
 
 
 def test_vintage_table_integer_weights_repeat_loans():
-    panel = make_loan_panel(300, 8, rng=2)
+    panel = make_loan_panel(n_loans=300, n_months=8, rng=2)
     weights = panel["loan_id"] % 3
     bad = panel["status"] >= "60-89"
     weighted = vintage_table(

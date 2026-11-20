@@ -22,7 +22,9 @@ _LOAN_RISK_SIGMA = 0.7
 _COHORT_RISK_SIGMA = 0.25
 
 
-def make_loan_panel(n_loans: int = 5000, n_months: int = 24, *, rng=None) -> pd.DataFrame:
+def make_loan_panel(
+    *, n_loans: int = 5000, n_months: int = 24, rng: int | np.random.Generator | None = None
+) -> pd.DataFrame:
     """Generate a synthetic monthly panel of instalment loans.
 
     The loans are originated over `n_months` months and observed at the end
@@ -76,26 +78,28 @@ def make_loan_panel(n_loans: int = 5000, n_months: int = 24, *, rng=None) -> pd.
       categorical with the categories ``current``, ``1-29``, ``30-59``,
       ``60-89`` and ``90+``.
 
-    Each loan is repaid in equal monthly instalments at 1% interest a month,
-    and its status counts the instalments past due: one is ``1-29``, two
-    ``30-59``, three ``60-89`` and four or more ``90+``. Every month, a current
-    loan misses its instalment with a probability that rises over the first
-    six months on book and then declines, scaled by a risk factor of the loan
-    and one of its cohort, so cohorts differ in quality. A delinquent loan
-    pays all its arrears and becomes current, pays one instalment and keeps
-    its status, or pays nothing and rolls to the next bucket; the chance of
-    curing falls and that of rolling rises with the days past due. After the
-    term no instalment falls due, so paying one reduces the arrears. A ``90+``
-    loan makes no further payments, so its balance stays the same. A loan
-    leaves the panel after its last instalment is paid; loans are not
-    charged off.
+    Each loan is repaid in equal monthly instalments at 1% interest a month.
+    Its status counts the months since its oldest unpaid instalment fell
+    due: one is ``1-29``, two ``30-59``, three ``60-89`` and four or more
+    ``90+``. Within the term this is the number of instalments past due, and
+    a loan that is still behind after its term keeps rolling.
+
+    Every month, a current loan misses its instalment with a probability that
+    rises over the first six months on book and then declines, scaled by a
+    risk factor of the loan and one of its cohort, so cohorts differ in
+    quality. A delinquent loan pays all its arrears and becomes current, pays
+    one instalment and keeps its status, or pays nothing and rolls to the
+    next bucket; the chance of curing falls and that of rolling rises with
+    the days past due. A ``90+`` loan makes no further payments, so its
+    balance stays the same. A loan leaves the panel after its last instalment
+    is paid; loans are not charged off.
 
     Examples
     --------
     >>> from kivi.datasets import make_loan_panel
     >>> panel = make_loan_panel(rng=0)
     >>> panel.shape
-    (59272, 8)
+    (59295, 8)
     >>> panel.head(3)
        loan_id   cohort    month  month_on_book  term   amount   balance   status
     0        1  2024-01  2024-02              1    24  18300.0  17621.56  current
@@ -103,11 +107,11 @@ def make_loan_panel(n_loans: int = 5000, n_months: int = 24, *, rng=None) -> pd.
     2        1  2024-01  2024-04              3    24  18300.0  16244.25  current
     >>> panel["status"].value_counts(sort=False)
     status
-    current    55252
-    1-29        1505
-    30-59        507
-    60-89        323
-    90+         1685
+    current    55246
+    1-29        1490
+    30-59        506
+    60-89        320
+    90+         1733
     Name: count, dtype: int64
     """
     n_loans = _positive_integer(n_loans, "n_loans")
@@ -122,6 +126,8 @@ def make_loan_panel(n_loans: int = 5000, n_months: int = 24, *, rng=None) -> pd.
     risk = loan_risk * cohort_risk[cohort]
 
     paid = np.zeros(n_loans, dtype=np.int64)
+    # Months since the oldest unpaid instalment fell due, 0 when nothing is due; past the term
+    # it keeps growing while nothing is paid, although no new instalment falls due.
     missed = np.zeros(n_loans, dtype=np.int64)
     closed = np.zeros(n_loans, dtype=bool)
     rows, months, paid_rows, missed_rows = [], [], [], []
@@ -140,7 +146,7 @@ def make_loan_panel(n_loans: int = 5000, n_months: int = 24, *, rng=None) -> pd.
         pays_all = on_book & (bucket < 4) & (draw < cure)
         pays_one = on_book & (bucket < 4) & ~pays_all & (draw < cure + stay)
         paid = np.where(pays_all, due, np.where(pays_one, np.minimum(paid + 1, due), paid))
-        missed = np.where(on_book, due - paid, missed)
+        missed = np.where(on_book, np.where(paid < due, month_on_book - paid, 0), missed)
 
         index = np.flatnonzero(on_book)
         rows.append(index)
