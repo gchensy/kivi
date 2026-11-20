@@ -1,1 +1,0 @@
-* ``kivi.calibration.platt_fit`` and ``platt_predict`` calibrate a score with a logistic curve, and ``isotonic_fit`` and ``isotonic_predict`` with a step function that rises with the score. The fits return plain numbers, a slope and an intercept or band edges and their probabilities, that apply to the scores of any later sample.

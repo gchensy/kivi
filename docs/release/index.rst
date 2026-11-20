@@ -8,6 +8,46 @@ Changes merged since the last release.
 
 .. release-fragments::
 
+0.6.0 (2026-11-20)
+------------------
+
+New
+^^^
+
+* ``kivi.calibration.platt_fit`` and ``platt_predict`` calibrate a score with a logistic curve, and ``isotonic_fit`` and ``isotonic_predict`` with a step function that rises with the score. The fits return plain numbers, a slope and an intercept or band edges and their probabilities, that apply to the scores of any later sample.
+
+* ``kivi.stability.csi_table`` computes the characteristic stability index of a scorecard variable: the change of each group's share from the reference to the current sample, multiplied by the group's points. Its sum is the change of the variable's average points, and over all variables the change of the average score. The shares are not smoothed, and a group without points raises an error unless ``unseen_points`` gives its points.
+
+* ``kivi.datasets.load_bank`` loads the bank marketing data. ``Dataset.bank_data`` returns the same data and keeps working without a warning.
+* ``kivi.datasets.make_loan_panel`` simulates a seeded monthly panel of instalment loans whose delinquency rolls forward and cures, to try the vintage and roll-rate functions on.
+
+* ``reason_codes`` takes ``unseen_points``, the points of applicants in groups that ``woe_transform`` encoded with ``unseen``, one value or values by variable. Points that match no group but lie within ``atol`` of ``unseen_points`` cost nothing, so the variable is not one of those applicants' reasons. Every other mismatch still raises an error, which now suggests checking ``atol`` and the model and scaling first.
+
+* The new module ``kivi.spec`` bins all the columns of a data frame at once. ``fit_spec`` fits each numeric column with ``bin_edges`` or a supervised method chosen by column, or with given edges, and measures the WOE of every group; other columns keep their labels. The binning is never changed automatically.
+* The resulting ``BinningSpec`` groups a sample with ``cut``, encodes it with ``woe_transform`` using an unseen-group policy by column, and keeps the ``woe_table`` of every column for review. ``to_json`` and ``from_json`` save and load it without changing the groups or the WOE encoding, so production reproduces development exactly.
+
+* The new module ``kivi.vintage`` analyses loan portfolios. ``vintage_table`` gives the cumulative bad rate of each origination cohort by month on book, by count or by amount lent, and leaves the months that a cohort has not reached as NaN. ``transition_matrix`` counts the movements of loans between delinquency buckets or of obligors between rating grades, as counts, row shares or sums of balances, and ``roll_rates`` gives the share of each bucket that rolls to the next worse one.
+
+* ``roc_auc``, ``gini``, ``ks``, ``gains_table``, ``brier_score`` and ``calibration_table`` take ``weights``, like ``woe_table``. Counts become sums of weights, and integer weights give the same result as repeating rows, for ``gains_table`` on fixed edges.
+
+Changed
+^^^^^^^
+
+* The risk modeling workflow saves the shortlist's binning with ``fit_spec`` and adds the characteristic stability index of every scorecard variable to its stability report. The user guide has new charts for gains, calibration and vintage curves, and the README shows the gains and vintage charts.
+
+Fixed
+^^^^^
+
+* On pandas 2.0, ``calibration_table`` no longer fails when the target has a nullable integer dtype.
+
+* ``cut``, ``bin_edges`` and the supervised binning functions match special codes after converting numeric strings, so a column read as text, where ``pdays`` holds ``"-1"``, gives the code ``-1`` its own group instead of putting it into an interval. Boolean special codes, which ``True == 1`` made match the value 1, raise an error.
+
+Removed
+^^^^^^^
+
+* ``kivi.evaluate`` is removed; import ``psi_table`` and the other stability functions from ``kivi.stability``.
+* ``bin_edges`` no longer accepts ``method`` by position; pass ``method="uniform"`` by keyword.
+
 0.5.0 (2026-11-20)
 ------------------
 
