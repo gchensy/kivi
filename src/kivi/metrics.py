@@ -102,6 +102,9 @@ def roc_auc(
     0.7222
     """
     values, labels, mass = _scores_and_labels(score, target, "score", weights=weights)
+    if mass is not None:
+        # Scaling by a power of two is exact and keeps the product of the class totals finite.
+        mass = np.ldexp(mass, -int(np.frexp(mass.max())[1]))
     non_event, event = _distinct_counts(labels, values, mass).T
     # U counts each (event, non-event) pair in which the event scores higher, a tie as one half;
     # it equals R_1 - n_1 (n_1 + 1) / 2 without subtracting large rank sums.

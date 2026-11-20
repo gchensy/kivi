@@ -426,3 +426,11 @@ def test_brier_score_weights_need_a_positive_total_only():
     assert brier_score([0.2, 0.4], [0, 0], weights=[1, 0]) == pytest.approx(0.04)
     with pytest.raises(ValueError, match="weights must have a finite, positive total"):
         brier_score([0.2, 0.4], [0, 1], weights=[0, 0])
+
+
+@pytest.mark.parametrize("scale", [1e-300, 1e-170, 1e160, 1e300])
+def test_ranking_measures_do_not_depend_on_the_weight_scale(scale):
+    weights = np.array([1, 2, 1, 1, 3, 1]) * scale
+    assert roc_auc(SCORE, TARGET, weights=weights) == pytest.approx(15 / 20)
+    assert gini(SCORE, TARGET, weights=weights) == pytest.approx(0.5)
+    assert ks(SCORE, TARGET, weights=weights) == pytest.approx(3 / 4 - 1 / 5)

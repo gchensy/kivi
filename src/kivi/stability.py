@@ -355,7 +355,8 @@ def _points_by_group(points) -> tuple[np.ndarray, np.ndarray]:
             "points must be a points_table result, a Series or a mapping of group to points, "
             f"got {type(points).__name__}"
         )
-    labels = np.asarray(labels, dtype=object)
+    # fromiter keeps tuple labels whole, where np.asarray would add a dimension.
+    labels = np.fromiter(labels, dtype=object, count=len(labels))
     values = pd.Series(values, dtype=object).tolist()
     for label, value in zip(labels, values, strict=True):
         if pd.isna(value) or (isinstance(value, Real) and not math.isfinite(value)):
@@ -374,7 +375,7 @@ def _match(
     groups: pd.Index, labels: np.ndarray, values: np.ndarray, unseen: float | None
 ) -> np.ndarray:
     """Points of each group, looked up by equality; `unseen` for groups without points."""
-    levels = np.asarray(groups, dtype=object)
+    levels = np.fromiter(groups, dtype=object, count=len(groups))
     # Object indices compare labels with ==, so an interval matches the interval with the
     # same edges; an IntervalIndex would hash them, which warns on NumPy < 2.2.
     missing = pd.isna(labels)

@@ -1119,8 +1119,8 @@ msgstr ""
 msgid "RuntimeWarning"
 msgstr "RuntimeWarning"
 
-msgid "If the fit has not converged after 100 iterations."
-msgstr "如果拟合在 100 次迭代后仍未收敛。"
+msgid "If the fit does not converge."
+msgstr "如果拟合未能收敛。"
 
 msgid ":obj:`platt_predict`"
 msgstr ":obj:`platt_predict`"

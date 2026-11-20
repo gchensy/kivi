@@ -253,3 +253,11 @@ def test_inputs_are_not_modified():
     csi_table(reference, current, points, reference_weights=[1, 2, 3])
     for original, copy in zip((reference, current, points), copies, strict=True):
         pd.testing.assert_series_equal(original, copy)
+
+
+def test_tuple_labels_match_from_a_mapping():
+    reference = pd.Series([("a", 1), ("b", 2)])
+    current = pd.Series([("a", 1), ("a", 1)])
+    table = csi_table(reference, current, {("a", 1): 10.0, ("b", 2): 20.0})
+    assert table["points"].tolist() == [10.0, 20.0]
+    np.testing.assert_allclose(table["csi"], [5.0, -10.0])

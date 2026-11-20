@@ -201,7 +201,7 @@ def platt_fit(
     Warns
     -----
     RuntimeWarning
-        If the fit has not converged after 100 iterations.
+        If the fit does not converge.
 
     See Also
     --------
@@ -256,10 +256,15 @@ def platt_fit(
     array([0.2675, 0.4688, 0.6808])
     """
     values, labels, mass = _scores_and_labels(score, target, "score", weights=weights)
-    used = values if mass is None else values[mass > 0]
-    if used.min() == used.max():
-        raise ValueError(f"score must vary to fit a slope, got only {float(used[0])!r}")
-    design = np.column_stack([np.ones(len(values)), values])
+    if mass is not None:
+        # Rows without weight must not enter the centring and scaling of the fit.
+        used = mass > 0
+        values, labels, mass = values[used], labels[used], mass[used]
+    if values.min() == values.max():
+        raise ValueError(f"score must vary to fit a slope, got only {float(values[0])!r}")
+    # Scale by a power of two, which is exact, so that squaring the scores cannot overflow.
+    exponent = int(np.frexp(np.abs(values).max())[1])
+    design = np.column_stack([np.ones(len(values)), np.ldexp(values, -exponent)])
     try:
         fitted = _logit.fit(design, labels.astype(float), weights=mass)
     except _logit.SeparationError:
@@ -268,9 +273,7 @@ def platt_fit(
             "likelihood is infinite; isotonic_fit handles a separating score"
         ) from None
     except _logit.SingularError:
-        raise ValueError(
-            "score varies too little relative to its size to fit a slope; centre or rescale it"
-        ) from None
+        raise ValueError("score varies too little relative to its size to fit a slope") from None
     if not fitted.converged:
         warnings.warn(
             f"Platt scaling did not converge after {fitted.n_iter} iterations",
@@ -278,7 +281,7 @@ def platt_fit(
             stacklevel=2,
         )
     intercept, slope = fitted.coef
-    return float(slope), float(intercept)
+    return float(np.ldexp(slope, -exponent)), float(intercept)
 
 
 def platt_predict(
@@ -959,8 +962,9 @@ def _pool_adjacent_violators(
     for position, (block_total, block_event) in enumerate(
         zip(total.tolist(), event.tolist(), strict=True)
     ):
-        # The previous rate is at least the current one: e' / t' >= e / t, cross-multiplied.
-        while totals and sign * events[-1] * block_total >= sign * block_event * totals[-1]:
+        # Compare the rates as they are returned, so that the returned rates are strictly
+        # monotone even where rounding separates rates that are equal in exact arithmetic.
+        while totals and sign * events[-1] / totals[-1] >= sign * block_event / block_total:
             block_total += totals.pop()
             block_event += events.pop()
             last.pop()

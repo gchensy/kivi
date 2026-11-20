@@ -771,3 +771,36 @@ def test_calibration_table_on_nullable_dtypes_and_other_indices():
 def test_invalid_calibration_table_weights(weights, message):
     with pytest.raises(ValueError, match=message):
         calibration_table(["a", "b"], [0, 1], [0.1, 0.2], weights=weights)
+
+
+def test_platt_fit_ignores_rows_without_weight():
+    # A far-off score with zero weight must not affect the centring and scaling of the fit.
+    expected = platt_fit([1, 2, 3, 4], [0, 1, 0, 1])
+    for sentinel in (1e8, 1e10, 1e300):
+        weighted = platt_fit([1, 2, 3, 4, sentinel], [0, 1, 0, 1, 0], weights=[1, 1, 1, 1, 0])
+        np.testing.assert_allclose(weighted, expected, rtol=1e-12)
+
+
+@pytest.mark.parametrize("scale", [1e-300, 1e-160, 1e160, 1e300])
+def test_platt_fit_on_scores_of_any_size(scale):
+    score = np.array([-2.0, -1.0, -1.0, 0.0, 0.5, 1.0, 1.5, 2.0])
+    target = [0, 0, 1, 0, 1, 0, 1, 1]
+    slope, intercept = platt_fit(score, target)
+    scaled = platt_fit(score * scale, target)
+    assert scaled[0] == pytest.approx(slope / scale, rel=1e-12)
+    assert scaled[1] == pytest.approx(intercept, rel=1e-12)
+
+
+def test_isotonic_rates_are_strictly_monotone_with_fractional_weights():
+    # Rates are compared as they are returned, so rounding never leaves two adjacent bands
+    # with the same probability, nor a band below a lower one.
+    rng = np.random.default_rng(8)
+    for _ in range(200):
+        score = rng.integers(0, 6, 30)
+        target = rng.integers(0, 2, 30)
+        target[:2] = [0, 1]
+        weights = rng.choice([0.1, 0.2, 0.3, 0.6, 0.7], 30)
+        for increasing in (True, False):
+            probabilities = isotonic_fit(score, target, weights=weights, increasing=increasing)[1]
+            steps = np.diff(probabilities) * (1 if increasing else -1)
+            assert (steps > 0).all()
