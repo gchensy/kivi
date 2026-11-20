@@ -11,7 +11,7 @@ import pandas as pd
 from . import _logit
 from ._counts import group_counts
 from ._stats import betainc, chi2_sf
-from ._validation import as_series
+from ._validation import as_series, as_weights
 from .metrics import _scores_and_labels
 
 __all__ = [
@@ -520,7 +520,11 @@ def isotonic_predict(
 
 
 def calibration_table(
-    groups: npt.ArrayLike, target: npt.ArrayLike, probability: npt.ArrayLike
+    groups: npt.ArrayLike,
+    target: npt.ArrayLike,
+    probability: npt.ArrayLike,
+    *,
+    weights: npt.ArrayLike | None = None,
 ) -> pd.DataFrame:
     """Compare the predicted and observed event rates of each group.
 
@@ -539,6 +543,11 @@ def calibration_table(
         Predicted event probabilities between 0 and 1. Series inputs must
         have identical indices; otherwise the inputs are matched by
         position.
+    weights : array_like, optional
+        Non-negative weight of each observation, such as the inverse of its
+        sampling rate, matched like `target`. ``total`` and ``event`` are
+        then sums of weights, the rate and the mean probability are
+        weighted, and groups whose weights sum to zero are left out.
 
     Returns
     -------
@@ -552,7 +561,10 @@ def calibration_table(
     ValueError
         If the inputs are not one-dimensional, are empty, or their indices
         or lengths do not match, `target` has labels other than 0 and 1, or
-        `probability` has missing values or values outside [0, 1].
+        `probability` has missing values or values outside [0, 1]. Also if
+        `weights` is not numeric, does not give each observation one finite,
+        non-negative weight with a positive total, or has an index other
+        than that of `groups`.
 
     See Also
     --------
@@ -568,6 +580,10 @@ def calibration_table(
     ``pandas.cut``, with missing values last. Otherwise they follow the order
     in which the groups first appear. Categories that are never observed are
     omitted.
+
+    The binomial, Jeffreys and Hosmer-Lemeshow tests need whole counts.
+    With weights that only correct for sampling, pass the counts of the
+    unweighted table to the tests and compare the weighted rates.
 
     Examples
     --------
@@ -588,6 +604,7 @@ def calibration_table(
         raise ValueError(
             "groups, target and probability must have identical indices when they are Series"
         )
+    raw_groups = groups
     groups, target, probability = (as_series(values, name) for name, values in inputs.items())
     if len({len(groups), len(target), len(probability)}) > 1:
         raise ValueError(
@@ -596,18 +613,23 @@ def calibration_table(
         )
     if groups.empty:
         raise ValueError("groups, target and probability must contain observations")
-    invalid = ~target.isin([0, 1]).to_numpy()
+    # For nullable dtypes pandas 2.0 returns an object array, which ~ would negate as integers.
+    invalid = ~target.isin([0, 1]).to_numpy(dtype=bool)
     if invalid.any():
         raise ValueError(f"target must contain only 0 and 1, got {target[invalid].tolist()[0]!r}")
     probabilities = probability.to_numpy(dtype=float)
     if np.isnan(probabilities).any():
         raise ValueError("probability must not have missing values")
     _check_unit_interval(probabilities, "probability")
-    counts = group_counts(groups, target.to_numpy(dtype=np.intp))
+    mass = as_weights(weights, raw_groups, of="groups")
+    counts = group_counts(groups, target.to_numpy(dtype=np.intp), mass)
     rows = _group_rows(groups, counts.index)
     total = counts.to_numpy().sum(axis=1)
     event = counts.to_numpy()[:, 1]
-    prob_sum = np.bincount(rows, weights=probabilities, minlength=len(counts))
+    # Only observations of zero weight lie in a group that group_counts left out.
+    weighted = probabilities if mass is None else mass * probabilities
+    kept = rows >= 0
+    prob_sum = np.bincount(rows[kept], weights=weighted[kept], minlength=len(counts))
     return pd.DataFrame(
         {
             "total": total,
@@ -1012,17 +1034,18 @@ def _check_unit_interval(values: np.ndarray, name: str) -> None:
 
 
 def _group_rows(groups: pd.Series, levels: pd.Index) -> np.ndarray:
-    """Return the row of `levels`, from `group_counts`, of each observation."""
+    """Return the row of `levels`, from `group_counts`, of each observation, or -1 if absent."""
     if isinstance(levels, pd.CategoricalIndex):
         # Map category codes to rows instead of looking up the labels: that hashes
         # interval categories, which warns on NumPy < 2.2. Code -1 is a missing value.
-        row_of_code = np.zeros(len(levels.categories) + 1, dtype=np.intp)
+        row_of_code = np.full(len(levels.categories) + 1, -1, dtype=np.intp)
         row_of_code[levels.codes] = np.arange(len(levels))
         return row_of_code[groups.cat.codes.to_numpy()]
     rows = levels.get_indexer(groups)
-    missing = groups.isna().to_numpy()
+    missing = groups.isna().to_numpy(dtype=bool)
+    missing_row = np.flatnonzero(pd.isna(levels))
     if missing.any():  # get_indexer does not match missing values on pandas 2.0
-        rows[missing] = np.flatnonzero(pd.isna(levels))[0]
+        rows[missing] = missing_row[0] if len(missing_row) else -1
     return rows
 
 

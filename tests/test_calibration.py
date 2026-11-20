@@ -700,3 +700,74 @@ def test_calibration_fits_do_not_modify_inputs():
         pd.testing.assert_series_equal(original, copy)
     np.testing.assert_array_equal(edges, before[0])
     np.testing.assert_array_equal(probabilities, before[1])
+
+
+def test_weighted_calibration_table_matches_hand_calculation():
+    grades = pd.Series(["A", "A", "B", "B", "B"])
+    target = pd.Series([0, 1, 0, 1, 1])
+    probability = pd.Series([0.1, 0.2, 0.3, 0.4, 0.5])
+    table = calibration_table(grades, target, probability, weights=[3, 1, 1, 0, 2])
+    assert table["total"].tolist() == [4.0, 3.0]
+    assert table["event"].tolist() == [1.0, 2.0]
+    np.testing.assert_allclose(table["event_rate"], [1 / 4, 2 / 3])
+    # (3 * 0.1 + 0.2) / 4 and (0.3 + 2 * 0.5) / 3.
+    np.testing.assert_allclose(table["mean_probability"], [0.5 / 4, 1.3 / 3])
+
+
+def test_weighted_calibration_table_equals_repeated_rows():
+    data = Dataset.bank_data()
+    probability = 0.01 + 0.29 * data["balance"].rank(pct=True)
+    grades = pd.cut(probability, [0, 0.05, 0.1, 0.2, 1], labels=list("ABCD"))
+    weights = np.random.default_rng(2).integers(0, 4, len(data))
+    rows = np.repeat(np.arange(len(data)), weights)
+    weighted = calibration_table(grades, data["target"], probability, weights=weights)
+    repeated = calibration_table(
+        grades.iloc[rows].reset_index(drop=True),
+        data["target"].iloc[rows].reset_index(drop=True),
+        probability.iloc[rows].reset_index(drop=True),
+    )
+    pd.testing.assert_frame_equal(weighted, repeated, check_dtype=False, rtol=1e-12)
+
+
+@pytest.mark.parametrize("categorical", [False, True])
+def test_calibration_table_leaves_out_groups_without_weight(categorical):
+    grades = pd.Series(["A", None, "B", "A", None])
+    if categorical:
+        grades = grades.astype(pd.CategoricalDtype(["A", "B"]))
+    target = [1, 0, 0, 0, 1]
+    probability = [0.4, 0.1, 0.2, 0.6, 0.3]
+    table = calibration_table(grades, target, probability, weights=[1, 0, 2, 1, 0])
+    assert table.index.tolist() == ["A", "B"]
+    assert table["total"].tolist() == [2.0, 2.0]
+    np.testing.assert_allclose(table["mean_probability"], [0.5, 0.2])
+    table = calibration_table(grades, target, probability, weights=[1, 2, 0, 1, 1])
+    assert table.index[0] == "A" and pd.isna(table.index[1]) and len(table) == 2
+    np.testing.assert_allclose(table["mean_probability"], [0.5, (0.2 + 0.3) / 3])
+
+
+def test_calibration_table_on_nullable_dtypes_and_other_indices():
+    index = [30, 10, 20]
+    grades = pd.Series([1, 2, 1], index=index, dtype="Int64")
+    target = pd.Series([0, 1, 1], index=index, dtype="Int64")
+    probability = pd.Series([0.2, 0.4, 0.6], index=index, dtype="Float64")
+    table = calibration_table(
+        grades, target, probability, weights=pd.Series([1, 1, 3], index=index)
+    )
+    assert table.index.tolist() == [1, 2]
+    assert table["event"].tolist() == [3.0, 1.0]
+    np.testing.assert_allclose(table["mean_probability"], [(0.2 + 1.8) / 4, 0.4])
+    with pytest.raises(ValueError, match="weights must have the same index as groups"):
+        calibration_table(grades, target, probability, weights=pd.Series([1, 1, 3]))
+
+
+@pytest.mark.parametrize(
+    "weights,message",
+    [
+        ([1, -1], "weights must be finite and non-negative"),
+        ([0, 0], "weights must have a finite, positive total, got 0.0"),
+        ([1], "weights must have one weight per value of groups, got 1 for 2"),
+    ],
+)
+def test_invalid_calibration_table_weights(weights, message):
+    with pytest.raises(ValueError, match=message):
+        calibration_table(["a", "b"], [0, 1], [0.1, 0.2], weights=weights)
