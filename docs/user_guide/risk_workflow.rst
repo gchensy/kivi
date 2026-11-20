@@ -8,7 +8,7 @@ This example follows the steps of a scorecard project with kivi: screen the cand
 >>> import pandas as pd
 >>> from kivi.binning import bin_edges
 >>> from kivi.datasets import Dataset
->>> from kivi.evaluate import psi_table
+>>> from kivi.stability import psi_table
 >>> from kivi.woe import woe_table, woe_transform
 >>> data = Dataset.bank_data()
 >>> development, monitoring = data.iloc[:3000], data.iloc[3000:]

@@ -1,5 +1,6 @@
 import importlib
 import importlib.metadata
+import inspect
 
 import numpy as np
 import pandas as pd
@@ -8,8 +9,8 @@ import pytest
 import kivi
 from kivi.binning import bin_edges, cut
 from kivi.datasets import Dataset
-from kivi.evaluate import psi_table
-from kivi.woe import woe_table, woe_transform
+from kivi.stability import psi, psi_table
+from kivi.woe import iv, woe, woe_table, woe_transform
 
 
 def test_example_data():
@@ -371,3 +372,67 @@ def test_woe_transform_on_bank_matches_lookup():
 def test_woe_transform_validates_inputs(groups, table, unseen, message):
     with pytest.raises(ValueError, match=message):
         woe_transform(groups, table, unseen=unseen)
+
+
+def test_count_functions_match_the_tables():
+    groups = pd.Series(["a", "a", "a", "b", "b", "b", "c"])
+    target = pd.Series([1, 1, 0, 1, 0, 0, 1])
+    table = woe_table(groups, target)
+    np.testing.assert_allclose(woe(table.event, table.non_event), table.woe)
+    assert iv(table.event, table.non_event) == pytest.approx(table.iv.sum())
+    stability = psi_table(pd.Series(["x", "x", "y"]), pd.Series(["y", "y", "z"]))
+    assert psi(stability.reference, stability.current) == pytest.approx(stability.psi.sum())
+
+
+def test_count_functions_match_hand_calculation():
+    np.testing.assert_allclose(woe([2, 1], [1, 2]), [np.log(2), -np.log(2)])
+    assert iv([2, 1], [1, 2]) == pytest.approx(2 * np.log(2) / 3)
+    q = np.array([1, 1]) / 2
+    np.testing.assert_allclose(woe([0, 2], [1, 1]), np.log(np.array([0.5, 2]) / 2.5 / q))
+    np.testing.assert_allclose(woe([0, 2], [1, 1], smoothing=1), np.log(np.array([1, 2]) / 3 / q))
+    assert psi([1.5, 2.5], [3.0, 5.0]) == 0
+    p, r = np.array([1, 3]) / 4, np.array([2, 2]) / 4
+    assert psi([2, 2], [1, 3]) == pytest.approx(((p - r) * np.log(p / r)).sum())
+
+
+@pytest.mark.parametrize(
+    "first,second,message",
+    [
+        ([1, 2], [1], "must have the same length"),
+        ([[1, 2]], [1, 2], "must be one-dimensional, got 2 dimensions"),
+        ([1, -1], [1, 2], "finite, non-negative counts"),
+        ([1, np.nan], [1, 2], "finite, non-negative counts"),
+        ([0, 0], [1, 2], "must contain a positive count"),
+        (["a", "b"], [1, 2], "must contain numeric counts"),
+    ],
+)
+def test_count_functions_validate_counts(first, second, message):
+    for function in (woe, iv, psi):
+        with pytest.raises(ValueError, match=message):
+            function(first, second)
+    with pytest.raises(ValueError, match="smoothing must be finite and positive, got 0"):
+        psi([1, 2], [1, 2], smoothing=0)
+
+
+def test_positional_method_is_deprecated():
+    with pytest.warns(FutureWarning, match="passing method to bin_edges by position"):
+        edges = bin_edges([1, 2, 3, 4], 2, "uniform")
+    np.testing.assert_equal(edges, bin_edges([1, 2, 3, 4], 2, method="uniform"))
+    method = inspect.signature(bin_edges).parameters["method"]
+    assert method.kind is inspect.Parameter.KEYWORD_ONLY
+    with pytest.raises(TypeError, match="multiple values for 'method'"):
+        bin_edges([1, 2], 2, "uniform", method="quantile")
+    with pytest.raises(TypeError, match="positional arguments"):
+        bin_edges([1, 2], 2, "uniform", None)
+
+
+def test_evaluate_is_a_deprecated_alias_of_stability():
+    import kivi.evaluate
+    import kivi.stability
+
+    with pytest.warns(FutureWarning, match="import psi_table from kivi.stability"):
+        from kivi.evaluate import psi_table as old
+
+    assert old is kivi.stability.psi_table
+    with pytest.raises(AttributeError, match="has no attribute 'psi'"):
+        kivi.evaluate.psi  # noqa: B018

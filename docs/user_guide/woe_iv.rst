@@ -40,6 +40,14 @@ b            2      1           0.6667       0.3333 -0.6931  0.231
 >>> print(f"{result['iv'].sum():.4f}")
 0.4621
 
+When the counts are already aggregated, for example from a database query, ``woe`` and ``iv`` take the event and non-event counts of each group and give the same values:
+
+>>> from kivi.woe import iv, woe
+>>> woe([2, 1], [1, 2]).round(4)
+array([ 0.6931, -0.6931])
+>>> round(iv([2, 1], [1, 2]), 4)
+0.4621
+
 Smoothing empty cells
 ---------------------
 

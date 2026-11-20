@@ -12,7 +12,7 @@ The bundled bank marketing data records whether a customer subscribed to a term 
 >>> from kivi.datasets import Dataset
 >>> from kivi.binning import bin_edges
 >>> from kivi.woe import woe_table
->>> from kivi.evaluate import psi_table
+>>> from kivi.stability import psi_table
 >>> data = Dataset.bank_data()
 >>> data.shape
 (4521, 17)
