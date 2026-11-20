@@ -113,7 +113,7 @@ How the applications are simulated
 
 The default probability rises with the debt-to-income ratio and the number of inquiries, falls with age and income, and is higher for renters and for temporary and self-employed applicants. A hidden risk factor that no column holds also raises it, and the number of inquiries rises with that factor.
 
-The incumbent scorecard weighs the features differently and ignores ``housing``. Like an underwriter with a credit bureau report, it also sees part of the hidden risk factor. Rejected applicants are therefore riskier than approved applicants with the same features, so a model fitted on the approved applicants alone underestimates how often the rejected ones default:
+The incumbent scorecard weighs the features differently and ignores ``housing``. Like an underwriter with a credit bureau report, it also sees part of the hidden risk factor. Rejected applicants are therefore riskier than approved applicants with the same features, so a model fitted on the approved applicants alone underestimates how often the rejected ones default, as :doc:`reject_inference` shows. Overall, the rejected applicants default three times as often:
 
 >>> eligible = applications[~applications["policy_decline"]]
 >>> eligible.groupby("approved")["target"].mean().round(3)

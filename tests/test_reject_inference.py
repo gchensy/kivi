@@ -257,16 +257,26 @@ def test_integer_bins_are_quantiles_of_accepted_and_rejected_scores_together():
     )
 
 
-def test_tied_scores_warn_like_bin_edges():
+def test_tied_scores_warn_at_the_callers_line():
     score = [1.0] * 8 + [2.0, 3.0]
     target = [0, 1] * 5
-    with pytest.warns(UserWarning, match="tied edges leave 2 of the 5 requested bins"):
-        parceling(score, target, [1.0, 3.0], bins=5, rng=0)
+    message = (
+        "tied scores leave 2 of the 5 requested bands; the score 1.0 makes up 75% of the "
+        "scores, pass fewer bins or explicit edges"
+    )
+    for call in (
+        lambda: parceling(score, target, [1.0, 3.0], bins=5, rng=0),
+        lambda: reweighting(score, [1.0, 3.0], bins=5),
+    ):
+        with pytest.warns(UserWarning, match=re.escape(message)) as record:
+            call()
+        assert len(record) == 1
+        assert record[0].filename == __file__
 
 
 def test_parceling_raises_for_a_band_without_accepted_applicants():
     message = (
-        r"the score band \(0.5, 1\] holds 4 rejected applicant\(s\) but no accepted one, "
+        r"the score band \(0.5, 1.0\] holds 4 rejected applicant\(s\) but no accepted one, "
         r"so its bad rate is unknown; use fewer bins or wider edges"
     )
     with pytest.raises(ValueError, match=message):
@@ -374,7 +384,7 @@ def test_reweighting_weights_add_up_to_the_applicants_of_every_band():
 def test_reweighting_raises_beyond_a_hard_cut_off():
     # Approval below 0.5 on the score itself leaves the upper bands without accepts.
     message = (
-        r"the score band \(0.5, 1\] holds 4 rejected applicant\(s\) but no accepted one, so no "
+        r"the score band \(0.5, 1.0\] holds 4 rejected applicant\(s\) but no accepted one, so no "
         r"accepted applicant can stand in for them; use fewer bins or wider edges"
     )
     with pytest.raises(ValueError, match=message):

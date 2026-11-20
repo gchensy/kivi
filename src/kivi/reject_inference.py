@@ -13,7 +13,8 @@ weights, in a form that the ``weights`` arguments of kivi accept:
 """
 
 import math
-from numbers import Real
+import warnings
+from numbers import Integral, Real
 
 import numpy as np
 import numpy.typing as npt
@@ -49,7 +50,8 @@ def fuzzy_augmentation(probability: npt.ArrayLike, *, factor: float = 1.0) -> pd
         Two rows per rejected applicant, the bad row first, with the columns
         ``target``, 1 and then 0, and ``weight``, the PD times `factor`
         clipped to [0, 1] and its complement. The index repeats the index of
-        `probability`, or the positions when it is not a Series, so
+        `probability`, or its positions when it is not a Series. When
+        `probability` is a Series with the unique index of the rejects,
         ``rejects.loc[result.index]`` gives the features of every row.
 
     Raises
@@ -84,8 +86,10 @@ def fuzzy_augmentation(probability: npt.ArrayLike, *, factor: float = 1.0) -> pd
     encoding returns the coefficients of the accepts-only model exactly: at
     those coefficients, the weight of each reject's bad row equals its
     fitted PD, so the inferred rows leave the score equations unchanged. The
-    refit then only narrows the standard errors, which are approximate for
-    fractional weights. The model changes only with a factor other than 1,
+    refit only narrows the standard errors, although the inferred rows add
+    no information: with these weights, the standard errors of
+    `kivi.selection.logistic_regression` are too small. The model changes
+    only with a factor other than 1,
     with another encoding, such as WOE refitted on the augmented sample, or
     with other variables.
 
@@ -352,6 +356,10 @@ def reweighting(
     use a score on which accepted and rejected applicants overlap, such as
     the PD of the accepts-only model.
 
+    The weights add up to more than the number of accepted applicants, so
+    the standard errors of a fit with them are too small, as if the
+    outcomes of all applicants had been observed.
+
     References
     ----------
     .. [1] N. Siddiqi, "Credit Risk Scorecards: Developing and Implementing
@@ -411,7 +419,24 @@ def _bands(
     values: np.ndarray, reject_values: np.ndarray, bins, consequence: str
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Return the band edges and the band of every accepted and rejected score."""
-    edges = _band_edges(np.concatenate([values, reject_values]), bins, None)
+    pooled = np.concatenate([values, reject_values])
+    if not isinstance(bins, Integral) or isinstance(bins, bool):
+        edges = _band_edges(pooled, bins, None)
+    else:
+        # bin_edges warns about ties with advice on special values, which do not apply here.
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)
+            edges = _band_edges(pooled, bins, None)
+        if len(edges) - 1 < bins:
+            levels, counts = np.unique(pooled, return_counts=True)
+            top = int(counts.argmax())
+            warnings.warn(
+                f"tied scores leave {len(edges) - 1} of the {bins} requested bands; the score "
+                f"{float(levels[top])!r} makes up {counts[top] / len(pooled):.0%} of the scores, "
+                "pass fewer bins or explicit edges",
+                UserWarning,
+                stacklevel=3,
+            )
     bands = []
     for name, scores in (("score", values), ("reject_score", reject_values)):
         band = np.searchsorted(edges, scores, side="left") - 1
@@ -431,8 +456,9 @@ def _bands(
         band = int(np.argmax(unmatched))
         count = int((rejected == band).sum())
         raise ValueError(
-            f"the score band ({edges[band]:g}, {edges[band + 1]:g}] holds {count} rejected "
-            f"applicant(s) but no accepted one, so {consequence}; use fewer bins or wider edges"
+            f"the score band ({float(edges[band])!r}, {float(edges[band + 1])!r}] holds {count} "
+            f"rejected applicant(s) but no accepted one, so {consequence}; use fewer bins or "
+            "wider edges"
         )
     return edges, accepted, rejected
 

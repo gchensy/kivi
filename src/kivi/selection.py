@@ -214,8 +214,8 @@ def logistic_regression(
         Non-negative frequency weight of each row, matched like `target`: a
         row with weight 2 counts as two identical observations, so integer
         weights give the same estimates, standard errors and log-likelihood
-        as repeating rows. Rows with zero weight are left out. See the Notes
-        on fractional weights.
+        as repeating rows. Rows with zero weight are left out of the fit.
+        See the Notes on weights that do not count observations.
 
     Returns
     -------
@@ -241,8 +241,9 @@ def logistic_regression(
         does not match `X`, or it does not contain both 0 and 1 or has
         missing or other labels; or if `weights` is not numeric, does not
         give each row one finite, non-negative weight, or leaves a class
-        without weight. With `weights`, the checks of the columns apply to
-        the rows with positive weight.
+        without weight. With `weights`, only the checks for constant columns
+        and linear combinations are limited to the rows with positive
+        weight.
 
     Warns
     -----
@@ -282,11 +283,13 @@ def logistic_regression(
     counts as the number of independent observations, so multiplying every
     weight by :math:`c` divides the variances by :math:`c`. Integer weights
     that count repeated rows therefore give the standard errors of the
-    repeated rows. For fractional weights, such as those of
+    repeated rows. Weights that do not count observations do not: those of
     `kivi.reject_inference.fuzzy_augmentation`, which split each rejected
-    applicant into a bad and a good row, the standard errors and p-values
-    are only approximate: the outcomes of those rows are inferred, not
-    observed, and their uncertainty is not part of the standard errors.
+    applicant into a bad and a good row, and those of
+    `kivi.reject_inference.reweighting`, which let each accepted applicant
+    stand for several, make the standard errors too small and the p-values
+    too low. The inferred rows and the extra weight count as observations,
+    although they add no observed outcomes.
 
     References
     ----------
@@ -377,8 +380,10 @@ def stepwise(
         Non-negative frequency weight of each row, as in
         `logistic_regression`. Integer weights select the same variables as
         repeating rows. The p-values depend on the scale of the weights as
-        they do on the sample size, and they are approximate for
-        fractional weights, such as those of reject inference.
+        they do on the sample size. The weights of reject inference make
+        them too low, so that more variables enter than the observed
+        outcomes support; select the variables on the accepted applicants
+        instead.
 
     Returns
     -------

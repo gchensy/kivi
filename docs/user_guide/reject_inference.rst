@@ -100,7 +100,7 @@ housing           0.78
 employment        0.72
 Name: se, dtype: float64
 
-The refitted coefficients are those of the accepts-only model. At those coefficients, the bad row of each reject weighs exactly its fitted PD, so the inferred rows leave the fit where it was. Only the standard errors shrink, because the inferred rows count as observations. With fractional weights, the standard errors are only approximate in any case; see ``logistic_regression``. With a factor of 1, fuzzy augmentation changes the model only if the encoding is refitted on the augmented sample or the variables change.
+The refitted coefficients are those of the accepts-only model. At those coefficients, the bad row of each reject weighs exactly its fitted PD, so the inferred rows leave the fit where it was. Only the standard errors shrink, although the inferred rows add no information: they count as observations, so the standard errors of any fit with inferred rows are too small. Choose the variables on the accepts, not by the p-values of an augmented fit. With a factor of 1, fuzzy augmentation changes the model only if the encoding is refitted on the augmented sample or the variables change.
 
 Sensitivity to the factor
 -------------------------
@@ -149,10 +149,23 @@ target
 0    1818
 1     649
 Name: count, dtype: int64
+
+The rejects are labelled bad at 26.3%, less than the 28.6% that fuzzy augmentation infers with the same factor. Parceling knows only the band of a reject, not its features or its own PD. The riskiest band is open above and holds almost a third of the rejects, and they all get the bad rate of the band's accepts, which is below the mean PD that the model gives them.
+
+The draw adds noise to the refit. Over ten seeds, the Gini on the second sample varies by several thousandths:
+
+>>> ginis = [
+...     summary(refit(parceling(accept_pd, accepts["target"], reject_pd, factor=1.5, rng=seed)))
+...     for seed in range(10)
+... ]
+>>> print(f"{min(g['gini'] for g in ginis):.3f} to {max(g['gini'] for g in ginis):.3f}")
+0.418 to 0.425
+
+``expected=True`` instead returns the band's rate as the weight of a bad row and its complement as the weight of a good row, like ``fuzzy_augmentation``. That removes the noise of the draw, so the comparison below uses it:
+
+>>> parcels = parceling(accept_pd, accepts["target"], reject_pd, factor=1.5, expected=True)
 >>> models["parceling"] = refit(parcels)
 >>> results["parceling"] = summary(models["parceling"], parcels)
-
-The rejects are labelled bad at 26.3%, less than fuzzy augmentation infers with the same factor. Parceling knows only the band of a reject, not its features, so all rejects of a band get the same bad rate. ``expected=True`` returns that rate as the weight of a bad row and its complement as the weight of a good row, like ``fuzzy_augmentation``, which removes the noise of the draw.
 
 Reweighting
 -----------
@@ -167,17 +180,17 @@ Reweighting
 ... )
 >>> results["reweighting"] = summary(models["reweighting"])
 
-Reweighting assumes that rejects default like accepts with the same score, which is exactly what fails here. Each band must also hold accepts. On the incumbent PD, which decided the approval with a hard cut-off, the bands above the cut-off hold only rejects:
+Reweighting assumes that rejects default like accepts with the same score, which is exactly what fails here. The weights add up to all 9,237 applicants of the population, although only the 6,770 accepts have an observed outcome, so the standard errors of the fit are too small. Each band must also hold accepts. On the incumbent PD, which decided the approval with a hard cut-off, the bands above the cut-off hold only rejects:
 
 >>> reweighting(accepts["incumbent_pd"], rejects["incumbent_pd"])
 Traceback (most recent call last):
 ...
-ValueError: the score band (0.17118, 0.22684] holds 924 rejected applicant(s) but no accepted one, so no accepted applicant can stand in for them; use fewer bins or wider edges
+ValueError: the score band (0.17118, 0.22683999999999996] holds 924 rejected applicant(s) but no accepted one, so no accepted applicant can stand in for them; use fewer bins or wider edges
 
 Hard cut-off
 ------------
 
-The simplest method needs no function. Score the rejects with the accepts-only model, label those above a PD cut-off bad and the others good, and refit. Here the cut-off labels the riskiest 30% of the rejects bad:
+The simplest method needs no function. Score the rejects with the accepts-only model, label those above a PD cut-off bad and the others good, and refit. Here the cut-off labels the riskiest 30% of the rejects bad, close to their true bad rate; like the factor, that share is chosen with the known outcomes:
 
 >>> cut_off = reject_pd.quantile(0.7)
 >>> hard = pd.DataFrame({"target": (reject_pd > cut_off).astype(int), "weight": 1.0})
@@ -194,26 +207,26 @@ known           0.301      0.252  0.425
 fuzzy 1.25      0.238      0.221  0.421
 fuzzy 1.5       0.286      0.251  0.420
 fuzzy 2         0.381      0.312  0.419
-parceling       0.263      0.229  0.418
+parceling       0.263      0.229  0.421
 reweighting       NaN      0.186  0.422
 cut-off         0.300      0.311  0.418
 >>> compared = ["accepts", "known", "fuzzy 1.5", "parceling", "reweighting", "cut-off"]
 >>> pd.DataFrame({name: models[name]["coef"] for name in compared}).round(3)
                 accepts  known  fuzzy 1.5  parceling  reweighting  cut-off
-intercept        -2.230 -2.067     -2.130     -2.107       -2.228   -2.574
-age               1.223  1.640      1.652      1.440        1.201    2.644
-income            1.239  1.345      1.624      1.520        1.146    2.980
-debt_to_income    1.356  1.824      1.798      1.587        1.391    2.574
-inquiries         1.427  1.899      1.901      1.584        1.286    3.459
-housing           1.057  1.136      1.114      0.884        1.006    2.545
-employment        1.388  1.504      1.817      1.504        1.393    3.192
+intercept        -2.230 -2.067     -2.130     -2.104       -2.228   -2.574
+age               1.223  1.640      1.652      1.404        1.201    2.644
+income            1.239  1.345      1.624      1.373        1.146    2.980
+debt_to_income    1.356  1.824      1.798      1.627        1.391    2.574
+inquiries         1.427  1.899      1.901      1.596        1.286    3.459
+housing           1.057  1.136      1.114      0.938        1.006    2.545
+employment        1.388  1.504      1.817      1.542        1.393    3.192
 
 With the accepts' WOE, the known model weighs every variable more than the accepts-only model: across all applicants, the features separate good from bad more strongly than among the accepts. The methods compare as follows:
 
-* **Ranking.** The Gini on the second sample stays between 0.418 and 0.422 for every method, and the known model reaches only 0.425. The extra risk of the rejects comes from information that no feature holds, so no method can recover it.
-* **Fuzzy augmentation and parceling.** With a factor above 1, both raise the predicted bad rate of the rejects towards their true rate and move the coefficients towards those of the known model. With a factor of 1.5, fuzzy augmentation brings five of the seven coefficients within 0.07 of the known model's but overshoots ``income`` and ``employment``. Both methods help only as far as the factor is right.
+* **Ranking.** The Gini on the second sample stays between 0.418 and 0.422 for every method in the table, and the known model reaches only 0.425; the random labels of parceling reach that only by chance. The extra risk of the rejects comes from information that no feature holds, so no method can recover it.
+* **Fuzzy augmentation and parceling.** With a factor above 1, both raise the predicted bad rate of the rejects towards their true rate and move most coefficients towards those of the known model. With a factor of 1.5, fuzzy augmentation brings the intercept and four of the six variables within 0.07 of the known model, but overshoots ``income`` and ``employment``. Parceling lowers the coefficient of ``housing``, which the known model raises. Both methods help only as far as the factor is right.
 * **Reweighting.** It does not help here: weights cannot make the rejects riskier than the accepts of their band.
-* **Hard cut-off.** It treats the rejects above the cut-off as certainly bad and the others as certainly good, so the inferred outcomes follow the model's own score without error. The refit multiplies the coefficient of every variable by about 2 and ranks slightly worse.
+* **Hard cut-off.** It treats the rejects above the cut-off as certainly bad and the others as certainly good, so the inferred outcomes follow the model's own score without error. The refit multiplies the coefficient of every variable by 1.9 to 2.4 and ranks slightly worse.
 
 Refitting the WOE
 -----------------
@@ -240,11 +253,11 @@ fuzzy 1.5, WOE refitted    0.425
 known, WOE refitted        0.430
 dtype: float64
 
-Refitting the WOE raises the Gini from 0.422 to 0.425, against 0.430 for the known outcomes with their own WOE. It recovers part of a gap that is small to begin with.
+Refitting the WOE raises the Gini from 0.422 to 0.425, against 0.430 for the known outcomes with their own WOE. It recovers part of a gap that is small to begin with, and it does about as well with a factor of 1: the gain comes from refitting the WOE of the groups that the rejects fill, not from the factor.
 
 Limits
 ------
 
 * The methods infer outcomes from the accepts, so they cannot reveal what the accepts do not show. A factor above 1 encodes how much riskier the rejects are, and the data cannot estimate it.
-* Fractional weights make the standard errors and p-values of ``logistic_regression`` and ``stepwise`` approximate, as the inferred rows are counted as observations.
+* The weights of every method make the standard errors of ``logistic_regression`` too small and the p-values of ``stepwise`` too low, because inferred rows and extra weight count as observations. Select the variables on the accepts and read the p-values of a refit as optimistic.
 * kivi does not implement the Heckman two-stage model or other bivariate probit models of sample selection, nor iterative reclassification.

@@ -173,4 +173,4 @@ The standard errors treat the total weight as the number of independent observat
 >>> print(f"{(weighted['se'] / doubled['se']).mean():.4f}")
 1.4142
 
-Weights that do not count observations give approximate standard errors and p-values. The fractional weights of reject inference in :doc:`reject_inference` are such weights: each rejected applicant becomes a bad and a good row whose weights add up to 1, and those outcomes are inferred, not observed.
+Weights that do not count observations do not give the standard errors of the data. Those of reject inference in :doc:`reject_inference` make them too small. A rejected applicant becomes a bad and a good row whose outcomes are inferred, not observed, and reweighting lets each approved applicant count as several, but all of these rows count as observations. Read the p-values of such a fit as optimistic, and select the variables on the approved applicants.
