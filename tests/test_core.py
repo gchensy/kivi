@@ -508,7 +508,7 @@ def test_zero_weight_groups_are_left_out():
     result = woe_table(["a", "b", "b"], [1, 0, 1], weights=[0, 1, 1])
     assert result.index.tolist() == ["b"]
     assert result.total.tolist() == [2.0]
-    with pytest.raises(ValueError, match="both target classes a positive total"):
+    with pytest.raises(ValueError, match="positive total, got 1.0 for 0 and 0.0 for 1"):
         woe_table(["a", "b"], [1, 0], weights=[0, 1])
     stability = psi_table(["x", "y"], ["x", "z"], reference_weights=[1, 0], current_weights=[1, 0])
     assert stability.index.tolist() == ["x"]
