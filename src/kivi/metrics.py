@@ -294,9 +294,10 @@ def gains_table(
         ``bin_edges(score, bins=bins, weights=weights)`` does.
     weights : array_like, optional
         Non-negative weight of each observation, such as the inverse of its
-        sampling rate, matched like `target`. The counts become sums of weights, and
-        on the same edges integer weights give the same table as repeating
-        rows.
+        sampling rate, matched like `target`. The counts become sums of
+        weights. On the same edges, integer weights give the same table as
+        repeating rows; an integer `bins` can give other edges, because
+        weighted quantiles use the inverted CDF.
 
     Returns
     -------
@@ -311,9 +312,10 @@ def gains_table(
         lengths do not match, `target` has a label other than 0 and 1 or
         lacks one of them, `score` is not real and numeric or has a missing
         or infinite value, `bins` is neither a positive integer nor
-        increasing edges, or a score lies outside the edges. Also if `weights` is not numeric, does
-        not give each observation one finite, non-negative weight, has an
-        index other than that of `score`, or leaves a class without weight.
+        increasing edges, or a score lies outside the edges. Also if
+        `weights` is not numeric, does not give each observation one finite,
+        non-negative weight, has an index other than that of `score`, or
+        leaves a class without weight.
 
     Warns
     -----

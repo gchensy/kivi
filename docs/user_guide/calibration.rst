@@ -212,7 +212,7 @@ Isotonic regression assumes only that the event rate rises with the score. The p
 >>> probabilities[:4].round(4)
 array([0.0397, 0.0459, 0.069 , 0.0805])
 
-The bands are closed on the right, as in ``pandas.cut``, so they can also serve as grades. ``isotonic_predict`` gives each monitoring PD the probability of its band, and scores outside the development range get the probability of the lowest or the highest band:
+The bands are closed on the right, as in ``pandas.cut``, so they can also serve as grades. ``isotonic_predict`` gives each monitoring PD the probability of its band, and scores outside the development range get the probability of the lowest or the highest band. A score that falls between the observed scores of two bands gets the upper band; with ``increasing=False``, as for scorecard points, that is the band with the lower risk:
 
 >>> iso = isotonic_predict(low, edges, probabilities)
 >>> iso_table = calibration_table(pd.cut(low, edges), monitoring["target"], iso)

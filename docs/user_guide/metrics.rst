@@ -188,7 +188,7 @@ The group rates lower the Brier score by about 10% compared with the constant fo
 Weighted samples
 ----------------
 
-Validation samples often keep every event but only some of the non-events. Every function of :mod:`kivi.metrics` takes ``weights``, one non-negative weight per observation matched like the target, and then counts sums of weights instead of observations, so integer weights give the same result as repeating rows. To weight a sample back to the population, give each observation the inverse of its sampling rate. Below, every event of the validation sample is kept but only every second non-event:
+Validation samples often keep every event but only some of the non-events. Every function of :mod:`kivi.metrics` takes ``weights``, one non-negative weight per observation matched like the target, and then counts sums of weights instead of observations. Integer weights give the same result as repeating rows, for ``gains_table`` on fixed edges: with an integer ``bins``, the weighted quantiles of ``bin_edges`` use the inverted CDF and can give other edges than the repeated rows. To weight a sample back to the population, give each observation the inverse of its sampling rate. Below, every event of the validation sample is kept but only every second non-event:
 
 >>> non_events_so_far = (y == 0).cumsum()
 >>> kept = (y == 1) | (non_events_so_far % 2 == 0)
@@ -215,4 +215,3 @@ Without weights the sample has twice as many events per non-event as the populat
 [0.7073, 0.7073]
 
 Weights that differ within a class, such as the inverse sampling rates of a stratified sample, do change them.
-

@@ -197,4 +197,4 @@ contact   0.0119 -0.9260
 housing   0.0050 -0.4637
 age       0.5311 -0.4126
 
-A group without points, such as a category that the development sample did not have, raises an error unless ``unseen`` gives the points that its customers receive. For weighted samples, pass ``reference_weights`` and ``current_weights`` as for ``psi_table``.
+A group without points, such as a category that the development sample did not have, raises an error unless ``unseen_points`` gives the points that its customers receive. These are points, not a WOE: if ``woe_transform`` encoded the category with ``unseen=0.0``, pass the points of a WOE of 0, ``woe_to_points`` of a one-row frame of zeros, which are the same for every variable. For weighted samples, pass ``reference_weights`` and ``current_weights`` as for ``psi_table``.

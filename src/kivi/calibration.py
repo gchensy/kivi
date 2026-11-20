@@ -417,7 +417,8 @@ def isotonic_fit(
     The outer edges are infinite, so a score below or above the fitted
     range gets the probability of the lowest or highest band. A score
     between the observed scores of two bands falls into the upper one,
-    whose interval it belongs to. scikit-learn's ``IsotonicRegression``
+    whose interval it belongs to; with ``increasing=False``, that is the
+    band with the lower risk. scikit-learn's ``IsotonicRegression``
     interpolates linearly between the bands instead; both give the same
     probability at every score of the fitted sample [2]_.
 
