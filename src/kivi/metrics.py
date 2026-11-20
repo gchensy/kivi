@@ -525,8 +525,12 @@ def _scores_and_labels(
         raise ValueError(f"target must contain both 0 and 1, got only {labels[0]}")
     mass = as_weights(weights, raw_score, of=name)
     if both_classes and mass is not None:
-        if not (np.bincount(labels, weights=mass, minlength=2) > 0).all():
-            raise ValueError("weights must give both target classes a positive total")
+        totals = np.bincount(labels, weights=mass, minlength=2)
+        if not (totals > 0).all():
+            raise ValueError(
+                "weights must give both target classes a positive total, got "
+                f"{float(totals[0])!r} for 0 and {float(totals[1])!r} for 1"
+            )
     return values, labels, mass
 
 

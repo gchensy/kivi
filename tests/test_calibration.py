@@ -457,6 +457,25 @@ def test_platt_fit_raises_when_the_score_separates_the_classes(score, target):
     assert probabilities.min() == 0 and probabilities.max() == 1
 
 
+def test_predictions_take_the_same_inputs_however_they_arrive():
+    edges, probabilities = [-INF, 0.5, INF], [0.1, 0.9]
+    for score in (
+        [0.2, 0.7],
+        np.array([0.2, 0.7], dtype=object),
+        pd.Series([0.2, 0.7], dtype=object),
+    ):
+        np.testing.assert_allclose(isotonic_predict(score, edges, probabilities), [0.1, 0.9])
+        np.testing.assert_allclose(
+            platt_predict(score, 2.0, -1.0), platt_predict([0.2, 0.7], 2.0, -1.0)
+        )
+    np.testing.assert_array_equal(
+        isotonic_predict([0.2, None], edges, probabilities), [0.1, np.nan]
+    )
+    assert isotonic_predict([], edges, probabilities).shape == (0,)
+    with pytest.raises(ValueError, match="score must be real and numeric, got 'a'"):
+        isotonic_predict("a", edges, probabilities)
+
+
 def test_platt_fit_rejects_a_constant_score():
     with pytest.raises(ValueError, match="score must vary to fit a slope, got only 3.0"):
         platt_fit([3, 3, 3], [0, 1, 0])
@@ -496,9 +515,13 @@ def test_platt_predict_shapes_and_extreme_scores():
     [
         ([0.1], np.nan, 0.0, "slope must be a finite number, got nan"),
         ([0.1], 1.0, True, "intercept must be a finite number, got True"),
-        (["a"], 1.0, 0.0, "score must be real and numeric, got dtype <U1"),
-        (pd.Series(["a"]), 1.0, 0.0, "score must be real and numeric, got dtype"),
-        (np.array([1 + 1j]), 1.0, 0.0, "score must be real and numeric, got dtype complex128"),
+        (["a"], 1.0, 0.0, "score must be real and numeric, got 'a' of dtype"),
+        (pd.Series(["a"]), 1.0, 0.0, "score must be real and numeric, got 'a' of dtype"),
+        (np.array([1 + 1j]), 1.0, 0.0, r"must be real and numeric, got \(1\+1j\) of dtype complex"),
+        (np.array([1, "2"], dtype=object), 1.0, 0.0, "real and numeric, got '2' of dtype object"),
+        (pd.Series([1, "2"], dtype=object), 1.0, 0.0, "real and numeric, got '2' of dtype object"),
+        (np.ones((2, 2)), 1.0, 0.0, "score must be a scalar or one-dimensional, got 2 dimensions"),
+        (pd.DataFrame({"s": [0.1]}), 1.0, 0.0, "scalar or one-dimensional, got 2 dimensions"),
     ],
 )
 def test_invalid_platt_predict(score, slope, intercept, message):
@@ -658,7 +681,13 @@ def test_isotonic_on_series_with_other_indices_and_nullable_dtypes():
         (isotonic_fit, [1, 2], [0, 1], {"increasing": "yes"}, "increasing must be True or False"),
         (isotonic_fit, [1, 2], [1, 1], {}, "target must contain both 0 and 1, got only 1"),
         (isotonic_fit, [1, np.nan], [0, 1], {}, "score must be finite, got 1 missing"),
-        (platt_fit, [1, 2], [0, 1], {"weights": [1, 0]}, "weights must give both target classes"),
+        (
+            platt_fit,
+            [1, 2],
+            [0, 1],
+            {"weights": [1, 0]},
+            "weights must give both target classes a positive total, got 1.0 for 0 and 0.0 for 1",
+        ),
         (platt_fit, [1, 2], [0, 1], {"weights": [1]}, "weights must have one weight per value"),
         (platt_fit, [1, 2], [0, 2], {}, "target must contain only 0 and 1, got 2"),
         (platt_fit, [1, 2, 3], [0, 1], {}, "score and target must have the same length"),
@@ -679,7 +708,9 @@ def test_invalid_calibration_fits(fit, score, target, options, message):
         ([-INF, 1, INF], [0.1], r"one value for each of the 2 band\(s\), got shape \(1,\)"),
         ([-INF, 1, INF], [0.1, 1.2], "probabilities must be between 0 and 1, got 1.2"),
         ([-INF, 1, INF], [0.1, np.nan], "probabilities must not have missing values"),
-        ([-INF, 1, INF], ["a", "b"], "edges and probabilities must be numeric"),
+        ([-INF, 1, INF], ["a", "b"], "probabilities must be real and numeric, got 'a' of dtype"),
+        ([-INF, "1", INF], [0.1, 0.2], "edges must be real and numeric, got '1' of dtype object"),
+        (np.ones((2, 2)), [0.1], "edges must be one-dimensional, got 2 dimensions"),
     ],
 )
 def test_invalid_isotonic_bands(edges, probabilities, message):

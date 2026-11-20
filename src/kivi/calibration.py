@@ -273,7 +273,10 @@ def platt_fit(
             "likelihood is infinite; isotonic_fit handles a separating score"
         ) from None
     except _logit.SingularError:
-        raise ValueError("score varies too little relative to its size to fit a slope") from None
+        raise ValueError(
+            "score varies too little relative to its size to fit a slope, got scores from "
+            f"{float(values.min())!r} to {float(values.max())!r}"
+        ) from None
     if not fitted.converged:
         warnings.warn(
             f"Platt scaling did not converge after {fitted.n_iter} iterations",
@@ -976,11 +979,8 @@ def _pool_adjacent_violators(
 
 def _isotonic_bands(edges, probabilities) -> tuple[np.ndarray, np.ndarray]:
     """Check and return the band edges and probabilities of an isotonic calibration."""
-    try:
-        edges = np.asarray(edges, dtype=float)
-        probabilities = np.asarray(probabilities, dtype=float)
-    except (TypeError, ValueError):
-        raise ValueError("edges and probabilities must be numeric") from None
+    edges = _numeric_values(edges, "edges")
+    probabilities = _numeric_values(probabilities, "probabilities")
     if (
         edges.ndim != 1
         or len(edges) < 2
@@ -1001,19 +1001,43 @@ def _isotonic_bands(edges, probabilities) -> tuple[np.ndarray, np.ndarray]:
 
 
 def _float_scores(values: npt.ArrayLike, name: str) -> np.ndarray:
-    """Scores as a float array, with missing values as NaN."""
-    if isinstance(values, pd.Series):
-        dtype = values.dtype
-        if not pd.api.types.is_numeric_dtype(dtype) or pd.api.types.is_complex_dtype(dtype):
-            raise ValueError(f"{name} must be real and numeric, got dtype {dtype}")
-        return values.to_numpy(dtype=float, na_value=np.nan)
-    array = np.asarray(values)
-    if array.dtype.kind in "cUSMm":
-        raise ValueError(f"{name} must be real and numeric, got dtype {array.dtype}")
-    try:
-        return array.astype(float)
-    except (TypeError, ValueError):
-        raise ValueError(f"{name} must be real and numeric, got dtype {array.dtype}") from None
+    """Return a scalar or one-dimensional scores as floats, with missing values as NaN.
+
+    A scalar gives a zero-dimensional array, so `_shaped` returns a float.
+    """
+    if np.ndim(values) == 0 and not isinstance(values, pd.Series):
+        return _numeric_values([values], name).reshape(())
+    if np.ndim(values) > 1:
+        raise ValueError(
+            f"{name} must be a scalar or one-dimensional, got {np.ndim(values)} dimensions"
+        )
+    return _numeric_values(values, name)
+
+
+def _numeric_values(values: npt.ArrayLike, name: str) -> np.ndarray:
+    """Return one-dimensional real numeric values as floats, with missing values as NaN.
+
+    Lists and object arrays are judged by their elements, as a Series built
+    from them, so numbers held as strings are rejected however they arrive.
+    """
+    series = as_series(values, name)
+    if pd.api.types.is_object_dtype(series.dtype):
+        series = series.infer_objects()
+    dtype = series.dtype
+    if series.empty and pd.api.types.is_object_dtype(dtype):
+        return np.empty(0)
+    if not pd.api.types.is_numeric_dtype(dtype) or pd.api.types.is_complex_dtype(dtype):
+        shown = next(
+            (
+                value
+                for value in series
+                if not isinstance(value, Real)
+                and not (pd.api.types.is_scalar(value) and pd.isna(value))
+            ),
+            series.iloc[0],
+        )
+        raise ValueError(f"{name} must be real and numeric, got {shown!r} of dtype {dtype}")
+    return series.to_numpy(dtype=float, na_value=np.nan)
 
 
 def _shaped(template: npt.ArrayLike, values: np.ndarray) -> float | pd.Series | np.ndarray:
