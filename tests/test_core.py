@@ -108,9 +108,12 @@ def test_special_value_bins_on_bank_pdays():
     np.testing.assert_equal(edges[1:-1], np.quantile(bank.pdays[~is_special], probabilities))
     result = woe_table(cut(bank.pdays, edges, special=[-1]), bank.target)
     special_counts = bank.target[is_special].value_counts().reindex([0, 1]).to_numpy()
-    interval_counts = pd.crosstab(pd.cut(bank.pdays[~is_special], edges), bank.target[~is_special])
+    intervals = pd.cut(bank.pdays[~is_special], edges)
+    # Cross-tabulate the codes: crosstab hashes interval categories, which warns on NumPy < 2.2.
+    interval_counts = pd.crosstab(intervals.cat.codes, bank.target[~is_special])
     expected = np.vstack([special_counts, interval_counts.to_numpy()])
-    assert result.index[0] == -1 and result.index[1:].tolist() == interval_counts.index.tolist()
+    observed = intervals.cat.categories[interval_counts.index].tolist()
+    assert result.index[0] == -1 and result.index[1:].tolist() == observed
     np.testing.assert_equal(result[["non_event", "event"]].to_numpy(), expected)
     p, q = expected[:, 1] / expected[:, 1].sum(), expected[:, 0] / expected[:, 0].sum()
     assert result.iv.sum() == pytest.approx(((p - q) * np.log(p / q)).sum())
@@ -231,6 +234,25 @@ def test_psi_keeps_category_order_and_absent_special_values():
     q = np.array([2, 1, 1, 0.5]) / 4.5
     p = np.array([0.5, 1, 2, 1]) / 4.5
     np.testing.assert_allclose(result.psi, (p - q) * np.log(p / q))
+
+
+def test_interval_bins_are_counted_without_hashing_their_dtype(monkeypatch):
+    # Hashing interval categories with infinite edges warns on NumPy < 2.2.
+    def unhashable(self):
+        raise AssertionError("CategoricalDtype was hashed")
+
+    edges = bin_edges(pd.Series([1, 2, 3, 4]), bins=2)
+    before = pd.cut(pd.Series([1, 2, 3, np.nan]), edges)
+    after = pd.cut(pd.Series([4, 4, 1]), edges)
+    monkeypatch.setattr(pd.CategoricalDtype, "__hash__", unhashable)
+    psi = psi_table(before, after)
+    woe = woe_table(before, pd.Series([0, 1, 1, 0]))
+    monkeypatch.undo()
+    assert psi.index.dtype == before.dtype
+    np.testing.assert_equal(psi.reference.to_numpy(), [2, 1, 1])
+    np.testing.assert_equal(psi.current.to_numpy(), [1, 2, 0])
+    np.testing.assert_equal(woe.event.to_numpy(), [1, 1, 0])
+    np.testing.assert_equal(woe.non_event.to_numpy(), [1, 0, 1])
 
 
 def test_psi_accepts_array_like():

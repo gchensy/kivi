@@ -232,7 +232,8 @@ def test_bank_pdays_code_is_fitted_separately(reference, fit):
     table = woe_table(cut(pdays, edges, special=[-1]), target)
     assert table.index[0] == -1 and len(table) == len(edges)
     assert table.loc[-1, ["non_event", "event"]].tolist() == [2247, 228]
-    intervals = pd.crosstab(pd.cut(contacted, edges), target[~is_special])
+    # Cross-tabulate the codes: crosstab hashes interval categories, which warns on NumPy < 2.2.
+    intervals = pd.crosstab(pd.cut(contacted, edges).cat.codes, target[~is_special])
     np.testing.assert_equal(table.iloc[1:][["non_event", "event"]].to_numpy(), intervals.to_numpy())
     assert table.iloc[1:][["non_event", "event"]].sum().tolist() == [405, 120]
     if fit is monotonic_edges:

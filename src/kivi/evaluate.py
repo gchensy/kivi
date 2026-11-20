@@ -83,12 +83,18 @@ def psi_table(
     reference, current = as_series(reference, "reference"), as_series(current, "current")
     if reference.empty or current.empty:
         raise ValueError("reference and current must both contain observations")
-    groups = pd.concat([reference, current], ignore_index=True)
+    # pd.concat and join hash interval categories, which warns on NumPy < 2.2, so samples
+    # binned with the same edges are joined by their codes and shares assigned by position.
+    if isinstance(reference.dtype, pd.CategoricalDtype) and reference.dtype == current.dtype:
+        codes = np.concatenate([reference.cat.codes, current.cat.codes])
+        groups = pd.Series(pd.Categorical.from_codes(codes, dtype=reference.dtype))
+    else:
+        groups = pd.concat([reference, current], ignore_index=True)
     side = np.repeat([0, 1], [len(reference), len(current)])
     counts = group_counts(groups, side)
     counts.columns = ["reference", "current"]
-    proportions = shares(counts, smoothing)
-    result = counts.join(proportions.add_suffix("_share"))
+    share = shares(counts, smoothing).to_numpy()
+    result = counts.assign(reference_share=share[:, 0], current_share=share[:, 1])
     result["psi"] = (result.current_share - result.reference_share) * np.log(
         result.current_share / result.reference_share
     )
