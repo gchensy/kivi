@@ -183,8 +183,13 @@ def test_cutoff_table_matches_series_by_index_and_arrays_by_position():
     pd.testing.assert_frame_equal(cutoff_table(score, TARGET, cutoffs=[0.3, 1.0]), expected)
     with pytest.raises(ValueError, match="identical indices"):
         cutoff_table(score, target.reset_index(drop=True), cutoffs=[0.3])
-    with pytest.raises(ValueError, match="loss must have the same index as score"):
+    with pytest.raises(ValueError, match="score and loss must have identical indices"):
         cutoff_table(score, target, cutoffs=[0.3], loss=pd.Series(np.ones(8)))
+    # Every pair of Series must match, also when score is a list.
+    with pytest.raises(ValueError, match="target and loss must have identical indices"):
+        cutoff_table(SCORE, target, cutoffs=[0.3], loss=pd.Series(np.ones(8)))
+    with pytest.raises(ValueError, match="target and weights must have identical indices"):
+        cutoff_table(SCORE, target, cutoffs=[0.3], weights=pd.Series(np.ones(8)))
 
 
 def test_cutoff_table_does_not_mutate_inputs():
@@ -394,7 +399,7 @@ def test_expected_loss_does_not_mutate_inputs():
         ([0.1, 0.2], [0.5, 1.5], 100, "lgd must be between 0 and 1, got 1.5"),
         ([0.1, 0.2], 0.5, [100, -1], "ead must be finite and non-negative, got -1.0"),
         ([0.1, 0.2], 0.5, [100, np.inf], "ead must be finite and non-negative, got inf"),
-        (["0.1"], 0.5, 100, "probability must be real and numeric, got dtype <U3"),
+        (["0.1"], 0.5, 100, "probability must be real and numeric, got dtype (object|str)"),
         ([0.1], True, 100, "lgd must be real and numeric, got dtype bool"),
         ([0.1], 0.5, None, "ead must be real and numeric, got dtype object"),
         ([0.1, 0.2], [0.5, 0.5, 0.5], 100, "cannot be broadcast together"),
@@ -514,7 +519,7 @@ def test_expected_loss_table_matches_series_by_index():
         (["A", "B"], [0.1, 0.2], [0.5, np.nan], 1.0, "lgd must not have missing values"),
         (["A", "B"], [0.1, 0.2], 0.5, [1.0, np.nan], "ead must not have missing values"),
         (["A", "B"], [0.1, 0.2], [0.5] * 3, 1.0, r"lgd must be one value or one per exposure"),
-        (["A", "B"], [0.1, 0.2, 0.3], 0.5, 1.0, "probability must be one value or one per"),
+        (["A", "B"], [0.1, 0.2, 0.3], 0.5, 1.0, "groups and probability must have the same length"),
         (["A", "B"], 0.1, 0.5, 1.0, "probability must be one-dimensional"),
         (["A", "B"], [0.1, 2.0], 0.5, 1.0, "probability must be between 0 and 1, got 2.0"),
         (["A", "B"], [0.1, 0.2], 0.5, [1.0, -3.0], "ead must be finite and non-negative"),
@@ -528,3 +533,103 @@ def test_expected_loss_table_rejects_invalid_inputs(groups, probability, lgd, ea
 def test_expected_loss_table_rejects_invalid_weights():
     with pytest.raises(ValueError, match="weights must have a finite, positive total"):
         expected_loss_table(["A", "B"], [0.1, 0.2], 0.5, 1.0, weights=[0, 0])
+
+
+def test_cutoff_table_accepts_nullable_and_index_cutoffs():
+    expected = cutoff_table(SCORE, TARGET, cutoffs=[0.0, 1.0])
+    for cutoffs in (pd.Series([0, 1], dtype="Int64"), pd.Index([0.0, 1.0]), np.array([0, 1])):
+        pd.testing.assert_frame_equal(cutoff_table(SCORE, TARGET, cutoffs=cutoffs), expected)
+
+
+def test_cutoff_table_integer_with_weights_is_the_cumulative_weighted_gains_table():
+    rng = np.random.default_rng(12)
+    score = rng.integers(0, 40, 300) / 8
+    target = (rng.random(300) < 0.15 + 0.02 * score).astype(int)
+    weights = rng.uniform(0, 3, 300)
+    table = cutoff_table(score, target, cutoffs=8, weights=weights)
+    edges = np.r_[-np.inf, table.index]
+    gains = gains_table(score, target, bins=edges, weights=weights).iloc[::-1]
+    np.testing.assert_allclose(table["approved"], np.cumsum(gains["total"]))
+    np.testing.assert_allclose(table["approved_event"], np.cumsum(gains["event"]))
+
+
+def test_cutoff_table_without_approved_weight_has_no_event_rate():
+    # The lowest score has no weight, so the first cut-off approves no weight at all.
+    table = cutoff_table(SCORE, TARGET, cutoffs=[0.1, 0.2], weights=[0, 1, 1, 1, 1, 1, 1, 1])
+    assert table["approved"].tolist() == [0.0, 2.0]
+    assert np.isnan(table["approved_event_rate"].iloc[0])
+    assert table["approved_event_rate"].iloc[1] == 0.5
+
+
+def test_swap_set_fractional_weights_match_brute_force():
+    rng = np.random.default_rng(13)
+    current, new = rng.random(200), rng.random(200)
+    target = np.where(rng.random(200) < 0.3, 1.0, 0.0)
+    target[rng.random(200) < 0.2] = np.nan
+    weights = rng.uniform(0, 2, 200)
+    weights[:10] = 0
+    table = swap_set(current, new, target, current_cutoff=0.6, new_cutoff=0.55, weights=weights)
+    known = ~np.isnan(target)
+    for (current_decision, new_decision), row in table.iterrows():
+        cell = ((current <= 0.6) == (current_decision == "approve")) & (
+            (new <= 0.55) == (new_decision == "approve")
+        )
+        assert row["total"] == pytest.approx(weights[cell].sum())
+        assert row["share"] == pytest.approx(weights[cell].sum() / weights.sum())
+        assert row["known"] == pytest.approx(weights[cell & known].sum())
+        assert row["event"] == pytest.approx(weights[cell & (target == 1)].sum())
+
+
+def test_swap_set_accepts_boolean_scores_and_fraction_cutoffs():
+    from fractions import Fraction
+
+    table = swap_set(
+        [False, True, False, True],
+        [0.1, 0.2, 0.3, 0.4],
+        current_cutoff=0,
+        new_cutoff=Fraction(1, 4),
+    )
+    assert table["total"].tolist() == [1, 1, 1, 1]
+
+
+def test_swap_set_rejects_weights_with_another_index():
+    current = pd.Series(CURRENT)
+    with pytest.raises(ValueError, match="current and weights must have identical indices"):
+        swap_set(
+            current,
+            NEW,
+            current_cutoff=0.4,
+            new_cutoff=0.4,
+            weights=pd.Series([1] * 8, index=range(1, 9)),
+        )
+
+
+def test_expected_loss_reads_none_and_nullable_values_as_missing():
+    np.testing.assert_allclose(expected_loss([0.1, None], 0.5, 10.0), [0.5, np.nan])
+    nullable = pd.array([0.1, None], dtype="Float64")
+    np.testing.assert_allclose(expected_loss(nullable, 0.5, [10.0, 20.0]), [0.5, np.nan])
+
+
+def test_expected_loss_broadcasts_arrays_and_series():
+    result = expected_loss(np.array([[0.1], [0.2]]), [0.5, 1.0, 0.0], 100.0)
+    np.testing.assert_allclose(result, [[5.0, 10.0, 0.0], [10.0, 20.0, 0.0]])
+    series = expected_loss(pd.Series([0.1, 0.2], index=["a", "b"]), [0.5], np.array([10.0]))
+    assert series.index.tolist() == ["a", "b"]
+    np.testing.assert_allclose(series, [0.5, 1.0])
+
+
+def test_expected_loss_table_accepts_length_one_lgd_and_counts_missing_scalars_once():
+    table = expected_loss_table(["A", "B", "A"], [0.1, 0.2, 0.3], [0.5], 10.0)
+    np.testing.assert_allclose(table["expected_loss"], [2.0, 1.0])
+    with pytest.raises(ValueError, match="lgd must not have missing values, got 1$"):
+        expected_loss_table(["A", "B", "A"], [0.1, 0.2, 0.3], np.nan, 10.0)
+
+
+def test_expected_loss_table_on_interval_grades():
+    probability = pd.Series([0.01, 0.03, 0.07, 0.2, 0.5, 0.04])
+    grades = pd.cut(probability, [0, 0.05, 0.1, 0.3, 1], include_lowest=True)
+    table = expected_loss_table(grades, probability, 0.5, 100.0)
+    # Rows follow the interval categories, matched by code rather than by hashing intervals.
+    assert len(table) == 4
+    assert table["total"].tolist() == [3, 1, 1, 1]
+    np.testing.assert_allclose(table["exposure_weighted_probability"], [0.08 / 3, 0.07, 0.2, 0.5])

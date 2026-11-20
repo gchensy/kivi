@@ -11,6 +11,7 @@ so negate scorecard points before passing them in. An applicant is approved
 when the score is at or below the cut-off.
 """
 
+import math
 from numbers import Integral, Real
 
 import numpy as np
@@ -145,6 +146,7 @@ def cutoff_table(
     0.5                     0.75                       0.0
     1.0                     0.00                       0.0
     """
+    _check_indices({"score": score, "target": target, "loss": loss, "weights": weights})
     values, labels, mass = scores_and_labels(score, target, "score", weights=weights)
     points = _cutoff_values(values, cutoffs, mass)
     amounts = None if loss is None else _loss_amounts(loss, score)
@@ -377,11 +379,10 @@ def expected_loss(
     >>> expected_loss([0.02, 0.1, 0.25], 0.45, [1000, 500, 200])
     array([ 9. , 22.5, 22.5])
     """
-    arrays, template = _loss_inputs({"probability": probability, "lgd": lgd, "ead": ead})
-    values = arrays["probability"] * arrays["lgd"] * arrays["ead"]
-    if isinstance(template, pd.Series):
-        return pd.Series(values, index=template.index, name=template.name)
-    return like_input(template, values)
+    inputs = {"probability": probability, "lgd": lgd, "ead": ead}
+    _check_indices(inputs)
+    arrays, template = _loss_inputs(inputs)
+    return like_input(template, arrays["probability"] * arrays["lgd"] * arrays["ead"])
 
 
 def expected_loss_table(
@@ -416,8 +417,10 @@ def expected_loss_table(
         Non-negative weight of each exposure, such as the inverse of its
         sampling rate, matched like `probability`. Counts, exposures and
         losses become sums of weights, so integer weights give the same
-        table as repeating rows, and groups whose weights sum to zero are
-        left out.
+        groups and sums as repeating rows, and groups whose weights sum to
+        zero are left out. Groups that are not categorical keep the order in
+        which they first appear, also in rows of zero weight, so their order
+        can differ from that of repeated rows.
 
     Returns
     -------
@@ -490,16 +493,16 @@ def expected_loss_table(
     )
     raw_groups = groups
     groups = as_series(groups, "groups")
-    as_series(probability, "probability")
+    length = len(as_series(probability, "probability"))
+    if length != len(groups):
+        raise ValueError(
+            f"groups and probability must have the same length, got {len(groups)} and {length}"
+        )
     if not len(groups):
         raise ValueError("groups and probability must not be empty")
     arrays, _ = _loss_inputs(
         {"probability": probability, "lgd": lgd, "ead": ead}, length=len(groups)
     )
-    for name, values in arrays.items():
-        missing = np.isnan(values)
-        if missing.any():
-            raise ValueError(f"{name} must not have missing values, got {missing.sum()}")
     mass = as_weights(weights, raw_groups, of="groups")
     counts = group_counts(groups, np.zeros(len(groups), dtype=np.intp), mass)
     rows = _group_rows(groups, counts.index)
@@ -535,20 +538,19 @@ def _cutoff_values(values: np.ndarray, cutoffs, weights: np.ndarray | None) -> n
         # The same edges, and the same warning for tied quantiles, as bin_edges; the last
         # edge, infinity, approves everyone.
         return bin_edges(values, bins=int(cutoffs), weights=weights)[1:]
-    if isinstance(cutoffs, pd.Series):
-        array = cutoffs.to_numpy()
-    else:
-        array = np.asarray(cutoffs)
-    if array.dtype.kind not in "iuf" or array.ndim != 1 or not len(array):
+    if np.ndim(cutoffs) != 1:
         raise ValueError(message.format(cutoffs))
-    array = array.astype(float)
+    series = cutoffs if isinstance(cutoffs, pd.Series) else pd.Series(cutoffs)
+    if not len(series) or not _is_real(series.dtype):
+        raise ValueError(message.format(cutoffs))
+    array = series.to_numpy(dtype=float, na_value=np.nan)
     if np.isnan(array).any() or not (np.diff(array) > 0).all():
         raise ValueError(message.format(cutoffs))
     return array
 
 
 def _cutoff(value, name: str) -> float:
-    if isinstance(value, bool) or not isinstance(value, Real) or np.isnan(value):
+    if isinstance(value, bool) or not isinstance(value, Real) or math.isnan(float(value)):
         raise ValueError(f"{name} must be a number, got {value!r}")
     return float(value)
 
@@ -562,27 +564,38 @@ def _check_indices(inputs: dict) -> None:
             raise ValueError(f"{names[0]} and {name} must have identical indices")
 
 
+def _is_real(dtype) -> bool:
+    """Whether a NumPy or pandas dtype holds real numbers other than booleans."""
+    return (
+        pd.api.types.is_numeric_dtype(dtype)
+        and not pd.api.types.is_bool_dtype(dtype)
+        and not pd.api.types.is_complex_dtype(dtype)
+    )
+
+
 def _real(values, name: str) -> np.ndarray:
     """Float array of real numeric values, keeping the shape; missing values become NaN."""
+    if not isinstance(values, pd.Series) and np.ndim(values) == 1:
+        # pandas reads [0.1, None] and nullable arrays as numbers, where NumPy keeps objects.
+        values = pd.Series(values)
     if isinstance(values, pd.Series):
         dtype = values.dtype
-        numeric = (
-            pd.api.types.is_numeric_dtype(dtype)
-            and not pd.api.types.is_bool_dtype(dtype)
-            and not pd.api.types.is_complex_dtype(dtype)
-        )
-        if numeric:
+        if _is_real(dtype):
             return values.to_numpy(dtype=float, na_value=np.nan)
     else:
         array = np.asarray(values)
         dtype = array.dtype
-        if dtype.kind in "iuf":
+        if _is_real(dtype):
             return array.astype(float)
     raise ValueError(f"{name} must be real and numeric, got dtype {dtype}")
 
 
 def _finite_scores(values: pd.Series, name: str) -> np.ndarray:
-    array = _real(values, name)
+    """Finite float scores; booleans are accepted, as in ``kivi.metrics``."""
+    dtype = values.dtype
+    if not pd.api.types.is_numeric_dtype(dtype) or pd.api.types.is_complex_dtype(dtype):
+        raise ValueError(f"{name} must be real and numeric, got dtype {dtype}")
+    array = values.to_numpy(dtype=float, na_value=np.nan)
     finite = np.isfinite(array)
     if not finite.all():
         raise ValueError(
@@ -611,9 +624,6 @@ def _outcomes(target, length: int) -> tuple[np.ndarray, np.ndarray]:
 
 
 def _loss_amounts(loss, score) -> np.ndarray:
-    if isinstance(loss, pd.Series) and isinstance(score, pd.Series):
-        if not loss.index.equals(score.index):
-            raise ValueError("loss must have the same index as score")
     amounts = _real(as_series(loss, "loss"), "loss")
     if len(amounts) != len(score):
         raise ValueError(
@@ -630,17 +640,21 @@ def _loss_amounts(loss, score) -> np.ndarray:
 def _loss_inputs(inputs: dict, length: int | None = None) -> tuple[dict, object]:
     """Broadcast and check PD, LGD and EAD; also return the input whose shape the result takes.
 
-    With ``length``, every input must be a scalar or have that length.
+    With ``length``, for a table, every input must broadcast to that length and must not have
+    missing values.
     """
-    _check_indices(inputs)
     arrays = {name: _real(values, name) for name, values in inputs.items()}
     if length is not None:
         for name, array in arrays.items():
-            if array.ndim > 1 or (array.ndim == 1 and len(array) != length):
+            if array.ndim > 1 or (array.ndim == 1 and len(array) not in (1, length)):
                 raise ValueError(
                     f"{name} must be one value or one per exposure, got shape {array.shape} "
                     f"for {length} exposures"
                 )
+            # Count before broadcasting, so a missing scalar counts once.
+            missing = np.isnan(array)
+            if missing.any():
+                raise ValueError(f"{name} must not have missing values, got {missing.sum()}")
         shape = (length,)
     else:
         try:

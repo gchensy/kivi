@@ -80,7 +80,7 @@ cutoff
 0.20                   0.306                     0.043
 1.00                   0.000                     0.000
 
-Each row is a possible policy. A cut-off of 0.10 approves 784 of the 1,521 applicants, 51.5%, and their bad rate of 6.2% is about half the 11.4% of all applicants. It avoids 71.7% of the bad outcomes, but also turns away 45.5% of the good applicants. Raising the cut-off to 0.15 approves 87.4% at a bad rate of 8.3%: the lender gains volume and accepts more risk. Which row to choose is a business decision; the table shows its price.
+Each row is a possible policy. A cut-off of 0.10 approves 784 of the 1,521 applicants, 51.5%, and their bad rate of 6.25% is about half the 11.4% of all applicants. It avoids 71.7% of the bad outcomes, but also turns away 45.5% of the good applicants. Raising the cut-off to 0.15 approves 87.4% at a bad rate of 8.3%: the lender gains volume and accepts more risk. Which row to choose is a business decision; the table shows its price.
 
 .. list-table::
    :header-rows: 1
@@ -137,7 +137,7 @@ approve approve    679  0.446    679     33       0.049
 decline approve    118  0.078    118      8       0.068
         decline    619  0.407    619    116       0.187
 
-The new score swaps out 105 applicants with a bad rate of 15.2% and swaps in 118 with a bad rate of 6.8%. Because of tied scores, its cut-off approves 797 applicants, 13 more than the current one, and the bad rate of the approved book falls from 6.2% to 5.1%:
+The new score swaps out 105 applicants with a bad rate of 15.2% and swaps in 118 with a bad rate of 6.8%. Because of tied scores, its cut-off approves 797 applicants, 13 more than the current one, and the bad rate of the approved book falls from 6.25% to 5.1%:
 
 >>> cutoff_table(new, y, cutoffs=[new_cutoff])[["approved", "approved_event_rate"]].round(3)
           approved  approved_event_rate
@@ -194,7 +194,7 @@ cutoff
 0.20            0.910                0.085      89103.859             64.381
 1.00            1.000                0.114     125487.469             82.503
 
-Approving everyone carries an expected loss of 125,487, or 82.50 per applicant. A cut-off of 0.10 approves half of the applicants and only a fifth of that expected loss, 35.26 per approved applicant. ``approved_loss`` adds up whatever is passed as ``loss``: pass realized losses to see the losses a cut-off would have avoided, or the exposures to see the volume it approves.
+Approving everyone carries an expected loss of 125,487, or 82.50 per applicant. A cut-off of 0.10 approves half of the applicants and only a fifth of that expected loss, 35.26 per approved applicant. ``approved_loss`` adds up whatever is passed as ``loss``: pass realized losses to see the losses each cut-off lets through, whose difference from the last row is the loss it avoids, or pass the exposures to see the volume it approves.
 
 Expected loss by grade
 ----------------------
@@ -252,4 +252,4 @@ Grades E and F hold under a tenth of the exposure but almost 30% of the expected
 Weighted samples
 ----------------
 
-``cutoff_table``, ``swap_set`` and ``expected_loss_table`` take ``weights``, one non-negative weight per applicant, as the functions of :mod:`kivi.metrics` do. Counts, exposures and losses become sums of weights, and integer weights give the same tables as repeating rows. For ``cutoff_table`` this holds on explicit cut-offs: an integer ``cutoffs`` uses the weighted quantiles of ``bin_edges``, which can differ from the quantiles of repeated rows. Use the weights of an outcome-based sample, which keeps all bad outcomes but only some of the good ones, to report approval and bad rates for the whole population.
+``cutoff_table``, ``swap_set`` and ``expected_loss_table`` take ``weights``, one non-negative weight per applicant, as the functions of :mod:`kivi.metrics` do. Counts, exposures and losses become sums of weights, and integer weights give the same counts and sums as repeating rows. For ``cutoff_table`` this holds on explicit cut-offs: an integer ``cutoffs`` uses the weighted quantiles of ``bin_edges``, which can differ from the quantiles of repeated rows. Use the weights of an outcome-based sample, which keeps all bad outcomes but only some of the good ones, to report approval and bad rates for the whole population.
