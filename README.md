@@ -151,7 +151,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 - ✅ Charted risk examples: special values, coarse classing, IV screening, PSI monitoring
 - ✅ Supervised binning: ChiMerge, decision tree and monotonic WOE
 - ✅ WOE encoding of new data, with an explicit policy for unseen groups
-- 🔜 Weighted counts
+- ✅ Sample weights in binning, WOE and PSI
 - 🔜 Scorecard workflow, validated against fixed reference samples
 - 🔜 Spark and SQL as optional integrations
 

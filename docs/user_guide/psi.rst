@@ -37,6 +37,8 @@ When only the counts per group are available, for example from a monitoring repo
 >>> round(psi([2, 1, 0], [0, 2, 1]), 4)
 0.8912
 
+For weighted samples, pass ``reference_weights`` and ``current_weights`` to ``psi_table``; the counts are then sums of weights.
+
 Stable and shifted samples
 --------------------------
 
