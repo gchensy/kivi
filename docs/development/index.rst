@@ -76,14 +76,12 @@ The ``Release`` workflow publishes kivi to PyPI when a version tag is pushed. It
       git tag v0.3.1
       git push origin v0.3.1
 
-4. Approve the deployment to the ``pypi`` environment when GitHub asks for it in the workflow run.
-
-The workflow stops before anything is uploaded if the tag does not match the version or points at a commit that is not on master. Otherwise it runs the tests, builds the source distribution and the wheel, checks them with twine and uploads them to PyPI. Only then does it create the GitHub release, with the distributions attached and notes generated from the merged pull requests. A version such as ``0.4.0rc1`` is marked as a pre-release.
+Pushing the tag starts the upload without an approval step, so push it only when the release is ready. The workflow stops before anything is uploaded if the tag does not match the version or points at a commit that is not on master. Otherwise it runs the tests, builds the source distribution and the wheel, checks them with twine and uploads them to PyPI. Only then does it create the GitHub release, with the distributions attached and notes generated from the merged pull requests. A version such as ``0.4.0rc1`` is marked as a pre-release.
 
 The repository protects this path in three places:
 
 * Only repository administrators can create, move or delete ``v*`` tags.
-* The ``pypi`` environment accepts deployments from ``v*`` tags only and waits for a maintainer's approval.
+* The ``pypi`` environment accepts deployments from ``v*`` tags only.
 * PyPI trusts only the ``release.yml`` workflow of ``gchensy/kivi`` running in the ``pypi`` environment.
 
 PyPI never accepts the same version twice. If a run fails before the upload, delete the tag with ``git push origin :refs/tags/v0.3.1``, fix the problem and tag again. If the upload succeeded, release the fix under a new version.
