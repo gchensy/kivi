@@ -83,7 +83,7 @@ Requires Python 3.10+, NumPy 1.24+ and pandas 2.0+. For the latest development v
 import pandas as pd
 from kivi.binning import bin_edges
 from kivi.datasets import Dataset
-from kivi.evaluate import psi_table
+from kivi.stability import psi_table
 from kivi.woe import woe_table
 
 data = Dataset.bank_data()                      # 4,521 bank marketing customers
@@ -129,7 +129,8 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | [`kivi.binning.monotonic_edges`](https://gchensy.github.io/kivi/en/api/binning.html#kivi.binning.monotonic_edges) | Merge fine quantile bins until the WOE is monotonic |
 | [`kivi.woe.woe_table`](https://gchensy.github.io/kivi/en/api/woe.html#kivi.woe.woe_table) | Counts, shares, WOE and IV for every group |
 | [`kivi.woe.woe_transform`](https://gchensy.github.io/kivi/en/api/woe.html#kivi.woe.woe_transform) | Replace each group with its development WOE, with an explicit policy for unseen groups |
-| [`kivi.evaluate.psi_table`](https://gchensy.github.io/kivi/en/api/evaluate.html#kivi.evaluate.psi_table) | Per-group PSI contributions between two samples |
+| [`kivi.woe.woe`](https://gchensy.github.io/kivi/en/api/woe.html#kivi.woe.woe), [`kivi.woe.iv`](https://gchensy.github.io/kivi/en/api/woe.html#kivi.woe.iv), [`kivi.stability.psi`](https://gchensy.github.io/kivi/en/api/stability.html#kivi.stability.psi) | WOE, IV and PSI from counts that are already aggregated |
+| [`kivi.stability.psi_table`](https://gchensy.github.io/kivi/en/api/stability.html#kivi.stability.psi_table) | Per-group PSI contributions between two samples |
 | [`kivi.datasets.Dataset.bank_data`](https://gchensy.github.io/kivi/en/api/datasets.html#kivi.datasets.Dataset.bank_data) | The bundled bank marketing data |
 
 ## 📚 Documentation
