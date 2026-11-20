@@ -1140,6 +1140,17 @@ msgstr ""
 "``woe_table`` 和 ``psi_table`` 对分类型分组（包括 ``pandas.cut`` "
 "的结果）按类别顺序排列，缺失值排在最后。其他标签仍按首次出现的次序排列。此前所有分组都按首次出现的次序排列，需要用 ``sort_index`` 才能让区间有序。"
 
+msgid "Fixed"
+msgstr "修复"
+
+msgid ""
+"``woe_table`` and ``psi_table`` no longer cause pandas to issue ``RuntimeWarning: invalid value "
+"encountered in cast`` on NumPy older than 2.2 when the groups come from ``pandas.cut`` with "
+"infinite edges."
+msgstr ""
+"分组来自带无穷端点的 ``pandas.cut`` 时， ``woe_table`` 和 ``psi_table`` 在 NumPy 2.2 以下的版本上不再引发 pandas 的 "
+"``RuntimeWarning: invalid value encountered in cast`` 。"
+
 msgid "0.3.0 (2026-11-19)"
 msgstr "0.3.0（2026-11-19）"
 

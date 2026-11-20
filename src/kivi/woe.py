@@ -96,8 +96,9 @@ def woe_table(
         raise ValueError("target must contain both 0 and 1 and no missing labels")
     counts = group_counts(groups, target.to_numpy(dtype=np.intp))
     counts.columns = ["non_event", "event"]
-    proportions = shares(counts, smoothing)
-    result = counts.join(proportions.add_suffix("_share"))
+    # Assign by position: aligning interval categories hashes them, which warns on NumPy < 2.2.
+    share = shares(counts, smoothing).to_numpy()
+    result = counts.assign(non_event_share=share[:, 0], event_share=share[:, 1])
     result["woe"] = np.log(result.event_share / result.non_event_share)
     result["iv"] = (result.event_share - result.non_event_share) * result.woe
     return result
