@@ -96,16 +96,14 @@ def _ticks(ax, x, labels) -> None:
 
 def woe_chart(table: pd.DataFrame, title: str = ""):
     """Population share and event rate per bin (top) and WOE per bin (bottom)."""
-    counts = table["event"] + table["non_event"]
-    share = counts / counts.sum()
-    event_rate = table["event"] / counts
+    share, event_rate = table["total_share"], table["event_rate"]
     x = np.arange(len(table))
     fig, (top, bottom) = plt.subplots(
         2, 1, figsize=(8, 5), sharex=True, gridspec_kw={"height_ratios": [1, 1.1]}
     )
-    top.bar(x, share, color=LIGHT_BLUE, width=0.6, label="share")
+    top.bar(x, share, color=LIGHT_BLUE, width=0.6, label="total_share")
     top.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
-    top.set_ylabel("share")
+    top.set_ylabel("total_share")
     rate = top.twinx()
     rate.plot(x, event_rate, color=AMBER, marker="o", linewidth=2, label="event_rate")
     rate.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
@@ -116,7 +114,7 @@ def woe_chart(table: pd.DataFrame, title: str = ""):
     handles = top.get_legend_handles_labels()[0] + rate.get_legend_handles_labels()[0]
     top.legend(
         handles,
-        ["share", "event_rate"],
+        ["total_share", "event_rate"],
         loc="lower right",
         bbox_to_anchor=(1, 1.01),
         ncols=2,

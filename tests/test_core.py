@@ -436,3 +436,25 @@ def test_evaluate_is_a_deprecated_alias_of_stability():
     assert old is kivi.stability.psi_table
     with pytest.raises(AttributeError, match="has no attribute 'psi'"):
         kivi.evaluate.psi  # noqa: B018
+
+
+def test_woe_table_reports_totals_shares_and_event_rates():
+    groups = pd.Series(["a", "a", "b", "b", "c"])
+    target = pd.Series([1, 0, 0, 0, 1])
+    result = woe_table(groups, target)
+    assert result.columns.tolist() == [
+        "non_event",
+        "event",
+        "total",
+        "non_event_share",
+        "event_share",
+        "total_share",
+        "event_rate",
+        "woe",
+        "iv",
+    ]
+    assert result.total.tolist() == [2, 2, 1]
+    np.testing.assert_allclose(result.total_share, [0.4, 0.4, 0.2])
+    np.testing.assert_allclose(result.event_rate, [0.5, 0.0, 1.0])
+    # The smoothed class shares are unchanged by the new columns.
+    np.testing.assert_allclose(result.event_share, [0.4, 0.2, 0.4])
