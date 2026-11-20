@@ -1,5 +1,6 @@
 import doctest
 import sys
+import warnings
 from importlib.metadata import version as distribution_version
 from pathlib import Path
 
@@ -16,7 +17,12 @@ class ChineseSearch(SearchChinese):
 if SearchChinese.js_stemmer_rawcode == "english-stemmer.js":
     sphinx.search.languages["zh"] = ChineseSearch
 
-# Lets the plot directives import docs/_plotting.py.
+# Examples must not warn. A warning raised from doctest code (module "<string>") or
+# from a chart recipe (_plotting, or __main__ in the plot directive) is an error. To
+# show an expected warning, catch it in the example with warnings.catch_warnings.
+warnings.filterwarnings("error", module=r"(<string>|_plotting|__main__)$")
+
+# Lets the plot directives import docs/_plotting.py and loads docs/_fragments.py.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 project = "kivi"
@@ -34,6 +40,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_design",
     "matplotlib.sphinxext.plot_directive",
+    "_fragments",
 ]
 numpydoc_show_class_members = False
 # The numpydoc Parameters section documents the types; npt.ArrayLike would expand to a long union.
@@ -58,7 +65,8 @@ plot_formats = ["svg"]
 language = "en"
 locale_dirs = ["locale/"]
 gettext_compact = "kivi"
-exclude_patterns = ["_build", "_templates", "landing.html"]
+# release/unreleased holds release-note fragments, read by the release-fragments directive.
+exclude_patterns = ["_build", "_templates", "landing.html", "release/unreleased"]
 templates_path = ["_templates"]
 
 html_theme = "pydata_sphinx_theme"
