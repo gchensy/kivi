@@ -45,11 +45,18 @@ def test_chi_square_of_adjacent_pairs_matches_hand_calculation():
 def test_chimerge_merges_the_least_significant_pair_first():
     # 80/21 = 3.81 is below the 5% critical value 3.84 (p = 0.051), 20/3 is above it.
     assert math.erfc(math.sqrt(80 / 21 / 2)) == pytest.approx(0.0510, abs=1e-4)
-    np.testing.assert_equal(chimerge_edges(CHI_VALUES, CHI_TARGET, alpha=0.1), [-np.inf, 1, 2, np.inf])
-    np.testing.assert_equal(chimerge_edges(CHI_VALUES, CHI_TARGET, alpha=0.05), [-np.inf, 1, np.inf])
-    np.testing.assert_equal(chimerge_edges(CHI_VALUES, CHI_TARGET, alpha=None), [-np.inf, 1, 2, np.inf])
-    np.testing.assert_equal(chimerge_edges(CHI_VALUES, CHI_TARGET, max_bins=2, alpha=None),
-                            [-np.inf, 1, np.inf])
+    np.testing.assert_equal(
+        chimerge_edges(CHI_VALUES, CHI_TARGET, alpha=0.1), [-np.inf, 1, 2, np.inf]
+    )
+    np.testing.assert_equal(
+        chimerge_edges(CHI_VALUES, CHI_TARGET, alpha=0.05), [-np.inf, 1, np.inf]
+    )
+    np.testing.assert_equal(
+        chimerge_edges(CHI_VALUES, CHI_TARGET, alpha=None), [-np.inf, 1, 2, np.inf]
+    )
+    np.testing.assert_equal(
+        chimerge_edges(CHI_VALUES, CHI_TARGET, max_bins=2, alpha=None), [-np.inf, 1, np.inf]
+    )
     np.testing.assert_equal(chimerge_edges(CHI_VALUES, CHI_TARGET, max_bins=1), [-np.inf, np.inf])
 
 
@@ -68,6 +75,7 @@ def entropy_gain(left, right):
     def total(events, n):
         p = events / n
         return 0.0 if p in (0, 1) else -n * (p * math.log(p) + (1 - p) * math.log(1 - p))
+
     events, n = left[0] + right[0], left[1] + right[1]
     return total(events, n) - total(*left) - total(*right)
 
@@ -84,18 +92,28 @@ def test_tree_first_split_matches_hand_calculation(criterion):
 
 def test_tree_grows_best_first_and_respects_the_minimum_share():
     # The second split goes to the impure right bin (6 of 8), between 8 and 9.
-    np.testing.assert_equal(tree_edges(TREE_VALUES, TREE_TARGET, max_bins=3), [-np.inf, 4, 9, np.inf])
-    np.testing.assert_equal(tree_edges(TREE_VALUES, TREE_TARGET, max_bins=4), [-np.inf, 4, 8, 9, np.inf])
+    np.testing.assert_equal(
+        tree_edges(TREE_VALUES, TREE_TARGET, max_bins=3), [-np.inf, 4, 9, np.inf]
+    )
+    np.testing.assert_equal(
+        tree_edges(TREE_VALUES, TREE_TARGET, max_bins=4), [-np.inf, 4, 8, 9, np.inf]
+    )
     # A 10% minimum (1.2 observations) rules out the single-value bin (8, 9].
-    np.testing.assert_equal(tree_edges(TREE_VALUES, TREE_TARGET, max_bins=4, min_bin_share=0.1),
-                            [-np.inf, 4, 6, 9, np.inf])
+    np.testing.assert_equal(
+        tree_edges(TREE_VALUES, TREE_TARGET, max_bins=4, min_bin_share=0.1),
+        [-np.inf, 4, 6, 9, np.inf],
+    )
     # With half the sample required on each side, only the cut after 6 is allowed.
-    np.testing.assert_equal(tree_edges(TREE_VALUES, TREE_TARGET, min_bin_share=0.5), [-np.inf, 6, np.inf])
+    np.testing.assert_equal(
+        tree_edges(TREE_VALUES, TREE_TARGET, min_bin_share=0.5), [-np.inf, 6, np.inf]
+    )
 
 
 def test_tree_stops_at_pure_bins():
     values = pd.Series([1, 2, 3, 4])
-    np.testing.assert_equal(tree_edges(values, pd.Series([0, 0, 1, 1]), max_bins=5), [-np.inf, 2, np.inf])
+    np.testing.assert_equal(
+        tree_edges(values, pd.Series([0, 0, 1, 1]), max_bins=5), [-np.inf, 2, np.inf]
+    )
 
 
 # Event rates 0.1, 0.3, 0.2 and 0.4: the pair (0.3, 0.2) breaks an increasing trend.
@@ -108,11 +126,14 @@ def test_monotonic_pools_adjacent_violators():
     table = woe_table(pd.cut(MONO_VALUES, edges), MONO_TARGET).sort_index()
     assert table.event.tolist() == [1, 5, 4] and table.non_event.tolist() == [9, 15, 6]
     # WOE = ln((event / 10) / (non_event / 30)).
-    np.testing.assert_allclose(table.woe, np.log(np.array([1, 5, 4]) / 10 / (np.array([9, 15, 6]) / 30)))
+    np.testing.assert_allclose(
+        table.woe, np.log(np.array([1, 5, 4]) / 10 / (np.array([9, 15, 6]) / 30))
+    )
     assert table.woe.is_monotonic_increasing
     # A decreasing trend pools everything; "auto" keeps the direction with the larger IV.
-    np.testing.assert_equal(monotonic_edges(MONO_VALUES, MONO_TARGET, direction="decreasing"),
-                            [-np.inf, np.inf])
+    np.testing.assert_equal(
+        monotonic_edges(MONO_VALUES, MONO_TARGET, direction="decreasing"), [-np.inf, np.inf]
+    )
     np.testing.assert_equal(monotonic_edges(MONO_VALUES, MONO_TARGET), edges)
 
 
@@ -120,7 +141,9 @@ def test_monotonic_merges_by_chi_square_beyond_max_bins():
     # Of the pairs (1/10, 5/20) and (5/20, 4/10), the second has the smaller chi-square.
     assert chi2_2x2(9, 1, 15, 5) == pytest.approx(0.9375)
     assert chi2_2x2(15, 5, 6, 4) == pytest.approx(5 / 7)
-    np.testing.assert_equal(monotonic_edges(MONO_VALUES, MONO_TARGET, max_bins=2), [-np.inf, 1, np.inf])
+    np.testing.assert_equal(
+        monotonic_edges(MONO_VALUES, MONO_TARGET, max_bins=2), [-np.inf, 1, np.inf]
+    )
 
 
 def test_monotonic_uses_the_smoothed_woe():
@@ -148,10 +171,17 @@ def test_special_values_are_left_out_with_their_labels(fit):
     target = pd.concat([TREE_TARGET, pd.Series([0, 0, 1, 0, 1], index=range(20, 25))])
     before = values.copy(), target.copy()
     expected = fit(TREE_VALUES, TREE_TARGET)
-    for special in ([-1, -9, 999], (999.0, -1.0, -9.0), np.array([-9, -1, 999, -1]), pd.Index([-1, -9, 999])):
+    for special in (
+        [-1, -9, 999],
+        (999.0, -1.0, -9.0),
+        np.array([-9, -1, 999, -1]),
+        pd.Index([-1, -9, 999]),
+    ):
         np.testing.assert_equal(fit(values, target, special=special), expected)
     assert not np.array_equal(fit(values, target), expected)
-    np.testing.assert_equal(fit(values.tolist(), target.to_numpy(), special=[-1, -9, 999]), expected)
+    np.testing.assert_equal(
+        fit(values.tolist(), target.to_numpy(), special=[-1, -9, 999]), expected
+    )
     np.testing.assert_equal(fit(TREE_VALUES, TREE_TARGET, special=[]), expected)
     pd.testing.assert_series_equal(values, before[0])
     pd.testing.assert_series_equal(target, before[1])
@@ -166,10 +196,12 @@ def test_chimerge_with_a_special_code_merges_only_the_real_values():
     # Ten events at -1 form a pure bin of their own unless -1 is passed in special.
     values, target = repeated([(-1, 0, 10), (1, 10, 0), (2, 5, 5), (3, 1, 9)])
     np.testing.assert_equal(chimerge_edges(values, target, alpha=0.1), [-np.inf, -1, 1, 2, np.inf])
-    np.testing.assert_equal(chimerge_edges(values, target, alpha=0.1, special=[-1]),
-                            [-np.inf, 1, 2, np.inf])
-    np.testing.assert_equal(chimerge_edges(values, target, alpha=0.05, special=[-1]),
-                            [-np.inf, 1, np.inf])
+    np.testing.assert_equal(
+        chimerge_edges(values, target, alpha=0.1, special=[-1]), [-np.inf, 1, 2, np.inf]
+    )
+    np.testing.assert_equal(
+        chimerge_edges(values, target, alpha=0.05, special=[-1]), [-np.inf, 1, np.inf]
+    )
     groups = cut(values, [-np.inf, 1, 2, np.inf], special=[-1])
     table = woe_table(groups, target)
     assert table.index.tolist() == [-1, *groups.cat.categories[1:]]
@@ -182,17 +214,21 @@ def test_tree_minimum_share_counts_only_the_fitted_values():
     values = pd.concat([TREE_VALUES, pd.Series([-1.0] * 12)], ignore_index=True)
     target = pd.concat([TREE_TARGET, pd.Series([0] * 12)], ignore_index=True)
     np.testing.assert_equal(tree_edges(values, target, min_bin_share=0.5), [-np.inf, -1, np.inf])
-    np.testing.assert_equal(tree_edges(values, target, min_bin_share=0.5, special=[-1]),
-                            [-np.inf, 6, np.inf])
-    np.testing.assert_equal(tree_edges(values, target, max_bins=2, special=[-1]), [-np.inf, 4, np.inf])
+    np.testing.assert_equal(
+        tree_edges(values, target, min_bin_share=0.5, special=[-1]), [-np.inf, 6, np.inf]
+    )
+    np.testing.assert_equal(
+        tree_edges(values, target, max_bins=2, special=[-1]), [-np.inf, 4, np.inf]
+    )
 
 
 def test_monotonic_trend_excludes_the_special_group():
     # The code 999 has event rate 0.1. Counted as the top value it breaks the rising trend
     # and pools everything above 1; left out, the bins match the MONO example.
     values, target = repeated([(1, 9, 1), (2, 7, 3), (3, 8, 2), (4, 6, 4), (999, 9, 1)])
-    np.testing.assert_equal(monotonic_edges(values, target, max_bins=None, direction="increasing"),
-                            [-np.inf, 1, np.inf])
+    np.testing.assert_equal(
+        monotonic_edges(values, target, max_bins=None, direction="increasing"), [-np.inf, 1, np.inf]
+    )
     edges = monotonic_edges(values, target, max_bins=None, direction="increasing", special=[999])
     np.testing.assert_equal(edges, [-np.inf, 1, 3, np.inf])
     np.testing.assert_equal(monotonic_edges(values, target, max_bins=None, special=[999]), edges)
@@ -264,7 +300,8 @@ def test_edges_on_bank_data_have_infinite_ends_and_at_most_max_bins(reference, f
 def test_chimerge_on_bank_data_keeps_only_significant_neighbours(reference, column):
     edges = chimerge_edges(reference[column], reference["target"], max_bins=6, alpha=0.01)
     table = woe_table(pd.cut(reference[column], edges), reference["target"]).sort_index()
-    pairs = zip(table.non_event, table.event, table.non_event[1:], table.event[1:])
+    # Each bin is paired with the next one, so the shifted columns are one shorter.
+    pairs = zip(table.non_event, table.event, table.non_event[1:], table.event[1:], strict=False)
     for statistic in (chi2_2x2(*cells) for cells in pairs):
         assert math.erfc(math.sqrt(statistic / 2)) < 0.01
 
@@ -272,8 +309,9 @@ def test_chimerge_on_bank_data_keeps_only_significant_neighbours(reference, colu
 @pytest.mark.parametrize("criterion", ["entropy", "gini"])
 @pytest.mark.parametrize("column", ["age", "balance", "duration", "day"])
 def test_tree_on_bank_data_respects_the_minimum_share(reference, column, criterion):
-    edges = tree_edges(reference[column], reference["target"], max_bins=6, min_bin_share=0.1,
-                       criterion=criterion)
+    edges = tree_edges(
+        reference[column], reference["target"], max_bins=6, min_bin_share=0.1, criterion=criterion
+    )
     counts = pd.cut(reference[column], edges).value_counts()
     assert counts.min() >= 0.1 * len(reference)
     assert set(edges[1:-1]) <= set(reference[column])
@@ -307,54 +345,73 @@ def test_array_like_inputs_are_matched_by_position(fit):
 
 
 @pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, monotonic_edges])
-@pytest.mark.parametrize("values,target,message", [
-    (pd.Series([], dtype=float), pd.Series([], dtype=int), "finite observations"),
-    (pd.Series(["a", "b"]), pd.Series([0, 1]), "Unable to parse string"),
-    (pd.Series([1.0, np.inf]), pd.Series([0, 1]), "finite observations"),
-    (pd.Series([1, 2]), pd.Series([0, 2]), "only 0 and 1"),
-    (pd.Series([1, 2]), pd.Series([0, None]), "only 0 and 1"),
-    (pd.Series([1, 2]), pd.Series([1, 1]), "both 0 and 1"),
-    (pd.Series([1, 2, None]), pd.Series([0, 0, 1]), "both 0 and 1 where values are observed"),
-    (pd.Series([1, 2]), pd.Series([0, 1], index=[1, 0]), "identical indices"),
-    ([1, 2, 3], [0, 1], "same length, got 3 and 2"),
-    (np.ones((2, 2)), [0, 1], "values must be one-dimensional, got 2 dimensions"),
-    ([1, 2], np.ones((2, 2)), "target must be one-dimensional, got 2 dimensions"),
-])
+@pytest.mark.parametrize(
+    "values,target,message",
+    [
+        (pd.Series([], dtype=float), pd.Series([], dtype=int), "finite observations"),
+        (pd.Series(["a", "b"]), pd.Series([0, 1]), "Unable to parse string"),
+        (pd.Series([1.0, np.inf]), pd.Series([0, 1]), "finite observations"),
+        (pd.Series([1, 2]), pd.Series([0, 2]), "only 0 and 1"),
+        (pd.Series([1, 2]), pd.Series([0, None]), "only 0 and 1"),
+        (pd.Series([1, 2]), pd.Series([1, 1]), "both 0 and 1"),
+        (pd.Series([1, 2, None]), pd.Series([0, 0, 1]), "both 0 and 1 where values are observed"),
+        (pd.Series([1, 2]), pd.Series([0, 1], index=[1, 0]), "identical indices"),
+        ([1, 2, 3], [0, 1], "same length, got 3 and 2"),
+        (np.ones((2, 2)), [0, 1], "values must be one-dimensional, got 2 dimensions"),
+        ([1, 2], np.ones((2, 2)), "target must be one-dimensional, got 2 dimensions"),
+    ],
+)
 def test_invalid_supervised_inputs(fit, values, target, message):
     with pytest.raises(ValueError, match=message):
         fit(values, target)
 
 
 @pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, monotonic_edges])
-@pytest.mark.parametrize("values,target,special,message", [
-    ([1, 2], [0, 1], -1, "special must be one-dimensional, got 0 dimensions"),
-    ([1, 2], [0, 1], [-1, np.nan], "special must not contain missing values"),
-    ([-1, -1, None], [0, 1, 1], [-1], "no finite observations apart from missing and special values"),
-    ([1, 2, np.inf], [0, 1, 1], [-1], "finite observations only; pass infinite codes in special"),
-    ([1, 2, -1], [0, 0, 1], [-1], "both 0 and 1 where values are observed and not special"),
-    (["N/A", 1, 2], [0, 0, 1], [-1], "Unable to parse string"),
-    ([1, 2, -1], [0, 1, 2], [-1], "only 0 and 1"),
-])
+@pytest.mark.parametrize(
+    "values,target,special,message",
+    [
+        ([1, 2], [0, 1], -1, "special must be one-dimensional, got 0 dimensions"),
+        ([1, 2], [0, 1], [-1, np.nan], "special must not contain missing values"),
+        (
+            [-1, -1, None],
+            [0, 1, 1],
+            [-1],
+            "no finite observations apart from missing and special values",
+        ),
+        (
+            [1, 2, np.inf],
+            [0, 1, 1],
+            [-1],
+            "finite observations only; pass infinite codes in special",
+        ),
+        ([1, 2, -1], [0, 0, 1], [-1], "both 0 and 1 where values are observed and not special"),
+        (["N/A", 1, 2], [0, 0, 1], [-1], "Unable to parse string"),
+        ([1, 2, -1], [0, 1, 2], [-1], "only 0 and 1"),
+    ],
+)
 def test_invalid_special_values(fit, values, target, special, message):
     with pytest.raises(ValueError, match=message):
         fit(values, target, special=special)
 
 
-@pytest.mark.parametrize("fit,options,message", [
-    (chimerge_edges, {"max_bins": 0}, "max_bins must be a positive integer, got 0"),
-    (chimerge_edges, {"max_bins": True}, "max_bins must be a positive integer, got True"),
-    (chimerge_edges, {"initial_bins": 2.5}, "initial_bins must be a positive integer, got 2.5"),
-    (chimerge_edges, {"alpha": 0}, "alpha must be None or between 0 and 1, got 0"),
-    (chimerge_edges, {"alpha": 1.5}, "alpha must be None or between 0 and 1, got 1.5"),
-    (tree_edges, {"max_bins": 0}, "max_bins must be a positive integer, got 0"),
-    (tree_edges, {"min_bin_share": -0.1}, "min_bin_share must be between 0 and 0.5, got -0.1"),
-    (tree_edges, {"min_bin_share": 0.6}, "min_bin_share must be between 0 and 0.5, got 0.6"),
-    (tree_edges, {"criterion": "log_loss"}, "'entropy' or 'gini', got 'log_loss'"),
-    (monotonic_edges, {"max_bins": 0}, "max_bins must be a positive integer, got 0"),
-    (monotonic_edges, {"initial_bins": 0}, "initial_bins must be a positive integer, got 0"),
-    (monotonic_edges, {"direction": "up"}, "'increasing' or 'decreasing', got 'up'"),
-    (monotonic_edges, {"smoothing": 0}, "smoothing must be finite and positive, got 0"),
-])
+@pytest.mark.parametrize(
+    "fit,options,message",
+    [
+        (chimerge_edges, {"max_bins": 0}, "max_bins must be a positive integer, got 0"),
+        (chimerge_edges, {"max_bins": True}, "max_bins must be a positive integer, got True"),
+        (chimerge_edges, {"initial_bins": 2.5}, "initial_bins must be a positive integer, got 2.5"),
+        (chimerge_edges, {"alpha": 0}, "alpha must be None or between 0 and 1, got 0"),
+        (chimerge_edges, {"alpha": 1.5}, "alpha must be None or between 0 and 1, got 1.5"),
+        (tree_edges, {"max_bins": 0}, "max_bins must be a positive integer, got 0"),
+        (tree_edges, {"min_bin_share": -0.1}, "min_bin_share must be between 0 and 0.5, got -0.1"),
+        (tree_edges, {"min_bin_share": 0.6}, "min_bin_share must be between 0 and 0.5, got 0.6"),
+        (tree_edges, {"criterion": "log_loss"}, "'entropy' or 'gini', got 'log_loss'"),
+        (monotonic_edges, {"max_bins": 0}, "max_bins must be a positive integer, got 0"),
+        (monotonic_edges, {"initial_bins": 0}, "initial_bins must be a positive integer, got 0"),
+        (monotonic_edges, {"direction": "up"}, "'increasing' or 'decreasing', got 'up'"),
+        (monotonic_edges, {"smoothing": 0}, "smoothing must be finite and positive, got 0"),
+    ],
+)
 def test_invalid_supervised_options(fit, options, message):
     with pytest.raises(ValueError, match=message):
         fit(TREE_VALUES, TREE_TARGET, **options)

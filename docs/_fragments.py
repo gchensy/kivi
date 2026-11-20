@@ -24,8 +24,7 @@ def collect() -> dict[str, list[Path]]:
         topic, _, category = path.stem.rpartition(".")
         if not topic or category not in found:
             raise ValueError(
-                f"{path.name}: name release-note fragments "
-                f"<topic>.<{'|'.join(CATEGORIES)}>.rst"
+                f"{path.name}: name release-note fragments <topic>.<{'|'.join(CATEGORIES)}>.rst"
             )
         found[category].append(path)
     return found

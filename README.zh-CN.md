@@ -122,15 +122,15 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 
 | 函数 | 用途 |
 | --- | --- |
-| [`kivi.binning.bin_edges`](https://gchensy.github.io/kivi/zh/api.html#kivi.binning.bin_edges) | 在基准样本上拟合等频或等距边界，两端为无穷 |
-| [`kivi.binning.cut`](https://gchensy.github.io/kivi/zh/api.html#kivi.binning.cut) | 将取值分配到各箱，每个特殊值（如 `-1`）单独成组 |
-| [`kivi.binning.chimerge_edges`](https://gchensy.github.io/kivi/zh/api.html#kivi.binning.chimerge_edges) | 用 ChiMerge 合并等频细分箱，直到相邻箱差异显著 |
-| [`kivi.binning.tree_edges`](https://gchensy.github.io/kivi/zh/api.html#kivi.binning.tree_edges) | 按熵或基尼指数做决策树切分，并限制每箱最小占比 |
-| [`kivi.binning.monotonic_edges`](https://gchensy.github.io/kivi/zh/api.html#kivi.binning.monotonic_edges) | 合并等频细分箱，直到 WOE 单调 |
-| [`kivi.woe.woe_table`](https://gchensy.github.io/kivi/zh/api.html#kivi.woe.woe_table) | 每组的计数、占比、WOE 与 IV |
-| [`kivi.woe.woe_transform`](https://gchensy.github.io/kivi/zh/api.html#kivi.woe.woe_transform) | 用开发样本的 WOE 替换每个分组，未见过的分组需明确处理方式 |
-| [`kivi.evaluate.psi_table`](https://gchensy.github.io/kivi/zh/api.html#kivi.evaluate.psi_table) | 两个样本逐组的 PSI 贡献 |
-| [`kivi.datasets.Dataset.bank_data`](https://gchensy.github.io/kivi/zh/api.html#kivi.datasets.Dataset.bank_data) | 随包的银行营销示例数据 |
+| [`kivi.binning.bin_edges`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.bin_edges) | 在基准样本上拟合等频或等距边界，两端为无穷 |
+| [`kivi.binning.cut`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.cut) | 将取值分配到各箱，每个特殊值（如 `-1`）单独成组 |
+| [`kivi.binning.chimerge_edges`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.chimerge_edges) | 用 ChiMerge 合并等频细分箱，直到相邻箱差异显著 |
+| [`kivi.binning.tree_edges`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.tree_edges) | 按熵或基尼指数做决策树切分，并限制每箱最小占比 |
+| [`kivi.binning.monotonic_edges`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.monotonic_edges) | 合并等频细分箱，直到 WOE 单调 |
+| [`kivi.woe.woe_table`](https://gchensy.github.io/kivi/zh/api/woe.html#kivi.woe.woe_table) | 每组的计数、占比、WOE 与 IV |
+| [`kivi.woe.woe_transform`](https://gchensy.github.io/kivi/zh/api/woe.html#kivi.woe.woe_transform) | 用开发样本的 WOE 替换每个分组，未见过的分组需明确处理方式 |
+| [`kivi.evaluate.psi_table`](https://gchensy.github.io/kivi/zh/api/evaluate.html#kivi.evaluate.psi_table) | 两个样本逐组的 PSI 贡献 |
+| [`kivi.datasets.Dataset.bank_data`](https://gchensy.github.io/kivi/zh/api/datasets.html#kivi.datasets.Dataset.bank_data) | 随包的银行营销示例数据 |
 
 ## 📚 文档
 
@@ -159,7 +159,8 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 ```bash
 git clone https://github.com/gchensy/kivi.git
 cd kivi
-python -m pip install -e '.[test,docs]'
+python -m pip install -e '.[test,docs,lint]'
+pre-commit install                                        # 每次提交前运行 ruff
 python -m pytest                                          # 单元测试
 python -m sphinx -W -b doctest docs docs/_build/doctest   # 文档示例
 python docs/build.py                                      # 中英文 HTML 文档

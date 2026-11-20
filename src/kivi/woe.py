@@ -168,8 +168,8 @@ def woe_transform(
     [-0.6931, 0.6931, 0.0]
     """
     woe = _woe_values(table)
-    if not (unseen == "raise" if isinstance(unseen, str)
-            else isinstance(unseen, Real) and not isinstance(unseen, bool)):
+    raise_unseen = isinstance(unseen, str) and unseen == "raise"
+    if not raise_unseen and (isinstance(unseen, (bool, str)) or not isinstance(unseen, Real)):
         raise ValueError(f"unseen must be 'raise' or a number, got {unseen!r}")
     series = as_series(groups, "groups")
     codes, levels = pd.factorize(series, sort=False, use_na_sentinel=False)
@@ -186,7 +186,7 @@ def woe_transform(
         level_woe[is_missing] = values[~labelled][0]
         found |= is_missing
     if not found.all():
-        if isinstance(unseen, str):
+        if raise_unseen:
             missing = levels[~found]
             shown = ", ".join(repr(label) for label in missing[:5])
             raise ValueError(

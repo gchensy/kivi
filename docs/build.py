@@ -19,9 +19,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from babel.messages.pofile import read_po, write_po
-
 import _fragments
+from babel.messages.pofile import read_po, write_po
 
 docs = Path(__file__).resolve().parent
 build = docs / "_build"
@@ -32,8 +31,20 @@ editions = (("en", "en"), ("zh", "zh_CN"))
 def sphinx(builder: str, output: Path, *options: str) -> None:
     doctrees = build / "doctrees" / output.name
     subprocess.run(
-        [sys.executable, "-m", "sphinx", "-W", "-q", "-b", builder, "-d", str(doctrees),
-         *options, str(docs), str(output)],
+        [
+            sys.executable,
+            "-m",
+            "sphinx",
+            "-W",
+            "-q",
+            "-b",
+            builder,
+            "-d",
+            str(doctrees),
+            *options,
+            str(docs),
+            str(output),
+        ],
         check=True,
     )
 
@@ -46,8 +57,14 @@ def extract_template():
 
 def write_catalog(catalog) -> None:
     with open(catalog_path, "wb") as target:
-        write_po(target, catalog, width=100, no_location=True, ignore_obsolete=True,
-                 include_previous=False)
+        write_po(
+            target,
+            catalog,
+            width=100,
+            no_location=True,
+            ignore_obsolete=True,
+            include_previous=False,
+        )
 
 
 def update_catalog(template) -> None:
@@ -67,8 +84,9 @@ def merge_catalog() -> None:
     relative = catalog_path.relative_to(docs.parent).as_posix()
     sides = []
     for stage in (2, 3):  # 2 is the checked-out side, 3 the side being merged in
-        shown = subprocess.run(["git", "show", f":{stage}:{relative}"], cwd=docs.parent,
-                               capture_output=True)
+        shown = subprocess.run(
+            ["git", "show", f":{stage}:{relative}"], cwd=docs.parent, capture_output=True
+        )
         if shown.returncode:
             sys.exit(f"{relative} has no merge conflict to resolve.")
         sides.append(read_po(io.BytesIO(shown.stdout), locale="zh_CN"))
@@ -109,8 +127,10 @@ def release_notes(version: str) -> None:
     notes.write_text(text.replace(marker, marker + section), encoding="utf-8")
     for path in paths:
         path.unlink()
-    print(f"Added {heading} to {notes.relative_to(docs.parent)} from {len(paths)} fragments. "
-          f"Run `python docs/build.py --update-po` and translate the new heading.")
+    print(
+        f"Added {heading} to {notes.relative_to(docs.parent)} from {len(paths)} fragments. "
+        f"Run `python docs/build.py --update-po` and translate the new heading."
+    )
 
 
 def check_catalog(template) -> None:
@@ -130,19 +150,30 @@ def check_catalog(template) -> None:
     if problems:
         for kind, text in problems:
             print(f"{kind:>12}: {text[:100]!r}", file=sys.stderr)
-        sys.exit(f"{len(problems)} catalog problems. Run `python docs/build.py --update-po`, "
-                 f"then translate the empty and fuzzy entries in {catalog_path.name}.")
+        sys.exit(
+            f"{len(problems)} catalog problems. Run `python docs/build.py --update-po`, "
+            f"then translate the empty and fuzzy entries in {catalog_path.name}."
+        )
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     action = parser.add_mutually_exclusive_group()
-    action.add_argument("--update-po", action="store_true",
-                        help="merge source strings into the zh_CN catalog and stop")
-    action.add_argument("--merge-po", action="store_true",
-                        help="resolve a merge conflict in the zh_CN catalog and stop")
-    action.add_argument("--release", metavar="VERSION",
-                        help="move the release-note fragments into a dated section and stop")
+    action.add_argument(
+        "--update-po",
+        action="store_true",
+        help="merge source strings into the zh_CN catalog and stop",
+    )
+    action.add_argument(
+        "--merge-po",
+        action="store_true",
+        help="resolve a merge conflict in the zh_CN catalog and stop",
+    )
+    action.add_argument(
+        "--release",
+        metavar="VERSION",
+        help="move the release-note fragments into a dated section and stop",
+    )
     args = parser.parse_args()
     if args.merge_po:
         merge_catalog()

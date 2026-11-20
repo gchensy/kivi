@@ -37,32 +37,34 @@ MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", 
 
 
 def apply_style() -> None:
-    plt.rcParams.update({
-        "figure.facecolor": "white",
-        "axes.facecolor": "white",
-        "savefig.facecolor": "white",
-        "font.family": "DejaVu Sans",
-        "font.size": 10,
-        "axes.titlesize": 11,
-        "axes.titleweight": "bold",
-        "axes.titlelocation": "left",
-        "axes.labelcolor": TEXT,
-        "axes.edgecolor": GRAY,
-        "axes.spines.top": False,
-        "axes.spines.right": False,
-        "axes.grid": True,
-        "axes.grid.axis": "y",
-        "axes.axisbelow": True,
-        "axes.prop_cycle": cycler(color=[BLUE, TEAL, AMBER, RED]),
-        "grid.color": GRID,
-        "grid.linewidth": 0.8,
-        "text.color": TEXT,
-        "xtick.color": MUTED,
-        "ytick.color": MUTED,
-        "legend.frameon": False,
-        "svg.fonttype": "path",
-        "svg.hashsalt": "kivi",
-    })
+    plt.rcParams.update(
+        {
+            "figure.facecolor": "white",
+            "axes.facecolor": "white",
+            "savefig.facecolor": "white",
+            "font.family": "DejaVu Sans",
+            "font.size": 10,
+            "axes.titlesize": 11,
+            "axes.titleweight": "bold",
+            "axes.titlelocation": "left",
+            "axes.labelcolor": TEXT,
+            "axes.edgecolor": GRAY,
+            "axes.spines.top": False,
+            "axes.spines.right": False,
+            "axes.grid": True,
+            "axes.grid.axis": "y",
+            "axes.axisbelow": True,
+            "axes.prop_cycle": cycler(color=[BLUE, TEAL, AMBER, RED]),
+            "grid.color": GRID,
+            "grid.linewidth": 0.8,
+            "text.color": TEXT,
+            "xtick.color": MUTED,
+            "ytick.color": MUTED,
+            "legend.frameon": False,
+            "svg.fonttype": "path",
+            "svg.hashsalt": "kivi",
+        }
+    )
 
 
 def _labels(index) -> list[str]:
@@ -71,10 +73,17 @@ def _labels(index) -> list[str]:
 
 def _bar_values(ax, x, values) -> None:
     size = 8.5 if len(x) <= 7 else 6.8
-    for xi, value in zip(x, values):
+    for xi, value in zip(x, values, strict=True):
         value = round(float(value), 2) + 0.0
-        ax.annotate(f"{value:+.2f}", (xi, value), xytext=(0, 3 if value >= 0 else -11),
-                    textcoords="offset points", ha="center", fontsize=size, color=TEXT)
+        ax.annotate(
+            f"{value:+.2f}",
+            (xi, value),
+            xytext=(0, 3 if value >= 0 else -11),
+            textcoords="offset points",
+            ha="center",
+            fontsize=size,
+            color=TEXT,
+        )
     ax.margins(y=0.18)
 
 
@@ -105,8 +114,14 @@ def woe_chart(table: pd.DataFrame, title: str = ""):
     rate.grid(False)
     rate.spines["right"].set_visible(True)
     handles = top.get_legend_handles_labels()[0] + rate.get_legend_handles_labels()[0]
-    top.legend(handles, ["share", "event_rate"], loc="lower right", bbox_to_anchor=(1, 1.01),
-               ncols=2, borderaxespad=0)
+    top.legend(
+        handles,
+        ["share", "event_rate"],
+        loc="lower right",
+        bbox_to_anchor=(1, 1.01),
+        ncols=2,
+        borderaxespad=0,
+    )
     if title:
         top.set_title(title)
     colors = [BLUE if value >= 0 else TEAL for value in table["woe"]]
@@ -133,7 +148,7 @@ def _woe_bars(ax, table: pd.DataFrame, title: str = "") -> None:
 def woe_panels(tables: dict[str, pd.DataFrame], height: float = 3.2):
     """WOE bars for several groupings side by side, one panel per table."""
     fig, axes = plt.subplots(1, len(tables), figsize=(8, height), squeeze=False)
-    for ax, (title, table) in zip(axes[0], tables.items()):
+    for ax, (title, table) in zip(axes[0], tables.items(), strict=True):
         _woe_bars(ax, table, title)
     fig.tight_layout()
     return fig
@@ -155,15 +170,36 @@ def _pair_chi2(table: pd.DataFrame) -> np.ndarray:
     return n * (a * d - b * c) ** 2 / ((a + b) * (c + d) * (a + c) * (b + d))
 
 
-def chimerge_path(values: pd.Series, target: pd.Series, max_bins: int = 5, alpha: float = 0.05,
-                  initial_bins: int = 20):
+def chimerge_path(
+    values: pd.Series,
+    target: pd.Series,
+    max_bins: int = 5,
+    alpha: float = 0.05,
+    initial_bins: int = 20,
+):
     """Smallest adjacent chi-square as ChiMerge merges (left) and the resulting WOE (right)."""
-    start = len(chimerge_edges(values, target, max_bins=initial_bins, alpha=None,
-                               initial_bins=initial_bins)) - 1
+    start = (
+        len(
+            chimerge_edges(
+                values, target, max_bins=initial_bins, alpha=None, initial_bins=initial_bins
+            )
+        )
+        - 1
+    )
     bins = np.arange(start, 1, -1)
-    smallest = [_pair_chi2(_grouped_woe(values, target, chimerge_edges(
-        values, target, max_bins=k, alpha=None, initial_bins=initial_bins))).min() for k in bins]
-    edges = chimerge_edges(values, target, max_bins=max_bins, alpha=alpha, initial_bins=initial_bins)
+    smallest = [
+        _pair_chi2(
+            _grouped_woe(
+                values,
+                target,
+                chimerge_edges(values, target, max_bins=k, alpha=None, initial_bins=initial_bins),
+            )
+        ).min()
+        for k in bins
+    ]
+    edges = chimerge_edges(
+        values, target, max_bins=max_bins, alpha=alpha, initial_bins=initial_bins
+    )
     chosen = len(edges) - 1
     critical = NormalDist().inv_cdf(1 - alpha / 2) ** 2
     fig, (left, right) = _method_axes()
@@ -172,10 +208,24 @@ def chimerge_path(values: pd.Series, target: pd.Series, max_bins: int = 5, alpha
     left.axvline(max_bins, color=GRAY, linestyle=":", linewidth=1.4, label=f"max_bins = {max_bins}")
     stop = smallest[list(bins).index(chosen)]
     left.plot([chosen], [stop], marker="o", markersize=9, color=RED, zorder=3)
-    left.annotate(f"{chosen}", (chosen, stop), xytext=(8, -4), textcoords="offset points",
-                  color=RED, fontsize=9, fontweight="bold")
-    left.text(1.005, critical, f"{critical:.2f}", transform=left.get_yaxis_transform(),
-              va="center", fontsize=8.5, color=AMBER)
+    left.annotate(
+        f"{chosen}",
+        (chosen, stop),
+        xytext=(8, -4),
+        textcoords="offset points",
+        color=RED,
+        fontsize=9,
+        fontweight="bold",
+    )
+    left.text(
+        1.005,
+        critical,
+        f"{critical:.2f}",
+        transform=left.get_yaxis_transform(),
+        va="center",
+        fontsize=8.5,
+        color=AMBER,
+    )
     left.set_yscale("symlog", linthresh=1)
     left.yaxis.set_major_locator(FixedLocator([0, 0.5, 1, 2, 5, 10, 20]))
     left.yaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:g}"))
@@ -196,7 +246,9 @@ def _cumulative_share(values: pd.Series, points) -> np.ndarray:
     return np.searchsorted(observed, points, side="right") / len(observed)
 
 
-def tree_splits(values: pd.Series, target: pd.Series, max_bins: int = 5, min_bin_share: float = 0.05):
+def tree_splits(
+    values: pd.Series, target: pd.Series, max_bins: int = 5, min_bin_share: float = 0.05
+):
     """Information gain of every first cut (left) and the WOE of the tree's bins (right)."""
     frame = pd.DataFrame({"value": values, "event": target}).dropna()
     counts = frame.groupby("value")["event"].agg(["size", "sum"])
@@ -207,8 +259,11 @@ def tree_splits(values: pd.Series, target: pd.Series, max_bins: int = 5, min_bin
         with np.errstate(divide="ignore", invalid="ignore"):
             return np.nan_to_num(-(rate * np.log(rate) + (1 - rate) * np.log(1 - rate)))
 
-    gain = (entropy(total_events / total) - n / total * entropy(events / n)
-            - (total - n) / total * entropy((total_events - events) / (total - n)))
+    gain = (
+        entropy(total_events / total)
+        - n / total * entropy(events / n)
+        - (total - n) / total * entropy((total_events - events) / (total - n))
+    )
     share = n / total
     edges = tree_edges(values, target, max_bins=max_bins, min_bin_share=min_bin_share)
     order = {}
@@ -225,10 +280,17 @@ def tree_splits(values: pd.Series, target: pd.Series, max_bins: int = 5, min_bin
         x = _cumulative_share(values, [edge])[0]
         right_side = x < 0.75
         left.axvline(x, color=AMBER, linewidth=1.2, linestyle="--")
-        left.annotate(f"#{rank}  {edge:g}", (x, top * (0.97 - 0.09 * (rank - 1))),
-                      xytext=(4 if right_side else -4, 0), textcoords="offset points",
-                      ha="left" if right_side else "right", va="top", fontsize=8.5, color=TEXT,
-                      bbox={"boxstyle": "square,pad=0.1", "facecolor": "white", "edgecolor": "none"})
+        left.annotate(
+            f"#{rank}  {edge:g}",
+            (x, top * (0.97 - 0.09 * (rank - 1))),
+            xytext=(4 if right_side else -4, 0),
+            textcoords="offset points",
+            ha="left" if right_side else "right",
+            va="top",
+            fontsize=8.5,
+            color=TEXT,
+            bbox={"boxstyle": "square,pad=0.1", "facecolor": "white", "edgecolor": "none"},
+        )
     left.set_ylim(0, top)
     left.set_xlim(0, 1)
     left.xaxis.set_major_formatter(PercentFormatter(1, decimals=0))
@@ -240,7 +302,9 @@ def tree_splits(values: pd.Series, target: pd.Series, max_bins: int = 5, min_bin
     return fig
 
 
-def monotonic_pooling(values: pd.Series, target: pd.Series, max_bins: int = 5, initial_bins: int = 20):
+def monotonic_pooling(
+    values: pd.Series, target: pd.Series, max_bins: int = 5, initial_bins: int = 20
+):
     """Fine-bin WOE with the pooled monotonic WOE (left) and the final bins (right)."""
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", UserWarning)  # monotonic_edges also drops tied quantiles
@@ -251,11 +315,25 @@ def monotonic_pooling(values: pd.Series, target: pd.Series, max_bins: int = 5, i
     widths = (fine["event"] + fine["non_event"]) / len(values.dropna())
     starts = np.r_[0, widths.cumsum().to_numpy()[:-1]]
     colors = [LIGHT_BLUE if value >= 0 else LIGHT_TEAL for value in fine["woe"]]
-    left.bar(starts, fine["woe"], width=widths, align="edge", color=colors, edgecolor="white",
-             linewidth=0.6, label=f"initial_bins = {initial_bins}")
+    left.bar(
+        starts,
+        fine["woe"],
+        width=widths,
+        align="edge",
+        color=colors,
+        edgecolor="white",
+        linewidth=0.6,
+        label=f"initial_bins = {initial_bins}",
+    )
     bounds = _cumulative_share(values, pooled_edges[1:-1])
-    left.stairs(pooled["woe"], np.r_[0, bounds, 1], color=BLUE, linewidth=2.2,
-                baseline=None, label="max_bins = None")
+    left.stairs(
+        pooled["woe"],
+        np.r_[0, bounds, 1],
+        color=BLUE,
+        linewidth=2.2,
+        baseline=None,
+        label="max_bins = None",
+    )
     left.axhline(0, color=GRAY, linewidth=1)
     left.set_xlim(0, 1)
     left.xaxis.set_major_formatter(PercentFormatter(1, decimals=0))
@@ -272,7 +350,9 @@ def binning_methods(values: pd.Series, bins: int = 5):
     """Distribution with quantile and uniform edges (left) and counts per bin (right)."""
     quantile = bin_edges(values, bins=bins)
     uniform = bin_edges(values, bins=bins, method="uniform")
-    fig, (left, right) = plt.subplots(1, 2, figsize=(8, 3.4), gridspec_kw={"width_ratios": [1.3, 1]})
+    fig, (left, right) = plt.subplots(
+        1, 2, figsize=(8, 3.4), gridspec_kw={"width_ratios": [1.3, 1]}
+    )
     upper = values.quantile(0.99)
     left.hist(values[values <= upper], bins=60, color=LIGHT_BLUE)
     for edge in quantile[1:-1]:
@@ -288,7 +368,13 @@ def binning_methods(values: pd.Series, bins: int = 5):
     x = np.arange(1, bins + 1)
     q_counts = pd.cut(values, quantile).value_counts(sort=False).to_numpy()
     u_counts = pd.cut(values, uniform).value_counts(sort=False).to_numpy()
-    right.bar(x - 0.2, np.pad(q_counts, (0, bins - len(q_counts))), width=0.4, color=BLUE, label="quantile")
+    right.bar(
+        x - 0.2,
+        np.pad(q_counts, (0, bins - len(q_counts))),
+        width=0.4,
+        color=BLUE,
+        label="quantile",
+    )
     right.bar(x + 0.2, u_counts, width=0.4, color=AMBER, label="uniform")
     right.set_xticks(x)
     right.set_xlabel("bin")
@@ -305,13 +391,22 @@ def iv_ranking(iv: pd.Series, limit: float = 0.65):
     colors = [GRAY if v < 0.02 else TEAL if v < 0.1 else BLUE if v < 0.5 else AMBER for v in iv]
     y = np.arange(len(iv))
     ax.barh(y, np.minimum(iv, limit), color=colors, height=0.65)
-    for yi, value in zip(y, iv):
+    for yi, value in zip(y, iv, strict=True):
         label = f"{value:.3f}" + ("  →" if value > limit else "")
-        ax.annotate(label, (min(value, limit), yi), xytext=(4, 0), textcoords="offset points",
-                    va="center", fontsize=8.5, color=AMBER if value > limit else TEXT)
+        ax.annotate(
+            label,
+            (min(value, limit), yi),
+            xytext=(4, 0),
+            textcoords="offset points",
+            va="center",
+            fontsize=8.5,
+            color=AMBER if value > limit else TEXT,
+        )
     for threshold in (0.02, 0.1, 0.3):
         ax.axvline(threshold, color=GRAY, linestyle="--", linewidth=1)
-        ax.annotate(f"{threshold:g}", (threshold, len(iv) - 0.4), ha="center", fontsize=8.5, color=MUTED)
+        ax.annotate(
+            f"{threshold:g}", (threshold, len(iv) - 0.4), ha="center", fontsize=8.5, color=MUTED
+        )
     ax.set_yticks(y, iv.index)
     ax.set_xlim(0, limit + 0.08)
     ax.set_xlabel("iv")
@@ -324,9 +419,11 @@ def iv_ranking(iv: pd.Series, limit: float = 0.65):
 def psi_panels(tables: dict[str, pd.DataFrame]):
     """Reference and current shares per bin for several comparisons."""
     fig, axes = plt.subplots(1, len(tables), figsize=(8, 3.3), sharey=True, squeeze=False)
-    for ax, (title, table) in zip(axes[0], tables.items()):
+    for ax, (title, table) in zip(axes[0], tables.items(), strict=True):
         x = np.arange(len(table))
-        ax.bar(x - 0.2, table["reference_share"], width=0.4, color=LIGHT_BLUE, label="reference_share")
+        ax.bar(
+            x - 0.2, table["reference_share"], width=0.4, color=LIGHT_BLUE, label="reference_share"
+        )
         ax.bar(x + 0.2, table["current_share"], width=0.4, color=BLUE, label="current_share")
         ax.set_xticks(x, _labels(table.index), rotation=35, ha="right", fontsize=8.5)
         ax.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
@@ -344,9 +441,18 @@ def psi_monitor(psi: pd.Series, sizes: pd.Series):
     ax.bar(x, psi, color=colors, width=0.62)
     for threshold, color in ((0.1, AMBER), (0.25, RED)):
         ax.axhline(threshold, color=color, linestyle="--", linewidth=1)
-        ax.text(1.005, threshold, f"{threshold:g}", transform=ax.get_yaxis_transform(),
-                va="center", fontsize=8.5, color=color)
-    ax.set_xticks(x, [f"{period}\nn={n}" for period, n in zip(psi.index, sizes)], fontsize=8.5)
+        ax.text(
+            1.005,
+            threshold,
+            f"{threshold:g}",
+            transform=ax.get_yaxis_transform(),
+            va="center",
+            fontsize=8.5,
+            color=color,
+        )
+    ax.set_xticks(
+        x, [f"{period}\nn={n}" for period, n in zip(psi.index, sizes, strict=True)], fontsize=8.5
+    )
     ax.set_ylabel("psi")
     ax.set_ylim(0, max(psi.max() * 1.18, 0.3))
     fig.tight_layout()
@@ -376,20 +482,32 @@ def figure_custom_edges():
     _, reference, _ = _samples()
     age_edges = np.array([-np.inf, 25, 35, 45, 55, 65, np.inf])
     pdays_edges = np.array([-np.inf, -1, 100, 200, 300, np.inf])
-    return woe_panels({
-        "age": woe_table(pd.cut(reference["age"], age_edges), reference["target"]).sort_index(),
-        "pdays": woe_table(pd.cut(reference["pdays"], pdays_edges), reference["target"]).sort_index(),
-    }, height=3.4)
+    return woe_panels(
+        {
+            "age": woe_table(pd.cut(reference["age"], age_edges), reference["target"]).sort_index(),
+            "pdays": woe_table(
+                pd.cut(reference["pdays"], pdays_edges), reference["target"]
+            ).sort_index(),
+        },
+        height=3.4,
+    )
 
 
 def figure_coarse_classing():
     _, reference, _ = _samples()
     fine = bin_edges(reference["balance"], bins=10)
     coarse = fine[[0, 3, 7, 10]]
-    return woe_panels({
-        "bins=10": woe_table(pd.cut(reference["balance"], fine), reference["target"]).sort_index(),
-        "fine[[0, 3, 7, 10]]": woe_table(pd.cut(reference["balance"], coarse), reference["target"]).sort_index(),
-    }, height=3.6)
+    return woe_panels(
+        {
+            "bins=10": woe_table(
+                pd.cut(reference["balance"], fine), reference["target"]
+            ).sort_index(),
+            "fine[[0, 3, 7, 10]]": woe_table(
+                pd.cut(reference["balance"], coarse), reference["target"]
+            ).sort_index(),
+        },
+        height=3.6,
+    )
 
 
 def figure_chimerge():
@@ -435,18 +553,24 @@ def figure_psi_shift():
     edges = bin_edges(reference["age"], bins=5)
     before = pd.cut(reference["age"], edges)
     single = data[data["marital"] == "single"]
-    return psi_panels({
-        "data.iloc[3000:]": psi_table(before, pd.cut(current["age"], edges)).sort_index(),
-        "marital == 'single'": psi_table(before, pd.cut(single["age"], edges)).sort_index(),
-    })
+    return psi_panels(
+        {
+            "data.iloc[3000:]": psi_table(before, pd.cut(current["age"], edges)).sort_index(),
+            "marital == 'single'": psi_table(before, pd.cut(single["age"], edges)).sort_index(),
+        }
+    )
 
 
 def monthly_psi(data: pd.DataFrame, reference: pd.DataFrame, column: str = "age"):
     edges = bin_edges(reference[column], bins=5)
     before = pd.cut(reference[column], edges)
     months = [m for m in MONTHS if m in set(data["month"])]
-    psi = pd.Series({m: psi_table(before, pd.cut(data.loc[data["month"] == m, column], edges))["psi"].sum()
-                     for m in months})
+    psi = pd.Series(
+        {
+            m: psi_table(before, pd.cut(data.loc[data["month"] == m, column], edges))["psi"].sum()
+            for m in months
+        }
+    )
     sizes = data["month"].value_counts().reindex(months)
     return psi, sizes
 

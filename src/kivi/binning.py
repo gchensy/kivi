@@ -190,9 +190,7 @@ def cut(
     codes = intervals.cat.codes.to_numpy()
     codes = np.where(codes >= 0, codes + len(special), -1)
     codes[is_special] = special.get_indexer(series[is_special])
-    groups = pd.Categorical.from_codes(
-        codes, categories=special.append(intervals.cat.categories)
-    )
+    groups = pd.Categorical.from_codes(codes, categories=special.append(intervals.cat.categories))
     if isinstance(values, pd.Series):
         return pd.Series(groups, index=series.index, name=series.name)
     return groups
@@ -207,7 +205,7 @@ def chimerge_edges(
     initial_bins: int = 20,
     special: npt.ArrayLike | None = None,
 ) -> npt.NDArray[np.float64]:
-    """Fit edges by merging adjacent quantile bins with ChiMerge.
+    r"""Fit edges by merging adjacent quantile bins with ChiMerge.
 
     The values are first cut into ``initial_bins`` quantile bins, or into one
     bin per distinct value if there are no more distinct values than that.
@@ -268,10 +266,10 @@ def chimerge_edges(
 
     .. math::
 
-       \\chi^2 = \\sum_{i=1}^{2} \\sum_{j=0}^{1} \\frac{(O_{ij} - E_{ij})^2}{E_{ij}}
+       \chi^2 = \sum_{i=1}^{2} \sum_{j=0}^{1} \frac{(O_{ij} - E_{ij})^2}{E_{ij}}
 
     where cells with :math:`E_{ij} = 0` contribute nothing. A pair stays
-    separate when the p-value of :math:`\\chi^2` is below ``alpha``.
+    separate when the p-value of :math:`\chi^2` is below ``alpha``.
 
     Examples
     --------
@@ -309,7 +307,7 @@ def tree_edges(
     criterion: Literal["entropy", "gini"] = "entropy",
     special: npt.ArrayLike | None = None,
 ) -> npt.NDArray[np.float64]:
-    """Fit edges with the splits of a decision tree on one variable.
+    r"""Fit edges with the splits of a decision tree on one variable.
 
     The tree grows best first: of all current bins, the one whose best split
     most reduces the total impurity is split next, until there are
@@ -364,7 +362,7 @@ def tree_edges(
     Notes
     -----
     For a bin with :math:`n` observations and event rate :math:`p`, the
-    impurity is :math:`H(p) = -p \\ln p - (1 - p) \\ln(1 - p)` (entropy) or
+    impurity is :math:`H(p) = -p \ln p - (1 - p) \ln(1 - p)` (entropy) or
     :math:`G(p) = 2p(1 - p)` (Gini). A split into :math:`n_L` and
     :math:`n_R` observations reduces the total impurity by
     :math:`n H(p) - n_L H(p_L) - n_R H(p_R)`, and the largest reduction over
@@ -384,8 +382,11 @@ def tree_edges(
     array([-inf,   4.,   6.,   9.,  inf])
     """
     _check_count(max_bins, "max_bins")
-    if isinstance(min_bin_share, bool) or not isinstance(min_bin_share, Real) \
-            or not 0 <= min_bin_share <= 0.5:
+    if (
+        isinstance(min_bin_share, bool)
+        or not isinstance(min_bin_share, Real)
+        or not 0 <= min_bin_share <= 0.5
+    ):
         raise ValueError(f"min_bin_share must be between 0 and 0.5, got {min_bin_share!r}")
     if criterion not in ("entropy", "gini"):
         raise ValueError(f"criterion must be 'entropy' or 'gini', got {criterion!r}")
@@ -408,8 +409,11 @@ def tree_edges(
         e_left = events[cuts] - events[start]
         e_right = events[stop] - events[cuts]
         n, e = totals[stop] - totals[start], events[stop] - events[start]
-        gain = (n * impurity(e / n) - n_left * impurity(e_left / n_left)
-                - n_right * impurity(e_right / n_right))
+        gain = (
+            n * impurity(e / n)
+            - n_left * impurity(e_left / n_left)
+            - n_right * impurity(e_right / n_right)
+        )
         best = int(np.argmax(gain))
         if gain[best] <= 1e-10 * n:
             return 0.0, None
@@ -421,8 +425,10 @@ def tree_edges(
         start, stop, _, cut = leaves[leaf]
         if cut is None:
             break
-        leaves[leaf:leaf + 1] = [(start, cut, *best_split(start, cut)),
-                                 (cut, stop, *best_split(cut, stop))]
+        leaves[leaf : leaf + 1] = [
+            (start, cut, *best_split(start, cut)),
+            (cut, stop, *best_split(cut, stop)),
+        ]
     interior = [unique[stop - 1] for _, stop, _, _ in leaves[:-1]]
     return np.r_[-np.inf, interior, np.inf]
 
@@ -527,7 +533,9 @@ def monotonic_edges(
     if direction == "auto":
         rising = _monotonic(*fine, 1, limit, smoothing)
         falling = _monotonic(*fine, -1, limit, smoothing)
-        interior = rising[0] if _iv(rising[1], smoothing) >= _iv(falling[1], smoothing) else falling[0]
+        interior = (
+            rising[0] if _iv(rising[1], smoothing) >= _iv(falling[1], smoothing) else falling[0]
+        )
     else:
         interior = _monotonic(*fine, 1 if direction == "increasing" else -1, limit, smoothing)[0]
     return np.r_[-np.inf, interior, np.inf]
@@ -648,7 +656,9 @@ def _iv(counts: np.ndarray, smoothing: float) -> float:
     return float((difference * np.log(proportions[:, 1] / proportions[:, 0])).sum())
 
 
-def _monotonic(interior: np.ndarray, counts: np.ndarray, sign: int, max_bins: int, smoothing: float):
+def _monotonic(
+    interior: np.ndarray, counts: np.ndarray, sign: int, max_bins: int, smoothing: float
+):
     while len(counts) > 1:
         breaks = np.flatnonzero(sign * np.diff(_woe(counts, smoothing)) <= 0)
         if len(breaks):

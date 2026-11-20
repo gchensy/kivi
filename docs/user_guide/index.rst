@@ -40,9 +40,10 @@ kivi keeps fitting and measuring apart. ``bin_edges`` fits edges on a reference 
 
 .. toctree::
    :hidden:
+   :glob:
 
    risk_workflow
    binning
    woe_iv
    psi
-   datasets
+   *
