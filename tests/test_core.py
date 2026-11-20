@@ -152,12 +152,27 @@ def test_numeric_strings_match_numeric_special_codes():
     np.testing.assert_equal(bin_edges(numeric, bins=2, special=[-1]), [-np.inf, 25, np.inf])
 
 
+def test_special_codes_match_exactly():
+    # Booleans are not the numbers 0 and 1 here, and integers are compared as integers.
+    edges = [-np.inf, 0.5, np.inf]
+    flags = cut(pd.Series([True, False]), edges, special=[0])
+    np.testing.assert_equal(flags.cat.codes.to_numpy(), [2, 1])
+    big = pd.Series([2**53 + 1, 2**53, 5], dtype=np.int64)
+    groups = cut(big, [-np.inf, 10, np.inf], special=[float(2**53)])
+    np.testing.assert_equal(groups.cat.codes.to_numpy(), [2, 0, 1])
+    np.testing.assert_equal(
+        cut(pd.Series([-1, 3], dtype="Int64"), edges, special=[-1.0]).cat.codes.to_numpy(), [0, 2]
+    )
+
+
 @pytest.mark.parametrize(
     "special,message",
     [
         ([np.nan], "must not contain missing values"),
         (-1, "special must be one-dimensional"),
         ([-1, True], "special must not contain booleans, got True"),
+        ([1, True], "special must not contain booleans, got True"),
+        ([0, False], "special must not contain booleans, got False"),
     ],
 )
 def test_invalid_special_values(special, message):
