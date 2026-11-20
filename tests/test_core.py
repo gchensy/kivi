@@ -42,8 +42,13 @@ def test_special_value_mass_is_reported():
 
 @pytest.mark.parametrize(
     "values",
-    [[1, 2, None, 3], (1.0, 2.0, np.nan, 3.0), np.array([1, 2, np.nan, 3]),
-     pd.array([1, 2, None, 3], dtype="Int64"), pd.Series([1, 2, None, 3])],
+    [
+        [1, 2, None, 3],
+        (1.0, 2.0, np.nan, 3.0),
+        np.array([1, 2, np.nan, 3]),
+        pd.array([1, 2, None, 3], dtype="Int64"),
+        pd.Series([1, 2, None, 3]),
+    ],
 )
 def test_bin_edges_accepts_array_like(values):
     np.testing.assert_equal(bin_edges(values, bins=2), [-np.inf, 2.0, np.inf])
@@ -51,16 +56,18 @@ def test_bin_edges_accepts_array_like(values):
 
 @pytest.mark.parametrize(
     "values,bins,method,message",
-    [([], 2, "quantile", "no finite observations apart from missing and special values"),
-     ([None], 2, "quantile", "no finite observations apart from missing and special values"),
-     ([np.inf], 2, "quantile", "finite observations only; pass infinite codes in special"),
-     ([1], 0, "quantile", "positive integer, got 0"),
-     ([1], True, "quantile", "positive integer, got True"),
-     ([1], 2.0, "quantile", "positive integer, got 2.0"),
-     ([1], 2, "median", "'quantile' or 'uniform', got 'median'"),
-     (["a", "b"], 2, "quantile", "Unable to parse string"),
-     (np.ones((2, 2)), 2, "quantile", "one-dimensional, got 2 dimensions"),
-     (1.0, 2, "quantile", "one-dimensional, got 0 dimensions")],
+    [
+        ([], 2, "quantile", "no finite observations apart from missing and special values"),
+        ([None], 2, "quantile", "no finite observations apart from missing and special values"),
+        ([np.inf], 2, "quantile", "finite observations only; pass infinite codes in special"),
+        ([1], 0, "quantile", "positive integer, got 0"),
+        ([1], True, "quantile", "positive integer, got True"),
+        ([1], 2.0, "quantile", "positive integer, got 2.0"),
+        ([1], 2, "median", "'quantile' or 'uniform', got 'median'"),
+        (["a", "b"], 2, "quantile", "Unable to parse string"),
+        (np.ones((2, 2)), 2, "quantile", "one-dimensional, got 2 dimensions"),
+        (1.0, 2, "quantile", "one-dimensional, got 0 dimensions"),
+    ],
 )
 def test_invalid_binning_inputs(values, bins, method, message):
     with pytest.raises(ValueError, match=message):
@@ -73,8 +80,12 @@ def test_special_values_are_left_out_of_the_fit():
     np.testing.assert_equal(
         bin_edges(values, bins=2, method="uniform", special=[-1, -1]), [-np.inf, 25, np.inf]
     )
-    np.testing.assert_equal(bin_edges(["N/A", 1, 3, 5], bins=2, special=["N/A"]), [-np.inf, 3, np.inf])
-    np.testing.assert_equal(bin_edges([-np.inf, 1, 3, 5], bins=2, special=[-np.inf]), [-np.inf, 3, np.inf])
+    np.testing.assert_equal(
+        bin_edges(["N/A", 1, 3, 5], bins=2, special=["N/A"]), [-np.inf, 3, np.inf]
+    )
+    np.testing.assert_equal(
+        bin_edges([-np.inf, 1, 3, 5], bins=2, special=[-np.inf]), [-np.inf, 3, np.inf]
+    )
 
 
 def test_cut_gives_each_special_value_a_group():
@@ -82,7 +93,12 @@ def test_cut_gives_each_special_value_a_group():
     edges = [-np.inf, 25, np.inf]
     groups = cut(values, edges, special=[-9, -1])
     assert groups.index.equals(values.index) and groups.name == "x"
-    assert groups.cat.categories.tolist() == [-9, -1, pd.Interval(-np.inf, 25), pd.Interval(25, np.inf)]
+    assert groups.cat.categories.tolist() == [
+        -9,
+        -1,
+        pd.Interval(-np.inf, 25),
+        pd.Interval(25, np.inf),
+    ]
     np.testing.assert_equal(groups.cat.codes.to_numpy(), [1, 2, 3, -1, 0, 1])
     as_array = cut(values.tolist(), edges, special=[-9, -1])
     assert isinstance(as_array, pd.Categorical)
@@ -134,9 +150,11 @@ def test_invalid_special_values(special, message):
 
 @pytest.mark.parametrize(
     "values,edges,message",
-    [(["a", 1], [-np.inf, np.inf], "Unable to parse string"),
-     ([1], [3, 1], "increase monotonically"),
-     ([[1]], [-np.inf, np.inf], "values must be one-dimensional")],
+    [
+        (["a", 1], [-np.inf, np.inf], "Unable to parse string"),
+        ([1], [3, 1], "increase monotonically"),
+        ([[1]], [-np.inf, np.inf], "values must be one-dimensional"),
+    ],
 )
 def test_invalid_cut_inputs(values, edges, message):
     with pytest.raises(ValueError, match=message):
@@ -198,12 +216,14 @@ def test_missing_categories_and_smoothing_preserve_counts():
 
 @pytest.mark.parametrize(
     "target,message",
-    [(pd.Series([0, 0]), "both 0 and 1"),
-     (pd.Series([0, 2]), "both 0 and 1"),
-     (pd.Series([1, None]), "no missing labels"),
-     (pd.Series([0, 1], index=[1, 0]), "identical indices"),
-     ([0, 1, 1], "same length, got 2 and 3"),
-     (np.array([[0, 1]]), "target must be one-dimensional")],
+    [
+        (pd.Series([0, 0]), "both 0 and 1"),
+        (pd.Series([0, 2]), "both 0 and 1"),
+        (pd.Series([1, None]), "no missing labels"),
+        (pd.Series([0, 1], index=[1, 0]), "identical indices"),
+        ([0, 1, 1], "same length, got 2 and 3"),
+        (np.array([[0, 1]]), "target must be one-dimensional"),
+    ],
 )
 def test_invalid_target(target, message):
     with pytest.raises(ValueError, match=message):
@@ -257,15 +277,19 @@ def test_interval_bins_are_counted_without_hashing_their_dtype(monkeypatch):
 
 def test_psi_accepts_array_like():
     expected = psi_table(pd.Series(["A", "A", None]), pd.Series(["B", None, None]))
-    pd.testing.assert_frame_equal(psi_table(["A", "A", None], np.array(["B", None, None])), expected)
+    pd.testing.assert_frame_equal(
+        psi_table(["A", "A", None], np.array(["B", None, None])), expected
+    )
 
 
 @pytest.mark.parametrize(
     "reference,current,smoothing,message",
-    [([], [1], 0.5, "both contain observations"),
-     ([1], [1], np.nan, "finite and positive, got nan"),
-     ([1], [1], 0, "finite and positive, got 0"),
-     ([[1]], [1], 0.5, "reference must be one-dimensional")],
+    [
+        ([], [1], 0.5, "both contain observations"),
+        ([1], [1], np.nan, "finite and positive, got nan"),
+        ([1], [1], 0, "finite and positive, got 0"),
+        ([[1]], [1], 0.5, "reference must be one-dimensional"),
+    ],
 )
 def test_psi_validates_samples_and_smoothing(reference, current, smoothing, message):
     with pytest.raises(ValueError, match=message):
@@ -313,7 +337,9 @@ def test_woe_transform_handles_unseen_groups():
     assert np.isnan(woe_transform(["c"], table, unseen=np.nan)).all()
     edges = [-np.inf, 0, 10, np.inf]
     by_interval = woe_table(pd.cut(pd.Series([5, 15, 5, 15]), edges), pd.Series([1, 0, 0, 1]))
-    with pytest.raises(ValueError, match=r"1 group\(s\) are not in table, such as Interval\(-inf, 0.0"):
+    with pytest.raises(
+        ValueError, match=r"1 group\(s\) are not in table, such as Interval\(-inf, 0.0"
+    ):
         woe_transform(pd.cut(pd.Series([-5, 5]), edges), by_interval)
 
 
@@ -323,7 +349,7 @@ def test_woe_transform_on_bank_matches_lookup():
     edges = bin_edges(development["age"], bins=5)
     table = woe_table(pd.cut(development["age"], edges), development["target"])
     result = woe_transform(pd.cut(monitoring["age"], edges), table)
-    lookup = dict(zip(table.index, table["woe"]))
+    lookup = dict(zip(table.index, table["woe"], strict=True))
     expected = [lookup[interval] for interval in pd.cut(monitoring["age"], edges)]
     np.testing.assert_allclose(result.to_numpy(), expected)
     assert result.index.equals(monitoring.index)
@@ -331,14 +357,16 @@ def test_woe_transform_on_bank_matches_lookup():
 
 @pytest.mark.parametrize(
     "groups,table,unseen,message",
-    [(["a"], pd.DataFrame({"iv": [0.1]}, index=["a"]), "raise", "must have a woe column"),
-     (["a"], pd.Series([0.1, 0.2], index=["a", "a"]), "raise", "one row per group"),
-     (["a"], pd.Series([0.1, 0.2], index=[np.nan, None]), "raise", "one row per group"),
-     (["a"], {"a": 0.1}, "raise", "woe_table result or a Series, got dict"),
-     (["a"], pd.Series([0.1], index=["a"]), "zero", "'raise' or a number, got 'zero'"),
-     (["a"], pd.Series([0.1], index=["a"]), True, "'raise' or a number, got True"),
-     (["a"], pd.Series([0.1], index=["a"]), None, "'raise' or a number, got None"),
-     (np.ones((2, 2)), pd.Series([0.1], index=["a"]), "raise", "groups must be one-dimensional")],
+    [
+        (["a"], pd.DataFrame({"iv": [0.1]}, index=["a"]), "raise", "must have a woe column"),
+        (["a"], pd.Series([0.1, 0.2], index=["a", "a"]), "raise", "one row per group"),
+        (["a"], pd.Series([0.1, 0.2], index=[np.nan, None]), "raise", "one row per group"),
+        (["a"], {"a": 0.1}, "raise", "woe_table result or a Series, got dict"),
+        (["a"], pd.Series([0.1], index=["a"]), "zero", "'raise' or a number, got 'zero'"),
+        (["a"], pd.Series([0.1], index=["a"]), True, "'raise' or a number, got True"),
+        (["a"], pd.Series([0.1], index=["a"]), None, "'raise' or a number, got None"),
+        (np.ones((2, 2)), pd.Series([0.1], index=["a"]), "raise", "groups must be one-dimensional"),
+    ],
 )
 def test_woe_transform_validates_inputs(groups, table, unseen, message):
     with pytest.raises(ValueError, match=message):

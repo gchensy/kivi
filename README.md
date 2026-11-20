@@ -122,15 +122,15 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 
 | Function | What it does |
 | --- | --- |
-| [`kivi.binning.bin_edges`](https://gchensy.github.io/kivi/en/api.html#kivi.binning.bin_edges) | Fit quantile or uniform edges on a reference sample, with infinite outer edges |
-| [`kivi.binning.cut`](https://gchensy.github.io/kivi/en/api.html#kivi.binning.cut) | Assign values to bins, with a separate group for each special value such as `-1` |
-| [`kivi.binning.chimerge_edges`](https://gchensy.github.io/kivi/en/api.html#kivi.binning.chimerge_edges) | Merge fine quantile bins with ChiMerge until neighbours differ significantly |
-| [`kivi.binning.tree_edges`](https://gchensy.github.io/kivi/en/api.html#kivi.binning.tree_edges) | Decision-tree splits by entropy or Gini, with a minimum share per bin |
-| [`kivi.binning.monotonic_edges`](https://gchensy.github.io/kivi/en/api.html#kivi.binning.monotonic_edges) | Merge fine quantile bins until the WOE is monotonic |
-| [`kivi.woe.woe_table`](https://gchensy.github.io/kivi/en/api.html#kivi.woe.woe_table) | Counts, shares, WOE and IV for every group |
-| [`kivi.woe.woe_transform`](https://gchensy.github.io/kivi/en/api.html#kivi.woe.woe_transform) | Replace each group with its development WOE, with an explicit policy for unseen groups |
-| [`kivi.evaluate.psi_table`](https://gchensy.github.io/kivi/en/api.html#kivi.evaluate.psi_table) | Per-group PSI contributions between two samples |
-| [`kivi.datasets.Dataset.bank_data`](https://gchensy.github.io/kivi/en/api.html#kivi.datasets.Dataset.bank_data) | The bundled bank marketing data |
+| [`kivi.binning.bin_edges`](https://gchensy.github.io/kivi/en/api/binning.html#kivi.binning.bin_edges) | Fit quantile or uniform edges on a reference sample, with infinite outer edges |
+| [`kivi.binning.cut`](https://gchensy.github.io/kivi/en/api/binning.html#kivi.binning.cut) | Assign values to bins, with a separate group for each special value such as `-1` |
+| [`kivi.binning.chimerge_edges`](https://gchensy.github.io/kivi/en/api/binning.html#kivi.binning.chimerge_edges) | Merge fine quantile bins with ChiMerge until neighbours differ significantly |
+| [`kivi.binning.tree_edges`](https://gchensy.github.io/kivi/en/api/binning.html#kivi.binning.tree_edges) | Decision-tree splits by entropy or Gini, with a minimum share per bin |
+| [`kivi.binning.monotonic_edges`](https://gchensy.github.io/kivi/en/api/binning.html#kivi.binning.monotonic_edges) | Merge fine quantile bins until the WOE is monotonic |
+| [`kivi.woe.woe_table`](https://gchensy.github.io/kivi/en/api/woe.html#kivi.woe.woe_table) | Counts, shares, WOE and IV for every group |
+| [`kivi.woe.woe_transform`](https://gchensy.github.io/kivi/en/api/woe.html#kivi.woe.woe_transform) | Replace each group with its development WOE, with an explicit policy for unseen groups |
+| [`kivi.evaluate.psi_table`](https://gchensy.github.io/kivi/en/api/evaluate.html#kivi.evaluate.psi_table) | Per-group PSI contributions between two samples |
+| [`kivi.datasets.Dataset.bank_data`](https://gchensy.github.io/kivi/en/api/datasets.html#kivi.datasets.Dataset.bank_data) | The bundled bank marketing data |
 
 ## 📚 Documentation
 
@@ -159,7 +159,8 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 ```bash
 git clone https://github.com/gchensy/kivi.git
 cd kivi
-python -m pip install -e '.[test,docs]'
+python -m pip install -e '.[test,docs,lint]'
+pre-commit install                                        # ruff before every commit
 python -m pytest                                          # unit tests
 python -m sphinx -W -b doctest docs docs/_build/doctest   # documentation examples
 python docs/build.py                                      # English and Chinese HTML

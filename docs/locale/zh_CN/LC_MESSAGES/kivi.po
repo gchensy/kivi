@@ -22,82 +22,53 @@ msgid ""
 "pandas Series, and return NumPy arrays or pandas DataFrames. Import them from their modules."
 msgstr "公共函数接收一维类数组输入（如列表、NumPy 数组或 pandas Series），返回 NumPy 数组或 pandas DataFrame。请从各自所在的模块导入。"
 
-msgid ":py:obj:`binning.bin_edges <kivi.binning.bin_edges>`\\ \\(values\\[\\, bins\\, method\\, ...\\]\\)"
-msgstr ":py:obj:`binning.bin_edges <kivi.binning.bin_edges>`\\ \\(values\\[\\, bins\\, method\\, ...\\]\\)"
+msgid "Each page below documents one module."
+msgstr "下面每一页对应一个模块。"
+
+msgid "Binning"
+msgstr "分箱"
+
+msgid ":py:obj:`bin_edges <kivi.binning.bin_edges>`\\ \\(values\\[\\, bins\\, method\\, special\\]\\)"
+msgstr ":py:obj:`bin_edges <kivi.binning.bin_edges>`\\ \\(values\\[\\, bins\\, method\\, special\\]\\)"
 
 msgid "Fit numeric bin edges on a reference sample."
 msgstr "在基准样本上拟合数值变量的分箱边界。"
 
-msgid ":py:obj:`binning.cut <kivi.binning.cut>`\\ \\(values\\, edges\\, \\*\\[\\, special\\]\\)"
-msgstr ":py:obj:`binning.cut <kivi.binning.cut>`\\ \\(values\\, edges\\, \\*\\[\\, special\\]\\)"
+msgid ":py:obj:`cut <kivi.binning.cut>`\\ \\(values\\, edges\\, \\*\\[\\, special\\]\\)"
+msgstr ":py:obj:`cut <kivi.binning.cut>`\\ \\(values\\, edges\\, \\*\\[\\, special\\]\\)"
 
 msgid "Assign values to bins, with a separate group for each special value."
 msgstr "将取值分配到各箱，每个特殊值单独成组。"
 
 msgid ""
-":py:obj:`binning.chimerge_edges <kivi.binning.chimerge_edges>`\\ \\(values\\, target\\, \\*\\[\\,"
-" ...\\]\\)"
+":py:obj:`chimerge_edges <kivi.binning.chimerge_edges>`\\ \\(values\\, target\\, \\*\\[\\, "
+"...\\]\\)"
 msgstr ""
-":py:obj:`binning.chimerge_edges <kivi.binning.chimerge_edges>`\\ \\(values\\, target\\, \\*\\[\\,"
-" ...\\]\\)"
+":py:obj:`chimerge_edges <kivi.binning.chimerge_edges>`\\ \\(values\\, target\\, \\*\\[\\, "
+"...\\]\\)"
 
 msgid "Fit edges by merging adjacent quantile bins with ChiMerge."
 msgstr "用 ChiMerge（卡方分箱）合并相邻的等频箱，拟合分箱边界。"
 
 msgid ""
-":py:obj:`binning.tree_edges <kivi.binning.tree_edges>`\\ \\(values\\, target\\, \\*\\[\\, "
+":py:obj:`tree_edges <kivi.binning.tree_edges>`\\ \\(values\\, target\\, \\*\\[\\, max\\_bins\\, "
 "...\\]\\)"
 msgstr ""
-":py:obj:`binning.tree_edges <kivi.binning.tree_edges>`\\ \\(values\\, target\\, \\*\\[\\, "
+":py:obj:`tree_edges <kivi.binning.tree_edges>`\\ \\(values\\, target\\, \\*\\[\\, max\\_bins\\, "
 "...\\]\\)"
 
 msgid "Fit edges with the splits of a decision tree on one variable."
 msgstr "用单变量决策树的切分点拟合分箱边界。"
 
 msgid ""
-":py:obj:`binning.monotonic_edges <kivi.binning.monotonic_edges>`\\ \\(values\\, target\\, "
-"\\*\\[\\, ...\\]\\)"
+":py:obj:`monotonic_edges <kivi.binning.monotonic_edges>`\\ \\(values\\, target\\, \\*\\[\\, "
+"...\\]\\)"
 msgstr ""
-":py:obj:`binning.monotonic_edges <kivi.binning.monotonic_edges>`\\ \\(values\\, target\\, "
-"\\*\\[\\, ...\\]\\)"
+":py:obj:`monotonic_edges <kivi.binning.monotonic_edges>`\\ \\(values\\, target\\, \\*\\[\\, "
+"...\\]\\)"
 
 msgid "Fit edges by merging adjacent quantile bins until the WOE is monotonic."
 msgstr "合并相邻的等频箱，直到 WOE 单调，以此拟合分箱边界。"
-
-msgid ":py:obj:`woe.woe_table <kivi.woe.woe_table>`\\ \\(groups\\, target\\, \\*\\[\\, smoothing\\]\\)"
-msgstr ":py:obj:`woe.woe_table <kivi.woe.woe_table>`\\ \\(groups\\, target\\, \\*\\[\\, smoothing\\]\\)"
-
-msgid "Compute weight of evidence and information value for observed groups."
-msgstr "按观察到的分组计算证据权重（WOE）和信息值（IV）。"
-
-msgid ""
-":py:obj:`woe.woe_transform <kivi.woe.woe_transform>`\\ \\(groups\\, table\\, \\*\\[\\, "
-"unseen\\]\\)"
-msgstr ""
-":py:obj:`woe.woe_transform <kivi.woe.woe_transform>`\\ \\(groups\\, table\\, \\*\\[\\, "
-"unseen\\]\\)"
-
-msgid "Replace each group with its weight of evidence."
-msgstr "将每个分组替换为其证据权重（WOE）。"
-
-msgid ""
-":py:obj:`evaluate.psi_table <kivi.evaluate.psi_table>`\\ \\(reference\\, current\\, \\*\\[\\, "
-"...\\]\\)"
-msgstr ""
-":py:obj:`evaluate.psi_table <kivi.evaluate.psi_table>`\\ \\(reference\\, current\\, \\*\\[\\, "
-"...\\]\\)"
-
-msgid "Compare two samples using their population stability index."
-msgstr "通过群体稳定性指标（PSI）比较两个样本的分布。"
-
-msgid ":py:obj:`datasets.Dataset.bank_data <kivi.datasets.Dataset.bank_data>`\\ \\(\\)"
-msgstr ":py:obj:`datasets.Dataset.bank_data <kivi.datasets.Dataset.bank_data>`\\ \\(\\)"
-
-msgid "Load 4,521 observations from UCI Bank Marketing."
-msgstr "读取 UCI Bank Marketing 的 4,521 条营销记录。"
-
-msgid "Binning"
-msgstr "分箱"
 
 msgid ""
 "The edges are fitted once and then applied with ``pandas.cut`` to the reference and to every "
@@ -497,8 +468,140 @@ msgstr "按卡方检验合并细分箱。"
 msgid "Split the values recursively."
 msgstr "递归切分数值。"
 
+msgid "Example data"
+msgstr "示例数据"
+
+msgid ":py:obj:`Dataset.bank_data <kivi.datasets.Dataset.bank_data>`\\ \\(\\)"
+msgstr ":py:obj:`Dataset.bank_data <kivi.datasets.Dataset.bank_data>`\\ \\(\\)"
+
+msgid "Load 4,521 observations from UCI Bank Marketing."
+msgstr "读取 UCI Bank Marketing 的 4,521 条营销记录。"
+
+msgid "The ``y`` response of the original data is returned as the binary ``target`` column."
+msgstr "原始数据中的响应列 ``y`` 以二分类的 ``target`` 列返回。"
+
+msgid "pandas.DataFrame"
+msgstr "pandas.DataFrame"
+
+msgid "Sixteen features and the integer target. A value of 1 indicates a term deposit subscription."
+msgstr "返回 16 个特征和整数标签 target。1 表示客户认购了定期存款。"
+
+msgid "Relate a feature to ``target``."
+msgstr "将某个特征与 ``target`` 关联起来。"
+
+msgid ""
+"Bank Marketing by S. Moro, P. Rita and P. Cortez (2014) is distributed under CC BY 4.0. The "
+"bundled CSV was converted from the legacy workbook."
+msgstr "Bank Marketing 由 S. Moro、P. Rita 和 P. Cortez 于 2014 年发布，按 CC BY 4.0 授权。随包 CSV 由旧版工作簿转换而来。"
+
+msgid "References"
+msgstr "参考文献"
+
+msgid ""
+"S. Moro, P. Rita and P. Cortez, \"Bank Marketing\", UCI Machine Learning Repository, 2014. "
+"https://doi.org/10.24432/C5K306"
+msgstr ""
+"S. Moro, P. Rita and P. Cortez, \"Bank Marketing\", UCI Machine Learning Repository, 2014. "
+"https://doi.org/10.24432/C5K306"
+
+msgid "[Re446c00e8929-1]_"
+msgstr "[Re446c00e8929-1]_"
+
+msgid "Population stability"
+msgstr "群体稳定性"
+
+msgid ""
+":py:obj:`psi_table <kivi.evaluate.psi_table>`\\ \\(reference\\, current\\, \\*\\[\\, "
+"smoothing\\]\\)"
+msgstr ""
+":py:obj:`psi_table <kivi.evaluate.psi_table>`\\ \\(reference\\, current\\, \\*\\[\\, "
+"smoothing\\]\\)"
+
+msgid "Compare two samples using their population stability index."
+msgstr "通过群体稳定性指标（PSI）比较两个样本的分布。"
+
+msgid ""
+"Each group's share of the current sample is compared with its share of the reference sample. Sum "
+"the ``psi`` column for the index."
+msgstr "比较每组在当前样本中的占比与在基准样本中的占比。将 ``psi`` 列求和即得到该指数。"
+
+msgid "**reference, current**"
+msgstr "**reference, current**"
+
+msgid ""
+"Labels or values binned using the same edges. Missing values and categories observed in only one "
+"sample are included."
+msgstr "类别标签或按相同边界分箱的数值。保留缺失值以及仅出现在一侧的类别。"
+
+msgid "Positive replacement for a zero count when calculating shares."
+msgstr "计算占比时，用这个正数替代零计数。"
+
+msgid ""
+"Counts, normalized shares and the PSI contribution of each group. Sum the psi column for the "
+"population stability index."
+msgstr "各组的原始计数、归一化占比和 PSI 贡献。对 psi 列求和即得到总体 PSI。"
+
+msgid "If either sample is empty or not one-dimensional, or `smoothing` is not finite and positive."
+msgstr "如果任一样本为空或不是一维，或者 `smoothing` 不是有限正数。"
+
+msgid ":obj:`kivi.binning.bin_edges`"
+msgstr ":obj:`kivi.binning.bin_edges`"
+
+msgid "Fit edges on the reference sample."
+msgstr "在基准样本上拟合分箱边界。"
+
+msgid "Relate the groups to a binary target."
+msgstr "将分组与二分类目标关联起来。"
+
+msgid ""
+"For group :math:`i`, let :math:`q_i` be its share of the reference sample and :math:`p_i` its "
+"share of the current sample. Then"
+msgstr "对第 :math:`i` 组，令 :math:`q_i` 为其在基准样本中的占比，:math:`p_i` 为其在当前样本中的占比，则"
+
+#, python-brace-format
+msgid ""
+"\\mathrm{PSI}_i = (p_i - q_i) \\ln \\frac{p_i}{q_i}, \\qquad\n"
+"\\mathrm{PSI} = \\sum_i \\mathrm{PSI}_i."
+msgstr ""
+"\\mathrm{PSI}_i = (p_i - q_i) \\ln \\frac{p_i}{q_i}, \\qquad\n"
+"\\mathrm{PSI} = \\sum_i \\mathrm{PSI}_i."
+
+msgid ""
+"Each zero count is replaced with `smoothing` before the shares are normalized, so a group "
+"observed in only one sample has a finite contribution. The ``reference`` and ``current`` columns "
+"always report the observed counts."
+msgstr "在归一化占比之前，每个零计数都会被替换为 `smoothing`，因此只在一个样本中出现的组也有有限的贡献值。 ``reference`` 和 ``current`` 列始终报告实际观测到的计数。"
+
+msgid ""
+"If both samples are categorical with the same categories, rows follow the order of the categories"
+" with missing values last. Otherwise they follow the order in which the groups first appear, in "
+"the reference sample and then in the current sample."
+msgstr "如果两个样本都是分类型且类别相同，各行按类别顺序排列，缺失值排在最后。否则按分组首次出现的次序排列，先看基准样本，再看当前样本。"
+
+msgid ""
+"N. Siddiqi, \"Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring\", "
+"Wiley, 2006."
+msgstr ""
+"N. Siddiqi, \"Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring\", "
+"Wiley, 2006."
+
+msgid "[Rb40ea4e016bb-1]_"
+msgstr "[Rb40ea4e016bb-1]_"
+
 msgid "Weight of evidence"
 msgstr "证据权重"
+
+msgid ":py:obj:`woe_table <kivi.woe.woe_table>`\\ \\(groups\\, target\\, \\*\\[\\, smoothing\\]\\)"
+msgstr ":py:obj:`woe_table <kivi.woe.woe_table>`\\ \\(groups\\, target\\, \\*\\[\\, smoothing\\]\\)"
+
+msgid "Compute weight of evidence and information value for observed groups."
+msgstr "按观察到的分组计算证据权重（WOE）和信息值（IV）。"
+
+msgid ":py:obj:`woe_transform <kivi.woe.woe_transform>`\\ \\(groups\\, table\\, \\*\\[\\, unseen\\]\\)"
+msgstr ":py:obj:`woe_transform <kivi.woe.woe_transform>`\\ \\(groups\\, table\\, \\*\\[\\, unseen\\]\\)"
+
+msgid "Replace each group with its weight of evidence."
+msgstr "将每个分组替换为其证据权重（WOE）。"
 
 msgid ""
 "Each group's share of events is compared with its share of non-events. Sum the ``iv`` column for "
@@ -516,12 +619,6 @@ msgid ""
 " must have identical indices; otherwise they are matched by position."
 msgstr "二分类标签，1 表示事件。如果 `groups` 和 `target` 都是 pandas Series，二者的索引必须完全相同；否则按位置对应。"
 
-msgid "Positive replacement for a zero count when calculating shares."
-msgstr "计算占比时，用这个正数替代零计数。"
-
-msgid "pandas.DataFrame"
-msgstr "pandas.DataFrame"
-
 msgid ""
 "Event and non-event counts, their within-class shares, WOE and IV per group. Sum the iv column "
 "for the variable's information value."
@@ -537,9 +634,6 @@ msgstr ":obj:`woe_transform`"
 
 msgid "Replace each group with its WOE."
 msgstr "将每个分组替换为其 WOE。"
-
-msgid ":obj:`kivi.binning.bin_edges`"
-msgstr ":obj:`kivi.binning.bin_edges`"
 
 msgid "Fit edges for numeric variables."
 msgstr "为数值变量拟合分箱边界。"
@@ -572,16 +666,6 @@ msgid ""
 "of their categories with missing values last. Other groups follow the order in which they first "
 "appear. Categories that are never observed are omitted."
 msgstr "分类型的分组（例如 `kivi.binning.cut` 或 ``pandas.cut`` 的结果）按类别顺序排列，缺失值排在最后。其他分组按首次出现的次序排列。从未出现的类别不会列出。"
-
-msgid "References"
-msgstr "参考文献"
-
-msgid ""
-"N. Siddiqi, \"Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring\", "
-"Wiley, 2006."
-msgstr ""
-"N. Siddiqi, \"Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring\", "
-"Wiley, 2006."
 
 msgid "[R86ef760ac44f-1]_"
 msgstr "[R86ef760ac44f-1]_"
@@ -650,102 +734,27 @@ msgid ""
 "transformed."
 msgstr "标签按相等关系匹配，因此 ``pandas.cut`` 得到的区间会与 `table` 中边界相同的区间对应。对每个要转换的样本，都请使用在开发样本上拟合的边界。"
 
-msgid "Population stability"
-msgstr "群体稳定性"
-
-msgid ""
-"Each group's share of the current sample is compared with its share of the reference sample. Sum "
-"the ``psi`` column for the index."
-msgstr "比较每组在当前样本中的占比与在基准样本中的占比。将 ``psi`` 列求和即得到该指数。"
-
-msgid "**reference, current**"
-msgstr "**reference, current**"
-
-msgid ""
-"Labels or values binned using the same edges. Missing values and categories observed in only one "
-"sample are included."
-msgstr "类别标签或按相同边界分箱的数值。保留缺失值以及仅出现在一侧的类别。"
-
-msgid ""
-"Counts, normalized shares and the PSI contribution of each group. Sum the psi column for the "
-"population stability index."
-msgstr "各组的原始计数、归一化占比和 PSI 贡献。对 psi 列求和即得到总体 PSI。"
-
-msgid "If either sample is empty or not one-dimensional, or `smoothing` is not finite and positive."
-msgstr "如果任一样本为空或不是一维，或者 `smoothing` 不是有限正数。"
-
-msgid "Fit edges on the reference sample."
-msgstr "在基准样本上拟合分箱边界。"
-
-msgid "Relate the groups to a binary target."
-msgstr "将分组与二分类目标关联起来。"
-
-msgid ""
-"For group :math:`i`, let :math:`q_i` be its share of the reference sample and :math:`p_i` its "
-"share of the current sample. Then"
-msgstr "对第 :math:`i` 组，令 :math:`q_i` 为其在基准样本中的占比，:math:`p_i` 为其在当前样本中的占比，则"
-
-#, python-brace-format
-msgid ""
-"\\mathrm{PSI}_i = (p_i - q_i) \\ln \\frac{p_i}{q_i}, \\qquad\n"
-"\\mathrm{PSI} = \\sum_i \\mathrm{PSI}_i."
-msgstr ""
-"\\mathrm{PSI}_i = (p_i - q_i) \\ln \\frac{p_i}{q_i}, \\qquad\n"
-"\\mathrm{PSI} = \\sum_i \\mathrm{PSI}_i."
-
-msgid ""
-"Each zero count is replaced with `smoothing` before the shares are normalized, so a group "
-"observed in only one sample has a finite contribution. The ``reference`` and ``current`` columns "
-"always report the observed counts."
-msgstr "在归一化占比之前，每个零计数都会被替换为 `smoothing`，因此只在一个样本中出现的组也有有限的贡献值。 ``reference`` 和 ``current`` 列始终报告实际观测到的计数。"
-
-msgid ""
-"If both samples are categorical with the same categories, rows follow the order of the categories"
-" with missing values last. Otherwise they follow the order in which the groups first appear, in "
-"the reference sample and then in the current sample."
-msgstr "如果两个样本都是分类型且类别相同，各行按类别顺序排列，缺失值排在最后。否则按分组首次出现的次序排列，先看基准样本，再看当前样本。"
-
-msgid "[Rb40ea4e016bb-1]_"
-msgstr "[Rb40ea4e016bb-1]_"
-
-msgid "Example data"
-msgstr "示例数据"
-
-msgid "The ``y`` response of the original data is returned as the binary ``target`` column."
-msgstr "原始数据中的响应列 ``y`` 以二分类的 ``target`` 列返回。"
-
-msgid "Sixteen features and the integer target. A value of 1 indicates a term deposit subscription."
-msgstr "返回 16 个特征和整数标签 target。1 表示客户认购了定期存款。"
-
-msgid "Relate a feature to ``target``."
-msgstr "将某个特征与 ``target`` 关联起来。"
-
-msgid ""
-"Bank Marketing by S. Moro, P. Rita and P. Cortez (2014) is distributed under CC BY 4.0. The "
-"bundled CSV was converted from the legacy workbook."
-msgstr "Bank Marketing 由 S. Moro、P. Rita 和 P. Cortez 于 2014 年发布，按 CC BY 4.0 授权。随包 CSV 由旧版工作簿转换而来。"
-
-msgid ""
-"S. Moro, P. Rita and P. Cortez, \"Bank Marketing\", UCI Machine Learning Repository, 2014. "
-"https://doi.org/10.24432/C5K306"
-msgstr ""
-"S. Moro, P. Rita and P. Cortez, \"Bank Marketing\", UCI Machine Learning Repository, 2014. "
-"https://doi.org/10.24432/C5K306"
-
-msgid "[Re446c00e8929-1]_"
-msgstr "[Re446c00e8929-1]_"
-
 msgid "Development"
 msgstr "开发"
 
 msgid "Set up"
 msgstr "环境准备"
 
-msgid "Clone the repository and install it in editable mode with the test and documentation dependencies."
-msgstr "克隆仓库，以可编辑模式安装，并同时安装测试和文档依赖。"
+msgid ""
+"Clone the repository and install it in editable mode with the test, documentation and lint "
+"dependencies, then install the pre-commit hook."
+msgstr "克隆仓库，以可编辑模式安装，并同时安装测试、文档和代码检查依赖，然后安装 pre-commit 钩子。"
 
 msgid "Build and verify"
 msgstr "构建与验证"
+
+msgid ""
+"ruff checks the code against the rules in ``pyproject.toml`` and formats it. The pre-commit hook "
+"runs it before every commit, and the ``build`` check runs it on every pull request. A second job "
+"runs the tests with the oldest NumPy and pandas versions that kivi supports."
+msgstr ""
+"ruff 按 ``pyproject.toml`` 中的规则检查代码并统一格式。pre-commit 钩子会在每次提交前运行它， ``build`` 检查也会在每个 pull request "
+"上运行它。另一个任务会用 kivi 支持的最低版本 NumPy 和 pandas 运行测试。"
 
 msgid ""
 "The doctest builder runs every example in these pages and in the docstrings. The HTML build "
@@ -796,6 +805,16 @@ msgid ""
 msgstr ""
 "翻译目录。合并或变基因 ``kivi.po`` 冲突而中止时，运行 ``python docs/build.py --merge-po`` "
 "。它会保留双方的翻译，并加入合并后新出现的文本。翻译这些文本后，再把目录加入提交。"
+
+msgid ""
+"A pull request that adds a module therefore only adds files: the module, its tests, a user guide "
+"page, an API page in ``docs/api/`` and a release note. The API reference and the user guide pick "
+"up new pages automatically. The README tables, the cards on the home page and on the user guide "
+"index, and the risk modeling workflow are updated together after a group of such pull requests "
+"has merged."
+msgstr ""
+"因此，新增模块的 pull request 只需新增文件：模块本身、它的测试、一个用户指南页面、 ``docs/api/`` 中的一个 API 页面，以及一条发布说明。API "
+"参考和用户指南会自动收录新页面。README 中的表格、首页和用户指南目录页上的卡片，以及风控建模流程页，会在一批这样的 pull request 合并之后统一更新。"
 
 msgid "Translations"
 msgstr "翻译"
@@ -1184,6 +1203,25 @@ msgstr ""
 "``woe_transform`` 用 ``woe_table`` 结果中的 WOE 替换每个分组，这正是评分卡模型使用的编码。不在表中的分组会引发错误，除非用 ``unseen`` 指定其 "
 "WOE。"
 
+msgid "Changed"
+msgstr "变更"
+
+msgid ""
+"The API reference has a page for each module. Links to a function on the former single page now "
+"go to the page of its module."
+msgstr "API 参考改为每个模块一页。原来指向单页中某个函数的链接，现在改为指向该函数所在模块的页面。"
+
+msgid "Fixed"
+msgstr "修复"
+
+msgid ""
+"``woe_table`` and ``psi_table`` no longer cause pandas to issue ``RuntimeWarning: invalid value "
+"encountered in cast`` on NumPy older than 2.2 when the groups come from ``pandas.cut`` with "
+"infinite edges."
+msgstr ""
+"分组来自带无穷端点的 ``pandas.cut`` 时， ``woe_table`` 和 ``psi_table`` 在 NumPy 2.2 以下的版本上不再引发 pandas 的 "
+"``RuntimeWarning: invalid value encountered in cast`` 。"
+
 msgid "0.4.0 (2026-11-19)"
 msgstr "0.4.0（2026-11-19）"
 
@@ -1217,9 +1255,6 @@ msgid ""
 msgstr ""
 "``chimerge_edges``、``tree_edges`` 和 ``monotonic_edges`` 与 ``bin_edges`` 一样接受 ``special`` "
 "参数。这些编码连同其标签不参与拟合；再把相同的编码传给 ``kivi.binning.cut`` ，即可让每个编码单独成组。"
-
-msgid "Changed"
-msgstr "变更"
 
 msgid ""
 "``bin_edges``, ``woe_table`` and ``psi_table`` accept any one-dimensional array-like input, such "
@@ -1256,17 +1291,6 @@ msgid ""
 msgstr ""
 "``woe_table`` 和 ``psi_table`` 对分类型分组（包括 ``pandas.cut`` "
 "的结果）按类别顺序排列，缺失值排在最后。其他标签仍按首次出现的次序排列。此前所有分组都按首次出现的次序排列，需要用 ``sort_index`` 才能让区间有序。"
-
-msgid "Fixed"
-msgstr "修复"
-
-msgid ""
-"``woe_table`` and ``psi_table`` no longer cause pandas to issue ``RuntimeWarning: invalid value "
-"encountered in cast`` on NumPy older than 2.2 when the groups come from ``pandas.cut`` with "
-"infinite edges."
-msgstr ""
-"分组来自带无穷端点的 ``pandas.cut`` 时， ``woe_table`` 和 ``psi_table`` 在 NumPy 2.2 以下的版本上不再引发 pandas 的 "
-"``RuntimeWarning: invalid value encountered in cast`` 。"
 
 msgid "0.3.0 (2026-11-19)"
 msgstr "0.3.0（2026-11-19）"
