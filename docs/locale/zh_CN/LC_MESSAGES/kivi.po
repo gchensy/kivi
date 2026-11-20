@@ -1372,11 +1372,24 @@ msgstr "与 ``pandas.cut`` 一样，各分段为右闭区间：等于某个内�
 msgid "Example data"
 msgstr "示例数据"
 
-msgid ":py:obj:`Dataset.bank_data <kivi.datasets.Dataset.bank_data>`\\ \\(\\)"
-msgstr ":py:obj:`Dataset.bank_data <kivi.datasets.Dataset.bank_data>`\\ \\(\\)"
+msgid ":py:obj:`load_bank <kivi.datasets.load_bank>`\\ \\(\\)"
+msgstr ":py:obj:`load_bank <kivi.datasets.load_bank>`\\ \\(\\)"
 
 msgid "Load 4,521 observations from UCI Bank Marketing."
 msgstr "读取 UCI Bank Marketing 的 4,521 条营销记录。"
+
+msgid ""
+":py:obj:`make_loan_panel <kivi.datasets.make_loan_panel>`\\ \\(\\*\\[\\, n\\_loans\\, "
+"n\\_months\\, rng\\]\\)"
+msgstr ""
+":py:obj:`make_loan_panel <kivi.datasets.make_loan_panel>`\\ \\(\\*\\[\\, n\\_loans\\, "
+"n\\_months\\, rng\\]\\)"
+
+msgid "Generate a synthetic monthly panel of instalment loans."
+msgstr "生成分期贷款的合成月度面板数据。"
+
+msgid ":py:obj:`Dataset.bank_data <kivi.datasets.Dataset.bank_data>`\\ \\(\\)"
+msgstr ":py:obj:`Dataset.bank_data <kivi.datasets.Dataset.bank_data>`\\ \\(\\)"
 
 msgid "The ``y`` response of the original data is returned as the binary ``target`` column."
 msgstr "原始数据中的响应列 ``y`` 以二分类的 ``target`` 列返回。"
@@ -1386,6 +1399,12 @@ msgstr "返回 16 个特征和整数标签 target。1 表示客户认购了定�
 
 msgid "Relate a feature to ``target``."
 msgstr "将某个特征与 ``target`` 关联起来。"
+
+msgid ":obj:`make_loan_panel`"
+msgstr ":obj:`make_loan_panel`"
+
+msgid "Synthetic monthly history of a loan portfolio."
+msgstr "贷款资产组合的合成月度历史。"
 
 msgid ""
 "Bank Marketing by S. Moro, P. Rita and P. Cortez (2014) is distributed under CC BY 4.0. The "
@@ -1399,8 +1418,134 @@ msgstr ""
 "S. Moro, P. Rita and P. Cortez, \"Bank Marketing\", UCI Machine Learning Repository, 2014. "
 "https://doi.org/10.24432/C5K306"
 
-msgid "[Re446c00e8929-1]_"
-msgstr "[Re446c00e8929-1]_"
+msgid "[Rd093f8221f97-1]_"
+msgstr "[Rd093f8221f97-1]_"
+
+msgid ""
+"The loans are originated over `n_months` months and observed at the end of every month on book "
+"until the month after the last origination month. Delinquency rolls forward when a borrower "
+"misses instalments and cures when the arrears are paid, and a loan that reaches 90 days past due "
+"stays there. The data is simulated, not drawn from a real portfolio."
+msgstr ""
+"贷款在 `n_months` 个月内陆续发放，并在每个账龄月的月末观测一次，直到最后一个放款月的下一个月。借款人漏缴期款时逾期向前滚动，还清欠款后回到正常；逾期达到 90 "
+"天的贷款会一直停留在该状态。数据是模拟生成的，并非取自真实的资产组合。"
+
+msgid "**n_loans**"
+msgstr "**n_loans**"
+
+msgid "int, default 5000"
+msgstr "int，默认 5000"
+
+msgid "Number of loans, each assigned to an origination month at random."
+msgstr "贷款笔数，每笔贷款随机分配到一个放款月。"
+
+msgid "**n_months**"
+msgstr "**n_months**"
+
+msgid "int, default 24"
+msgstr "int，默认 24"
+
+msgid ""
+"Number of origination months, starting with January 2024. The oldest cohort is observed for "
+"`n_months` months on book and the youngest for one."
+msgstr "放款月份数，从 2024 年 1 月开始。最早的批次观测 `n_months` 个账龄月，最晚的批次只观测一个。"
+
+msgid "**rng**"
+msgstr "**rng**"
+
+#, python-brace-format
+msgid "{None, int, numpy.random.Generator}, optional"
+msgstr "{None, int, numpy.random.Generator}，可选"
+
+msgid ""
+"Seed or generator passed to `numpy.random.default_rng`. The global NumPy random state is not "
+"used, so the same seed always returns the same panel."
+msgstr "传给 `numpy.random.default_rng` 的种子或生成器。不使用 NumPy 的全局随机状态，因此同一个种子总是返回同样的面板数据。"
+
+msgid ""
+"One row per loan and month on book, sorted by loan and then by month on book, with the columns "
+"described in the Notes."
+msgstr "每笔贷款的每个账龄月一行，先按贷款、再按账龄排序。各列含义见“说明”。"
+
+msgid "If `n_loans` or `n_months` is not a positive integer."
+msgstr "如果 `n_loans` 或 `n_months` 不是正整数。"
+
+msgid ":obj:`kivi.vintage.vintage_table`"
+msgstr ":obj:`kivi.vintage.vintage_table`"
+
+msgid "Cumulative bad rates by cohort and month on book."
+msgstr "按批次和账龄统计的累计坏账率。"
+
+msgid ":obj:`kivi.vintage.transition_matrix`"
+msgstr ":obj:`kivi.vintage.transition_matrix`"
+
+msgid "Movements between delinquency buckets."
+msgstr "贷款在逾期档位之间的迁移。"
+
+msgid ":obj:`load_bank`"
+msgstr ":obj:`load_bank`"
+
+msgid "Real data with a binary target."
+msgstr "带二分类目标的真实数据。"
+
+msgid "The columns are:"
+msgstr "各列为："
+
+msgid "``loan_id``: integer identifier, increasing with the origination month;"
+msgstr "``loan_id`` ：整数标识，随放款月份递增；"
+
+msgid "``cohort``: the origination month, a monthly ``pandas.Period``;"
+msgstr "``cohort`` ：放款月份，为月度 ``pandas.Period`` ；"
+
+msgid "``month``: the month of the observation, ``cohort + month_on_book``;"
+msgstr "``month`` ：观测所在月份，即 ``cohort + month_on_book`` ；"
+
+msgid "``month_on_book``: months since origination, from 1;"
+msgstr "``month_on_book`` ：放款后经过的月数（账龄），从 1 开始；"
+
+msgid "``term``: contractual number of monthly instalments, 12, 24 or 36;"
+msgstr "``term`` ：合同约定的月供期数，为 12、24 或 36；"
+
+msgid "``amount``: amount lent;"
+msgstr "``amount`` ：放款金额；"
+
+msgid "``balance``: outstanding principal at the end of the month;"
+msgstr "``balance`` ：月末的剩余本金；"
+
+msgid ""
+"``status``: days past due at the end of the month, an ordered categorical with the categories "
+"``current``, ``1-29``, ``30-59``, ``60-89`` and ``90+``."
+msgstr "``status`` ：月末的逾期天数，为有序分类变量，类别依次为 ``current`` 、 ``1-29`` 、 ``30-59`` 、 ``60-89`` 和 ``90+`` 。"
+
+#, python-format
+msgid ""
+"Each loan is repaid in equal monthly instalments at 1% interest a month. Its status counts the "
+"months since its oldest unpaid instalment fell due: one is ``1-29``, two ``30-59``, three "
+"``60-89`` and four or more ``90+``. Within the term this is the number of instalments past due, "
+"and a loan that is still behind after its term keeps rolling."
+msgstr ""
+"每笔贷款按月等额本息还款，月利率为 1%。其状态记录自最早一期未还期款到期以来的月数：一个月为 ``1-29`` ，两个月为 ``30-59`` ，三个月为 ``60-89`` ，四个月及以上为"
+" ``90+`` 。在期限内，这就是逾期未还的期数；期限结束后仍有欠款的贷款会继续滚动。"
+
+msgid ""
+"Every month, a current loan misses its instalment with a probability that rises over the first "
+"six months on book and then declines, scaled by a risk factor of the loan and one of its cohort, "
+"so cohorts differ in quality. A delinquent loan pays all its arrears and becomes current, pays "
+"one instalment and keeps its status, or pays nothing and rolls to the next bucket; the chance of "
+"curing falls and that of rolling rises with the days past due. A ``90+`` loan makes no further "
+"payments, so its balance stays the same. A loan leaves the panel after its last instalment is "
+"paid; loans are not charged off."
+msgstr ""
+"每个月，正常贷款漏缴当期期款的概率在放款后前六个月逐渐上升，之后下降，并乘以该贷款和所在批次各自的风险系数，因此不同批次的质量不同。逾期贷款要么还清全部欠款、回到正常，要么只还一期、保持原状态，要么完全不还、滚动到下一个逾期档位；逾期天数越长，回到正常的概率越低，滚动的概率越高。"
+" ``90+`` 的贷款不再还款，因此余额保持不变。贷款还清最后一期后离开面板；贷款不会被核销。"
+
+msgid ""
+"This is the same as `load_bank`, which new code should use instead. It is kept for existing code "
+"and does not warn."
+msgstr "与 `load_bank` 相同，新代码应改用 `load_bank` 。保留此方法是为了兼容已有代码，调用时不会发出警告。"
+
+msgid "The same data."
+msgstr "相同的数据。"
 
 msgid "Model performance"
 msgstr "模型表现"
@@ -1664,9 +1809,6 @@ msgid ""
 msgstr ""
 "评分段是右闭区间，与 ``pandas.cut`` 相同，因此相同评分总在同一段。结果列出每个评分段，包括没有观测的评分段，因此用相同边界切分的样本得到的表行相同。空评分段的 "
 "``event_rate`` 和 ``lift`` 为 NaN，在第一个有观测的评分段之前 ``cum_lift`` 也为 NaN。"
-
-msgid "The columns are:"
-msgstr "各列为："
 
 msgid ""
 "``non_event``, ``event`` and ``total``: non-events, events and all observations in the band, or "
@@ -2550,6 +2692,539 @@ msgstr "会抛出此错误。"
 msgid "Leaves out candidates that separate the classes."
 msgstr "不选入会把两类完全分开的候选变量。"
 
+msgid "Binning specifications"
+msgstr "分箱方案"
+
+msgid ":py:obj:`fit_spec <kivi.spec.fit_spec>`\\ \\(frame\\, target\\, \\*\\[\\, columns\\, ...\\]\\)"
+msgstr ":py:obj:`fit_spec <kivi.spec.fit_spec>`\\ \\(frame\\, target\\, \\*\\[\\, columns\\, ...\\]\\)"
+
+msgid "Fit the binning and WOE of every column of a development sample."
+msgstr "在开发样本上拟合每一列的分箱和 WOE。"
+
+msgid ":py:obj:`BinningSpec <kivi.spec.BinningSpec>`\\ \\(kinds\\, edges\\, special\\, tables\\, ...\\)"
+msgstr ":py:obj:`BinningSpec <kivi.spec.BinningSpec>`\\ \\(kinds\\, edges\\, special\\, tables\\, ...\\)"
+
+msgid "Binning and WOE encoding of every column, fitted on a development sample."
+msgstr "在开发样本上拟合的、每一列的分箱和 WOE 编码。"
+
+msgid ""
+"Numeric columns are binned with the method chosen for them and grouped with `kivi.binning.cut`; "
+"other columns keep their labels as groups. The WOE of each group is then measured with "
+"`kivi.woe.woe_table`. Nothing is re-binned automatically: the method, the number of bins and the "
+"options of each column decide how coarse its bins are."
+msgstr ""
+"数值列按为其选定的方法分箱，并用 `kivi.binning.cut` 分组；其他列以自身标签作为分组。然后用 `kivi.woe.woe_table` 计算每个分组的 "
+"WOE。不会自动重新分箱：每一列分箱的粗细由其方法、箱数和选项决定。"
+
+msgid "**frame**"
+msgstr "**frame**"
+
+msgid ""
+"Development sample with one column per variable. Columns with a numeric dtype other than bool are"
+" binned. Columns of any other dtype, such as object, string, category or bool, are categorical: "
+"each label is a group. Convert integer codes to the category dtype to keep them as labels."
+msgstr ""
+"开发样本，每个变量一列。数值 dtype（bool 除外）的列会被分箱。其他 dtype 的列（例如 object、string、category 或 "
+"bool）是类别列：每个标签是一个分组。若要把整数编码当作标签，请先将其转换为 category dtype。"
+
+msgid ""
+"Binary labels, with 1 indicating the event, one per row of `frame`. A Series must have the same "
+"index as `frame`; other inputs are matched by position."
+msgstr "二分类标签，1 表示事件， `frame` 的每一行一个。Series 必须与 `frame` 的索引相同；其他输入按位置对应。"
+
+msgid "**columns**"
+msgstr "**columns**"
+
+msgid "sequence of str, optional"
+msgstr "str 序列，可选"
+
+msgid "Columns to fit, in the order of the specification. By default every column of `frame`."
+msgstr "要拟合的列，其顺序即分箱方案中的顺序。默认为 `frame` 的所有列。"
+
+msgid "str or dict, default \"quantile\""
+msgstr "str 或 dict，默认 \"quantile\""
+
+msgid ""
+"Binning method of the numeric columns: ``\"quantile\"`` or ``\"uniform\"`` for "
+"`kivi.binning.bin_edges`, or ``\"chimerge\"``, ``\"tree\"`` or ``\"monotonic\"`` for "
+"`kivi.binning.chimerge_edges`, `kivi.binning.tree_edges` or `kivi.binning.monotonic_edges`. A "
+"dict maps columns to methods, and the numeric columns it leaves out use ``\"quantile\"``."
+msgstr ""
+"数值列的分箱方法： ``\"quantile\"`` 或 ``\"uniform\"`` 对应 `kivi.binning.bin_edges` ， ``\"chimerge\"`` 、 "
+"``\"tree\"`` 或 ``\"monotonic\"`` 分别对应 `kivi.binning.chimerge_edges` 、 `kivi.binning.tree_edges` 和"
+" `kivi.binning.monotonic_edges` 。dict 把列映射到方法，dict 中未列出的数值列使用 ``\"quantile\"`` 。"
+
+msgid "int or dict, default 5"
+msgstr "int 或 dict，默认 5"
+
+msgid ""
+"Number of bins, passed as ``bins`` to `kivi.binning.bin_edges` and as ``max_bins`` to the "
+"supervised methods. A dict maps columns to a number of bins or to edges, which must increase from"
+" ``-inf`` to ``inf`` and are used as given. With ``\"monotonic\"``, None merges bins only until "
+"the WOE is monotonic. The numeric columns that a dict leaves out get 5 bins."
+msgstr ""
+"箱数，作为 ``bins`` 传给 `kivi.binning.bin_edges` ，作为 ``max_bins`` 传给有监督方法。dict 把列映射到箱数或边界；边界必须从 "
+"``-inf`` 递增到 ``inf`` ，并按原样使用。对 ``\"monotonic\"`` ，None 表示只合并到 WOE 单调为止。dict 中未列出的数值列分为 5 箱。"
+
+msgid "dict, optional"
+msgstr "dict，可选"
+
+#, python-brace-format
+msgid ""
+"Special codes of numeric columns, such as ``{\"pdays\": [-1]}``. The codes must be numbers, "
+"possibly infinite. They are left out of the fit, and each code forms its own group."
+msgstr "数值列的特殊值编码，例如 ``{\"pdays\": [-1]}`` 。编码必须是数值，可以是无穷。拟合时排除这些编码，每个编码单独成组。"
+
+msgid "**options**"
+msgstr "**options**"
+
+#, python-brace-format
+msgid ""
+"Further keyword arguments for the binning function of each column, such as ``{\"balance\": "
+"{\"alpha\": None}}`` with ``\"chimerge\"``. The special codes, the weights, the number of bins "
+"and, for ``\"monotonic\"``, the smoothing are passed by `fit_spec` and cannot be given here."
+msgstr ""
+"传给每一列分箱函数的其他关键字参数，例如配合 ``\"chimerge\"`` 使用的 ``{\"balance\": {\"alpha\": None}}`` 。特殊值、权重、箱数以及 "
+"``\"monotonic\"`` 的平滑参数由 `fit_spec` 传入，不能在这里指定。"
+
+msgid "**unseen**"
+msgstr "**unseen**"
+
+msgid "float, \"raise\" or dict, default \"raise\""
+msgstr "float、\"raise\" 或 dict，默认 \"raise\""
+
+msgid ""
+"WOE for values whose group is not in a column's table when a sample is encoded: a new category, a"
+" special code or an interval without development observations, or missing values when development"
+" had none. By default such values raise an error. A dict maps columns to a WOE or ``\"raise\"``, "
+"and the columns it leaves out raise."
+msgstr ""
+"编码样本时，分组不在该列 WOE 表中的取值所用的 WOE：新类别、开发样本中没有观测值的特殊值或区间，或开发样本没有缺失值时的缺失值。默认情况下，这类取值会引发错误。dict 把列映射到 "
+"WOE 或 ``\"raise\"`` ，dict 中未列出的列会引发错误。"
+
+msgid ""
+"Positive replacement for a zero count when calculating the WOE, as in `kivi.woe.woe_table`. "
+"``\"monotonic\"`` binning uses the same value, so its trend holds in the tables."
+msgstr "计算 WOE 时用这个正数替代零计数，含义与 `kivi.woe.woe_table` 相同。 ``\"monotonic\"`` 分箱使用同一取值，因此其单调趋势在 WOE 表中同样成立。"
+
+msgid ""
+"Non-negative weight of each row, matched like `target`, for the binning functions and "
+"`kivi.woe.woe_table`. Counts are then sums of weights, and `smoothing` is in units of weight."
+msgstr "每一行的非负权重，对应方式与 `target` 相同，会传给分箱函数和 `kivi.woe.woe_table` 。此时计数为权重之和， `smoothing` 也以权重为单位。"
+
+msgid "BinningSpec"
+msgstr "BinningSpec"
+
+msgid "The kind, edges, special codes, WOE table and unseen policy of every column."
+msgstr "每一列的类型、边界、特殊值、WOE 表和未见分组策略。"
+
+msgid ""
+"If `frame` is not a DataFrame or has no columns to fit, `columns` repeats a column or names one "
+"that `frame` lacks, a column name is not a string, the columns include the target, or `target` "
+"does not give each row a label 0 or 1 or lacks one of the two classes. If a dict names a column "
+"that is not fitted, `method`, `bins`, `special` or `options` names a categorical column, or a "
+"value is invalid, such as a special code that is not a number. Also if `smoothing` or `weights` "
+"are invalid, a numeric column has infinite values that are not special codes, or the binning of a"
+" column fails; the message then names the column."
+msgstr ""
+"如果 `frame` 不是 DataFrame 或没有可拟合的列， `columns` 重复某一列或指定了 `frame` 中没有的列，列名不是字符串，拟合的列包含目标变量，或 `target`"
+" 的标签不是每行一个 0 或 1，或者缺少两类中的一类。如果某个 dict 指定了未拟合的列， `method` 、 `bins` 、 `special` 或 `options` "
+"指定了类别列，或某个取值无效，例如特殊值编码不是数值。此外，如果 `smoothing` 或 `weights` "
+"无效，某个数值列含有不属于特殊值的无穷值，或某一列分箱失败；此时错误信息会指明该列。"
+
+msgid ""
+"If tied quantiles leave a column with fewer bins than requested, as in `kivi.binning.bin_edges`, "
+"if a numeric column has no values to fit apart from missing, special and zero-weight values, so "
+"that its edges are ``[-inf, inf]``, or if a column of dtype object holds only numbers, which "
+"makes each distinct number a group. The message names the column."
+msgstr ""
+"如果重合的分位数使某一列的箱数少于期望值（与 `kivi.binning.bin_edges` 相同），某个数值列除缺失值、特殊值和零权重的取值外没有可拟合的值，从而其边界为 ``[-inf, "
+"inf]`` ，或者某个 object dtype 的列只含数值，使每个不同的数值各成一组。警告信息会指明该列。"
+
+msgid ":obj:`BinningSpec`"
+msgstr ":obj:`BinningSpec`"
+
+msgid "Group, encode and save the fitted columns."
+msgstr "对拟合好的列分组、编码并保存。"
+
+msgid "Fit the edges of one column."
+msgstr "拟合单列的边界。"
+
+msgid "The WOE table of one column."
+msgstr "单列的 WOE 表。"
+
+msgid ""
+"Each column is fitted on its own with the public functions, so a column of the specification has "
+"the same edges and table as the steps of :doc:`/user_guide/binning` and :doc:`/user_guide/woe_iv`"
+" applied to it alone."
+msgstr ""
+"每一列都用公开函数单独拟合，因此分箱方案中某一列的边界和 WOE 表，与单独对该列执行 :doc:`/user_guide/binning` 和 "
+":doc:`/user_guide/woe_iv` 中的步骤所得的结果相同。"
+
+msgid ""
+"For each column, a specification records whether it is numeric or categorical, the edges and "
+"special codes of a numeric column, the WOE table of its groups and the policy for groups that are"
+" not in the table. `cut` groups any sample with the same edges, `woe_transform` encodes it with "
+"the same WOE, and `to_json` and `from_json` save and load the specification without changing its "
+"groups or its encoding. Fit a specification with `fit_spec` rather than calling the constructor."
+msgstr ""
+"对每一列，分箱方案记录：它是数值列还是类别列、数值列的边界和特殊值、其各分组的 WOE 表，以及不在表中的分组的处理策略。 `cut` 用同样的边界对任意样本分组， "
+"`woe_transform` 用同样的 WOE 编码， `to_json` 和 `from_json` 保存并加载分箱方案，且不会改变分组和编码。请用 `fit_spec` "
+"拟合分箱方案，而不是直接调用构造函数。"
+
+msgid ""
+"A specification is immutable. Its mappings are read-only, and ``edges`` and ``tables`` return a "
+"new copy of an array or a table on each access, so changing the copy leaves the specification as "
+"it was. To change a field, such as the unseen policy, use `dataclasses.replace`, which validates "
+"the result again."
+msgstr ""
+"分箱方案不可变。其映射是只读的， ``edges`` 和 ``tables`` 每次访问都返回数组或表的新副本，因此修改副本不会影响分箱方案。若要修改某个字段（例如未见分组策略），请使用 "
+"`dataclasses.replace` ，它会重新校验结果。"
+
+msgid "**kinds**"
+msgstr "**kinds**"
+
+msgid "``\"numeric\"`` or ``\"categorical\"`` for each column, in the order of the specification."
+msgstr "每一列为 ``\"numeric\"`` 或 ``\"categorical\"`` ，顺序即分箱方案中的顺序。"
+
+msgid "Edges of each numeric column, increasing from ``-inf`` to ``inf``."
+msgstr "每个数值列的边界，从 ``-inf`` 递增到 ``inf`` 。"
+
+msgid ""
+"Special codes of each numeric column, possibly none. The codes are numbers, and each forms its "
+"own group, as in `kivi.binning.cut`."
+msgstr "每个数值列的特殊值，可以为空。这些编码是数值，与 `kivi.binning.cut` 相同，每个编码单独成组。"
+
+msgid ""
+"The `kivi.woe.woe_table` result of each column. The groups of a numeric column are its special "
+"codes and the intervals of its edges. Missing values form a group labelled NaN."
+msgstr "每一列的 `kivi.woe.woe_table` 结果。数值列的分组是其特殊值和由边界构成的区间。缺失值单独成组，标签为 NaN。"
+
+msgid ""
+"``\"raise\"`` or a finite WOE for each column, used for values whose group is not in the column's"
+" table."
+msgstr "每一列为 ``\"raise\"`` 或一个有限的 WOE，用于分组不在该列 WOE 表中的取值。"
+
+msgid "Smoothing with which the tables were computed."
+msgstr "计算 WOE 表时所用的平滑参数。"
+
+msgid "**kivi_version**"
+msgstr "**kivi_version**"
+
+msgid "str, optional"
+msgstr "str，可选"
+
+msgid "Version of kivi that fitted the specification. By default, or if None, the installed version."
+msgstr "拟合该分箱方案的 kivi 版本。默认或为 None 时取已安装的版本。"
+
+msgid "Attributes"
+msgstr "属性"
+
+msgid "**format_version**"
+msgstr "**format_version**"
+
+msgid "int"
+msgstr "int"
+
+msgid "Version of the JSON format that `to_json` writes."
+msgstr "`to_json` 写出的 JSON 格式的版本。"
+
+msgid ""
+"If `kinds` is empty or has a name that is not a string or a kind other than the two above, if "
+"`edges` and `special` do not have one entry per numeric column or `tables` and `unseen` one entry"
+" per column, or if an entry is invalid: edges that do not increase from ``-inf`` to ``inf``, a "
+"missing or unsupported special code, a table without a finite ``woe`` column or with a repeated "
+"group, a group of a numeric column that is neither one of its special codes nor an interval of "
+"its edges, or an unseen policy that is neither ``\"raise\"`` nor a finite number. Also if "
+"`smoothing` is not finite and positive or `kivi_version` is not a string."
+msgstr ""
+"如果 `kinds` 为空、含有非字符串的列名或上述两种以外的类型；如果 `edges` 和 `special` 不是每个数值列恰好一项，或 `tables` 和 `unseen` "
+"不是每列恰好一项；或某一项无效：边界没有从 ``-inf`` 递增到 ``inf`` 、特殊值缺失或类型不受支持、WOE 表没有有限的 ``woe`` "
+"列或有重复分组、数值列的某个分组既不是其特殊值也不是其边界构成的区间，或未见分组策略既不是 ``\"raise\"`` 也不是有限数值。此外，如果 `smoothing` 不是有限正数，或 "
+"`kivi_version` 不是字符串。"
+
+msgid ":obj:`fit_spec`"
+msgstr ":obj:`fit_spec`"
+
+msgid "Fit a specification on a development sample."
+msgstr "在开发样本上拟合分箱方案。"
+
+msgid ":obj:`kivi.binning.cut`"
+msgstr ":obj:`kivi.binning.cut`"
+
+msgid "Group one numeric column."
+msgstr "对单个数值列分组。"
+
+msgid "Encode one column with its WOE table."
+msgstr "用单列的 WOE 表对该列编码。"
+
+msgid ""
+"Labels of categorical columns must be strings, integers, floats, booleans or intervals, which the"
+" JSON format keeps apart. Within a column, labels that compare equal, such as ``True`` and ``1``,"
+" form one group, because `kivi.woe.woe_table` and `kivi.woe.woe_transform` match labels by "
+"equality."
+msgstr ""
+"类别列的标签必须是字符串、整数、浮点数、布尔值或区间，JSON 格式会区分这些类型。在同一列中，相等的标签（例如 ``True`` 和 ``1`` ）属于同一分组，因为 "
+"`kivi.woe.woe_table` 和 `kivi.woe.woe_transform` 按相等关系匹配标签。"
+
+msgid ""
+"Two specifications are equal when `to_json` gives the same text for both, which includes "
+"`kivi_version`. The text is computed once and kept, so comparing and hashing a specification "
+"again is cheap."
+msgstr "当 `to_json` 为两个分箱方案给出相同的文本时，二者相等；文本中包含 `kivi_version` 。文本只计算一次并保留下来，因此再次比较或计算哈希的开销很小。"
+
+msgid "Names of the columns in the specification."
+msgstr "分箱方案中各列的名称。"
+
+msgid ""
+"The columns are in the order in which they were fitted, which is the order of the columns of "
+"`cut` and `woe_transform`."
+msgstr "各列按拟合时的顺序排列，也就是 `cut` 和 `woe_transform` 结果中列的顺序。"
+
+msgid ":obj:`select`"
+msgstr ":obj:`select`"
+
+msgid "A specification of some of the columns."
+msgstr "只含部分列的分箱方案。"
+
+msgid "Group every column of a sample as in development."
+msgstr "按开发时的方式对样本的每一列分组。"
+
+msgid ""
+"Numeric columns are assigned to their bins with `kivi.binning.cut`, using the fitted edges and "
+"special codes. Categorical columns are returned unchanged, because their labels are their groups."
+msgstr "数值列用 `kivi.binning.cut` 按拟合的边界和特殊值分箱。类别列原样返回，因为其标签就是分组。"
+
+msgid "Sample that has every column of the specification. Other columns are ignored."
+msgstr "包含分箱方案中所有列的样本。其他列会被忽略。"
+
+msgid ""
+"The groups of each column of the specification, in its order, with the index of `frame`. Numeric "
+"columns are categorical, with the special codes followed by every interval of the edges."
+msgstr "分箱方案中每一列的分组，按分箱方案的顺序排列，索引与 `frame` 相同。数值列为分类型，类别依次为特殊值和由边界构成的全部区间。"
+
+msgid ""
+"If `frame` is not a DataFrame, lacks a column of the specification or has it twice, or a column "
+"fitted as numeric has values but not a numeric dtype, which could hide its special codes; convert"
+" such a column with ``pandas.to_numeric``. The message names the column."
+msgstr ""
+"如果 `frame` 不是 DataFrame、缺少分箱方案中的某一列或该列出现两次，或者按数值列拟合的某一列有取值但不是数值 dtype，这可能使其特殊值无法匹配；请用 "
+"``pandas.to_numeric`` 转换这样的列。错误信息会指明该列。"
+
+msgid ":obj:`woe_transform`"
+msgstr ":obj:`woe_transform`"
+
+msgid "Encode the groups with the fitted WOE."
+msgstr "用拟合的 WOE 对分组编码。"
+
+msgid "Encode every column of a sample with the WOE fitted in development."
+msgstr "用开发时拟合的 WOE 对样本的每一列编码。"
+
+msgid ""
+"The columns are grouped as by `cut`, and each group is replaced with its WOE by "
+"`kivi.woe.woe_transform`. A group that is not in a column's table, such as a new category, gets "
+"the column's unseen policy, which by default raises an error."
+msgstr ""
+"各列先按 `cut` 的方式分组，再由 `kivi.woe.woe_transform` 把每个分组替换为其 WOE。不在该列 WOE "
+"表中的分组（例如新类别）按该列的未见分组策略处理，默认会引发错误。"
+
+msgid "Float WOE values of each column of the specification, in its order, with the index of `frame`."
+msgstr "分箱方案中每一列的浮点 WOE 值，按分箱方案的顺序排列，索引与 `frame` 相同。"
+
+msgid ""
+"If `frame` is not a DataFrame, lacks a column of the specification or has it twice, a column "
+"fitted as numeric has values but not a numeric dtype, or a column with the unseen policy "
+"``\"raise\"`` has values whose group is not in its table. The message names the column."
+msgstr ""
+"如果 `frame` 不是 DataFrame、缺少分箱方案中的某一列或该列出现两次，按数值列拟合的某一列有取值但不是数值 dtype，或者未见分组策略为 ``\"raise\"`` "
+"的列含有分组不在其 WOE 表中的取值。错误信息会指明该列。"
+
+msgid "Group the columns without encoding them."
+msgstr "只对各列分组，不编码。"
+
+msgid "Encode one column."
+msgstr "对单列编码。"
+
+msgid ":obj:`kivi.scorecard.woe_to_points`"
+msgstr ":obj:`kivi.scorecard.woe_to_points`"
+
+msgid "Turn the WOE values into points."
+msgstr "把 WOE 值转换为分值。"
+
+msgid ""
+"The intervals of the edges are closed on the right, so ``-inf`` falls outside every interval. "
+"`cut` leaves it missing, as ``pandas.cut`` does, and `woe_transform` treats it as unseen rather "
+"than giving it the WOE of missing values."
+msgstr ""
+"由边界构成的区间为左开右闭，因此 ``-inf`` 不落入任何区间。 `cut` 与 ``pandas.cut`` 一样把它留为缺失值，而 `woe_transform` "
+"把它视为未见分组，而不是赋予缺失组的 WOE。"
+
+msgid "With an unseen WOE for ``housing``, the new label gets 0:"
+msgstr "为 ``housing`` 指定未见分组的 WOE 后，新标签得到 0："
+
+msgid "Return the specification of some of the columns."
+msgstr "返回只含部分列的分箱方案。"
+
+msgid ""
+"Use it to keep only the variables of the final model before saving the specification for "
+"production. The selected columns keep their edges, special codes, tables and unseen policies."
+msgstr "在为生产环境保存分箱方案之前，可用它只保留最终模型的变量。选中的列保留各自的边界、特殊值、WOE 表和未见分组策略。"
+
+msgid "sequence of str"
+msgstr "str 序列"
+
+msgid "Columns to keep, in the order of the new specification."
+msgstr "要保留的列，其顺序即新分箱方案中的顺序。"
+
+msgid "A specification of `columns` only."
+msgstr "只含 `columns` 的分箱方案。"
+
+msgid ""
+"If `columns` is a string, is empty, repeats a column or names a column that is not in the "
+"specification."
+msgstr "如果 `columns` 是字符串、为空、重复某一列，或指定了分箱方案中没有的列。"
+
+msgid ":obj:`columns`"
+msgstr ":obj:`columns`"
+
+msgid "The columns of the specification."
+msgstr "分箱方案中的列。"
+
+msgid ":obj:`to_json`"
+msgstr ":obj:`to_json`"
+
+msgid "Save the specification."
+msgstr "保存分箱方案。"
+
+msgid "Return the specification as a dict of JSON types."
+msgstr "以由 JSON 类型构成的 dict 返回分箱方案。"
+
+msgid ""
+"The result holds only dicts, lists, strings, numbers, booleans and None, so ``json.dumps`` can "
+"write it without further conversion. Its keys are always in the same order. `to_json` writes this"
+" dict."
+msgstr "结果只包含 dict、list、字符串、数值、布尔值和 None，因此 ``json.dumps`` 无需额外转换即可写出。其键的顺序始终相同。 `to_json` 写出的就是这个 dict。"
+
+msgid "dict"
+msgstr "dict"
+
+msgid ""
+"The keys ``format``, ``format_version``, ``kivi_version``, ``smoothing`` and ``variables``, a "
+"list with one dict per column. See the user guide for the format."
+msgstr ""
+"包含键 ``format`` 、 ``format_version`` 、 ``kivi_version`` 、 ``smoothing`` 和 ``variables`` ；后者是每列一个 "
+"dict 的列表。格式说明见用户指南。"
+
+msgid ":obj:`from_dict`"
+msgstr ":obj:`from_dict`"
+
+msgid "Rebuild the specification."
+msgstr "重建分箱方案。"
+
+msgid "Write the dict as JSON."
+msgstr "把该 dict 写成 JSON。"
+
+msgid "Rebuild a specification from the result of `to_dict`."
+msgstr "由 `to_dict` 的结果重建分箱方案。"
+
+msgid ""
+"The dict is checked before the specification is built, so that a damaged or hand-edited file "
+"fails with a message that names the problem instead of encoding wrong values."
+msgstr "构建分箱方案之前会先检查该 dict，因此损坏或被手工改动的文件会报错并指明问题，而不会编码出错误的值。"
+
+msgid "**data**"
+msgstr "**data**"
+
+msgid "A dict in the format of `to_dict`, for example from ``json.load``."
+msgstr "符合 `to_dict` 格式的 dict，例如来自 ``json.load`` 。"
+
+msgid "The specification, equal to the one that wrote `data`."
+msgstr "分箱方案，与写出 `data` 的那个相等。"
+
+msgid ""
+"If `data` is not a kivi binning specification, has a ``format_version`` newer than this version "
+"of kivi reads, lacks a key or has an unknown one, or holds an invalid value. The message names "
+"the column."
+msgstr "如果 `data` 不是 kivi 分箱方案、其 ``format_version`` 比当前 kivi 能读取的版本更新、缺少某个键或含有未知的键，或含有无效的值。错误信息会指明相应的列。"
+
+msgid ":obj:`to_dict`"
+msgstr ":obj:`to_dict`"
+
+msgid "The dict format."
+msgstr "dict 格式。"
+
+msgid ":obj:`from_json`"
+msgstr ":obj:`from_json`"
+
+msgid "Read the specification from JSON text."
+msgstr "从 JSON 文本读取分箱方案。"
+
+msgid "Return the specification as JSON text."
+msgstr "以 JSON 文本返回分箱方案。"
+
+msgid ""
+"The text is the dict of `to_dict` written by ``json.dumps``. The same specification always gives "
+"the same text, so saved specifications can be compared and kept under version control. Non-ASCII "
+"labels are written as they are, so save the text as UTF-8."
+msgstr ""
+"该文本就是由 ``json.dumps`` 写出的 `to_dict` 的 dict。同一个分箱方案总是得到相同的文本，因此保存的分箱方案可以相互比较，并纳入版本控制。非 ASCII "
+"标签按原样写出，因此请以 UTF-8 保存文本。"
+
+msgid "**indent**"
+msgstr "**indent**"
+
+msgid "int, optional"
+msgstr "int，可选"
+
+msgid "Indentation of nested values, as in ``json.dumps``. By default the text is a single line."
+msgstr "嵌套值的缩进，含义与 ``json.dumps`` 相同。默认文本只有一行。"
+
+msgid "str"
+msgstr "str"
+
+msgid "JSON text that `from_json` reads back into an equal specification."
+msgstr "JSON 文本， `from_json` 可将其读回为相等的分箱方案。"
+
+msgid "Read the specification back."
+msgstr "读回分箱方案。"
+
+msgid "The same content as a dict."
+msgstr "以 dict 表示的相同内容。"
+
+msgid "Write the text to a file with ``Path(\"spec.json\").write_text(text, encoding=\"utf-8\")``."
+msgstr "用 ``Path(\"spec.json\").write_text(text, encoding=\"utf-8\")`` 把文本写入文件。"
+
+msgid "Read a specification from the JSON text of `to_json`."
+msgstr "从 `to_json` 写出的 JSON 文本读取分箱方案。"
+
+msgid ""
+"The loaded specification groups and encodes every sample exactly as the one that was saved. A "
+"file written by a newer version of the format is rejected rather than read in part."
+msgstr "加载的分箱方案对每个样本的分组和编码，与保存时的分箱方案完全相同。由更新版本格式写出的文件会被拒绝，而不会只读取其中一部分。"
+
+msgid "**text**"
+msgstr "**text**"
+
+msgid "str or bytes"
+msgstr "str 或 bytes"
+
+msgid "JSON text, for example from ``Path(...).read_text(encoding=\"utf-8\")``."
+msgstr "JSON 文本，例如来自 ``Path(...).read_text(encoding=\"utf-8\")`` 。"
+
+msgid "The specification, equal to the one that wrote `text`."
+msgstr "分箱方案，与写出 `text` 的那个相等。"
+
+msgid ""
+"If `text` is neither a str nor bytes, is not valid JSON, contains ``NaN`` or ``Infinity``, or "
+"does not describe a valid specification; see `from_dict`."
+msgstr "如果 `text` 既不是 str 也不是 bytes、不是有效的 JSON、含有 ``NaN`` 或 ``Infinity`` ，或没有描述一个有效的分箱方案；参见 `from_dict` 。"
+
+msgid "Write the specification."
+msgstr "写出分箱方案。"
+
+msgid "Rebuild the specification from a dict."
+msgstr "由 dict 重建分箱方案。"
+
 msgid "Population stability"
 msgstr "群体稳定性"
 
@@ -2834,6 +3509,302 @@ msgid ""
 "``FutureWarning``, and the alias is removed in kivi 0.6.0."
 msgstr "``kivi.evaluate`` 是本模块已弃用的别名。从中导入 ``psi_table`` 会发出 ``FutureWarning`` ，该别名将在 kivi 0.6.0 中移除。"
 
+msgid "Portfolio analysis"
+msgstr "资产组合分析"
+
+msgid ""
+":py:obj:`vintage_table <kivi.vintage.vintage_table>`\\ \\(loan\\, cohort\\, month\\_on\\_book\\, "
+"...\\)"
+msgstr ""
+":py:obj:`vintage_table <kivi.vintage.vintage_table>`\\ \\(loan\\, cohort\\, month\\_on\\_book\\, "
+"...\\)"
+
+msgid "Tabulate the cumulative bad rate of each cohort by month on book."
+msgstr "按账龄列出每个批次的累计坏账率。"
+
+msgid ""
+":py:obj:`transition_matrix <kivi.vintage.transition_matrix>`\\ \\(before\\, after\\, \\*\\[\\, "
+"...\\]\\)"
+msgstr ""
+":py:obj:`transition_matrix <kivi.vintage.transition_matrix>`\\ \\(before\\, after\\, \\*\\[\\, "
+"...\\]\\)"
+
+msgid "Count the movements of entities between two states."
+msgstr "统计对象在两个状态之间的迁移次数。"
+
+msgid ""
+":py:obj:`roll_rates <kivi.vintage.roll_rates>`\\ \\(before\\, after\\, \\*\\[\\, states\\, "
+"weights\\]\\)"
+msgstr ""
+":py:obj:`roll_rates <kivi.vintage.roll_rates>`\\ \\(before\\, after\\, \\*\\[\\, states\\, "
+"weights\\]\\)"
+
+msgid "Compute the share of each state's entities that rolled to the next state."
+msgstr "计算每个状态中滚动到下一状态的对象所占的比例。"
+
+msgid ""
+"A vintage table follows each cohort of loans, usually the loans originated in the same month, as "
+"it ages. Its entry for a cohort and a month on book is the share of the cohort's loans that were "
+"bad at or before that month on book, so every row is non-decreasing."
+msgstr "Vintage 表（账龄表）跟踪每个贷款批次（通常是同一个月发放的贷款）随账龄增长的表现。某个批次在某个账龄上的取值，是该批次贷款中在该账龄或更早时已变坏的比例，因此每一行都不会递减。"
+
+msgid "**loan**"
+msgstr "**loan**"
+
+msgid ""
+"Identifier of the loan of each row of the panel. A loan has at most one row per month on book, "
+"and its rows need not be sorted."
+msgstr "面板中每一行所属贷款的标识。每笔贷款在每个账龄最多有一行，各行无需排序。"
+
+msgid "**cohort**"
+msgstr "**cohort**"
+
+msgid ""
+"Cohort of each row, such as the month of origination. It must be the same on every row of a loan."
+" Cohorts are sorted, and categorical cohorts follow the order of their categories."
+msgstr "每一行的批次，例如放款月份。同一笔贷款的每一行批次必须相同。批次会被排序；分类型批次按其类别顺序排列。"
+
+msgid "**month_on_book**"
+msgstr "**month_on_book**"
+
+msgid "Whole number of months since origination of each row."
+msgstr "每一行距放款的整月数。"
+
+msgid "**bad**"
+msgstr "**bad**"
+
+msgid ""
+"Whether the loan is bad at that month on book, as booleans or 0 and 1. Pass the bad definition as"
+" a condition on the status, such as ``status == \"90+\"``, or ``status >= \"60-89\"`` for an "
+"ordered categorical."
+msgstr ""
+"该贷款在该账龄时是否为坏，取布尔值或 0 和 1。坏的定义以状态上的条件传入，例如 ``status == \"90+\"`` ；对于有序分类变量，也可以写成 ``status >= "
+"\"60-89\"`` 。"
+
+msgid ""
+"Non-negative weight of each loan, such as the amount lent, repeated on every row of the loan. The"
+" table then reports the share of the cohort's weight in loans that were bad, and cohorts whose "
+"weights sum to zero are left out."
+msgstr "每笔贷款的非负权重，例如放款金额，在该贷款的每一行重复给出。此时表中报告的是批次权重中属于坏贷款的比例，权重之和为零的批次会被排除。"
+
+msgid ""
+"Cumulative bad rates with one row per cohort and one column per distinct month on book of the "
+"panel. An entry is NaN outside the months on book at which the cohort is observed, from the "
+"smallest to the largest month on book of its rows."
+msgstr "累计坏账率：每个批次一行，面板中每个不同的账龄一列。在批次被观测的账龄范围（从其各行中最小的账龄到最大的账龄）之外，取值为 NaN。"
+
+msgid ""
+"If the inputs are empty, not one-dimensional or of different lengths, or Series with different "
+"indices. Also if `loan` or `cohort` has a missing value, a loan has more than one cohort or more "
+"than one row for a month on book, `month_on_book` has a value that is not a whole number, `bad` "
+"has a value other than 0 and 1, or `weights` is not valid or differs between the rows of a loan."
+msgstr ""
+"如果输入为空、不是一维的或长度不同，或者是索引不同的 Series。此外，如果 `loan` 或 `cohort` 含有缺失值，某笔贷款属于多个批次或在同一账龄有多行， "
+"`month_on_book` 含有非整数的值， `bad` 含有 0 和 1 以外的值，或 `weights` 无效或在同一贷款的各行之间不一致，也会抛出此异常。"
+
+msgid ":obj:`transition_matrix`"
+msgstr ":obj:`transition_matrix`"
+
+msgid "Movements between states from one month to another."
+msgstr "从一个月到另一个月在各状态之间的迁移。"
+
+msgid ":obj:`roll_rates`"
+msgstr ":obj:`roll_rates`"
+
+msgid "Share of each delinquency bucket that rolls to the next."
+msgstr "每个逾期档位滚动到下一档位的比例。"
+
+msgid ":obj:`kivi.datasets.make_loan_panel`"
+msgstr ":obj:`kivi.datasets.make_loan_panel`"
+
+msgid "Synthetic loan panel to try this on."
+msgstr "可用于试用此函数的合成贷款面板。"
+
+msgid ""
+"Let :math:`L_c` be the loans of cohort :math:`c`, :math:`\\tau_i` the first month on book at "
+"which loan :math:`i` is bad (infinite if it never is) and :math:`w_i` its weight, 1 without "
+"`weights`. The entry for month on book :math:`k` is"
+msgstr ""
+"设 :math:`L_c` 为批次 :math:`c` 的贷款， :math:`\\tau_i` 为贷款 :math:`i` 首次为坏的账龄（从未变坏时为无穷大）， :math:`w_i` "
+"为其权重（不传 `weights` 时为 1）。账龄 :math:`k` 处的取值为"
+
+msgid ""
+"V_{c,k} = \\frac{\\sum_{i \\in L_c} w_i \\, [\\tau_i \\le k]}\n"
+"               {\\sum_{i \\in L_c} w_i}."
+msgstr ""
+"V_{c,k} = \\frac{\\sum_{i \\in L_c} w_i \\, [\\tau_i \\le k]}\n"
+"               {\\sum_{i \\in L_c} w_i}."
+
+msgid ""
+"The denominator includes every loan of the cohort, also loans that left the panel early, for "
+"example because they were repaid; such a loan counts as bad only if it was bad before it left. A "
+"loan that is bad once stays counted as bad, even if it later cures."
+msgstr "分母包括批次中的每一笔贷款，也包括提前离开面板的贷款（例如已经还清）；这类贷款只有在离开前变坏过才算作坏。贷款一旦变坏，即使之后回到正常，也一直算作坏。"
+
+msgid ""
+"A cohort is observed from the smallest to the largest month on book of its rows, and its entries "
+"outside that range are NaN, not 0. Later months on book are missing because the cohort is too "
+"young to show whether its loans will go bad, and earlier ones because the panel starts after the "
+"cohort was originated. Loans that were bad only before the panel starts are not counted, so start"
+" the panel at origination where possible. Comparing the cohorts at the same month on book "
+"compares them at the same age, which separates a change in the quality of new lending from the "
+"seasoning of the portfolio."
+msgstr ""
+"批次的观测范围从其各行中最小的账龄到最大的账龄，范围之外的取值为 NaN 而不是 "
+"0。之后的账龄缺失，是因为该批次的账龄还太短，看不出其贷款是否会变坏；之前的账龄缺失，是因为面板在该批次发放之后才开始。只在面板开始之前变坏过的贷款不会被计入，因此应尽量让面板从放款时开始。在相同账龄上比较各批次，就是在相同的“年龄”上比较它们，从而把新增放款质量的变化与资产组合的账龄成熟效应区分开。"
+
+msgid ""
+"Two cases need care. If every loan of a cohort leaves the panel before it ends, for example "
+"because all of them were repaid, the cohort's last entry is final, yet its later months on book "
+"are NaN; to fill them, keep a row for each month end after a loan left, with a status that is not"
+" bad, such as ``\"closed\"``. And a cohort that spans several origination months, such as a "
+"quarter, mixes loans of different ages: at its largest months on book, its youngest loans count "
+"in the denominator although they have not been observed that long, which biases those entries "
+"down. Monthly cohorts avoid this."
+msgstr ""
+"有两种情况需要注意。如果某个批次的所有贷款都在面板结束前离开（例如全部已经还清），该批次的最后一个取值已是最终结果，但其之后的账龄仍为 "
+"NaN；要补齐这些取值，可以在贷款离开后的每个月末保留一行，状态设为不算坏的值，例如 ``\"closed\"`` "
+"。另外，跨越多个放款月的批次（例如按季度划分的批次）混合了不同账龄的贷款：在其最大的几个账龄上，最年轻的贷款虽然还没有被观测到这么久，却计入了分母，使这些取值偏低。按月划分批次可以避免这一问题。"
+
+msgid ""
+"Loan 1 cured after month on book 2 but stays counted as bad, and the 2024-02 cohort has not "
+"reached month on book 3."
+msgstr "贷款 1 在账龄 2 之后回到正常，但仍算作坏；2024-02 批次尚未达到账龄 3。"
+
+msgid ""
+"Each entity, such as a loan or an obligor, is observed in one state before and one state after, "
+"for example its delinquency bucket at two consecutive month ends or its rating grade at two "
+"annual reviews. Row :math:`i`, column :math:`j` counts the entities that moved from state "
+":math:`i` to state :math:`j`. With `normalize`, each row holds the shares of the states after, "
+"the migration matrix of a rating system."
+msgstr ""
+"每个对象（例如一笔贷款或一位债务人）先后各在一个状态上被观测，例如相邻两个月末的逾期档位，或两次年度复评时的评级。第 :math:`i` 行、第 :math:`j` 列统计从状态 "
+":math:`i` 迁移到状态 :math:`j` 的对象数。设置 `normalize` 后，每一行给出之后各状态所占的比例，即评级体系的迁移矩阵。"
+
+msgid "**before, after**"
+msgstr "**before, after**"
+
+msgid ""
+"State of each entity at the first and at the second observation. If both are Series, they must "
+"have identical indices; otherwise they are matched by position. Neither may contain missing "
+"values: drop the entities that were not observed twice, or give the entities that left a state "
+"such as ``\"closed\"``."
+msgstr ""
+"每个对象在第一次和第二次观测时的状态。如果二者都是 Series，索引必须完全相同；否则按位置对应。二者都不能含有缺失值：请删除没有被观测两次的对象，或给已离开的对象一个单独的状态，例如 "
+"``\"closed\"`` 。"
+
+msgid "**states**"
+msgstr "**states**"
+
+msgid ""
+"All states in order, for delinquency buckets and rating grades from the best to the worst. States"
+" without entities still get a row and a column. By default, the categories of categorical inputs,"
+" which must then be the same for both, or else the sorted distinct values. Sorting puts labels "
+"such as ``\"current\"`` after ``\"90+\"``, so pass `states` or ordered categoricals for "
+"delinquency buckets."
+msgstr ""
+"按顺序排列的全部状态；对于逾期档位和评级，从最好到最差排列。没有对象的状态仍会占一行一列。默认取分类型输入的类别（此时两个输入的类别必须相同），否则取排序后的不同取值。排序会把 "
+"``\"current\"`` 这样的标签排在 ``\"90+\"`` 之后，因此对于逾期档位，请传入 `states` 或使用有序分类变量。"
+
+msgid ""
+"If True, divide each row by its total, so that it holds the shares of the state's entities that "
+"moved to each state. A row without entities is then NaN."
+msgstr "如果为 True，每一行除以该行合计，使其给出该状态的对象迁移到各状态的比例。此时没有对象的行为 NaN。"
+
+msgid ""
+"Non-negative weight of each entity, such as its balance at the first observation, matched like "
+"`after`. The counts are then sums of weights."
+msgstr "每个对象的非负权重，例如第一次观测时的余额，对应方式与 `after` 相同。此时计数为权重之和。"
+
+msgid ""
+"One row per state before and one column per state after, in the order of `states`. Without "
+"`weights` and `normalize`, the entries are integer counts."
+msgstr "之前的每个状态一行，之后的每个状态一列，按 `states` 的顺序排列。不传 `weights` 且不设置 `normalize` 时，取值为整数计数。"
+
+msgid ""
+"If the inputs are empty, not one-dimensional, of different lengths or Series with different "
+"indices, have a missing value or a value that is not one of `states`, or `weights` is not valid. "
+"Also if `states` is not one-dimensional or has duplicates, or is not given while `before` and "
+"`after` are categoricals with different categories."
+msgstr ""
+"如果输入为空、不是一维的、长度不同或是索引不同的 Series，含有缺失值或不属于 `states` 的值，或 `weights` 无效。此外，如果 `states` "
+"不是一维的或有重复值，或者未给出 `states` 而 `before` 和 `after` 是类别不同的分类变量，也会抛出此异常。"
+
+msgid "Share of each state that moved to the next worse state."
+msgstr "每个状态中迁移到下一个更差状态的比例。"
+
+msgid ":obj:`vintage_table`"
+msgstr ":obj:`vintage_table`"
+
+#, python-brace-format
+msgid "With :math:`n_{ij}` entities moving from state :math:`i` to state :math:`j`, the normalized entry"
+msgstr "设有 :math:`n_{ij}` 个对象从状态 :math:`i` 迁移到状态 :math:`j` ，则归一化后的取值"
+
+msgid "p_{ij} = \\frac{n_{ij}}{\\sum_k n_{ik}}"
+msgstr "p_{ij} = \\frac{n_{ij}}{\\sum_k n_{ik}}"
+
+msgid ""
+"estimates the probability of moving to :math:`j` from :math:`i`. If the movements follow a time-"
+"homogeneous Markov chain, the :math:`h`-th power of the normalized matrix gives the probabilities"
+" over :math:`h` periods."
+msgstr "估计了从 :math:`i` 迁移到 :math:`j` 的概率。如果迁移服从时齐马尔可夫链，归一化矩阵的 :math:`h` 次幂给出 :math:`h` 期内的迁移概率。"
+
+msgid ""
+"Roll rates summarize the movements of delinquency between two month ends: the roll rate of "
+"``30-59`` days past due is the share of the loans at 30 to 59 days that are at 60 to 89 days a "
+"month later. The states must be ordered from the best to the worst, so that the next state is the"
+" next worse one."
+msgstr ""
+"滚动率概括了两个月末之间逾期状态的变化：逾期 ``30-59`` 天的滚动率，是逾期 30 到 59 天的贷款中一个月后逾期 60 到 89 "
+"天的比例。状态必须从最好到最差排列，这样下一个状态就是更差的一档。"
+
+msgid ""
+"State of each entity at the first and at the second observation, as in `transition_matrix`. "
+"Neither may contain missing values."
+msgstr "每个对象在第一次和第二次观测时的状态，与 `transition_matrix` 相同。二者都不能含有缺失值。"
+
+msgid ""
+"All states from the best to the worst. Required unless `before` and `after` are ordered "
+"categoricals with the same categories, whose order is then used. A sorted order would be wrong "
+"for most labels, for example ``\"current\"`` would come after ``\"90+\"``."
+msgstr ""
+"从最好到最差排列的全部状态。除非 `before` 和 `after` 是类别相同的有序分类变量（此时使用其类别顺序），否则必须传入。对大多数标签来说，排序得到的顺序是错误的，例如 "
+"``\"current\"`` 会排在 ``\"90+\"`` 之后。"
+
+msgid ""
+"Non-negative weight of each entity, such as its balance at the first observation, matched like "
+"`after`. The rates are then shares of weight, the balance roll rates."
+msgstr "每个对象的非负权重，例如第一次观测时的余额，对应方式与 `after` 相同。此时滚动率是权重的比例，即余额滚动率。"
+
+msgid ""
+"Roll rate of every state except the worst, which has no next state, indexed by the state. A state"
+" without entities has a NaN rate."
+msgstr "除最差状态（没有下一个状态）外每个状态的滚动率，以状态为索引。没有对象的状态，其滚动率为 NaN。"
+
+msgid ""
+"In the same cases as `transition_matrix`, and if `states` is not given while `before` and `after`"
+" are not ordered categoricals."
+msgstr "与 `transition_matrix` 在相同的情况下抛出；此外，如果未给出 `states` 而 `before` 和 `after` 不是有序分类变量，也会抛出。"
+
+msgid "The movements between all pairs of states."
+msgstr "所有状态两两之间的迁移。"
+
+#, python-brace-format
+msgid ""
+"With :math:`n_{ij}` entities moving from state :math:`i` to state :math:`j`, the roll rate of "
+"state :math:`i` is"
+msgstr "设有 :math:`n_{ij}` 个对象从状态 :math:`i` 迁移到状态 :math:`j` ，则状态 :math:`i` 的滚动率为"
+
+msgid "r_i = \\frac{n_{i,i+1}}{\\sum_k n_{ik}}."
+msgstr "r_i = \\frac{n_{i,i+1}}{\\sum_k n_{ik}}."
+
+msgid ""
+"Entities that improved, stayed or moved more than one state worse count in the denominator only. "
+"A loan can fall at most one delinquency bucket further behind from one month end to the next, so "
+"the product of the roll rates estimates the share of current loans that reach the worst bucket "
+"after one month per roll, if the movements follow a Markov chain."
+msgstr "状态改善、保持不变或恶化超过一档的对象只计入分母。从一个月末到下一个月末，贷款最多再恶化一个逾期档位，因此如果迁移服从马尔可夫链，各滚动率的乘积估计了正常贷款在经过与滚动次数相同的月数后处于最差档位的比例。"
+
 msgid "Weight of evidence"
 msgstr "证据权重"
 
@@ -2901,9 +3872,6 @@ msgstr ""
 "如果输入不是一维、索引或长度不一致、 `target` 没有同时包含 0 和 1 或含有缺失值及其他标签，或者 `smoothing` 不是有限正数。此外，如果 `weights` "
 "不是数值、没有为每个观测给出一个有限非负的权重、索引与 `groups` 不同，或使事件或非事件的权重总和为零。"
 
-msgid ":obj:`woe_transform`"
-msgstr ":obj:`woe_transform`"
-
 msgid "Replace each group with its WOE."
 msgstr "将每个分组替换为其 WOE。"
 
@@ -2967,9 +3935,6 @@ msgid ""
 "The result of `woe_table`, or a Series of WOE values indexed by group. A missing label in the "
 "index gives the WOE of missing values."
 msgstr "`woe_table` 的结果，或以分组为索引的 WOE 序列。索引中的缺失标签对应缺失值的 WOE。"
-
-msgid "**unseen**"
-msgstr "**unseen**"
 
 msgid "float or \"raise\", default \"raise\""
 msgstr "float 或 \"raise\"，默认 \"raise\""
@@ -3565,6 +4530,16 @@ msgstr ""
 "``unseen_points`` 给出其分值。"
 
 msgid ""
+"``kivi.datasets.load_bank`` loads the bank marketing data. ``Dataset.bank_data`` returns the same"
+" data and keeps working without a warning."
+msgstr "``kivi.datasets.load_bank`` 读取银行营销数据。 ``Dataset.bank_data`` 返回相同的数据，并且可以继续使用，不会发出警告。"
+
+msgid ""
+"``kivi.datasets.make_loan_panel`` simulates a seeded monthly panel of instalment loans whose "
+"delinquency rolls forward and cures, to try the vintage and roll-rate functions on."
+msgstr "``kivi.datasets.make_loan_panel`` 按给定种子模拟分期贷款的月度面板数据，其中逾期会向前滚动，也会回到正常，可用来试用 Vintage 和滚动率相关函数。"
+
+msgid ""
 "``reason_codes`` takes ``unseen_points``, the points of applicants in groups that "
 "``woe_transform`` encoded with ``unseen``, one value or values by variable. Points that match no "
 "group but lie within ``atol`` of ``unseen_points`` cost nothing, so the variable is not one of "
@@ -3574,6 +4549,35 @@ msgstr ""
 "``reason_codes`` 新增 ``unseen_points`` 参数，即 ``woe_transform`` 用 ``unseen`` "
 "编码的分组中申请人的分值，可以是一个值，也可以按变量给出。与任何分组都不匹配、但与 ``unseen_points`` 相差不超过 ``atol`` "
 "的分值视为没有造成损失，因此该变量不会成为这些申请人的原因。其他任何不匹配仍会引发错误，错误信息现在会先提示检查 ``atol`` 以及模型和刻度。"
+
+msgid ""
+"The new module ``kivi.spec`` bins all the columns of a data frame at once. ``fit_spec`` fits each"
+" numeric column with ``bin_edges`` or a supervised method chosen by column, or with given edges, "
+"and measures the WOE of every group; other columns keep their labels. The binning is never "
+"changed automatically."
+msgstr ""
+"新模块 ``kivi.spec`` 一次对数据框的所有列分箱。 ``fit_spec`` 用 ``bin_edges`` 、按列选定的有监督方法或给定的边界拟合每个数值列，并计算每个分组的 "
+"WOE；其他列保留其标签。分箱从不自动更改。"
+
+msgid ""
+"The resulting ``BinningSpec`` groups a sample with ``cut``, encodes it with ``woe_transform`` "
+"using an unseen-group policy by column, and keeps the ``woe_table`` of every column for review. "
+"``to_json`` and ``from_json`` save and load it without changing the groups or the WOE encoding, "
+"so production reproduces development exactly."
+msgstr ""
+"得到的 ``BinningSpec`` 用 ``cut`` 对样本分组，用 ``woe_transform`` 按列的未见分组策略编码，并保留每一列的 ``woe_table`` 供审阅。 "
+"``to_json`` 和 ``from_json`` 保存并加载它，分组和 WOE 编码都不会改变，因此生产环境可以完全复现开发时的结果。"
+
+msgid ""
+"The new module ``kivi.vintage`` analyses loan portfolios. ``vintage_table`` gives the cumulative "
+"bad rate of each origination cohort by month on book, by count or by amount lent, and leaves the "
+"months that a cohort has not reached as NaN. ``transition_matrix`` counts the movements of loans "
+"between delinquency buckets or of obligors between rating grades, as counts, row shares or sums "
+"of balances, and ``roll_rates`` gives the share of each bucket that rolls to the next worse one."
+msgstr ""
+"新模块 ``kivi.vintage`` 用于分析贷款资产组合。 ``vintage_table`` 按账龄给出每个放款批次的累计坏账率，可以按笔数或按放款金额计算，并把批次尚未达到的账龄留为 "
+"NaN。 ``transition_matrix`` 统计贷款在逾期档位之间、或债务人在评级之间的迁移，结果可以是计数、行内比例或余额之和； ``roll_rates`` "
+"给出每个档位滚动到下一个更差档位的比例。"
 
 msgid ""
 "``roc_auc``, ``gini``, ``ks``, ``gains_table``, ``brier_score`` and ``calibration_table`` take "
@@ -4703,16 +5707,128 @@ msgstr ""
 "Lemeshow 检验需要整数的观测数和事件数，因此请在不加权的表上进行这些检验。"
 
 msgid ""
-"``Dataset.bank_data()`` loads 4,521 customers from the Bank Marketing data set. It has sixteen "
-"features and an integer ``target``: 1 means that the customer subscribed to a term deposit."
-msgstr ""
-"``Dataset.bank_data()`` 读取 Bank Marketing 数据集中的 4,521 位客户。数据包含 16 个特征和整数标签 ``target``：1 "
-"表示客户认购了定期存款。"
+":mod:`kivi.datasets` provides two kinds of example data: real bank marketing data with one row "
+"per customer and a binary target, and a synthetic panel of loans with one row per loan and month."
+msgstr ":mod:`kivi.datasets` 提供两类示例数据：真实的银行营销数据，每位客户一行，带二分类目标；以及合成的贷款面板数据，每笔贷款每个月一行。"
+
+msgid "Bank marketing data"
+msgstr "银行营销数据"
+
+msgid ""
+"``load_bank()`` loads 4,521 customers from the Bank Marketing data set. It has sixteen features "
+"and an integer ``target``: 1 means that the customer subscribed to a term deposit."
+msgstr "``load_bank()`` 读取 Bank Marketing 数据集中的 4,521 位客户。数据包含 16 个特征和整数标签 ``target`` ：1 表示客户认购了定期存款。"
 
 msgid ""
 "The examples in this documentation split the rows by position only to demonstrate two samples; "
-"the split is not chronological."
-msgstr "本文档中的示例按行的位置切分出两个样本，仅用于演示；这一切分不代表时间顺序。"
+"the split is not chronological. Earlier examples call ``Dataset.bank_data()``, which returns the "
+"same data and keeps working."
+msgstr "本文档中的示例按行的位置切分出两个样本，仅用于演示；这一切分不代表时间顺序。较早的示例调用 ``Dataset.bank_data()`` ，它返回相同的数据，并且可以继续使用。"
+
+msgid "Synthetic loan panel"
+msgstr "合成贷款面板"
+
+msgid ""
+"``make_loan_panel`` simulates the monthly history of a portfolio of instalment loans, for the "
+"vintage and roll-rate analysis in :doc:`vintage`. The data is generated, not taken from a real "
+"portfolio, and the same ``rng`` seed always gives the same panel:"
+msgstr ""
+"``make_loan_panel`` 模拟一个分期贷款资产组合的月度历史，供 :doc:`vintage` 中的 Vintage "
+"分析和滚动率分析使用。数据是生成的，并非取自真实的资产组合；同一个 ``rng`` 种子总是给出同样的面板："
+
+msgid ""
+"The loans are spread at random over ``n_months`` origination months from January 2024, and each "
+"loan has one row for every month end it is on book, up to the month after the last origination "
+"month. The columns are:"
+msgstr "贷款随机分布在从 2024 年 1 月开始的 ``n_months`` 个放款月中；每笔贷款在账上的每个月末都有一行，直到最后一个放款月的下一个月。各列如下："
+
+msgid "Column"
+msgstr "列"
+
+msgid "Meaning"
+msgstr "含义"
+
+msgid "``loan_id``"
+msgstr "``loan_id``"
+
+msgid "Identifier of the loan, increasing with the origination month."
+msgstr "贷款标识，随放款月份递增。"
+
+msgid "``cohort``"
+msgstr "``cohort``"
+
+msgid "Origination month, a monthly ``pandas.Period``."
+msgstr "放款月份，为月度 ``pandas.Period`` 。"
+
+msgid "``month``"
+msgstr "``month``"
+
+msgid "Month of the observation, ``cohort + month_on_book``."
+msgstr "观测所在月份，即 ``cohort + month_on_book`` 。"
+
+msgid "``month_on_book``"
+msgstr "``month_on_book``"
+
+msgid "Months since origination, from 1."
+msgstr "放款后经过的月数（账龄），从 1 开始。"
+
+msgid "``term``"
+msgstr "``term``"
+
+msgid "Number of monthly instalments: 12, 24 or 36."
+msgstr "月供期数：12、24 或 36。"
+
+msgid "``amount``"
+msgstr "``amount``"
+
+msgid "Amount lent."
+msgstr "放款金额。"
+
+msgid "``balance``"
+msgstr "``balance``"
+
+msgid "Outstanding principal at the end of the month."
+msgstr "月末的剩余本金。"
+
+msgid "``status``"
+msgstr "``status``"
+
+msgid ""
+"Days past due at the end of the month, an ordered categorical: ``current``, ``1-29``, ``30-59``, "
+"``60-89`` and ``90+``."
+msgstr "月末的逾期天数，为有序分类变量： ``current`` 、 ``1-29`` 、 ``30-59`` 、 ``60-89`` 和 ``90+`` 。"
+
+msgid "How the panel is simulated"
+msgstr "面板的模拟方式"
+
+#, python-format
+msgid ""
+"Each loan is repaid in equal monthly instalments at 1% interest a month. Its status counts the "
+"months since its oldest unpaid instalment fell due: one is ``1-29``, two ``30-59``, three "
+"``60-89`` and four or more ``90+``. Within the term this is the number of instalments past due. "
+"Every month:"
+msgstr ""
+"每笔贷款按月等额本息还款，月利率为 1%。其状态记录自最早一期未还期款到期以来的月数：一个月为 ``1-29`` ，两个月为 ``30-59`` ，三个月为 ``60-89`` ，四个月及以上为"
+" ``90+`` 。在期限内，这就是逾期未还的期数。每个月："
+
+msgid ""
+"a current loan misses its instalment with a probability that peaks at its sixth month on book and"
+" then declines, scaled by a risk factor of the loan and one of its cohort;"
+msgstr "正常贷款漏缴当期期款的概率在账龄第六个月达到峰值，之后下降，并乘以该贷款和所在批次各自的风险系数；"
+
+msgid ""
+"a delinquent loan pays all its arrears and becomes current, pays one instalment and keeps its "
+"status, or pays nothing and rolls to the next bucket, also after its term, and the later the "
+"bucket, the less likely it cures and the more likely it rolls;"
+msgstr "逾期贷款要么还清全部欠款、回到正常，要么只还一期、保持原状态，要么完全不还、滚动到下一个档位（期限结束后也是如此）；档位越靠后，回到正常的可能越小，滚动的可能越大；"
+
+msgid "a ``90+`` loan pays nothing more, so its status and balance stay the same."
+msgstr "``90+`` 的贷款不再还款，因此其状态和余额保持不变。"
+
+msgid ""
+"A loan leaves the panel in the month it pays its last instalment, which can come after its term "
+"if it was behind. Loans are not charged off or prepaid."
+msgstr "贷款在还清最后一期的当月离开面板；如果曾经逾期，这可能发生在期限之后。贷款不会被核销，也不会提前还款。"
 
 msgid "Dataset and attribution"
 msgstr "示例数据和署名"
@@ -4721,11 +5837,12 @@ msgid ""
 "Bank Marketing by S. Moro, P. Rita and P. Cortez (2014) is distributed under CC BY 4.0. The "
 "bundled CSV was converted from the legacy workbook. The loader encodes subscription as 1 and non-"
 "subscription as 0. See the `dataset record <https://doi.org/10.24432/C5K306>`_ and `license "
-"<https://creativecommons.org/licenses/by/4.0/>`_."
+"<https://creativecommons.org/licenses/by/4.0/>`_. The loan panel is synthetic and has no source "
+"to attribute."
 msgstr ""
 "Bank Marketing 由 S. Moro、P. Rita 和 P. Cortez 于 2014 年发布，按 CC BY 4.0 授权。随包 CSV "
 "由旧版工作簿转换而来。加载时将认购存款编码为 1，未认购编码为 0。详见 `数据集说明 <https://doi.org/10.24432/C5K306>`_ 和 `许可证 "
-"<https://creativecommons.org/licenses/by/4.0/>`_。"
+"<https://creativecommons.org/licenses/by/4.0/>`_。贷款面板是合成数据，没有需要注明的来源。"
 
 msgid ""
 "kivi covers the steps of credit risk modeling: binning, variable selection, scorecard scaling, "
@@ -4939,12 +6056,6 @@ msgstr ""
 
 msgid "Reading the result"
 msgstr "解读结果"
-
-msgid "Column"
-msgstr "列"
-
-msgid "Meaning"
-msgstr "含义"
 
 msgid "``non_event``, ``event``, ``total``"
 msgstr "``non_event``, ``event``, ``total``"
@@ -5697,6 +6808,428 @@ msgid ""
 "optimistic. Treat the result as a proposal: review each variable with the business, and check the"
 " model on a validation sample before using it."
 msgstr "逐步回归在同一份数据上检验了许多模型，因此所选模型的 p 值偏乐观。请把结果当作建议：与业务方逐一审核变量，并在使用前用验证样本检验模型。"
+
+msgid ""
+"A scorecard must group and encode every variable in the same way in development, validation and "
+"production. ``fit_spec`` bins all the columns of a development sample in one call and measures "
+"the WOE of every group. The resulting ``BinningSpec`` groups and encodes any other sample with "
+"the same edges and WOE values. It can be saved as JSON and loaded again in production without "
+"changing the groups or the encoding."
+msgstr ""
+"评分卡在开发、验证和生产中必须以同样的方式对每个变量分组和编码。 ``fit_spec`` 一次调用即可对开发样本的所有列分箱，并计算每个分组的 WOE。得到的 ``BinningSpec`` "
+"用同样的边界和 WOE 值对任意其他样本分组和编码。它可以保存为 JSON，并在生产环境中重新加载，且不会改变分组和编码。"
+
+msgid ""
+"Each column is fitted with the functions of :doc:`binning` and :doc:`woe_iv`, so a column of the "
+"specification has exactly the edges and table that those steps give it alone."
+msgstr "每一列都用 :doc:`binning` 和 :doc:`woe_iv` 中的函数拟合，因此分箱方案中某一列的边界和 WOE 表，与单独对该列执行这些步骤的结果完全相同。"
+
+msgid "Screen the candidates"
+msgstr "筛选候选变量"
+
+msgid ""
+"With the defaults, every numeric column gets five quantile bins and every other column keeps its "
+"labels. The information value of each column gives a first ranking. A warning names each column "
+"whose tied quantiles leave fewer bins than requested:"
+msgstr "使用默认设置时，每个数值列分为五个等频箱，其他列保留其标签。各列的信息值给出初步排序。如果重合的分位数使某一列的箱数少于期望值，警告会指明该列："
+
+msgid ""
+"``quick.tables`` maps each column to its ``woe_table`` result. The columns of ``frame`` are "
+"fitted unless ``columns`` names some of them. Leave the target out: ``fit_spec`` raises an error "
+"if a column has the name of the ``target`` series."
+msgstr ""
+"``quick.tables`` 把每一列映射到其 ``woe_table`` 结果。除非 ``columns`` 指定了部分列，否则会拟合 ``frame`` "
+"的所有列。请排除目标变量：如果某一列与 ``target`` Series 同名， ``fit_spec`` 会引发错误。"
+
+msgid ""
+"Which columns are binned depends on their dtype. Numeric columns, apart from booleans, are "
+"binned; columns of any other dtype, such as strings, categories or booleans, keep their labels as"
+" groups. To keep integer codes as labels, convert the column to the ``category`` dtype before "
+"fitting. A column of dtype ``object`` that holds only numbers raises a warning, because each "
+"distinct number would become a group; convert it with ``pandas.to_numeric`` to bin it."
+msgstr ""
+"哪些列会被分箱取决于其 dtype。数值列（布尔列除外）会被分箱；其他 dtype 的列（例如字符串、类别或布尔列）以其标签作为分组。若要把整数编码当作标签，请在拟合前把该列转换为 "
+"``category`` dtype。只含数值的 ``object`` dtype 列会引发警告，因为每个不同的数值都会各成一组；若要对其分箱，请用 ``pandas.to_numeric`` "
+"转换。"
+
+msgid "Choose the binning of each column"
+msgstr "为每一列选择分箱方式"
+
+msgid ""
+"``method``, ``bins``, ``special`` and ``options`` can each be a dict by column. Here ``balance`` "
+"is merged until its WOE is monotonic, ``pdays`` is split by a decision tree with the ``-1`` code "
+"(\"not contacted before\") in its own group, and ``age`` gets policy bands. A list of edges in "
+"``bins`` is used as given; it must run from ``-inf`` to ``inf``, so that every future value falls"
+" into a bin:"
+msgstr ""
+"``method`` 、 ``bins`` 、 ``special`` 和 ``options`` 都可以是按列的 dict。这里 ``balance`` 合并到 WOE 单调为止， "
+"``pdays`` 用决策树切分，并让 ``-1`` 编码（“之前未联系过”）单独成组， ``age`` 使用政策分段。 ``bins`` 中的边界列表按原样使用；它必须从 ``-inf`` "
+"延伸到 ``inf`` ，以确保之后的任何取值都能落入某个箱："
+
+msgid ""
+"Special codes must be numbers, and infinite values must be special codes, as in ``bin_edges``. "
+"The methods are ``\"quantile\"`` and ``\"uniform\"`` for ``bin_edges`` and ``\"chimerge\"``, "
+"``\"tree\"`` and ``\"monotonic\"`` for the supervised functions. ``bins`` is passed as ``bins`` "
+"to ``bin_edges`` and as ``max_bins`` to the others, and ``options`` holds their remaining "
+"arguments, such as ``alpha`` or ``min_bin_share``. ``\"monotonic\"`` uses the ``smoothing`` of "
+"the specification, so its trend holds in the tables. ``weights`` passes sample weights to every "
+"binning function and to ``woe_table``."
+msgstr ""
+"特殊值编码必须是数值，无穷值必须作为特殊值传入，与 ``bin_edges`` 相同。方法 ``\"quantile\"`` 和 ``\"uniform\"`` 对应 ``bin_edges``"
+" ， ``\"chimerge\"`` 、 ``\"tree\"`` 和 ``\"monotonic\"`` 对应有监督分箱函数。 ``bins`` 作为 ``bins`` 传给 "
+"``bin_edges`` ，作为 ``max_bins`` 传给其他函数； ``options`` 存放它们的其余参数，例如 ``alpha`` 或 ``min_bin_share`` 。 "
+"``\"monotonic\"`` 使用分箱方案的 ``smoothing`` ，因此其单调趋势在 WOE 表中同样成立。 ``weights`` 把样本权重传给每个分箱函数和 "
+"``woe_table`` 。"
+
+msgid ""
+"``fit_spec`` never re-bins a column on its own. The legacy ``WOEBatch`` lowered the number of "
+"bins until the WOE was monotonic; here the method and its options decide, and a column that "
+"should be monotonic is fitted with ``\"monotonic\"``."
+msgstr ""
+"``fit_spec`` 从不自行重新分箱。旧版的 ``WOEBatch`` 会不断减少箱数，直到 WOE 单调；这里由方法及其选项决定，需要单调的列请用 ``\"monotonic\"`` "
+"拟合。"
+
+msgid "Group and encode a sample"
+msgstr "对样本分组和编码"
+
+msgid ""
+"``cut`` groups every column of a sample, and ``woe_transform`` replaces each group with its WOE. "
+"Both return the columns of the specification in its order, with the index of the sample:"
+msgstr "``cut`` 对样本的每一列分组， ``woe_transform`` 把每个分组替换为其 WOE。二者都按分箱方案的顺序返回其中的列，索引与样本相同："
+
+msgid ""
+"A column fitted as numeric must have a numeric dtype in every sample. Read as strings, the code "
+"``\"-1\"`` would miss its special group, so ``cut`` and ``woe_transform`` raise an error instead;"
+" convert such a column with ``pandas.to_numeric``:"
+msgstr ""
+"按数值列拟合的列在每个样本中都必须是数值 dtype。如果按字符串读入，编码 ``\"-1\"`` 就无法匹配其特殊值分组，因此 ``cut`` 和 ``woe_transform`` "
+"会引发错误；请用 ``pandas.to_numeric`` 转换这样的列："
+
+msgid ""
+"A value whose group is not in its column's table, such as a new category, raises an error by "
+"default, so it never turns into a silent NaN:"
+msgstr "分组不在该列 WOE 表中的取值（例如新类别）默认会引发错误，因此不会悄无声息地变成 NaN："
+
+msgid ""
+"The ``unseen`` argument of ``fit_spec`` sets a WOE for such values, for all columns or by column."
+" The same holds for a special code or an interval that has no development observations, and for "
+"missing values when the development sample had none. A specification is immutable, so change the "
+"policy of a fitted one with ``dataclasses.replace``:"
+msgstr ""
+"``fit_spec`` 的 ``unseen`` 参数为这类取值指定 "
+"WOE，可以对所有列统一指定，也可以按列指定。开发样本中没有观测值的特殊值或区间，以及开发样本没有缺失值时的缺失值，也同样处理。分箱方案不可变，因此请用 "
+"``dataclasses.replace`` 修改已拟合方案的策略："
+
+msgid "Keep the model variables"
+msgstr "保留模型变量"
+
+msgid ""
+"After variable selection, keep only the variables of the model before saving the specification "
+"for production:"
+msgstr "完成变量筛选后，在为生产环境保存分箱方案之前，只保留模型中的变量："
+
+msgid "``production.tables`` can be passed to ``points_table`` as it is; see :doc:`scorecard`."
+msgstr "``production.tables`` 可以直接传给 ``points_table`` ；参见 :doc:`scorecard` 。"
+
+msgid "Save and load a specification"
+msgstr "保存和加载分箱方案"
+
+msgid ""
+"``to_json`` writes the specification as JSON text, and ``from_json`` reads it back into an equal "
+"specification that groups and encodes every sample identically. Two specifications are equal when"
+" their JSON text is the same, which includes the version of kivi that fitted them:"
+msgstr ""
+"``to_json`` 把分箱方案写成 JSON 文本， ``from_json`` 将其读回为相等的分箱方案，对每个样本的分组和编码完全相同。两个分箱方案的 JSON "
+"文本相同时二者相等，文本中包含拟合它们的 kivi 版本："
+
+msgid ""
+"The same specification always gives the same text, so it can be kept under version control and "
+"compared. Labels are written as they are, including non-ASCII ones, so save the text as UTF-8:"
+msgstr "同一个分箱方案总是得到相同的文本，因此可以纳入版本控制并相互比较。标签按原样写出（包括非 ASCII 标签），因此请以 UTF-8 保存文本："
+
+msgid "``to_dict`` gives the same content as a dict. Each column is one entry of ``variables``:"
+msgstr "``to_dict`` 以 dict 给出相同的内容。每一列是 ``variables`` 中的一项："
+
+msgid "The format"
+msgstr "格式"
+
+msgid "Key"
+msgstr "键"
+
+msgid "Content"
+msgstr "内容"
+
+msgid "``format``"
+msgstr "``format``"
+
+msgid "Always ``\"kivi.BinningSpec\"``."
+msgstr "始终为 ``\"kivi.BinningSpec\"`` 。"
+
+msgid "``format_version``"
+msgstr "``format_version``"
+
+msgid ""
+"Version of the format, currently 1. A file with a newer version raises an error that asks for a "
+"newer kivi, instead of being read in part."
+msgstr "格式的版本，目前为 1。版本更新的文件会引发错误，提示升级 kivi，而不会只读取其中一部分。"
+
+msgid "``kivi_version``"
+msgstr "``kivi_version``"
+
+msgid "Version of kivi that fitted the specification."
+msgstr "拟合该分箱方案的 kivi 版本。"
+
+msgid "``smoothing``"
+msgstr "``smoothing``"
+
+msgid "Smoothing of the WOE tables."
+msgstr "WOE 表的平滑参数。"
+
+msgid "``variables``"
+msgstr "``variables``"
+
+msgid ""
+"One entry per column, in order, with ``name``, ``kind`` (``\"numeric\"`` or ``\"categorical\"``),"
+" ``unseen`` (``\"raise\"`` or a number) and ``table``, plus ``edges`` and ``special`` for numeric"
+" columns."
+msgstr ""
+"每列一项，按顺序排列，包含 ``name`` 、 ``kind`` （ ``\"numeric\"`` 或 ``\"categorical\"`` ）、 ``unseen`` （ "
+"``\"raise\"`` 或数值）和 ``table`` ，数值列另有 ``edges`` 和 ``special`` 。"
+
+msgid "``table``"
+msgstr "``table``"
+
+msgid ""
+"One entry per group with its label ``bin`` and the columns of ``woe_table``. An interval of a "
+"numeric column is written with the two exact edges that bound it."
+msgstr "每个分组一项，包含其标签 ``bin`` 和 ``woe_table`` 的各列。数值列的区间用界定它的两个精确边界写出。"
+
+msgid ""
+"JSON has no infinite numbers and does not keep the types of labels apart in every language, so "
+"labels and edges are written as follows:"
+msgstr "JSON 没有无穷数值，在某些语言中也无法区分标签的类型，因此标签和边界按以下方式写出："
+
+msgid "Value"
+msgstr "取值"
+
+msgid "JSON"
+msgstr "JSON"
+
+msgid "Strings, integers and booleans"
+msgstr "字符串、整数和布尔值"
+
+msgid "As they are: ``\"yes\"``, ``1``, ``true``."
+msgstr "按原样写出： ``\"yes\"`` 、 ``1`` 、 ``true`` 。"
+
+msgid "Floats"
+msgstr "浮点数"
+
+msgid "With a decimal point or an exponent, such as ``1.0``, so that they stay apart from integers."
+msgstr "带小数点或指数，例如 ``1.0`` ，以便与整数区分。"
+
+msgid "Infinite numbers"
+msgstr "无穷数值"
+
+#, python-brace-format
+msgid "``{\"float\": \"inf\"}`` and ``{\"float\": \"-inf\"}``."
+msgstr "``{\"float\": \"inf\"}`` 和 ``{\"float\": \"-inf\"}`` 。"
+
+msgid "Intervals"
+msgstr "区间"
+
+#, python-brace-format
+msgid "``{\"interval\": [left, right], \"closed\": \"right\"}``."
+msgstr "``{\"interval\": [left, right], \"closed\": \"right\"}`` 。"
+
+msgid "The missing group"
+msgstr "缺失组"
+
+msgid "``null``."
+msgstr "``null`` 。"
+
+msgid ""
+"Labels of categorical columns must be strings, integers, floats, booleans or intervals; "
+"``fit_spec`` rejects other labels, such as dates. ``from_json`` checks every value and rejects "
+"``NaN`` or ``Infinity`` in the text, so a damaged file fails with a message instead of encoding "
+"wrong values."
+msgstr ""
+"类别列的标签必须是字符串、整数、浮点数、布尔值或区间； ``fit_spec`` 会拒绝其他标签，例如日期。 ``from_json`` 会检查每个值，并拒绝文本中的 ``NaN`` 或 "
+"``Infinity`` ，因此损坏的文件会报错，而不会编码出错误的值。"
+
+msgid ""
+"The interval labels of a table are those of ``pandas.cut``, which rounds their bounds for "
+"display. The file writes each interval of a numeric column with its two exact edges instead, and "
+"``from_json`` turns them back into the labels of ``pandas.cut``:"
+msgstr ""
+"表中的区间标签来自 ``pandas.cut`` ，其边界为便于显示而经过舍入。文件改用两个精确边界写出数值列的每个区间， ``from_json`` 再把它们还原为 "
+"``pandas.cut`` 的标签："
+
+msgid ""
+"Software outside kivi that reads the file should bin with ``edges``, match ``special`` codes "
+"before intervals as :func:`kivi.binning.cut` does, and find the row of each interval by its two "
+"edges. An interval without development observations has no row. Intervals are closed on the "
+"right, so ``-inf`` falls into no interval, and ``woe_transform`` treats it as unseen."
+msgstr ""
+"在 kivi 之外读取该文件的软件应使用 ``edges`` 分箱，像 :func:`kivi.binning.cut` 一样先匹配 ``special`` "
+"编码再匹配区间，并按两个边界找到每个区间对应的行。开发样本中没有观测值的区间没有对应的行。区间为左开右闭，因此 ``-inf`` 不落入任何区间， ``woe_transform`` "
+"把它视为未见分组。"
+
+msgid "Vintage and roll-rate analysis"
+msgstr "Vintage 与滚动率分析"
+
+msgid ""
+"Once a scorecard is in use, the loans it approves are monitored as they age. :mod:`kivi.vintage` "
+"covers the two standard views of a loan portfolio: vintage curves, which follow the bad rate of "
+"each origination cohort by month on book, and roll rates and transition matrices, which show how "
+"loans move between delinquency buckets from one month end to the next."
+msgstr ""
+"评分卡投入使用后，需要跟踪其批准的贷款随账龄增长的表现。 :mod:`kivi.vintage` 提供贷款资产组合的两种标准视角：Vintage "
+"曲线按账龄跟踪每个放款批次的坏账率；滚动率和转移矩阵展示贷款从一个月末到下一个月末在逾期档位之间的迁移。"
+
+msgid ""
+"Both work on a loan panel in long format, with one row per loan and month on book. The examples "
+"use the synthetic panel of ``make_loan_panel``: 5,000 instalment loans originated from January "
+"2024 to December 2025 and observed at every month end up to January 2026."
+msgstr ""
+"两者都基于长格式的贷款面板数据，每笔贷款的每个账龄一行。示例使用 ``make_loan_panel`` 生成的合成面板：5,000 笔分期贷款，在 2024 年 1 月至 2025 年 12 "
+"月间发放，并在每个月末观测，直到 2026 年 1 月。"
+
+msgid ""
+"The status is an ordered categorical of days past due, so a comparison such as "
+"``panel[\"status\"] >= \"60-89\"`` follows the order of the buckets. :doc:`datasets` describes "
+"how the panel is simulated."
+msgstr ""
+"状态是按逾期天数排列的有序分类变量，因此像 ``panel[\"status\"] >= \"60-89\"`` 这样的比较会遵循档位的顺序。 :doc:`datasets` "
+"介绍了面板的模拟方式。"
+
+msgid "Vintage curves"
+msgstr "Vintage 曲线"
+
+msgid ""
+"A loan is *ever bad* by month on book :math:`k` if it was bad at any month on book up to "
+":math:`k`. A vintage table holds, for each cohort and month on book, the share of the cohort's "
+"loans that are ever bad by then. ``vintage_table`` takes the loan, the cohort, the month on book "
+"and whether the loan is bad on each row, so the bad definition is a condition on the status. Here"
+" a loan is bad once it is 90 days past due:"
+msgstr ""
+"如果贷款在账龄 :math:`k` 及之前的任一账龄为坏，就称它到账龄 :math:`k` 为止 *曾经为坏* （ever bad）。Vintage "
+"表对每个批次和账龄，给出该批次贷款中到该账龄为止曾经为坏的比例。 ``vintage_table`` "
+"接受每一行的贷款、批次、账龄以及该贷款是否为坏，因此坏的定义就是状态上的一个条件。这里贷款一旦逾期 90 天即为坏："
+
+msgid ""
+"Each row follows one cohort and never decreases from left to right, because a loan that was bad "
+"stays counted as bad even if it cures later. The entries a cohort has not reached are NaN, not 0:"
+" the 2025-04 cohort is observed up to month on book 9, so its bad rate at month 12 is not known "
+"yet. Reading down a column compares the cohorts at the same age, which separates the quality of "
+"new lending from the seasoning of the portfolio. The latest value of each cohort mixes the two, "
+"because older cohorts have had more time to go bad."
+msgstr ""
+"每一行跟踪一个批次，从左到右不会递减，因为变坏过的贷款即使之后回到正常，也一直算作坏。批次尚未达到的取值为 NaN，而不是 0：2025-04 批次只观测到账龄 9，因此其账龄 12 "
+"的坏账率还不得而知。沿一列向下读，是在相同账龄上比较各批次，从而把新增放款的质量与资产组合的账龄成熟效应区分开。每个批次的最新取值则混合了二者，因为较早的批次有更长的时间变坏。"
+
+msgid ""
+"Every cohort here has about 200 loans, so one bad loan moves its rate by half a percentage point."
+" Compare small differences only after averaging several cohorts."
+msgstr "这里每个批次约有 200 笔贷款，因此一笔坏贷款就会让坏账率变动半个百分点。比较细小的差异前，应先对多个批次取平均。"
+
+msgid "Bad definitions and amounts"
+msgstr "坏的定义与金额"
+
+msgid ""
+"An earlier bad definition gives an earlier signal. On the ordered status, ``>= \"60-89\"`` counts"
+" the loans that reached 60 days past due or worse:"
+msgstr "更早的坏定义能更早给出信号。在有序状态上， ``>= \"60-89\"`` 统计逾期达到 60 天或更严重的贷款："
+
+msgid ""
+"To weight each loan by the amount lent, pass ``weights``. The table then reports the share of the"
+" cohort's amount lent that went to loans that turned bad:"
+msgstr "要按放款金额给每笔贷款加权，请传入 ``weights`` 。此时表中报告的是批次放款金额中属于变坏贷款的比例："
+
+msgid ""
+"The weight must be the same on every row of a loan, so pass the amount lent rather than the "
+"outstanding balance."
+msgstr "同一笔贷款每一行的权重必须相同，因此应传入放款金额，而不是剩余余额。"
+
+msgid "Roll rates"
+msgstr "滚动率"
+
+msgid ""
+"A roll rate is the share of the loans in a delinquency bucket at one month end that are in the "
+"next worse bucket at the next month end. To pair each row with the row of the same loan one month"
+" on book later, merge the panel with itself shifted by one month. The last row of a loan has no "
+"partner, because the loan was repaid or the panel ends, and drops out. Unlike shifting the rows "
+"within each loan, the merge pairs the right months however the rows are sorted and wherever a "
+"month is missing:"
+msgstr "滚动率是某个月末处于某一逾期档位的贷款中，下一个月末处于下一个更差档位的比例。要把每一行与同一笔贷款账龄大一个月的那一行配对，可以把面板与平移一个月后的自身合并。贷款的最后一行没有配对行（因为贷款已还清或面板已结束），会被去掉。与在每笔贷款内部平移各行不同，无论各行如何排序、中间是否缺少某个月，合并都能配对正确的月份："
+
+#, python-format
+msgid ""
+"Both columns are ordered categoricals, so ``roll_rates`` takes the order of the states, from the "
+"best to the worst, from their categories. For plain labels, pass ``states``: sorted, "
+"``\"current\"`` would come after ``\"90+\"``. Each month about 2.3% of the current loans miss an "
+"instalment, and the share that rolls on rises with the days past due: seven in ten of the loans "
+"at 60 to 89 days are 90 days past due a month later."
+msgstr ""
+"两列都是有序分类变量，因此 ``roll_rates`` 从其类别中获得状态从最好到最差的顺序。对于普通标签，请传入 ``states`` ：如果按排序， ``\"current\"`` 会排在"
+" ``\"90+\"`` 之后。每个月约有 2.3% 的正常贷款漏缴期款，且继续滚动的比例随逾期天数增加：逾期 60 到 89 天的贷款中，有七成在一个月后逾期达到 90 天。"
+
+msgid ""
+"A loan falls at most one bucket further behind per month, so the only way from current to 90+ in "
+"four months is to roll every month. If the movements follow a Markov chain, the product of the "
+"roll rates is the share of current loans that are 90+ four months later:"
+msgstr "贷款每个月最多再恶化一个档位，因此四个月内从正常到 90+ 的唯一途径是每个月都滚动。如果迁移服从马尔可夫链，各滚动率的乘积就是正常贷款在四个月后处于 90+ 的比例："
+
+msgid "Balance roll rates weight each loan by its balance at the first month end, as loss forecasts do:"
+msgstr "余额滚动率按第一个月末的余额给每笔贷款加权，这也是损失预测的做法："
+
+msgid "Transition matrices"
+msgstr "转移矩阵"
+
+msgid ""
+"``transition_matrix`` shows all the movements, not only the roll to the next bucket. Row ``i``, "
+"column ``j`` counts the loans that moved from state ``i`` to state ``j``:"
+msgstr "``transition_matrix`` 展示全部迁移，而不只是滚动到下一档位的部分。第 ``i`` 行、第 ``j`` 列统计从状态 ``i`` 迁移到状态 ``j`` 的贷款数："
+
+msgid "With ``normalize=True``, each row holds the shares of its loans and sums to 1:"
+msgstr "设置 ``normalize=True`` 后，每一行给出该行贷款的比例，合计为 1："
+
+msgid ""
+"The diagonal holds the loans that stayed in their bucket, the ``current`` column the cures and "
+"the entries just right of the diagonal the roll rates. A loan that reaches 90+ stays there in "
+"this data, so the last row is all 90+."
+msgstr "对角线是保持在原档位的贷款， ``current`` 列是回到正常的贷款，紧挨对角线右侧的取值就是滚动率。在这份数据中，到达 90+ 的贷款会一直停留在 90+，因此最后一行全部是 90+。"
+
+msgid "Migration between two dates"
+msgstr "两个日期之间的迁移"
+
+msgid ""
+"The same function compares any two observations of the same entities, such as the rating grades "
+"of obligors at two annual reviews or the delinquency buckets of a portfolio at two month ends. "
+"Here are the loans on book at the end of both June and December 2025:"
+msgstr "同一个函数可以比较同一批对象的任意两次观测，例如债务人在两次年度复评时的评级，或资产组合在两个月末的逾期档位。下面是 2025 年 6 月末和 12 月末都在账上的贷款："
+
+msgid ""
+"Only the loans on book at both month ends are compared. The 226 loans repaid in between, almost "
+"all of them current in June, drop out, so the ``current`` row describes the loans that stayed on "
+"book. Missing values raise an error instead of being counted, so first decide what to do with the"
+" entities observed only once: drop them, as here, or give them a state of their own, such as "
+"``\"closed\"``, to keep them in the shares."
+msgstr ""
+"这里只比较两个月末都在账上的贷款。期间还清的 226 笔贷款（6 月时几乎都是正常状态）被去掉了，因此 ``current`` "
+"行描述的是仍在账上的贷款。缺失值会引发错误，而不会被计入，因此请先决定如何处理只被观测到一次的对象：像这里一样删除，或者给它们一个单独的状态，例如 ``\"closed\"`` "
+"，使它们保留在比例中。"
+
+msgid ""
+"If the monthly movements followed a time-homogeneous Markov chain, the sixth power of the monthly"
+" matrix would give the six-month matrix. Comparing the shares that end in 90+ shows how far that "
+"holds:"
+msgstr "如果月度迁移服从时齐马尔可夫链，月度矩阵的六次幂就会给出六个月的矩阵。比较最终处于 90+ 的比例，可以看出这一假设在多大程度上成立："
+
+msgid ""
+"The projection is of the right size but not exact: loans differ in risk, and the chance of "
+"missing an instalment depends on the month on book, so the movements are not a time-homogeneous "
+"Markov chain. Few loans are 30 to 89 days past due in June, so those rows are also uncertain."
+msgstr "推算值的量级正确，但并不精确：贷款的风险各不相同，且漏缴期款的概率取决于账龄，因此迁移并不是时齐马尔可夫链。6 月逾期 30 到 89 天的贷款很少，因此这些行本身也不确定。"
 
 msgid ""
 "``woe_table`` measures how each group separates a binary target. An event is target 1 and a non-"
