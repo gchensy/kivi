@@ -23,6 +23,18 @@ Build and verify
 
 The doctest builder runs every example in these pages and in the docstrings. The HTML build writes English and simplified Chinese editions under docs/_build/html. API signatures come from the installed package.
 
+Examples must not warn: a warning raised by a doctest or by a chart recipe in docs/_plotting.py fails the build. When an example is about a warning, catch it with ``warnings.catch_warnings(record=True)`` and print the message.
+
+Pull requests
+-------------
+
+Branch from the latest master and keep one topic per pull request. The master branch accepts changes only through pull requests, and only after the ``build`` check of the ``Documentation`` workflow has passed on a branch that is up to date with master. Every pull request is therefore tested together with everything merged before it. To update a branch, merge master into it. Merged branches are deleted automatically.
+
+Pull requests that edit the same files are merged one after the other rather than developed in parallel. Two kinds of file change in almost every pull request and are set up so that they rarely conflict:
+
+* Release notes. Describe each user-facing change as a bullet item in a new file ``docs/release/unreleased/<topic>.<category>.rst``, where the category is ``new``, ``changed``, ``fixed`` or ``removed``. Do not edit :doc:`/release/index` itself: the files appear there under the Unreleased heading.
+* The translation catalog. When a merge or rebase stops on a conflict in ``kivi.po``, run ``python docs/build.py --merge-po``. It keeps the translations of both sides and adds the strings that are new after the merge. Translate those, then add the catalog to the commit.
+
 Translations
 ------------
 
@@ -46,7 +58,7 @@ Releasing to PyPI
 
 The ``Release`` workflow publishes kivi to PyPI when a version tag is pushed. It uses PyPI trusted publishing, so no API token is stored in the repository.
 
-1. Set ``version`` in ``pyproject.toml`` to the new version, for example ``0.3.1``, and update :doc:`/release/index`.
+1. Set ``version`` in ``pyproject.toml`` to the new version, for example ``0.3.1``. Run ``python docs/build.py --release 0.3.1``, which moves the release-note files into a section of :doc:`/release/index` dated today, and translate the new heading.
 2. Merge the change into the master branch.
 3. Tag the merged commit with ``v`` followed by the version and push the tag:
 

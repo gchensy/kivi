@@ -55,8 +55,14 @@ The edges do not have to come from ``bin_edges``. Any increasing array works wit
 
 Risk data often encode a state as a number, for example -1 for "never contacted" or 999 for "no record". In the bank data, 82% of the reference customers have ``pdays == -1``, so quantile binning collapses the variable into a single bin and its information value is lost. An edge at -1 gives the code a bin of its own.
 
->>> bin_edges(reference["pdays"], bins=5)
+>>> import warnings
+>>> with warnings.catch_warnings(record=True) as caught:
+...     warnings.simplefilter("always")
+...     collapsed = bin_edges(reference["pdays"], bins=5)
+>>> collapsed
 array([-inf,  inf])
+>>> print(caught[0].message)
+tied edges leave 1 of the 5 requested bins
 >>> pdays_edges = np.array([-np.inf, -1, 100, 200, 300, np.inf])
 >>> pdays = woe_table(pd.cut(reference["pdays"], pdays_edges), reference["target"]).sort_index()
 >>> pdays[["event", "non_event", "woe"]].round(3)
@@ -246,10 +252,16 @@ Ties and constant values
 
 Tied cut points are collapsed. A constant reference produces one bin.
 
->>> bin_edges(pd.Series([0, 0, 0, 0, 1, 2]), bins=4)
+>>> with warnings.catch_warnings(record=True) as caught:
+...     warnings.simplefilter("always")
+...     tied = bin_edges(pd.Series([0, 0, 0, 0, 1, 2]), bins=4)
+...     constant = bin_edges(pd.Series([7, 7, 7]))
+>>> tied
 array([-inf, 0.75,  inf])
->>> bin_edges(pd.Series([7, 7, 7]))
+>>> constant
 array([-inf,  inf])
+>>> [str(warning.message) for warning in caught]
+['tied edges leave 2 of the 4 requested bins', 'tied edges leave 1 of the 5 requested bins']
 
 The number of bins can therefore be smaller than requested, and ``bin_edges`` then issues a ``UserWarning``. A single value that covers much of the reference, such as a code for "not applicable", often causes this. Group that value separately before fitting edges on the remaining values.
 
