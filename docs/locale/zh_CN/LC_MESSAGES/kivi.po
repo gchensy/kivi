@@ -529,6 +529,494 @@ msgstr "按卡方检验合并细分箱。"
 msgid "Split the values recursively."
 msgstr "递归切分数值。"
 
+msgid "Calibration"
+msgstr "校准"
+
+msgid ""
+":py:obj:`prior_correction <kivi.calibration.prior_correction>`\\ \\(prob\\, \\*\\, "
+"sample\\_rate\\, ...\\)"
+msgstr ""
+":py:obj:`prior_correction <kivi.calibration.prior_correction>`\\ \\(prob\\, \\*\\, "
+"sample\\_rate\\, ...\\)"
+
+msgid "Correct event probabilities for a development sample with another event rate."
+msgstr "当开发样本的事件率与总体不同时，校正事件概率。"
+
+msgid ""
+":py:obj:`corrected_intercept <kivi.calibration.corrected_intercept>`\\ \\(intercept\\, \\*\\, "
+"...\\)"
+msgstr ""
+":py:obj:`corrected_intercept <kivi.calibration.corrected_intercept>`\\ \\(intercept\\, \\*\\, "
+"...\\)"
+
+msgid "Correct a logistic intercept for a development sample with another event rate."
+msgstr "当开发样本的事件率与总体不同时，校正逻辑回归的截距。"
+
+msgid ":py:obj:`calibration_table <kivi.calibration.calibration_table>`\\ \\(groups\\, target\\, prob\\)"
+msgstr ":py:obj:`calibration_table <kivi.calibration.calibration_table>`\\ \\(groups\\, target\\, prob\\)"
+
+msgid "Compare the predicted and observed event rates of each group."
+msgstr "比较每组的预测事件率与实际观测事件率。"
+
+msgid ":py:obj:`binomial_test <kivi.calibration.binomial_test>`\\ \\(event\\, total\\, prob\\)"
+msgstr ":py:obj:`binomial_test <kivi.calibration.binomial_test>`\\ \\(event\\, total\\, prob\\)"
+
+msgid "Test whether each grade has more events than its probability predicts."
+msgstr "检验每个等级的事件数是否多于其概率所预测的数量。"
+
+msgid ":py:obj:`jeffreys_test <kivi.calibration.jeffreys_test>`\\ \\(event\\, total\\, prob\\)"
+msgstr ":py:obj:`jeffreys_test <kivi.calibration.jeffreys_test>`\\ \\(event\\, total\\, prob\\)"
+
+msgid "Test each grade's probability against its event rate with the Jeffreys prior."
+msgstr "基于 Jeffreys 先验，检验每个等级的概率是否与其事件率相符。"
+
+msgid ""
+":py:obj:`hosmer_lemeshow <kivi.calibration.hosmer_lemeshow>`\\ \\(event\\, total\\, prob\\, "
+"\\*\\[\\, ddof\\]\\)"
+msgstr ""
+":py:obj:`hosmer_lemeshow <kivi.calibration.hosmer_lemeshow>`\\ \\(event\\, total\\, prob\\, "
+"\\*\\[\\, ddof\\]\\)"
+
+msgid "Test the calibration of all groups at once with the Hosmer-Lemeshow statistic."
+msgstr "用 Hosmer-Lemeshow 统计量一次检验所有分组的校准情况。"
+
+msgid ""
+":py:obj:`herfindahl_index <kivi.calibration.herfindahl_index>`\\ \\(counts\\, \\*\\[\\, "
+"normalize\\]\\)"
+msgstr ""
+":py:obj:`herfindahl_index <kivi.calibration.herfindahl_index>`\\ \\(counts\\, \\*\\[\\, "
+"normalize\\]\\)"
+
+msgid "Measure how concentrated a portfolio is across grades."
+msgstr "衡量资产组合在各等级间的集中程度。"
+
+msgid ""
+"A model developed on a sample that over- or undersamples events predicts probabilities for that "
+"sample. The correction rescales the odds so the probabilities refer to the population."
+msgstr "如果开发样本对事件做了过采样或欠采样，模型预测的是该样本上的概率。本函数按比例调整几率，使概率对应总体。"
+
+msgid "**prob**"
+msgstr "**prob**"
+
+msgid "Event probabilities from the model, between 0 and 1. Missing values stay missing."
+msgstr "模型给出的事件概率，取值在 0 与 1 之间。缺失值保持缺失。"
+
+msgid "**sample_rate**"
+msgstr "**sample_rate**"
+
+msgid "float"
+msgstr "float"
+
+msgid "Event rate of the development sample, strictly between 0 and 1."
+msgstr "开发样本的事件率，严格介于 0 与 1 之间。"
+
+msgid "**population_rate**"
+msgstr "**population_rate**"
+
+msgid "Event rate of the population, strictly between 0 and 1."
+msgstr "总体的事件率，严格介于 0 与 1 之间。"
+
+msgid "float, pandas.Series or numpy.ndarray"
+msgstr "float、pandas.Series 或 numpy.ndarray"
+
+msgid ""
+"Corrected probabilities with the shape of `prob`. A Series input gives a Series with the same "
+"index and name, and a scalar gives a float."
+msgstr "校正后的概率，形状与 `prob` 相同。输入为 Series 时返回 Series，索引和名称保持不变；输入为标量时返回 float。"
+
+msgid "If `prob` has values outside [0, 1], or a rate is not strictly between 0 and 1."
+msgstr "如果 `prob` 含有 [0, 1] 以外的值，或者某个事件率不严格介于 0 与 1 之间。"
+
+msgid ":obj:`corrected_intercept`"
+msgstr ":obj:`corrected_intercept`"
+
+msgid "Apply the same correction to a logistic intercept."
+msgstr "对逻辑回归截距做同样的校正。"
+
+msgid ":obj:`calibration_table`"
+msgstr ":obj:`calibration_table`"
+
+msgid "Compare predicted and observed event rates."
+msgstr "比较预测事件率与观测事件率。"
+
+msgid ""
+"With sample event rate :math:`\\bar y` and population event rate :math:`\\tau`, the odds of every"
+" probability are multiplied by"
+msgstr "设样本事件率为 :math:`\\bar y` ，总体事件率为 :math:`\\tau` ，则每个概率的几率都乘以"
+
+#, python-brace-format
+msgid ""
+"\\omega = \\frac{\\tau / (1 - \\tau)}{\\bar y / (1 - \\bar y)}, \\qquad\n"
+"\\tilde p = \\frac{\\omega p}{\\omega p + 1 - p}."
+msgstr ""
+"\\omega = \\frac{\\tau / (1 - \\tau)}{\\bar y / (1 - \\bar y)}, \\qquad\n"
+"\\tilde p = \\frac{\\omega p}{\\omega p + 1 - p}."
+
+msgid ""
+"This is the prior correction of King and Zeng [R4b74edbba56e-1]_. It changes the level of the "
+"probabilities but not their order. For a logistic regression it equals adding :math:`\\ln "
+"\\omega` to the intercept."
+msgstr ""
+"这是 King 和 Zeng [R4b74edbba56e-1]_ 提出的先验校正（prior correction）。它改变概率的水平，但不改变其排序。对逻辑回归而言，这等价于在截距上加上 "
+":math:`\\ln \\omega` 。"
+
+msgid "References"
+msgstr "参考文献"
+
+msgid ""
+"G. King and L. Zeng, \"Logistic Regression in Rare Events Data\", Political Analysis, vol. 9, no."
+" 2, pp. 137-163, 2001."
+msgstr ""
+"G. King and L. Zeng, \"Logistic Regression in Rare Events Data\", Political Analysis, vol. 9, no."
+" 2, pp. 137-163, 2001."
+
+msgid "[R4b74edbba56e-1]_"
+msgstr "[R4b74edbba56e-1]_"
+
+msgid ""
+"The corrected model gives the probabilities of `prior_correction`: only the intercept changes, so"
+" the coefficients and the order of applicants stay as they are."
+msgstr "校正后的模型给出与 `prior_correction` 相同的概率：只有截距改变，系数和申请人的排序都保持不变。"
+
+msgid "**intercept**"
+msgstr "**intercept**"
+
+msgid "Intercept of a logistic regression of the event."
+msgstr "以事件为因变量的逻辑回归的截距。"
+
+msgid "The intercept for the population, ``intercept + ln(omega)``."
+msgstr "适用于总体的截距，即 ``intercept + ln(omega)`` 。"
+
+msgid "If `intercept` is not a finite number, or a rate is not strictly between 0 and 1."
+msgstr "如果 `intercept` 不是有限数值，或者某个事件率不严格介于 0 与 1 之间。"
+
+msgid ":obj:`prior_correction`"
+msgstr ":obj:`prior_correction`"
+
+msgid "Apply the correction to probabilities."
+msgstr "对概率做同样的校正。"
+
+#, python-brace-format
+msgid ""
+"King and Zeng [Rc67660983562-1]_ subtract :math:`\\ln\\left[\\frac{1 - \\tau}{\\tau} \\cdot "
+"\\frac{\\bar y}{1 - \\bar y}\\right] = -\\ln \\omega` from the intercept; see `prior_correction`."
+msgstr ""
+"King 和 Zeng [Rc67660983562-1]_ 从截距中减去 :math:`\\ln\\left[\\frac{1 - \\tau}{\\tau} \\cdot "
+"\\frac{\\bar y}{1 - \\bar y}\\right] = -\\ln \\omega` ；参见 `prior_correction` 。"
+
+msgid "[Rc67660983562-1]_"
+msgstr "[Rc67660983562-1]_"
+
+msgid ""
+"The groups are typically the grades of a master scale, formed by cutting the probabilities at "
+"fixed edges, or score bands. Each row has the inputs of the calibration tests."
+msgstr "分组通常是主标尺的等级（按固定边界切分概率得到），或者分数段。每一行都包含校准检验所需的输入。"
+
+msgid "**groups**"
+msgstr "**groups**"
+
+msgid "Grade or group labels. Missing values form a group."
+msgstr "等级或分组标签。缺失值独立成组。"
+
+msgid "Binary labels, with 1 indicating the event. A group, or the whole sample, may have no events."
+msgstr "二分类标签，1 表示事件。某个分组乃至整个样本都可以没有事件。"
+
+msgid ""
+"Predicted event probabilities between 0 and 1. Series inputs must have identical indices; "
+"otherwise the inputs are matched by position."
+msgstr "预测的事件概率，取值在 0 与 1 之间。作为 Series 传入的输入，索引必须完全相同；否则按位置对应。"
+
+msgid "pandas.DataFrame"
+msgstr "pandas.DataFrame"
+
+msgid ""
+"One row per group with the number of observations ``total``, the number of events ``event``, the "
+"observed ``event_rate`` and the mean predicted probability ``mean_prob``."
+msgstr "每组一行，包括观测数 ``total`` 、事件数 ``event`` 、观测事件率 ``event_rate`` 以及平均预测概率 ``mean_prob`` 。"
+
+msgid ""
+"If the inputs are not one-dimensional, are empty, or their indices or lengths do not match, "
+"`target` has labels other than 0 and 1, or `prob` has missing values or values outside [0, 1]."
+msgstr "如果输入不是一维、为空，或者索引或长度不一致， `target` 含有 0 和 1 以外的标签，或者 `prob` 含有缺失值或 [0, 1] 以外的值。"
+
+msgid ":obj:`binomial_test`"
+msgstr ":obj:`binomial_test`"
+
+msgid "Test whether a grade has more events than predicted."
+msgstr "检验某个等级的事件数是否多于预测。"
+
+msgid ":obj:`jeffreys_test`"
+msgstr ":obj:`jeffreys_test`"
+
+msgid "The Bayesian counterpart of the binomial test."
+msgstr "二项检验的贝叶斯版本。"
+
+msgid ":obj:`hosmer_lemeshow`"
+msgstr ":obj:`hosmer_lemeshow`"
+
+msgid "Test the calibration of all groups at once."
+msgstr "一次检验所有分组的校准情况。"
+
+msgid ":obj:`herfindahl_index`"
+msgstr ":obj:`herfindahl_index`"
+
+msgid "Measure how concentrated the grades are."
+msgstr "衡量各等级的集中程度。"
+
+msgid ""
+"Groups are counted as in `kivi.woe.woe_table`. Rows follow the order of the categories when "
+"`groups` is categorical, such as the result of ``pandas.cut``, with missing values last. "
+"Otherwise they follow the order in which the groups first appear. Categories that are never "
+"observed are omitted."
+msgstr ""
+"分组的计数方式与 `kivi.woe.woe_table` 相同。当 `groups` 为分类型（例如 ``pandas.cut`` "
+"的结果）时，各行按类别顺序排列，缺失值排在最后。否则按分组首次出现的次序排列。从未出现的类别不会列出。"
+
+msgid ""
+"The one-sided exact binomial test assumes independent events. A small p-value means that the "
+"probability underestimates the event rate of the grade."
+msgstr "单侧精确二项检验假定各事件相互独立。p 值较小，说明该概率低估了这个等级的事件率。"
+
+msgid "**event**"
+msgstr "**event**"
+
+msgid "Number of events in each grade."
+msgstr "每个等级的事件数。"
+
+msgid "**total**"
+msgstr "**total**"
+
+msgid "Number of observations in each grade, a positive whole number."
+msgstr "每个等级的观测数，为正整数。"
+
+msgid ""
+"Predicted event probability of each grade, between 0 and 1, such as the ``mean_prob`` column of "
+"`calibration_table`. The three inputs are broadcast together; Series inputs must have identical "
+"indices."
+msgstr ""
+"每个等级的预测事件概率，取值在 0 与 1 之间，例如 `calibration_table` 的 ``mean_prob`` 列。三个输入会一起广播；作为 Series "
+"传入的输入，索引必须完全相同。"
+
+msgid ""
+"One-sided p-values: a Series with the index of the Series inputs, a float for scalar inputs and "
+"an array otherwise."
+msgstr "单侧 p 值：有 Series 输入时返回 Series，索引与 Series 输入相同；输入为标量时返回 float；其他情况返回数组。"
+
+msgid ""
+"If the inputs cannot be broadcast or their Series indices differ, `total` is not a positive whole"
+" number, `event` is not a whole number between 0 and `total`, or `prob` is outside [0, 1]."
+msgstr "如果输入无法广播或 Series 的索引不一致、 `total` 不是正整数、 `event` 不是介于 0 与 `total` 之间的整数，或者 `prob` 超出 [0, 1]。"
+
+msgid "The Bayesian counterpart of this test."
+msgstr "本检验的贝叶斯版本。"
+
+msgid "The counts and predicted probabilities of each grade."
+msgstr "每个等级的计数和预测概率。"
+
+msgid ""
+"Under the null hypothesis the number of events :math:`D` among :math:`N` observations follows a "
+"binomial distribution with probability :math:`p`. The p-value is"
+msgstr "在原假设下， :math:`N` 个观测中的事件数 :math:`D` 服从概率为 :math:`p` 的二项分布。p 值为"
+
+#, python-brace-format
+msgid ""
+"P(D \\ge d) = \\sum_{k=d}^{N} \\binom{N}{k} p^k (1 - p)^{N - k}\n"
+"= I_p(d, N - d + 1),"
+msgstr ""
+"P(D \\ge d) = \\sum_{k=d}^{N} \\binom{N}{k} p^k (1 - p)^{N - k}\n"
+"= I_p(d, N - d + 1),"
+
+msgid ""
+"with the regularized incomplete beta function :math:`I`, and 1 when :math:`d = 0`. Correlated "
+"defaults, as in an economic downturn, make the test reject more often than its nominal level "
+"[Rb734fd528b30-1]_."
+msgstr ""
+"其中 :math:`I` 为正则化不完全贝塔函数；当 :math:`d = 0` 时 p 值为 1。违约之间存在相关性时（例如经济下行期），该检验的拒绝频率会高于名义水平 "
+"[Rb734fd528b30-1]_ 。"
+
+msgid ""
+"Basel Committee on Banking Supervision, \"Studies on the Validation of Internal Rating Systems\","
+" Working Paper No. 14, 2005."
+msgstr ""
+"Basel Committee on Banking Supervision, \"Studies on the Validation of Internal Rating Systems\","
+" Working Paper No. 14, 2005."
+
+msgid "[Rb734fd528b30-1]_"
+msgstr "[Rb734fd528b30-1]_"
+
+msgid ""
+"The p-value is the posterior probability that the true event rate is at most the predicted "
+"probability. A small p-value means that the probability underestimates the event rate of the "
+"grade."
+msgstr "p 值是真实事件率不超过预测概率的后验概率。p 值较小，说明该概率低估了这个等级的事件率。"
+
+msgid "The frequentist counterpart of this test."
+msgstr "本检验的频率学派版本。"
+
+#, python-brace-format
+msgid ""
+"With the Jeffreys prior Beta(1/2, 1/2), the posterior of the event rate after :math:`d` events "
+"among :math:`N` observations is :math:`\\mathrm{Beta}(d + 1/2, N - d + 1/2)`, and the p-value is "
+"its distribution function at the predicted probability :math:`p`:"
+msgstr ""
+"取 Jeffreys 先验 Beta(1/2, 1/2)，在 :math:`N` 个观测中出现 :math:`d` 个事件后，事件率的后验分布为 :math:`\\mathrm{Beta}(d "
+"+ 1/2, N - d + 1/2)` ，p 值就是该分布在预测概率 :math:`p` 处的分布函数值："
+
+msgid "I_p\\left(d + \\tfrac12, N - d + \\tfrac12\\right)."
+msgstr "I_p\\left(d + \\tfrac12, N - d + \\tfrac12\\right)."
+
+msgid ""
+"This is the test that the European Central Bank asks for in the validation of PD models "
+"[R73613bff641b-1]_. Unlike the binomial test, a grade without events still has a p-value below 1."
+msgstr "这是欧洲央行在 PD 模型验证中要求使用的检验 [R73613bff641b-1]_ 。与二项检验不同，没有事件的等级其 p 值仍小于 1。"
+
+msgid ""
+"European Central Bank, \"Instructions for reporting the validation results of internal models: "
+"IRB Pillar I models for credit risk\", 2019."
+msgstr ""
+"European Central Bank, \"Instructions for reporting the validation results of internal models: "
+"IRB Pillar I models for credit risk\", 2019."
+
+msgid "[R73613bff641b-1]_"
+msgstr "[R73613bff641b-1]_"
+
+msgid ""
+"The statistic adds up the squared differences between observed and predicted events of each "
+"group. A small p-value means that the probabilities do not match the observed event rates."
+msgstr "该统计量把各组观测事件数与预测事件数之差的平方累加起来。p 值较小，说明概率与观测到的事件率不符。"
+
+msgid "Number of events in each group."
+msgstr "每组的事件数。"
+
+msgid "Number of observations in each group, a positive whole number."
+msgstr "每组的观测数，为正整数。"
+
+msgid ""
+"Mean predicted event probability of each group, strictly between 0 and 1, such as the "
+"``mean_prob`` column of `calibration_table`. Series inputs must have identical indices."
+msgstr "每组的平均预测事件概率，严格介于 0 与 1 之间，例如 `calibration_table` 的 ``mean_prob`` 列。作为 Series 传入的输入，索引必须完全相同。"
+
+msgid "**ddof**"
+msgstr "**ddof**"
+
+msgid "int, default 2"
+msgstr "int，默认 2"
+
+msgid "The chi-square distribution has as many degrees of freedom as there are groups, minus `ddof`."
+msgstr "卡方分布的自由度等于分组数减去 `ddof` 。"
+
+msgid "**statistic**"
+msgstr "**statistic**"
+
+msgid "The Hosmer-Lemeshow statistic."
+msgstr "Hosmer-Lemeshow 统计量。"
+
+msgid "**pvalue**"
+msgstr "**pvalue**"
+
+msgid "Its upper tail probability under the chi-square distribution."
+msgstr "该统计量在卡方分布下的上尾概率。"
+
+msgid ""
+"If the inputs are not one-dimensional, have different lengths or Series indices, `total` is not a"
+" positive whole number, `event` is not a whole number between 0 and `total`, `prob` is not "
+"strictly between 0 and 1, or `ddof` is negative or leaves no degree of freedom."
+msgstr ""
+"如果输入不是一维、长度或 Series 索引不一致、 `total` 不是正整数、 `event` 不是介于 0 与 `total` 之间的整数、 `prob` 不严格介于 0 与 1 "
+"之间，或者 `ddof` 为负数或使自由度不足 1。"
+
+msgid "The counts and predicted probabilities of each group."
+msgstr "每组的计数和预测概率。"
+
+msgid "Test each grade on its own."
+msgstr "逐个检验每个等级。"
+
+msgid ""
+"For :math:`g` groups with :math:`d_k` events among :math:`n_k` observations and mean predicted "
+"probability :math:`\\bar p_k`,"
+msgstr "对 :math:`g` 个分组，设第 :math:`k` 组有 :math:`n_k` 个观测、 :math:`d_k` 个事件，平均预测概率为 :math:`\\bar p_k` ，则"
+
+#, python-brace-format
+msgid "H = \\sum_{k=1}^{g} \\frac{(d_k - n_k \\bar p_k)^2}{n_k \\bar p_k (1 - \\bar p_k)},"
+msgstr "H = \\sum_{k=1}^{g} \\frac{(d_k - n_k \\bar p_k)^2}{n_k \\bar p_k (1 - \\bar p_k)},"
+
+#, python-brace-format
+msgid ""
+"compared with a chi-square distribution with :math:`g - \\mathrm{ddof}` degrees of freedom. "
+"Hosmer and Lemeshow [Rde8a0df3097b-1]_ form about ten groups of similar size from the sorted "
+"probabilities of the sample the model was fitted on, which gives :math:`g - 2`. For probabilities"
+" that were not fitted on the tested sample, such as a validation sample, use ``ddof=0`` "
+"[Rde8a0df3097b-2]_."
+msgstr ""
+"并与自由度为 :math:`g - \\mathrm{ddof}` 的卡方分布比较。Hosmer 和 Lemeshow [Rde8a0df3097b-1]_ "
+"将拟合模型所用样本的概率排序后分成约十个大小相近的组，此时自由度为 :math:`g - 2` 。如果概率不是在被检验的样本上拟合的（例如验证样本），请使用 ``ddof=0`` "
+"[Rde8a0df3097b-2]_ 。"
+
+msgid ""
+"D. W. Hosmer and S. Lemeshow, \"Goodness of fit tests for the multiple logistic regression "
+"model\", Communications in Statistics - Theory and Methods, vol. 9, no. 10, pp. 1043-1069, 1980."
+msgstr ""
+"D. W. Hosmer and S. Lemeshow, \"Goodness of fit tests for the multiple logistic regression "
+"model\", Communications in Statistics - Theory and Methods, vol. 9, no. 10, pp. 1043-1069, 1980."
+
+msgid ""
+"D. W. Hosmer, S. Lemeshow and R. X. Sturdivant, \"Applied Logistic Regression\", 3rd ed., Wiley, "
+"2013."
+msgstr ""
+"D. W. Hosmer, S. Lemeshow and R. X. Sturdivant, \"Applied Logistic Regression\", 3rd ed., Wiley, "
+"2013."
+
+msgid "[Rde8a0df3097b-1]_, [Rde8a0df3097b-2]_"
+msgstr "[Rde8a0df3097b-1]_, [Rde8a0df3097b-2]_"
+
+msgid ""
+"The Herfindahl-Hirschman index is the sum of the squared shares of the grades. It is 1 when every"
+" observation is in one grade and :math:`1/k` when :math:`k` grades are equally full."
+msgstr "赫芬达尔-赫希曼指数（HHI）是各等级占比的平方和。所有观测都在同一等级时为 1； :math:`k` 个等级人数相同时为 :math:`1/k` 。"
+
+msgid "**counts**"
+msgstr "**counts**"
+
+msgid ""
+"Number of observations, or exposure, in each grade, such as the ``total`` column of "
+"`calibration_table`."
+msgstr "每个等级的观测数或敞口，例如 `calibration_table` 的 ``total`` 列。"
+
+msgid "**normalize**"
+msgstr "**normalize**"
+
+msgid "bool, default False"
+msgstr "bool，默认 False"
+
+msgid "Rescale the index to run from 0 for equally full grades to 1 for a single full grade."
+msgstr "重新缩放指数，使各等级人数相同时为 0，全部集中在一个等级时为 1。"
+
+msgid "The index."
+msgstr "指数值。"
+
+msgid ""
+"If `counts` is not one-dimensional, has negative or non-finite values or sums to zero, or "
+"`normalize` is not a boolean or is set with fewer than two grades."
+msgstr "如果 `counts` 不是一维、含有负值或非有限值、总和为零，或者 `normalize` 不是布尔值，或在少于两个等级时设置了 `normalize` 。"
+
+msgid "The number of observations in each grade."
+msgstr "每个等级的观测数。"
+
+msgid "For grade shares :math:`s_i = c_i / \\sum_j c_j` of :math:`k` grades,"
+msgstr "对 :math:`k` 个等级，设各等级占比为 :math:`s_i = c_i / \\sum_j c_j` ，则"
+
+msgid ""
+"\\mathrm{HHI} = \\sum_{i=1}^{k} s_i^2, \\qquad\n"
+"\\mathrm{HHI}^* = \\frac{\\mathrm{HHI} - 1/k}{1 - 1/k}."
+msgstr ""
+"\\mathrm{HHI} = \\sum_{i=1}^{k} s_i^2, \\qquad\n"
+"\\mathrm{HHI}^* = \\frac{\\mathrm{HHI} - 1/k}{1 - 1/k}."
+
+msgid ""
+"A rating scale whose observations crowd into a few grades differentiates risk poorly. Empty "
+"grades count towards :math:`k`."
+msgstr "如果观测集中在少数几个等级，评级标尺对风险的区分能力就较差。空等级也计入 :math:`k` 。"
+
 msgid "Example data"
 msgstr "示例数据"
 
@@ -541,9 +1029,6 @@ msgstr "读取 UCI Bank Marketing 的 4,521 条营销记录。"
 msgid "The ``y`` response of the original data is returned as the binary ``target`` column."
 msgstr "原始数据中的响应列 ``y`` 以二分类的 ``target`` 列返回。"
 
-msgid "pandas.DataFrame"
-msgstr "pandas.DataFrame"
-
 msgid "Sixteen features and the integer target. A value of 1 indicates a term deposit subscription."
 msgstr "返回 16 个特征和整数标签 target。1 表示客户认购了定期存款。"
 
@@ -554,9 +1039,6 @@ msgid ""
 "Bank Marketing by S. Moro, P. Rita and P. Cortez (2014) is distributed under CC BY 4.0. The "
 "bundled CSV was converted from the legacy workbook."
 msgstr "Bank Marketing 由 S. Moro、P. Rita 和 P. Cortez 于 2014 年发布，按 CC BY 4.0 授权。随包 CSV 由旧版工作簿转换而来。"
-
-msgid "References"
-msgstr "参考文献"
 
 msgid ""
 "S. Moro, P. Rita and P. Cortez, \"Bank Marketing\", UCI Machine Learning Repository, 2014. "
@@ -624,9 +1106,6 @@ msgid ""
 " are both pandas Series, they must have identical indices; otherwise they are matched by "
 "position."
 msgstr "二分类标签，1 表示事件。两个类别都必须出现。如果 `score` 和 `target` 都是 pandas Series，二者的索引必须完全相同；否则按位置对应。"
-
-msgid "float"
-msgstr "float"
 
 msgid ""
 "The AUC, from 0 to 1. A score unrelated to the target gives about 0.5, and a value below 0.5 "
@@ -891,6 +1370,401 @@ msgstr ""
 msgid "[R88e41552d980-1]_"
 msgstr "[R88e41552d980-1]_"
 
+msgid "Scorecard"
+msgstr "评分卡"
+
+msgid ""
+":py:obj:`score_scaling <kivi.scorecard.score_scaling>`\\ \\(\\*\\, pdo\\, base\\_score\\, "
+"base\\_odds\\)"
+msgstr ""
+":py:obj:`score_scaling <kivi.scorecard.score_scaling>`\\ \\(\\*\\, pdo\\, base\\_score\\, "
+"base\\_odds\\)"
+
+msgid "Return the factor and offset that turn log odds into a score."
+msgstr "返回把对数几率转换为分数的因子（factor）和偏移量（offset）。"
+
+msgid ""
+":py:obj:`pd_to_score <kivi.scorecard.pd_to_score>`\\ \\(prob\\, \\*\\, pdo\\, base\\_score\\, "
+"base\\_odds\\)"
+msgstr ""
+":py:obj:`pd_to_score <kivi.scorecard.pd_to_score>`\\ \\(prob\\, \\*\\, pdo\\, base\\_score\\, "
+"base\\_odds\\)"
+
+msgid "Convert event probabilities to scorecard scores."
+msgstr "把事件概率转换为评分卡分数。"
+
+msgid ""
+":py:obj:`score_to_pd <kivi.scorecard.score_to_pd>`\\ \\(score\\, \\*\\, pdo\\, base\\_score\\, "
+"base\\_odds\\)"
+msgstr ""
+":py:obj:`score_to_pd <kivi.scorecard.score_to_pd>`\\ \\(score\\, \\*\\, pdo\\, base\\_score\\, "
+"base\\_odds\\)"
+
+msgid "Convert scorecard scores to event probabilities."
+msgstr "把评分卡分数转换为事件概率。"
+
+msgid ":py:obj:`points_table <kivi.scorecard.points_table>`\\ \\(tables\\, coefficients\\, ...\\)"
+msgstr ":py:obj:`points_table <kivi.scorecard.points_table>`\\ \\(tables\\, coefficients\\, ...\\)"
+
+msgid "Turn a logistic regression on WOE values into points for each group."
+msgstr "把基于 WOE 的逻辑回归转换为每个分组的分值。"
+
+msgid ""
+":py:obj:`woe_to_points <kivi.scorecard.woe_to_points>`\\ \\(woe\\, coefficients\\, intercept\\, "
+"...\\)"
+msgstr ""
+":py:obj:`woe_to_points <kivi.scorecard.woe_to_points>`\\ \\(woe\\, coefficients\\, intercept\\, "
+"...\\)"
+
+msgid "Give each applicant the points of each variable from its WOE values."
+msgstr "根据 WOE 值给出每个申请人在各变量上的分值。"
+
+msgid ""
+":py:obj:`reason_codes <kivi.scorecard.reason_codes>`\\ \\(points\\, table\\, \\*\\[\\, top\\, "
+"atol\\]\\)"
+msgstr ""
+":py:obj:`reason_codes <kivi.scorecard.reason_codes>`\\ \\(points\\, table\\, \\*\\[\\, top\\, "
+"atol\\]\\)"
+
+msgid "Name the variables that cost each applicant the most points."
+msgstr "列出让每个申请人失分最多的变量。"
+
+msgid ""
+"A scorecard score is linear in the log of the good:bad odds. It equals `base_score` at odds of "
+"`base_odds` and rises by `pdo` points each time the odds double."
+msgstr "评分卡分数与好坏比（good:bad odds）的对数呈线性关系。几率为 `base_odds` 时分数等于 `base_score` ，几率每翻一倍，分数增加 `pdo` 分。"
+
+msgid "**pdo**"
+msgstr "**pdo**"
+
+msgid "Points to double the odds. Must be positive."
+msgstr "几率翻倍所需增加的分数（PDO），必须为正数。"
+
+msgid "**base_score**"
+msgstr "**base_score**"
+
+msgid "Score at the base odds."
+msgstr "基准几率对应的分数。"
+
+msgid "**base_odds**"
+msgstr "**base_odds**"
+
+msgid "Good:bad odds at the base score, such as 50 for 50 non-events per event. Must be positive."
+msgstr "基准分数对应的好坏比，例如 50 表示每个事件对应 50 个非事件。必须为正数。"
+
+msgid "**factor**"
+msgstr "**factor**"
+
+msgid "Points per unit of log odds, ``pdo / ln 2``."
+msgstr "对数几率每增加一个单位对应的分数，即 ``pdo / ln 2`` 。"
+
+msgid "**offset**"
+msgstr "**offset**"
+
+msgid "Score at even odds, ``base_score - factor * ln(base_odds)``."
+msgstr "几率为 1:1 时的分数，即 ``base_score - factor * ln(base_odds)`` 。"
+
+msgid "If an argument is not a finite number, or `pdo` or `base_odds` is not positive."
+msgstr "如果某个参数不是有限数值，或者 `pdo` 或 `base_odds` 不是正数。"
+
+msgid ":obj:`pd_to_score`"
+msgstr ":obj:`pd_to_score`"
+
+msgid "Convert event probabilities to scores."
+msgstr "把事件概率转换为分数。"
+
+msgid ":obj:`score_to_pd`"
+msgstr ":obj:`score_to_pd`"
+
+msgid "Convert scores to event probabilities."
+msgstr "把分数转换为事件概率。"
+
+msgid "With odds :math:`o = (1 - p) / p` for an event probability :math:`p`,"
+msgstr "对事件概率 :math:`p` ，记几率 :math:`o = (1 - p) / p` ，则"
+
+msgid ""
+"\\mathrm{score} = \\mathrm{offset} + \\mathrm{factor} \\cdot \\ln o,\n"
+"\n"
+"\\mathrm{factor} = \\frac{\\mathrm{pdo}}{\\ln 2}, \\qquad\n"
+"\\mathrm{offset} = \\mathrm{base\\_score} - \\mathrm{factor} \\cdot \\ln \\mathrm{base\\_odds}."
+msgstr ""
+"\\mathrm{score} = \\mathrm{offset} + \\mathrm{factor} \\cdot \\ln o,\n"
+"\n"
+"\\mathrm{factor} = \\frac{\\mathrm{pdo}}{\\ln 2}, \\qquad\n"
+"\\mathrm{offset} = \\mathrm{base\\_score} - \\mathrm{factor} \\cdot \\ln \\mathrm{base\\_odds}."
+
+msgid ""
+"A lower probability of the event, such as a default, gives a higher score. The scaling is set by "
+"`pdo`, `base_score` and `base_odds`, as in `score_scaling`."
+msgstr "事件（例如违约）的概率越低，分数越高。刻度由 `pdo` 、 `base_score` 和 `base_odds` 决定，与 `score_scaling` 相同。"
+
+msgid "Event probabilities strictly between 0 and 1. Missing values give missing scores."
+msgstr "严格介于 0 与 1 之间的事件概率。缺失值对应的分数也为缺失。"
+
+msgid "Good:bad odds at the base score. Must be positive."
+msgstr "基准分数对应的好坏比，必须为正数。"
+
+msgid ""
+"Scores with the shape of `prob`. A Series input gives a Series with the same index and name, and "
+"a scalar gives a float."
+msgstr "分数，形状与 `prob` 相同。输入为 Series 时返回 Series，索引和名称保持不变；输入为标量时返回 float。"
+
+msgid "If `prob` has values outside the open interval (0, 1), or the scaling arguments are invalid."
+msgstr "如果 `prob` 含有开区间 (0, 1) 以外的值，或者刻度参数无效。"
+
+msgid "The inverse conversion."
+msgstr "反向转换。"
+
+msgid ":obj:`score_scaling`"
+msgstr ":obj:`score_scaling`"
+
+msgid "The factor and offset of the scaling."
+msgstr "刻度的因子和偏移量。"
+
+msgid ""
+"The score is ``offset + factor * ln((1 - prob) / prob)``. A probability of exactly 0 or 1 has no "
+"finite score and raises an error; see `score_to_pd` for the scores whose probability rounds to 1."
+msgstr ""
+"分数为 ``offset + factor * ln((1 - prob) / prob)`` 。概率恰好为 0 或 1 时没有有限的分数，会引发错误；哪些分数对应的概率会舍入为 1，参见 "
+"`score_to_pd` 。"
+
+msgid ""
+"This is the inverse of `pd_to_score` for the same scaling, so it gives the probability of the "
+"event implied by each score."
+msgstr "在相同刻度下，这是 `pd_to_score` 的逆运算，给出每个分数所隐含的事件概率。"
+
+msgid "Scores. Missing values give missing probabilities."
+msgstr "分数。缺失值对应的概率也为缺失。"
+
+msgid ""
+"Event probabilities with the shape of `score`. A Series input gives a Series with the same index "
+"and name, and a scalar gives a float."
+msgstr "事件概率，形状与 `score` 相同。输入为 Series 时返回 Series，索引和名称保持不变；输入为标量时返回 float。"
+
+msgid "If the scaling arguments are invalid."
+msgstr "如果刻度参数无效。"
+
+msgid ""
+"The probability is ``1 / (1 + exp((score - offset) / factor))``, computed without overflow for "
+"extreme scores. In double precision it rounds to exactly 1 for scores more than about ``36.7 * "
+"factor`` below the offset, -572 for the scale in the example, and `pd_to_score` rejects such "
+"probabilities. Scores that low do not occur on a practical scale."
+msgstr ""
+"概率为 ``1 / (1 + exp((score - offset) / factor))`` ，计算方式保证极端分数也不会溢出。在双精度下，比偏移量低约 ``36.7 * factor`` "
+"以上的分数（示例刻度下为 -572）对应的概率会舍入为 1，而 `pd_to_score` 不接受这样的概率。在实际使用的刻度上不会出现这么低的分数。"
+
+msgid ""
+"The points of an applicant's groups, one per variable, add up to the score that `pd_to_score` "
+"gives for the model's probability. The intercept is spread evenly across the variables."
+msgstr "申请人在各变量上所属分组的分值（每个变量一个）之和，等于 `pd_to_score` 对模型概率给出的分数。截距平均分摊到各个变量。"
+
+msgid "**tables**"
+msgstr "**tables**"
+
+msgid "mapping"
+msgstr "mapping"
+
+msgid ""
+"For each variable, its `kivi.woe.woe_table` result or a Series of WOE values indexed by group. "
+"Tables of variables without a coefficient are ignored."
+msgstr "每个变量对应其 `kivi.woe.woe_table` 结果，或以分组为索引的 WOE 值 Series。没有系数的变量的表会被忽略。"
+
+msgid "**coefficients**"
+msgstr "**coefficients**"
+
+msgid "mapping or pandas.Series"
+msgstr "mapping 或 pandas.Series"
+
+msgid ""
+"Logistic regression coefficient of each variable's WOE, for a model of the event probability. The"
+" rows follow this order."
+msgstr "事件概率模型中各变量 WOE 的逻辑回归系数。结果各行按此顺序排列。"
+
+msgid "Intercept of the same model."
+msgstr "同一模型的截距。"
+
+msgid ""
+"One row per variable and group, indexed by ``variable``, with the group label ``bin`` and the "
+"group's ``woe`` and ``points``. Select a variable's rows with ``table.loc[[variable]]``."
+msgstr ""
+"每个变量的每个分组一行，以 ``variable`` 为索引，列出分组标签 ``bin`` 以及该组的 ``woe`` 和 ``points`` 。用 "
+"``table.loc[[variable]]`` 选出某个变量的各行。"
+
+msgid ""
+"If `tables` is not a mapping or lacks a variable of `coefficients`, a table has no ``woe`` "
+"column, repeats a group or has non-finite WOE values, the coefficients are empty, repeated or not"
+" finite numbers, or the scaling arguments are invalid."
+msgstr ""
+"如果 `tables` 不是映射或缺少 `coefficients` 中的某个变量、某张表没有 ``woe`` 列、有重复分组或含有非有限的 WOE "
+"值、系数为空、重复或不是有限数值，或者刻度参数无效。"
+
+msgid ":obj:`woe_to_points`"
+msgstr ":obj:`woe_to_points`"
+
+msgid "The points of each applicant."
+msgstr "每个申请人的分值。"
+
+msgid ":obj:`reason_codes`"
+msgstr ":obj:`reason_codes`"
+
+msgid "The variables that cost an applicant the most points."
+msgstr "让申请人失分最多的变量。"
+
+msgid "Fit the WOE of each group."
+msgstr "拟合每个分组的 WOE。"
+
+msgid ""
+"With kivi's WOE, :math:`\\ln(p_i / q_i)` for event and non-event shares :math:`p_i` and "
+":math:`q_i`, the model is :math:`\\ln \\frac{\\mathrm{PD}}{1 - \\mathrm{PD}} = \\beta_0 + \\sum_j"
+" \\beta_j \\mathrm{WOE}_j`. A higher WOE means more risk and, for a positive coefficient, fewer "
+"points. Group :math:`i` of variable :math:`j`, one of :math:`m` variables, receives"
+msgstr ""
+"kivi 的 WOE 为 :math:`\\ln(p_i / q_i)` ，其中 :math:`p_i` 和 :math:`q_i` 分别为事件占比和非事件占比，模型为 :math:`\\ln "
+"\\frac{\\mathrm{PD}}{1 - \\mathrm{PD}} = \\beta_0 + \\sum_j \\beta_j \\mathrm{WOE}_j` 。WOE "
+"越高表示风险越高；系数为正时，分值越低。共有 :math:`m` 个变量时，变量 :math:`j` 的第 :math:`i` 组得到"
+
+msgid ""
+"\\mathrm{points}_{ij} = \\frac{\\mathrm{offset} - \\mathrm{factor} \\cdot \\beta_0}{m}\n"
+"- \\mathrm{factor} \\cdot \\beta_j \\, \\mathrm{WOE}_{ij},"
+msgstr ""
+"\\mathrm{points}_{ij} = \\frac{\\mathrm{offset} - \\mathrm{factor} \\cdot \\beta_0}{m}\n"
+"- \\mathrm{factor} \\cdot \\beta_j \\, \\mathrm{WOE}_{ij},"
+
+msgid ""
+"with the factor and offset of `score_scaling`. Each variable carries the same share of the "
+"intercept and offset, so the points of a variable's groups differ only by their WOE term."
+msgstr "其中因子和偏移量来自 `score_scaling` 。每个变量分摊相同份额的截距和偏移量，因此同一变量各分组的分值只在 WOE 项上有差别。"
+
+msgid ""
+"The group labels stay in a column rather than an index level, so labels that compare equal across"
+" variables, such as ``True`` and ``1``, keep their own values."
+msgstr "分组标签放在列中而不是索引层级中，因此不同变量中比较结果相等的标签（例如 ``True`` 和 ``1`` ）仍保留各自的取值。"
+
+msgid ""
+"N. Siddiqi, \"Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring\", "
+"Wiley, 2006."
+msgstr ""
+"N. Siddiqi, \"Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring\", "
+"Wiley, 2006."
+
+msgid "[Rc133f1fff48a-1]_"
+msgstr "[Rc133f1fff48a-1]_"
+
+msgid ""
+"The points are those of `points_table` for the same model and scaling. Their row sums are the "
+"scores, equal to `pd_to_score` of the model's probabilities."
+msgstr "对相同的模型和刻度，这些分值与 `points_table` 一致。每行之和即为分数，等于 `pd_to_score` 对模型概率给出的结果。"
+
+msgid "**woe**"
+msgstr "**woe**"
+
+msgid "pandas.DataFrame or mapping"
+msgstr "pandas.DataFrame 或 mapping"
+
+msgid ""
+"WOE values with one column per variable, such as the result of `kivi.woe.woe_transform` for each "
+"variable. Columns without a coefficient are ignored."
+msgstr "WOE 值，每个变量一列，例如对每个变量调用 `kivi.woe.woe_transform` 的结果。没有系数的列会被忽略。"
+
+msgid ""
+"Logistic regression coefficient of each variable's WOE, for a model of the event probability. The"
+" columns follow this order."
+msgstr "事件概率模型中各变量 WOE 的逻辑回归系数。结果各列按此顺序排列。"
+
+msgid "Points with the index of `woe` and one column per variable."
+msgstr "分值，索引与 `woe` 相同，每个变量一列。"
+
+msgid ""
+"If `woe` is not a DataFrame or mapping, lacks or repeats a variable of `coefficients` or has non-"
+"finite values, the coefficients are empty, repeated or not finite, or the scaling arguments are "
+"invalid."
+msgstr "如果 `woe` 不是 DataFrame 或映射、缺少或重复 `coefficients` 中的某个变量或含有非有限值、系数为空、重复或不是有限值，或者刻度参数无效。"
+
+msgid ":obj:`points_table`"
+msgstr ":obj:`points_table`"
+
+msgid "The points of every group."
+msgstr "每个分组的分值。"
+
+#, python-brace-format
+msgid ""
+"The points of variable :math:`j` are :math:`(\\mathrm{offset} - \\mathrm{factor} \\cdot \\beta_0)"
+" / m - \\mathrm{factor} \\cdot \\beta_j \\, \\mathrm{WOE}_j` for :math:`m` variables, as in "
+"`points_table`. They are computed in the same way, so rounding both gives the same points."
+msgstr ""
+"共有 :math:`m` 个变量时，变量 :math:`j` 的分值为 :math:`(\\mathrm{offset} - \\mathrm{factor} \\cdot \\beta_0) "
+"/ m - \\mathrm{factor} \\cdot \\beta_j \\, \\mathrm{WOE}_j` ，与 `points_table` "
+"相同。两者的计算方式完全一致，因此取整后得到相同的分值。"
+
+msgid ""
+"A variable costs an applicant the difference between the points of the variable's best group and "
+"the points of the applicant's group. Variables are listed from the largest cost; those that cost "
+"nothing are not listed."
+msgstr "某个变量让申请人损失的分数，是该变量最佳分组的分值与申请人所在分组的分值之差。变量按损失从大到小列出；没有造成损失的变量不列出。"
+
+msgid "**points**"
+msgstr "**points**"
+
+msgid "Points of each applicant, as returned by `woe_to_points`."
+msgstr "每个申请人的分值，即 `woe_to_points` 的返回结果。"
+
+msgid "**table**"
+msgstr "**table**"
+
+msgid "The `points_table` result for the same model and scaling."
+msgstr "相同模型和刻度下 `points_table` 的结果。"
+
+msgid "**top**"
+msgstr "**top**"
+
+msgid "int, default 3"
+msgstr "int，默认 3"
+
+msgid "Number of reasons per applicant."
+msgstr "每个申请人列出的原因个数。"
+
+msgid "**atol**"
+msgstr "**atol**"
+
+msgid "float, default 1e-4"
+msgstr "float，默认 1e-4"
+
+msgid ""
+"Largest difference, in points, between an applicant's points and the points of a group for the "
+"applicant to be in that group. It absorbs rounding, for example of WOE values stored with six "
+"decimals."
+msgstr "申请人分值与某个分组分值之间允许的最大差值（以分计），差值不超过它时即认为申请人属于该分组。它可以吸收舍入误差，例如以六位小数存储的 WOE 值带来的误差。"
+
+msgid ""
+"Variable names in columns ``reason_1`` to ``reason_<top>``, with the index of `points`. An "
+"applicant with fewer costly variables has None in the remaining columns."
+msgstr "变量名位于 ``reason_1`` 到 ``reason_<top>`` 各列，索引与 `points` 相同。造成损失的变量较少的申请人，其余各列为 None。"
+
+msgid ""
+"If `points` is not a DataFrame or has non-finite values, `table` is not a `points_table` result "
+"or lacks a variable of `points`, some points are farther than `atol` from every group of their "
+"variable, `top` is not a positive integer, or `atol` is not a finite positive number."
+msgstr ""
+"如果 `points` 不是 DataFrame 或含有非有限值、 `table` 不是 `points_table` 的结果或缺少 `points` "
+"中的某个变量、某些分值与其变量的所有分组相差都超过 `atol` 、 `top` 不是正整数，或者 `atol` 不是有限正数。"
+
+msgid ""
+"Each applicant's points are matched to the nearest group of the variable in `table`, and the "
+"costs are differences between the points of `table`'s groups. Costs that differ by less than "
+"about `atol` count as equal, so such variables keep the order of the columns of `points`, and a "
+"cost below about `atol` is no cost."
+msgstr ""
+"每个申请人的分值会匹配到 `table` 中该变量最接近的分组，损失分数是 `table` 中各分组分值之差。相差不到约 `atol` 的损失视为相等，因此这些变量保持 `points` "
+"中的列顺序；低于约 `atol` 的损失视为没有损失。"
+
+msgid ""
+"Points that match no group, such as those from a different intercept or scaling, or from WOE "
+"values given with ``unseen`` in `kivi.woe.woe_transform`, raise an error rather than giving "
+"reasons against the wrong groups."
+msgstr ""
+"无法匹配任何分组的分值，例如来自不同截距或刻度的分值，或由 `kivi.woe.woe_transform` 的 ``unseen`` 给出 WOE "
+"的分值，会引发错误，而不会对照错误的分组给出原因。"
+
 msgid "Variable selection"
 msgstr "变量筛选"
 
@@ -1128,13 +2002,6 @@ msgstr ""
 msgid "With WOE-encoded variables, the coefficients are expected to be positive: see `stepwise`."
 msgstr "对 WOE 编码的变量，系数应为正，参见 `stepwise` 。"
 
-msgid ""
-"D. W. Hosmer, S. Lemeshow and R. X. Sturdivant, \"Applied Logistic Regression\", 3rd ed., Wiley, "
-"2013."
-msgstr ""
-"D. W. Hosmer, S. Lemeshow and R. X. Sturdivant, \"Applied Logistic Regression\", 3rd ed., Wiley, "
-"2013."
-
 msgid "[R238aee73b2df-1]_"
 msgstr "[R238aee73b2df-1]_"
 
@@ -1246,13 +2113,6 @@ msgstr ""
 "kivi 将分组的 WOE 定义为其事件占比与非事件占比之比的对数，因此 WOE 越高，事件率越高。所以在 `target` 对单个 WOE "
 "编码变量的逻辑回归中，系数为正；没有单元格需要平滑时，系数恰好为 1。在多变量模型中，负系数表示该变量的作用被其他变量反转（通常源于共线性），会使其各箱的评分卡分数与事件率相矛盾。 "
 "``positive=True`` 会排除这样的模型。"
-
-msgid ""
-"N. Siddiqi, \"Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring\", "
-"Wiley, 2006."
-msgstr ""
-"N. Siddiqi, \"Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring\", "
-"Wiley, 2006."
 
 msgid "[R44bd75d8258f-1]_, [R44bd75d8258f-2]_"
 msgstr "[R44bd75d8258f-1]_, [R44bd75d8258f-2]_"
@@ -1446,9 +2306,6 @@ msgid ""
 "the information value of the variable."
 msgstr "比较每组在全部事件中的占比与在全部非事件中的占比。将 ``iv`` 列求和即得到该变量的信息值。"
 
-msgid "**groups**"
-msgstr "**groups**"
-
 msgid "Pre-binned values or category labels. Missing values form a group."
 msgstr "已分箱的数值或类别标签。缺失值独立成组。"
 
@@ -1543,9 +2400,6 @@ msgid ""
 "with the same edges and ``pandas.cut``."
 msgstr "一维分组标签，划分方式须与传给 `woe_table` 的分组相同，例如使用同一组边界和 ``pandas.cut`` 。"
 
-msgid "**table**"
-msgstr "**table**"
-
 msgid "pandas.DataFrame or pandas.Series"
 msgstr "pandas.DataFrame 或 pandas.Series"
 
@@ -1584,9 +2438,6 @@ msgstr ""
 
 msgid ":obj:`woe_table`"
 msgstr ":obj:`woe_table`"
-
-msgid "Fit the WOE of each group."
-msgstr "拟合每个分组的 WOE。"
 
 msgid "Fit the edges used to form numeric groups."
 msgstr "拟合用于划分数值分组的边界。"
@@ -2119,6 +2970,17 @@ msgid "New"
 msgstr "新增"
 
 msgid ""
+"The new module ``kivi.calibration`` checks the calibration of PDs. ``prior_correction`` and "
+"``corrected_intercept`` correct a model for a development sample with another event rate. "
+"``calibration_table`` compares the observed and predicted default rates of master scale grades or"
+" other groups, which ``binomial_test``, ``jeffreys_test`` and ``hosmer_lemeshow`` then test. "
+"``herfindahl_index`` measures the concentration of the grades."
+msgstr ""
+"新模块 ``kivi.calibration`` 用于检查 PD 的校准情况。 ``prior_correction`` 和 ``corrected_intercept`` "
+"在开发样本的事件率与总体不同时校正模型。 ``calibration_table`` 比较主标尺等级或其他分组的观测违约率与预测违约率，再由 ``binomial_test`` 、 "
+"``jeffreys_test`` 和 ``hosmer_lemeshow`` 进行检验。 ``herfindahl_index`` 衡量各等级的集中程度。"
+
+msgid ""
 "``kivi.woe.woe``, ``kivi.woe.iv`` and ``kivi.stability.psi`` compute WOE, IV and PSI from counts "
 "that are already aggregated, including weighted counts."
 msgstr "``kivi.woe.woe`` 、 ``kivi.woe.iv`` 和 ``kivi.stability.psi`` 可直接根据已汇总的计数（包括加权计数）计算 WOE、IV 和 PSI。"
@@ -2147,6 +3009,17 @@ msgstr ""
 "``bin_edges`` 、 ``chimerge_edges`` 、 ``tree_edges`` 、 ``monotonic_edges`` 和 ``woe_table`` 新增 "
 "``weights`` 参数， ``psi_table`` 新增 ``reference_weights`` 和 ``current_weights`` "
 "参数。计数变为权重之和，等频边界变为逆累积分布意义下的加权分位数，权重为零的观测或分组会被排除。"
+
+msgid ""
+"The new module ``kivi.scorecard`` scales a logistic regression on WOE values into scorecard "
+"points. ``score_scaling``, ``pd_to_score`` and ``score_to_pd`` convert between probabilities and "
+"scores from the points to double the odds, a base score and base odds. ``points_table`` gives the"
+" points of every group, ``woe_to_points`` those of each applicant, and ``reason_codes`` names the"
+" variables that cost an applicant the most points."
+msgstr ""
+"新模块 ``kivi.scorecard`` 把基于 WOE 的逻辑回归转换为评分卡分值。 ``score_scaling`` 、 ``pd_to_score`` 和 "
+"``score_to_pd`` 依据 PDO（几率翻倍所需分数）、基准分数和基准几率，在概率与分数之间相互转换。 ``points_table`` 给出每个分组的分值， "
+"``woe_to_points`` 给出每个申请人的分值， ``reason_codes`` 列出让申请人失分最多的变量。"
 
 msgid ""
 "The new ``kivi.selection`` module selects the variables of a scorecard from WOE-encoded "
@@ -2899,6 +3772,143 @@ msgid "the observed values, apart from special values, do not cover both classes
 msgstr "除特殊值外，非缺失数值对应的标签没有同时包含两个类别。"
 
 msgid ""
+"A PD model is calibrated when its probabilities match the default rates that are later observed. "
+"Calibration is a separate question from ranking: a model can order applicants well and still "
+"predict default rates that are too low for the whole portfolio. :mod:`kivi.calibration` corrects "
+"probabilities for the sampling of the development data, summarizes the grades of a master scale "
+"and tests them."
+msgstr ""
+"如果 PD 模型给出的概率与之后观测到的违约率相符，就称模型是校准的。校准与排序是两个不同的问题：一个模型可以把申请人排得很好，却仍然对整个资产组合预测了过低的违约率。 "
+":mod:`kivi.calibration` 针对开发数据的抽样方式校正概率，汇总主标尺的各个等级，并对其进行检验。"
+
+msgid "Correcting for oversampling"
+msgstr "过采样校正"
+
+msgid ""
+"Bad outcomes are often oversampled for development, for example to a sample with as many bads as "
+"goods. The model then predicts probabilities for that sample, not for the portfolio. With the "
+"development sample's event rate :math:`\\bar y` and the portfolio's event rate :math:`\\tau`, the"
+" prior correction of King and Zeng multiplies the odds of every probability by"
+msgstr ""
+"开发模型时，常常对坏样本做过采样，例如使好坏样本数量相等。这样模型预测的是该样本上的概率，而不是资产组合上的概率。设开发样本的事件率为 :math:`\\bar y` ，资产组合的事件率为 "
+":math:`\\tau` ，King 和 Zeng 的先验校正把每个概率的几率乘以"
+
+#, python-format
+msgid ""
+"A model developed on a sample with 50% bads, for a portfolio with a 2% default rate, turns a "
+"probability of 0.5 into 0.02:"
+msgstr "如果模型在坏样本占 50% 的样本上开发，而资产组合的违约率为 2%，那么概率 0.5 会变为 0.02："
+
+msgid ""
+"The correction keeps the order of the probabilities. For a logistic regression it only shifts the"
+" intercept by :math:`\\ln \\omega`, so the coefficients and the points per WOE in "
+":doc:`scorecard` stay the same:"
+msgstr "校正不改变概率的排序。对逻辑回归而言，它只是把截距平移 :math:`\\ln \\omega` ，因此系数以及 :doc:`scorecard` 中每单位 WOE 对应的分值都保持不变："
+
+msgid "Grades of a master scale"
+msgstr "主标尺的等级"
+
+msgid ""
+"A master scale divides the PD range into a fixed set of grades, so that ratings from different "
+"models share one meaning. The examples below use the PDs of the scorecard from :doc:`scorecard` "
+"on the development and monitoring samples:"
+msgstr "主标尺把 PD 的取值范围划分为一组固定的等级，使不同模型给出的评级具有统一的含义。下面的示例使用 :doc:`scorecard` 中的评分卡在开发样本和监控样本上给出的 PD："
+
+msgid ""
+"Assign the grades with ``pandas.cut`` and the PD edges of the scale, then compare the observed "
+"default rate of each grade with its mean predicted PD using ``calibration_table``. The intervals "
+"are closed on the right, so a PD on an edge goes to the lower grade, and ``include_lowest=True`` "
+"keeps a PD of exactly 0 in the first grade:"
+msgstr ""
+"用 ``pandas.cut`` 和标尺的 PD 边界划分等级，再用 ``calibration_table`` 比较每个等级的观测违约率与平均预测 PD。区间为左开右闭，因此恰好落在边界上的 "
+"PD 归入较低的等级；``include_lowest=True`` 让恰好为 0 的 PD 留在第一个等级："
+
+msgid ""
+"``calibration_table`` accepts any grouping, such as score bands or deciles of the PD. It counts "
+"the groups like ``woe_table``: categorical groups keep the order of their categories, and grades "
+"without observations are left out."
+msgstr "``calibration_table`` 接受任意分组，例如分数段或 PD 的十分位组。它的计数方式与 ``woe_table`` 相同：分类型分组保持类别顺序，没有观测值的等级会被略去。"
+
+msgid "Testing each grade"
+msgstr "逐个等级检验"
+
+msgid ""
+"Each grade is tested on its own against the hypothesis that its PD is not too low. Both tests are"
+" one-sided: a small p-value means that the grade has more defaults than its PD predicts."
+msgstr "每个等级单独检验，原假设是其 PD 没有偏低。两种检验都是单侧的：p 值较小，说明该等级的违约数多于其 PD 的预测。"
+
+msgid ""
+"The **binomial test** treats the :math:`N` obligors of a grade as independent, each defaulting "
+"with probability :math:`p`. Its p-value is the probability of at least the observed :math:`d` "
+"defaults, :math:`P(D \\ge d)`."
+msgstr ""
+"**二项检验** 把一个等级中的 :math:`N` 个债务人视为相互独立，每人以概率 :math:`p` 违约。其 p 值是至少出现观测到的 :math:`d` 次违约的概率，即 "
+":math:`P(D \\ge d)` 。"
+
+#, python-brace-format
+msgid ""
+"The **Jeffreys test** starts from the Jeffreys prior :math:`\\mathrm{Beta}(1/2, 1/2)` for the "
+"default rate. Its p-value is the posterior probability that the default rate is at most "
+":math:`p`, the distribution function of :math:`\\mathrm{Beta}(d + 1/2, N - d + 1/2)` at "
+":math:`p`. The European Central Bank asks for this test in the validation of PD models."
+msgstr ""
+"**Jeffreys 检验** 以 Jeffreys 先验 :math:`\\mathrm{Beta}(1/2, 1/2)` 作为违约率的先验分布。其 p 值是违约率不超过 :math:`p` "
+"的后验概率，即 :math:`\\mathrm{Beta}(d + 1/2, N - d + 1/2)` 在 :math:`p` 处的分布函数值。欧洲央行在 PD 模型验证中要求使用这一检验。"
+
+#, python-format
+msgid ""
+"No grade is rejected at the usual 5% level. To see the tests at work, scale the PDs down as if "
+"the portfolio defaulted at 6% rather than at the 11.6% of the development sample. The monitoring "
+"sample still defaults at the development rate, so the PDs are now too low:"
+msgstr "在常用的 5% 水平下，没有等级被拒绝。为了观察检验的效果，把 PD 按资产组合违约率为 6%（而非开发样本的 11.6%）的情形调低。监控样本的违约率仍与开发样本相当，因此这些 PD 现在偏低："
+
+msgid ""
+"For the same counts, the Jeffreys p-value is always a little lower than the binomial one, so the "
+"Jeffreys test rejects slightly more readily. Both tests assume independent defaults; defaults "
+"that move together in a downturn make them reject more often than their nominal level."
+msgstr "对相同的计数，Jeffreys 检验的 p 值总是略低于二项检验，因此 Jeffreys 检验稍微更容易拒绝。两种检验都假定违约相互独立；经济下行期违约同涨同落，会使它们的拒绝频率高于名义水平。"
+
+msgid "Testing all grades at once"
+msgstr "一次检验所有等级"
+
+msgid ""
+"The Hosmer-Lemeshow test adds up the squared differences between observed and predicted defaults "
+"over all :math:`g` groups:"
+msgstr "Hosmer-Lemeshow 检验把全部 :math:`g` 个分组中观测违约数与预测违约数之差的平方累加起来："
+
+#, python-brace-format
+msgid "H = \\sum_{k=1}^{g} \\frac{(d_k - n_k \\bar p_k)^2}{n_k \\bar p_k (1 - \\bar p_k)}."
+msgstr "H = \\sum_{k=1}^{g} \\frac{(d_k - n_k \\bar p_k)^2}{n_k \\bar p_k (1 - \\bar p_k)}."
+
+msgid ""
+"On the sample the model was fitted on, form about ten groups of similar size from the sorted PDs "
+"and compare :math:`H` with a chi-square distribution with :math:`g - 2` degrees of freedom, the "
+"default:"
+msgstr "在拟合模型所用的样本上，把排序后的 PD 分成约十个大小相近的组，并将 :math:`H` 与自由度为 :math:`g - 2` 的卡方分布比较，这也是默认设置："
+
+msgid ""
+"PDs that were not fitted on the tested sample, such as the grades of the monitoring sample, lose "
+"no degrees of freedom, so pass ``ddof=0``:"
+msgstr "如果 PD 不是在被检验的样本上拟合的（例如监控样本的各等级），自由度不会减少，因此传入 ``ddof=0`` ："
+
+msgid "Concentration of the grades"
+msgstr "等级的集中度"
+
+msgid ""
+"A master scale differentiates risk poorly when most obligors fall into a few grades. The "
+"Herfindahl-Hirschman index sums the squared shares of the grades: it is :math:`1/k` when all "
+":math:`k` grades are equally full and 1 when one grade holds everybody. With ``normalize=True`` "
+"it runs from 0 to 1 instead:"
+msgstr ""
+"如果大多数债务人都落在少数几个等级，主标尺对风险的区分能力就较差。赫芬达尔-赫希曼指数是各等级占比的平方和： :math:`k` 个等级人数相同时为 :math:`1/k` "
+"，所有人都在同一等级时为 1。设置 ``normalize=True`` 后，取值范围改为 0 到 1："
+
+msgid ""
+"``calibration_table`` leaves out empty grades. To count them, pass the counts of every grade of "
+"the scale, for example ``grades.value_counts(sort=False)``."
+msgstr "``calibration_table`` 会略去空等级。如需把空等级计算在内，请传入标尺上每个等级的计数，例如 ``grades.value_counts(sort=False)`` 。"
+
+msgid ""
 "``Dataset.bank_data()`` loads 4,521 customers from the Bank Marketing data set. It has sixteen "
 "features and an integer ``target``: 1 means that the customer subscribed to a term deposit."
 msgstr ""
@@ -3407,6 +4417,144 @@ msgid ""
 "Every variable is stable here, as expected when the monitoring rows come from the same "
 "population. :doc:`psi` shows what a shift looks like and how to track PSI period by period."
 msgstr "这里所有变量都是稳定的，监控数据与开发数据来自同一客群时理应如此。:doc:`psi` 展示了偏移的样子以及如何按期跟踪 PSI。"
+
+msgid ""
+"A scorecard turns a logistic regression on WOE values into points. Every applicant receives the "
+"points of their group in each variable, and the points add up to a score that stands for the odds"
+" of a good outcome. kivi takes the coefficients and the intercept as plain numbers, so the model "
+"can come from any library."
+msgstr "评分卡把基于 WOE 的逻辑回归转换为分值。每个申请人在每个变量上获得其所属分组的分值，这些分值相加得到一个代表好结果几率的分数。kivi 把系数和截距当作普通数值接收，因此模型可以来自任何库。"
+
+msgid "Scaling"
+msgstr "刻度"
+
+#, python-brace-format
+msgid ""
+"A score is linear in the log of the good:bad odds :math:`o = (1 - \\mathrm{PD}) / \\mathrm{PD}`. "
+"Three numbers set the scale: the base score, the odds at the base score and the points to double "
+"the odds (PDO):"
+msgstr ""
+"分数与好坏比 :math:`o = (1 - \\mathrm{PD}) / \\mathrm{PD}` "
+"的对数呈线性关系。刻度由三个数决定：基准分数、基准分数对应的几率，以及几率翻倍所需增加的分数（PDO）："
+
+msgid ""
+"Every function of :mod:`kivi.scorecard` takes the three numbers as keyword arguments, so keep "
+"them together in one dictionary:"
+msgstr ":mod:`kivi.scorecard` 的每个函数都以关键字参数接收这三个数，因此可以把它们放在同一个字典里："
+
+msgid ""
+"On this scale, odds of 50:1, a PD of 1/51, score 600, and odds of 100:1 score 20 points more. "
+"``score_to_pd`` converts in the other direction:"
+msgstr "在这一刻度下，几率 50:1（即 PD 为 1/51）对应 600 分，几率 100:1 则多 20 分。 ``score_to_pd`` 进行反向转换："
+
+msgid ""
+"kivi's WOE is :math:`\\ln(p_i / q_i)`, the event share over the non-event share, with the bad "
+"outcome as the event (see :doc:`woe_iv`). A higher WOE therefore means more risk, a logistic "
+"regression of the bad flag on WOE values has positive coefficients, and a higher WOE gives fewer "
+"points. Some textbooks define WOE the other way round; their coefficients and WOE values both "
+"change sign, and the points stay the same."
+msgstr ""
+"kivi 的 WOE 为 :math:`\\ln(p_i / q_i)` ，即事件占比与非事件占比之比的对数，并以坏结果作为事件（参见 :doc:`woe_iv` ）。因此 WOE "
+"越高表示风险越高，以坏标记为因变量、以 WOE 为自变量的逻辑回归系数为正，WOE 越高得到的分值越低。有些教材的 WOE 定义方向相反；此时系数和 WOE 值都会变号，而分值保持不变。"
+
+msgid "Points for each group"
+msgstr "每个分组的分值"
+
+msgid ""
+"The example below builds a small scorecard on the bundled bank data. The data record a marketing "
+"response rather than a default, so read target 1 as the bad outcome, as in :doc:`risk_workflow`. "
+"Group the development sample and fit the WOE of each variable:"
+msgstr ""
+"下面的示例在随包附带的银行数据上构建一张小型评分卡。这份数据记录的是营销响应而非违约，因此与 :doc:`risk_workflow` 一样，把 target 为 1 "
+"视为坏结果。先对开发样本分组，并拟合每个变量的 WOE："
+
+msgid ""
+"A logistic regression of ``target`` on the four WOE columns of the development sample gives the "
+"coefficients and the intercept below, rounded to three decimals. ``points_table`` turns them into"
+" points:"
+msgstr "在开发样本上以 ``target`` 为因变量、以四个 WOE 列为自变量做逻辑回归，得到下面的系数和截距（保留三位小数）。 ``points_table`` 把它们转换为分值："
+
+msgid "Group :math:`i` of variable :math:`j`, one of :math:`m` variables, receives"
+msgstr "共有 :math:`m` 个变量时，变量 :math:`j` 的第 :math:`i` 组得到"
+
+msgid ""
+"\\mathrm{points}_{ij} = \\frac{\\mathrm{offset} - \\mathrm{factor} \\cdot \\beta_0}{m}\n"
+"- \\mathrm{factor} \\cdot \\beta_j \\, \\mathrm{WOE}_{ij}."
+msgstr ""
+"\\mathrm{points}_{ij} = \\frac{\\mathrm{offset} - \\mathrm{factor} \\cdot \\beta_0}{m}\n"
+"- \\mathrm{factor} \\cdot \\beta_j \\, \\mathrm{WOE}_{ij}."
+
+msgid ""
+"The intercept :math:`\\beta_0` and the offset are spread evenly across the variables, so each of "
+"the four variables above carries a quarter of :math:`487.12 + 28.85 \\times 2.028 = 545.64` "
+"points. Within a variable, the points of two groups differ only by their WOE term. A group with a"
+" WOE of zero, which has the event rate of the whole sample, receives exactly the variable's "
+"share."
+msgstr ""
+"截距 :math:`\\beta_0` 和偏移量平均分摊到各个变量，因此上面四个变量各自承担 :math:`487.12 + 28.85 \\times 2.028 = 545.64` "
+"分的四分之一。在同一变量内，两个分组的分值只在 WOE 项上有差别。WOE 为零的分组，其事件率与整个样本相同，恰好得到该变量分摊的份额。"
+
+msgid ""
+"A negative coefficient reverses a variable's direction, so that riskier groups receive more "
+"points. It usually points to correlated variables; review the signs before scaling a model."
+msgstr "负的系数会使变量的方向反转，让风险更高的分组得到更多分值。这通常说明变量之间存在相关性；在对模型做刻度转换之前，请检查系数的符号。"
+
+msgid "Scoring applicants"
+msgstr "为申请人评分"
+
+msgid ""
+"Encode new applicants with the development WOE tables, as described in :doc:`woe_iv`, and give "
+"them the points of each variable with ``woe_to_points``. The row sums are the scores:"
+msgstr "按 :doc:`woe_iv` 中的方法，用开发样本的 WOE 表对新申请人编码，再用 ``woe_to_points`` 给出每个变量的分值。每行之和即为分数："
+
+msgid ""
+"The score is the scaled log odds of the model, so it equals ``pd_to_score`` of the model's "
+"probability:"
+msgstr "分数就是模型对数几率经刻度转换后的结果，因此等于 ``pd_to_score`` 对模型概率给出的分数："
+
+msgid ""
+"Deployed scorecards usually round the points to whole numbers. Round the points table and the "
+"applicant points in the same way, with ``table.round()`` and ``points.round()``: "
+"``woe_to_points`` computes each point exactly as ``points_table`` does, so the rounded values "
+"match. The rounded total can differ from the exact score by up to half a point per variable."
+msgstr ""
+"上线的评分卡通常把分值取整。请用 ``table.round()`` 和 ``points.round()`` 以同样的方式对分值表和申请人分值取整： ``woe_to_points`` "
+"的每个分值与 ``points_table`` 的计算方式完全一致，因此取整后的结果也相同。取整后的总分与精确分数之差，每个变量最多半分。"
+
+msgid "Reason codes"
+msgstr "原因码"
+
+msgid ""
+"A declined applicant is told which variables lowered the score most. ``reason_codes`` matches the"
+" points of each variable to a group of the points table, compares them with those of the "
+"variable's best group and lists the variables from the largest shortfall:"
+msgstr "被拒绝的申请人会被告知哪些变量让分数降低最多。 ``reason_codes`` 把每个变量的分值匹配到分值表中的某个分组，与该变量最佳分组的分值比较，并按差距从大到小列出变量："
+
+msgid ""
+"Applicant 3000 was contacted by telephone, 21.3 points below the best contact group, and has no "
+"housing loan, 13.2 points below the best housing group. Applicant 3001 is in the best group of "
+"every variable, so no variable lowered the score."
+msgstr ""
+"申请人 3000 通过固定电话联系，比 contact 的最佳分组少 21.3 分；没有住房贷款，比 housing 的最佳分组少 13.2 分。申请人 3001 "
+"在每个变量上都处于最佳分组，因此没有变量拉低其分数。"
+
+#, python-brace-format
+msgid ""
+"The scaling does not change the order of the reasons, because every shortfall is "
+":math:`\\mathrm{factor} \\cdot \\beta_j` times a difference in WOE. Points that match no group of"
+" the table within ``atol``, for example points computed with another intercept, raise an error "
+"instead of giving reasons against the wrong groups."
+msgstr ""
+"刻度不会改变原因的顺序，因为每个差距都等于 :math:`\\mathrm{factor} \\cdot \\beta_j` 乘以 WOE 之差。在 ``atol`` "
+"范围内无法匹配分值表中任何分组的分值（例如用其他截距算出的分值）会引发错误，而不会对照错误的分组给出原因。"
+
+msgid ""
+"A model developed on a sample that over- or undersamples bad outcomes has an intercept for that "
+"sample. Correct it with :func:`kivi.calibration.corrected_intercept` before building the points "
+"table; see :doc:`calibration`."
+msgstr ""
+"如果开发样本对坏结果做了过采样或欠采样，模型的截距只适用于该样本。在构建分值表之前，请用 :func:`kivi.calibration.corrected_intercept` 校正截距；参见"
+" :doc:`calibration` 。"
 
 msgid ""
 "A scorecard is a logistic regression on a short list of WOE-encoded variables. ``kivi.selection``"
