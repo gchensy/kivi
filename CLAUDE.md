@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-python -m pip install -e '.[test,docs]'    # required first: kivi.__version__ and docs/conf.py read installed package metadata
+python -m pip install -e '.[test,docs]'    # required first: docs/conf.py reads installed package metadata
 python -m pytest                            # unit tests
 python -m pytest tests/test_core.py::test_woe_matches_hand_calculation   # single test
 python -m sphinx -W -b doctest docs docs/_build/doctest   # runs every >>> example in docs/**/*.rst and in docstrings (pytest does not collect them)
@@ -13,7 +13,7 @@ python docs/build.py                        # checks the zh_CN catalog, then bui
 python docs/build.py --update-po            # after editing English text: merge new/changed strings into kivi.po
 ```
 
-No linter or formatter is configured. An editable install resolves to the checkout it was installed from; when working in a git worktree, prefix commands with `PYTHONPATH=src` (or reinstall) so they exercise the worktree's code.
+No linter or formatter is configured. pytest runs with `filterwarnings = error`, so assert expected warnings with `pytest.warns`. `numpydoc_validation_checks = {"all"}` turns any missing docstring section (including See Also) into a `-W` build failure. An editable install resolves to the checkout it was installed from; when working in a git worktree, prefix commands with `PYTHONPATH=src` (or reinstall) so they exercise the worktree's code.
 
 ## Architecture
 
@@ -25,9 +25,12 @@ Fitting edges and grouping are deliberately separate steps:
 2. The caller applies `pd.cut(series, edges)` with the same edges to every sample. Categorical variables skip steps 1–2 and are passed as-is.
 3. `kivi.woe.woe_table(groups, target)` and `kivi.evaluate.psi_table(reference, current)` take already-grouped series and return one row per group. Totals are the caller's `.sum()` of the `iv` / `psi` column.
 
+Public functions accept one-dimensional array_like input through `_validation.as_series`, which leaves Series untouched. `woe_table` requires identical indices only when both inputs are Series; otherwise it matches by position. Error messages name the argument and the value received, and tests check them with `pytest.raises(..., match=)`.
+
 Both metric functions share `_counts.py`, which defines the counting and smoothing semantics — change behavior there, not per metric:
 
 - `group_counts` uses `pd.factorize(sort=False, use_na_sentinel=False)`: missing values form their own group, groups appear in first-observed order, and unused categorical levels are dropped. The result index is named `bin`.
+- Counting uses `np.bincount` on `2 * code + side`.
 - `shares` replaces zero cells with `smoothing` (default 0.5) and then normalizes each column independently. Count columns in the output stay raw; only the `*_share` columns reflect smoothing.
 
 Output columns: `woe_table` → `non_event, event, non_event_share, event_share, woe, iv`; `psi_table` → `reference, current, reference_share, current_share, psi`. `woe_table` requires `groups` and `target` to have identical indices and both classes present.

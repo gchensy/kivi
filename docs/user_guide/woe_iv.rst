@@ -1,7 +1,7 @@
 Weight of evidence and information value
 ========================================
 
-``woe_table`` measures how each group separates a binary target. An event is target 1 and a non-event is target 0. Both target classes must be present, and the group and target series must share the same index.
+``woe_table`` measures how each group separates a binary target. An event is target 1 and a non-event is target 0. Both target classes must be present. Group and target series must share the same index; arrays and lists are matched by position.
 
 Definitions
 -----------

@@ -1,7 +1,7 @@
 Binning
 =======
 
-``bin_edges`` fits numeric bin edges on a reference sample and returns them as an array for ``pandas.cut``. Keep the array: the same edges must be applied to every sample that is compared with the reference.
+``bin_edges`` fits numeric bin edges on a reference sample and returns them as an array for ``pandas.cut``. The reference can be a list, a NumPy array or a pandas Series. Keep the array: the same edges must be applied to every sample that is compared with the reference.
 
 Quantile and uniform edges
 --------------------------
@@ -28,7 +28,7 @@ array([-inf, 0.75,  inf])
 >>> bin_edges(pd.Series([7, 7, 7]))
 array([-inf,  inf])
 
-The number of bins can therefore be smaller than requested. Check ``len(edges) - 1`` when the count matters.
+The number of bins can therefore be smaller than requested, and ``bin_edges`` then issues a ``UserWarning``. A single value that covers much of the reference, such as a code for "not applicable", often causes this. Group that value separately before fitting edges on the remaining values.
 
 Applying the edges
 ------------------
@@ -53,7 +53,7 @@ Missing values and categories
 
 Missing reference values are ignored when the edges are fitted, and ``pandas.cut`` leaves them missing. The metric functions then count them as a separate group.
 
-Pass categorical labels directly to the metric functions. A missing label is a separate group. Only observed groups appear, in first-observed order. For WOE the group and target indices must match exactly.
+Pass categorical labels directly to the metric functions. A missing label is a separate group. Only observed groups appear, in first-observed order. For WOE, group and target series must have identical indices; arrays and lists are matched by position.
 
 Invalid input
 -------------
@@ -62,5 +62,5 @@ Invalid input
 
 * ``bins`` is not a positive integer;
 * ``method`` is neither ``"quantile"`` nor ``"uniform"``;
-* the reference values are not numeric;
+* the reference values are not one-dimensional or not numeric;
 * the reference has no observations, or contains an infinite value.
