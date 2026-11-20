@@ -1,7 +1,7 @@
 Binning specifications
 ======================
 
-A scorecard must group and encode every variable in the same way in development, validation and production. ``fit_spec`` bins all the columns of a development sample in one call and measures the WOE of every group. The resulting ``BinningSpec`` groups and encodes any other sample with the same edges and WOE values. It can be saved as JSON and loaded again in production without changing either.
+A scorecard must group and encode every variable in the same way in development, validation and production. ``fit_spec`` bins all the columns of a development sample in one call and measures the WOE of every group. The resulting ``BinningSpec`` groups and encodes any other sample with the same edges and WOE values. It can be saved as JSON and loaded again in production without changing the groups or the encoding.
 
 Each column is fitted with the functions of :doc:`binning` and :doc:`woe_iv`, so a column of the specification has exactly the edges and table that those steps give it alone.
 
@@ -34,7 +34,7 @@ dtype: float64
 
 ``quick.tables`` maps each column to its ``woe_table`` result. The columns of ``frame`` are fitted unless ``columns`` names some of them. Leave the target out: ``fit_spec`` raises an error if a column has the name of the ``target`` series.
 
-Which columns are binned depends on their dtype. Numeric columns, apart from booleans, are binned; columns of any other dtype, such as strings, categories or booleans, keep their labels as groups. To keep integer codes as labels, convert the column to the ``category`` dtype before fitting.
+Which columns are binned depends on their dtype. Numeric columns, apart from booleans, are binned; columns of any other dtype, such as strings, categories or booleans, keep their labels as groups. To keep integer codes as labels, convert the column to the ``category`` dtype before fitting. A column of dtype ``object`` that holds only numbers raises a warning, because each distinct number would become a group; convert it with ``pandas.to_numeric`` to bin it.
 
 Choose the binning of each column
 ---------------------------------
@@ -65,7 +65,7 @@ bin
 (192.0, 356.0]    188       0.080 -0.414  0.009
 (356.0, inf]       68       0.191  0.588  0.010
 
-The methods are ``"quantile"`` and ``"uniform"`` for ``bin_edges`` and ``"chimerge"``, ``"tree"`` and ``"monotonic"`` for the supervised functions. ``bins`` is passed as ``bins`` to ``bin_edges`` and as ``max_bins`` to the others, and ``options`` holds their remaining arguments, such as ``alpha`` or ``min_bin_share``. ``"monotonic"`` uses the ``smoothing`` of the specification, so its trend holds in the tables. ``weights`` passes sample weights to every binning function and to ``woe_table``.
+Special codes must be numbers, and infinite values must be special codes, as in ``bin_edges``. The methods are ``"quantile"`` and ``"uniform"`` for ``bin_edges`` and ``"chimerge"``, ``"tree"`` and ``"monotonic"`` for the supervised functions. ``bins`` is passed as ``bins`` to ``bin_edges`` and as ``max_bins`` to the others, and ``options`` holds their remaining arguments, such as ``alpha`` or ``min_bin_share``. ``"monotonic"`` uses the ``smoothing`` of the specification, so its trend holds in the tables. ``weights`` passes sample weights to every binning function and to ``woe_table``.
 
 .. note::
 
@@ -87,6 +87,13 @@ Group and encode a sample
 3000   -0.045 -0.257 -0.166    -0.257    0.206    0.333  0.052
 3001   -0.587 -0.257 -0.166    -0.257   -0.917   -0.327  0.271
 3002    0.358 -0.257 -0.032    -0.257    0.241   -0.327 -0.339
+
+A column fitted as numeric must have a numeric dtype in every sample. Read as strings, the code ``"-1"`` would miss its special group, so ``cut`` and ``woe_transform`` raise an error instead; convert such a column with ``pandas.to_numeric``:
+
+>>> spec.woe_transform(monitoring.assign(pdays=monitoring["pdays"].astype(str)))
+Traceback (most recent call last):
+...
+ValueError: column 'pdays' was fitted as numeric but has dtype ...
 
 A value whose group is not in its column's table, such as a new category, raises an error by default, so it never turns into a silent NaN:
 
@@ -118,7 +125,7 @@ BinningSpec(columns=['balance', 'pdays', 'poutcome', 'contact', 'housing', 'job'
 Save and load a specification
 -----------------------------
 
-``to_json`` writes the specification as JSON text, and ``from_json`` reads it back into an equal specification that groups and encodes every sample identically:
+``to_json`` writes the specification as JSON text, and ``from_json`` reads it back into an equal specification that groups and encodes every sample identically. Two specifications are equal when their JSON text is the same, which includes the version of kivi that fitted them:
 
 >>> text = production.to_json(indent=2)
 >>> loaded = BinningSpec.from_json(text)
@@ -168,7 +175,7 @@ The format
    * - ``variables``
      - One entry per column, in order, with ``name``, ``kind`` (``"numeric"`` or ``"categorical"``), ``unseen`` (``"raise"`` or a number) and ``table``, plus ``edges`` and ``special`` for numeric columns.
    * - ``table``
-     - One entry per group with its label ``bin`` and the columns of ``woe_table``.
+     - One entry per group with its label ``bin`` and the columns of ``woe_table``. An interval of a numeric column is written with the two exact edges that bound it.
 
 JSON has no infinite numbers and does not keep the types of labels apart in every language, so labels and edges are written as follows:
 
@@ -191,6 +198,15 @@ JSON has no infinite numbers and does not keep the types of labels apart in ever
 
 Labels of categorical columns must be strings, integers, floats, booleans or intervals; ``fit_spec`` rejects other labels, such as dates. ``from_json`` checks every value and rejects ``NaN`` or ``Infinity`` in the text, so a damaged file fails with a message instead of encoding wrong values.
 
+The interval labels of a table are those of ``pandas.cut``, which rounds their bounds for display. The file writes each interval of a numeric column with its two exact edges instead, and ``from_json`` turns them back into the labels of ``pandas.cut``:
+
+>>> float(production.edges["balance"][2])
+125.70000000000016
+>>> production.tables["balance"].index[1]
+Interval(68.75, 125.7, closed='right')
+>>> production.to_dict()["variables"][0]["table"][1]["bin"]
+{'interval': [68.75, 125.70000000000016], 'closed': 'right'}
+
 .. note::
 
-   The interval labels of a table are those of ``pandas.cut``, which rounds their bounds to three decimals, while ``edges`` keeps the exact values that assign values to bins. Software outside kivi that reads the file should bin with ``edges`` and use ``special`` codes before intervals, as :func:`kivi.binning.cut` does. Intervals are closed on the right, so ``-inf`` falls into no interval; ``woe_transform`` treats it as unseen.
+   Software outside kivi that reads the file should bin with ``edges``, match ``special`` codes before intervals as :func:`kivi.binning.cut` does, and find the row of each interval by its two edges. An interval without development observations has no row. Intervals are closed on the right, so ``-inf`` falls into no interval, and ``woe_transform`` treats it as unseen.
