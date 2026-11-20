@@ -1,0 +1,1 @@
+* ``reason_codes`` takes ``unseen``. By default, points that match no group of the points table still raise an error; ``unseen="ignore"`` counts the points of applicants in a group without development observations as costing nothing, so the variable is not one of their reasons.

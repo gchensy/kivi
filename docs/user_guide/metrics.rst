@@ -184,3 +184,35 @@ The example below predicts the probability of each validation customer by the de
 [0.0907, 0.1008]
 
 The group rates lower the Brier score by about 10% compared with the constant forecast. Unlike the ranking measures, the Brier score needs no events in the sample, so it can also be computed for a period without any.
+
+Weighted samples
+----------------
+
+Validation samples often keep every event but only some of the non-events. Every function of :mod:`kivi.metrics` takes ``weights``, one non-negative weight per observation matched like the target, and then counts sums of weights instead of observations, so integer weights give the same result as repeating rows. To weight a sample back to the population, give each observation the inverse of its sampling rate. Below, every event of the validation sample is kept but only every second non-event:
+
+>>> non_events_so_far = (y == 0).cumsum()
+>>> kept = (y == 1) | (non_events_so_far % 2 == 0)
+>>> sample_score, sample_y = val_score[kept], y[kept]
+>>> weights = np.where(sample_y == 1, 1.0, 2.0)
+>>> pd.DataFrame({
+...     "all": gains_table(val_score, y, bins=edges)["event_rate"],
+...     "sample": gains_table(sample_score, sample_y, bins=edges)["event_rate"],
+...     "weighted": gains_table(sample_score, sample_y, bins=edges, weights=weights)[
+...         "event_rate"
+...     ],
+... }).round(3)
+                  all  sample  weighted
+bin
+(0.32, inf]     0.273   0.409     0.257
+(0.15, 0.32]    0.113   0.203     0.113
+(-0.38, 0.15]   0.099   0.185     0.102
+(-1.46, -0.38]  0.062   0.125     0.067
+(-inf, -1.46]   0.040   0.074     0.039
+
+Without weights the sample has twice as many events per non-event as the population, and every band's event rate is inflated. The weights restore rates close to those of all customers. The ranking measures do not change, because a weight that is the same for every observation of a class cancels out of the AUC, the Gini and the KS:
+
+>>> [round(roc_auc(sample_score, sample_y), 4), round(roc_auc(sample_score, sample_y, weights=weights), 4)]
+[0.7073, 0.7073]
+
+Weights that differ within a class, such as the inverse sampling rates of a stratified sample, do change them.
+
