@@ -12,6 +12,9 @@ Calibration
    jeffreys_test
    hosmer_lemeshow
    herfindahl_index
+   master_scale
+   fit_grade_pd
+   assign_grades
    platt_fit
    platt_predict
    isotonic_fit
@@ -30,6 +33,12 @@ Calibration
 .. autofunction:: hosmer_lemeshow
 
 .. autofunction:: herfindahl_index
+
+.. autofunction:: master_scale
+
+.. autofunction:: fit_grade_pd
+
+.. autofunction:: assign_grades
 
 .. autofunction:: platt_fit
 

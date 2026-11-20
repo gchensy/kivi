@@ -3,6 +3,7 @@
 import math
 import warnings
 from numbers import Integral, Real
+from typing import Literal
 
 import numpy as np
 import numpy.typing as npt
@@ -11,17 +12,20 @@ import pandas as pd
 from . import _logit
 from ._counts import group_counts
 from ._stats import betainc, chi2_sf
-from ._validation import as_series, as_weights, like_input, scores_and_labels
+from ._validation import as_series, as_weights, check_smoothing, like_input, scores_and_labels
 
 __all__ = [
+    "assign_grades",
     "binomial_test",
     "calibration_table",
     "corrected_intercept",
+    "fit_grade_pd",
     "herfindahl_index",
     "hosmer_lemeshow",
     "isotonic_fit",
     "isotonic_predict",
     "jeffreys_test",
+    "master_scale",
     "platt_fit",
     "platt_predict",
     "prior_correction",
@@ -952,6 +956,332 @@ def herfindahl_index(counts: npt.ArrayLike, *, normalize: bool = False) -> float
     return (index - 1 / len(values)) / (1 - 1 / len(values))
 
 
+def master_scale(
+    probability: npt.ArrayLike,
+    *,
+    boundary: Literal["geometric", "arithmetic"] = "geometric",
+    labels: npt.ArrayLike | None = None,
+) -> pd.DataFrame:
+    r"""Build a master scale from the PD of each grade.
+
+    A master scale divides the PD range from 0 to 1 into grades, each with
+    one PD. The bounds between adjacent grades lie between their PDs, so
+    that `assign_grades` can give every predicted PD its grade.
+
+    Parameters
+    ----------
+    probability : array_like
+        PD of each grade, strictly increasing from the grade with the lowest
+        risk and strictly between 0 and 1. ``numpy.geomspace(first, last,
+        grades)`` gives a geometric grid, and `fit_grade_pd` fits the PDs to
+        observed default rates.
+    boundary : {"geometric", "arithmetic"}, default "geometric"
+        Bound between two adjacent grades: the geometric mean of their PDs,
+        the midpoint on a logarithmic scale, or their arithmetic mean.
+    labels : array_like, optional
+        Unique label of each grade, such as ``list("ABCDEFG")``. By default
+        the grades are numbered from 1.
+
+    Returns
+    -------
+    pandas.DataFrame
+        One row per grade, indexed by its label in an index named
+        ``grade``, with the columns ``lower``, ``probability`` and
+        ``upper``. The first grade starts at 0, the last one ends at 1, and
+        each grade ends where the next one starts.
+
+    Raises
+    ------
+    ValueError
+        If `probability` is empty, not one-dimensional or not real and
+        numeric, has a missing value, is not strictly increasing or is not
+        strictly between 0 and 1, `boundary` is not recognized, or `labels`
+        does not give one unique, non-missing label per grade.
+
+    See Also
+    --------
+    fit_grade_pd : Fit the PD of each grade to observed default rates.
+    assign_grades : Give each predicted PD the grade of the scale.
+    calibration_table : Compare the grades with their observed default rates.
+
+    Notes
+    -----
+    For the PDs :math:`p_1 < \dots < p_K` of the grades, the bound between
+    grades :math:`k` and :math:`k + 1` is
+
+    .. math::
+
+       b_k = \sqrt{p_k \, p_{k+1}} \quad \text{(geometric)}, \qquad
+       b_k = \frac{p_k + p_{k+1}}{2} \quad \text{(arithmetic)},
+
+    and grade :math:`k` holds the PDs in :math:`(b_{k-1}, b_k]`, with
+    :math:`b_0 = 0` and :math:`b_K = 1`. PDs of a master scale usually grow
+    by a constant factor from grade to grade, so they are evenly spaced on a
+    logarithmic scale. The geometric bound is the midpoint on that scale: a
+    PD goes to the grade whose PD is nearer by ratio. The arithmetic mean,
+    which the 0.2 versions of kivi used, always lies above the geometric
+    one, so each grade reaches further towards the grade above it than
+    towards the grade below. With PDs that double from grade to grade, a
+    grade with PD :math:`p` then holds the PDs up to :math:`1.5 p` instead
+    of :math:`\sqrt 2 p \approx 1.41 p`, and its observed default rate tends
+    to exceed its PD.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from kivi.calibration import master_scale
+    >>> master_scale(np.geomspace(0.01, 0.16, 5), labels=list("ABCDE")).round(4)
+            lower  probability   upper
+    grade
+    A      0.0000         0.01  0.0141
+    B      0.0141         0.02  0.0283
+    C      0.0283         0.04  0.0566
+    D      0.0566         0.08  0.1131
+    E      0.1131         0.16  1.0000
+
+    The arithmetic mean of adjacent PDs gives higher bounds:
+
+    >>> master_scale([0.01, 0.02, 0.04], boundary="arithmetic")
+           lower  probability  upper
+    grade
+    1      0.000         0.01  0.015
+    2      0.015         0.02  0.030
+    3      0.030         0.04  1.000
+    """
+    if boundary not in ("geometric", "arithmetic"):
+        raise ValueError(f"boundary must be 'geometric' or 'arithmetic', got {boundary!r}")
+    values = _numeric_values(probability, "probability")
+    if not len(values):
+        raise ValueError("probability must give the PD of at least one grade")
+    if np.isnan(values).any():
+        raise ValueError("probability must not have missing values")
+    invalid = (values <= 0) | (values >= 1)
+    if invalid.any():
+        raise ValueError(
+            f"probability must be strictly between 0 and 1, got {_first(values, invalid)}"
+        )
+    falling = np.flatnonzero(np.diff(values) <= 0)
+    if len(falling):
+        i = falling[0]
+        raise ValueError(
+            "probability must increase strictly from grade to grade, got "
+            f"{float(values[i])!r} followed by {float(values[i + 1])!r}"
+        )
+    index = _grade_labels(labels, len(values))
+    if boundary == "geometric":
+        # Split the square root so that the product of two tiny PDs cannot underflow.
+        bounds = np.sqrt(values[:-1]) * np.sqrt(values[1:])
+    else:
+        bounds = (values[:-1] + values[1:]) / 2
+    return pd.DataFrame(
+        {"lower": np.r_[0.0, bounds], "probability": values, "upper": np.r_[bounds, 1.0]},
+        index=index,
+    )
+
+
+def fit_grade_pd(
+    event: npt.ArrayLike, total: npt.ArrayLike, *, smoothing: float = 0.5
+) -> pd.Series | npt.NDArray[np.float64]:
+    r"""Fit the PD of each grade to observed default rates, log-linear in the grade.
+
+    The logarithm of the default rate is fitted as a straight line in the
+    grade number, so the fitted PDs grow by a constant factor from grade to
+    grade. Pass the result to `master_scale` for the bounds of the grades.
+
+    Parameters
+    ----------
+    event : array_like
+        Number of defaults in each grade, ordered from the grade with the
+        lowest risk to the grade with the highest. Weighted counts, such as
+        those of a weighted `calibration_table`, are accepted.
+    total : array_like
+        Number of observations in each grade. A grade without observations
+        is left out of the fit but still gets a fitted PD, so pass a 0 for
+        every grade of the scale that the data do not cover. Series inputs
+        must have identical indices.
+    smoothing : float, default 0.5
+        Number of defaults that replaces a count of zero, whose logarithm
+        is undefined, as `kivi.woe.woe_table` replaces an empty cell.
+
+    Returns
+    -------
+    pandas.Series or numpy.ndarray
+        Fitted PD of each grade, strictly increasing and below 1: a Series
+        with the index of the Series inputs, an array otherwise.
+
+    Raises
+    ------
+    ValueError
+        If the inputs are not one-dimensional, have different lengths or
+        Series indices, are not finite and non-negative, or `event` exceeds
+        `total`; if fewer than two grades have observations or `smoothing`
+        is not finite and positive. Also if the fitted PDs do not rise with
+        the grade or reach 1.
+
+    See Also
+    --------
+    master_scale : Build the scale from the fitted PDs.
+    calibration_table : Count the observations and defaults of each grade.
+
+    Notes
+    -----
+    With :math:`d_k` defaults among :math:`n_k` observations in grade
+    :math:`k = 1, \dots, K`, the intercept :math:`a` and the slope
+    :math:`b` minimize the weighted sum of squares
+
+    .. math::
+
+       \sum_{k : n_k > 0} n_k \left(\ln \frac{d_k}{n_k} - a - b k\right)^2,
+
+    where :math:`d_k` is replaced by `smoothing` when it is 0. The fitted
+    PD of grade :math:`k` is :math:`e^{a + b k}`, and consecutive PDs have
+    the constant ratio :math:`e^b`. The weights give each observation the
+    same influence, so integer counts weigh like repeated observations;
+    the 0.2 versions of kivi fitted the line by ordinary least squares,
+    giving each grade the same influence instead.
+
+    The fit extrapolates beyond the observed grades, so grades at the
+    edges of the scale can get PDs no observation supports. A default rate
+    of zero says only that the grade is safe, not how safe: the smoothed
+    rate :math:`0.5 / n_k` stands in for it.
+
+    Examples
+    --------
+    >>> from kivi.calibration import fit_grade_pd
+    >>> event = [0, 3, 5, 18, 30]
+    >>> total = [400, 500, 300, 400, 200]
+    >>> fit_grade_pd(event, total).round(4)
+    array([0.0015, 0.0049, 0.0155, 0.0494, 0.1572])
+    """
+    indices = [values.index for values in (event, total) if isinstance(values, pd.Series)]
+    if len(indices) == 2 and not indices[0].equals(indices[1]):
+        raise ValueError("event and total must have identical indices when they are Series")
+    check_smoothing(smoothing)
+    events = _numeric_values(event, "event")
+    totals = _numeric_values(total, "total")
+    if len(events) != len(totals):
+        raise ValueError(
+            f"event and total must have the same length, got {len(events)} and {len(totals)}"
+        )
+    for name, values in (("event", events), ("total", totals)):
+        invalid = ~np.isfinite(values) | (values < 0)
+        if invalid.any():
+            raise ValueError(
+                f"{name} must be finite and non-negative, got {_first(values, invalid)}"
+            )
+    invalid = events > totals
+    if invalid.any():
+        raise ValueError(
+            f"event must not exceed total, got {_first(events, invalid)} events "
+            f"among {_first(totals, invalid)}"
+        )
+    observed = totals > 0
+    if observed.sum() < 2:
+        raise ValueError(
+            f"total must have observations in at least two grades, got {int(observed.sum())}"
+        )
+    grade = np.arange(1, len(totals) + 1, dtype=float)
+    x, weight = grade[observed], totals[observed]
+    y = np.log(np.where(events > 0, events, smoothing)[observed] / weight)
+    # Centre on the weighted means, so that the slope does not lose digits to the intercept.
+    x_mean, y_mean = np.average(x, weights=weight), np.average(y, weights=weight)
+    slope = np.sum(weight * (x - x_mean) * (y - y_mean)) / np.sum(weight * (x - x_mean) ** 2)
+    if not slope > 0:
+        raise ValueError(
+            "the fitted PDs must rise with the grade; order event and total from the lowest "
+            f"risk to the highest, got a slope of {float(slope)!r} in ln(PD) per grade"
+        )
+    probability = np.exp(y_mean + slope * (grade - x_mean))
+    if probability[-1] >= 1:
+        raise ValueError(
+            f"the fitted PD of the last grade must be below 1, got {float(probability[-1])!r}"
+        )
+    if indices:
+        return pd.Series(probability, index=indices[0])
+    return probability
+
+
+def assign_grades(probability: npt.ArrayLike, scale: pd.DataFrame) -> pd.Series | pd.Categorical:
+    """Give each predicted PD the grade of a master scale.
+
+    The grades are an ordered categorical of the labels of the scale, so
+    `calibration_table` and the tests take them directly.
+
+    Parameters
+    ----------
+    probability : array_like
+        One-dimensional predicted PDs between 0 and 1. Missing values stay
+        missing.
+    scale : pandas.DataFrame
+        Master scale, as returned by `master_scale`: one row per grade,
+        indexed by unique labels, with the columns ``lower`` and ``upper``.
+        The first grade must start at 0, each grade where the one before it
+        ends, and the last one must end at 1.
+
+    Returns
+    -------
+    pandas.Series or pandas.Categorical
+        Grade of each PD, an ordered categorical whose categories are the
+        labels of the scale from the lowest risk to the highest. A Series
+        input gives a Series with the same index and name.
+
+    Raises
+    ------
+    ValueError
+        If `probability` is not one-dimensional, is not real and numeric,
+        or has values outside [0, 1], or `scale` is not a DataFrame with
+        unique, non-missing labels and ``lower`` and ``upper`` columns that
+        cover [0, 1] with increasing, adjacent grades.
+
+    See Also
+    --------
+    master_scale : Build the scale.
+    calibration_table : Compare the observed and predicted default rates of each grade.
+    pandas.cut : Assign values to intervals given by their edges.
+
+    Notes
+    -----
+    Grade :math:`k` holds the PDs above its ``lower`` bound up to and
+    including its ``upper`` bound, as the intervals of ``pandas.cut`` are
+    closed on the right, and a PD of 0 belongs to the first grade, as with
+    ``include_lowest=True``. The result equals
+    ``pandas.cut(probability, edges, labels=scale.index, include_lowest=True)``
+    for the edges ``[0, *scale["upper"]]``, except that the categories are
+    ordered. The 0.2 versions of kivi gave a PD on a bound the grade above
+    it instead.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from kivi.calibration import assign_grades, master_scale
+    >>> scale = master_scale([0.01, 0.04, 0.16])
+    >>> scale
+           lower  probability  upper
+    grade
+    1       0.00         0.01   0.02
+    2       0.02         0.04   0.08
+    3       0.08         0.16   1.00
+    >>> assign_grades(pd.Series([0.0, 0.02, 0.05, None, 0.9]), scale)
+    0      1
+    1      1
+    2      2
+    3    NaN
+    4      3
+    dtype: category
+    Categories (3, int64): [1 < 2 < 3]
+    """
+    upper = _scale_bounds(scale)
+    series = as_series(probability, "probability")
+    values = _numeric_values(series, "probability")
+    _check_unit_interval(values, "probability")
+    codes = np.searchsorted(upper[:-1], values, side="left")
+    codes[np.isnan(values)] = -1
+    grades = pd.Categorical.from_codes(codes, categories=scale.index, ordered=True)
+    if isinstance(probability, pd.Series):
+        return pd.Series(grades, index=series.index, name=series.name)
+    return grades
+
+
 def _pool_adjacent_violators(
     total: np.ndarray, event: np.ndarray, *, increasing: bool
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -998,6 +1328,50 @@ def _isotonic_bands(edges, probabilities) -> tuple[np.ndarray, np.ndarray]:
         raise ValueError("probabilities must not have missing values")
     _check_unit_interval(probabilities, "probabilities")
     return edges, probabilities
+
+
+def _grade_labels(labels: npt.ArrayLike | None, grades: int) -> pd.Index:
+    """Return the labels of a master scale's grades as an index named ``grade``."""
+    if labels is None:
+        return pd.Index(np.arange(1, grades + 1), name="grade")
+    if isinstance(labels, str):
+        raise ValueError(f"labels must be one label per grade, got the string {labels!r}")
+    series = as_series(labels, "labels")
+    if len(series) != grades:
+        raise ValueError(
+            f"labels must give one label for each of the {grades} grade(s), got {len(series)}"
+        )
+    if series.isna().any():
+        raise ValueError("labels must not have missing values")
+    repeated = series[series.duplicated()]
+    if len(repeated):
+        raise ValueError(f"labels must be unique, got {repeated.iloc[0]!r} more than once")
+    return pd.Index(series.to_numpy(), name="grade")
+
+
+def _scale_bounds(scale: pd.DataFrame) -> np.ndarray:
+    """Check a master scale and return the upper bounds of its grades."""
+    if not isinstance(scale, pd.DataFrame):
+        raise ValueError(f"scale must be a DataFrame from master_scale, got {type(scale).__name__}")
+    absent = [name for name in ("lower", "upper") if name not in scale.columns]
+    if absent:
+        raise ValueError(f"scale must have the columns 'lower' and 'upper', missing {absent[0]!r}")
+    if scale.empty:
+        raise ValueError("scale must have at least one grade")
+    if scale.index.hasnans or not scale.index.is_unique:
+        raise ValueError("scale must be indexed by unique, non-missing grade labels")
+    lower = _numeric_values(scale["lower"], "lower of scale")
+    upper = _numeric_values(scale["upper"], "upper of scale")
+    if lower[0] != 0 or upper[-1] != 1:
+        raise ValueError(
+            f"scale must cover [0, 1], got grades from {float(lower[0])!r} to {float(upper[-1])!r}"
+        )
+    if not (np.diff(np.r_[0.0, upper]) > 0).all() or not np.array_equal(lower[1:], upper[:-1]):
+        raise ValueError(
+            "scale must have increasing grades, each starting where the one before it ends, "
+            f"got upper bounds {upper.tolist()!r}"
+        )
+    return upper
 
 
 def _float_scores(values: npt.ArrayLike, name: str) -> np.ndarray:
