@@ -5,6 +5,7 @@ import pytest
 from kivi.binning import bin_edges
 from kivi.datasets import Dataset
 from kivi.metrics import brier_score, gains_table, gini, ks, roc_auc
+from kivi.stability import psi
 
 # Events score 0.4, 0.7 and 0.9; non-events score 0.1, 0.4 and 0.8.
 TARGET = [0, 0, 1, 0, 1, 1]
@@ -14,13 +15,14 @@ GAINS_TARGET = [0, 0, 1, 0, 1, 1, 0, 0]
 GAINS_SCORE = [1, 2, 3, 3, 4, 5, 1, 2]
 
 COLUMNS = [
-    "count",
+    "non_event",
     "event",
+    "total",
     "event_rate",
     "lift",
-    "cum_count_share",
-    "cum_event_share",
     "cum_non_event_share",
+    "cum_event_share",
+    "cum_total_share",
     "ks",
     "cum_lift",
 ]
@@ -89,6 +91,36 @@ def test_ks_is_largest_gap_between_class_distributions():
     assert ks(target, score) == pytest.approx(max(gaps))
 
 
+def test_ks_can_come_from_a_reversed_region():
+    # Scores 1 to 10 in order, with events at 3, 4 and 10. The events have 2, 2 and 7 of the
+    # 7 non-events below them, so AUC = 11/21 and Gini = 1/21: the ranking is barely right.
+    target = [0, 0, 1, 1, 0, 0, 0, 0, 0, 1]
+    score = list(range(1, 11))
+    assert gini(target, score) == pytest.approx(1 / 21)
+    # In the expected direction the largest gap is F_0 - F_1 = 1 - 2/3 = 7/21 at score 9, but at
+    # score 4, F_1 - F_0 = 2/3 - 2/7 = 8/21 in the reversed direction, and KS takes that one.
+    assert ks(target, score) == pytest.approx(8 / 21)
+    table = gains_table(target, score, bins=np.r_[-np.inf, np.arange(1, 10), np.inf])
+    assert table["ks"].max() == pytest.approx(8 / 21)
+    signed = table["cum_event_share"] - table["cum_non_event_share"]
+    assert signed.max() == pytest.approx(7 / 21)
+
+
+def test_imbalanced_target():
+    # One event among 1,000 observations scored 0 to 999; 900 of the 999 non-events score lower.
+    target = np.zeros(1000, dtype=int)
+    target[900] = 1
+    score = np.arange(1000)
+    assert roc_auc(target, score) == pytest.approx(900 / 999)
+    assert ks(target, score) == pytest.approx(900 / 999)
+    table = gains_table(target, score, bins=4)
+    np.testing.assert_array_equal(table["total"], [250] * 4)
+    np.testing.assert_array_equal(table["event"], [1, 0, 0, 0])
+    np.testing.assert_allclose(table["lift"], [4, 0, 0, 0])
+    np.testing.assert_allclose(table["cum_lift"], [4, 2, 4 / 3, 1])
+    assert brier_score(target, np.full(1000, 0.001)) == pytest.approx(0.001 * 0.999)
+
+
 def test_gains_table_hand_calculation():
     table = gains_table(GAINS_TARGET, GAINS_SCORE, bins=[-np.inf, 2, 3, np.inf])
     assert list(table.columns) == COLUMNS
@@ -96,49 +128,96 @@ def test_gains_table_hand_calculation():
     np.testing.assert_array_equal(table.index.left, [3, 2, -np.inf])
     np.testing.assert_array_equal(table.index.right, [np.inf, 3, 2])
     assert table.index.closed == "right"
-    np.testing.assert_array_equal(table["count"], [2, 2, 4])
+    np.testing.assert_array_equal(table["non_event"], [0, 1, 4])
     np.testing.assert_array_equal(table["event"], [2, 1, 0])
-    assert table["count"].dtype.kind == table["event"].dtype.kind == "i"
+    np.testing.assert_array_equal(table["total"], [2, 2, 4])
+    assert {table[c].dtype.kind for c in ["non_event", "event", "total"]} == {"i"}
     # 3 events and 5 non-events in 8 observations: an event rate of 3/8.
     np.testing.assert_allclose(table["event_rate"], [1, 1 / 2, 0])
     np.testing.assert_allclose(table["lift"], [8 / 3, 4 / 3, 0])
-    np.testing.assert_allclose(table["cum_count_share"], [2 / 8, 4 / 8, 1])
-    np.testing.assert_allclose(table["cum_event_share"], [2 / 3, 1, 1])
     np.testing.assert_allclose(table["cum_non_event_share"], [0, 1 / 5, 1])
+    np.testing.assert_allclose(table["cum_event_share"], [2 / 3, 1, 1])
+    np.testing.assert_allclose(table["cum_total_share"], [2 / 8, 4 / 8, 1])
     np.testing.assert_allclose(table["ks"], [2 / 3, 4 / 5, 0])
     np.testing.assert_allclose(table["cum_lift"], [8 / 3, 2, 1])
 
 
-def test_gains_table_quantile_bands_keep_ties_together():
+def test_gains_table_integer_bins_are_bin_edges():
     # The quantiles at 1/3 and 2/3 of 1, 1, 2, 2, 3, 3, 4, 5 are the tied scores 2 and 3.
     by_count = gains_table(GAINS_TARGET, GAINS_SCORE, bins=3)
     by_edges = gains_table(GAINS_TARGET, GAINS_SCORE, bins=[-np.inf, 2, 3, np.inf])
     pd.testing.assert_frame_equal(by_count, by_edges)
-    # The median is 1, so all four 1s form the lower band instead of an even split.
-    halves = gains_table([0, 0, 1, 0, 1, 1], [1, 1, 1, 1, 2, 3], bins=2)
-    np.testing.assert_array_equal(halves.index.right, [np.inf, 1])
-    np.testing.assert_array_equal(halves["count"], [2, 4])
-    np.testing.assert_array_equal(halves["event"], [2, 1])
-
-
-def test_gains_table_quantile_edges_follow_bin_edges():
     rng = np.random.default_rng(3)
     score = rng.normal(size=200)
-    target = rng.integers(0, 2, 200)
-    table = gains_table(target, score)
+    table = gains_table(rng.integers(0, 2, 200), score)
     np.testing.assert_array_equal(table.index.right[::-1], bin_edges(score, bins=10)[1:])
-    np.testing.assert_array_equal(table["count"], [20] * 10)
+    np.testing.assert_array_equal(table["total"], [20] * 10)
 
 
-def test_gains_table_omits_empty_bands():
-    # The interpolated quartiles of 0, 0, 0, 10 are 0, 0 and 2.5, which leaves (0, 2.5] empty.
-    table = gains_table([0, 0, 0, 1], [0, 0, 0, 10], bins=4)
-    np.testing.assert_array_equal(table.index.right, [np.inf, 0])
-    np.testing.assert_array_equal(table.index.left, [2.5, -np.inf])
-    np.testing.assert_array_equal(table["count"], [1, 3])
-    explicit = gains_table([0, 1], [1, 9], bins=[-np.inf, 0, 5, 7, np.inf])
-    np.testing.assert_array_equal(explicit.index.left, [7, 0])
-    np.testing.assert_array_equal(explicit["count"], [1, 1])
+def test_gains_table_warns_when_ties_leave_fewer_bands():
+    # A PD floor: four of ten scores are 0.01. The quantiles at 0 and 0.2 are both 0.01 and
+    # merge, as in bin_edges, which leaves four bands with the floor in the lowest one.
+    score = [0.01, 0.01, 0.01, 0.01, 0.2, 0.3, 0.5, 0.6, 0.8, 0.9]
+    target = [0, 0, 0, 1, 0, 1, 0, 1, 1, 1]
+    message = "tied edges leave 4 of the 5 requested bins"
+    with pytest.warns(UserWarning, match=message):
+        table = gains_table(target, score, bins=5)
+    with pytest.warns(UserWarning, match=message):
+        edges = bin_edges(score, bins=5)
+    pd.testing.assert_frame_equal(table, gains_table(target, score, bins=edges))
+    np.testing.assert_allclose(table.index.right[::-1], [0.124, 0.38, 0.64, np.inf])
+    np.testing.assert_array_equal(table["total"], [2, 2, 2, 4])
+    np.testing.assert_array_equal(table["event"], [2, 1, 1, 1])
+    # The median of 1, 1, 1, 1, 2, 3 equals the minimum, so a single band remains.
+    with pytest.warns(UserWarning, match="tied edges leave 1 of the 2 requested bins"):
+        single = gains_table([0, 0, 1, 0, 1, 1], [1, 1, 1, 1, 2, 3], bins=2)
+    np.testing.assert_array_equal(single["total"], [6])
+    np.testing.assert_allclose(single[["lift", "ks", "cum_lift"]].to_numpy(), [[1, 0, 1]])
+
+
+def test_gains_table_keeps_empty_bands():
+    # Bands from the top: (10, inf] and (5, 7] and (-inf, 0] are empty.
+    table = gains_table([0, 1], [1, 9], bins=[-np.inf, 0, 5, 7, 10, np.inf])
+    np.testing.assert_array_equal(table.index.left, [10, 7, 5, 0, -np.inf])
+    np.testing.assert_array_equal(table["total"], [0, 1, 0, 1, 0])
+    np.testing.assert_array_equal(table["event"], [0, 1, 0, 0, 0])
+    np.testing.assert_allclose(table["event_rate"], [np.nan, 1, np.nan, 0, np.nan])
+    np.testing.assert_allclose(table["lift"], [np.nan, 2, np.nan, 0, np.nan])
+    np.testing.assert_allclose(table["cum_total_share"], [0, 1 / 2, 1 / 2, 1, 1])
+    np.testing.assert_allclose(table["ks"], [0, 1, 1, 0, 0])
+    np.testing.assert_allclose(table["cum_lift"], [np.nan, 2, 2, 1, 1])
+
+
+def test_tables_cut_on_the_same_edges_line_up():
+    edges = [-np.inf, 0.2, 0.5, 0.8, np.inf]
+    development = gains_table(
+        [0, 1, 0, 1, 0, 1, 0, 1], [0.1, 0.3, 0.6, 0.9, 0.1, 0.3, 0.6, 0.9], bins=edges
+    )
+    # No current score falls in (0.5, 0.8].
+    current = gains_table([0, 1, 0, 1], [0.1, 0.3, 0.9, 0.95], bins=edges)
+    assert current.index.equals(development.index)
+    np.testing.assert_array_equal(development["total"], [2, 2, 2, 2])
+    np.testing.assert_array_equal(current["total"], [2, 0, 1, 1])
+    # psi replaces the empty current band with the default smoothing of 0.5.
+    q = np.full(4, 1 / 4)
+    p = np.array([2, 0.5, 1, 1]) / 4.5
+    expected = np.sum((p - q) * np.log(p / q))
+    assert psi(development["total"], current["total"]) == pytest.approx(expected)
+
+
+def test_gains_table_on_unsorted_series_with_a_custom_index():
+    index = [50, 10, 40, 20, 30]
+    target = pd.Series([1, 0, 1, 0, 0], index=index)
+    score = pd.Series([0.9, 0.1, 0.7, 0.4, 0.2], index=index)
+    edges = [-np.inf, 0.3, 0.6, np.inf]
+    table = gains_table(target, score, bins=edges)
+    np.testing.assert_array_equal(table["total"], [2, 1, 2])
+    np.testing.assert_array_equal(table["event"], [2, 0, 0])
+    sorted_input = gains_table(target.sort_index(), score.sort_index(), bins=edges)
+    pd.testing.assert_frame_equal(table, sorted_input)
+    pd.testing.assert_frame_equal(
+        table, gains_table(target.to_list(), score.to_numpy(), bins=edges)
+    )
 
 
 def test_gains_table_ks_reaches_ks_with_one_band_per_score():
@@ -150,13 +229,6 @@ def test_gains_table_ks_reaches_ks_with_one_band_per_score():
     assert len(table) == len(distinct)
     assert table["ks"].max() == pytest.approx(ks(target, score))
     assert gains_table(target, score, bins=3)["ks"].max() <= ks(target, score) + 1e-12
-
-
-def test_gains_table_applies_development_edges_to_another_sample():
-    edges = [-np.inf, 0.3, 0.6, np.inf]
-    table = gains_table([0, 1, 1, 0, 1], [0.05, 0.95, 0.65, 0.4, 0.2], bins=edges)
-    np.testing.assert_array_equal(table["count"], [2, 1, 2])
-    np.testing.assert_array_equal(table["event"], [2, 0, 1])
 
 
 def test_brier_score_hand_calculation():
@@ -195,8 +267,9 @@ def test_inputs_are_not_modified():
     target = pd.Series([0, 1, 0, 1, 1])
     score = pd.Series([0.3, 0.1, 0.2, 0.4, 0.4])
     target_before, score_before = target.copy(), score.copy()
-    for metric in (roc_auc, gini, ks, gains_table, brier_score):
+    for metric in (roc_auc, gini, ks, brier_score):
         metric(target, score)
+    gains_table(target, score, bins=2)
     pd.testing.assert_series_equal(target, target_before)
     pd.testing.assert_series_equal(score, score_before)
 
@@ -215,6 +288,7 @@ def test_inputs_are_not_modified():
         ([0, 0], [0.1, 0.2], "target must contain both 0 and 1, got only 0"),
         ([], [], "target and score must not be empty"),
         ([0, 1], ["a", "b"], "score must be numeric, got dtype"),
+        ([0, 1, 0, 1], np.array([1 + 1j, 2, 3, 4]), "score must be real, got dtype complex128"),
         (
             [0, 1, 0],
             [0.1, np.nan, 0.2],
@@ -238,6 +312,7 @@ def test_ranking_measures_reject_invalid_inputs(metric, target, score, message):
         ([0, 1], [0.5, 1.5], "probability must be between 0 and 1, got 1.5"),
         ([0, 1], [-0.1, 0.5], "probability must be between 0 and 1, got -0.1"),
         ([0, 1], [np.nan, 0.5], r"probability must be finite, got 1 missing"),
+        ([0, 1], np.array([0.1 + 0j, 0.5]), "probability must be real, got dtype complex128"),
         ([0, 2], [0.1, 0.2], "target must contain only 0 and 1, got 2"),
         ([0, 1], [0.1], "target and probability must have the same length, got 2 and 1"),
         ([], [], "target and probability must not be empty"),

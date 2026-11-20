@@ -12,6 +12,7 @@ import numpy.typing as npt
 import pandas as pd
 
 from ._validation import as_series
+from .binning import bin_edges
 
 __all__ = ["roc_auc", "gini", "ks", "gains_table", "brier_score"]
 
@@ -41,9 +42,10 @@ def roc_auc(target: npt.ArrayLike, score: npt.ArrayLike) -> float:
     Raises
     ------
     ValueError
-        If the inputs are not one-dimensional, their indices or lengths do
-        not match, `target` has a label other than 0 and 1 or lacks one of
-        them, or `score` is not numeric or has a missing or infinite value.
+        If the inputs are empty or not one-dimensional, their indices or
+        lengths do not match, `target` has a label other than 0 and 1 or
+        lacks one of them, or `score` is not real and numeric or has a
+        missing or infinite value.
 
     See Also
     --------
@@ -116,9 +118,10 @@ def gini(target: npt.ArrayLike, score: npt.ArrayLike) -> float:
     Raises
     ------
     ValueError
-        If the inputs are not one-dimensional, their indices or lengths do
-        not match, `target` has a label other than 0 and 1 or lacks one of
-        them, or `score` is not numeric or has a missing or infinite value.
+        If the inputs are empty or not one-dimensional, their indices or
+        lengths do not match, `target` has a label other than 0 and 1 or
+        lacks one of them, or `score` is not real and numeric or has a
+        missing or infinite value.
 
     See Also
     --------
@@ -167,9 +170,10 @@ def ks(target: npt.ArrayLike, score: npt.ArrayLike) -> float:
     Raises
     ------
     ValueError
-        If the inputs are not one-dimensional, their indices or lengths do
-        not match, `target` has a label other than 0 and 1 or lacks one of
-        them, or `score` is not numeric or has a missing or infinite value.
+        If the inputs are empty or not one-dimensional, their indices or
+        lengths do not match, `target` has a label other than 0 and 1 or
+        lacks one of them, or `score` is not real and numeric or has a
+        missing or infinite value.
 
     See Also
     --------
@@ -185,9 +189,15 @@ def ks(target: npt.ArrayLike, score: npt.ArrayLike) -> float:
 
        \mathrm{KS} = \max_t \, \lvert F_1(t) - F_0(t) \rvert,
 
-    where :math:`t` runs over the observed scores. The gap does not depend on
-    the direction of the score, so negated scores give the same KS; use the
-    sign of `gini` to check the direction.
+    where :math:`t` runs over the observed scores. As in the two-sample
+    Kolmogorov-Smirnov test, the gap is taken in absolute value, so negated
+    scores give the same KS; use the sign of `gini` to check the direction.
+
+    The largest gap can come from a region where the score runs the wrong
+    way, for example when events gather among the lowest scores as well as
+    the highest. The KS then measures how far apart the two distributions
+    are rather than how well the score ranks events above non-events. The
+    cumulative shares in `gains_table` show where the gap occurs.
 
     References
     ----------
@@ -226,26 +236,31 @@ def gains_table(
         Finite numeric scores that are higher for a higher event probability.
         Negate scorecard points, which are higher for a lower risk.
     bins : int or array_like, default 10
-        Number of quantile bands, or increasing band edges such as those from
-        `kivi.binning.bin_edges`. Tied scores can leave fewer quantile bands
-        than requested. Pass the edges fitted on a development sample to
-        compare later samples on the same bands.
+        Number of quantile bands, or increasing band edges. An integer is the
+        same as passing ``kivi.binning.bin_edges(score, bins=bins)``, so tied
+        scores can leave fewer bands than requested. Pass the edges fitted on
+        a development sample to compare later samples on the same bands.
 
     Returns
     -------
     pandas.DataFrame
-        One row per score band that has observations, from the highest band
-        to the lowest, indexed by the interval of the band. The columns are
-        described in the Notes.
+        One row per score band, from the highest band to the lowest, indexed
+        by the interval of the band. The columns are described in the Notes.
 
     Raises
     ------
     ValueError
-        If the inputs are not one-dimensional, their indices or lengths do
-        not match, `target` has a label other than 0 and 1 or lacks one of
-        them, `score` is not numeric or has a missing or infinite value,
-        `bins` is neither a positive integer nor increasing edges, or a score
-        lies outside the edges.
+        If the inputs are empty or not one-dimensional, their indices or
+        lengths do not match, `target` has a label other than 0 and 1 or
+        lacks one of them, `score` is not real and numeric or has a missing
+        or infinite value, `bins` is neither a positive integer nor
+        increasing edges, or a score lies outside the edges.
+
+    Warns
+    -----
+    UserWarning
+        If `bins` is an integer and tied scores leave fewer bands than
+        requested, as in `kivi.binning.bin_edges`.
 
     See Also
     --------
@@ -256,22 +271,23 @@ def gains_table(
     Notes
     -----
     Bands are intervals closed on the right, as in ``pandas.cut``, so tied
-    scores always share a band. An integer `bins` places the interior edges
-    at the sample quantiles of `score`, computed with the default linear
-    interpolation of ``numpy.quantile``, and repeated edges are merged. The
-    outer edges are infinite. Bands without observations are omitted.
+    scores always share a band. Every band is reported, including bands
+    without observations, so samples cut on the same edges give tables with
+    the same rows. An empty band has a NaN ``event_rate`` and ``lift``, and
+    ``cum_lift`` is NaN until the first band with observations.
 
     The columns are:
 
-    - ``count`` and ``event``: observations and events in the band;
-    - ``event_rate``: ``event`` divided by ``count``;
+    - ``non_event``, ``event`` and ``total``: non-events, events and all
+      observations in the band;
+    - ``event_rate``: ``event`` divided by ``total``;
     - ``lift``: ``event_rate`` divided by the event rate of the sample;
-    - ``cum_count_share``, ``cum_event_share`` and ``cum_non_event_share``:
-      shares of all observations, events and non-events in the band and
-      the bands above it;
+    - ``cum_non_event_share``, ``cum_event_share`` and ``cum_total_share``:
+      shares of all non-events, events and observations in the band and the
+      bands above it;
     - ``ks``: the absolute difference between ``cum_event_share`` and
       ``cum_non_event_share``;
-    - ``cum_lift``: ``cum_event_share`` divided by ``cum_count_share``.
+    - ``cum_lift``: ``cum_event_share`` divided by ``cum_total_share``.
 
     The largest ``ks`` is at most the value of `ks`, and the two are equal
     when each distinct score forms its own band.
@@ -282,8 +298,8 @@ def gains_table(
     >>> target = [0, 0, 1, 0, 1, 1, 0, 0]
     >>> score = [1, 2, 3, 3, 4, 5, 1, 2]
     >>> table = gains_table(target, score, bins=3)
-    >>> table[["count", "event", "event_rate", "cum_event_share", "ks", "lift"]].round(3)
-                count  event  event_rate  cum_event_share     ks  lift
+    >>> table[["total", "event", "event_rate", "cum_event_share", "ks", "lift"]].round(3)
+                total  event  event_rate  cum_event_share     ks  lift
     bin
     (3.0, inf]      2      2         1.0            0.667  0.667  2.667
     (2.0, 3.0]      2      1         0.5            1.000  0.800  1.333
@@ -299,25 +315,26 @@ def gains_table(
             f"{float(values[outside][0])!r}; use infinite outer edges"
         )
     counts = np.bincount(2 * band + labels, minlength=2 * (len(edges) - 1)).reshape(-1, 2)
-    observed = counts.sum(axis=1) > 0
-    index = pd.IntervalIndex.from_breaks(edges, closed="right", name="bin")[observed][::-1]
-    non_event, event = counts[observed][::-1].T
-    count = non_event + event
-    event_rate = event / count
+    # Highest band first; empty bands stay so that tables cut on the same edges line up.
+    index = pd.IntervalIndex.from_breaks(edges, closed="right", name="bin")[::-1]
+    non_event, event = counts[::-1].T
+    total = non_event + event
+    inverse_rate = total.sum() / event.sum()
+    event_rate = _ratio(event, total)
     cum_event_share = np.cumsum(event) / event.sum()
     cum_non_event_share = np.cumsum(non_event) / non_event.sum()
-    cum_count_share = np.cumsum(count) / count.sum()
     return pd.DataFrame(
         {
-            "count": count,
+            "non_event": non_event,
             "event": event,
+            "total": total,
             "event_rate": event_rate,
-            "lift": event_rate * (count.sum() / event.sum()),
-            "cum_count_share": cum_count_share,
-            "cum_event_share": cum_event_share,
+            "lift": event_rate * inverse_rate,
             "cum_non_event_share": cum_non_event_share,
+            "cum_event_share": cum_event_share,
+            "cum_total_share": np.cumsum(total) / total.sum(),
             "ks": np.abs(cum_event_share - cum_non_event_share),
-            "cum_lift": cum_event_share / cum_count_share,
+            "cum_lift": _ratio(np.cumsum(event), np.cumsum(total)) * inverse_rate,
         },
         index=index,
     )
@@ -348,8 +365,8 @@ def brier_score(target: npt.ArrayLike, probability: npt.ArrayLike) -> float:
     ValueError
         If the inputs are empty or not one-dimensional, their indices or
         lengths do not match, `target` has a label other than 0 and 1, or
-        `probability` is not numeric or has a missing value or a value
-        outside 0 to 1.
+        `probability` is not real and numeric or has a missing value or a
+        value outside 0 to 1.
 
     See Also
     --------
@@ -410,6 +427,8 @@ def _labels_and_scores(
         raise ValueError(f"target must contain both 0 and 1, got only {labels[0]}")
     if not pd.api.types.is_numeric_dtype(score.dtype):
         raise ValueError(f"{name} must be numeric, got dtype {score.dtype}")
+    if pd.api.types.is_complex_dtype(score.dtype):
+        raise ValueError(f"{name} must be real, got dtype {score.dtype}")
     values = score.to_numpy(dtype=float, na_value=np.nan)
     finite = np.isfinite(values)
     if not finite.all():
@@ -433,16 +452,20 @@ def _distinct_counts(labels: np.ndarray, values: np.ndarray) -> npt.NDArray[np.i
     return counts.reshape(-1, 2)
 
 
+def _ratio(numerator: np.ndarray, denominator: np.ndarray) -> npt.NDArray[np.float64]:
+    """Elementwise ratio that is NaN, without a warning, where the denominator is 0."""
+    result = np.full(len(numerator), np.nan)
+    return np.divide(numerator, denominator, out=result, where=denominator > 0)
+
+
 def _band_edges(values: np.ndarray, bins) -> npt.NDArray[np.float64]:
     """Increasing band edges: quantile edges for an integer ``bins``, else ``bins`` itself."""
     message = "bins must be a positive integer or at least two increasing edges, got {!r}"
     if isinstance(bins, Integral) and not isinstance(bins, bool):
         if bins < 1:
             raise ValueError(message.format(bins))
-        # Keep an interior quantile equal to the minimum: (-inf, min] then holds the tied lowest
-        # scores. One equal to the maximum leaves (max, inf] empty, which gains_table omits.
-        interior = np.quantile(values, np.linspace(0, 1, bins + 1)[1:-1])
-        return np.r_[-np.inf, np.unique(interior), np.inf]
+        # The same edges, and the same warning for tied quantiles, as bin_edges.
+        return bin_edges(values, bins=int(bins))
     try:
         edges = np.asarray(bins, dtype=float)
     except (TypeError, ValueError):

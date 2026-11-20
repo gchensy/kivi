@@ -28,6 +28,8 @@ Let :math:`F_1` and :math:`F_0` be the empirical distribution functions of the s
 
    \mathrm{KS} = \max_t \, \lvert F_1(t) - F_0(t) \rvert.
 
+The gap is taken in absolute value, as in the two-sample test. KS therefore says nothing about the direction of the score, and its largest gap can come from a range of scores where the ranking is reversed. Read it together with the Gini.
+
 A worked example
 ----------------
 
@@ -106,7 +108,7 @@ Points that fall as the risk rises rank the customers in the opposite order. Pas
 Gains table
 -----------
 
-``gains_table`` sorts the sample into score bands, from the highest scores to the lowest. Each row shows the event rate of its band and the share of all events found by reviewing that band and every band above it. The default ``bins=10`` gives quantile bands of the sample, and tied scores always share a band.
+``gains_table`` sorts the sample into score bands, from the highest scores to the lowest. Each row shows the event rate of its band and the share of all events found by reviewing that band and every band above it. The default ``bins=10`` cuts the sample at the edges of ``bin_edges(score, bins=10)``, and tied scores always share a band.
 
 In monitoring, fix the bands on the development sample so that every later sample is cut at the same scores. Fit the edges with ``bin_edges`` and round them to readable cut-offs:
 
@@ -116,8 +118,8 @@ In monitoring, fix the bands on the development sample so that every later sampl
 >>> edges
 array([ -inf, -1.46, -0.38,  0.15,  0.32,   inf])
 >>> gains = gains_table(y, val_score, bins=edges)
->>> gains[["count", "event", "event_rate", "lift", "cum_event_share", "ks"]].round(3)
-                count  event  event_rate   lift  cum_event_share     ks
+>>> gains[["total", "event", "event_rate", "lift", "cum_event_share", "ks"]].round(3)
+                total  event  event_rate   lift  cum_event_share     ks
 bin
 (0.32, inf]       264     72       0.273  2.398            0.416  0.274
 (0.15, 0.32]      344     39       0.113  0.997            0.642  0.273
@@ -130,6 +132,13 @@ The top band holds 17% of the validation customers (264 of 1,521) but 42% of the
 >>> print(f"{gains['ks'].max():.3f} < {ks(y, val_score):.3f}")
 0.274 < 0.321
 
+Every band is reported, including a band that no customer falls into, so two samples cut on the same edges give tables with the same rows. Their ``total`` columns then give the PSI of the score bands, here far below 0.1, the usual upper bound of a small shift (see :doc:`psi`):
+
+>>> from kivi.stability import psi
+>>> dev_gains = gains_table(development["target"], dev_score, bins=edges)
+>>> round(psi(dev_gains["total"], gains["total"]), 4)
+0.0025
+
 Reading the result
 ------------------
 
@@ -139,20 +148,20 @@ Reading the result
 
    * - Column
      - Meaning
-   * - ``count``, ``event``
-     - Observations and events in the band.
+   * - ``non_event``, ``event``, ``total``
+     - Non-events, events and all observations in the band, as in ``woe_table``.
    * - ``event_rate``
-     - ``event`` divided by ``count``.
+     - ``event`` divided by ``total``; NaN for an empty band.
    * - ``lift``
      - The event rate of the band divided by the event rate of the whole sample.
-   * - ``cum_count_share``
-     - Share of all observations in this band and the bands above it.
-   * - ``cum_event_share``, ``cum_non_event_share``
-     - Shares of all events and of all non-events in this band and the bands above it. Plotting ``cum_event_share`` against ``cum_count_share`` gives the gains chart.
+   * - ``cum_non_event_share``, ``cum_event_share``
+     - Shares of all non-events and of all events in this band and the bands above it.
+   * - ``cum_total_share``
+     - Share of all observations in this band and the bands above it. Plotting ``cum_event_share`` against ``cum_total_share`` gives the gains chart.
    * - ``ks``
-     - The absolute gap between ``cum_event_share`` and ``cum_non_event_share`` at the lower edge of the band.
+     - The absolute gap between ``cum_event_share`` and ``cum_non_event_share`` at the lower edge of the band. Like ``ks``, it can come from a band where the score runs the wrong way, with ``cum_non_event_share`` above ``cum_event_share``.
    * - ``cum_lift``
-     - ``cum_event_share`` divided by ``cum_count_share``: the lift of reviewing this band and every band above it.
+     - ``cum_event_share`` divided by ``cum_total_share``: the lift of reviewing this band and every band above it.
 
 Brier score
 -----------
