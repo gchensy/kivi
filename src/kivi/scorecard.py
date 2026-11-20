@@ -8,6 +8,8 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
+from .woe import _woe_values
+
 __all__ = [
     "pd_to_score",
     "points_table",
@@ -122,7 +124,9 @@ def pd_to_score(
 
     Notes
     -----
-    The score is ``offset + factor * ln((1 - prob) / prob)``.
+    The score is ``offset + factor * ln((1 - prob) / prob)``. A probability
+    of exactly 0 or 1 has no finite score and raises an error; see
+    `score_to_pd` for the scores whose probability rounds to 1.
 
     Examples
     --------
@@ -177,7 +181,10 @@ def score_to_pd(
     Notes
     -----
     The probability is ``1 / (1 + exp((score - offset) / factor))``,
-    computed without overflow for extreme scores.
+    computed without overflow for extreme scores. In double precision it
+    rounds to exactly 1 for scores more than about ``36.7 * factor`` below
+    the offset, -572 for the scale in the example, and `pd_to_score` rejects
+    such probabilities. Scores that low do not occur on a practical scale.
 
     Examples
     --------
@@ -229,16 +236,17 @@ def points_table(
     Returns
     -------
     pandas.DataFrame
-        One row per variable and group, indexed by ``variable`` and
-        ``bin``, with the group's ``woe`` and ``points``.
+        One row per variable and group, indexed by ``variable``, with the
+        group label ``bin`` and the group's ``woe`` and ``points``. Select a
+        variable's rows with ``table.loc[[variable]]``.
 
     Raises
     ------
     ValueError
         If `tables` is not a mapping or lacks a variable of `coefficients`,
-        a table has no ``woe`` column or non-finite WOE values, the
-        coefficients are empty, repeated or not finite, or the scaling
-        arguments are invalid.
+        a table has no ``woe`` column, repeats a group or has non-finite WOE
+        values, the coefficients are empty, repeated or not finite numbers,
+        or the scaling arguments are invalid.
 
     See Also
     --------
@@ -264,6 +272,10 @@ def points_table(
     same share of the intercept and offset, so the points of a variable's
     groups differ only by their WOE term.
 
+    The group labels stay in a column rather than an index level, so labels
+    that compare equal across variables, such as ``True`` and ``1``, keep
+    their own values.
+
     References
     ----------
     .. [1] N. Siddiqi, "Credit Risk Scorecards: Developing and Implementing
@@ -279,12 +291,12 @@ def points_table(
     ... }
     >>> coefficients = {"housing": 0.8, "contact": 0.5}
     >>> points_table(tables, coefficients, -2.0, pdo=20, base_score=600, base_odds=50).round(2)
-                       woe  points
-    variable bin
-    housing  no       -0.4  281.65
-             yes       0.3  265.49
-    contact  cellular -0.2  275.30
-             unknown   0.6  263.76
+                   bin  woe  points
+    variable
+    housing         no -0.4  281.65
+    housing        yes  0.3  265.49
+    contact   cellular -0.2  275.30
+    contact    unknown  0.6  263.76
     """
     slope, base = _model_points(coefficients, intercept, pdo, base_score, base_odds)
     if not isinstance(tables, Mapping):
@@ -294,19 +306,17 @@ def points_table(
     _check_present(slope.index, tables, "tables")
     woe = [_woe_column(tables[variable], variable) for variable in slope.index]
     variable_codes = np.repeat(np.arange(len(woe)), [len(column) for column in woe])
-    # Explicit levels keep the labels as objects; letting pandas infer an interval level
-    # hashes infinite edges, which warns on NumPy < 2.2.
-    labels = np.concatenate([np.asarray(column.index, dtype=object) for column in woe])
-    label_codes, label_levels = pd.factorize(labels)
-    index = pd.MultiIndex(
-        levels=[slope.index, pd.Index(label_levels, dtype=object)],
-        codes=[variable_codes, label_codes],
-        names=["variable", "bin"],
-    )
     values = np.concatenate([column.to_numpy(dtype=float) for column in woe])
     # The same operations as woe_to_points, so both give identical points.
     points = base - slope.to_numpy()[variable_codes] * values
-    return pd.DataFrame({"woe": values, "points": points}, index=index)
+    table = pd.DataFrame(
+        {"woe": values, "points": points}, index=slope.index.take(variable_codes).rename("variable")
+    )
+    # A column keeps every label as given: an index level would merge labels that compare
+    # equal, such as True and 1, and would hash interval labels, which warns on NumPy < 2.2.
+    labels = np.concatenate([np.asarray(column.index, dtype=object) for column in woe])
+    table.insert(0, "bin", pd.array(labels, dtype=object))
+    return table.astype({"bin": object})
 
 
 def woe_to_points(
@@ -350,8 +360,8 @@ def woe_to_points(
     Raises
     ------
     ValueError
-        If `woe` is not a DataFrame or mapping, lacks a variable of
-        `coefficients` or has non-finite values, the coefficients are empty,
+        If `woe` is not a DataFrame or mapping, lacks or repeats a variable
+        of `coefficients` or has non-finite values, the coefficients are empty,
         repeated or not finite, or the scaling arguments are invalid.
 
     See Also
@@ -388,6 +398,9 @@ def woe_to_points(
     elif not isinstance(woe, pd.DataFrame):
         raise ValueError(f"woe must be a DataFrame or a mapping, got {type(woe).__name__}")
     _check_present(slope.index, woe.columns, "woe")
+    repeated = woe.columns[woe.columns.duplicated() & woe.columns.isin(slope.index)]
+    if len(repeated):
+        raise ValueError(f"woe must have one column per variable, got {repeated[0]!r} twice")
     values = woe[list(slope.index)].to_numpy(dtype=float)
     if not np.isfinite(values).all():
         column = slope.index[~np.isfinite(values).all(axis=0)][0]
@@ -395,11 +408,13 @@ def woe_to_points(
     return pd.DataFrame(base - slope.to_numpy() * values, index=woe.index, columns=slope.index)
 
 
-def reason_codes(points: pd.DataFrame, table: pd.DataFrame, *, top: int = 3) -> pd.DataFrame:
+def reason_codes(
+    points: pd.DataFrame, table: pd.DataFrame, *, top: int = 3, atol: float = 1e-4
+) -> pd.DataFrame:
     """Name the variables that cost each applicant the most points.
 
     A variable costs an applicant the difference between the points of the
-    variable's best group and the points the applicant received. Variables
+    variable's best group and the points of the applicant's group. Variables
     are listed from the largest cost; those that cost nothing are not
     listed.
 
@@ -411,6 +426,10 @@ def reason_codes(points: pd.DataFrame, table: pd.DataFrame, *, top: int = 3) -> 
         The `points_table` result for the same model and scaling.
     top : int, default 3
         Number of reasons per applicant.
+    atol : float, default 1e-4
+        Largest difference, in points, between an applicant's points and the
+        points of a group for the applicant to be in that group. It absorbs
+        rounding, for example of WOE values stored with six decimals.
 
     Returns
     -------
@@ -423,8 +442,10 @@ def reason_codes(points: pd.DataFrame, table: pd.DataFrame, *, top: int = 3) -> 
     ------
     ValueError
         If `points` is not a DataFrame or has non-finite values, `table` is
-        not a `points_table` result or lacks a variable of `points`, or
-        `top` is not a positive integer.
+        not a `points_table` result or lacks a variable of `points`, some
+        points are farther than `atol` from every group of their variable,
+        `top` is not a positive integer, or `atol` is not a finite positive
+        number.
 
     See Also
     --------
@@ -433,9 +454,16 @@ def reason_codes(points: pd.DataFrame, table: pd.DataFrame, *, top: int = 3) -> 
 
     Notes
     -----
-    Variables that cost the same number of points keep the order of the
-    columns of `points`. Compare points that are rounded in the same way:
-    the best group's points are read from `table`.
+    Each applicant's points are matched to the nearest group of the variable
+    in `table`, and the costs are differences between the points of
+    `table`'s groups. Costs that differ by less than about `atol` count as
+    equal, so such variables keep the order of the columns of `points`, and
+    a cost below about `atol` is no cost.
+
+    Points that match no group, such as those from a different intercept or
+    scaling, or from WOE values given with ``unseen`` in
+    `kivi.woe.woe_transform`, raise an error rather than giving reasons
+    against the wrong groups.
 
     Examples
     --------
@@ -459,21 +487,37 @@ def reason_codes(points: pd.DataFrame, table: pd.DataFrame, *, top: int = 3) -> 
         raise ValueError(f"points must be a DataFrame, got {type(points).__name__}")
     if isinstance(top, bool) or not isinstance(top, Integral) or top < 1:
         raise ValueError(f"top must be a positive integer, got {top!r}")
-    if (
-        not isinstance(table, pd.DataFrame)
-        or "points" not in table.columns
-        or table.index.nlevels != 2
-    ):
-        raise ValueError("table must be a points_table result")
-    best = table["points"].groupby(level=0, sort=False).max()
-    _check_present(points.columns, best.index, "table")
+    if isinstance(atol, bool) or not isinstance(atol, Real) or not 0 < atol < math.inf:
+        raise ValueError(f"atol must be a finite positive number, got {atol!r}")
+    if not isinstance(table, pd.DataFrame) or table.index.name != "variable":
+        raise ValueError(f"table must be a points_table result, got {_describe(table)}")
+    if "points" not in table.columns:
+        raise ValueError(f"table must have a points column, got columns {table.columns.tolist()}")
+    groups = dict(iter(table["points"].groupby(level="variable", sort=False)))
+    _check_present(points.columns, groups, "table")
     values = points.to_numpy(dtype=float)
-    if not np.isfinite(values).all():
-        raise ValueError("points must be finite")
-    cost = best.reindex(points.columns).to_numpy() - values
-    order = np.argsort(-cost, axis=1, kind="stable")[:, :top]
+    invalid = ~np.isfinite(values)
+    if invalid.any():
+        row, column = np.argwhere(invalid)[0]
+        value, variable = float(values[row, column]), points.columns[column]
+        raise ValueError(f"points must be finite, got {value!r} in {variable!r}")
+    cost = np.empty_like(values)
+    for column, variable in enumerate(points.columns):
+        group_points = np.sort(groups[variable].to_numpy(dtype=float))
+        nearest = _nearest(group_points, values[:, column])
+        far = np.abs(values[:, column] - nearest) > atol
+        if far.any():
+            row = np.flatnonzero(far)[0]
+            raise ValueError(
+                f"points of {variable!r} must match a group of table within atol={atol!r}, "
+                f"got {float(values[row, column])!r}, nearest group {float(nearest[row])!r}"
+            )
+        cost[:, column] = group_points[-1] - nearest
+    # Costs that differ by less than atol tie, so the stable sort keeps the column order.
+    steps = np.round(cost / atol)
+    order = np.argsort(-steps, axis=1, kind="stable")[:, :top]
     names = np.asarray(points.columns, dtype=object)[order]
-    names[np.take_along_axis(cost, order, axis=1) <= 0] = None
+    names[np.take_along_axis(steps, order, axis=1) <= 0] = None
     reasons = np.full((len(points), top), None, dtype=object)
     reasons[:, : names.shape[1]] = names
     columns = [f"reason_{rank}" for rank in range(1, top + 1)]
@@ -495,33 +539,30 @@ def _model_points(coefficients, intercept, pdo, base_score, base_odds) -> tuple[
         kind = type(coefficients).__name__
         raise ValueError(f"coefficients must be a mapping or Series by variable, got {kind}")
     if coefficients.empty:
-        raise ValueError("coefficients must name at least one variable")
+        raise ValueError("coefficients must name at least one variable, got none")
     if coefficients.index.has_duplicates:
-        raise ValueError("coefficients must name each variable once")
-    beta = pd.to_numeric(coefficients, errors="coerce").astype(float)
-    invalid = ~np.isfinite(beta.to_numpy())
-    if invalid.any():
-        position = int(np.flatnonzero(invalid)[0])
-        raise ValueError(
-            f"coefficients must be finite numbers, got {coefficients.tolist()[position]!r} "
-            f"for {coefficients.index[position]!r}"
-        )
+        repeated = coefficients.index[coefficients.index.duplicated()][0]
+        raise ValueError(f"coefficients must name each variable once, got {repeated!r} twice")
+    for variable, value in zip(coefficients.index, coefficients.tolist(), strict=True):
+        if isinstance(value, bool) or not isinstance(value, Real) or not math.isfinite(value):
+            raise ValueError(f"coefficients must be finite numbers, got {value!r} for {variable!r}")
+    beta = pd.Series(coefficients.to_numpy(dtype=float), index=coefficients.index)
     return factor * beta, (offset - factor * intercept) / len(beta)
 
 
 def _woe_column(table: pd.DataFrame | pd.Series, variable: object) -> pd.Series:
-    if isinstance(table, pd.DataFrame):
-        if "woe" not in table.columns:
-            raise ValueError(f"the table of {variable!r} must have a woe column")
-        table = table["woe"]
-    elif not isinstance(table, pd.Series):
+    try:
+        woe = _woe_values(table)
+    except ValueError as error:
+        raise ValueError(f"invalid table for {variable!r}: {error}") from None
+    values = woe.to_numpy(dtype=float)
+    invalid = ~np.isfinite(values)
+    if invalid.any():
         raise ValueError(
-            f"the table of {variable!r} must be a woe_table result or a Series, "
-            f"got {type(table).__name__}"
+            f"the table of {variable!r} must have finite WOE values, "
+            f"got {float(values[invalid][0])!r} for group {woe.index[invalid][0]!r}"
         )
-    if not np.isfinite(table.to_numpy(dtype=float)).all():
-        raise ValueError(f"the table of {variable!r} must have finite WOE values")
-    return table
+    return woe
 
 
 def _check_present(variables: pd.Index, available, name: str) -> None:
@@ -529,6 +570,20 @@ def _check_present(variables: pd.Index, available, name: str) -> None:
     if missing:
         shown = ", ".join(repr(variable) for variable in missing[:5])
         raise ValueError(f"{name} has no entry for {len(missing)} variable(s): {shown}")
+
+
+def _nearest(sorted_values: np.ndarray, values: np.ndarray) -> np.ndarray:
+    """Return the element of the sorted array nearest to each value."""
+    right = np.clip(np.searchsorted(sorted_values, values), 0, len(sorted_values) - 1)
+    left = np.clip(right - 1, 0, len(sorted_values) - 1)
+    closer_left = np.abs(values - sorted_values[left]) <= np.abs(values - sorted_values[right])
+    return np.where(closer_left, sorted_values[left], sorted_values[right])
+
+
+def _describe(value: object) -> str:
+    if isinstance(value, pd.DataFrame):
+        return f"a DataFrame indexed by {value.index.name!r} with columns {value.columns.tolist()}"
+    return type(value).__name__
 
 
 def _like(template: npt.ArrayLike, values: np.ndarray) -> float | pd.Series | np.ndarray:

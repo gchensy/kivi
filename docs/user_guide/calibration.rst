@@ -54,14 +54,14 @@ A master scale divides the PD range into a fixed set of grades, so that ratings 
 ...     return 1 / (1 + np.exp(2.028 - woe @ coefficients))
 >>> dev_prob, prob = predict(development), predict(monitoring)
 
-Assign the grades with ``pandas.cut`` and the PD edges of the scale, then compare the observed default rate of each grade with its mean predicted PD using ``calibration_table``:
+Assign the grades with ``pandas.cut`` and the PD edges of the scale, then compare the observed default rate of each grade with its mean predicted PD using ``calibration_table``. The intervals are closed on the right, so a PD on an edge goes to the lower grade, and ``include_lowest=True`` keeps a PD of exactly 0 in the first grade:
 
 >>> from kivi.calibration import calibration_table
 >>> pd_edges = [0, 0.05, 0.08, 0.12, 0.2, 0.4, 1]
->>> grades = pd.cut(prob, pd_edges, labels=list("ABCDEF"))
+>>> grades = pd.cut(prob, pd_edges, labels=list("ABCDEF"), include_lowest=True)
 >>> table = calibration_table(grades, monitoring["target"], prob)
 >>> table.round(3)
-     count  event  event_rate  mean_prob
+     total  event  event_rate  mean_prob
 bin
 A      328     13       0.040      0.042
 B      234     13       0.056      0.071
@@ -70,7 +70,7 @@ D      572     66       0.115      0.136
 E       65     22       0.338      0.260
 F       46     31       0.674      0.636
 
-``calibration_table`` accepts any grouping, such as score bands or deciles of the PD. Like ``woe_table``, it follows the order of categorical groups and leaves out grades without observations.
+``calibration_table`` accepts any grouping, such as score bands or deciles of the PD. It counts the groups like ``woe_table``: categorical groups keep the order of their categories, and grades without observations are left out.
 
 Testing each grade
 ------------------
@@ -83,8 +83,8 @@ Each grade is tested on its own against the hypothesis that its PD is not too lo
 >>> from kivi.calibration import binomial_test, jeffreys_test
 >>> def grade_tests(table):
 ...     return table.assign(
-...         binomial=binomial_test(table["event"], table["count"], table["mean_prob"]),
-...         jeffreys=jeffreys_test(table["event"], table["count"], table["mean_prob"]),
+...         binomial=binomial_test(table["event"], table["total"], table["mean_prob"]),
+...         jeffreys=jeffreys_test(table["event"], table["total"], table["mean_prob"]),
 ...     )
 >>> grade_tests(table)[["event_rate", "mean_prob", "binomial", "jeffreys"]].round(3)
      event_rate  mean_prob  binomial  jeffreys
@@ -99,7 +99,7 @@ F         0.674      0.636     0.356     0.300
 No grade is rejected at the usual 5% level. To see the tests at work, scale the PDs down as if the portfolio defaulted at 6% rather than at the 11.6% of the development sample. The monitoring sample still defaults at the development rate, so the PDs are now too low:
 
 >>> low = prior_correction(prob, sample_rate=0.116, population_rate=0.06)
->>> low_grades = pd.cut(low, pd_edges, labels=list("ABCDEF"))
+>>> low_grades = pd.cut(low, pd_edges, labels=list("ABCDEF"), include_lowest=True)
 >>> low_table = calibration_table(low_grades, monitoring["target"], low)
 >>> grade_tests(low_table)[["event_rate", "mean_prob", "binomial", "jeffreys"]].round(3)
      event_rate  mean_prob  binomial  jeffreys
@@ -129,7 +129,7 @@ On the sample the model was fitted on, form about ten groups of similar size fro
 >>> deciles = pd.cut(dev_prob, bin_edges(dev_prob, bins=10))
 >>> dev_table = calibration_table(deciles, development["target"], dev_prob)
 >>> statistic, pvalue = hosmer_lemeshow(
-...     dev_table["event"], dev_table["count"], dev_table["mean_prob"]
+...     dev_table["event"], dev_table["total"], dev_table["mean_prob"]
 ... )
 >>> print(f"H = {statistic:.2f}, p = {pvalue:.3f}")
 H = 3.42, p = 0.905
@@ -137,12 +137,12 @@ H = 3.42, p = 0.905
 PDs that were not fitted on the tested sample, such as the grades of the monitoring sample, lose no degrees of freedom, so pass ``ddof=0``:
 
 >>> statistic, pvalue = hosmer_lemeshow(
-...     table["event"], table["count"], table["mean_prob"], ddof=0
+...     table["event"], table["total"], table["mean_prob"], ddof=0
 ... )
 >>> print(f"H = {statistic:.2f}, p = {pvalue:.3f}")
 H = 5.60, p = 0.470
 >>> statistic, pvalue = hosmer_lemeshow(
-...     low_table["event"], low_table["count"], low_table["mean_prob"], ddof=0
+...     low_table["event"], low_table["total"], low_table["mean_prob"], ddof=0
 ... )
 >>> print(f"H = {statistic:.1f}, p = {pvalue:.1e}")
 H = 74.1, p = 6.0e-14
@@ -153,9 +153,9 @@ Concentration of the grades
 A master scale differentiates risk poorly when most obligors fall into a few grades. The Herfindahl-Hirschman index sums the squared shares of the grades: it is :math:`1/k` when all :math:`k` grades are equally full and 1 when one grade holds everybody. With ``normalize=True`` it runs from 0 to 1 instead:
 
 >>> from kivi.calibration import herfindahl_index
->>> print(f"{herfindahl_index(table['count']):.3f}")
+>>> print(f"{herfindahl_index(table['total']):.3f}")
 0.247
->>> print(f"{herfindahl_index(table['count'], normalize=True):.3f}")
+>>> print(f"{herfindahl_index(table['total'], normalize=True):.3f}")
 0.097
 
 ``calibration_table`` leaves out empty grades. To count them, pass the counts of every grade of the scale, for example ``grades.value_counts(sort=False)``.

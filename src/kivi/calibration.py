@@ -7,6 +7,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
+from ._counts import group_counts
 from ._stats import betainc, chi2_sf
 from ._validation import as_series
 
@@ -173,7 +174,7 @@ def calibration_table(
     Returns
     -------
     pandas.DataFrame
-        One row per group with the number of observations ``count``, the
+        One row per group with the number of observations ``total``, the
         number of events ``event``, the observed ``event_rate`` and the
         mean predicted probability ``mean_prob``.
 
@@ -193,10 +194,11 @@ def calibration_table(
 
     Notes
     -----
-    Rows follow the order of the categories when `groups` is categorical,
-    such as the result of ``pandas.cut``, with missing values last.
-    Otherwise they follow the order in which the groups first appear.
-    Categories that are never observed are omitted.
+    Groups are counted as in `kivi.woe.woe_table`. Rows follow the order of
+    the categories when `groups` is categorical, such as the result of
+    ``pandas.cut``, with missing values last. Otherwise they follow the order
+    in which the groups first appear. Categories that are never observed are
+    omitted.
 
     Examples
     --------
@@ -206,7 +208,7 @@ def calibration_table(
     >>> target = pd.Series([0, 0, 0, 1, 1])
     >>> prob = pd.Series([0.1, 0.2, 0.3, 0.4, 0.5])
     >>> calibration_table(grades, target, prob)
-         count  event  event_rate  mean_prob
+         total  event  event_rate  mean_prob
     bin
     A        2      0    0.000000       0.15
     B        3      2    0.666667       0.40
@@ -230,25 +232,25 @@ def calibration_table(
     if np.isnan(probability).any():
         raise ValueError("prob must not have missing values")
     _check_unit_interval(probability, "prob")
-    ordered = isinstance(groups.dtype, pd.CategoricalDtype)
-    codes, levels = pd.factorize(groups, sort=ordered, use_na_sentinel=False)
-    count = np.bincount(codes, minlength=len(levels))
-    event = np.bincount(codes, weights=target.to_numpy(dtype=float), minlength=len(levels))
-    total = np.bincount(codes, weights=probability, minlength=len(levels))
+    counts = group_counts(groups, target.to_numpy(dtype=np.intp))
+    rows = _group_rows(groups, counts.index)
+    total = counts.to_numpy().sum(axis=1)
+    event = counts.to_numpy()[:, 1]
+    prob_sum = np.bincount(rows, weights=probability, minlength=len(counts))
     return pd.DataFrame(
         {
-            "count": count,
-            "event": event.round().astype(np.int64),
-            "event_rate": event / count,
-            "mean_prob": total / count,
+            "total": total,
+            "event": event,
+            "event_rate": event / total,
+            "mean_prob": prob_sum / total,
         },
-        index=pd.Index(levels, name="bin"),
+        index=counts.index,
     )
 
 
 def binomial_test(
-    event: npt.ArrayLike, count: npt.ArrayLike, prob: npt.ArrayLike
-) -> float | npt.NDArray[np.float64]:
+    event: npt.ArrayLike, total: npt.ArrayLike, prob: npt.ArrayLike
+) -> float | pd.Series | npt.NDArray[np.float64]:
     r"""Test whether each grade has more events than its probability predicts.
 
     The one-sided exact binomial test assumes independent events. A small
@@ -259,24 +261,25 @@ def binomial_test(
     ----------
     event : array_like
         Number of events in each grade.
-    count : array_like
+    total : array_like
         Number of observations in each grade, a positive whole number.
     prob : array_like
         Predicted event probability of each grade, between 0 and 1, such as
         the ``mean_prob`` column of `calibration_table`. The three inputs
-        are broadcast together.
+        are broadcast together; Series inputs must have identical indices.
 
     Returns
     -------
-    float or numpy.ndarray
-        One-sided p-values, a float for scalar inputs.
+    float, pandas.Series or numpy.ndarray
+        One-sided p-values: a Series with the index of the Series inputs, a
+        float for scalar inputs and an array otherwise.
 
     Raises
     ------
     ValueError
-        If the inputs cannot be broadcast, `count` is not a positive whole
-        number, `event` is not a whole number between 0 and `count`, or
-        `prob` is outside [0, 1].
+        If the inputs cannot be broadcast or their Series indices differ,
+        `total` is not a positive whole number, `event` is not a whole number
+        between 0 and `total`, or `prob` is outside [0, 1].
 
     See Also
     --------
@@ -309,16 +312,16 @@ def binomial_test(
     >>> binomial_test([0, 3, 8], [200, 200, 200], 0.02).round(4)
     array([1.    , 0.7649, 0.0493])
     """
-    event, count, prob = _grade_counts(event, count, prob)
+    event, total, prob, index = _grade_inputs(event, total, prob)
     pvalue = np.ones(event.shape)
     some = event > 0
-    pvalue[some] = betainc(event[some], count[some] - event[some] + 1, prob[some])
-    return float(pvalue) if pvalue.ndim == 0 else pvalue
+    pvalue[some] = betainc(event[some], total[some] - event[some] + 1, prob[some])
+    return _pvalues(pvalue, index)
 
 
 def jeffreys_test(
-    event: npt.ArrayLike, count: npt.ArrayLike, prob: npt.ArrayLike
-) -> float | npt.NDArray[np.float64]:
+    event: npt.ArrayLike, total: npt.ArrayLike, prob: npt.ArrayLike
+) -> float | pd.Series | npt.NDArray[np.float64]:
     r"""Test each grade's probability against its event rate with the Jeffreys prior.
 
     The p-value is the posterior probability that the true event rate is at
@@ -329,24 +332,25 @@ def jeffreys_test(
     ----------
     event : array_like
         Number of events in each grade.
-    count : array_like
+    total : array_like
         Number of observations in each grade, a positive whole number.
     prob : array_like
         Predicted event probability of each grade, between 0 and 1, such as
         the ``mean_prob`` column of `calibration_table`. The three inputs
-        are broadcast together.
+        are broadcast together; Series inputs must have identical indices.
 
     Returns
     -------
-    float or numpy.ndarray
-        One-sided p-values, a float for scalar inputs.
+    float, pandas.Series or numpy.ndarray
+        One-sided p-values: a Series with the index of the Series inputs, a
+        float for scalar inputs and an array otherwise.
 
     Raises
     ------
     ValueError
-        If the inputs cannot be broadcast, `count` is not a positive whole
-        number, `event` is not a whole number between 0 and `count`, or
-        `prob` is outside [0, 1].
+        If the inputs cannot be broadcast or their Series indices differ,
+        `total` is not a positive whole number, `event` is not a whole number
+        between 0 and `total`, or `prob` is outside [0, 1].
 
     See Also
     --------
@@ -380,13 +384,12 @@ def jeffreys_test(
     >>> jeffreys_test([0, 3, 8], [200, 200, 200], 0.02).round(4)
     array([0.9956, 0.6701, 0.032 ])
     """
-    event, count, prob = _grade_counts(event, count, prob)
-    pvalue = betainc(event + 0.5, count - event + 0.5, prob)
-    return float(pvalue) if pvalue.ndim == 0 else pvalue
+    event, total, prob, index = _grade_inputs(event, total, prob)
+    return _pvalues(betainc(event + 0.5, total - event + 0.5, prob), index)
 
 
 def hosmer_lemeshow(
-    event: npt.ArrayLike, count: npt.ArrayLike, prob: npt.ArrayLike, *, ddof: int = 2
+    event: npt.ArrayLike, total: npt.ArrayLike, prob: npt.ArrayLike, *, ddof: int = 2
 ) -> tuple[float, float]:
     r"""Test the calibration of all groups at once with the Hosmer-Lemeshow statistic.
 
@@ -398,11 +401,12 @@ def hosmer_lemeshow(
     ----------
     event : array_like
         Number of events in each group.
-    count : array_like
+    total : array_like
         Number of observations in each group, a positive whole number.
     prob : array_like
         Mean predicted event probability of each group, strictly between 0
         and 1, such as the ``mean_prob`` column of `calibration_table`.
+        Series inputs must have identical indices.
     ddof : int, default 2
         The chi-square distribution has as many degrees of freedom as there
         are groups, minus `ddof`.
@@ -417,10 +421,11 @@ def hosmer_lemeshow(
     Raises
     ------
     ValueError
-        If the inputs are not one-dimensional or have different lengths,
-        `count` is not a positive whole number, `event` is not a whole
-        number between 0 and `count`, `prob` is not strictly between 0 and
-        1, or `ddof` is negative or leaves no degree of freedom.
+        If the inputs are not one-dimensional, have different lengths or
+        Series indices, `total` is not a positive whole number, `event` is
+        not a whole number between 0 and `total`, `prob` is not strictly
+        between 0 and 1, or `ddof` is negative or leaves no degree of
+        freedom.
 
     See Also
     --------
@@ -460,10 +465,10 @@ def hosmer_lemeshow(
     """
     if isinstance(ddof, bool) or not isinstance(ddof, Integral) or ddof < 0:
         raise ValueError(f"ddof must be a non-negative integer, got {ddof!r}")
-    event, count, prob = _grade_counts(event, count, prob)
+    event, total, prob, _ = _grade_inputs(event, total, prob)
     if event.ndim != 1:
         raise ValueError(
-            f"event, count and prob must be one-dimensional, got {event.ndim} dimensions"
+            f"event, total and prob must be one-dimensional, got {event.ndim} dimensions"
         )
     invalid = (prob <= 0) | (prob >= 1)
     if invalid.any():
@@ -471,7 +476,7 @@ def hosmer_lemeshow(
     dof = len(event) - ddof
     if dof < 1:
         raise ValueError(f"{len(event)} group(s) with ddof={ddof} leave {dof} degrees of freedom")
-    expected = count * prob
+    expected = total * prob
     statistic = float(np.sum((event - expected) ** 2 / (expected * (1 - prob))))
     return statistic, chi2_sf(statistic, dof)
 
@@ -487,7 +492,7 @@ def herfindahl_index(counts: npt.ArrayLike, *, normalize: bool = False) -> float
     ----------
     counts : array_like
         Number of observations, or exposure, in each grade, such as the
-        ``count`` column of `calibration_table`.
+        ``total`` column of `calibration_table`.
     normalize : bool, default False
         Rescale the index to run from 0 for equally full grades to 1 for a
         single full grade.
@@ -501,8 +506,8 @@ def herfindahl_index(counts: npt.ArrayLike, *, normalize: bool = False) -> float
     ------
     ValueError
         If `counts` is not one-dimensional, has negative or non-finite
-        values or sums to zero, or `normalize` is set with fewer than two
-        grades.
+        values or sums to zero, or `normalize` is not a boolean or is set
+        with fewer than two grades.
 
     See Also
     --------
@@ -528,18 +533,21 @@ def herfindahl_index(counts: npt.ArrayLike, *, normalize: bool = False) -> float
     >>> print(f"{herfindahl_index([50, 30, 20], normalize=True):.2f}")
     0.07
     """
+    if not isinstance(normalize, (bool, np.bool_)):
+        raise ValueError(f"normalize must be True or False, got {normalize!r}")
     if np.ndim(counts) != 1:
         raise ValueError(f"counts must be one-dimensional, got {np.ndim(counts)} dimensions")
     values = np.asarray(counts, dtype=float)
-    if not np.isfinite(values).all() or (values < 0).any():
-        raise ValueError("counts must be finite and non-negative")
-    if values.sum() <= 0:
-        raise ValueError("counts must have a positive sum")
+    invalid = ~np.isfinite(values) | (values < 0)
+    if invalid.any():
+        raise ValueError(f"counts must be finite and non-negative, got {_first(values, invalid)}")
+    if not values.sum() > 0:
+        raise ValueError(f"counts must have a positive sum, got {float(values.sum())!r}")
     index = float(np.sum((values / values.sum()) ** 2))
     if not normalize:
         return index
     if len(values) < 2:
-        raise ValueError("normalize requires at least two grades")
+        raise ValueError(f"normalize requires at least two grades, got {len(values)}")
     return (index - 1 / len(values)) / (1 - 1 / len(values))
 
 
@@ -556,29 +564,62 @@ def _check_unit_interval(values: np.ndarray, name: str) -> None:
         raise ValueError(f"{name} must be between 0 and 1, got {_first(values, outside)}")
 
 
-def _grade_counts(event, count, prob) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Broadcast and check the per-grade inputs of the calibration tests."""
+def _group_rows(groups: pd.Series, levels: pd.Index) -> np.ndarray:
+    """Return the row of `levels`, from `group_counts`, of each observation."""
+    if isinstance(levels, pd.CategoricalIndex):
+        # Map category codes to rows instead of looking up the labels: that hashes
+        # interval categories, which warns on NumPy < 2.2. Code -1 is a missing value.
+        row_of_code = np.zeros(len(levels.categories) + 1, dtype=np.intp)
+        row_of_code[levels.codes] = np.arange(len(levels))
+        return row_of_code[groups.cat.codes.to_numpy()]
+    rows = levels.get_indexer(groups)
+    missing = groups.isna().to_numpy()
+    if missing.any():  # get_indexer does not match missing values on pandas 2.0
+        rows[missing] = np.flatnonzero(pd.isna(levels))[0]
+    return rows
+
+
+def _grade_inputs(event, total, prob) -> tuple[np.ndarray, np.ndarray, np.ndarray, pd.Index | None]:
+    """Broadcast and check the per-grade inputs of the calibration tests.
+
+    Also returns the index shared by the Series inputs, or None without Series.
+    """
+    indices = [values.index for values in (event, total, prob) if isinstance(values, pd.Series)]
+    index = indices[0] if indices else None
+    if any(not other.equals(index) for other in indices[1:]):
+        raise ValueError("event, total and prob must have identical indices when they are Series")
     try:
-        arrays = np.broadcast_arrays(*(np.asarray(v, dtype=float) for v in (event, count, prob)))
+        arrays = np.broadcast_arrays(*(np.asarray(v, dtype=float) for v in (event, total, prob)))
     except ValueError as error:
-        raise ValueError(f"event, count and prob cannot be broadcast together: {error}") from None
-    event, count, prob = arrays
-    invalid = ~_whole(count) | (count < 1)
+        raise ValueError(f"event, total and prob cannot be broadcast together: {error}") from None
+    event, total, prob = arrays
+    if index is not None and event.shape != (len(index),):
+        raise ValueError(
+            f"event, total and prob must broadcast to the length {len(index)} of their Series "
+            f"index, got shape {event.shape}"
+        )
+    invalid = ~_whole(total) | (total < 1)
     if invalid.any():
-        raise ValueError(f"count must be a positive whole number, got {_first(count, invalid)}")
+        raise ValueError(f"total must be a positive whole number, got {_first(total, invalid)}")
     invalid = ~_whole(event) | (event < 0)
     if invalid.any():
         raise ValueError(f"event must be a non-negative whole number, got {_first(event, invalid)}")
-    invalid = event > count
+    invalid = event > total
     if invalid.any():
         raise ValueError(
-            f"event must not exceed count, got {_first(event, invalid)} events "
-            f"among {_first(count, invalid)}"
+            f"event must not exceed total, got {_first(event, invalid)} events "
+            f"among {_first(total, invalid)}"
         )
     if np.isnan(prob).any():
         raise ValueError("prob must not have missing values")
     _check_unit_interval(prob, "prob")
-    return event, count, prob
+    return event, total, prob, index
+
+
+def _pvalues(pvalue: np.ndarray, index: pd.Index | None) -> float | pd.Series | np.ndarray:
+    if index is not None:
+        return pd.Series(pvalue, index=index)
+    return float(pvalue) if pvalue.ndim == 0 else pvalue
 
 
 def _whole(values: np.ndarray) -> np.ndarray:

@@ -60,7 +60,7 @@ A logistic regression of ``target`` on the four WOE columns of the development s
 >>> coefficients = {"poutcome": 0.899, "contact": 0.658, "housing": 0.691, "age": 0.714}
 >>> intercept = -2.028
 >>> table = points_table(tables, coefficients, intercept, **scale)
->>> table.round({"woe": 3, "points": 1})
+>>> table.round({"woe": 4, "points": 1})
                          woe  points
 variable bin
 poutcome unknown      -0.257   143.1
@@ -120,7 +120,7 @@ Deployed scorecards usually round the points to whole numbers. Round the points 
 Reason codes
 ------------
 
-A declined applicant is told which variables lowered the score most. ``reason_codes`` compares the points of each variable with those of the variable's best group and lists the variables from the largest shortfall:
+A declined applicant is told which variables lowered the score most. ``reason_codes`` matches the points of each variable to a group of the points table, compares them with those of the variable's best group and lists the variables from the largest shortfall:
 
 >>> from kivi.scorecard import reason_codes
 >>> reason_codes(points, table).head(3)
@@ -131,7 +131,7 @@ A declined applicant is told which variables lowered the score most. ``reason_co
 
 Applicant 3000 was contacted by telephone, 21.3 points below the best contact group, and has no housing loan, 13.2 points below the best housing group. Applicant 3001 is in the best group of every variable, so no variable lowered the score.
 
-The scaling does not change the order of the reasons, because every shortfall is :math:`\mathrm{factor} \cdot \beta_j` times a difference in WOE.
+The scaling does not change the order of the reasons, because every shortfall is :math:`\mathrm{factor} \cdot \beta_j` times a difference in WOE. Points that match no group of the table within ``atol``, for example points computed with another intercept, raise an error instead of giving reasons against the wrong groups.
 
 .. note::
 

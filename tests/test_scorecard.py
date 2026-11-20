@@ -28,6 +28,12 @@ COEFFICIENTS = {"housing": 0.8, "contact": 0.5}
 INTERCEPT = -2.0
 
 
+def _points_of(table, variable, label):
+    """Look up the points of one group of a points_table result."""
+    rows = table.loc[[variable]]
+    return rows["points"].to_numpy()[rows["bin"].to_numpy() == label][0]
+
+
 def test_scaling_constants():
     factor, offset = score_scaling(**SCALE)
     assert factor == pytest.approx(FACTOR, rel=1e-15)
@@ -91,14 +97,10 @@ def test_invalid_scaling(scale, message):
 
 def test_points_match_hand_calculation():
     table = points_table(TABLES, COEFFICIENTS, INTERCEPT, **SCALE)
-    assert table.index.names == ["variable", "bin"]
-    assert table.columns.tolist() == ["woe", "points"]
-    assert table.index.tolist() == [
-        ("housing", "no"),
-        ("housing", "yes"),
-        ("contact", "cellular"),
-        ("contact", "unknown"),
-    ]
+    assert table.columns.tolist() == ["bin", "woe", "points"]
+    assert table.index.name == "variable"
+    assert table.index.tolist() == ["housing", "housing", "contact", "contact"]
+    assert table["bin"].tolist() == ["no", "yes", "cellular", "unknown"]
     # Each variable carries half of offset - factor * intercept.
     base = (OFFSET + 2 * FACTOR) / 2
     expected = [
@@ -114,7 +116,7 @@ def test_points_match_hand_calculation():
 
 def test_points_add_up_to_the_model_score():
     table = points_table(TABLES, COEFFICIENTS, INTERCEPT, **SCALE)
-    total = table.loc[("housing", "yes"), "points"] + table.loc[("contact", "unknown"), "points"]
+    total = _points_of(table, "housing", "yes") + _points_of(table, "contact", "unknown")
     log_odds = INTERCEPT + 0.8 * 0.3 + 0.5 * 0.6
     prob = 1 / (1 + math.exp(-log_odds))
     assert total == pytest.approx(pd_to_score(prob, **SCALE), rel=1e-14)
@@ -124,7 +126,7 @@ def test_coefficients_set_the_order_and_extra_tables_are_ignored():
     tables = {**TABLES, "unused": pd.Series({"x": 1.0})}
     coefficients = pd.Series({"contact": 0.5, "housing": 0.8})
     table = points_table(tables, coefficients, INTERCEPT, **SCALE)
-    assert table.index.get_level_values("variable").unique().tolist() == ["contact", "housing"]
+    assert table.index.unique().tolist() == ["contact", "housing"]
     np.testing.assert_allclose(
         table.loc["housing", "points"],
         points_table(TABLES, COEFFICIENTS, INTERCEPT, **SCALE).loc["housing", "points"],
@@ -157,20 +159,33 @@ def test_points_table_on_interval_and_shared_labels():
     table = points_table(tables, coefficients, -2.0, **SCALE)
     # housing and loan share the labels "no" and "yes"; age has interval labels.
     assert len(table) == 6 + 2 + 2 + 4
-    assert table.index.levels[1].dtype == object
-    assert table.loc["age"].index[0] == pd.Interval(-np.inf, 25.0)
+    assert table["bin"].dtype == object
+    assert table.loc[["age"], "bin"].iloc[0] == pd.Interval(-np.inf, 25.0)
     loan_yes = 0.8 * tables["loan"].loc["yes", "woe"]
     housing_yes = 0.7 * tables["housing"].loc["yes", "woe"]
     base = (OFFSET + 2 * FACTOR) / 4
-    assert table.loc[("loan", "yes"), "points"] == pytest.approx(base - FACTOR * loan_yes)
-    assert table.loc[("housing", "yes"), "points"] == pytest.approx(base - FACTOR * housing_yes)
+    assert _points_of(table, "loan", "yes") == pytest.approx(base - FACTOR * loan_yes)
+    assert _points_of(table, "housing", "yes") == pytest.approx(base - FACTOR * housing_yes)
+
+
+def test_points_table_keeps_labels_that_compare_equal():
+    tables = {
+        "flag": pd.Series([0.2, -0.1], index=pd.Index([True, False], dtype=object)),
+        "count": pd.Series([0.3, -0.3], index=[1, 0]),
+        "rate": pd.Series([0.5], index=[1.0]),
+    }
+    table = points_table(tables, {"flag": 1.0, "count": 1.0, "rate": 1.0}, 0.0, **SCALE)
+    labels = table["bin"].tolist()
+    assert labels == [True, False, 1, 0, 1.0]
+    assert [type(label) for label in labels] == [bool, bool, int, int, float]
+    np.testing.assert_allclose(table["woe"], [0.2, -0.1, 0.3, -0.3, 0.5])
 
 
 def test_missing_group_gets_points():
     groups = pd.Series(["a", None, "b", "a", None, "b"])
     target = pd.Series([1, 0, 0, 0, 1, 0])
     table = points_table({"x": woe_table(groups, target)}, {"x": 1.0}, 0.0, **SCALE)
-    labels = table.index.get_level_values("bin")
+    labels = table["bin"].tolist()
     assert labels[0] == "a" and pd.isna(labels[1]) and labels[2] == "b"
     # Event shares 0.4, 0.4, 0.2 (b's zero count smoothed to 0.5); non-event shares 1/4, 1/4, 1/2.
     np.testing.assert_allclose(table["woe"], np.log([1.6, 1.6, 0.4]))
@@ -190,7 +205,8 @@ def test_applicant_points_match_the_points_table():
         points["age"].to_numpy(), table.loc["age", "points"].to_numpy()[groups["age"].cat.codes]
     )
     for column in ["housing", "loan", "poutcome"]:
-        lookup = table.loc[column, "points"]
+        rows = table.loc[[column]]
+        lookup = pd.Series(rows["points"].to_numpy(), index=rows["bin"].tolist())
         np.testing.assert_array_equal(points[column].to_numpy(), lookup[groups[column]].to_numpy())
     log_odds = -2.0 + woe.to_numpy() @ np.array([0.7, 0.7, 0.8, 0.9])
     expected = pd_to_score(1 / (1 + np.exp(-log_odds)), **SCALE)
@@ -238,6 +254,67 @@ def test_reason_codes_ties_and_padding():
     assert reasons.to_numpy().tolist() == [["b", "a", None]]
 
 
+def test_reason_codes_ignore_rounding_noise():
+    data, to_groups, tables, coefficients = _bank_model()
+    groups = to_groups(data.iloc[3000:])
+    woe = pd.DataFrame({column: woe_transform(groups[column], tables[column]) for column in groups})
+    table = points_table(tables, coefficients, -2.0, **SCALE)
+    exact = reason_codes(woe_to_points(woe, coefficients, -2.0, **SCALE), table)
+    assert exact["reason_1"].isna().sum() > 0
+    # WOE stored with six decimals or in single precision gives the same groups and reasons.
+    for noisy in (woe.round(6), woe.astype(np.float32)):
+        reasons = reason_codes(woe_to_points(noisy, coefficients, -2.0, **SCALE), table)
+        pd.testing.assert_frame_equal(reasons, exact)
+    # Points one atol away from their group are noise; beyond it they match no group.
+    points = woe_to_points(woe, coefficients, -2.0, **SCALE)
+    pd.testing.assert_frame_equal(reason_codes(points + 0.9e-4, table), exact)
+    with pytest.raises(ValueError, match="points of 'age' must match a group of table within"):
+        reason_codes(points + 2e-4, table)
+
+
+def test_reason_codes_reject_points_from_another_model():
+    table = points_table(TABLES, COEFFICIENTS, INTERCEPT, **SCALE)
+    woe = pd.DataFrame({"housing": [-0.4], "contact": [0.6]})
+    points = woe_to_points(woe, COEFFICIENTS, INTERCEPT - 1.0, **SCALE)
+    # Each variable gains factor / 2 = 14.43 points from the lower intercept.
+    with pytest.raises(ValueError, match=r"got 296\.07.*nearest group 281\.64"):
+        reason_codes(points, table)
+
+
+def test_reason_from_a_missing_group_and_a_negative_coefficient():
+    tables = {"x": pd.Series({"a": -0.3, np.nan: 0.8}), "y": pd.Series({"p": 0.5, "q": -0.2})}
+    woe = pd.DataFrame({"x": [0.8, -0.3, 0.8], "y": [-0.2, -0.2, 0.5]})
+    table = points_table(tables, {"x": 1.0, "y": 1.0}, -2.0, **SCALE)
+    points = woe_to_points(woe, {"x": 1.0, "y": 1.0}, -2.0, **SCALE)
+    # The missing group of x costs 1.1 * factor = 31.7 points, group p of y 0.7 * factor = 20.2.
+    assert reason_codes(points, table).to_numpy().tolist() == [
+        ["x", None, None],
+        [None, None, None],
+        ["x", "y", None],
+    ]
+    # With a negative coefficient the missing group of x becomes its best group.
+    coefficients = {"x": -0.5, "y": 1.0}
+    table = points_table(tables, coefficients, -2.0, **SCALE)
+    points = woe_to_points(woe, coefficients, -2.0, **SCALE)
+    assert pd.isna(table.loc[["x"]].sort_values("points")["bin"].iloc[-1])
+    assert reason_codes(points, table).to_numpy().tolist() == [
+        [None, None, None],
+        ["x", None, None],
+        ["y", None, None],
+    ]
+
+
+def test_reason_codes_accept_rounded_points_and_table():
+    table = points_table(TABLES, COEFFICIENTS, INTERCEPT, **SCALE)
+    woe = pd.DataFrame({"housing": [0.3], "contact": [-0.2]})
+    points = woe_to_points(woe, COEFFICIENTS, INTERCEPT, **SCALE)
+    assert reason_codes(points.round(), table.round()).to_numpy().tolist() == [
+        ["housing", None, None]
+    ]
+    with pytest.raises(ValueError, match="points of 'housing' must match a group"):
+        reason_codes(points.round(), table)
+
+
 @pytest.mark.parametrize(
     "points,table,top,message",
     [
@@ -245,13 +322,15 @@ def test_reason_codes_ties_and_padding():
         (pd.DataFrame({"housing": [1.0]}), None, 0, "top must be a positive integer, got 0"),
         (pd.DataFrame({"housing": [1.0]}), None, 2.0, "top must be a positive integer, got 2.0"),
         (pd.DataFrame({"housing": [1.0]}), pd.DataFrame({"woe": [1.0]}), 3, "points_table result"),
+        (pd.DataFrame({"housing": [1.0]}), "no points", 3, "must have a points column"),
         (pd.DataFrame({"other": [1.0]}), "table", 3, "table has no entry for 1 variable"),
-        (pd.DataFrame({"housing": [np.nan]}), "table", 3, "points must be finite"),
+        (pd.DataFrame({"housing": [np.nan]}), "table", 3, "points must be finite, got nan in"),
     ],
 )
 def test_invalid_reason_code_inputs(points, table, top, message):
     if isinstance(table, str):
-        table = points_table(TABLES, COEFFICIENTS, INTERCEPT, **SCALE)
+        built = points_table(TABLES, COEFFICIENTS, INTERCEPT, **SCALE)
+        table = built.drop(columns="points") if table == "no points" else built
     with pytest.raises(ValueError, match=message):
         reason_codes(points, table, top=top)
 
