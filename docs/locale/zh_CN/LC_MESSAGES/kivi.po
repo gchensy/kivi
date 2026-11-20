@@ -891,6 +891,384 @@ msgstr ""
 msgid "[R88e41552d980-1]_"
 msgstr "[R88e41552d980-1]_"
 
+msgid "Variable selection"
+msgstr "变量筛选"
+
+msgid ""
+":py:obj:`correlation_filter <kivi.selection.correlation_filter>`\\ \\(X\\, \\*\\[\\, threshold\\,"
+" priority\\]\\)"
+msgstr ""
+":py:obj:`correlation_filter <kivi.selection.correlation_filter>`\\ \\(X\\, \\*\\[\\, threshold\\,"
+" priority\\]\\)"
+
+msgid "Drop one variable of each strongly correlated pair."
+msgstr "对每一对强相关的变量，剔除其中一个。"
+
+msgid ":py:obj:`vif <kivi.selection.vif>`\\ \\(X\\)"
+msgstr ":py:obj:`vif <kivi.selection.vif>`\\ \\(X\\)"
+
+msgid "Compute the variance inflation factor of each variable."
+msgstr "计算每个变量的方差膨胀因子。"
+
+msgid ":py:obj:`logistic_regression <kivi.selection.logistic_regression>`\\ \\(X\\, target\\)"
+msgstr ":py:obj:`logistic_regression <kivi.selection.logistic_regression>`\\ \\(X\\, target\\)"
+
+msgid "Fit a logistic regression and test each coefficient."
+msgstr "拟合逻辑回归并检验每个系数。"
+
+msgid ""
+":py:obj:`stepwise <kivi.selection.stepwise>`\\ \\(X\\, target\\, \\*\\[\\, p\\_enter\\, "
+"p\\_remove\\, ...\\]\\)"
+msgstr ""
+":py:obj:`stepwise <kivi.selection.stepwise>`\\ \\(X\\, target\\, \\*\\[\\, p\\_enter\\, "
+"p\\_remove\\, ...\\]\\)"
+
+msgid "Select variables for a logistic regression by their p-values."
+msgstr "按 p 值为逻辑回归筛选变量。"
+
+msgid ":py:obj:`SeparationError <kivi.selection.SeparationError>`"
+msgstr ":py:obj:`SeparationError <kivi.selection.SeparationError>`"
+
+msgid "The classes are separated, so the logistic regression has no estimates."
+msgstr "两类被完全分开，因此逻辑回归没有估计值。"
+
+msgid ""
+"Variables are visited from the highest `priority` to the lowest. A variable is kept unless its "
+"absolute Pearson correlation with a variable that is already kept exceeds `threshold`."
+msgstr "按 `priority` 从高到低依次考察各变量。若某变量与已保留的某个变量的 Pearson 相关系数绝对值超过 `threshold` ，则将其剔除，否则保留。"
+
+msgid "**X**"
+msgstr "**X**"
+
+msgid "pandas.DataFrame or array_like"
+msgstr "pandas.DataFrame 或 array_like"
+
+msgid ""
+"Two-dimensional numeric values with one column per variable, such as WOE values from "
+"`kivi.woe.woe_transform`."
+msgstr "二维数值，每个变量一列，例如 `kivi.woe.woe_transform` 输出的 WOE 值。"
+
+msgid "**threshold**"
+msgstr "**threshold**"
+
+msgid "float, default 0.7"
+msgstr "float，默认 0.7"
+
+msgid "Largest absolute correlation allowed between two kept variables, between 0 and 1."
+msgstr "两个保留变量之间允许的最大相关系数绝对值，取值在 0 到 1 之间。"
+
+msgid "**priority**"
+msgstr "**priority**"
+
+msgid ""
+"One number per column, such as its information value; of two correlated variables, the one with "
+"the higher priority is kept. A pandas Series is matched to the columns by label, other inputs by "
+"position. Ties, and every column when `priority` is omitted, follow the column order, so earlier "
+"columns are kept."
+msgstr ""
+"每列一个数值，例如该变量的信息值；两个相关变量中保留优先级较高的一个。pandas Series 按标签与列对应，其他输入按位置对应。优先级相同时，以及省略 `priority` "
+"时，按列的顺序处理，因此靠前的列被保留。"
+
+msgid "pandas.Index"
+msgstr "pandas.Index"
+
+msgid "Labels of the kept columns, in the order of `X`. Column positions when `X` is not a DataFrame."
+msgstr "保留列的标签，按 `X` 中的顺序排列。当 `X` 不是 DataFrame 时为列的位置。"
+
+msgid ""
+"If `X` is not two-dimensional, has fewer than 2 rows or no columns, repeats a column label, or "
+"has a column that is not numeric, contains missing or infinite values or is constant; if "
+"`threshold` is not between 0 and 1; or if `priority` does not give one number for every column."
+msgstr ""
+"如果 `X` 不是二维、少于 2 行或没有列、列标签重复，或者某列不是数值、含有缺失值或无穷值、或为常数；如果 `threshold` 不在 0 到 1 之间；或者 `priority` "
+"没有为每一列给出一个数值。"
+
+msgid ":obj:`vif`"
+msgstr ":obj:`vif`"
+
+msgid "Measure how well the other variables explain each variable."
+msgstr "衡量每个变量能被其他变量解释的程度。"
+
+msgid ":obj:`stepwise`"
+msgstr ":obj:`stepwise`"
+
+msgid "Select variables by their significance in a logistic regression."
+msgstr "按逻辑回归中的显著性筛选变量。"
+
+msgid ""
+"A variable is dropped only because of a variable that is kept. When ``a`` is correlated with "
+"``b`` and ``b`` with ``c``, but ``a`` not with ``c``, and the priorities decrease from ``a`` to "
+"``c``, then ``b`` is dropped and ``c`` is kept."
+msgstr ""
+"变量只会因为与某个保留变量相关而被剔除。若 ``a`` 与 ``b`` 相关、 ``b`` 与 ``c`` 相关，但 ``a`` 与 ``c`` 不相关，且优先级从 ``a`` 到 ``c`` "
+"递减，则 ``b`` 被剔除而 ``c`` 被保留。"
+
+msgid ""
+"The VIF of a variable measures how well the other variables explain it in a linear regression. It"
+" is 1 for a variable that is uncorrelated with the others and grows without bound as the variable"
+" approaches a linear combination of them."
+msgstr "变量的 VIF 衡量在线性回归中其他变量对它的解释程度。与其他变量不相关的变量 VIF 为 1；变量越接近其他变量的线性组合，VIF 越大，且没有上限。"
+
+msgid "pandas.Series"
+msgstr "pandas.Series"
+
+msgid ""
+"VIF of each column, indexed by the column labels of `X` (positions when `X` is not a DataFrame) "
+"and named ``vif``. It is infinite for a column that is a linear combination of the others."
+msgstr "每列的 VIF，以 `X` 的列标签为索引（当 `X` 不是 DataFrame 时为列的位置），名称为 ``vif`` 。某列是其他列的线性组合时，其 VIF 为无穷大。"
+
+msgid ""
+"If `X` is not two-dimensional, has fewer than 2 rows or no columns, repeats a column label, or "
+"has a column that is not numeric, contains missing or infinite values or is constant."
+msgstr "如果 `X` 不是二维、少于 2 行或没有列、列标签重复，或者某列不是数值、含有缺失值或无穷值、或为常数。"
+
+msgid ":obj:`correlation_filter`"
+msgstr ":obj:`correlation_filter`"
+
+msgid ":obj:`logistic_regression`"
+msgstr ":obj:`logistic_regression`"
+
+msgid "Fit the scorecard model."
+msgstr "拟合评分卡模型。"
+
+msgid ""
+"For column :math:`j`, let :math:`R_j^2` be the coefficient of determination of the least-squares "
+"regression of column :math:`j` on an intercept and the other columns. Then"
+msgstr "对第 :math:`j` 列，记 :math:`R_j^2` 为第 :math:`j` 列对截距项和其他各列做最小二乘回归的决定系数，则"
+
+#, python-brace-format
+msgid "\\mathrm{VIF}_j = \\frac{1}{1 - R_j^2}."
+msgstr "\\mathrm{VIF}_j = \\frac{1}{1 - R_j^2}."
+
+msgid ""
+"The square root of the VIF is the factor by which collinearity inflates the standard error of the"
+" variable's coefficient. With two columns of correlation :math:`r`, both have a VIF of :math:`1 /"
+" (1 - r^2)`."
+msgstr "VIF 的平方根是共线性使该变量系数的标准误放大的倍数。两列的相关系数为 :math:`r` 时，二者的 VIF 都是 :math:`1 / (1 - r^2)` 。"
+
+msgid "Two columns with a correlation of 0.9 both have a VIF of :math:`1 / (1 - 0.9^2) = 5.263`:"
+msgstr "相关系数为 0.9 的两列，VIF 都是 :math:`1 / (1 - 0.9^2) = 5.263` ："
+
+msgid "Adding their sum makes every column a linear combination of the others:"
+msgstr "加入二者之和后，每一列都是其他列的线性组合："
+
+msgid ""
+"The model has an intercept and one coefficient per column of `X`. The coefficients are maximum "
+"likelihood estimates, and each is tested against zero with a Wald test."
+msgstr "模型包含截距项，并为 `X` 的每一列估计一个系数。系数为最大似然估计，并用 Wald 检验逐一检验其是否为零。"
+
+msgid ""
+"Binary labels, with 1 indicating the event. If `X` is a DataFrame and `target` a Series, they "
+"must have identical indices; otherwise they are matched by position."
+msgstr "二分类标签，1 表示事件。如果 `X` 是 DataFrame 且 `target` 是 Series，二者的索引必须完全相同；否则按位置对应。"
+
+msgid ""
+"One row for the intercept, labelled ``intercept``, and one for each column of `X`, with the "
+"coefficient, its standard error, the Wald z statistic and its two-sided p-value. The index has "
+"the name of the columns of `X`. ``attrs[\"log_likelihood\"]`` holds the maximized log-likelihood "
+"and ``attrs[\"converged\"]`` whether the fit converged."
+msgstr ""
+"截距项一行（标签为 ``intercept`` ）， `X` 的每一列各一行，包含系数、标准误、Wald z 统计量及其双侧 p 值。索引的名称与 `X` 的列名相同。 "
+"``attrs[\"log_likelihood\"]`` 保存最大化后的对数似然， ``attrs[\"converged\"]`` 表示拟合是否收敛。"
+
+msgid "SeparationError"
+msgstr "SeparationError"
+
+msgid "If the columns separate the classes, so that the estimates do not exist."
+msgstr "如果各列把两类完全分开，以致估计值不存在。"
+
+msgid ""
+"If `X` is not two-dimensional, has fewer than 2 rows or no columns, repeats a column label, has a"
+" column labelled ``intercept``, or has a column that is not numeric, contains missing or infinite"
+" values, is constant or is a linear combination of the intercept and the columns before it, or so"
+" close to one that its coefficient cannot be estimated; or if `target` is not one-dimensional, "
+"its index or length does not match `X`, or it does not contain both 0 and 1 or has missing or "
+"other labels."
+msgstr ""
+"如果 `X` 不是二维、少于 2 行或没有列、列标签重复、有标签为 ``intercept`` "
+"的列，或者某列不是数值、含有缺失值或无穷值、为常数、是截距项与前面各列的线性组合或与之过于接近以致无法估计其系数；或者 `target` 不是一维、索引或长度与 `X` 不一致，或者没有同时包含"
+" 0 和 1 或含有缺失值及其他标签。"
+
+msgid "RuntimeWarning"
+msgstr "RuntimeWarning"
+
+msgid "If the fit does not converge for a reason other than separation."
+msgstr "如果拟合因分离以外的原因未能收敛。"
+
+msgid "Select the columns of the model by their p-values."
+msgstr "按 p 值筛选模型的列。"
+
+msgid "Check the columns for collinearity."
+msgstr "检查各列的共线性。"
+
+msgid ":obj:`kivi.woe.woe_transform`"
+msgstr ":obj:`kivi.woe.woe_transform`"
+
+msgid "Encode groups with their WOE."
+msgstr "用 WOE 对分组编码。"
+
+msgid "The model is"
+msgstr "模型为"
+
+#, python-brace-format
+msgid "\\ln \\frac{P(y = 1)}{P(y = 0)} = \\beta_0 + \\sum_j \\beta_j x_j."
+msgstr "\\ln \\frac{P(y = 1)}{P(y = 0)} = \\beta_0 + \\sum_j \\beta_j x_j."
+
+#, python-brace-format
+msgid ""
+"The estimates are found by Newton-Raphson, also known as iteratively reweighted least squares, on"
+" centred and scaled columns, so that an offset or the unit of a column does not affect their "
+"accuracy. The standard errors are the square roots of the diagonal of the inverse Fisher "
+"information, :math:`z = \\hat\\beta / \\mathrm{se}`, and the p-value is :math:`P(|Z| > |z|)` for "
+"a standard normal :math:`Z`."
+msgstr ""
+"估计值在中心化并标准化后的列上用牛顿-拉弗森法（也称迭代重加权最小二乘法）求得，因此列的偏移量或单位不会影响其精度。标准误是 Fisher 信息矩阵之逆的对角线元素的平方根， :math:`z "
+"= \\hat\\beta / \\mathrm{se}` ，p 值为 :math:`P(|Z| > |z|)` ，其中 :math:`Z` 服从标准正态分布。"
+
+msgid "With WOE-encoded variables, the coefficients are expected to be positive: see `stepwise`."
+msgstr "对 WOE 编码的变量，系数应为正，参见 `stepwise` 。"
+
+msgid ""
+"D. W. Hosmer, S. Lemeshow and R. X. Sturdivant, \"Applied Logistic Regression\", 3rd ed., Wiley, "
+"2013."
+msgstr ""
+"D. W. Hosmer, S. Lemeshow and R. X. Sturdivant, \"Applied Logistic Regression\", 3rd ed., Wiley, "
+"2013."
+
+msgid "[R238aee73b2df-1]_"
+msgstr "[R238aee73b2df-1]_"
+
+msgid ""
+"With a single binary variable, the coefficient is the log odds ratio: the odds of the event are "
+"1:3 at ``x = 0`` and 3:1 at ``x = 1``, so the coefficient is :math:`\\ln 9` and the intercept "
+":math:`\\ln(1/3)`."
+msgstr ""
+"只有一个二值变量时，系数就是对数优势比：事件的优势在 ``x = 0`` 时为 1:3，在 ``x = 1`` 时为 3:1，因此系数为 :math:`\\ln 9` ，截距为 "
+":math:`\\ln(1/3)` 。"
+
+msgid ""
+"Forward selection starts from the intercept and adds, one at a time, the variable with the "
+"smallest p-value while that p-value is below `p_enter`. Backward elimination starts from all "
+"variables and removes, one at a time, the variable with the largest p-value while that p-value is"
+" above `p_remove`. Selection in both directions adds variables like forward selection, but after "
+"each addition removes the variables that no longer meet `p_remove`."
+msgstr ""
+"向前选择从只含截距的模型开始，每次加入 p 值最小的变量，直到最小的 p 值不再低于 `p_enter` 。向后剔除从包含全部变量的模型开始，每次移除 p 值最大的变量，直到最大的 p "
+"值不再高于 `p_remove` 。双向逐步选择像向前选择一样加入变量，但每加入一个变量后，都会移除不再满足 `p_remove` 的变量。"
+
+msgid ""
+"Two-dimensional numeric values with one column per candidate variable, such as WOE values from "
+"`kivi.woe.woe_transform`."
+msgstr "二维数值，每个候选变量一列，例如 `kivi.woe.woe_transform` 输出的 WOE 值。"
+
+msgid "**p_enter**"
+msgstr "**p_enter**"
+
+msgid ""
+"A variable enters only if its p-value in the extended model is below this level, which is greater"
+" than 0 and at most 1."
+msgstr "只有当变量在扩展后模型中的 p 值低于该水平时才会入选；该水平大于 0 且不超过 1。"
+
+msgid "**p_remove**"
+msgstr "**p_remove**"
+
+msgid "float, default 0.10"
+msgstr "float，默认 0.10"
+
+msgid ""
+"A variable is removed if its p-value is above this level, which is greater than 0 and at most 1 "
+"and, in both directions, not below `p_enter`."
+msgstr "变量的 p 值高于该水平时被移除；该水平大于 0 且不超过 1，双向选择时不得低于 `p_enter` 。"
+
+#, python-brace-format
+msgid "{\"both\", \"forward\", \"backward\"}, default \"both\""
+msgstr "{\"both\", \"forward\", \"backward\"}，默认 \"both\""
+
+msgid "Whether variables are added and removed, only added, or only removed."
+msgstr "既加入也移除变量、只加入变量，还是只移除变量。"
+
+msgid "**positive**"
+msgstr "**positive**"
+
+msgid "bool, default True"
+msgstr "bool，默认 True"
+
+msgid ""
+"Keep every coefficient of the selected model positive. A variable enters only if all coefficients"
+" of the extended model are positive, and a variable whose coefficient is not positive is removed "
+"before any other, starting with the smallest z statistic."
+msgstr "使所选模型的每个系数都为正。只有扩展后模型的所有系数都为正时变量才会入选；系数不为正的变量优先于其他变量被移除，z 统计量最小的最先移除。"
+
+msgid "Labels of the selected columns, in the order of `X`. Column positions when `X` is not a DataFrame."
+msgstr "入选列的标签，按 `X` 中的顺序排列。当 `X` 不是 DataFrame 时为列的位置。"
+
+msgid "If `direction` is ``\"backward\"`` and the model with every column separates the classes."
+msgstr "如果 `direction` 为 ``\"backward\"`` ，且包含全部列的模型把两类完全分开。"
+
+msgid ""
+"If `X` or `target` is invalid as described for `logistic_regression`, in every direction; if "
+"`p_enter` or `p_remove` is not greater than 0 and at most 1, or `p_enter` exceeds `p_remove` when"
+" `direction` is ``\"both\"``; or if `direction` is not one of the three options or `positive` is "
+"not a boolean."
+msgstr ""
+"如果 `X` 或 `target` 不符合 `logistic_regression` 中所述的要求（任何方向都会检查）；如果 `p_enter` 或 `p_remove` 不是大于 0 "
+"且不超过 1 的数，或 `direction` 为 ``\"both\"`` 时 `p_enter` 超过 `p_remove` ；或者 `direction` 不是三个选项之一，或 "
+"`positive` 不是布尔值。"
+
+msgid "If the model of the selected variables does not converge for a reason other than separation."
+msgstr "如果所选变量的模型因分离以外的原因未能收敛。"
+
+msgid "Fit the selected model and read its coefficients."
+msgstr "拟合所选模型并查看其系数。"
+
+msgid "Drop strongly correlated variables first."
+msgstr "先剔除强相关的变量。"
+
+msgid ""
+"The p-values are those of the Wald tests reported by `logistic_regression`. Each candidate is "
+"tested in the model made of the selected variables and the candidate, so every step refits one "
+"model per candidate. A candidate does not enter if that model would separate the classes, does "
+"not converge or is numerically singular. In both directions, a variable cannot enter if that "
+"would recreate a set of variables that was selected before, which guarantees that the selection "
+"stops."
+msgstr ""
+"p 值即 `logistic_regression` 报告的 Wald 检验 p "
+"值。每个候选变量都在由已选变量和该候选变量组成的模型中检验，因此每一步都要为每个候选变量重新拟合一个模型。如果这个模型会使两类完全分开、无法收敛或在数值上奇异，候选变量就不会入选。双向选择时，如果加入某个变量会重现之前选过的变量组合，该变量不能入选，这保证了筛选过程一定会终止。"
+
+msgid ""
+"kivi defines the WOE of a group as the log of its share of events over its share of non-events, "
+"so a higher WOE means a higher event rate. In a logistic regression of `target` on a single WOE-"
+"encoded variable, the coefficient is therefore positive; it is exactly 1 when no cell needed "
+"smoothing. A negative coefficient in a model with several variables means that the variable's "
+"effect is reversed by the others, usually because of collinearity, and makes the scorecard points"
+" of its bins contradict their event rates. ``positive=True`` rules out such models."
+msgstr ""
+"kivi 将分组的 WOE 定义为其事件占比与非事件占比之比的对数，因此 WOE 越高，事件率越高。所以在 `target` 对单个 WOE "
+"编码变量的逻辑回归中，系数为正；没有单元格需要平滑时，系数恰好为 1。在多变量模型中，负系数表示该变量的作用被其他变量反转（通常源于共线性），会使其各箱的评分卡分数与事件率相矛盾。 "
+"``positive=True`` 会排除这样的模型。"
+
+msgid ""
+"N. Siddiqi, \"Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring\", "
+"Wiley, 2006."
+msgstr ""
+"N. Siddiqi, \"Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring\", "
+"Wiley, 2006."
+
+msgid "[R44bd75d8258f-1]_, [R44bd75d8258f-2]_"
+msgstr "[R44bd75d8258f-1]_, [R44bd75d8258f-2]_"
+
+msgid ""
+"A combination of the variables predicts the target without error, for every observation (complete"
+" separation) or for every observation off a boundary (quasi-complete separation). The likelihood "
+"then keeps growing as the coefficients grow, so the maximum likelihood estimates do not exist."
+msgstr "变量的某个组合能无误地预测目标变量：对所有观测都成立（完全分离），或对边界以外的所有观测成立（准完全分离）。此时似然随系数增大而不断增大，因此最大似然估计不存在。"
+
+msgid "Raises this error."
+msgstr "会抛出此错误。"
+
+msgid "Leaves out candidates that separate the classes."
+msgstr "不选入会把两类完全分开的候选变量。"
+
 msgid "Population stability"
 msgstr "群体稳定性"
 
@@ -982,13 +1360,6 @@ msgid ""
 " with missing values last. Otherwise they follow the order in which the groups first appear, in "
 "the reference sample and then in the current sample."
 msgstr "如果两个样本都是分类型且类别相同，各行按类别顺序排列，缺失值排在最后。否则按分组首次出现的次序排列，先看基准样本，再看当前样本。"
-
-msgid ""
-"N. Siddiqi, \"Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring\", "
-"Wiley, 2006."
-msgstr ""
-"N. Siddiqi, \"Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring\", "
-"Wiley, 2006."
 
 msgid "[Rb11431c5e9a8-1]_"
 msgstr "[Rb11431c5e9a8-1]_"
@@ -1776,6 +2147,27 @@ msgstr ""
 "``bin_edges`` 、 ``chimerge_edges`` 、 ``tree_edges`` 、 ``monotonic_edges`` 和 ``woe_table`` 新增 "
 "``weights`` 参数， ``psi_table`` 新增 ``reference_weights`` 和 ``current_weights`` "
 "参数。计数变为权重之和，等频边界变为逆累积分布意义下的加权分位数，权重为零的观测或分组会被排除。"
+
+msgid ""
+"The new ``kivi.selection`` module selects the variables of a scorecard from WOE-encoded "
+"candidates. ``correlation_filter`` drops one variable of each strongly correlated pair, keeping "
+"the one with the higher priority, such as its IV. ``vif`` computes variance inflation factors."
+msgstr ""
+"新增 ``kivi.selection`` 模块，用于从 WOE 编码的候选变量中筛选评分卡变量。 ``correlation_filter`` "
+"对每一对强相关的变量剔除其中一个，保留优先级（例如 IV）较高的那个。 ``vif`` 计算方差膨胀因子。"
+
+msgid ""
+"``logistic_regression`` fits a logistic regression in NumPy and reports each coefficient with its"
+" standard error, Wald z statistic and p-value. It raises ``SeparationError`` when the variables "
+"separate the classes, so that the estimates do not exist."
+msgstr ""
+"``logistic_regression`` 用 NumPy 拟合逻辑回归，并报告每个系数及其标准误、Wald z 统计量和 p 值。当变量把两类完全分开、以致估计值不存在时，它会抛出 "
+"``SeparationError`` 。"
+
+msgid ""
+"``stepwise`` selects variables by their p-values in forward, backward or both directions. By "
+"default, it keeps every coefficient positive, as expected for kivi's WOE."
+msgstr "``stepwise`` 按 p 值进行向前、向后或双向的变量筛选。默认情况下，它使每个系数都为正，这正是 kivi 的 WOE 所预期的。"
 
 msgid ""
 "``woe_transform`` replaces each group with its WOE from a ``woe_table`` result, the encoding used"
@@ -3015,6 +3407,139 @@ msgid ""
 "Every variable is stable here, as expected when the monitoring rows come from the same "
 "population. :doc:`psi` shows what a shift looks like and how to track PSI period by period."
 msgstr "这里所有变量都是稳定的，监控数据与开发数据来自同一客群时理应如此。:doc:`psi` 展示了偏移的样子以及如何按期跟踪 PSI。"
+
+msgid ""
+"A scorecard is a logistic regression on a short list of WOE-encoded variables. ``kivi.selection``"
+" covers the usual steps from the candidates to that list: drop one variable of each strongly "
+"correlated pair, check the rest for collinearity, select variables by their p-values and read the"
+" fitted model. Every function takes a DataFrame with one WOE-encoded column per variable, such as"
+" the output of ``woe_transform``, and the functions that fit a model also take the 0/1 target."
+msgstr ""
+"评分卡是基于少量 WOE 编码变量的逻辑回归。 ``kivi.selection`` 涵盖了从候选变量到入选名单的常用步骤：对每一对强相关的变量剔除其中一个，检查其余变量的共线性，按 p "
+"值筛选变量，并解读拟合的模型。每个函数都接收一个每个变量一列 WOE 编码值的 DataFrame，例如 ``woe_transform`` 的输出；拟合模型的函数还需要 0/1 目标变量。"
+
+msgid "Prepare the candidates"
+msgstr "准备候选变量"
+
+msgid ""
+"Group every candidate as in :doc:`risk_workflow`: quantile bins for most numeric variables, "
+"explicit edges where tied values would collapse the quantiles, and the raw labels of categorical "
+"variables. Then fit one WOE table per variable on the development sample, rank the variables by "
+"IV and encode those with an IV of at least 0.02."
+msgstr ""
+"按 :doc:`risk_workflow` "
+"中的方式对每个候选变量分组：多数数值变量使用分位数分箱，重复值会使分位数重合的变量使用显式边界，类别变量直接使用原始标签。然后在开发样本上为每个变量拟合一张 WOE 表，按 IV 排序，并对 "
+"IV 不低于 0.02 的变量做 WOE 编码。"
+
+msgid "Correlated variables"
+msgstr "相关变量"
+
+msgid ""
+"Variables that describe the same behavior carry the same information twice. ``poutcome``, "
+"``pdays`` and ``previous`` all describe the previous campaign:"
+msgstr "描述同一行为的变量会重复携带相同的信息。 ``poutcome`` 、 ``pdays`` 和 ``previous`` 都描述上一次营销活动："
+
+msgid ""
+"``correlation_filter`` visits the variables from the highest ``priority`` to the lowest and keeps"
+" a variable unless its absolute correlation with a variable already kept exceeds ``threshold`` "
+"(0.7 by default). Pass the IV as the priority, so that of two correlated variables the more "
+"predictive one stays:"
+msgstr ""
+"``correlation_filter`` 按 ``priority`` 从高到低依次考察各变量，若某变量与已保留变量的相关系数绝对值超过 ``threshold`` （默认 "
+"0.7）则将其剔除，否则保留。把 IV 作为优先级传入，两个相关变量中预测力更强的一个就会被保留："
+
+msgid ""
+"``previous`` is dropped for ``pdays``, which has a higher IV. ``poutcome`` and ``pdays`` stay "
+"together because their correlation of 0.68 is below the threshold. Thresholds between 0.6 and 0.8"
+" are common; a lower one gives a shorter list."
+msgstr ""
+"``previous`` 因与 IV 更高的 ``pdays`` 相关而被剔除。 ``poutcome`` 与 ``pdays`` 的相关系数为 "
+"0.68，低于阈值，因此二者都被保留。常用的阈值在 0.6 到 0.8 之间；阈值越低，入选名单越短。"
+
+msgid "Variance inflation factor"
+msgstr "方差膨胀因子"
+
+msgid ""
+"A correlation compares two variables, but a variable can also be explained by several others "
+"together. The variance inflation factor (VIF) regresses each variable on all the others: it is 1 "
+"for a variable that the others do not explain and grows without bound as they explain it "
+"completely. The square root of the VIF is the factor by which collinearity inflates the standard "
+"error of the variable's coefficient."
+msgstr ""
+"相关系数只比较两个变量，但一个变量也可能由其他几个变量共同解释。方差膨胀因子（VIF）将每个变量对其他所有变量做回归：其他变量完全无法解释的变量 VIF 为 1；其他变量越接近完全解释它，VIF"
+" 越大，且没有上限。VIF 的平方根是共线性使该变量系数的标准误放大的倍数。"
+
+msgid ""
+"A common rule of thumb flags a VIF above 5, or above 10, as harmful collinearity. Every value "
+"here is well below that, and dropping ``previous`` lowers the VIF of the other two variables of "
+"the previous campaign."
+msgstr "常见的经验法则把 VIF 高于 5（或高于 10）视为有害的共线性。这里所有的值都远低于这一水平；剔除 ``previous`` 后，另外两个描述上一次营销活动的变量的 VIF 也随之降低。"
+
+msgid "Logistic regression on WOE"
+msgstr "基于 WOE 的逻辑回归"
+
+msgid ""
+"``logistic_regression`` fits the model with an intercept and reports each coefficient with its "
+"standard error, its Wald z statistic and the two-sided p-value of that statistic. A model with a "
+"single WOE-encoded variable shows why WOE suits a logistic regression:"
+msgstr ""
+"``logistic_regression`` 拟合带截距项的模型，并报告每个系数及其标准误、Wald z 统计量和该统计量的双侧 p 值。只含一个 WOE 编码变量的模型说明了 WOE "
+"为什么适合逻辑回归："
+
+msgid ""
+"kivi defines the WOE of a group as :math:`\\ln(p_i / q_i)`, the log of its share of events over "
+"its share of non-events. That equals the log odds of the group minus the log odds of the whole "
+"sample, so an intercept equal to the sample log odds and a coefficient of 1 reproduce the log "
+"odds of every group exactly. The coefficient is exactly 1 whenever no cell needed smoothing."
+msgstr ""
+"kivi 将分组的 WOE 定义为 :math:`\\ln(p_i / q_i)` "
+"，即其事件占比与非事件占比之比的对数。它等于该组的对数优势减去整个样本的对数优势，因此截距取样本的对数优势、系数取 1，就能精确重现每个组的对数优势。只要没有单元格需要平滑，系数就恰好为 1。"
+
+msgid ""
+"With several variables, each coefficient weighs a variable against the others. A higher WOE "
+"always means a higher event rate, so every coefficient should be positive. A negative one means "
+"that the other variables reverse the variable's effect, usually because of collinearity. In the "
+"model with every candidate, ``previous`` gets a negative coefficient:"
+msgstr ""
+"有多个变量时，每个系数衡量的是一个变量相对于其他变量的权重。WOE "
+"越高总是意味着事件率越高，所以每个系数都应为正。负系数表示其他变量反转了该变量的作用，通常源于共线性。在包含全部候选变量的模型中， ``previous`` 的系数为负："
+
+msgid ""
+"A scorecard built on that model would give fewer points to customers with more previous contacts,"
+" although they subscribe more often."
+msgstr "基于这个模型的评分卡会给此前联系次数更多的客户更低的分数，尽管他们的认购率更高。"
+
+msgid "Stepwise selection"
+msgstr "逐步回归"
+
+msgid ""
+"``stepwise`` selects the variables of the model by their p-values. With the default "
+"``direction=\"both\"``, it starts from the intercept alone and repeatedly adds the variable with "
+"the smallest p-value below ``p_enter`` (0.05), then removes any selected variable whose p-value "
+"has risen above ``p_remove`` (0.10). ``direction=\"forward\"`` only adds variables and "
+"``direction=\"backward\"`` starts from every variable and only removes them."
+msgstr ""
+"``stepwise`` 按 p 值筛选模型的变量。默认的 ``direction=\"both\"`` 从只含截距的模型开始，反复加入 p 值最小且低于 ``p_enter`` "
+"（0.05）的变量，然后移除 p 值已升至 ``p_remove`` （0.10）以上的已选变量。 ``direction=\"forward\"`` 只加入变量； "
+"``direction=\"backward\"`` 则从全部变量开始，只移除变量。"
+
+msgid "``education`` and ``campaign`` were left out because their p-values stay above 0.05."
+msgstr "``education`` 和 ``campaign`` 的 p 值始终高于 0.05，因此未入选。"
+
+msgid ""
+"By default, ``positive=True`` keeps every coefficient positive: a variable enters only if all "
+"coefficients of the extended model are positive, and a variable whose coefficient is not positive"
+" is removed first. Here ``previous`` fails on its p-value anyway. With lenient levels it would "
+"pass the p-value test, and only the sign rule keeps it out:"
+msgstr ""
+"默认的 ``positive=True`` 使每个系数都为正：只有扩展后模型的所有系数都为正时变量才会入选，系数不为正的变量会被优先移除。这里 ``previous`` 本来就因 p "
+"值而未能入选。若放宽显著性水平，它能通过 p 值检验，只有符号规则会把它排除在外："
+
+msgid ""
+"Stepwise selection tests many models on the same data, so the p-values of the selected model are "
+"optimistic. Treat the result as a proposal: review each variable with the business, and check the"
+" model on a validation sample before using it."
+msgstr "逐步回归在同一份数据上检验了许多模型，因此所选模型的 p 值偏乐观。请把结果当作建议：与业务方逐一审核变量，并在使用前用验证样本检验模型。"
 
 msgid ""
 "``woe_table`` measures how each group separates a binary target. An event is target 1 and a non-"
