@@ -13,7 +13,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._validation import as_series
+from ._validation import as_series, as_weights
 from .binning import bin_edges
 
 __all__ = ["roc_auc", "gini", "ks", "gains_table", "brier_score"]
@@ -89,7 +89,7 @@ def roc_auc(score: npt.ArrayLike, target: npt.ArrayLike) -> float:
     >>> round(roc_auc(-points, target), 4)
     0.7222
     """
-    values, labels = _scores_and_labels(score, target, "score")
+    values, labels, _ = _scores_and_labels(score, target, "score")
     non_event, event = _distinct_counts(labels, values).T
     # U counts each (event, non-event) pair in which the event scores higher, a tie as one half;
     # it equals R_1 - n_1 (n_1 + 1) / 2 without subtracting large rank sums.
@@ -223,7 +223,7 @@ def ks(score: npt.ArrayLike, target: npt.ArrayLike) -> float:
     >>> round(ks(score, target), 4)
     0.3333
     """
-    values, labels = _scores_and_labels(score, target, "score")
+    values, labels, _ = _scores_and_labels(score, target, "score")
     non_event, event = _distinct_counts(labels, values).T
     gap = np.cumsum(event) / event.sum() - np.cumsum(non_event) / non_event.sum()
     return float(np.max(np.abs(gap)))
@@ -319,7 +319,7 @@ def gains_table(
     (2.0, 3.0]      2      1         0.5            1.000  0.800  1.333
     (-inf, 2.0]     4      0         0.0            1.000  0.000  0.000
     """
-    values, labels = _scores_and_labels(score, target, "score")
+    values, labels, _ = _scores_and_labels(score, target, "score")
     edges = _band_edges(values, bins)
     band = np.searchsorted(edges, values, side="left") - 1
     outside = (band < 0) | (band >= len(edges) - 1)
@@ -414,7 +414,7 @@ def brier_score(probability: npt.ArrayLike, target: npt.ArrayLike) -> float:
     >>> round(brier_score([0.1, 0.3, 0.6, 0.8], target), 4)
     0.075
     """
-    values, labels = _scores_and_labels(probability, target, "probability", both_classes=False)
+    values, labels, _ = _scores_and_labels(probability, target, "probability", both_classes=False)
     outside = (values < 0) | (values > 1)
     if outside.any():
         raise ValueError(f"probability must be between 0 and 1, got {float(values[outside][0])!r}")
@@ -422,12 +422,22 @@ def brier_score(probability: npt.ArrayLike, target: npt.ArrayLike) -> float:
 
 
 def _scores_and_labels(
-    score: npt.ArrayLike, target: npt.ArrayLike, name: str, *, both_classes: bool = True
-) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.intp]]:
-    """Finite float scores and 0/1 labels, matched by index or position like ``woe_table``."""
+    score: npt.ArrayLike,
+    target: npt.ArrayLike,
+    name: str,
+    *,
+    both_classes: bool = True,
+    weights: npt.ArrayLike | None = None,
+) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.intp], npt.NDArray[np.float64] | None]:
+    """Finite float scores, 0/1 labels and weights, matched by index or position like ``woe_table``.
+
+    The weights are None without `weights`. With `both_classes`, both classes
+    must be present and, with `weights`, have a positive total weight.
+    """
     if isinstance(score, pd.Series) and isinstance(target, pd.Series):
         if not score.index.equals(target.index):
             raise ValueError(f"{name} and target must have identical indices")
+    raw_score = score
     score, target = as_series(score, name), as_series(target, "target")
     if len(score) != len(target):
         raise ValueError(
@@ -453,7 +463,11 @@ def _scores_and_labels(
     labels = target.to_numpy(dtype=np.intp)
     if both_classes and labels.sum() in (0, len(labels)):
         raise ValueError(f"target must contain both 0 and 1, got only {labels[0]}")
-    return values, labels
+    mass = as_weights(weights, raw_score, of=name)
+    if both_classes and mass is not None:
+        if not (np.bincount(labels, weights=mass, minlength=2) > 0).all():
+            raise ValueError("weights must give both target classes a positive total")
+    return values, labels, mass
 
 
 def _scalar(values: pd.Series):

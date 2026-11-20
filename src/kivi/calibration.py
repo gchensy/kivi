@@ -1,15 +1,18 @@
 """Calibration of event probabilities and rating grades."""
 
 import math
+import warnings
 from numbers import Integral, Real
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
+from . import _logit
 from ._counts import group_counts
 from ._stats import betainc, chi2_sf
 from ._validation import as_series
+from .metrics import _scores_and_labels
 
 __all__ = [
     "binomial_test",
@@ -17,7 +20,11 @@ __all__ = [
     "corrected_intercept",
     "herfindahl_index",
     "hosmer_lemeshow",
+    "isotonic_fit",
+    "isotonic_predict",
     "jeffreys_test",
+    "platt_fit",
+    "platt_predict",
     "prior_correction",
 ]
 
@@ -148,6 +155,368 @@ def corrected_intercept(intercept: float, *, sample_rate: float, population_rate
     ):
         raise ValueError(f"intercept must be a finite number, got {intercept!r}")
     return intercept + math.log(_odds_ratio(sample_rate, population_rate))
+
+
+def platt_fit(
+    score: npt.ArrayLike, target: npt.ArrayLike, *, weights: npt.ArrayLike | None = None
+) -> tuple[float, float]:
+    r"""Fit Platt scaling, a logistic curve from a score to event probabilities.
+
+    The slope and intercept are fitted once, on a development or calibration
+    sample, and `platt_predict` applies them to the scores of any sample.
+
+    Parameters
+    ----------
+    score : array_like
+        Finite numeric scores, such as the log odds of a model, a PD or
+        scorecard points. The direction does not matter: a score that falls
+        as the risk rises gets a negative slope.
+    target : array_like
+        Binary labels, with 1 indicating the event. Both classes must be
+        present. If `score` and `target` are both pandas Series, they must
+        have identical indices; otherwise they are matched by position.
+    weights : array_like, optional
+        Non-negative frequency weight of each observation, matched like
+        `target`: a weight of 2 counts an observation twice.
+
+    Returns
+    -------
+    slope : float
+        Coefficient of the score in the log odds of the event.
+    intercept : float
+        Log odds of the event at a score of 0.
+
+    Raises
+    ------
+    kivi.selection.SeparationError
+        If the score separates the classes, so that the slope that
+        maximizes the likelihood is infinite. It is a ValueError.
+    ValueError
+        If the inputs are empty or not one-dimensional, their indices or
+        lengths do not match, `target` has a label other than 0 and 1 or
+        lacks one of them, `score` is not real and numeric, has a missing or
+        infinite value or does not vary, or `weights` is invalid or leaves a
+        class without weight.
+
+    Warns
+    -----
+    RuntimeWarning
+        If the fit has not converged after 100 iterations.
+
+    See Also
+    --------
+    platt_predict : Apply the slope and intercept to scores.
+    isotonic_fit : A calibration that only assumes that the rate rises.
+    kivi.selection.logistic_regression : The same kind of fit with standard errors.
+
+    Notes
+    -----
+    The event probability at score :math:`s` is modelled as
+
+    .. math::
+
+       p(s) = \frac{1}{1 + \exp(-(a s + b))},
+
+    and the slope :math:`a` and the intercept :math:`b` maximize the
+    log-likelihood, fitted by iteratively reweighted least squares as in
+    `kivi.selection.logistic_regression`. At the maximum, the mean fitted
+    probability equals the event rate of the sample, weighted with
+    `weights`.
+
+    When the score is the log odds of a model, this is the logistic
+    recalibration of Cox [2]_: a slope of 1 and an intercept of 0 mean that
+    the model is calibrated on the sample, and a slope below 1 that its
+    probabilities are too extreme, as after overfitting.
+
+    Platt [1]_, and scikit-learn's ``CalibratedClassifierCV`` after him,
+    replace the labels 1 and 0 with :math:`(n_1 + 1) / (n_1 + 2)` and
+    :math:`1 / (n_0 + 2)` for :math:`n_1` events and :math:`n_0`
+    non-events. This matters only in small samples, where it also keeps the
+    slope finite when the score separates the classes. Here the labels are
+    used as they are, so a separating score raises an error instead;
+    `isotonic_fit` handles such a score.
+
+    References
+    ----------
+    .. [1] J. C. Platt, "Probabilistic outputs for support vector machines
+       and comparisons to regularized likelihood methods", in Advances in
+       Large Margin Classifiers, MIT Press, pp. 61-74, 1999.
+    .. [2] D. R. Cox, "Two further applications of a model for binary
+       regression", Biometrika, 45(3-4), pp. 562-565, 1958.
+
+    Examples
+    --------
+    >>> from kivi.calibration import platt_fit, platt_predict
+    >>> score = [-2.0, -1.0, -1.0, 0.0, 0.5, 1.0, 1.5, 2.0]
+    >>> target = [0, 0, 1, 0, 1, 0, 1, 1]
+    >>> slope, intercept = platt_fit(score, target)
+    >>> print(f"slope = {slope:.4f}, intercept = {intercept:.4f}")
+    slope = 0.8824, intercept = -0.1250
+    >>> platt_predict([-1.0, 0.0, 1.0], slope, intercept).round(4)
+    array([0.2675, 0.4688, 0.6808])
+    """
+    values, labels, mass = _scores_and_labels(score, target, "score", weights=weights)
+    used = values if mass is None else values[mass > 0]
+    if used.min() == used.max():
+        raise ValueError(f"score must vary to fit a slope, got only {float(used[0])!r}")
+    design = np.column_stack([np.ones(len(values)), values])
+    try:
+        fitted = _logit.fit(design, labels.astype(float), weights=mass)
+    except _logit.SeparationError:
+        raise _logit.SeparationError(
+            "score separates the classes of target, so the slope that maximizes the "
+            "likelihood is infinite; isotonic_fit handles a separating score"
+        ) from None
+    except _logit.SingularError:
+        raise ValueError(
+            "score varies too little relative to its size to fit a slope; centre or rescale it"
+        ) from None
+    if not fitted.converged:
+        warnings.warn(
+            f"Platt scaling did not converge after {fitted.n_iter} iterations",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+    intercept, slope = fitted.coef
+    return float(slope), float(intercept)
+
+
+def platt_predict(
+    score: npt.ArrayLike, slope: float, intercept: float
+) -> float | pd.Series | npt.NDArray[np.float64]:
+    r"""Turn scores into event probabilities with a fitted Platt scaling.
+
+    The probabilities follow the logistic curve with the slope and
+    intercept from `platt_fit`, so the same calibration applies to the
+    development sample, a validation sample and new applicants.
+
+    Parameters
+    ----------
+    score : array_like
+        Numeric scores on the scale of the fit. Missing values give missing
+        probabilities.
+    slope : float
+        Coefficient of the score, as returned by `platt_fit`.
+    intercept : float
+        Intercept, as returned by `platt_fit`.
+
+    Returns
+    -------
+    float, pandas.Series or numpy.ndarray
+        Event probabilities with the shape of `score`. A Series input gives
+        a Series with the same index and name, and a scalar gives a float.
+
+    Raises
+    ------
+    ValueError
+        If `score` is not real and numeric, or `slope` or `intercept` is not
+        a finite number.
+
+    See Also
+    --------
+    platt_fit : Fit the slope and intercept.
+    isotonic_predict : Apply an isotonic calibration.
+
+    Notes
+    -----
+    The probability is :math:`1 / (1 + \exp(-(a s + b)))` for slope
+    :math:`a`, intercept :math:`b` and score :math:`s`, computed without
+    overflow for extreme scores.
+
+    Examples
+    --------
+    >>> from kivi.calibration import platt_predict
+    >>> platt_predict([-2.0, 0.0, 2.0], 1.5, -0.5).round(4)
+    array([0.0293, 0.3775, 0.9241])
+    """
+    for name, value in (("slope", slope), ("intercept", intercept)):
+        if isinstance(value, bool) or not isinstance(value, Real) or not math.isfinite(value):
+            raise ValueError(f"{name} must be a finite number, got {value!r}")
+    values = _float_scores(score, "score")
+    # A huge score overflows to an infinite log odds, and logaddexp warns on missing values.
+    with np.errstate(over="ignore", invalid="ignore"):
+        probability = np.exp(-np.logaddexp(0, -(slope * values + intercept)))
+    return _shaped(score, probability)
+
+
+def isotonic_fit(
+    score: npt.ArrayLike,
+    target: npt.ArrayLike,
+    *,
+    weights: npt.ArrayLike | None = None,
+    increasing: bool = True,
+) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+    r"""Fit an isotonic calibration, a step function from a score to event probabilities.
+
+    The score range is split into bands whose event rates rise with the
+    score, so the calibration assumes only that a higher score means a
+    higher risk. Fit the bands once and apply them to the scores of any
+    sample with `isotonic_predict`.
+
+    Parameters
+    ----------
+    score : array_like
+        Finite numeric scores, such as a PD or the log odds of a model.
+    target : array_like
+        Binary labels, with 1 indicating the event. Both classes must be
+        present. If `score` and `target` are both pandas Series, they must
+        have identical indices; otherwise they are matched by position.
+    weights : array_like, optional
+        Non-negative frequency weight of each observation, matched like
+        `target`: a weight of 2 counts an observation twice. Scores whose
+        weights sum to zero are ignored.
+    increasing : bool, default True
+        Whether the probability rises with the score, as for a PD. Pass
+        False for scorecard points, which are higher for a lower risk.
+
+    Returns
+    -------
+    edges : numpy.ndarray
+        Increasing band edges from ``-inf`` to ``inf``, like those of
+        `kivi.binning.bin_edges`. The bands are closed on the right, as in
+        ``pandas.cut``, and each interior edge is the highest score of the
+        band below it.
+    probabilities : numpy.ndarray
+        Event rate of each band, one fewer than `edges`. The rates are
+        strictly increasing, or strictly decreasing with
+        ``increasing=False``.
+
+    Raises
+    ------
+    ValueError
+        If the inputs are empty or not one-dimensional, their indices or
+        lengths do not match, `target` has a label other than 0 and 1 or
+        lacks one of them, `score` is not real and numeric or has a missing
+        or infinite value, `weights` is invalid or leaves a class without
+        weight, or `increasing` is not a boolean.
+
+    See Also
+    --------
+    isotonic_predict : Apply the bands to scores.
+    platt_fit : A calibration by a logistic curve.
+    calibration_table : Compare the bands with the outcomes of another sample.
+
+    Notes
+    -----
+    Among all probabilities :math:`p_i` that rise with the score, isotonic
+    regression minimizes :math:`\sum_i w_i (y_i - p_i)^2`, and the same
+    solution maximizes the binomial likelihood [1]_. The
+    pool-adjacent-violators algorithm finds it: each distinct score starts
+    as a band with its event rate, and adjacent bands are merged while the
+    lower one has a rate at least as high as the one above it. The
+    probability of a band is then its pooled event rate. Tied scores always
+    share a band, and since bands with equal rates are merged too, no two
+    adjacent bands have the same probability.
+
+    The outer edges are infinite, so a score below or above the fitted
+    range gets the probability of the lowest or highest band. A score
+    between the observed scores of two bands falls into the upper one,
+    whose interval it belongs to. scikit-learn's ``IsotonicRegression``
+    interpolates linearly between the bands instead; both give the same
+    probability at every score of the fitted sample [2]_.
+
+    A band without events has probability 0 and a band with only events
+    has probability 1; a score that separates the classes gives just these
+    two bands. Floor the probabilities where 0 is not allowed, for example
+    before `kivi.scorecard.pd_to_score`. The bands can also serve as the
+    grades of `calibration_table`, by cutting the scores at `edges`.
+
+    References
+    ----------
+    .. [1] M. Ayer, H. D. Brunk, G. M. Ewing, W. T. Reid and E. Silverman,
+       "An empirical distribution function for sampling with incomplete
+       information", The Annals of Mathematical Statistics, 26(4),
+       pp. 641-647, 1955.
+    .. [2] B. Zadrozny and C. Elkan, "Transforming classifier scores into
+       accurate multiclass probability estimates", Proceedings of the 8th
+       ACM SIGKDD Conference, pp. 694-699, 2002.
+
+    Examples
+    --------
+    >>> from kivi.calibration import isotonic_fit, isotonic_predict
+    >>> score = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+    >>> target = [0, 1, 0, 0, 1, 0, 1, 1]
+    >>> edges, probabilities = isotonic_fit(score, target)
+    >>> edges
+    array([-inf,  0.1,  0.4,  0.6,  inf])
+    >>> probabilities
+    array([0.        , 0.33333333, 0.5       , 1.        ])
+    >>> isotonic_predict([0.05, 0.25, 0.45, 0.9], edges, probabilities).round(4)
+    array([0.    , 0.3333, 0.5   , 1.    ])
+    """
+    if not isinstance(increasing, (bool, np.bool_)):
+        raise ValueError(f"increasing must be True or False, got {increasing!r}")
+    values, labels, mass = _scores_and_labels(score, target, "score", weights=weights)
+    distinct, position = np.unique(values, return_inverse=True)
+    position = position.ravel()  # NumPy 2.0 keeps the input's shape here
+    total = np.bincount(position, weights=mass, minlength=len(distinct))
+    event = np.bincount(position, weights=labels if mass is None else mass * labels)
+    event = np.pad(event, (0, len(distinct) - len(event)))
+    used = total > 0
+    last, pooled_total, pooled_event = _pool_adjacent_violators(
+        total[used], event[used], increasing=bool(increasing)
+    )
+    edges = np.concatenate([[-np.inf], distinct[used][last[:-1]], [np.inf]])
+    return edges, pooled_event / pooled_total
+
+
+def isotonic_predict(
+    score: npt.ArrayLike, edges: npt.ArrayLike, probabilities: npt.ArrayLike
+) -> float | pd.Series | npt.NDArray[np.float64]:
+    """Give each score the probability of its band from an isotonic calibration.
+
+    The bands come from `isotonic_fit` on a development or calibration
+    sample, so the same step function applies to every later sample.
+
+    Parameters
+    ----------
+    score : array_like
+        Numeric scores on the scale of the fit. Missing values give missing
+        probabilities.
+    edges : array_like
+        Increasing band edges from ``-inf`` to ``inf``, as returned by
+        `isotonic_fit`.
+    probabilities : array_like
+        Probability of each band, between 0 and 1, one fewer than `edges`.
+
+    Returns
+    -------
+    float, pandas.Series or numpy.ndarray
+        Event probabilities with the shape of `score`. A Series input gives
+        a Series with the same index and name, and a scalar gives a float.
+
+    Raises
+    ------
+    ValueError
+        If `score` is not real and numeric, `edges` is not increasing from
+        ``-inf`` to ``inf``, or `probabilities` does not give one value
+        between 0 and 1 for each band.
+
+    See Also
+    --------
+    isotonic_fit : Fit the bands and their probabilities.
+    platt_predict : Apply a Platt scaling.
+
+    Notes
+    -----
+    The bands are closed on the right, as in ``pandas.cut``: a score equal
+    to an interior edge gets the probability of the band below the edge.
+    Since the outer edges are infinite, every score that is not missing
+    falls into a band.
+
+    Examples
+    --------
+    >>> from kivi.calibration import isotonic_predict
+    >>> edges = [-float("inf"), 0.2, 0.5, float("inf")]
+    >>> isotonic_predict([0.1, 0.2, 0.3, 0.9], edges, [0.05, 0.2, 0.6])
+    array([0.05, 0.05, 0.2 , 0.6 ])
+    """
+    edges, probabilities = _isotonic_bands(edges, probabilities)
+    values = _float_scores(score, "score")
+    band = np.searchsorted(edges[1:-1], values, side="left")
+    result = probabilities[np.minimum(band, len(probabilities) - 1)]
+    result = np.where(np.isnan(values), np.nan, result)
+    return _shaped(score, result)
 
 
 def calibration_table(
@@ -554,6 +923,79 @@ def herfindahl_index(counts: npt.ArrayLike, *, normalize: bool = False) -> float
     if len(values) < 2:
         raise ValueError(f"normalize requires at least two grades, got {len(values)}")
     return (index - 1 / len(values)) / (1 - 1 / len(values))
+
+
+def _pool_adjacent_violators(
+    total: np.ndarray, event: np.ndarray, *, increasing: bool
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Pool adjacent blocks of ordered scores until their event rates are strictly monotone.
+
+    Returns the position of the last score of each block and the block's total
+    and event weight.
+    """
+    sign = 1.0 if increasing else -1.0
+    last, totals, events = [], [], []
+    for position, (block_total, block_event) in enumerate(
+        zip(total.tolist(), event.tolist(), strict=True)
+    ):
+        # The previous rate is at least the current one: e' / t' >= e / t, cross-multiplied.
+        while totals and sign * events[-1] * block_total >= sign * block_event * totals[-1]:
+            block_total += totals.pop()
+            block_event += events.pop()
+            last.pop()
+        last.append(position)
+        totals.append(block_total)
+        events.append(block_event)
+    return np.array(last, dtype=np.intp), np.array(totals), np.array(events)
+
+
+def _isotonic_bands(edges, probabilities) -> tuple[np.ndarray, np.ndarray]:
+    """Check and return the band edges and probabilities of an isotonic calibration."""
+    try:
+        edges = np.asarray(edges, dtype=float)
+        probabilities = np.asarray(probabilities, dtype=float)
+    except (TypeError, ValueError):
+        raise ValueError("edges and probabilities must be numeric") from None
+    if (
+        edges.ndim != 1
+        or len(edges) < 2
+        or not (np.diff(edges) > 0).all()
+        or edges[0] != -np.inf
+        or edges[-1] != np.inf
+    ):
+        raise ValueError(f"edges must increase from -inf to inf, got {edges.tolist()!r}")
+    if probabilities.shape != (len(edges) - 1,):
+        raise ValueError(
+            f"probabilities must give one value for each of the {len(edges) - 1} band(s), "
+            f"got shape {probabilities.shape}"
+        )
+    if np.isnan(probabilities).any():
+        raise ValueError("probabilities must not have missing values")
+    _check_unit_interval(probabilities, "probabilities")
+    return edges, probabilities
+
+
+def _float_scores(values: npt.ArrayLike, name: str) -> np.ndarray:
+    """Scores as a float array, with missing values as NaN."""
+    if isinstance(values, pd.Series):
+        dtype = values.dtype
+        if not pd.api.types.is_numeric_dtype(dtype) or pd.api.types.is_complex_dtype(dtype):
+            raise ValueError(f"{name} must be real and numeric, got dtype {dtype}")
+        return values.to_numpy(dtype=float, na_value=np.nan)
+    array = np.asarray(values)
+    if array.dtype.kind in "cUSMm":
+        raise ValueError(f"{name} must be real and numeric, got dtype {array.dtype}")
+    try:
+        return array.astype(float)
+    except (TypeError, ValueError):
+        raise ValueError(f"{name} must be real and numeric, got dtype {array.dtype}") from None
+
+
+def _shaped(template: npt.ArrayLike, values: np.ndarray) -> float | pd.Series | np.ndarray:
+    """Return values shaped like the input: a Series, a float or an array."""
+    if isinstance(template, pd.Series):
+        return pd.Series(values, index=template.index, name=template.name)
+    return float(values) if values.ndim == 0 else values
 
 
 def _odds_ratio(sample_rate: float, population_rate: float) -> float:
