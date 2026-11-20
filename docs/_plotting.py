@@ -1,0 +1,322 @@
+"""Charts for the kivi documentation.
+
+The plotting functions take kivi result tables. The ``figure_*`` recipes
+recompute the examples shown in the pages and draw them; the pages call them
+from ``.. plot::`` directives. Chart labels use column and parameter names so
+that the same images serve the English and Chinese editions.
+
+``python docs/_plotting.py`` refreshes the README images in docs/_static.
+"""
+
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from cycler import cycler
+from matplotlib.ticker import PercentFormatter
+
+from kivi.binning import bin_edges
+from kivi.datasets import Dataset
+from kivi.evaluate import psi_table
+from kivi.woe import woe_table
+
+BLUE = "#2f5bd3"
+LIGHT_BLUE = "#9fb4ee"
+TEAL = "#14a397"
+AMBER = "#d97706"
+RED = "#dc2626"
+GRAY = "#9ca3af"
+TEXT = "#1f2937"
+MUTED = "#6b7280"
+GRID = "#e5e7eb"
+MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+
+
+def apply_style() -> None:
+    plt.rcParams.update({
+        "figure.facecolor": "white",
+        "axes.facecolor": "white",
+        "savefig.facecolor": "white",
+        "font.family": "DejaVu Sans",
+        "font.size": 10,
+        "axes.titlesize": 11,
+        "axes.titleweight": "bold",
+        "axes.titlelocation": "left",
+        "axes.labelcolor": TEXT,
+        "axes.edgecolor": GRAY,
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+        "axes.grid": True,
+        "axes.grid.axis": "y",
+        "axes.axisbelow": True,
+        "axes.prop_cycle": cycler(color=[BLUE, TEAL, AMBER, RED]),
+        "grid.color": GRID,
+        "grid.linewidth": 0.8,
+        "text.color": TEXT,
+        "xtick.color": MUTED,
+        "ytick.color": MUTED,
+        "legend.frameon": False,
+        "svg.fonttype": "path",
+        "svg.hashsalt": "kivi",
+    })
+
+
+def _labels(index) -> list[str]:
+    return ["NaN" if pd.isna(value) else str(value) for value in index]
+
+
+def _bar_values(ax, x, values) -> None:
+    size = 8.5 if len(x) <= 7 else 6.8
+    for xi, value in zip(x, values):
+        value = round(float(value), 2) + 0.0
+        ax.annotate(f"{value:+.2f}", (xi, value), xytext=(0, 3 if value >= 0 else -11),
+                    textcoords="offset points", ha="center", fontsize=size, color=TEXT)
+    ax.margins(y=0.18)
+
+
+def _ticks(ax, x, labels) -> None:
+    if len(labels) > 6 or max(map(len, labels)) > 14:
+        ax.set_xticks(x, labels, rotation=35, ha="right", fontsize=8.5)
+    else:
+        ax.set_xticks(x, labels)
+
+
+def woe_chart(table: pd.DataFrame, title: str = ""):
+    """Population share and event rate per bin (top) and WOE per bin (bottom)."""
+    counts = table["event"] + table["non_event"]
+    share = counts / counts.sum()
+    event_rate = table["event"] / counts
+    x = np.arange(len(table))
+    fig, (top, bottom) = plt.subplots(
+        2, 1, figsize=(8, 5), sharex=True, gridspec_kw={"height_ratios": [1, 1.1]}
+    )
+    top.bar(x, share, color=LIGHT_BLUE, width=0.6, label="share")
+    top.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+    top.set_ylabel("share")
+    rate = top.twinx()
+    rate.plot(x, event_rate, color=AMBER, marker="o", linewidth=2, label="event_rate")
+    rate.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+    rate.set_ylim(0, max(event_rate.max() * 1.25, 0.01))
+    rate.set_ylabel("event_rate")
+    rate.grid(False)
+    rate.spines["right"].set_visible(True)
+    handles = top.get_legend_handles_labels()[0] + rate.get_legend_handles_labels()[0]
+    top.legend(handles, ["share", "event_rate"], loc="lower right", bbox_to_anchor=(1, 1.01),
+               ncols=2, borderaxespad=0)
+    if title:
+        top.set_title(title)
+    colors = [BLUE if value >= 0 else TEAL for value in table["woe"]]
+    bottom.bar(x, table["woe"], color=colors, width=0.6)
+    bottom.axhline(0, color=GRAY, linewidth=1)
+    _bar_values(bottom, x, table["woe"])
+    bottom.set_ylabel("woe")
+    _ticks(bottom, x, _labels(table.index))
+    fig.tight_layout()
+    return fig
+
+
+def woe_panels(tables: dict[str, pd.DataFrame], height: float = 3.2):
+    """WOE bars for several groupings side by side, one panel per table."""
+    fig, axes = plt.subplots(1, len(tables), figsize=(8, height), squeeze=False)
+    for ax, (title, table) in zip(axes[0], tables.items()):
+        x = np.arange(len(table))
+        colors = [BLUE if value >= 0 else TEAL for value in table["woe"]]
+        ax.bar(x, table["woe"], color=colors, width=0.65)
+        ax.axhline(0, color=GRAY, linewidth=1)
+        _bar_values(ax, x, table["woe"])
+        ax.set_xticks(x, _labels(table.index), rotation=35, ha="right", fontsize=8.5)
+        ax.set_title(f"{title}    IV = {table['iv'].sum():.3f}", fontsize=10)
+        ax.set_ylabel("woe")
+    fig.tight_layout()
+    return fig
+
+
+def binning_methods(values: pd.Series, bins: int = 5):
+    """Distribution with quantile and uniform edges (left) and counts per bin (right)."""
+    quantile = bin_edges(values, bins=bins)
+    uniform = bin_edges(values, bins=bins, method="uniform")
+    fig, (left, right) = plt.subplots(1, 2, figsize=(8, 3.4), gridspec_kw={"width_ratios": [1.3, 1]})
+    upper = values.quantile(0.99)
+    left.hist(values[values <= upper], bins=60, color=LIGHT_BLUE)
+    for edge in quantile[1:-1]:
+        left.axvline(edge, color=BLUE, linewidth=1.6)
+    for edge in uniform[1:-1]:
+        if edge <= upper:
+            left.axvline(edge, color=AMBER, linewidth=1.6, linestyle="--")
+    left.plot([], [], color=BLUE, label="quantile")
+    left.plot([], [], color=AMBER, linestyle="--", label="uniform")
+    left.legend(loc="upper right")
+    left.set_xlabel(values.name)
+    left.set_ylabel("count")
+    x = np.arange(1, bins + 1)
+    q_counts = pd.cut(values, quantile).value_counts(sort=False).to_numpy()
+    u_counts = pd.cut(values, uniform).value_counts(sort=False).to_numpy()
+    right.bar(x - 0.2, np.pad(q_counts, (0, bins - len(q_counts))), width=0.4, color=BLUE, label="quantile")
+    right.bar(x + 0.2, u_counts, width=0.4, color=AMBER, label="uniform")
+    right.set_xticks(x)
+    right.set_xlabel("bin")
+    right.set_ylabel("count")
+    right.legend(loc="upper right")
+    fig.tight_layout()
+    return fig
+
+
+def iv_ranking(iv: pd.Series, limit: float = 0.65):
+    """Horizontal IV bars with the usual 0.02 / 0.1 / 0.3 reading bands."""
+    iv = iv.sort_values()
+    fig, ax = plt.subplots(figsize=(8, 0.32 * len(iv) + 0.9))
+    colors = [GRAY if v < 0.02 else TEAL if v < 0.1 else BLUE if v < 0.5 else AMBER for v in iv]
+    y = np.arange(len(iv))
+    ax.barh(y, np.minimum(iv, limit), color=colors, height=0.65)
+    for yi, value in zip(y, iv):
+        label = f"{value:.3f}" + ("  →" if value > limit else "")
+        ax.annotate(label, (min(value, limit), yi), xytext=(4, 0), textcoords="offset points",
+                    va="center", fontsize=8.5, color=AMBER if value > limit else TEXT)
+    for threshold in (0.02, 0.1, 0.3):
+        ax.axvline(threshold, color=GRAY, linestyle="--", linewidth=1)
+        ax.annotate(f"{threshold:g}", (threshold, len(iv) - 0.4), ha="center", fontsize=8.5, color=MUTED)
+    ax.set_yticks(y, iv.index)
+    ax.set_xlim(0, limit + 0.08)
+    ax.set_xlabel("iv")
+    ax.grid(axis="x")
+    ax.grid(axis="y", visible=False)
+    fig.tight_layout()
+    return fig
+
+
+def psi_panels(tables: dict[str, pd.DataFrame]):
+    """Reference and current shares per bin for several comparisons."""
+    fig, axes = plt.subplots(1, len(tables), figsize=(8, 3.3), sharey=True, squeeze=False)
+    for ax, (title, table) in zip(axes[0], tables.items()):
+        x = np.arange(len(table))
+        ax.bar(x - 0.2, table["reference_share"], width=0.4, color=LIGHT_BLUE, label="reference_share")
+        ax.bar(x + 0.2, table["current_share"], width=0.4, color=BLUE, label="current_share")
+        ax.set_xticks(x, _labels(table.index), rotation=35, ha="right", fontsize=8.5)
+        ax.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+        ax.set_title(f"{title}    PSI = {table['psi'].sum():.3f}", fontsize=10)
+    axes[0][0].legend(loc="upper right")
+    fig.tight_layout()
+    return fig
+
+
+def psi_monitor(psi: pd.Series, sizes: pd.Series):
+    """PSI per period, coloured by the 0.1 / 0.25 conventions, with sample sizes."""
+    x = np.arange(len(psi))
+    colors = [BLUE if v < 0.1 else AMBER if v < 0.25 else RED for v in psi]
+    fig, ax = plt.subplots(figsize=(8, 3.4))
+    ax.bar(x, psi, color=colors, width=0.62)
+    for threshold, color in ((0.1, AMBER), (0.25, RED)):
+        ax.axhline(threshold, color=color, linestyle="--", linewidth=1)
+        ax.text(1.005, threshold, f"{threshold:g}", transform=ax.get_yaxis_transform(),
+                va="center", fontsize=8.5, color=color)
+    ax.set_xticks(x, [f"{period}\nn={n}" for period, n in zip(psi.index, sizes)], fontsize=8.5)
+    ax.set_ylabel("psi")
+    ax.set_ylim(0, max(psi.max() * 1.18, 0.3))
+    fig.tight_layout()
+    return fig
+
+
+# Recipes for the documentation pages ---------------------------------------
+
+
+def _samples():
+    data = Dataset.bank_data()
+    return data, data.iloc[:3000], data.iloc[3000:]
+
+
+def figure_quickstart_woe():
+    _, reference, _ = _samples()
+    groups = pd.cut(reference["age"], bin_edges(reference["age"], bins=5))
+    return woe_chart(woe_table(groups, reference["target"]).sort_index(), "age")
+
+
+def figure_binning_methods():
+    _, reference, _ = _samples()
+    return binning_methods(reference["balance"])
+
+
+def figure_custom_edges():
+    _, reference, _ = _samples()
+    age_edges = np.array([-np.inf, 25, 35, 45, 55, 65, np.inf])
+    pdays_edges = np.array([-np.inf, -1, 100, 200, 300, np.inf])
+    return woe_panels({
+        "age": woe_table(pd.cut(reference["age"], age_edges), reference["target"]).sort_index(),
+        "pdays": woe_table(pd.cut(reference["pdays"], pdays_edges), reference["target"]).sort_index(),
+    }, height=3.4)
+
+
+def figure_coarse_classing():
+    _, reference, _ = _samples()
+    fine = bin_edges(reference["balance"], bins=10)
+    coarse = fine[[0, 3, 7, 10]]
+    return woe_panels({
+        "bins=10": woe_table(pd.cut(reference["balance"], fine), reference["target"]).sort_index(),
+        "fine[[0, 3, 7, 10]]": woe_table(pd.cut(reference["balance"], coarse), reference["target"]).sort_index(),
+    }, height=3.6)
+
+
+def figure_woe_job():
+    _, reference, _ = _samples()
+    table = woe_table(reference["job"], reference["target"]).sort_values("woe")
+    return woe_chart(table, "job")
+
+
+def screen_iv(reference: pd.DataFrame, bins: int = 5) -> pd.Series:
+    iv = {}
+    for column in reference.columns.drop("target"):
+        values = reference[column]
+        groups = pd.cut(values, bin_edges(values, bins=bins)) if pd.api.types.is_numeric_dtype(values) else values
+        iv[column] = woe_table(groups, reference["target"])["iv"].sum()
+    return pd.Series(iv)
+
+
+def figure_iv_ranking():
+    _, reference, _ = _samples()
+    return iv_ranking(screen_iv(reference))
+
+
+def figure_psi_shift():
+    data, reference, current = _samples()
+    edges = bin_edges(reference["age"], bins=5)
+    before = pd.cut(reference["age"], edges)
+    single = data[data["marital"] == "single"]
+    return psi_panels({
+        "data.iloc[3000:]": psi_table(before, pd.cut(current["age"], edges)).sort_index(),
+        "marital == 'single'": psi_table(before, pd.cut(single["age"], edges)).sort_index(),
+    })
+
+
+def monthly_psi(data: pd.DataFrame, reference: pd.DataFrame, column: str = "age"):
+    edges = bin_edges(reference[column], bins=5)
+    before = pd.cut(reference[column], edges)
+    months = [m for m in MONTHS if m in set(data["month"])]
+    psi = pd.Series({m: psi_table(before, pd.cut(data.loc[data["month"] == m, column], edges))["psi"].sum()
+                     for m in months})
+    sizes = data["month"].value_counts().reindex(months)
+    return psi, sizes
+
+
+def figure_psi_monitor():
+    data, reference, _ = _samples()
+    return psi_monitor(*monthly_psi(data, reference))
+
+
+README_FIGURES = {
+    "readme-woe.svg": figure_quickstart_woe,
+    "readme-iv.svg": figure_iv_ranking,
+    "readme-psi.svg": figure_psi_monitor,
+}
+
+
+if __name__ == "__main__":
+    import matplotlib
+
+    matplotlib.use("Agg")
+    apply_style()
+    static = Path(__file__).resolve().parent / "_static"
+    for name, recipe in README_FIGURES.items():
+        figure = recipe()
+        figure.savefig(static / name, format="svg", metadata={"Date": None})
+        plt.close(figure)
+        print(f"wrote docs/_static/{name}")

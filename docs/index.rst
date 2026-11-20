@@ -2,12 +2,12 @@
 
 .. rst-class:: kivi-home
 
-Binning, WOE, IV and PSI for pandas
-===================================
+Binning, WOE, IV and PSI for risk modeling
+==========================================
 
 .. container:: kivi-lead
 
-   kivi fits bin edges on a reference sample, measures how well each bin separates a binary target and tracks how the population shifts over time. Every result is a pandas DataFrame with one row per bin.
+   kivi is a pandas toolkit for credit risk and financial modeling. It fits bin edges on a development sample, measures how well each bin separates a binary outcome such as default, and tracks how the population shifts once a model is live. Every result is a pandas DataFrame with one row per bin.
 
 .. container:: kivi-actions
 
@@ -46,6 +46,36 @@ At a glance
 
       evidence = woe_table(before, reference["target"])
       stability = psi_table(before, after)
+
+.. plot::
+   :alt: WOE chart for age with the share of customers and the event rate per bin
+   :caption: The WOE chart for ``age``, drawn from ``evidence``.
+
+   kp.figure_quickstart_woe()
+
+Built for risk teams
+--------------------
+
+.. grid:: 1 1 3 3
+   :gutter: 3
+
+   .. grid-item-card:: Scorecard development
+      :link: user_guide/binning
+      :link-type: doc
+
+      Fine and coarse classing, special values and monotonic WOE for logistic regression scorecards.
+
+   .. grid-item-card:: Variable screening
+      :link: user_guide/risk_workflow
+      :link-type: doc
+
+      Rank candidates by IV and catch leaks before they reach the model.
+
+   .. grid-item-card:: Model monitoring
+      :link: user_guide/psi
+      :link-type: doc
+
+      Compare live data with the development sample bin by bin and track PSI over time.
 
 How it works
 ------------

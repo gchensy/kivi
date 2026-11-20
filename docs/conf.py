@@ -1,5 +1,7 @@
 import doctest
+import sys
 from importlib.metadata import version as distribution_version
+from pathlib import Path
 
 import sphinx.search
 from sphinx.search.zh import SearchChinese
@@ -13,6 +15,9 @@ class ChineseSearch(SearchChinese):
 
 if SearchChinese.js_stemmer_rawcode == "english-stemmer.js":
     sphinx.search.languages["zh"] = ChineseSearch
+
+# Lets the plot directives import docs/_plotting.py.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 project = "kivi"
 author = "Chensy"
@@ -28,6 +33,7 @@ extensions = [
     "numpydoc",
     "sphinx_copybutton",
     "sphinx_design",
+    "matplotlib.sphinxext.plot_directive",
 ]
 numpydoc_show_class_members = False
 doctest_default_flags = (
@@ -38,6 +44,13 @@ doctest_default_flags = (
 )
 copybutton_prompt_text = r">>> |\.\.\. |\$ "
 copybutton_prompt_is_regexp = True
+
+# Charts are drawn at build time from the bundled data by docs/_plotting.py.
+plot_pre_code = "import _plotting as kp\nkp.apply_style()\n"
+plot_include_source = False
+plot_html_show_source_link = False
+plot_html_show_formats = False
+plot_formats = ["svg"]
 
 language = "en"
 locale_dirs = ["locale/"]
