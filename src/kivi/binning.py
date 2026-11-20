@@ -15,17 +15,19 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._counts import shares
+from ._counts import divergence
+from ._deprecation import positional_deprecated
 from ._validation import as_series
 
 __all__ = ["bin_edges", "cut", "chimerge_edges", "tree_edges", "monotonic_edges"]
 
 
+@positional_deprecated("method", removed_in="0.6.0")
 def bin_edges(
     values: npt.ArrayLike,
     bins: int = 5,
-    method: Literal["quantile", "uniform"] = "quantile",
     *,
+    method: Literal["quantile", "uniform"] = "quantile",
     special: npt.ArrayLike | None = None,
 ) -> npt.NDArray[np.float64]:
     """Fit numeric bin edges on a reference sample.
@@ -41,7 +43,8 @@ def bin_edges(
     bins : int, default 5
         Requested number of bins. Tied quantiles can reduce this number.
     method : {"quantile", "uniform"}, default "quantile"
-        Use sample quantiles or equally spaced edges.
+        Use sample quantiles or equally spaced edges. Pass it by keyword:
+        passing it by position is deprecated and stops working in kivi 0.6.0.
     special : array_like, optional
         Special values, such as codes for "not applicable", that are omitted
         when the edges are fitted. Pass the same values to `cut` so that each
@@ -65,6 +68,8 @@ def bin_edges(
     UserWarning
         If tied edges leave fewer bins than requested, for example when a
         single value accounts for a large share of the reference.
+    FutureWarning
+        If `method` is passed by position.
 
     See Also
     --------
@@ -72,7 +77,7 @@ def bin_edges(
     pandas.cut : Assign values to the bins defined by the edges.
     numpy.quantile : Compute the quantile edges.
     kivi.woe.woe_table : Weight of evidence of the resulting groups.
-    kivi.evaluate.psi_table : Stability of the resulting groups.
+    kivi.stability.psi_table : Stability of the resulting groups.
 
     Notes
     -----
@@ -159,7 +164,7 @@ def cut(
     bin_edges : Fit the edges on a reference sample.
     pandas.cut : Assign values to intervals only.
     kivi.woe.woe_table : Weight of evidence of the resulting groups.
-    kivi.evaluate.psi_table : Stability of the resulting groups.
+    kivi.stability.psi_table : Stability of the resulting groups.
 
     Notes
     -----
@@ -646,14 +651,11 @@ def _gini(rate: np.ndarray) -> np.ndarray:
 
 
 def _woe(counts: np.ndarray, smoothing: float) -> np.ndarray:
-    proportions = shares(pd.DataFrame(counts), smoothing).to_numpy()
-    return np.log(proportions[:, 1] / proportions[:, 0])
+    return divergence(counts, smoothing)[1]
 
 
 def _iv(counts: np.ndarray, smoothing: float) -> float:
-    proportions = shares(pd.DataFrame(counts), smoothing).to_numpy()
-    difference = proportions[:, 1] - proportions[:, 0]
-    return float((difference * np.log(proportions[:, 1] / proportions[:, 0])).sum())
+    return float(divergence(counts, smoothing)[2].sum())
 
 
 def _monotonic(

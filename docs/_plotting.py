@@ -20,7 +20,7 @@ from matplotlib.ticker import FixedLocator, FuncFormatter, PercentFormatter
 
 from kivi.binning import bin_edges, chimerge_edges, monotonic_edges, tree_edges
 from kivi.datasets import Dataset
-from kivi.evaluate import psi_table
+from kivi.stability import psi_table
 from kivi.woe import woe_table
 
 BLUE = "#2f5bd3"
