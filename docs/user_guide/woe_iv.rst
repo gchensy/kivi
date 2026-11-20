@@ -88,3 +88,36 @@ Read the per-bin contributions before interpreting a total. A group with few eve
 .. note::
 
    A widely used rule of thumb reads an IV below 0.02 as not predictive, 0.02 to 0.1 as weak, 0.1 to 0.3 as medium and above 0.3 as strong. Treat these bands as a starting point, not as a test; a very high IV often points to a leak of the target into the variable.
+
+Charting WOE
+------------
+
+A WOE chart is the usual way to review a variable with the business: the share of customers and the event rate of each group on top, the WOE below. Categorical variables read best when sorted by WOE.
+
+>>> from kivi.datasets import Dataset
+>>> data = Dataset.bank_data()
+>>> reference = data.iloc[:3000]
+>>> jobs = woe_table(reference["job"], reference["target"]).sort_values("woe")
+>>> jobs["event_rate"] = jobs["event"] / (jobs["event"] + jobs["non_event"])
+>>> jobs[["event", "non_event", "event_rate", "woe"]].round(3).iloc[[0, 1, -2, -1]]
+             event  non_event  event_rate    woe
+bin
+blue-collar     43        576       0.069 -0.564
+services        23        246       0.086 -0.339
+retired         29        121       0.193  0.602
+student         15         44       0.254  0.955
+
+.. plot::
+   :alt: Share of customers, subscription rate and WOE for each job
+   :caption: WOE by job. Students and retired customers subscribe far more often than blue-collar workers, but students are only 2% of the sample, so their WOE rests on few customers.
+
+   kp.figure_woe_job()
+
+.. dropdown:: Plotting code
+
+   The documentation draws its WOE charts with this matplotlib function. It takes a ``woe_table`` result.
+
+   .. literalinclude:: ../_plotting.py
+      :pyobject: woe_chart
+
+To compare many variables at once, rank them by IV; see :doc:`risk_workflow`.

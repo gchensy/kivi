@@ -4,10 +4,10 @@
 
 # kivi
 
-**Binning, WOE, IV and PSI for pandas**
+**Binning, WOE, IV and PSI for credit risk modeling**
 
-Fit bin edges once, see how well every bin separates a binary target,<br>
-and watch your population drift — all as plain pandas DataFrames.
+A pandas toolkit for scorecard development, variable screening and model monitoring:<br>
+fit bin edges once, see how well every bin separates good from bad, and catch population drift.
 
 [![PyPI](https://img.shields.io/pypi/v/kivi?logo=pypi&logoColor=white&color=2f5bd3)](https://pypi.org/project/kivi/)
 [![Downloads](https://img.shields.io/pypi/dm/kivi?color=0b7a70)](https://pypi.org/project/kivi/)
@@ -32,12 +32,34 @@ and watch your population drift — all as plain pandas DataFrames.
 
 ## ✨ Highlights
 
+- 🏦 **Built for risk teams.** Covers the classing, screening and monitoring steps of credit scorecards and other risk models, with examples for special values, coarse classing and leakage checks.
 - 📐 **Fit once, reuse everywhere.** `bin_edges` learns quantile or uniform edges on a reference sample. The outer edges are infinite, so every future value still lands in a bin.
 - 🔍 **Transparent results.** `woe_table` and `psi_table` return raw counts, smoothed shares and a contribution per bin, not just one number.
 - 🧩 **Nothing silently dropped.** Missing values, special codes such as `-1` and categories seen in only one sample get their own group.
 - 🧊 **Honest smoothing.** Empty cells are replaced by `smoothing` (default 0.5) before normalizing, and the reported counts are never altered.
 - 🐼 **Just pandas and NumPy.** No Spark, no database drivers and no global random state in the core.
 - 🌏 **Bilingual, tested docs.** Every example in the English and Chinese manuals runs in CI.
+
+## 📊 Gallery
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <a href="https://gchensy.github.io/kivi/en/user_guide/woe_iv.html#charting-woe"><img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/readme-woe.svg" alt="WOE chart for age"></a>
+      <br><b>WOE chart</b>: share of customers, event rate and WOE per bin.
+    </td>
+    <td width="50%" valign="top">
+      <a href="https://gchensy.github.io/kivi/en/user_guide/risk_workflow.html"><img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/readme-iv.svg" alt="Variables ranked by information value"></a>
+      <br><b>Variable screening</b>: IV ranking with the usual reading bands; <code>duration</code> is a leak.
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" valign="top">
+      <a href="https://gchensy.github.io/kivi/en/user_guide/psi.html#monitoring-over-time"><img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/readme-psi.svg" alt="PSI by month with thresholds"></a>
+      <br><b>Monitoring</b>: PSI per period against the development sample, with the 0.1 and 0.25 thresholds and sample sizes.
+    </td>
+  </tr>
+</table>
 
 ## 🧭 How it works
 
@@ -121,8 +143,9 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 - ✅ Quantile and uniform binning, WOE, IV and PSI on a pandas core
 - ✅ English and Simplified Chinese documentation with tested examples
 - ✅ Special values such as `-1` or `-999` in their own bins
+- ✅ Charted risk examples: special values, coarse classing, IV screening, PSI monitoring
+- 🔜 Supervised binning (ChiMerge, decision tree, monotonic) and weighted counts
 - 🔜 Scorecard workflow, validated against fixed reference samples
-- 🔜 Weighted and supervised binning
 - 🔜 Spark and SQL as optional integrations
 
 ## 🤝 Contributing

@@ -181,3 +181,22 @@ div.highlight,
 .bd-content dl.py.method {
   margin-bottom: 2.5rem;
 }
+
+/* Charts drawn at build time by docs/_plotting.py. */
+.bd-content figure.align-default img {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--pst-color-border);
+  border-radius: var(--kivi-radius);
+  background: #fff;
+}
+
+html[data-theme="dark"] .bd-content figure.align-default img {
+  filter: brightness(0.92);
+}
+
+.bd-content figure.align-default figcaption {
+  margin-top: 0.5rem;
+  color: var(--pst-color-text-muted);
+  font-size: 0.9rem;
+}

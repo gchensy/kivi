@@ -54,6 +54,12 @@ A positive WOE means that the bin holds a larger share of the subscribers than o
 
 Read the per-bin contributions before interpreting a total. A group with few events can have a large WOE despite representing few customers.
 
+.. plot::
+   :alt: Share of customers, subscription rate and WOE for each age bin
+   :caption: The same table as a chart: the share of customers and the subscription rate per age bin (top) and the WOE (bottom). Younger and older customers subscribe more often.
+
+   kp.figure_quickstart_woe()
+
 Categorical variables
 ---------------------
 

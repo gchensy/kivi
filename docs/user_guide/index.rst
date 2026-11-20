@@ -1,18 +1,24 @@
 User guide
 ==========
 
-Analyze a binary response and track changes in a population with pandas. Use the same bin edges in development and monitoring so that counts remain comparable.
+kivi covers the binning and stability steps of credit risk modeling: scorecard development, variable screening and model monitoring. Use the same bin edges in development and monitoring so that counts remain comparable.
 
 kivi keeps fitting and measuring apart. ``bin_edges`` fits edges on a reference sample, ``pandas.cut`` assigns every sample to those bins, and ``woe_table`` and ``psi_table`` summarize the resulting groups. The metric functions accept any grouping, so category labels can be passed directly.
 
 .. grid:: 1 1 2 2
    :gutter: 3
 
+   .. grid-item-card:: Risk modeling workflow
+      :link: risk_workflow
+      :link-type: doc
+
+      An end-to-end example: screen variables by IV, bin the shortlist, encode it with WOE and report stability.
+
    .. grid-item-card:: Binning
       :link: binning
       :link-type: doc
 
-      Quantile and uniform edges, tied cut points, special values, values outside the reference range and missing values.
+      Quantile, uniform and custom edges, special values, merging fine bins and missing values.
 
    .. grid-item-card:: Weight of evidence and information value
       :link: woe_iv
@@ -35,6 +41,7 @@ kivi keeps fitting and measuring apart. ``bin_edges`` fits edges on a reference 
 .. toctree::
    :hidden:
 
+   risk_workflow
    binning
    woe_iv
    psi
