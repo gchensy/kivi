@@ -2132,6 +2132,527 @@ msgstr "会抛出此错误。"
 msgid "Leaves out candidates that separate the classes."
 msgstr "不选入会把两类完全分开的候选变量。"
 
+msgid "Binning specifications"
+msgstr "分箱方案"
+
+msgid ":py:obj:`fit_spec <kivi.spec.fit_spec>`\\ \\(frame\\, target\\, \\*\\[\\, columns\\, ...\\]\\)"
+msgstr ":py:obj:`fit_spec <kivi.spec.fit_spec>`\\ \\(frame\\, target\\, \\*\\[\\, columns\\, ...\\]\\)"
+
+msgid "Fit the binning and WOE of every column of a development sample."
+msgstr "在开发样本上拟合每一列的分箱和 WOE。"
+
+msgid ":py:obj:`BinningSpec <kivi.spec.BinningSpec>`\\ \\(kinds\\, edges\\, special\\, tables\\, ...\\)"
+msgstr ":py:obj:`BinningSpec <kivi.spec.BinningSpec>`\\ \\(kinds\\, edges\\, special\\, tables\\, ...\\)"
+
+msgid "Binning and WOE encoding of every column, fitted on a development sample."
+msgstr "在开发样本上拟合的、每一列的分箱和 WOE 编码。"
+
+msgid ""
+"Numeric columns are binned with the method chosen for them and grouped with `kivi.binning.cut`; "
+"other columns keep their labels as groups. The WOE of each group is then measured with "
+"`kivi.woe.woe_table`. Nothing is re-binned automatically: the method, the number of bins and the "
+"options of each column decide how coarse its bins are."
+msgstr ""
+"数值列按为其选定的方法分箱，并用 `kivi.binning.cut` 分组；其他列以自身标签作为分组。然后用 `kivi.woe.woe_table` 计算每个分组的 "
+"WOE。不会自动重新分箱：每一列分箱的粗细由其方法、箱数和选项决定。"
+
+msgid "**frame**"
+msgstr "**frame**"
+
+msgid ""
+"Development sample with one column per variable. Columns with a numeric dtype other than bool are"
+" binned. Columns of any other dtype, such as object, string, category or bool, are categorical: "
+"each label is a group. Convert integer codes to the category dtype to keep them as labels."
+msgstr ""
+"开发样本，每个变量一列。数值 dtype（bool 除外）的列会被分箱。其他 dtype 的列（例如 object、string、category 或 "
+"bool）是类别列：每个标签是一个分组。若要把整数编码当作标签，请先将其转换为 category dtype。"
+
+msgid ""
+"Binary labels, with 1 indicating the event, one per row of `frame`. A Series must have the same "
+"index as `frame`; other inputs are matched by position."
+msgstr "二分类标签，1 表示事件， `frame` 的每一行一个。Series 必须与 `frame` 的索引相同；其他输入按位置对应。"
+
+msgid "**columns**"
+msgstr "**columns**"
+
+msgid "sequence of str, optional"
+msgstr "str 序列，可选"
+
+msgid "Columns to fit, in the order of the specification. By default every column of `frame`."
+msgstr "要拟合的列，其顺序即分箱方案中的顺序。默认为 `frame` 的所有列。"
+
+msgid "str or dict, default \"quantile\""
+msgstr "str 或 dict，默认 \"quantile\""
+
+msgid ""
+"Binning method of the numeric columns: ``\"quantile\"`` or ``\"uniform\"`` for "
+"`kivi.binning.bin_edges`, or ``\"chimerge\"``, ``\"tree\"`` or ``\"monotonic\"`` for "
+"`kivi.binning.chimerge_edges`, `kivi.binning.tree_edges` or `kivi.binning.monotonic_edges`. A "
+"dict maps columns to methods, and the numeric columns it leaves out use ``\"quantile\"``."
+msgstr ""
+"数值列的分箱方法： ``\"quantile\"`` 或 ``\"uniform\"`` 对应 `kivi.binning.bin_edges` ， ``\"chimerge\"`` 、 "
+"``\"tree\"`` 或 ``\"monotonic\"`` 分别对应 `kivi.binning.chimerge_edges` 、 `kivi.binning.tree_edges` 和"
+" `kivi.binning.monotonic_edges` 。dict 把列映射到方法，dict 中未列出的数值列使用 ``\"quantile\"`` 。"
+
+msgid "int or dict, default 5"
+msgstr "int 或 dict，默认 5"
+
+msgid ""
+"Number of bins, passed as ``bins`` to `kivi.binning.bin_edges` and as ``max_bins`` to the "
+"supervised methods. A dict maps columns to a number of bins or to edges, which must increase from"
+" ``-inf`` to ``inf`` and are used as given. With ``\"monotonic\"``, None merges bins only until "
+"the WOE is monotonic. The numeric columns that a dict leaves out get 5 bins."
+msgstr ""
+"箱数，作为 ``bins`` 传给 `kivi.binning.bin_edges` ，作为 ``max_bins`` 传给有监督方法。dict 把列映射到箱数或边界；边界必须从 "
+"``-inf`` 递增到 ``inf`` ，并按原样使用。对 ``\"monotonic\"`` ，None 表示只合并到 WOE 单调为止。dict 中未列出的数值列分为 5 箱。"
+
+msgid "dict, optional"
+msgstr "dict，可选"
+
+#, python-brace-format
+msgid ""
+"Special codes of numeric columns, such as ``{\"pdays\": [-1]}``. They are left out of the fit, "
+"and each code forms its own group."
+msgstr "数值列的特殊值编码，例如 ``{\"pdays\": [-1]}`` 。拟合时排除这些编码，每个编码单独成组。"
+
+msgid "**options**"
+msgstr "**options**"
+
+#, python-brace-format
+msgid ""
+"Further keyword arguments for the binning function of each column, such as ``{\"balance\": "
+"{\"alpha\": None}}`` with ``\"chimerge\"``. The special codes, the weights, the number of bins "
+"and, for ``\"monotonic\"``, the smoothing are passed by `fit_spec` and cannot be given here."
+msgstr ""
+"传给每一列分箱函数的其他关键字参数，例如配合 ``\"chimerge\"`` 使用的 ``{\"balance\": {\"alpha\": None}}`` 。特殊值、权重、箱数以及 "
+"``\"monotonic\"`` 的平滑参数由 `fit_spec` 传入，不能在这里指定。"
+
+msgid "**unseen**"
+msgstr "**unseen**"
+
+msgid "float, \"raise\" or dict, default \"raise\""
+msgstr "float、\"raise\" 或 dict，默认 \"raise\""
+
+msgid ""
+"WOE for values whose group is not in a column's table when a sample is encoded: a new category, a"
+" special code or an interval without development observations, or missing values when development"
+" had none. By default such values raise an error. A dict maps columns to a WOE or ``\"raise\"``, "
+"and the columns it leaves out raise."
+msgstr ""
+"编码样本时，分组不在该列 WOE 表中的取值所用的 WOE：新类别、开发样本中没有观测值的特殊值或区间，或开发样本没有缺失值时的缺失值。默认情况下，这类取值会引发错误。dict 把列映射到 "
+"WOE 或 ``\"raise\"`` ，dict 中未列出的列会引发错误。"
+
+msgid ""
+"Positive replacement for a zero count when calculating the WOE, as in `kivi.woe.woe_table`. "
+"``\"monotonic\"`` binning uses the same value, so its trend holds in the tables."
+msgstr "计算 WOE 时用这个正数替代零计数，含义与 `kivi.woe.woe_table` 相同。 ``\"monotonic\"`` 分箱使用同一取值，因此其单调趋势在 WOE 表中同样成立。"
+
+msgid ""
+"Non-negative weight of each row, matched like `target`, for the binning functions and "
+"`kivi.woe.woe_table`. Counts are then sums of weights, and `smoothing` is in units of weight."
+msgstr "每一行的非负权重，对应方式与 `target` 相同，会传给分箱函数和 `kivi.woe.woe_table` 。此时计数为权重之和， `smoothing` 也以权重为单位。"
+
+msgid "BinningSpec"
+msgstr "BinningSpec"
+
+msgid "The kind, edges, special codes, WOE table and unseen policy of every column."
+msgstr "每一列的类型、边界、特殊值、WOE 表和未见分组策略。"
+
+msgid ""
+"If `frame` is not a DataFrame or has no columns to fit, `columns` repeats a column or names one "
+"that `frame` lacks, a column name is not a string, the columns include the target, or `target` "
+"does not give each row a label 0 or 1 with both classes present. If a dict names a column that is"
+" not fitted, `method`, `bins`, `special` or `options` names a categorical column, or a value is "
+"invalid. Also if `smoothing` or `weights` are invalid, or the binning of a column fails, in which"
+" case the message names the column."
+msgstr ""
+"如果 `frame` 不是 DataFrame 或没有可拟合的列， `columns` 重复某一列或指定了 `frame` 中没有的列，列名不是字符串，拟合的列包含目标变量，或 `target`"
+" 没有为每一行给出 0 或 1 的标签且两类都出现。如果某个 dict 指定了未拟合的列， `method` 、 `bins` 、 `special` 或 `options` "
+"指定了类别列，或某个取值无效。此外，如果 `smoothing` 或 `weights` 无效，或某一列分箱失败；此时错误信息会指明该列。"
+
+msgid ""
+"If tied quantiles leave a column with fewer bins than requested, as in `kivi.binning.bin_edges`, "
+"or if a numeric column has no values to fit apart from missing, special and zero-weight values, "
+"so that its edges are ``[-inf, inf]``. The message names the column."
+msgstr ""
+"如果重合的分位数使某一列的箱数少于期望值（与 `kivi.binning.bin_edges` 相同），或某个数值列除缺失值、特殊值和零权重的取值外没有可拟合的值，从而其边界为 ``[-inf,"
+" inf]`` 。警告信息会指明该列。"
+
+msgid ":obj:`BinningSpec`"
+msgstr ":obj:`BinningSpec`"
+
+msgid "Group, encode and save the fitted columns."
+msgstr "对拟合好的列分组、编码并保存。"
+
+msgid "Fit the edges of one column."
+msgstr "拟合单列的边界。"
+
+msgid "The WOE table of one column."
+msgstr "单列的 WOE 表。"
+
+msgid ""
+"Each column is fitted on its own with the public functions, so a column of the specification has "
+"the same edges and table as the steps of :doc:`/user_guide/binning` and :doc:`/user_guide/woe_iv`"
+" applied to it alone."
+msgstr ""
+"每一列都用公开函数单独拟合，因此分箱方案中某一列的边界和 WOE 表，与单独对该列执行 :doc:`/user_guide/binning` 和 "
+":doc:`/user_guide/woe_iv` 中的步骤所得的结果相同。"
+
+msgid ""
+"For each column, a specification records whether it is numeric or categorical, the edges and "
+"special codes of a numeric column, the WOE table of its groups and the policy for groups that are"
+" not in the table. `cut` groups any sample with the same edges, `woe_transform` encodes it with "
+"the same WOE, and `to_json` and `from_json` save and load the specification without changing "
+"either. Fit a specification with `fit_spec` rather than calling the constructor."
+msgstr ""
+"对每一列，分箱方案记录：它是数值列还是类别列、数值列的边界和特殊值、其各分组的 WOE 表，以及不在表中的分组的处理策略。 `cut` 用同样的边界对任意样本分组， "
+"`woe_transform` 用同样的 WOE 编码， `to_json` 和 `from_json` 保存并加载分箱方案，二者都不会改变。请用 `fit_spec` "
+"拟合分箱方案，而不是直接调用构造函数。"
+
+msgid ""
+"A specification is immutable. Its mappings are read-only, its edges are read-only arrays, and "
+"``tables`` returns a new copy of a table each time. To change a field, such as the unseen policy,"
+" use `dataclasses.replace`, which validates the result again."
+msgstr ""
+"分箱方案不可变。其映射是只读的，边界是只读数组， ``tables`` 每次访问都返回表的新副本。若要修改某个字段（例如未见分组策略），请使用 `dataclasses.replace` "
+"，它会重新校验结果。"
+
+msgid "**kinds**"
+msgstr "**kinds**"
+
+msgid "``\"numeric\"`` or ``\"categorical\"`` for each column, in the order of the specification."
+msgstr "每一列为 ``\"numeric\"`` 或 ``\"categorical\"`` ，顺序即分箱方案中的顺序。"
+
+msgid "Edges of each numeric column, increasing from ``-inf`` to ``inf``."
+msgstr "每个数值列的边界，从 ``-inf`` 递增到 ``inf`` 。"
+
+msgid ""
+"Special codes of each numeric column, possibly none. Each code forms its own group, as in "
+"`kivi.binning.cut`."
+msgstr "每个数值列的特殊值，可以为空。与 `kivi.binning.cut` 相同，每个特殊值单独成组。"
+
+msgid ""
+"The `kivi.woe.woe_table` result of each column. The groups of a numeric column are its special "
+"codes and the intervals of its edges. Missing values form a group labelled NaN."
+msgstr "每一列的 `kivi.woe.woe_table` 结果。数值列的分组是其特殊值和由边界构成的区间。缺失值单独成组，标签为 NaN。"
+
+msgid ""
+"``\"raise\"`` or a finite WOE for each column, used for values whose group is not in the column's"
+" table."
+msgstr "每一列为 ``\"raise\"`` 或一个有限的 WOE，用于分组不在该列 WOE 表中的取值。"
+
+msgid "Smoothing with which the tables were computed."
+msgstr "计算 WOE 表时所用的平滑参数。"
+
+msgid "**kivi_version**"
+msgstr "**kivi_version**"
+
+msgid "str, optional"
+msgstr "str，可选"
+
+msgid "Version of kivi that fitted the specification. By default, or if None, the installed version."
+msgstr "拟合该分箱方案的 kivi 版本。默认或为 None 时取已安装的版本。"
+
+msgid "Attributes"
+msgstr "属性"
+
+msgid "**format_version**"
+msgstr "**format_version**"
+
+msgid "int"
+msgstr "int"
+
+msgid "Version of the JSON format that `to_json` writes."
+msgstr "`to_json` 写出的 JSON 格式的版本。"
+
+msgid ""
+"If `kinds` is empty or has a name that is not a string or a kind other than the two above, if "
+"`edges` and `special` do not have one entry per numeric column or `tables` and `unseen` one entry"
+" per column, or if an entry is invalid: edges that do not increase from ``-inf`` to ``inf``, a "
+"missing or unsupported special code, a table without a finite ``woe`` column or with a repeated "
+"group, a group of a numeric column that is neither one of its special codes nor an interval of "
+"its edges, or an unseen policy that is neither ``\"raise\"`` nor a finite number. Also if "
+"`smoothing` is not finite and positive or `kivi_version` is not a string."
+msgstr ""
+"如果 `kinds` 为空、含有非字符串的列名或上述两种以外的类型；如果 `edges` 和 `special` 不是每个数值列恰好一项，或 `tables` 和 `unseen` "
+"不是每列恰好一项；或某一项无效：边界没有从 ``-inf`` 递增到 ``inf`` 、特殊值缺失或类型不受支持、WOE 表没有有限的 ``woe`` "
+"列或有重复分组、数值列的某个分组既不是其特殊值也不是其边界构成的区间，或未见分组策略既不是 ``\"raise\"`` 也不是有限数值。此外，如果 `smoothing` 不是有限正数，或 "
+"`kivi_version` 不是字符串。"
+
+msgid ":obj:`fit_spec`"
+msgstr ":obj:`fit_spec`"
+
+msgid "Fit a specification on a development sample."
+msgstr "在开发样本上拟合分箱方案。"
+
+msgid ":obj:`kivi.binning.cut`"
+msgstr ":obj:`kivi.binning.cut`"
+
+msgid "Group one numeric column."
+msgstr "对单个数值列分组。"
+
+msgid "Encode one column with its WOE table."
+msgstr "用单列的 WOE 表对该列编码。"
+
+msgid ""
+"Labels of categorical columns must be strings, integers, floats, booleans or intervals, which the"
+" JSON format keeps apart. Within a column, labels that compare equal, such as ``True`` and ``1``,"
+" form one group, because `kivi.woe.woe_table` and `kivi.woe.woe_transform` match labels by "
+"equality."
+msgstr ""
+"类别列的标签必须是字符串、整数、浮点数、布尔值或区间，JSON 格式会区分这些类型。在同一列中，相等的标签（例如 ``True`` 和 ``1`` ）属于同一分组，因为 "
+"`kivi.woe.woe_table` 和 `kivi.woe.woe_transform` 按相等关系匹配标签。"
+
+msgid "Names of the columns in the specification."
+msgstr "分箱方案中各列的名称。"
+
+msgid ""
+"The columns are in the order in which they were fitted, which is the order of the columns of "
+"`cut` and `woe_transform`."
+msgstr "各列按拟合时的顺序排列，也就是 `cut` 和 `woe_transform` 结果中列的顺序。"
+
+msgid ":obj:`select`"
+msgstr ":obj:`select`"
+
+msgid "A specification of some of the columns."
+msgstr "只含部分列的分箱方案。"
+
+msgid "Group every column of a sample as in development."
+msgstr "按开发时的方式对样本的每一列分组。"
+
+msgid ""
+"Numeric columns are assigned to their bins with `kivi.binning.cut`, using the fitted edges and "
+"special codes. Categorical columns are returned unchanged, because their labels are their groups."
+msgstr "数值列用 `kivi.binning.cut` 按拟合的边界和特殊值分箱。类别列原样返回，因为其标签就是分组。"
+
+msgid "Sample that has every column of the specification. Other columns are ignored."
+msgstr "包含分箱方案中所有列的样本。其他列会被忽略。"
+
+msgid ""
+"The groups of each column of the specification, in its order, with the index of `frame`. Numeric "
+"columns are categorical, with the special codes followed by every interval of the edges."
+msgstr "分箱方案中每一列的分组，按分箱方案的顺序排列，索引与 `frame` 相同。数值列为分类型，类别依次为特殊值和由边界构成的全部区间。"
+
+msgid ""
+"If `frame` is not a DataFrame, lacks a column of the specification or has it twice, or a numeric "
+"column cannot be binned, for example because it has values that are neither numbers nor special "
+"codes. The message names the column."
+msgstr "如果 `frame` 不是 DataFrame、缺少分箱方案中的某一列或该列出现两次，或某个数值列无法分箱，例如含有既不是数值也不是特殊值的取值。错误信息会指明该列。"
+
+msgid ":obj:`woe_transform`"
+msgstr ":obj:`woe_transform`"
+
+msgid "Encode the groups with the fitted WOE."
+msgstr "用拟合的 WOE 对分组编码。"
+
+msgid "Encode every column of a sample with the WOE fitted in development."
+msgstr "用开发时拟合的 WOE 对样本的每一列编码。"
+
+msgid ""
+"The columns are grouped as by `cut`, and each group is replaced with its WOE by "
+"`kivi.woe.woe_transform`. A group that is not in a column's table, such as a new category, gets "
+"the column's unseen policy, which by default raises an error."
+msgstr ""
+"各列先按 `cut` 的方式分组，再由 `kivi.woe.woe_transform` 把每个分组替换为其 WOE。不在该列 WOE "
+"表中的分组（例如新类别）按该列的未见分组策略处理，默认会引发错误。"
+
+msgid "Float WOE values of each column of the specification, in its order, with the index of `frame`."
+msgstr "分箱方案中每一列的浮点 WOE 值，按分箱方案的顺序排列，索引与 `frame` 相同。"
+
+msgid ""
+"If `frame` is not a DataFrame, lacks a column of the specification or has it twice, or a numeric "
+"column cannot be binned, or a column with the unseen policy ``\"raise\"`` has values whose group "
+"is not in its table. The message names the column."
+msgstr ""
+"如果 `frame` 不是 DataFrame、缺少分箱方案中的某一列或该列出现两次，某个数值列无法分箱，或未见分组策略为 ``\"raise\"`` 的列含有分组不在其 WOE "
+"表中的取值。错误信息会指明该列。"
+
+msgid "Group the columns without encoding them."
+msgstr "只对各列分组，不编码。"
+
+msgid "Encode one column."
+msgstr "对单列编码。"
+
+msgid ":obj:`kivi.scorecard.woe_to_points`"
+msgstr ":obj:`kivi.scorecard.woe_to_points`"
+
+msgid "Turn the WOE values into points."
+msgstr "把 WOE 值转换为分值。"
+
+msgid ""
+"The intervals of the edges are closed on the right, so ``-inf`` falls outside every interval. "
+"`cut` leaves it missing, as ``pandas.cut`` does, and `woe_transform` treats it as unseen rather "
+"than giving it the WOE of missing values."
+msgstr ""
+"由边界构成的区间为左开右闭，因此 ``-inf`` 不落入任何区间。 `cut` 与 ``pandas.cut`` 一样把它留为缺失值，而 `woe_transform` "
+"把它视为未见分组，而不是赋予缺失组的 WOE。"
+
+msgid "With an unseen WOE for ``housing``, the new label gets 0:"
+msgstr "为 ``housing`` 指定未见分组的 WOE 后，新标签得到 0："
+
+msgid "Return the specification of some of the columns."
+msgstr "返回只含部分列的分箱方案。"
+
+msgid ""
+"Use it to keep only the variables of the final model before saving the specification for "
+"production. The selected columns keep their edges, special codes, tables and unseen policies."
+msgstr "在为生产环境保存分箱方案之前，可用它只保留最终模型的变量。选中的列保留各自的边界、特殊值、WOE 表和未见分组策略。"
+
+msgid "sequence of str"
+msgstr "str 序列"
+
+msgid "Columns to keep, in the order of the new specification."
+msgstr "要保留的列，其顺序即新分箱方案中的顺序。"
+
+msgid "A specification of `columns` only."
+msgstr "只含 `columns` 的分箱方案。"
+
+msgid ""
+"If `columns` is a string, is empty, repeats a column or names a column that is not in the "
+"specification."
+msgstr "如果 `columns` 是字符串、为空、重复某一列，或指定了分箱方案中没有的列。"
+
+msgid ":obj:`columns`"
+msgstr ":obj:`columns`"
+
+msgid "The columns of the specification."
+msgstr "分箱方案中的列。"
+
+msgid ":obj:`to_json`"
+msgstr ":obj:`to_json`"
+
+msgid "Save the specification."
+msgstr "保存分箱方案。"
+
+msgid "Return the specification as a dict of JSON types."
+msgstr "以由 JSON 类型构成的 dict 返回分箱方案。"
+
+msgid ""
+"The result holds only dicts, lists, strings, numbers, booleans and None, so ``json.dumps`` can "
+"write it without further conversion. Its keys are always in the same order. `to_json` writes this"
+" dict."
+msgstr "结果只包含 dict、list、字符串、数值、布尔值和 None，因此 ``json.dumps`` 无需额外转换即可写出。其键的顺序始终相同。 `to_json` 写出的就是这个 dict。"
+
+msgid "dict"
+msgstr "dict"
+
+msgid ""
+"The keys ``format``, ``format_version``, ``kivi_version``, ``smoothing`` and ``variables``, a "
+"list with one dict per column. See the user guide for the format."
+msgstr ""
+"包含键 ``format`` 、 ``format_version`` 、 ``kivi_version`` 、 ``smoothing`` 和 ``variables`` ；后者是每列一个 "
+"dict 的列表。格式说明见用户指南。"
+
+msgid ":obj:`from_dict`"
+msgstr ":obj:`from_dict`"
+
+msgid "Rebuild the specification."
+msgstr "重建分箱方案。"
+
+msgid "Write the dict as JSON."
+msgstr "把该 dict 写成 JSON。"
+
+msgid "Rebuild a specification from the result of `to_dict`."
+msgstr "由 `to_dict` 的结果重建分箱方案。"
+
+msgid ""
+"The dict is checked before the specification is built, so that a damaged or hand-edited file "
+"fails with a message that names the problem instead of encoding wrong values."
+msgstr "构建分箱方案之前会先检查该 dict，因此损坏或被手工改动的文件会报错并指明问题，而不会编码出错误的值。"
+
+msgid "**data**"
+msgstr "**data**"
+
+msgid "A dict in the format of `to_dict`, for example from ``json.load``."
+msgstr "符合 `to_dict` 格式的 dict，例如来自 ``json.load`` 。"
+
+msgid "The specification, equal to the one that wrote `data`."
+msgstr "分箱方案，与写出 `data` 的那个相等。"
+
+msgid ""
+"If `data` is not a kivi binning specification, has a ``format_version`` newer than this version "
+"of kivi reads, lacks a key or has an unknown one, or holds an invalid value. The message names "
+"the column."
+msgstr "如果 `data` 不是 kivi 分箱方案、其 ``format_version`` 比当前 kivi 能读取的版本更新、缺少某个键或含有未知的键，或含有无效的值。错误信息会指明相应的列。"
+
+msgid ":obj:`to_dict`"
+msgstr ":obj:`to_dict`"
+
+msgid "The dict format."
+msgstr "dict 格式。"
+
+msgid ":obj:`from_json`"
+msgstr ":obj:`from_json`"
+
+msgid "Read the specification from JSON text."
+msgstr "从 JSON 文本读取分箱方案。"
+
+msgid "Return the specification as JSON text."
+msgstr "以 JSON 文本返回分箱方案。"
+
+msgid ""
+"The text is the dict of `to_dict` written by ``json.dumps``. The same specification always gives "
+"the same text, so saved specifications can be compared and kept under version control. Non-ASCII "
+"labels are written as they are, so save the text as UTF-8."
+msgstr ""
+"该文本就是由 ``json.dumps`` 写出的 `to_dict` 的 dict。同一个分箱方案总是得到相同的文本，因此保存的分箱方案可以相互比较，并纳入版本控制。非 ASCII "
+"标签按原样写出，因此请以 UTF-8 保存文本。"
+
+msgid "**indent**"
+msgstr "**indent**"
+
+msgid "int, optional"
+msgstr "int，可选"
+
+msgid "Indentation of nested values, as in ``json.dumps``. By default the text is a single line."
+msgstr "嵌套值的缩进，含义与 ``json.dumps`` 相同。默认文本只有一行。"
+
+msgid "str"
+msgstr "str"
+
+msgid "JSON text that `from_json` reads back into an equal specification."
+msgstr "JSON 文本， `from_json` 可将其读回为相等的分箱方案。"
+
+msgid "Read the specification back."
+msgstr "读回分箱方案。"
+
+msgid "The same content as a dict."
+msgstr "以 dict 表示的相同内容。"
+
+msgid "Write the text to a file with ``Path(\"spec.json\").write_text(text, encoding=\"utf-8\")``."
+msgstr "用 ``Path(\"spec.json\").write_text(text, encoding=\"utf-8\")`` 把文本写入文件。"
+
+msgid "Read a specification from the JSON text of `to_json`."
+msgstr "从 `to_json` 写出的 JSON 文本读取分箱方案。"
+
+msgid ""
+"The loaded specification groups and encodes every sample exactly as the one that was saved. A "
+"file written by a newer version of the format is rejected rather than read in part."
+msgstr "加载的分箱方案对每个样本的分组和编码，与保存时的分箱方案完全相同。由更新版本格式写出的文件会被拒绝，而不会只读取其中一部分。"
+
+msgid "**text**"
+msgstr "**text**"
+
+msgid "str or bytes"
+msgstr "str 或 bytes"
+
+msgid "JSON text, for example from ``Path(...).read_text(encoding=\"utf-8\")``."
+msgstr "JSON 文本，例如来自 ``Path(...).read_text(encoding=\"utf-8\")`` 。"
+
+msgid "The specification, equal to the one that wrote `text`."
+msgstr "分箱方案，与写出 `text` 的那个相等。"
+
+msgid ""
+"If `text` is not valid JSON, contains ``NaN`` or ``Infinity``, or does not describe a valid "
+"specification; see `from_dict`."
+msgstr "如果 `text` 不是有效的 JSON、含有 ``NaN`` 或 ``Infinity`` ，或没有描述一个有效的分箱方案；参见 `from_dict` 。"
+
+msgid "Write the specification."
+msgstr "写出分箱方案。"
+
+msgid "Rebuild the specification from a dict."
+msgstr "由 dict 重建分箱方案。"
+
 msgid "Population stability"
 msgstr "群体稳定性"
 
@@ -2344,9 +2865,6 @@ msgstr ""
 "如果输入不是一维、索引或长度不一致、 `target` 没有同时包含 0 和 1 或含有缺失值及其他标签，或者 `smoothing` 不是有限正数。此外，如果 `weights` "
 "不是数值、没有为每个观测给出一个有限非负的权重、索引与 `groups` 不同，或使事件或非事件的权重总和为零。"
 
-msgid ":obj:`woe_transform`"
-msgstr ":obj:`woe_transform`"
-
 msgid "Replace each group with its WOE."
 msgstr "将每个分组替换为其 WOE。"
 
@@ -2410,9 +2928,6 @@ msgid ""
 "The result of `woe_table`, or a Series of WOE values indexed by group. A missing label in the "
 "index gives the WOE of missing values."
 msgstr "`woe_table` 的结果，或以分组为索引的 WOE 序列。索引中的缺失标签对应缺失值的 WOE。"
-
-msgid "**unseen**"
-msgstr "**unseen**"
 
 msgid "float or \"raise\", default \"raise\""
 msgstr "float 或 \"raise\"，默认 \"raise\""
@@ -2984,11 +3499,29 @@ msgstr "未发布"
 msgid "Changes merged since the last release."
 msgstr "上次发布以来合并的改动。"
 
-msgid "0.5.0 (2026-11-20)"
-msgstr "0.5.0（2026-11-20）"
-
 msgid "New"
 msgstr "新增"
+
+msgid ""
+"The new module ``kivi.spec`` bins all the columns of a data frame at once. ``fit_spec`` fits each"
+" numeric column with ``bin_edges`` or a supervised method chosen by column, or with given edges, "
+"and measures the WOE of every group; other columns keep their labels. The binning is never "
+"changed automatically."
+msgstr ""
+"新模块 ``kivi.spec`` 一次对数据框的所有列分箱。 ``fit_spec`` 用 ``bin_edges`` 、按列选定的有监督方法或给定的边界拟合每个数值列，并计算每个分组的 "
+"WOE；其他列保留其标签。分箱从不自动更改。"
+
+msgid ""
+"The resulting ``BinningSpec`` groups a sample with ``cut``, encodes it with ``woe_transform`` "
+"using an unseen-group policy by column, and keeps the ``woe_table`` of every column for review. "
+"``to_json`` and ``from_json`` save and load it without changing the groups or the WOE encoding, "
+"so production reproduces development exactly."
+msgstr ""
+"得到的 ``BinningSpec`` 用 ``cut`` 对样本分组，用 ``woe_transform`` 按列的未见分组策略编码，并保留每一列的 ``woe_table`` 供审阅。 "
+"``to_json`` 和 ``from_json`` 保存并加载它，分组和 WOE 编码都不会改变，因此生产环境可以完全复现开发时的结果。"
+
+msgid "0.5.0 (2026-11-20)"
+msgstr "0.5.0（2026-11-20）"
 
 msgid ""
 "The new module ``kivi.calibration`` checks the calibration of PDs. ``prior_correction`` and "
@@ -4871,6 +5404,247 @@ msgid ""
 "optimistic. Treat the result as a proposal: review each variable with the business, and check the"
 " model on a validation sample before using it."
 msgstr "逐步回归在同一份数据上检验了许多模型，因此所选模型的 p 值偏乐观。请把结果当作建议：与业务方逐一审核变量，并在使用前用验证样本检验模型。"
+
+msgid ""
+"A scorecard must group and encode every variable in the same way in development, validation and "
+"production. ``fit_spec`` bins all the columns of a development sample in one call and measures "
+"the WOE of every group. The resulting ``BinningSpec`` groups and encodes any other sample with "
+"the same edges and WOE values. It can be saved as JSON and loaded again in production without "
+"changing either."
+msgstr ""
+"评分卡在开发、验证和生产中必须以同样的方式对每个变量分组和编码。 ``fit_spec`` 一次调用即可对开发样本的所有列分箱，并计算每个分组的 WOE。得到的 ``BinningSpec`` "
+"用同样的边界和 WOE 值对任意其他样本分组和编码。它可以保存为 JSON，并在生产环境中重新加载，二者都不会改变。"
+
+msgid ""
+"Each column is fitted with the functions of :doc:`binning` and :doc:`woe_iv`, so a column of the "
+"specification has exactly the edges and table that those steps give it alone."
+msgstr "每一列都用 :doc:`binning` 和 :doc:`woe_iv` 中的函数拟合，因此分箱方案中某一列的边界和 WOE 表，与单独对该列执行这些步骤的结果完全相同。"
+
+msgid "Screen the candidates"
+msgstr "筛选候选变量"
+
+msgid ""
+"With the defaults, every numeric column gets five quantile bins and every other column keeps its "
+"labels. The information value of each column gives a first ranking. A warning names each column "
+"whose tied quantiles leave fewer bins than requested:"
+msgstr "使用默认设置时，每个数值列分为五个等频箱，其他列保留其标签。各列的信息值给出初步排序。如果重合的分位数使某一列的箱数少于期望值，警告会指明该列："
+
+msgid ""
+"``quick.tables`` maps each column to its ``woe_table`` result. The columns of ``frame`` are "
+"fitted unless ``columns`` names some of them. Leave the target out: ``fit_spec`` raises an error "
+"if a column has the name of the ``target`` series."
+msgstr ""
+"``quick.tables`` 把每一列映射到其 ``woe_table`` 结果。除非 ``columns`` 指定了部分列，否则会拟合 ``frame`` "
+"的所有列。请排除目标变量：如果某一列与 ``target`` Series 同名， ``fit_spec`` 会引发错误。"
+
+msgid ""
+"Which columns are binned depends on their dtype. Numeric columns, apart from booleans, are "
+"binned; columns of any other dtype, such as strings, categories or booleans, keep their labels as"
+" groups. To keep integer codes as labels, convert the column to the ``category`` dtype before "
+"fitting."
+msgstr ""
+"哪些列会被分箱取决于其 dtype。数值列（布尔列除外）会被分箱；其他 dtype 的列（例如字符串、类别或布尔列）以其标签作为分组。若要把整数编码当作标签，请在拟合前把该列转换为 "
+"``category`` dtype。"
+
+msgid "Choose the binning of each column"
+msgstr "为每一列选择分箱方式"
+
+msgid ""
+"``method``, ``bins``, ``special`` and ``options`` can each be a dict by column. Here ``balance`` "
+"is merged until its WOE is monotonic, ``pdays`` is split by a decision tree with the ``-1`` code "
+"(\"not contacted before\") in its own group, and ``age`` gets policy bands. A list of edges in "
+"``bins`` is used as given; it must run from ``-inf`` to ``inf``, so that every future value falls"
+" into a bin:"
+msgstr ""
+"``method`` 、 ``bins`` 、 ``special`` 和 ``options`` 都可以是按列的 dict。这里 ``balance`` 合并到 WOE 单调为止， "
+"``pdays`` 用决策树切分，并让 ``-1`` 编码（“之前未联系过”）单独成组， ``age`` 使用政策分段。 ``bins`` 中的边界列表按原样使用；它必须从 ``-inf`` "
+"延伸到 ``inf`` ，以确保之后的任何取值都能落入某个箱："
+
+msgid ""
+"The methods are ``\"quantile\"`` and ``\"uniform\"`` for ``bin_edges`` and ``\"chimerge\"``, "
+"``\"tree\"`` and ``\"monotonic\"`` for the supervised functions. ``bins`` is passed as ``bins`` "
+"to ``bin_edges`` and as ``max_bins`` to the others, and ``options`` holds their remaining "
+"arguments, such as ``alpha`` or ``min_bin_share``. ``\"monotonic\"`` uses the ``smoothing`` of "
+"the specification, so its trend holds in the tables. ``weights`` passes sample weights to every "
+"binning function and to ``woe_table``."
+msgstr ""
+"方法 ``\"quantile\"`` 和 ``\"uniform\"`` 对应 ``bin_edges`` ， ``\"chimerge\"`` 、 ``\"tree\"`` 和 "
+"``\"monotonic\"`` 对应有监督分箱函数。 ``bins`` 作为 ``bins`` 传给 ``bin_edges`` ，作为 ``max_bins`` 传给其他函数； "
+"``options`` 存放它们的其余参数，例如 ``alpha`` 或 ``min_bin_share`` 。 ``\"monotonic\"`` 使用分箱方案的 ``smoothing`` "
+"，因此其单调趋势在 WOE 表中同样成立。 ``weights`` 把样本权重传给每个分箱函数和 ``woe_table`` 。"
+
+msgid ""
+"``fit_spec`` never re-bins a column on its own. The legacy ``WOEBatch`` lowered the number of "
+"bins until the WOE was monotonic; here the method and its options decide, and a column that "
+"should be monotonic is fitted with ``\"monotonic\"``."
+msgstr ""
+"``fit_spec`` 从不自行重新分箱。旧版的 ``WOEBatch`` 会不断减少箱数，直到 WOE 单调；这里由方法及其选项决定，需要单调的列请用 ``\"monotonic\"`` "
+"拟合。"
+
+msgid "Group and encode a sample"
+msgstr "对样本分组和编码"
+
+msgid ""
+"``cut`` groups every column of a sample, and ``woe_transform`` replaces each group with its WOE. "
+"Both return the columns of the specification in its order, with the index of the sample:"
+msgstr "``cut`` 对样本的每一列分组， ``woe_transform`` 把每个分组替换为其 WOE。二者都按分箱方案的顺序返回其中的列，索引与样本相同："
+
+msgid ""
+"A value whose group is not in its column's table, such as a new category, raises an error by "
+"default, so it never turns into a silent NaN:"
+msgstr "分组不在该列 WOE 表中的取值（例如新类别）默认会引发错误，因此不会悄无声息地变成 NaN："
+
+msgid ""
+"The ``unseen`` argument of ``fit_spec`` sets a WOE for such values, for all columns or by column."
+" The same holds for a special code or an interval that has no development observations, and for "
+"missing values when the development sample had none. A specification is immutable, so change the "
+"policy of a fitted one with ``dataclasses.replace``:"
+msgstr ""
+"``fit_spec`` 的 ``unseen`` 参数为这类取值指定 "
+"WOE，可以对所有列统一指定，也可以按列指定。开发样本中没有观测值的特殊值或区间，以及开发样本没有缺失值时的缺失值，也同样处理。分箱方案不可变，因此请用 "
+"``dataclasses.replace`` 修改已拟合方案的策略："
+
+msgid "Keep the model variables"
+msgstr "保留模型变量"
+
+msgid ""
+"After variable selection, keep only the variables of the model before saving the specification "
+"for production:"
+msgstr "完成变量筛选后，在为生产环境保存分箱方案之前，只保留模型中的变量："
+
+msgid "``production.tables`` can be passed to ``points_table`` as it is; see :doc:`scorecard`."
+msgstr "``production.tables`` 可以直接传给 ``points_table`` ；参见 :doc:`scorecard` 。"
+
+msgid "Save and load a specification"
+msgstr "保存和加载分箱方案"
+
+msgid ""
+"``to_json`` writes the specification as JSON text, and ``from_json`` reads it back into an equal "
+"specification that groups and encodes every sample identically:"
+msgstr "``to_json`` 把分箱方案写成 JSON 文本， ``from_json`` 将其读回为相等的分箱方案，对每个样本的分组和编码完全相同："
+
+msgid ""
+"The same specification always gives the same text, so it can be kept under version control and "
+"compared. Labels are written as they are, including non-ASCII ones, so save the text as UTF-8:"
+msgstr "同一个分箱方案总是得到相同的文本，因此可以纳入版本控制并相互比较。标签按原样写出（包括非 ASCII 标签），因此请以 UTF-8 保存文本："
+
+msgid "``to_dict`` gives the same content as a dict. Each column is one entry of ``variables``:"
+msgstr "``to_dict`` 以 dict 给出相同的内容。每一列是 ``variables`` 中的一项："
+
+msgid "The format"
+msgstr "格式"
+
+msgid "Key"
+msgstr "键"
+
+msgid "Content"
+msgstr "内容"
+
+msgid "``format``"
+msgstr "``format``"
+
+msgid "Always ``\"kivi.BinningSpec\"``."
+msgstr "始终为 ``\"kivi.BinningSpec\"`` 。"
+
+msgid "``format_version``"
+msgstr "``format_version``"
+
+msgid ""
+"Version of the format, currently 1. A file with a newer version raises an error that asks for a "
+"newer kivi, instead of being read in part."
+msgstr "格式的版本，目前为 1。版本更新的文件会引发错误，提示升级 kivi，而不会只读取其中一部分。"
+
+msgid "``kivi_version``"
+msgstr "``kivi_version``"
+
+msgid "Version of kivi that fitted the specification."
+msgstr "拟合该分箱方案的 kivi 版本。"
+
+msgid "``smoothing``"
+msgstr "``smoothing``"
+
+msgid "Smoothing of the WOE tables."
+msgstr "WOE 表的平滑参数。"
+
+msgid "``variables``"
+msgstr "``variables``"
+
+msgid ""
+"One entry per column, in order, with ``name``, ``kind`` (``\"numeric\"`` or ``\"categorical\"``),"
+" ``unseen`` (``\"raise\"`` or a number) and ``table``, plus ``edges`` and ``special`` for numeric"
+" columns."
+msgstr ""
+"每列一项，按顺序排列，包含 ``name`` 、 ``kind`` （ ``\"numeric\"`` 或 ``\"categorical\"`` ）、 ``unseen`` （ "
+"``\"raise\"`` 或数值）和 ``table`` ，数值列另有 ``edges`` 和 ``special`` 。"
+
+msgid "``table``"
+msgstr "``table``"
+
+msgid "One entry per group with its label ``bin`` and the columns of ``woe_table``."
+msgstr "每个分组一项，包含其标签 ``bin`` 和 ``woe_table`` 的各列。"
+
+msgid ""
+"JSON has no infinite numbers and does not keep the types of labels apart in every language, so "
+"labels and edges are written as follows:"
+msgstr "JSON 没有无穷数值，在某些语言中也无法区分标签的类型，因此标签和边界按以下方式写出："
+
+msgid "Value"
+msgstr "取值"
+
+msgid "JSON"
+msgstr "JSON"
+
+msgid "Strings, integers and booleans"
+msgstr "字符串、整数和布尔值"
+
+msgid "As they are: ``\"yes\"``, ``1``, ``true``."
+msgstr "按原样写出： ``\"yes\"`` 、 ``1`` 、 ``true`` 。"
+
+msgid "Floats"
+msgstr "浮点数"
+
+msgid "With a decimal point or an exponent, such as ``1.0``, so that they stay apart from integers."
+msgstr "带小数点或指数，例如 ``1.0`` ，以便与整数区分。"
+
+msgid "Infinite numbers"
+msgstr "无穷数值"
+
+#, python-brace-format
+msgid "``{\"float\": \"inf\"}`` and ``{\"float\": \"-inf\"}``."
+msgstr "``{\"float\": \"inf\"}`` 和 ``{\"float\": \"-inf\"}`` 。"
+
+msgid "Intervals"
+msgstr "区间"
+
+#, python-brace-format
+msgid "``{\"interval\": [left, right], \"closed\": \"right\"}``."
+msgstr "``{\"interval\": [left, right], \"closed\": \"right\"}`` 。"
+
+msgid "The missing group"
+msgstr "缺失组"
+
+msgid "``null``."
+msgstr "``null`` 。"
+
+msgid ""
+"Labels of categorical columns must be strings, integers, floats, booleans or intervals; "
+"``fit_spec`` rejects other labels, such as dates. ``from_json`` checks every value and rejects "
+"``NaN`` or ``Infinity`` in the text, so a damaged file fails with a message instead of encoding "
+"wrong values."
+msgstr ""
+"类别列的标签必须是字符串、整数、浮点数、布尔值或区间； ``fit_spec`` 会拒绝其他标签，例如日期。 ``from_json`` 会检查每个值，并拒绝文本中的 ``NaN`` 或 "
+"``Infinity`` ，因此损坏的文件会报错，而不会编码出错误的值。"
+
+msgid ""
+"The interval labels of a table are those of ``pandas.cut``, which rounds their bounds to three "
+"decimals, while ``edges`` keeps the exact values that assign values to bins. Software outside "
+"kivi that reads the file should bin with ``edges`` and use ``special`` codes before intervals, as"
+" :func:`kivi.binning.cut` does. Intervals are closed on the right, so ``-inf`` falls into no "
+"interval; ``woe_transform`` treats it as unseen."
+msgstr ""
+"表中的区间标签来自 ``pandas.cut`` ，其边界会四舍五入到三位小数；而 ``edges`` 保留用于分箱的精确值。在 kivi 之外读取该文件的软件应使用 ``edges`` "
+"分箱，并像 :func:`kivi.binning.cut` 一样先匹配 ``special`` 编码，再匹配区间。区间为左开右闭，因此 ``-inf`` 不落入任何区间； "
+"``woe_transform`` 把它视为未见分组。"
 
 msgid ""
 "``woe_table`` measures how each group separates a binary target. An event is target 1 and a non-"
