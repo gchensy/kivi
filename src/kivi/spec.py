@@ -883,7 +883,7 @@ def _fitted_columns(frame: pd.DataFrame, columns: Sequence[str] | None) -> list[
         absent = [name for name in names if name not in frame.columns]
         if absent:
             raise ValueError(f"columns must be columns of frame, got {_shown_list(absent)}")
-    repeated = [name for name in names if (frame.columns == name).sum() > 1]
+    repeated = list(dict.fromkeys(name for name in names if (frame.columns == name).sum() > 1))
     if repeated:
         raise ValueError(f"frame has more than one column named {_shown_list(repeated)}")
     return names
@@ -1127,13 +1127,13 @@ def _checked_table(table, name: str, numeric: tuple | None) -> pd.DataFrame:
     if missing.sum() > 1 or labels[~missing].has_duplicates:
         raise ValueError(f"{where} must have one row per group")
     if numeric is not None:
+        # The categories that cut gives; pandas.cut rounds interval labels to three decimals.
         edges, codes = numeric
-        groups = list(codes) + [
-            pd.Interval(float(left), float(right), closed="right")
-            for left, right in zip(edges[:-1], edges[1:], strict=True)
-        ]
+        empty = pd.Series([], dtype=float)
+        categories = binning.cut(empty, edges, special=list(codes) or None).cat.categories
+        groups = pd.Index([_label(group, where) for group in categories], dtype=object)
         observed = labels[~missing]
-        foreign = observed[pd.Index(groups, dtype=object).get_indexer(observed) < 0].tolist()
+        foreign = observed[groups.get_indexer(observed) < 0].tolist()
         if foreign:
             raise ValueError(
                 f"{where} has groups that are neither special codes nor intervals of its "
@@ -1153,9 +1153,8 @@ def _canonical_table(table: pd.DataFrame, where: str) -> pd.DataFrame:
 def _label(value, where: str):
     """Convert a label to a Python str, int, float, bool or interval, or NaN when missing."""
     if isinstance(value, pd.Interval):
+        # pandas allows numeric, Timestamp and Timedelta bounds; _label rejects the last two.
         left, right = (_label(bound, where) for bound in (value.left, value.right))
-        if not all(_is_number(bound) for bound in (left, right)):
-            raise ValueError(f"intervals in {where} must have numeric bounds, got {value!r}")
         return pd.Interval(left, right, closed=value.closed)
     if isinstance(value, (bool, np.bool_)):
         return bool(value)
