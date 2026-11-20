@@ -14,7 +14,6 @@ import warnings
 from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from numbers import Integral, Real
-from types import MappingProxyType
 from typing import Any, ClassVar, Literal
 
 import numpy as np
@@ -51,13 +50,14 @@ class BinningSpec:
     table of its groups and the policy for groups that are not in the table.
     `cut` groups any sample with the same edges, `woe_transform` encodes it
     with the same WOE, and `to_json` and `from_json` save and load the
-    specification without changing either. Fit a specification with
-    `fit_spec` rather than calling the constructor.
+    specification without changing its groups or its encoding. Fit a
+    specification with `fit_spec` rather than calling the constructor.
 
-    A specification is immutable. Its mappings are read-only, its edges are
-    read-only arrays, and ``tables`` returns a new copy of a table each time.
-    To change a field, such as the unseen policy, use `dataclasses.replace`,
-    which validates the result again.
+    A specification is immutable. Its mappings are read-only, and ``edges``
+    and ``tables`` return a new copy of an array or a table on each access,
+    so changing the copy leaves the specification as it was. To change a
+    field, such as the unseen policy, use `dataclasses.replace`, which
+    validates the result again.
 
     Parameters
     ----------
@@ -67,8 +67,8 @@ class BinningSpec:
     edges : mapping
         Edges of each numeric column, increasing from ``-inf`` to ``inf``.
     special : mapping
-        Special codes of each numeric column, possibly none. Each code forms
-        its own group, as in `kivi.binning.cut`.
+        Special codes of each numeric column, possibly none. The codes are
+        numbers, and each forms its own group, as in `kivi.binning.cut`.
     tables : mapping
         The `kivi.woe.woe_table` result of each column. The groups of a
         numeric column are its special codes and the intervals of its edges.
@@ -114,6 +114,10 @@ class BinningSpec:
     that compare equal, such as ``True`` and ``1``, form one group, because
     `kivi.woe.woe_table` and `kivi.woe.woe_transform` match labels by
     equality.
+
+    Two specifications are equal when `to_json` gives the same text for
+    both, which includes `kivi_version`. The text is computed once and kept,
+    so comparing and hashing a specification again is cheap.
 
     Examples
     --------
@@ -169,11 +173,11 @@ class BinningSpec:
         version = kivi.__version__ if self.kivi_version is None else self.kivi_version
         if not isinstance(version, str):
             raise ValueError(f"kivi_version must be a string, got {version!r}")
-        object.__setattr__(self, "kinds", MappingProxyType(kinds))
-        object.__setattr__(self, "edges", MappingProxyType(edges))
-        object.__setattr__(self, "special", MappingProxyType(special))
-        object.__setattr__(self, "tables", _Tables(tables))
-        object.__setattr__(self, "unseen", MappingProxyType(unseen))
+        object.__setattr__(self, "kinds", _Columns(kinds))
+        object.__setattr__(self, "edges", _Columns(edges, _copy_edges))
+        object.__setattr__(self, "special", _Columns(special))
+        object.__setattr__(self, "tables", _Columns(tables, _copy_table, "tables"))
+        object.__setattr__(self, "unseen", _Columns(unseen))
         object.__setattr__(self, "smoothing", float(self.smoothing))
         object.__setattr__(self, "kivi_version", version)
 
@@ -192,7 +196,7 @@ class BinningSpec:
         return hash(self.to_json())
 
     def __reduce__(self):
-        """Pickle through the dict format, because read-only mappings cannot be pickled."""
+        """Pickle through the dict format, which validates the fields again."""
         return (type(self).from_dict, (self.to_dict(),))
 
     @property
@@ -240,9 +244,10 @@ class BinningSpec:
         ------
         ValueError
             If `frame` is not a DataFrame, lacks a column of the
-            specification or has it twice, or a numeric column cannot be
-            binned, for example because it has values that are neither
-            numbers nor special codes. The message names the column.
+            specification or has it twice, or a column fitted as numeric has
+            values but not a numeric dtype, which could hide its special
+            codes; convert such a column with ``pandas.to_numeric``. The
+            message names the column.
 
         See Also
         --------
@@ -267,12 +272,13 @@ class BinningSpec:
             if kind == "categorical":
                 groups[name] = values.array
                 continue
+            if not _is_numeric(values.dtype) and values.notna().any():
+                raise ValueError(
+                    f"column {name!r} was fitted as numeric but has dtype {values.dtype}; "
+                    "convert it with pandas.to_numeric so that its special codes are matched"
+                )
             codes = list(self.special[name]) or None
-            try:
-                grouped = binning.cut(values, self.edges[name], special=codes)
-            except (TypeError, ValueError) as error:
-                raise ValueError(f"column {name!r}: {error}") from error
-            groups[name] = grouped.array
+            groups[name] = binning.cut(values, self.edges[name], special=codes).array
         return pd.DataFrame(groups, index=frame.index)
 
     def woe_transform(self, frame: pd.DataFrame) -> pd.DataFrame:
@@ -299,9 +305,10 @@ class BinningSpec:
         ------
         ValueError
             If `frame` is not a DataFrame, lacks a column of the
-            specification or has it twice, or a numeric column cannot be
-            binned, or a column with the unseen policy ``"raise"`` has values
-            whose group is not in its table. The message names the column.
+            specification or has it twice, a column fitted as numeric has
+            values but not a numeric dtype, or a column with the unseen policy
+            ``"raise"`` has values whose group is not in its table. The
+            message names the column.
 
         See Also
         --------
@@ -454,7 +461,11 @@ class BinningSpec:
                 entry["edges"] = [_encode(float(edge)) for edge in self.edges[name]]
                 entry["special"] = [_encode(code) for code in self.special[name]]
             entry["unseen"] = self.unseen[name]
-            entry["table"] = _encode_table(self.tables[name])
+            table = self.tables[name]
+            bins = None
+            if kind == "numeric":
+                bins = _numeric_bins(table.index, self.edges[name], self.special[name])
+            entry["table"] = _encode_table(table, bins)
             variables.append(entry)
         return {
             "format": _FORMAT,
@@ -528,6 +539,8 @@ class BinningSpec:
         variables = data["variables"]
         if not isinstance(variables, list):
             raise ValueError(f"variables must be a list, got {type(variables).__name__}")
+        if not variables:
+            raise ValueError("variables must have an entry for at least one column")
         kinds, edges, special, tables, unseen = {}, {}, {}, {}, {}
         for entry in variables:
             if not isinstance(entry, Mapping):
@@ -550,6 +563,10 @@ class BinningSpec:
             kinds[name] = kind
             unseen[name] = entry["unseen"]
             tables[name] = _decode_table(entry["table"], where)
+            if kind == "numeric":
+                tables[name].index = _numeric_labels(
+                    tables[name].index, edges[name], special[name], where
+                )
         return cls(
             kinds=kinds,
             edges=edges,
@@ -611,7 +628,14 @@ class BinningSpec:
         Write the text to a file with
         ``Path("spec.json").write_text(text, encoding="utf-8")``.
         """
-        return json.dumps(self.to_dict(), ensure_ascii=False, allow_nan=False, indent=indent)
+        if indent is not None:
+            return json.dumps(self.to_dict(), ensure_ascii=False, allow_nan=False, indent=indent)
+        # The specification is frozen, so the compact text can be kept for equality and hashing.
+        text = self.__dict__.get("_compact_json")
+        if text is None:
+            text = json.dumps(self.to_dict(), ensure_ascii=False, allow_nan=False)
+            object.__setattr__(self, "_compact_json", text)
+        return text
 
     @classmethod
     def from_json(cls, text: str | bytes) -> "BinningSpec":
@@ -634,8 +658,9 @@ class BinningSpec:
         Raises
         ------
         ValueError
-            If `text` is not valid JSON, contains ``NaN`` or ``Infinity``,
-            or does not describe a valid specification; see `from_dict`.
+            If `text` is neither a str nor bytes, is not valid JSON, contains
+            ``NaN`` or ``Infinity``, or does not describe a valid
+            specification; see `from_dict`.
 
         See Also
         --------
@@ -654,6 +679,11 @@ class BinningSpec:
         >>> loaded.woe_transform(frame).equals(spec.woe_transform(frame))
         True
         """
+        if not isinstance(text, (str, bytes, bytearray)):
+            raise ValueError(
+                f"text must be JSON text as a str or bytes, got {type(text).__name__}; read a "
+                'file first, for example with Path(...).read_text(encoding="utf-8")'
+            )
         return cls.from_dict(json.loads(text, parse_constant=_reject_constant))
 
     def _sample(self, frame: pd.DataFrame) -> pd.DataFrame:
@@ -719,8 +749,9 @@ def fit_spec(
         only until the WOE is monotonic. The numeric columns that a dict
         leaves out get 5 bins.
     special : dict, optional
-        Special codes of numeric columns, such as ``{"pdays": [-1]}``. They
-        are left out of the fit, and each code forms its own group.
+        Special codes of numeric columns, such as ``{"pdays": [-1]}``. The
+        codes must be numbers, possibly infinite. They are left out of the
+        fit, and each code forms its own group.
     options : dict, optional
         Further keyword arguments for the binning function of each column,
         such as ``{"balance": {"alpha": None}}`` with ``"chimerge"``. The
@@ -754,19 +785,23 @@ def fit_spec(
         If `frame` is not a DataFrame or has no columns to fit, `columns`
         repeats a column or names one that `frame` lacks, a column name is
         not a string, the columns include the target, or `target` does not
-        give each row a label 0 or 1 with both classes present. If a dict
-        names a column that is not fitted, `method`, `bins`, `special` or
-        `options` names a categorical column, or a value is invalid. Also if
-        `smoothing` or `weights` are invalid, or the binning of a column
-        fails, in which case the message names the column.
+        give each row a label 0 or 1 or lacks one of the two classes. If a
+        dict names a column that is not fitted, `method`, `bins`, `special`
+        or `options` names a categorical column, or a value is invalid, such
+        as a special code that is not a number. Also if `smoothing` or
+        `weights` are invalid, a numeric column has infinite values that are
+        not special codes, or the binning of a column fails; the message
+        then names the column.
 
     Warns
     -----
     UserWarning
         If tied quantiles leave a column with fewer bins than requested, as
-        in `kivi.binning.bin_edges`, or if a numeric column has no values to
-        fit apart from missing, special and zero-weight values, so that its
-        edges are ``[-inf, inf]``. The message names the column.
+        in `kivi.binning.bin_edges`, if a numeric column has no values to fit
+        apart from missing, special and zero-weight values, so that its edges
+        are ``[-inf, inf]``, or if a column of dtype object holds only
+        numbers, which makes each distinct number a group. The message names
+        the column.
 
     See Also
     --------
@@ -822,6 +857,11 @@ def fit_spec(
     }
     extra = _per_column({} if options is None else options, numeric, kinds, "options", {})
     policies = _per_column(unseen, names, kinds, "unseen", "raise", _checked_unseen)
+    for name in names:
+        if name in numeric:
+            _check_finite(frame[name], codes[name], name)
+        else:
+            _warn_if_numbers(frame[name], name)
     edges = {}
     for name in numeric:
         if isinstance(method, Mapping) and name in method and np.ndim(counts[name]) == 1:
@@ -851,25 +891,61 @@ def fit_spec(
     )
 
 
-class _Tables(Mapping):
-    """Read-only mapping that returns a copy of a table on each access."""
+class _Columns(Mapping):
+    """Read-only mapping by column that returns ``copy(value)`` on each access."""
 
-    __slots__ = ("_tables",)
+    __slots__ = ("_values", "_copy", "_label")
 
-    def __init__(self, tables: dict[str, pd.DataFrame]):
-        self._tables = tables
+    def __init__(self, values: dict, copy=None, label: str | None = None):
+        self._values = values
+        self._copy = copy
+        self._label = label
 
-    def __getitem__(self, name: str) -> pd.DataFrame:
-        return self._tables[name].copy()
+    def __getitem__(self, name: str):
+        value = self._values[name]
+        return value if self._copy is None else self._copy(value)
 
     def __iter__(self) -> Iterator[str]:
-        return iter(self._tables)
+        return iter(self._values)
 
     def __len__(self) -> int:
-        return len(self._tables)
+        return len(self._values)
+
+    def __eq__(self, other: object) -> bool:
+        # Mapping.__eq__ compares DataFrames with ==, whose truth value is ambiguous.
+        if not isinstance(other, Mapping):
+            return NotImplemented
+        return self.keys() == other.keys() and all(
+            _same(self._values[name], other[name]) for name in self._values
+        )
+
+    __hash__ = None
 
     def __repr__(self) -> str:
-        return f"<tables of {list(self._tables)!r}>"
+        if self._label is not None:
+            return f"<{self._label} of {list(self._values)!r}>"
+        return repr(dict(self.items()))
+
+
+def _copy_edges(edges: np.ndarray) -> np.ndarray:
+    edges = edges.copy()
+    edges.flags.writeable = False
+    return edges
+
+
+def _copy_table(table: pd.DataFrame) -> pd.DataFrame:
+    return table.copy()
+
+
+def _same(value, other) -> bool:
+    if isinstance(value, pd.DataFrame):
+        return isinstance(other, pd.DataFrame) and value.equals(other)
+    if isinstance(value, np.ndarray):
+        try:
+            return bool(np.array_equal(value, np.asarray(other, dtype=float)))
+        except (TypeError, ValueError):
+            return False
+    return bool(value == other)
 
 
 def _fitted_columns(frame: pd.DataFrame, columns: Sequence[str] | None) -> list[str]:
@@ -1031,6 +1107,33 @@ def _fit_edges(values, labels, fitter, codes, smoothing, mass, name, method):
     return edges
 
 
+def _check_finite(values: pd.Series, codes: tuple, name: str) -> None:
+    # pandas.cut would leave -inf in no interval and count it as missing.
+    infinite = np.isinf(values.to_numpy(dtype=float, na_value=np.nan))
+    if codes:
+        infinite = infinite & ~values.isin(list(codes)).to_numpy(dtype=bool)
+    if infinite.any():
+        raise ValueError(
+            f"column {name!r} has infinite values that are not special codes; pass infinite "
+            "codes in special"
+        )
+
+
+def _warn_if_numbers(values: pd.Series, name: str) -> None:
+    if values.dtype == object and pd.api.types.infer_dtype(values, skipna=True) in (
+        "integer",
+        "floating",
+        "mixed-integer-float",
+    ):
+        warnings.warn(
+            f"column {name!r} has dtype object but holds only numbers, so each distinct value "
+            "is a group; convert it with pandas.to_numeric to bin it, or to the category dtype "
+            "to keep the labels",
+            UserWarning,
+            stacklevel=3,
+        )
+
+
 def _check_smoothing(smoothing) -> None:
     if (
         isinstance(smoothing, bool)
@@ -1092,10 +1195,11 @@ def _checked_codes(value, argument: str) -> tuple:
         raise ValueError(f"{argument} must be a list of codes, got {value!r}")
     codes = []
     for code in pd.unique(as_series(value, argument)):
-        label = _label(code, argument)
-        if isinstance(label, pd.Interval) or (isinstance(label, float) and math.isnan(label)):
-            raise ValueError(f"{argument} must be numbers or strings, not missing, got {code!r}")
-        codes.append(label)
+        # A string never matches a value of a numeric column, and True would match 1 only
+        # sometimes, so neither is a valid code.
+        if isinstance(code, (bool, np.bool_)) or not isinstance(code, Real) or math.isnan(code):
+            raise ValueError(f"{argument} must be non-missing numbers, got {_shown(code)}")
+        codes.append(int(code) if isinstance(code, Integral) else float(code))
     return tuple(codes)
 
 
@@ -1129,11 +1233,7 @@ def _checked_table(table, name: str, numeric: tuple | None) -> pd.DataFrame:
     if missing.sum() > 1 or labels[~missing].has_duplicates:
         raise ValueError(f"{where} must have one row per group")
     if numeric is not None:
-        # The categories that cut gives; pandas.cut rounds interval labels to three decimals.
-        edges, codes = numeric
-        empty = pd.Series([], dtype=float)
-        categories = binning.cut(empty, edges, special=list(codes) or None).cat.categories
-        groups = pd.Index([_label(group, where) for group in categories], dtype=object)
+        groups = _groups(*numeric)
         observed = labels[~missing]
         foreign = observed[groups.get_indexer(observed) < 0].tolist()
         if foreign:
@@ -1199,11 +1299,13 @@ def _decode(value, where: str):
         if set(value) == {"float"} and value["float"] in ("inf", "-inf"):
             return float(value["float"])
         if set(value) == {"interval", "closed"}:
-            bounds = value["interval"]
-            if isinstance(bounds, list) and len(bounds) == 2:
+            bounds, closed = value["interval"], value["closed"]
+            if isinstance(bounds, list) and len(bounds) == 2 and closed in _CLOSED:
                 left, right = (_decode(bound, where) for bound in bounds)
-                closed = value["closed"]
-                if _is_number(left) and _is_number(right) and closed in _CLOSED:
+                numbers = all(
+                    _is_number(bound) and not math.isnan(bound) for bound in (left, right)
+                )
+                if numbers and left <= right:
                     return pd.Interval(left, right, closed=closed)
     raise ValueError(f"{where} has an invalid value {value!r}")
 
@@ -1217,12 +1319,62 @@ def _decode_list(values, where: str) -> list:
     return [_decode(value, where) for value in values]
 
 
-def _encode_table(table: pd.DataFrame) -> list[dict[str, Any]]:
+def _encode_table(table: pd.DataFrame, bins: list | None = None) -> list[dict[str, Any]]:
+    if bins is None:
+        bins = [_encode(label) for label in table.index]
     columns = {column: table[column].tolist() for column in table.columns}
     return [
-        {"bin": _encode(label), **{column: values[row] for column, values in columns.items()}}
-        for row, label in enumerate(table.index)
+        {"bin": bins[row], **{column: values[row] for column, values in columns.items()}}
+        for row in range(len(table))
     ]
+
+
+def _groups(edges: np.ndarray, codes: tuple) -> pd.Index:
+    """Return the categories that cut gives a numeric column: its codes, then its intervals.
+
+    The interval labels are those of ``pandas.cut``, whose bounds are rounded for display.
+    """
+    empty = pd.Series([], dtype=float)
+    categories = binning.cut(empty, edges, special=list(codes) or None).cat.categories
+    return pd.Index([_label(group, "groups") for group in categories], dtype=object)
+
+
+def _numeric_bins(labels: pd.Index, edges: np.ndarray, codes: tuple) -> list:
+    """Encode the groups of a numeric table, writing each interval by its two exact edges."""
+    positions = _groups(edges, codes).get_indexer(labels)
+    bins = []
+    for label, position in zip(labels, positions, strict=True):
+        if position < len(codes):  # A special code, or the missing group at -1.
+            bins.append(_encode(label))
+        else:
+            left, right = edges[position - len(codes)], edges[position - len(codes) + 1]
+            bins.append(
+                {"interval": [_encode(float(left)), _encode(float(right))], "closed": "right"}
+            )
+    return bins
+
+
+def _numeric_labels(labels: pd.Index, edges: list, codes: tuple, where: str) -> pd.Index:
+    """Turn intervals given by exact edges back into the labels of ``pandas.cut``."""
+    edges = _checked_edges(edges, f"edges of {where}")
+    codes = _checked_codes(codes, f"special codes of {where}")
+    groups = _groups(edges, codes)
+    positions = {
+        (float(left), float(right)): len(codes) + index
+        for index, (left, right) in enumerate(zip(edges[:-1], edges[1:], strict=True))
+    }
+    result = []
+    for label in labels:
+        if isinstance(label, pd.Interval):
+            position = positions.get((label.left, label.right))
+            if position is None or label.closed != "right":
+                raise ValueError(
+                    f"table of {where} has the interval {_encode(label)!r}, which does not run "
+                    "between two adjacent edges"
+                )
+            label = groups[position]
+        result.append(label)
+    return pd.Index(result, dtype=object, name="bin")
 
 
 def _decode_table(rows, where: str) -> pd.DataFrame:

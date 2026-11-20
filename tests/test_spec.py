@@ -2,6 +2,7 @@ import copy
 import dataclasses
 import json
 import pickle
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -586,7 +587,7 @@ _DELETE = object()
         (_edit(["kivi_version"], 5), "kivi_version must be a string, got 5"),
         (_edit(["kivi_version"], None), "kivi_version must be a string, got None"),
         (_edit(["variables"], {}), "variables must be a list, got dict"),
-        (_edit(["variables"], []), "kinds must be a non-empty mapping"),
+        (_edit(["variables"], []), "variables must have an entry for at least one column"),
         (_edit(["variables", 0], 1), "each variable must be a mapping, got int"),
         (_edit(["variables", 0, "name"], 1), "each variable must have a string name, got 1"),
         (_edit(["variables", 1, "name"], "x"), "variables must not repeat a name, got 'x' twice"),
@@ -606,8 +607,32 @@ _DELETE = object()
         (_edit(["variables", 0, "table", 0, "bin"], -2), r"neither special codes nor .*\[-2\]"),
         (
             _edit(["variables", 0, "table", 1, "bin"], {"interval": [0, 3.5], "closed": "right"}),
-            "neither special codes nor intervals of its edges",
+            r"table of column 'x' has the interval .*\[0, 3.5\].*, which does not run between "
+            "two adjacent edges",
         ),
+        (
+            _edit(
+                ["variables", 0, "table", 2, "bin"], {"interval": [3.5, 1e300], "closed": "right"}
+            ),
+            "which does not run between two adjacent edges",
+        ),
+        (
+            _edit(
+                ["variables", 0, "table", 2, "bin"],
+                {"interval": [3.5, {"float": "inf"}], "closed": "left"},
+            ),
+            "which does not run between two adjacent edges",
+        ),
+        (
+            _edit(["variables", 0, "table", 2, "bin"], {"interval": [5, 1], "closed": "right"}),
+            r"table of column 'x' has an invalid value \{'interval': \[5, 1\]",
+        ),
+        (
+            _edit(["variables", 0, "table", 2, "bin"], {"interval": [None, 1], "closed": "right"}),
+            r"table of column 'x' has an invalid value \{'interval': \[None, 1\]",
+        ),
+        (_edit(["variables", 0, "special"], ["-1"]), "special codes of column 'x' must be non-"),
+        (_edit(["variables", 0, "special"], [True]), "special codes of column 'x' must be non-"),
         (_edit(["variables", 1, "table", 1, "bin"], "a"), "table of column 'c' must have one row"),
         (
             _edit(["variables", 1, "table"], [{"bin": "a", "event": 1}]),
@@ -630,6 +655,16 @@ def test_spec_is_immutable():
         spec.unseen["x"] = 0.0
     with pytest.raises(ValueError, match="read-only"):
         spec.edges["x"][1] = 0.0
+    # Each access returns a copy, so a copy made writable changes nothing.
+    text = spec.to_json()
+    edges = spec.edges["x"]
+    edges.flags.writeable = True
+    edges[1] = 1e9
+    np.testing.assert_array_equal(spec.edges["x"], [-INF, 3.5, INF])
+    assert spec.edges["x"] is not spec.edges["x"]
+    assert spec.cut(FRAME)["x"].cat.categories.tolist()[1] == pd.Interval(-INF, 3.5)
+    assert spec.to_dict() == json.loads(text)
+    assert BinningSpec.from_json(spec.to_json()) == spec
     table = spec.tables["x"]
     table.loc[:, "woe"] = 99.0
     assert (spec.tables["x"]["woe"] != 99.0).all()
@@ -741,7 +776,13 @@ def test_repr_names_the_columns():
         ({"bins": {"c": 3}}, r"bins names categorical columns"),
         ({"special": [-1]}, "special must be a dict by column, got list"),
         ({"special": {"c": ["a"]}}, r"special names categorical columns"),
-        ({"special": {"x": [np.nan]}}, "special of column 'x' must be numbers or strings, not"),
+        (
+            {"special": {"x": [np.nan]}},
+            "special of column 'x' must be non-missing numbers, got nan",
+        ),
+        ({"special": {"x": ["-1"]}}, "special of column 'x' must be non-missing numbers, got '-1'"),
+        ({"special": {"x": [True]}}, "special of column 'x' must be non-missing numbers, got True"),
+        ({"special": {"x": [-1, None]}}, "special of column 'x' must be non-missing numbers"),
         ({"special": {"x": -1}}, "special of column 'x' must be one-dimensional"),
         ({"special": {"x": "-1"}}, "special of column 'x' must be a list of codes"),
         (
@@ -776,7 +817,7 @@ def test_invalid_fit_arguments(kwargs, message):
 
 
 def test_columns_that_cannot_be_binned_name_the_column():
-    with pytest.raises(ValueError, match="column 'x': reference values must contain finite"):
+    with pytest.raises(ValueError, match="column 'x' has infinite values that are not special"):
         fit_spec(FRAME.assign(x=INF), TARGET)
     dates = pd.DataFrame({"when": pd.to_datetime(["2024-01-01", "2024-02-01"] * 2)})
     with pytest.raises(
@@ -795,7 +836,7 @@ def test_cut_and_transform_check_the_frame():
         spec.woe_transform(FRAME[["c"]])
     with pytest.raises(ValueError, match=r"frame has more than one column named \['c'\]"):
         spec.cut(pd.concat([FRAME, FRAME[["c"]]], axis=1))
-    with pytest.raises(ValueError, match="column 'x': "):
+    with pytest.raises(ValueError, match="column 'x' was fitted as numeric but has dtype"):
         spec.woe_transform(FRAME.assign(x="high"))
 
 
@@ -894,3 +935,154 @@ def test_constructor_accepts_a_series_of_woe_values_as_table():
     data["variables"][1]["table"] = [1]
     with pytest.raises(ValueError, match="must have a mapping with a bin for each group"):
         BinningSpec.from_dict(data)
+
+
+def test_numeric_columns_with_strings_are_rejected(bank, bank_spec):
+    _, monitoring = bank
+    for pdays in (monitoring["pdays"].astype(str), monitoring["pdays"].astype("string")):
+        for method in (bank_spec.cut, bank_spec.woe_transform):
+            with pytest.raises(
+                ValueError,
+                match="column 'pdays' was fitted as numeric but has dtype .*; convert it with "
+                "pandas.to_numeric so that its special codes are matched",
+            ):
+                method(monitoring.assign(pdays=pdays))
+    # A column that is entirely missing has nothing to misread.
+    spec = _fit(unseen={"x": 0.0})
+    empty = FRAME.assign(x=pd.Series([None] * 10, dtype=object))
+    assert spec.cut(empty)["x"].isna().all()
+    np.testing.assert_array_equal(spec.woe_transform(empty)["x"], np.zeros(10))
+    # As numbers, the code -1 still gets its own WOE.
+    numbers = monitoring.assign(pdays=pd.to_numeric(monitoring["pdays"].astype(str)))
+    assert_frame_equal(bank_spec.woe_transform(numbers), bank_spec.woe_transform(monitoring))
+
+
+@pytest.mark.parametrize("value", [-INF, INF])
+def test_infinite_values_must_be_special_codes(value):
+    frame = FRAME.assign(x=[value, value, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, np.nan, 9.0])
+    for bins in ({"x": [-INF, 4, INF]}, 2):
+        with pytest.raises(
+            ValueError,
+            match="column 'x' has infinite values that are not special codes; pass infinite codes",
+        ):
+            fit_spec(frame, TARGET, bins=bins)
+    spec = fit_spec(frame, TARGET, bins={"x": [-INF, 4, INF]}, special={"x": [value]})
+    table = spec.tables["x"]
+    assert table.index[0] == value
+    # Two infinite codes, three values up to 4 and four above, one missing value.
+    np.testing.assert_array_equal(table["total"], [2, 3, 4, 1])
+    encoded = spec.woe_transform(frame)["x"]
+    np.testing.assert_array_equal(encoded[:2], np.repeat(table["woe"].iloc[0], 2))
+    assert BinningSpec.from_json(spec.to_json()) == spec
+
+
+def test_json_writes_numeric_intervals_by_their_exact_edges(bank, bank_spec):
+    _, monitoring = bank
+    edges = bank_spec.edges["balance"]
+    assert edges[2] == 125.70000000000016
+    labels = bank_spec.tables["balance"].index
+    # pandas.cut rounds the label for display; the file keeps the exact edge.
+    assert labels[1] == pd.Interval(68.75, 125.7)
+    balance = next(v for v in bank_spec.to_dict()["variables"] if v["name"] == "balance")
+    assert balance["table"][1]["bin"] == {
+        "interval": [68.75, 125.70000000000016],
+        "closed": "right",
+    }
+    for row, left, right in zip(balance["table"], edges[:-1], edges[1:], strict=True):
+        assert row["bin"]["interval"] == [_json_number(left), _json_number(right)]
+    loaded = BinningSpec.from_json(bank_spec.to_json())
+    assert loaded.tables["balance"].index.tolist() == labels.tolist()
+    assert_frame_equal(loaded.woe_transform(monitoring), bank_spec.woe_transform(monitoring))
+
+
+def _json_number(value):
+    return {"float": "inf" if value > 0 else "-inf"} if np.isinf(value) else float(value)
+
+
+def test_json_maps_rows_to_edges_when_intervals_are_empty():
+    spec = _fit(bins={"x": [-INF, 0, 3.5, INF]})
+    rows = json.loads(spec.to_json())["variables"][0]["table"]
+    # (-inf, 0] has no development observations and so no row.
+    assert [row["bin"] for row in rows] == [
+        -1,
+        {"interval": [0.0, 3.5], "closed": "right"},
+        {"interval": [3.5, {"float": "inf"}], "closed": "right"},
+        None,
+    ]
+    loaded = BinningSpec.from_json(spec.to_json())
+    assert loaded == spec
+    assert loaded.tables["x"].index.tolist()[1] == pd.Interval(0, 3.5)
+
+
+def test_object_columns_of_numbers_warn():
+    frame = pd.DataFrame(
+        {
+            "rate": pd.Series([0.1, 0.2, 0.1, 0.3], dtype=object),
+            "code": pd.Series([1, 2, None, 2], dtype=object),
+            "text": ["a", "b", "a", "b"],
+            "mixed": pd.Series([1, "1", 1, "1"], dtype=object),
+        }
+    )
+    with pytest.warns(UserWarning) as caught:
+        spec = fit_spec(frame, [1, 0, 0, 1])
+    assert [str(warning.message) for warning in caught] == [
+        f"column {name!r} has dtype object but holds only numbers, so each distinct value is a "
+        "group; convert it with pandas.to_numeric to bin it, or to the category dtype to keep the "
+        "labels"
+        for name in ("rate", "code")
+    ]
+    assert all(warning.filename == __file__ for warning in caught)
+    assert set(spec.kinds.values()) == {"categorical"}
+    assert spec.tables["rate"].index.tolist() == [0.1, 0.2, 0.3]
+    # The category dtype keeps numbers as labels without a warning.
+    spec = fit_spec(frame.astype({"rate": "category"})[["rate"]], [1, 0, 0, 1])
+    assert spec.kinds["rate"] == "categorical"
+
+
+def test_mappings_compare_and_convert():
+    spec, other = _fit(), _fit(smoothing=1.0)
+    assert spec.tables == _fit().tables
+    assert spec.tables != other.tables
+    assert spec.tables == {"x": _fit().tables["x"], "c": _fit().tables["c"]}
+    assert spec.tables != {"x": _fit().tables["x"]}
+    assert spec.edges == {"x": [-INF, 3.5, INF]}
+    assert spec.edges != {"x": [-INF, 3.0, INF]}
+    assert spec.edges != {"x": ["a"]}
+    assert spec.kinds == {"x": "numeric", "c": "categorical"}
+    assert spec.special == {"x": (-1,)}
+    assert spec.unseen == {"x": "raise", "c": "raise"}
+    assert spec.kinds != ["x", "c"]
+    assert repr(spec.kinds) == "{'x': 'numeric', 'c': 'categorical'}"
+    assert repr(spec.tables) == "<tables of ['x', 'c']>"
+    with pytest.raises(TypeError):
+        hash(spec.kinds)
+    fields = dataclasses.asdict(spec)
+    assert list(fields) == [
+        "kinds",
+        "edges",
+        "special",
+        "tables",
+        "unseen",
+        "smoothing",
+        "kivi_version",
+    ]
+    assert fields["kinds"] == spec.kinds and fields["tables"] == spec.tables
+
+
+def test_json_text_is_computed_once():
+    spec = _fit()
+    assert spec.to_json() is spec.to_json()
+    assert spec.to_json(indent=2) is not spec.to_json(indent=2)
+    assert hash(spec) == hash(spec.to_json())
+    replaced = dataclasses.replace(spec, kivi_version="0.0.1")
+    assert replaced != spec and '"kivi_version": "0.0.1"' in replaced.to_json()
+    assert dataclasses.replace(replaced, kivi_version=spec.kivi_version) == spec
+
+
+@pytest.mark.parametrize("text", [Path("spec.json"), 1, None, {"format": "kivi.BinningSpec"}])
+def test_from_json_needs_text(text):
+    with pytest.raises(
+        ValueError, match=f"text must be JSON text as a str or bytes, got {type(text).__name__}"
+    ):
+        BinningSpec.from_json(text)
+    assert BinningSpec.from_json(bytearray(_fit().to_json(), "utf-8")) == _fit()
