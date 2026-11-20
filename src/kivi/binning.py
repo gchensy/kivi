@@ -16,13 +16,11 @@ import numpy.typing as npt
 import pandas as pd
 
 from ._counts import divergence
-from ._deprecation import positional_deprecated
 from ._validation import as_series, as_weights
 
 __all__ = ["bin_edges", "cut", "chimerge_edges", "tree_edges", "monotonic_edges"]
 
 
-@positional_deprecated("method", removed_in="0.6.0")
 def bin_edges(
     values: npt.ArrayLike,
     bins: int = 5,
@@ -44,8 +42,7 @@ def bin_edges(
     bins : int, default 5
         Requested number of bins. Tied quantiles can reduce this number.
     method : {"quantile", "uniform"}, default "quantile"
-        Use sample quantiles or equally spaced edges. Pass it by keyword:
-        passing it by position is deprecated and stops working in kivi 0.6.0.
+        Use sample quantiles or equally spaced edges.
     special : array_like, optional
         Special values, such as codes for "not applicable", that are omitted
         when the edges are fitted. Pass the same values to `cut` so that each
@@ -185,8 +182,11 @@ def cut(
     Notes
     -----
     A special value is matched by equality, so ``-1`` and ``-1.0`` are the
-    same code. Values outside the edges become missing, as with
-    ``pandas.cut``; the infinite outer edges of `bin_edges` avoid this.
+    same code. Values that are not numbers, such as strings read from a
+    file, are also matched after conversion with ``pandas.to_numeric``, so
+    the string ``"-1"`` falls into the group of the code ``-1``. Values
+    outside the edges become missing, as with ``pandas.cut``; the infinite
+    outer edges of `bin_edges` avoid this.
 
     Examples
     --------
@@ -204,13 +204,14 @@ def cut(
     """
     series = as_series(values, "values")
     special = _special_values(special)
-    is_special = series.isin(special).to_numpy(dtype=bool)
+    position = _special_positions(series, special)
+    is_special = position >= 0
     intervals = pd.cut(pd.to_numeric(series.mask(is_special), errors="raise"), edges)
     if special.empty:
         return intervals if isinstance(values, pd.Series) else intervals.array
     codes = intervals.cat.codes.to_numpy()
     codes = np.where(codes >= 0, codes + len(special), -1)
-    codes[is_special] = special.get_indexer(series[is_special])
+    codes[is_special] = position[is_special]
     groups = pd.Categorical.from_codes(codes, categories=special.append(intervals.cat.categories))
     if isinstance(values, pd.Series):
         return pd.Series(groups, index=series.index, name=series.name)
@@ -610,7 +611,7 @@ def _observed(
     keep = values.notna().to_numpy(dtype=bool, copy=True)
     excluded = ["missing"]
     if special is not None:
-        keep &= ~values.isin(special).to_numpy(dtype=bool)
+        keep &= _special_positions(values, special) < 0
         excluded.append("special")
     if weights is not None:
         keep &= weights > 0
@@ -646,12 +647,35 @@ def _weighted_quantile(
 def _special_values(special: npt.ArrayLike | None) -> pd.Index:
     if special is None:
         return pd.Index([], dtype=object)
-    special = pd.Index(pd.unique(as_series(special, "special")))
+    special = pd.Index(pd.unique(as_series(special, "special")), dtype=object)
     if special.hasnans:
         raise ValueError(
             "special must not contain missing values; they always form their own group"
         )
+    flags = [value for value in special if isinstance(value, (bool, np.bool_))]
+    if flags:
+        raise ValueError(f"special must not contain booleans, got {flags[0]!r}")
     return special
+
+
+def _special_positions(values: pd.Series, special: pd.Index) -> np.ndarray:
+    """Position of each value's code in ``special``, or -1 for other values.
+
+    Values that are not numbers are matched both as given and after
+    ``pandas.to_numeric``, so the string ``"-1"`` matches the code ``-1``.
+    """
+    position = np.full(len(values), -1, dtype=np.intp)
+    if special.empty:
+        return position
+    observed = values.notna().to_numpy(dtype=bool)
+    candidates = pd.Index(values[observed].to_numpy(dtype=object), dtype=object)
+    found = special.get_indexer(candidates)
+    if not pd.api.types.is_numeric_dtype(values.dtype):
+        unmatched = found < 0
+        numeric = pd.to_numeric(pd.Series(candidates[unmatched]), errors="coerce")
+        found[unmatched] = special.get_indexer(pd.Index(numeric.to_numpy(dtype=object)))
+    position[observed] = found
+    return position
 
 
 def _labeled(
@@ -680,7 +704,7 @@ def _labeled(
     fitted = values.notna().to_numpy(dtype=bool, copy=True)
     if special is not None:
         special = _special_values(special)
-        fitted &= ~values.isin(special).to_numpy(dtype=bool)
+        fitted &= _special_positions(values, special) < 0
     if mass is not None:
         fitted &= mass > 0
     observed, mass = _observed(values, special, mass)

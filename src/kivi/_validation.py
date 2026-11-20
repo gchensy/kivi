@@ -1,6 +1,7 @@
 """Argument checks shared by the public functions."""
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
 
@@ -69,3 +70,69 @@ def as_weights(weights, values, name: str = "weights", of: str = "values") -> np
     if not (np.isfinite(total) and total > 0):
         raise ValueError(f"{name} must have a finite, positive total, got {float(total)!r}")
     return array
+
+
+def scores_and_labels(
+    score: npt.ArrayLike,
+    target: npt.ArrayLike,
+    name: str,
+    *,
+    both_classes: bool = True,
+    weights: npt.ArrayLike | None = None,
+) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.intp], npt.NDArray[np.float64] | None]:
+    """Finite float scores, 0/1 labels and weights, matched by index or position like ``woe_table``.
+
+    The weights are None without `weights`. With `both_classes`, both classes
+    must be present and, with `weights`, have a positive total weight.
+    """
+    if isinstance(score, pd.Series) and isinstance(target, pd.Series):
+        if not score.index.equals(target.index):
+            raise ValueError(f"{name} and target must have identical indices")
+    raw_score = score
+    score, target = as_series(score, name), as_series(target, "target")
+    if len(score) != len(target):
+        raise ValueError(
+            f"{name} and target must have the same length, got {len(score)} and {len(target)}"
+        )
+    if not len(score):
+        raise ValueError(f"{name} and target must not be empty")
+    if not pd.api.types.is_numeric_dtype(score.dtype):
+        raise ValueError(f"{name} must be numeric, got dtype {score.dtype}")
+    if pd.api.types.is_complex_dtype(score.dtype):
+        raise ValueError(f"{name} must be real, got dtype {score.dtype}")
+    values = score.to_numpy(dtype=float, na_value=np.nan)
+    finite = np.isfinite(values)
+    if not finite.all():
+        raise ValueError(
+            f"{name} must be finite, got {(~finite).sum()} missing or infinite value(s) "
+            f"such as {float(values[~finite][0])!r}"
+        )
+    # For nullable dtypes pandas 2.0 returns an object array, which ~ would negate as integers.
+    invalid = ~target.isin([0, 1]).to_numpy(dtype=bool)
+    if invalid.any():
+        raise ValueError(f"target must contain only 0 and 1, got {first_value(target[invalid])!r}")
+    labels = target.to_numpy(dtype=np.intp)
+    if both_classes and labels.sum() in (0, len(labels)):
+        raise ValueError(f"target must contain both 0 and 1, got only {labels[0]}")
+    mass = as_weights(weights, raw_score, of=name)
+    if both_classes and mass is not None:
+        totals = np.bincount(labels, weights=mass, minlength=2)
+        if not (totals > 0).all():
+            raise ValueError(
+                "weights must give both target classes a positive total, got "
+                f"{float(totals[0])!r} for 0 and {float(totals[1])!r} for 1"
+            )
+    return values, labels, mass
+
+
+def first_value(values: pd.Series):
+    """First value of ``values`` as a Python scalar, for error messages."""
+    value = values.iloc[0]
+    return value.item() if isinstance(value, np.generic) else value
+
+
+def like_input(template, values: np.ndarray) -> float | pd.Series | np.ndarray:
+    """Return values shaped like the input: a Series, a float or an array."""
+    if isinstance(template, pd.Series):
+        return pd.Series(values, index=template.index, name=template.name)
+    return float(values) if values.ndim == 0 else values

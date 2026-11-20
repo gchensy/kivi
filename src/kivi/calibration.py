@@ -11,8 +11,7 @@ import pandas as pd
 from . import _logit
 from ._counts import group_counts
 from ._stats import betainc, chi2_sf
-from ._validation import as_series, as_weights
-from .metrics import _scores_and_labels
+from ._validation import as_series, as_weights, like_input, scores_and_labels
 
 __all__ = [
     "binomial_test",
@@ -255,7 +254,7 @@ def platt_fit(
     >>> platt_predict([-1.0, 0.0, 1.0], slope, intercept).round(4)
     array([0.2675, 0.4688, 0.6808])
     """
-    values, labels, mass = _scores_and_labels(score, target, "score", weights=weights)
+    values, labels, mass = scores_and_labels(score, target, "score", weights=weights)
     if mass is not None:
         # Rows without weight must not enter the centring and scaling of the fit.
         used = mass > 0
@@ -342,7 +341,7 @@ def platt_predict(
     # A huge score overflows to an infinite log odds, and logaddexp warns on missing values.
     with np.errstate(over="ignore", invalid="ignore"):
         probability = np.exp(-np.logaddexp(0, -(slope * values + intercept)))
-    return _shaped(score, probability)
+    return like_input(score, probability)
 
 
 def isotonic_fit(
@@ -453,7 +452,7 @@ def isotonic_fit(
     """
     if not isinstance(increasing, (bool, np.bool_)):
         raise ValueError(f"increasing must be True or False, got {increasing!r}")
-    values, labels, mass = _scores_and_labels(score, target, "score", weights=weights)
+    values, labels, mass = scores_and_labels(score, target, "score", weights=weights)
     distinct, position = np.unique(values, return_inverse=True)
     position = position.ravel()  # NumPy 2.0 keeps the input's shape here
     total = np.bincount(position, weights=mass, minlength=len(distinct))
@@ -523,7 +522,7 @@ def isotonic_predict(
     band = np.searchsorted(edges[1:-1], values, side="left")
     result = probabilities[np.minimum(band, len(probabilities) - 1)]
     result = np.where(np.isnan(values), np.nan, result)
-    return _shaped(score, result)
+    return like_input(score, result)
 
 
 def calibration_table(
@@ -1004,7 +1003,7 @@ def _isotonic_bands(edges, probabilities) -> tuple[np.ndarray, np.ndarray]:
 def _float_scores(values: npt.ArrayLike, name: str) -> np.ndarray:
     """Return a scalar or one-dimensional scores as floats, with missing values as NaN.
 
-    A scalar gives a zero-dimensional array, so `_shaped` returns a float.
+    A scalar gives a zero-dimensional array, so `like_input` returns a float.
     """
     if np.ndim(values) == 0 and not isinstance(values, pd.Series):
         return _numeric_values([values], name).reshape(())
@@ -1039,13 +1038,6 @@ def _numeric_values(values: npt.ArrayLike, name: str) -> np.ndarray:
         )
         raise ValueError(f"{name} must be real and numeric, got {shown!r} of dtype {dtype}")
     return series.to_numpy(dtype=float, na_value=np.nan)
-
-
-def _shaped(template: npt.ArrayLike, values: np.ndarray) -> float | pd.Series | np.ndarray:
-    """Return values shaped like the input: a Series, a float or an array."""
-    if isinstance(template, pd.Series):
-        return pd.Series(values, index=template.index, name=template.name)
-    return float(values) if values.ndim == 0 else values
 
 
 def _odds_ratio(sample_rate: float, population_rate: float) -> float:

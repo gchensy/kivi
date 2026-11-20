@@ -8,6 +8,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
+from ._validation import like_input
 from .woe import _woe_values
 
 __all__ = [
@@ -140,7 +141,7 @@ def pd_to_score(
     if np.any((values <= 0) | (values >= 1)):
         shown = float(values[(values <= 0) | (values >= 1)].flat[0])
         raise ValueError(f"probability must be strictly between 0 and 1, got {shown!r}")
-    return _like(probability, offset + factor * (np.log1p(-values) - np.log(values)))
+    return like_input(probability, offset + factor * (np.log1p(-values) - np.log(values)))
 
 
 def score_to_pd(
@@ -197,7 +198,7 @@ def score_to_pd(
     log_odds = (np.asarray(score, dtype=float) - offset) / factor
     with np.errstate(invalid="ignore"):  # logaddexp warns on missing values
         probability = np.exp(-np.logaddexp(0, log_odds))
-    return _like(score, probability)
+    return like_input(score, probability)
 
 
 def points_table(
@@ -655,12 +656,3 @@ def _describe(value: object) -> str:
     if isinstance(value, pd.DataFrame):
         return f"a DataFrame indexed by {value.index.name!r} with columns {value.columns.tolist()}"
     return type(value).__name__
-
-
-def _like(template: npt.ArrayLike, values: np.ndarray) -> float | pd.Series | np.ndarray:
-    """Return values shaped like the input: a Series, a float or an array."""
-    if isinstance(template, pd.Series):
-        return pd.Series(values, index=template.index, name=template.name)
-    if values.ndim == 0:
-        return float(values)
-    return values
