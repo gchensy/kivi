@@ -6,16 +6,16 @@ public wrappers in `kivi.selection` validate the inputs and label the result.
 """
 
 import math
-import warnings
 from typing import NamedTuple
 
 import numpy as np
 import numpy.typing as npt
 
-# A fit that does not converge and leaves a fitted probability this close to 0 or 1
-# (|eta| > 23) is diverging because the classes are separated: each Newton step then
-# pushes the separated observations further towards certainty.
-_SEPARATION = 1e-10
+# A fitted probability within 1e-10 of 0 or 1 means |eta| > 23.
+_EXTREME_ETA = -math.log(1e-10)
+# A step moves an observation against its class if its change of eta is below
+# -_AGAINST times the largest change; smaller changes are rounding error.
+_AGAINST = 1e-6
 _MAX_HALVINGS = 30
 
 
@@ -33,7 +33,42 @@ class LogitFit(NamedTuple):
 
 
 class SeparationError(ValueError):
-    """The classes are separated, so the maximum likelihood estimates do not exist."""
+    """The classes are separated, so the logistic regression has no estimates.
+
+    A combination of the variables predicts the target without error, for
+    every observation (complete separation) or for every observation off a
+    boundary (quasi-complete separation). The likelihood then keeps growing
+    as the coefficients grow, so the maximum likelihood estimates do not
+    exist.
+
+    See Also
+    --------
+    logistic_regression : Raises this error.
+    stepwise : Leaves out candidates that separate the classes.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from kivi.selection import SeparationError, logistic_regression
+    >>> X = pd.DataFrame({"x": [1.0, 2.0, 3.0, 4.0]})
+    >>> try:
+    ...     logistic_regression(X, [0, 0, 1, 1])
+    ... except SeparationError:
+    ...     print("x separates the classes")
+    x separates the classes
+    """
+
+
+# Defined here for `fit`; documented and exported by the public module.
+SeparationError.__module__ = "kivi.selection"
+
+
+class SingularError(ValueError):
+    """The Fisher information is numerically singular at `column` of the design."""
+
+    def __init__(self, column: int):
+        super().__init__(f"design column {column} is nearly a linear combination of the others")
+        self.column = column
 
 
 def fit(
@@ -49,11 +84,13 @@ def fit(
 
     For the logit link, Newton-Raphson is iteratively reweighted least
     squares: each step solves :math:`(X^\top W X)\,\delta = X^\top (y - p)`
-    with :math:`W = \mathrm{diag}(w_i p_i (1 - p_i))`. A step that lowers the
-    log-likelihood by more than rounding error is halved until it does not,
-    so the iterations never move away from the maximum. The fit has
-    converged when every coefficient changes by at most `tol` times one
-    plus its absolute value.
+    with :math:`W = \mathrm{diag}(w_i p_i (1 - p_i))`. The iterations run on
+    centred and scaled columns, so an offset or a unit of measurement does
+    not square into the conditioning of :math:`X^\top W X`; the estimates
+    and their covariance are transformed back. A step that lowers the
+    log-likelihood by more than rounding error is halved until it does not.
+    The fit has converged when every scaled coefficient changes by at most
+    `tol` times one plus its absolute value.
 
     Parameters
     ----------
@@ -70,8 +107,8 @@ def fit(
     max_iter : int, default 100
         Maximum number of Newton steps.
     tol : float, default 1e-8
-        Largest coefficient change at convergence, relative to one plus the
-        absolute value of the coefficient.
+        Largest change of a scaled coefficient at convergence, relative to
+        one plus its absolute value.
 
     Returns
     -------
@@ -79,62 +116,73 @@ def fit(
         Coefficients, standard errors from the inverse Fisher information,
         Wald z statistics, two-sided p-values, the covariance matrix, the
         log-likelihood, the number of steps and whether the fit converged.
+        A fit that stops after `max_iter` steps is returned with
+        ``converged=False``; the caller decides whether to warn.
 
     Raises
     ------
     SeparationError
-        If the fit does not converge because some fitted probabilities tend
-        to 0 or 1, which happens when a combination of the columns separates
-        the classes completely or quasi-completely.
-
-    Warns
-    -----
-    RuntimeWarning
-        If the fit does not converge in `max_iter` steps for another reason.
+        If some fitted probabilities reach 0 or 1 while a Newton step moves
+        every observation towards its own class, which proves that a
+        combination of the columns separates the classes.
+    SingularError
+        If the Fisher information is numerically singular.
     """
     weights = np.ones(len(target)) if weights is None else weights
-    is_event = target == 1
-    coef = np.zeros(design.shape[1]) if start is None else np.array(start, dtype=float)
-    eta = design @ coef
+    used = weights > 0
+    sign = np.where(target == 1, 1.0, -1.0)
+    scaled, transform = _standardize(design)
+    coef = (
+        np.zeros(design.shape[1])
+        if start is None
+        else np.linalg.solve(transform, np.asarray(start, dtype=float))
+    )
+    eta = scaled @ coef
     event, non_event, log_likelihood = _evaluate(eta, target, weights)
+    # The pairwise sum of n terms of the log-likelihood is exact to about log2(n) roundings.
+    rounding = (math.log2(len(target)) + 1) * np.finfo(float).eps
     converged = False
     n_iter = 0
     while n_iter < max_iter and not converged:
         n_iter += 1
-        gradient = design.T @ (weights * np.where(is_event, non_event, -event))
+        gradient = scaled.T @ (weights * np.where(target == 1, non_event, -event))
+        information = _information(scaled, weights, event, non_event)
         try:
-            step = np.linalg.solve(_information(design, weights, event, non_event), gradient)
+            step = np.linalg.solve(information, gradient)
         except np.linalg.LinAlgError:
-            break
+            raise SingularError(_weakest_column(scaled, weights, event, non_event)) from None
         if not np.isfinite(step).all():
-            break
+            raise SingularError(_weakest_column(scaled, weights, event, non_event))
         converged = bool((np.abs(step) <= tol * (1 + np.abs(coef))).all())
-        # Near the maximum, the change in the log-likelihood is lost in its rounding error.
-        rounding = len(target) * np.finfo(float).eps * abs(log_likelihood)
         for _ in range(_MAX_HALVINGS):
             trial = coef + step
-            trial_eta = design @ trial
+            trial_eta = scaled @ trial
             evaluated = _evaluate(trial_eta, target, weights)
-            if converged or evaluated[2] >= log_likelihood - rounding:
+            if converged or evaluated[2] >= log_likelihood - rounding * abs(log_likelihood):
                 break
             step = step / 2
         else:
             break  # no ascent at working precision
+        change = trial_eta - eta
         coef, eta = trial, trial_eta
         event, non_event, log_likelihood = evaluated
-    if not converged:
-        if np.abs(eta[weights > 0]).max() > -math.log(_SEPARATION):
-            raise SeparationError(
-                "the classes of target are separated by X: some fitted probabilities tend "
-                "to 0 or 1, so the maximum likelihood estimates do not exist; merge the "
-                "bins or drop the variables that predict target without error"
-            )
-        warnings.warn(
-            f"logistic regression did not converge after {n_iter} iterations",
-            RuntimeWarning,
-            stacklevel=2,
-        )
-    cov = np.linalg.inv(_information(design, weights, event, non_event))
+        if not converged and np.abs(eta[used]).max() > _EXTREME_ETA:
+            towards = (sign * change)[used]
+            if towards.max() > 0 and towards.min() >= -_AGAINST * np.abs(towards).max():
+                raise SeparationError(
+                    "the classes of target are separated by X: some fitted probabilities tend "
+                    "to 0 or 1, so the maximum likelihood estimates do not exist; merge the "
+                    "bins or drop the variables that predict target without error"
+                )
+    try:
+        cov = np.linalg.inv(_information(scaled, weights, event, non_event))
+    except np.linalg.LinAlgError:
+        raise SingularError(_weakest_column(scaled, weights, event, non_event)) from None
+    variance = np.diagonal(cov)
+    if not (np.isfinite(variance).all() and (variance > 0).all()):
+        raise SingularError(_weakest_column(scaled, weights, event, non_event))
+    coef = transform @ coef
+    cov = transform @ cov @ transform.T
     se = np.sqrt(np.diagonal(cov))
     z = coef / se
     p_value = np.array([math.erfc(abs(value) / math.sqrt(2)) for value in z])
@@ -167,6 +215,53 @@ def dependent_column(design: npt.NDArray[np.float64]) -> int | None:
     return rows if rows < columns else None
 
 
+def _standardize(
+    design: npt.NDArray[np.float64],
+) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+    """Return centred, unit-variance columns and the matrix that maps their coefficients back.
+
+    With ``scaled, transform = _standardize(design)``, ``scaled @ b`` equals
+    ``design @ (transform @ b)``. Columns are centred only if `design` has a
+    non-zero constant column, the intercept, which absorbs the means.
+    """
+    columns = design.shape[1]
+    constant = design.min(axis=0) == design.max(axis=0)
+    intercepts = np.flatnonzero(constant & (design[0] != 0))
+    transform = np.eye(columns)
+    scaled = np.empty_like(design)
+    varying = np.flatnonzero(~constant)
+    if len(intercepts):
+        intercept = intercepts[0]
+        value = design[0, intercept]
+        mean = design[:, varying].mean(axis=0)
+        centred = design[:, varying] - mean
+        scale = np.sqrt((centred**2).mean(axis=0))
+        scaled[:, varying] = centred / scale
+        transform[intercept, varying] = -mean / (scale * value)
+    else:
+        intercept = None
+        centred = design[:, varying]
+        scale = np.sqrt((centred**2).mean(axis=0))
+        scaled[:, varying] = centred / scale
+    transform[varying, varying] = 1 / scale
+    for column in np.flatnonzero(constant):
+        value = design[0, column]
+        divisor = value if value != 0 else 1.0
+        scaled[:, column] = design[:, column] / divisor
+        transform[column, column] = 1 / divisor
+    return scaled, transform
+
+
+def _weakest_column(scaled, weights, event, non_event) -> int:
+    """Return the column of the weighted design that the others explain best."""
+    weighted = scaled * np.sqrt(weights * event * non_event)[:, None]
+    diagonal = np.abs(np.diagonal(np.linalg.qr(weighted, mode="r")))
+    norms = np.linalg.norm(weighted[:, : len(diagonal)], axis=0)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        independent = np.where(norms > 0, diagonal / norms, 0.0)
+    return int(np.argmin(independent))
+
+
 def _evaluate(
     eta: npt.NDArray[np.float64], target: npt.NDArray[np.float64], weights: npt.NDArray[np.float64]
 ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], float]:
@@ -179,8 +274,8 @@ def _evaluate(
     above = eta >= 0
     event = np.where(above, likelier, rarer)
     non_event = np.where(above, rarer, likelier)
-    # ln(1 + exp(eta)) = max(eta, 0) + ln(1 + exp(-|eta|))
-    log_likelihood = float(weights @ (target * eta - np.maximum(eta, 0) - np.log1p(tail)))
+    # ln(1 + exp(eta)) = max(eta, 0) + ln(1 + exp(-|eta|)); np.sum adds pairwise.
+    log_likelihood = float(np.sum(weights * (target * eta - np.maximum(eta, 0) - np.log1p(tail))))
     return event, non_event, log_likelihood
 
 

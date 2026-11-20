@@ -1,5 +1,6 @@
 """Variable selection for scorecards built on WOE-encoded variables."""
 
+import warnings
 from numbers import Real
 from typing import Literal
 
@@ -8,9 +9,14 @@ import numpy.typing as npt
 import pandas as pd
 
 from . import _logit
+from ._logit import SeparationError
 from ._validation import as_series
 
-__all__ = ["correlation_filter", "logistic_regression", "stepwise", "vif"]
+__all__ = ["SeparationError", "correlation_filter", "logistic_regression", "stepwise", "vif"]
+
+# Squared length of a column's component in the null space of X above which the column
+# counts as a linear combination of the others; rounding leaves components near 1e-15.
+_NULL_SPACE = 1e-10
 
 
 def correlation_filter(
@@ -49,9 +55,9 @@ def correlation_filter(
     Raises
     ------
     ValueError
-        If `X` is not two-dimensional, has no columns, repeats a column
-        label, or has a column that is not numeric, contains missing or
-        infinite values or is constant; if `threshold` is not between 0 and
+        If `X` is not two-dimensional, has fewer than 2 rows or no columns,
+        repeats a column label, or has a column that is not numeric, contains
+        missing or infinite values or is constant; if `threshold` is not between 0 and
         1; or if `priority` does not give one number for every column.
 
     See Also
@@ -123,9 +129,9 @@ def vif(X: pd.DataFrame | npt.ArrayLike) -> pd.Series:
     Raises
     ------
     ValueError
-        If `X` is not two-dimensional, has no columns, repeats a column
-        label, or has a column that is not numeric, contains missing or
-        infinite values or is constant.
+        If `X` is not two-dimensional, has fewer than 2 rows or no columns,
+        repeats a column label, or has a column that is not numeric, contains
+        missing or infinite values or is constant.
 
     See Also
     --------
@@ -172,15 +178,14 @@ def vif(X: pd.DataFrame | npt.ArrayLike) -> pd.Series:
     frame, values = _as_frame(X)
     _check_not_constant(frame, values, "its VIF is undefined")
     centered = values - values.mean(axis=0)
-    result = np.empty(centered.shape[1])
-    for column in range(centered.shape[1]):
-        explained = centered[:, column]
-        others = np.delete(centered, column, axis=1)
-        residual = explained - others @ np.linalg.lstsq(others, explained, rcond=None)[0]
-        total, unexplained = explained @ explained, residual @ residual
-        # A residual at rounding level means the column is an exact linear combination.
-        exact = unexplained <= (len(explained) * np.finfo(float).eps) ** 2 * total
-        result[column] = np.inf if exact else total / unexplained
+    # With unit-length centred columns Z, Z'Z is the correlation matrix and its inverse,
+    # whose diagonal holds the VIFs, is V diag(1 / s^2) V' from the SVD Z = U diag(s) V'.
+    standardized = centered / np.linalg.norm(centered, axis=0)
+    singular, vt = np.linalg.svd(standardized, full_matrices=False)[1:]
+    rank = int((singular > max(standardized.shape) * np.finfo(float).eps * singular[0]).sum())
+    result = ((vt[:rank] / singular[:rank, None]) ** 2).sum(axis=0)
+    # A column with a component outside the row space of Z is a combination of the others.
+    result[1 - (vt[:rank] ** 2).sum(axis=0) > _NULL_SPACE] = np.inf
     return pd.Series(result, index=frame.columns, name="vif")
 
 
@@ -206,18 +211,24 @@ def logistic_regression(X: pd.DataFrame | npt.ArrayLike, target: npt.ArrayLike) 
     pandas.DataFrame
         One row for the intercept, labelled ``intercept``, and one for each
         column of `X`, with the coefficient, its standard error, the Wald z
-        statistic and its two-sided p-value.
+        statistic and its two-sided p-value. The index has the name of the
+        columns of `X`. ``attrs["log_likelihood"]`` holds the maximized
+        log-likelihood and ``attrs["converged"]`` whether the fit converged.
 
     Raises
     ------
+    SeparationError
+        If the columns separate the classes, so that the estimates do not
+        exist.
     ValueError
-        If `X` is not two-dimensional, has no columns, repeats a column
-        label, has a column labelled ``intercept``, or has a column that is
-        not numeric, contains missing or infinite values, is constant or is a
-        linear combination of the columns before it; if `target` is not
-        one-dimensional, its index or length does not match `X`, or it does
-        not contain both 0 and 1 or has missing or other labels; or if the
-        columns separate the classes, so that the estimates do not exist.
+        If `X` is not two-dimensional, has fewer than 2 rows or no columns,
+        repeats a column label, has a column labelled ``intercept``, or has a
+        column that is not numeric, contains missing or infinite values, is
+        constant or is a linear combination of the intercept and the columns
+        before it, or so close to one that its coefficient cannot be
+        estimated; or if `target` is not one-dimensional, its index or length
+        does not match `X`, or it does not contain both 0 and 1 or has
+        missing or other labels.
 
     Warns
     -----
@@ -239,10 +250,11 @@ def logistic_regression(X: pd.DataFrame | npt.ArrayLike, target: npt.ArrayLike) 
        \ln \frac{P(y = 1)}{P(y = 0)} = \beta_0 + \sum_j \beta_j x_j.
 
     The estimates are found by Newton-Raphson, also known as iteratively
-    reweighted least squares. The standard errors are the square roots of
-    the diagonal of the inverse Fisher information, :math:`z = \hat\beta /
-    \mathrm{se}`, and the p-value is :math:`P(|Z| > |z|)` for a standard
-    normal :math:`Z`.
+    reweighted least squares, on centred and scaled columns, so that an
+    offset or the unit of a column does not affect their accuracy. The
+    standard errors are the square roots of the diagonal of the inverse
+    Fisher information, :math:`z = \hat\beta / \mathrm{se}`, and the p-value
+    is :math:`P(|Z| > |z|)` for a standard normal :math:`Z`.
 
     With WOE-encoded variables, the coefficients are expected to be
     positive: see `stepwise`.
@@ -269,11 +281,15 @@ def logistic_regression(X: pd.DataFrame | npt.ArrayLike, target: npt.ArrayLike) 
     """
     frame, values, labels = _model_inputs(X, target)
     _check_independent(frame, values)
-    result = _logit.fit(_with_intercept(values), labels)
-    return pd.DataFrame(
+    result = _fit(_with_intercept(values), labels, frame.columns)
+    if not result.converged:
+        _warn_not_converged(result, stacklevel=2)
+    table = pd.DataFrame(
         {"coef": result.coef, "se": result.se, "z": result.z, "p_value": result.p_value},
-        index=pd.Index(["intercept"]).append(frame.columns),
+        index=pd.Index(["intercept"], name=frame.columns.name).append(frame.columns),
     )
+    table.attrs = {"log_likelihood": result.log_likelihood, "converged": result.converged}
+    return table
 
 
 def stepwise(
@@ -306,10 +322,11 @@ def stepwise(
         are matched by position.
     p_enter : float, default 0.05
         A variable enters only if its p-value in the extended model is below
-        this level, which is between 0 and 1.
+        this level, which is greater than 0 and at most 1.
     p_remove : float, default 0.10
         A variable is removed if its p-value is above this level, which is
-        between 0 and 1 and, in both directions, not below `p_enter`.
+        greater than 0 and at most 1 and, in both directions, not below
+        `p_enter`.
     direction : {"both", "forward", "backward"}, default "both"
         Whether variables are added and removed, only added, or only removed.
     positive : bool, default True
@@ -326,13 +343,21 @@ def stepwise(
 
     Raises
     ------
+    SeparationError
+        If `direction` is ``"backward"`` and the model with every column
+        separates the classes.
     ValueError
         If `X` or `target` is invalid as described for
-        `logistic_regression`, `p_enter` or `p_remove` is not between 0 and
-        1, `p_enter` exceeds `p_remove` when `direction` is ``"both"``, or
-        `direction` is not one of the three options. Backward elimination
-        also raises the errors of `logistic_regression` for the model with
-        every column.
+        `logistic_regression`, in every direction; if `p_enter` or
+        `p_remove` is not greater than 0 and at most 1, or `p_enter` exceeds
+        `p_remove` when `direction` is ``"both"``; or if `direction` is not
+        one of the three options or `positive` is not a boolean.
+
+    Warns
+    -----
+    RuntimeWarning
+        If the model of the selected variables does not converge for a
+        reason other than separation.
 
     See Also
     --------
@@ -344,11 +369,11 @@ def stepwise(
     The p-values are those of the Wald tests reported by
     `logistic_regression`. Each candidate is tested in the model made of
     the selected variables and the candidate, so every step refits one
-    model per candidate. A candidate that is a linear combination of the
-    selected variables, or that would separate the classes, does not enter.
-    In both directions, a variable cannot enter if that would recreate a set
-    of variables that was selected before, which guarantees that the
-    selection stops.
+    model per candidate. A candidate does not enter if that model would
+    separate the classes, does not converge or is numerically singular. In
+    both directions, a variable cannot enter if that would recreate a set of
+    variables that was selected before, which guarantees that the selection
+    stops.
 
     kivi defines the WOE of a group as the log of its share of events over
     its share of non-events, so a higher WOE means a higher event rate. In a
@@ -389,18 +414,20 @@ def stepwise(
         raise ValueError(
             f"p_enter must not exceed p_remove, got p_enter={p_enter!r} and p_remove={p_remove!r}"
         )
+    if not isinstance(positive, (bool, np.bool_)):
+        raise ValueError(f"positive must be True or False, got {positive!r}")
     frame, values, labels = _model_inputs(X, target)
+    # Every subset of independent columns is independent, so candidate models have full rank.
+    _check_independent(frame, values)
     design = _with_intercept(values)
-    if direction == "backward":
-        _check_independent(frame, values)
-        selected = list(range(values.shape[1]))
-    else:
-        selected = []
+    selected = list(range(values.shape[1])) if direction == "backward" else []
     visited = {frozenset(selected)}
     fitted = None
     while True:
         if direction != "forward":
-            fitted = _remove(design, labels, selected, visited, p_remove, positive, fitted)
+            fitted = _remove(
+                design, labels, frame.columns, selected, visited, p_remove, positive, fitted
+            )
         if direction == "backward":
             break
         entering = _enter(design, labels, selected, visited, p_enter, positive, fitted)
@@ -412,11 +439,17 @@ def stepwise(
     return frame.columns[np.sort(np.array(selected, dtype=np.intp))]
 
 
-def _remove(design, labels, selected, visited, p_remove, positive, fitted):
-    """Remove failing variables from `selected` in place and return the fit of the rest."""
-    if fitted is None:
-        fitted = _logit.fit(design[:, _model_columns(selected)], labels)
+def _remove(design, labels, columns, selected, visited, p_remove, positive, fitted):
+    """Remove failing variables from `selected` in place and return the fit of the rest.
+
+    `fitted` is the converged fit of `selected` when the last step added a variable.
+    """
+    start = None
     while True:
+        if fitted is None:
+            fitted = _fit(design[:, _model_columns(selected)], labels, columns[selected], start)
+            if not fitted.converged:
+                _warn_not_converged(fitted, stacklevel=3)
         coef, z, p_value = fitted.coef[1:], fitted.z[1:], fitted.p_value[1:]
         failing = p_value > p_remove
         if positive:
@@ -425,10 +458,12 @@ def _remove(design, labels, selected, visited, p_remove, positive, fitted):
             return fitted
         # The signed z puts negative coefficients first; |z| orders by p-value without underflow.
         worst = int(np.argmin(np.where(failing, z if positive else np.abs(z), np.inf)))
+        # Start the smaller model from the same mean linear predictor.
+        start = np.delete(fitted.coef, worst + 1)
+        start[0] += fitted.coef[worst + 1] * design[:, selected[worst] + 1].mean()
         del selected[worst]
         visited.add(frozenset(selected))
-        start = np.delete(fitted.coef, worst + 1)
-        fitted = _logit.fit(design[:, _model_columns(selected)], labels, start=start)
+        fitted = None
 
 
 def _enter(design, labels, selected, visited, p_enter, positive, fitted):
@@ -438,18 +473,47 @@ def _enter(design, labels, selected, visited, p_enter, positive, fitted):
     for candidate in range(design.shape[1] - 1):
         if candidate in selected or frozenset([*selected, candidate]) in visited:
             continue
-        columns = design[:, _model_columns([*selected, candidate])]
-        if _logit.dependent_column(columns) is not None:
-            continue
         try:
-            trial = _logit.fit(columns, labels, start=start)
-        except _logit.SeparationError:
+            trial = _warm_fit(design[:, _model_columns([*selected, candidate])], labels, start)
+        except (_logit.SeparationError, _logit.SingularError):
             continue
-        if trial.p_value[-1] >= p_enter or (positive and (trial.coef[1:] <= 0).any()):
+        if not trial.converged or trial.p_value[-1] >= p_enter:
+            continue
+        if positive and (trial.coef[1:] <= 0).any():
             continue
         if abs(trial.z[-1]) > best_z:
             best, best_z = (candidate, trial), abs(trial.z[-1])
     return best
+
+
+def _warm_fit(design, labels, start) -> _logit.LogitFit:
+    """Fit from `start`, and from zero if the information becomes singular on the way."""
+    try:
+        return _logit.fit(design, labels, start=start)
+    except _logit.SingularError:
+        if start is None:
+            raise
+        return _logit.fit(design, labels)
+
+
+def _fit(design, labels, columns: pd.Index, start=None) -> _logit.LogitFit:
+    """Fit a model on the intercept and `columns`, naming the column of a singular fit."""
+    try:
+        return _warm_fit(design, labels, start)
+    except _logit.SingularError as error:
+        label = "intercept" if error.column == 0 else columns[error.column - 1]
+        raise ValueError(
+            f"X column {label!r} is so close to a linear combination of the intercept and "
+            "the other columns that its coefficient cannot be estimated"
+        ) from None
+
+
+def _warn_not_converged(fitted: _logit.LogitFit, stacklevel: int) -> None:
+    warnings.warn(
+        f"logistic regression did not converge after {fitted.n_iter} iterations",
+        RuntimeWarning,
+        stacklevel=stacklevel + 1,
+    )
 
 
 def _model_columns(selected: list[int]) -> list[int]:
@@ -462,7 +526,7 @@ def _with_intercept(values: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
 
 def _check_level(level: float, name: str) -> None:
     if isinstance(level, bool) or not isinstance(level, Real) or not 0 < level <= 1:
-        raise ValueError(f"{name} must be between 0 and 1, got {level!r}")
+        raise ValueError(f"{name} must be greater than 0 and at most 1, got {level!r}")
 
 
 def _as_frame(X: pd.DataFrame | npt.ArrayLike) -> tuple[pd.DataFrame, npt.NDArray[np.float64]]:
@@ -473,6 +537,8 @@ def _as_frame(X: pd.DataFrame | npt.ArrayLike) -> tuple[pd.DataFrame, npt.NDArra
         if np.ndim(X) != 2:
             raise ValueError(f"X must be two-dimensional, got {np.ndim(X)} dimensions")
         frame = pd.DataFrame(X)
+    if len(frame) < 2:
+        raise ValueError(f"X must have at least 2 rows, got {len(frame)}")
     if not frame.shape[1]:
         raise ValueError("X must have at least one column")
     if frame.columns.has_duplicates:

@@ -9,6 +9,7 @@ Variable selection
    vif
    logistic_regression
    stepwise
+   SeparationError
 
 .. autofunction:: correlation_filter
 
@@ -17,3 +18,5 @@ Variable selection
 .. autofunction:: logistic_regression
 
 .. autofunction:: stepwise
+
+.. autoexception:: SeparationError
