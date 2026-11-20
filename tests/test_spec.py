@@ -192,6 +192,20 @@ def test_minus_infinity_is_unseen_rather_than_missing():
     np.testing.assert_allclose(lenient.woe_transform(new)["x"], [0.5, 0.0])
 
 
+def test_minus_infinity_is_reported_without_a_missing_group():
+    observed = FRAME["x"].notna()
+    spec = fit_spec(FRAME.loc[observed, ["x"]], TARGET[observed], bins=2, special={"x": [-1]})
+    with pytest.raises(ValueError, match="column 'x': 1 value\\(s\\) fall outside the edges"):
+        spec.woe_transform(pd.DataFrame({"x": [-INF, 1.0]}))
+
+
+def test_columns_accept_a_numpy_array():
+    spec = _fit(columns=np.array(["c", "x"]))
+    assert spec.columns.tolist() == ["c", "x"]
+    assert all(type(name) is str for name in spec.kinds)
+    assert repr(spec.select(np.array(["x"]))) == "BinningSpec(columns=['x'])"
+
+
 def test_methods_match_the_binning_functions(bank, bank_spec):
     development, _ = bank
     target = development["target"]
@@ -862,6 +876,7 @@ def _fields(**changes):
             "intervals, got Timestamp",
         ),
         ({"smoothing": -1.0}, "smoothing must be finite and positive, got -1.0"),
+        ({"kivi_version": 5}, "kivi_version must be a string, got 5"),
     ],
 )
 def test_constructor_validates_its_fields(changes, message):

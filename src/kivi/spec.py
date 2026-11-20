@@ -344,23 +344,25 @@ class BinningSpec:
         encoded = {}
         for name, kind in self.kinds.items():
             unseen = self.unseen[name]
+            # Values that are not missing but fall into no group, which only -inf can do.
+            outside = np.zeros(len(frame), dtype=bool)
+            if kind == "numeric":
+                outside = groups[name].isna().to_numpy(dtype=bool) & frame[name].notna().to_numpy(
+                    dtype=bool
+                )
+            if outside.any() and unseen == "raise":
+                example = frame[name][outside].iloc[0]
+                raise ValueError(
+                    f"column {name!r}: {int(outside.sum())} value(s) fall outside the edges, "
+                    f"such as {_shown(example)}; give the column an unseen WOE"
+                )
             try:
                 values = woe.woe_transform(groups[name], self.tables[name]["woe"], unseen=unseen)
             except ValueError as error:
                 raise ValueError(f"column {name!r}: {error}") from error
             values = values.to_numpy(dtype=float, copy=True)
-            if kind == "numeric":
-                outside = groups[name].isna().to_numpy(dtype=bool) & frame[name].notna().to_numpy(
-                    dtype=bool
-                )
-                if outside.any():
-                    if unseen == "raise":
-                        example = frame[name][outside].iloc[0]
-                        raise ValueError(
-                            f"column {name!r}: {int(outside.sum())} value(s) fall outside the "
-                            f"edges, such as {_shown(example)}; give the column an unseen WOE"
-                        )
-                    values[outside] = unseen
+            if outside.any():
+                values[outside] = unseen
             encoded[name] = values
         return pd.DataFrame(encoded, index=frame.index)
 
@@ -890,7 +892,7 @@ def _fitted_columns(frame: pd.DataFrame, columns: Sequence[str] | None) -> list[
 
 
 def _column_list(columns: Sequence[str], argument: str) -> list[str]:
-    if isinstance(columns, str) or not isinstance(columns, (Sequence, pd.Index)):
+    if isinstance(columns, str) or not isinstance(columns, (Sequence, pd.Index, np.ndarray)):
         raise ValueError(
             f"{argument} must be a sequence of column names, got {type(columns).__name__}"
         )
@@ -903,7 +905,7 @@ def _column_list(columns: Sequence[str], argument: str) -> list[str]:
     repeated = sorted({name for name in names if names.count(name) > 1})
     if repeated:
         raise ValueError(f"{argument} must not repeat a column, got {_shown_list(repeated)}")
-    return names
+    return [str(name) for name in names]
 
 
 def _target_labels(target: npt.ArrayLike, frame: pd.DataFrame, names: list[str]) -> np.ndarray:
