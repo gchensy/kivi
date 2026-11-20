@@ -188,36 +188,50 @@ def test_balance_woe_rises_under_every_method(reference):
 
 
 @pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, monotonic_edges])
-@pytest.mark.parametrize("values,target", [
-    (pd.Series([], dtype=float), pd.Series([], dtype=int)),
-    (pd.Series(["a", "b"]), pd.Series([0, 1])),
-    (pd.Series([1.0, np.inf]), pd.Series([0, 1])),
-    (pd.Series([1, 2]), pd.Series([0, 2])),
-    (pd.Series([1, 2]), pd.Series([0, None])),
-    (pd.Series([1, 2]), pd.Series([1, 1])),
-    (pd.Series([1, 2, None]), pd.Series([0, 0, 1])),
-    (pd.Series([1, 2]), pd.Series([0, 1], index=[1, 0])),
+def test_array_like_inputs_are_matched_by_position(fit):
+    expected = fit(TREE_VALUES, TREE_TARGET)
+    np.testing.assert_equal(fit(TREE_VALUES.tolist(), TREE_TARGET.to_numpy()), expected)
+    np.testing.assert_equal(fit(TREE_VALUES, TREE_TARGET.tolist()), expected)
+    shifted = TREE_TARGET.set_axis(TREE_TARGET.index + 100)
+    np.testing.assert_equal(fit(TREE_VALUES.to_numpy(), shifted), expected)
+    with_missing = [*TREE_VALUES, None]
+    np.testing.assert_equal(fit(with_missing, [*TREE_TARGET, 1]), expected)
+
+
+@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, monotonic_edges])
+@pytest.mark.parametrize("values,target,message", [
+    (pd.Series([], dtype=float), pd.Series([], dtype=int), "finite observations"),
+    (pd.Series(["a", "b"]), pd.Series([0, 1]), "Unable to parse string"),
+    (pd.Series([1.0, np.inf]), pd.Series([0, 1]), "finite observations"),
+    (pd.Series([1, 2]), pd.Series([0, 2]), "only 0 and 1"),
+    (pd.Series([1, 2]), pd.Series([0, None]), "only 0 and 1"),
+    (pd.Series([1, 2]), pd.Series([1, 1]), "both 0 and 1"),
+    (pd.Series([1, 2, None]), pd.Series([0, 0, 1]), "both 0 and 1 where values are observed"),
+    (pd.Series([1, 2]), pd.Series([0, 1], index=[1, 0]), "identical indices"),
+    ([1, 2, 3], [0, 1], "same length, got 3 and 2"),
+    (np.ones((2, 2)), [0, 1], "values must be one-dimensional, got 2 dimensions"),
+    ([1, 2], np.ones((2, 2)), "target must be one-dimensional, got 2 dimensions"),
 ])
-def test_invalid_supervised_inputs(fit, values, target):
-    with pytest.raises(ValueError):
+def test_invalid_supervised_inputs(fit, values, target, message):
+    with pytest.raises(ValueError, match=message):
         fit(values, target)
 
 
-@pytest.mark.parametrize("fit,options", [
-    (chimerge_edges, {"max_bins": 0}),
-    (chimerge_edges, {"max_bins": True}),
-    (chimerge_edges, {"initial_bins": 2.5}),
-    (chimerge_edges, {"alpha": 0}),
-    (chimerge_edges, {"alpha": 1.5}),
-    (tree_edges, {"max_bins": 0}),
-    (tree_edges, {"min_bin_share": -0.1}),
-    (tree_edges, {"min_bin_share": 0.6}),
-    (tree_edges, {"criterion": "log_loss"}),
-    (monotonic_edges, {"max_bins": 0}),
-    (monotonic_edges, {"initial_bins": 0}),
-    (monotonic_edges, {"direction": "up"}),
-    (monotonic_edges, {"smoothing": 0}),
+@pytest.mark.parametrize("fit,options,message", [
+    (chimerge_edges, {"max_bins": 0}, "max_bins must be a positive integer, got 0"),
+    (chimerge_edges, {"max_bins": True}, "max_bins must be a positive integer, got True"),
+    (chimerge_edges, {"initial_bins": 2.5}, "initial_bins must be a positive integer, got 2.5"),
+    (chimerge_edges, {"alpha": 0}, "alpha must be None or between 0 and 1, got 0"),
+    (chimerge_edges, {"alpha": 1.5}, "alpha must be None or between 0 and 1, got 1.5"),
+    (tree_edges, {"max_bins": 0}, "max_bins must be a positive integer, got 0"),
+    (tree_edges, {"min_bin_share": -0.1}, "min_bin_share must be between 0 and 0.5, got -0.1"),
+    (tree_edges, {"min_bin_share": 0.6}, "min_bin_share must be between 0 and 0.5, got 0.6"),
+    (tree_edges, {"criterion": "log_loss"}, "'entropy' or 'gini', got 'log_loss'"),
+    (monotonic_edges, {"max_bins": 0}, "max_bins must be a positive integer, got 0"),
+    (monotonic_edges, {"initial_bins": 0}, "initial_bins must be a positive integer, got 0"),
+    (monotonic_edges, {"direction": "up"}, "'increasing' or 'decreasing', got 'up'"),
+    (monotonic_edges, {"smoothing": 0}, "smoothing must be finite and positive, got 0"),
 ])
-def test_invalid_supervised_options(fit, options):
-    with pytest.raises(ValueError):
+def test_invalid_supervised_options(fit, options, message):
+    with pytest.raises(ValueError, match=message):
         fit(TREE_VALUES, TREE_TARGET, **options)

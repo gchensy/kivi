@@ -1,7 +1,7 @@
 Binning
 =======
 
-``bin_edges`` fits numeric bin edges on a reference sample and returns them as an array for ``pandas.cut``. Keep the array: the same edges must be applied to every sample that is compared with the reference.
+``bin_edges`` fits numeric bin edges on a reference sample and returns them as an array for ``pandas.cut``. The reference can be a list, a NumPy array or a pandas Series. Keep the array: the same edges must be applied to every sample that is compared with the reference.
 
 In credit scoring, binning is the classing step of scorecard development: a continuous variable becomes a handful of groups whose WOE can be read, explained to the business and monitored over time. This page compares the ways to choose the edges.
 
@@ -109,7 +109,7 @@ Choosing the merges by hand works for a few variables. The supervised methods in
 Supervised binning
 ------------------
 
-Quantile and uniform edges ignore the target. The supervised methods use it to place edges between customers with different event rates, which is what the WOE of each bin measures. They take the values and a 0/1 target on the same index, omit missing values while fitting, and return edges in the same form as ``bin_edges``: increasing, with infinite outer edges, ready for ``pandas.cut``, ``woe_table`` and ``psi_table``. Each returns at most ``max_bins`` bins, 5 by default.
+Quantile and uniform edges ignore the target. The supervised methods use it to place edges between customers with different event rates, which is what the WOE of each bin measures. They take the values and a 0/1 target, as Series on the same index or as arrays and lists matched by position, omit missing values while fitting, and return edges in the same form as ``bin_edges``: increasing, with infinite outer edges, ready for ``pandas.cut``, ``woe_table`` and ``psi_table``. Each returns at most ``max_bins`` bins, 5 by default.
 
 .. list-table::
    :header-rows: 1
@@ -251,7 +251,7 @@ array([-inf, 0.75,  inf])
 >>> bin_edges(pd.Series([7, 7, 7]))
 array([-inf,  inf])
 
-The number of bins can therefore be smaller than requested. Check ``len(edges) - 1`` when the count matters.
+The number of bins can therefore be smaller than requested, and ``bin_edges`` then issues a ``UserWarning``. A single value that covers much of the reference, such as a code for "not applicable", often causes this. Group that value separately before fitting edges on the remaining values.
 
 Applying the edges
 ------------------
@@ -276,7 +276,7 @@ Missing values and categories
 
 Missing reference values are ignored when the edges are fitted, and ``pandas.cut`` leaves them missing. The metric functions then count them as a separate group.
 
-Pass categorical labels directly to the metric functions. A missing label is a separate group. Only observed groups appear, in first-observed order. For WOE the group and target indices must match exactly.
+Pass categorical labels directly to the metric functions. A missing label is a separate group. Only observed groups appear, in first-observed order. For WOE, group and target series must have identical indices; arrays and lists are matched by position.
 
 Invalid input
 -------------
@@ -285,11 +285,11 @@ Invalid input
 
 * ``bins`` is not a positive integer;
 * ``method`` is neither ``"quantile"`` nor ``"uniform"``;
-* the reference values are not numeric;
+* the reference values are not one-dimensional or not numeric;
 * the reference has no observations, or contains an infinite value.
 
 ``chimerge_edges``, ``tree_edges`` and ``monotonic_edges`` raise ``ValueError`` for the same problems with the values, for an option outside its range, and when:
 
-* ``values`` and ``target`` do not have identical indices;
+* ``values`` and ``target`` are Series without identical indices, or have different lengths;
 * ``target`` contains a label other than 0 and 1, or a missing label;
 * the observed values do not cover both classes.

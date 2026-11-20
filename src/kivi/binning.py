@@ -6,24 +6,33 @@ return increasing edges with infinite endpoints for ``pandas.cut``.
 """
 
 import math
+import warnings
 from numbers import Integral, Real
 from typing import Literal
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
 from ._counts import shares
+from ._validation import as_series
+
+__all__ = ["bin_edges", "chimerge_edges", "tree_edges", "monotonic_edges"]
 
 
 def bin_edges(
-    values: pd.Series, bins: int = 5, method: Literal["quantile", "uniform"] = "quantile"
-) -> np.ndarray:
+    values: npt.ArrayLike, bins: int = 5, method: Literal["quantile", "uniform"] = "quantile"
+) -> npt.NDArray[np.float64]:
     """Fit numeric bin edges on a reference sample.
+
+    The edges are fitted once and then applied with ``pandas.cut`` to the
+    reference and to every sample compared with it.
 
     Parameters
     ----------
-    values : pandas.Series
-        Numeric reference values. Missing values are omitted.
+    values : array_like
+        One-dimensional numeric reference values, such as a list, a NumPy
+        array or a pandas Series. Missing values are omitted.
     bins : int, default 5
         Requested number of bins. Tied quantiles can reduce this number.
     method : {"quantile", "uniform"}, default "quantile"
@@ -33,6 +42,37 @@ def bin_edges(
     -------
     numpy.ndarray
         Increasing edges with infinite endpoints, suitable for pandas.cut.
+
+    Raises
+    ------
+    ValueError
+        If `bins` is not a positive integer, `method` is not recognized,
+        `values` is not one-dimensional or not numeric, or the reference has
+        no observations or contains an infinite value.
+
+    Warns
+    -----
+    UserWarning
+        If tied edges leave fewer bins than requested, for example when a
+        single value accounts for a large share of the reference.
+
+    See Also
+    --------
+    pandas.cut : Assign values to the bins defined by the edges.
+    numpy.quantile : Compute the quantile edges.
+    kivi.woe.woe_table : Weight of evidence of the resulting groups.
+    kivi.evaluate.psi_table : Stability of the resulting groups.
+
+    Notes
+    -----
+    Quantile edges are the sample quantiles at equally spaced probabilities,
+    computed with the default linear interpolation of ``numpy.quantile``.
+    Uniform edges divide the range from the smallest to the largest value
+    into equal widths.
+
+    Repeated edges are merged, and the outer edges are replaced with
+    infinities, so every finite value falls into exactly one interval. The
+    intervals of ``pandas.cut`` are closed on the right.
 
     Examples
     --------
@@ -47,23 +87,30 @@ def bin_edges(
     """
     _check_count(bins, "bins")
     if method not in ("quantile", "uniform"):
-        raise ValueError("method must be 'quantile' or 'uniform'")
-    observed = _observed(values)
+        raise ValueError(f"method must be 'quantile' or 'uniform', got {method!r}")
+    observed = _observed(as_series(values, "values"))
     if method == "quantile":
         edges = np.quantile(observed, np.linspace(0, 1, bins + 1))
     else:
         edges = np.linspace(observed.min(), observed.max(), bins + 1)
-    return np.r_[-np.inf, np.unique(edges)[1:-1], np.inf]
+    edges = np.r_[-np.inf, np.unique(edges)[1:-1], np.inf]
+    if len(edges) - 1 < bins:
+        warnings.warn(
+            f"tied edges leave {len(edges) - 1} of the {bins} requested bins",
+            UserWarning,
+            stacklevel=2,
+        )
+    return edges
 
 
 def chimerge_edges(
-    values: pd.Series,
-    target: pd.Series,
+    values: npt.ArrayLike,
+    target: npt.ArrayLike,
     *,
     max_bins: int = 5,
     alpha: float | None = 0.05,
     initial_bins: int = 20,
-) -> np.ndarray:
+) -> npt.NDArray[np.float64]:
     """Fit edges by merging adjacent quantile bins with ChiMerge.
 
     The values are first cut into ``initial_bins`` quantile bins, or into one
@@ -75,10 +122,13 @@ def chimerge_edges(
 
     Parameters
     ----------
-    values : pandas.Series
-        Numeric values. Missing values and their labels are omitted.
-    target : pandas.Series
-        Binary labels on the same index, with 1 indicating the event.
+    values : array_like
+        One-dimensional numeric values, such as a list, a NumPy array or a
+        pandas Series. Missing values and their labels are omitted.
+    target : array_like
+        Binary labels, with 1 indicating the event. If `values` and `target`
+        are both pandas Series, they must have identical indices; otherwise
+        they are matched by position.
     max_bins : int, default 5
         Maximum number of bins.
     alpha : float or None, default 0.05
@@ -92,6 +142,15 @@ def chimerge_edges(
     -------
     numpy.ndarray
         Increasing edges with infinite endpoints, suitable for pandas.cut.
+
+    Raises
+    ------
+    ValueError
+        If `max_bins` or `initial_bins` is not a positive integer, `alpha` is
+        neither None nor between 0 and 1, `values` and `target` are not one-dimensional or their indices or
+        lengths do not match, `values` is not numeric or has no finite
+        observations, or `target` has labels other than 0 and 1 or lacks one
+        of them where `values` is observed.
 
     See Also
     --------
@@ -125,7 +184,7 @@ def chimerge_edges(
     _check_count(max_bins, "max_bins")
     _check_count(initial_bins, "initial_bins")
     if alpha is not None and not (isinstance(alpha, Real) and 0 < alpha < 1):
-        raise ValueError("alpha must be None or between 0 and 1")
+        raise ValueError(f"alpha must be None or between 0 and 1, got {alpha!r}")
     observed, labels = _labeled(values, target)
     interior, counts = _fine_bins(observed, labels, initial_bins)
     while len(counts) > 1:
@@ -139,13 +198,13 @@ def chimerge_edges(
 
 
 def tree_edges(
-    values: pd.Series,
-    target: pd.Series,
+    values: npt.ArrayLike,
+    target: npt.ArrayLike,
     *,
     max_bins: int = 5,
     min_bin_share: float = 0.05,
     criterion: Literal["entropy", "gini"] = "entropy",
-) -> np.ndarray:
+) -> npt.NDArray[np.float64]:
     """Fit edges with the splits of a decision tree on one variable.
 
     The tree grows best first: of all current bins, the one whose best split
@@ -155,10 +214,13 @@ def tree_edges(
 
     Parameters
     ----------
-    values : pandas.Series
-        Numeric values. Missing values and their labels are omitted.
-    target : pandas.Series
-        Binary labels on the same index, with 1 indicating the event.
+    values : array_like
+        One-dimensional numeric values, such as a list, a NumPy array or a
+        pandas Series. Missing values and their labels are omitted.
+    target : array_like
+        Binary labels, with 1 indicating the event. If `values` and `target`
+        are both pandas Series, they must have identical indices; otherwise
+        they are matched by position.
     max_bins : int, default 5
         Maximum number of bins, the leaves of the tree.
     min_bin_share : float, default 0.05
@@ -172,6 +234,15 @@ def tree_edges(
         Increasing edges with infinite endpoints, suitable for pandas.cut.
         Every interior edge is an observed value, the largest one in the bin
         to its left.
+
+    Raises
+    ------
+    ValueError
+        If `max_bins` is not a positive integer, `min_bin_share` is not
+        between 0 and 0.5, `criterion` is not recognized, `values` and `target` are not one-dimensional or their indices or
+        lengths do not match, `values` is not numeric or has no finite
+        observations, or `target` has labels other than 0 and 1 or lacks one
+        of them where `values` is observed.
 
     See Also
     --------
@@ -203,9 +274,9 @@ def tree_edges(
     _check_count(max_bins, "max_bins")
     if isinstance(min_bin_share, bool) or not isinstance(min_bin_share, Real) \
             or not 0 <= min_bin_share <= 0.5:
-        raise ValueError("min_bin_share must be between 0 and 0.5")
+        raise ValueError(f"min_bin_share must be between 0 and 0.5, got {min_bin_share!r}")
     if criterion not in ("entropy", "gini"):
-        raise ValueError("criterion must be 'entropy' or 'gini'")
+        raise ValueError(f"criterion must be 'entropy' or 'gini', got {criterion!r}")
     observed, labels = _labeled(values, target)
     unique, position = np.unique(observed, return_inverse=True)
     totals = np.cumsum(np.r_[0, np.bincount(position)])
@@ -245,30 +316,33 @@ def tree_edges(
 
 
 def monotonic_edges(
-    values: pd.Series,
-    target: pd.Series,
+    values: npt.ArrayLike,
+    target: npt.ArrayLike,
     *,
     max_bins: int | None = 5,
     direction: Literal["auto", "increasing", "decreasing"] = "auto",
     initial_bins: int = 20,
     smoothing: float = 0.5,
-) -> np.ndarray:
+) -> npt.NDArray[np.float64]:
     """Fit edges by merging adjacent quantile bins until the WOE is monotonic.
 
     The values are first cut into ``initial_bins`` quantile bins, or into one
     bin per distinct value if there are no more distinct values than that.
-    While two adjacent bins break the trend, the first such pair is merged and the WOE
-    is recomputed (pool adjacent violators), so the WOE of the final bins is
-    strictly increasing or strictly decreasing. While more than ``max_bins``
+    While two adjacent bins break the trend, the first such pair is merged and
+    the WOE is recomputed (pool adjacent violators), so the WOE of the final
+    bins is strictly increasing or strictly decreasing. While more than ``max_bins``
     bins remain, the adjacent pair with the smallest chi-square statistic is
     merged as in :func:`chimerge_edges`, and the trend is checked again.
 
     Parameters
     ----------
-    values : pandas.Series
-        Numeric values. Missing values and their labels are omitted.
-    target : pandas.Series
-        Binary labels on the same index, with 1 indicating the event.
+    values : array_like
+        One-dimensional numeric values, such as a list, a NumPy array or a
+        pandas Series. Missing values and their labels are omitted.
+    target : array_like
+        Binary labels, with 1 indicating the event. If `values` and `target`
+        are both pandas Series, they must have identical indices; otherwise
+        they are matched by position.
     max_bins : int or None, default 5
         Maximum number of bins. Pass None to stop as soon as the WOE is
         monotonic.
@@ -287,6 +361,16 @@ def monotonic_edges(
     -------
     numpy.ndarray
         Increasing edges with infinite endpoints, suitable for pandas.cut.
+
+    Raises
+    ------
+    ValueError
+        If `max_bins` is neither None nor a positive integer, `initial_bins`
+        is not a positive integer, `direction` is not recognized, `smoothing`
+        is not finite and positive, `values` and `target` are not one-dimensional or their indices or
+        lengths do not match, `values` is not numeric or has no finite
+        observations, or `target` has labels other than 0 and 1 or lacks one
+        of them where `values` is observed.
 
     See Also
     --------
@@ -312,7 +396,9 @@ def monotonic_edges(
         _check_count(max_bins, "max_bins")
     _check_count(initial_bins, "initial_bins")
     if direction not in ("auto", "increasing", "decreasing"):
-        raise ValueError("direction must be 'auto', 'increasing' or 'decreasing'")
+        raise ValueError(
+            f"direction must be 'auto', 'increasing' or 'decreasing', got {direction!r}"
+        )
     observed, labels = _labeled(values, target)
     fine = _fine_bins(observed, labels, initial_bins)
     _woe(fine[1], smoothing)
@@ -328,7 +414,7 @@ def monotonic_edges(
 
 def _check_count(value, name: str) -> None:
     if isinstance(value, bool) or not isinstance(value, Integral) or value < 1:
-        raise ValueError(f"{name} must be a positive integer")
+        raise ValueError(f"{name} must be a positive integer, got {value!r}")
 
 
 def _observed(values: pd.Series) -> np.ndarray:
@@ -338,13 +424,20 @@ def _observed(values: pd.Series) -> np.ndarray:
     return observed
 
 
-def _labeled(values: pd.Series, target: pd.Series) -> tuple[np.ndarray, np.ndarray]:
-    if not values.index.equals(target.index):
-        raise ValueError("values and target must have identical indices")
+def _labeled(values: npt.ArrayLike, target: npt.ArrayLike) -> tuple[np.ndarray, np.ndarray]:
+    """Observed values and their 0/1 labels, matched by index or position like ``woe_table``."""
+    if isinstance(values, pd.Series) and isinstance(target, pd.Series):
+        if not values.index.equals(target.index):
+            raise ValueError("values and target must have identical indices")
+    values, target = as_series(values, "values"), as_series(target, "target")
+    if len(values) != len(target):
+        raise ValueError(
+            f"values and target must have the same length, got {len(values)} and {len(target)}"
+        )
     if not target.isin([0, 1]).all():
         raise ValueError("target must contain only 0 and 1 and no missing labels")
     observed = _observed(values)
-    labels = target[values.notna()].to_numpy(dtype=np.intp)
+    labels = target.to_numpy()[values.notna().to_numpy()].astype(np.intp)
     if labels.min() == labels.max():
         raise ValueError("target must contain both 0 and 1 where values are observed")
     return observed, labels

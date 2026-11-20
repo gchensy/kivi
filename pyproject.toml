@@ -41,3 +41,4 @@ include = ["/src", "/tests", "/docs", "/README.md", "/README.zh-CN.md", "/LICENS
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+filterwarnings = ["error"]

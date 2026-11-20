@@ -8,6 +8,7 @@ that the same images serve the English and Chinese editions.
 ``python docs/_plotting.py`` refreshes the README images in docs/_static.
 """
 
+import warnings
 from pathlib import Path
 from statistics import NormalDist
 
@@ -241,7 +242,9 @@ def tree_splits(values: pd.Series, target: pd.Series, max_bins: int = 5, min_bin
 
 def monotonic_pooling(values: pd.Series, target: pd.Series, max_bins: int = 5, initial_bins: int = 20):
     """Fine-bin WOE with the pooled monotonic WOE (left) and the final bins (right)."""
-    fine = _grouped_woe(values, target, bin_edges(values, bins=initial_bins))
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", UserWarning)  # monotonic_edges also drops tied quantiles
+        fine = _grouped_woe(values, target, bin_edges(values, bins=initial_bins))
     pooled_edges = monotonic_edges(values, target, max_bins=None, initial_bins=initial_bins)
     pooled = _grouped_woe(values, target, pooled_edges)
     fig, (left, right) = _method_axes()
@@ -414,8 +417,11 @@ def screen_iv(reference: pd.DataFrame, bins: int = 5) -> pd.Series:
     iv = {}
     for column in reference.columns.drop("target"):
         values = reference[column]
-        groups = pd.cut(values, bin_edges(values, bins=bins)) if pd.api.types.is_numeric_dtype(values) else values
-        iv[column] = woe_table(groups, reference["target"])["iv"].sum()
+        if pd.api.types.is_numeric_dtype(values):
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", UserWarning)  # tied columns, listed in the guide
+                values = pd.cut(values, bin_edges(values, bins=bins))
+        iv[column] = woe_table(values, reference["target"])["iv"].sum()
     return pd.Series(iv)
 
 

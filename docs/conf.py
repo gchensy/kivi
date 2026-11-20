@@ -36,6 +36,7 @@ extensions = [
     "matplotlib.sphinxext.plot_directive",
 ]
 numpydoc_show_class_members = False
+numpydoc_validation_checks = {"all"}
 doctest_default_flags = (
     doctest.ELLIPSIS
     | doctest.IGNORE_EXCEPTION_DETAIL
