@@ -67,12 +67,33 @@ def test_incomplete_beta_matches_exact_binomial_tails(n, p):
         assert betainc(k, n - k + 1, float(p)) == pytest.approx(float(exact), rel=1e-11, abs=1e-300)
 
 
-def test_incomplete_beta_for_large_grades():
-    # The posterior of 5,000 defaults among a million is close to normal around its mean.
-    mean = 5000.5 / 1_000_001
-    sd = math.sqrt(mean * (1 - mean) / 1_000_002)
-    value = betainc(5000.5, 995000.5, mean + sd)
-    assert value == pytest.approx(0.5 * math.erfc(-1 / math.sqrt(2)), abs=0.003)
+# Exact binomial tails summed with mpmath at 40 digits, and the Jeffreys value from
+# numerical integration of the Beta(d + 1/2, N - d + 1/2) density at the same precision.
+@pytest.mark.parametrize(
+    "test,event,total,expected",
+    [
+        (binomial_test, 50_300, 10**7, 0.089769730480718044),
+        (binomial_test, 5_007_000, 10**9, 0.00085205602053193747),
+        (jeffreys_test, 50_300, 10**7, 0.089407659340101566),
+    ],
+)
+def test_large_grades_match_high_precision_values(test, event, total, expected):
+    assert test(event, total, 0.005) == pytest.approx(expected, rel=1e-11)
+
+
+def test_incomplete_beta_for_one_large_parameter():
+    # A grade of a million without events: I_p(1/2, N + 1/2) tends to erf(sqrt(N p)).
+    total, p = 10**6, 2e-6
+    assert jeffreys_test(0, total, p) == pytest.approx(math.erf(math.sqrt(total * p)), rel=1e-5)
+
+
+def test_chi2_tail_at_infinity_and_missing_values():
+    assert chi2_sf(math.inf, 3) == 0.0
+    with pytest.raises(ValueError, match="must not be NaN"):
+        chi2_sf(math.nan, 3)
+    # A grade with a vanishing PD gives an infinite statistic and a p-value of zero.
+    statistic, pvalue = hosmer_lemeshow([1, 1, 1], [10] * 3, [1e-320, 0.5, 0.5], ddof=0)
+    assert statistic == math.inf and pvalue == 0.0
 
 
 def test_prior_correction_matches_hand_calculation():
@@ -136,12 +157,12 @@ def test_calibration_table_counts_and_rates():
     table = calibration_table(grades, target, prob)
     assert table.index.name == "bin"
     assert table.index.tolist() == ["B", "A", "C"]
-    assert table.columns.tolist() == ["count", "event", "event_rate", "mean_prob"]
-    assert table["count"].tolist() == [3, 2, 1]
+    assert table.columns.tolist() == ["total", "event", "event_rate", "mean_prob"]
+    assert table["total"].tolist() == [3, 2, 1]
     assert table["event"].tolist() == [2, 0, 0]
     np.testing.assert_allclose(table["event_rate"], [2 / 3, 0, 0])
     np.testing.assert_allclose(table["mean_prob"], [0.4, 0.2, 0.05])
-    assert table["count"].dtype == np.int64 and table["event"].dtype == np.int64
+    assert table["total"].dtype == np.int64 and table["event"].dtype == np.int64
 
 
 def test_calibration_table_follows_category_order_with_missing_last():
@@ -149,8 +170,17 @@ def test_calibration_table_follows_category_order_with_missing_last():
     table = calibration_table(grades, [0, 1, 1, 0], [0.1, 0.5, 0.9, 0.2])
     assert table.index[:2].tolist() == ["high", "low"]
     assert pd.isna(table.index[2])
-    assert table["count"].tolist() == [1, 2, 1]
+    assert table["total"].tolist() == [1, 2, 1]
     np.testing.assert_allclose(table["mean_prob"], [0.9, 0.15, 0.5])
+
+
+def test_calibration_table_puts_missing_labels_in_their_own_group():
+    grades = pd.Series(["B", None, "A", "B", None])
+    table = calibration_table(grades, [1, 0, 0, 1, 1], [0.4, 0.1, 0.2, 0.6, 0.3])
+    assert table.index[[0, 2]].tolist() == ["B", "A"] and pd.isna(table.index[1])
+    assert table["total"].tolist() == [2, 2, 1]
+    assert table["event"].tolist() == [2, 1, 0]
+    np.testing.assert_allclose(table["mean_prob"], [0.5, 0.2, 0.2])
 
 
 def test_master_scale_on_bank_data():
@@ -161,15 +191,15 @@ def test_master_scale_on_bank_data():
     grades = pd.cut(prob, edges, labels=[1, 2, 3, 4])
     table = calibration_table(grades, data["target"], prob)
     assert table.index.tolist() == [1, 2, 3, 4]
-    assert table["count"].sum() == len(data)
+    assert table["total"].sum() == len(data)
     assert table["event"].sum() == data["target"].sum()
     codes = grades.cat.codes.to_numpy()
-    np.testing.assert_array_equal(table["count"], np.bincount(codes))
+    np.testing.assert_array_equal(table["total"], np.bincount(codes))
     np.testing.assert_array_equal(table["event"], np.bincount(codes, weights=data["target"]))
     np.testing.assert_allclose(table["mean_prob"], prob.groupby(codes).mean())
     # Interval labels from pandas.cut keep their order too.
     intervals = calibration_table(pd.cut(prob, edges), data["target"], prob)
-    np.testing.assert_array_equal(intervals["count"], table["count"])
+    np.testing.assert_array_equal(intervals["total"], table["total"])
 
 
 @pytest.mark.parametrize(
@@ -222,12 +252,12 @@ def test_tests_agree_on_the_direction():
 @pytest.mark.parametrize(
     "event,count,prob,message",
     [
-        (1, 0, 0.1, "count must be a positive whole number, got 0.0"),
-        (1, 2.5, 0.1, "count must be a positive whole number, got 2.5"),
-        (1, np.inf, 0.1, "count must be a positive whole number, got inf"),
+        (1, 0, 0.1, "total must be a positive whole number, got 0.0"),
+        (1, 2.5, 0.1, "total must be a positive whole number, got 2.5"),
+        (1, np.inf, 0.1, "total must be a positive whole number, got inf"),
         (-1, 5, 0.1, "event must be a non-negative whole number, got -1.0"),
         (np.nan, 5, 0.1, "event must be a non-negative whole number, got nan"),
-        (6, 5, 0.1, "event must not exceed count, got 6.0 events among 5.0"),
+        (6, 5, 0.1, "event must not exceed total, got 6.0 events among 5.0"),
         (1, 5, 1.1, "prob must be between 0 and 1, got 1.1"),
         (1, 5, np.nan, "prob must not have missing values"),
         ([1, 2], [5, 5, 5], 0.1, "cannot be broadcast together"),
@@ -236,6 +266,20 @@ def test_tests_agree_on_the_direction():
 def test_invalid_grade_test_inputs(test, event, count, prob, message):
     with pytest.raises(ValueError, match=message):
         test(event, count, prob)
+
+
+@pytest.mark.parametrize("test", [binomial_test, jeffreys_test])
+def test_grade_tests_keep_the_series_index(test):
+    event = pd.Series([1, 5], index=["A", "B"])
+    total = pd.Series([100, 10], index=["A", "B"])
+    pvalues = test(event, total, 0.05)
+    assert isinstance(pvalues, pd.Series)
+    assert pvalues.index.tolist() == ["A", "B"]
+    np.testing.assert_array_equal(pvalues.to_numpy(), test([1, 5], [100, 10], 0.05))
+    with pytest.raises(ValueError, match="identical indices when they are Series"):
+        test(event, total.iloc[::-1], 0.05)
+    with pytest.raises(ValueError, match="broadcast to the length 2 of their Series index"):
+        test(event, np.full((3, 1), 100), 0.05)
 
 
 def test_hosmer_lemeshow_matches_hand_calculation():
@@ -257,7 +301,7 @@ def test_hosmer_lemeshow_from_a_calibration_table():
     target = np.zeros(40, dtype=int)
     target[[0, 10, 11, 20, 21, 22, 30, 31, 32, 33]] = 1
     table = calibration_table(prob, target, prob)
-    statistic, _ = hosmer_lemeshow(table["event"], table["count"], table["mean_prob"])
+    statistic, _ = hosmer_lemeshow(table["event"], table["total"], table["mean_prob"])
     assert statistic == pytest.approx(0, abs=1e-12)
 
 
@@ -276,6 +320,13 @@ def test_invalid_hosmer_lemeshow_inputs(event, count, prob, ddof, message):
         hosmer_lemeshow(event, count, prob, ddof=ddof)
 
 
+def test_hosmer_lemeshow_rejects_misaligned_series():
+    event = pd.Series([1, 2, 3], index=list("abc"))
+    total = pd.Series([10, 10, 10], index=list("cba"))
+    with pytest.raises(ValueError, match="identical indices when they are Series"):
+        hosmer_lemeshow(event, total, [0.1, 0.2, 0.3], ddof=0)
+
+
 def test_herfindahl_index_matches_hand_calculation():
     assert herfindahl_index([50, 30, 20]) == pytest.approx(0.38, rel=1e-15)
     assert herfindahl_index([50, 30, 20], normalize=True) == pytest.approx(
@@ -292,10 +343,11 @@ def test_herfindahl_index_matches_hand_calculation():
     "counts,normalize,message",
     [
         ([[1, 2]], False, "one-dimensional, got 2 dimensions"),
-        ([1, -1], False, "finite and non-negative"),
-        ([1, np.nan], False, "finite and non-negative"),
-        ([0, 0], False, "positive sum"),
-        ([3], True, "at least two grades"),
+        ([1, -1], False, "finite and non-negative, got -1.0"),
+        ([1, np.nan], False, "finite and non-negative, got nan"),
+        ([0, 0], False, "positive sum, got 0.0"),
+        ([3], True, "at least two grades, got 1"),
+        ([1, 2], "no", "normalize must be True or False, got 'no'"),
     ],
 )
 def test_invalid_herfindahl_inputs(counts, normalize, message):
@@ -310,7 +362,7 @@ def test_inputs_are_not_modified():
     copies = grades.copy(), target.copy(), prob.copy()
     table = calibration_table(grades, target, prob)
     prior_correction(prob, sample_rate=0.5, population_rate=0.1)
-    event, count = table["event"].to_numpy(), table["count"].to_numpy()
+    event, count = table["event"].to_numpy(), table["total"].to_numpy()
     binomial_test(event, count, 0.3)
     jeffreys_test(event, count, 0.3)
     for original, copy in zip((grades, target, prob), copies, strict=True):

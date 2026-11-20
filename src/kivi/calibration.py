@@ -477,7 +477,8 @@ def hosmer_lemeshow(
     if dof < 1:
         raise ValueError(f"{len(event)} group(s) with ddof={ddof} leave {dof} degrees of freedom")
     expected = total * prob
-    statistic = float(np.sum((event - expected) ** 2 / (expected * (1 - prob))))
+    with np.errstate(over="ignore"):  # a vanishing expected count gives an infinite statistic
+        statistic = float(np.sum((event - expected) ** 2 / (expected * (1 - prob))))
     return statistic, chi2_sf(statistic, dof)
 
 

@@ -61,23 +61,23 @@ A logistic regression of ``target`` on the four WOE columns of the development s
 >>> intercept = -2.028
 >>> table = points_table(tables, coefficients, intercept, **scale)
 >>> table.round({"woe": 4, "points": 1})
-                         woe  points
-variable bin
-poutcome unknown      -0.257   143.1
-         failure       0.214   130.9
-         other         0.592   121.1
-         success       2.548    70.3
-contact  cellular      0.241   131.8
-         unknown      -0.917   153.8
-         telephone     0.206   132.5
-housing  no            0.333   129.8
-         yes          -0.327   142.9
-age      (-inf, 25.0]  0.794   120.0
-         (25.0, 35.0] -0.032   137.1
-         (35.0, 45.0] -0.166   139.8
-         (45.0, 55.0] -0.000   136.4
-         (55.0, 65.0]  0.038   135.6
-         (65.0, inf]   1.115   113.4
+                   bin     woe  points
+variable
+poutcome       unknown -0.2571   143.1
+poutcome       failure  0.2135   130.9
+poutcome         other  0.5917   121.1
+poutcome       success  2.5481    70.3
+contact       cellular  0.2409   131.8
+contact        unknown -0.9172   153.8
+contact      telephone  0.2063   132.5
+housing             no  0.3329   129.8
+housing            yes -0.3273   142.9
+age       (-inf, 25.0]  0.7941   120.0
+age       (25.0, 35.0] -0.0324   137.1
+age       (35.0, 45.0] -0.1664   139.8
+age       (45.0, 55.0] -0.0001   136.4
+age       (55.0, 65.0]  0.0384   135.6
+age        (65.0, inf]  1.1146   113.4
 
 Group :math:`i` of variable :math:`j`, one of :math:`m` variables, receives
 
