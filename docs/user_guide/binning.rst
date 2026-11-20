@@ -111,7 +111,7 @@ Choosing the merges by hand works for a few variables. The supervised methods in
 Supervised binning
 ------------------
 
-Quantile and uniform edges ignore the target. The supervised methods use it to place edges between customers with different event rates, which is what the WOE of each bin measures. They take the values and a 0/1 target, as Series on the same index or as arrays and lists matched by position, omit missing values while fitting, and return edges in the same form as ``bin_edges``: increasing, with infinite outer edges, ready for ``pandas.cut``, ``woe_table`` and ``psi_table``. Each returns at most ``max_bins`` bins, 5 by default.
+Quantile and uniform edges ignore the target. The supervised methods use it to place edges between customers with different event rates, which is what the WOE of each bin measures. They take the values and a 0/1 target, as Series on the same index or as arrays and lists matched by position, omit missing values and any codes passed in ``special`` while fitting, and return edges in the same form as ``bin_edges``: increasing, with infinite outer edges, ready for ``pandas.cut``, ``woe_table`` and ``psi_table``. Each returns at most ``max_bins`` bins, 5 by default.
 
 .. list-table::
    :header-rows: 1
@@ -243,6 +243,39 @@ monotonic_edges     5         0.124       0.020
 
 On the reference sample all three supervised methods beat five quantile bins. On the later sample they fall behind: much of the extra separation they found in balance was noise, which is common for a weak variable and a few hundred events. Validate supervised edges on a later or held-out sample before adopting them, and keep the variable under PSI monitoring once it is in use.
 
+.. _supervised-special:
+
+Special codes
+^^^^^^^^^^^^^
+
+A code such as ``pdays == -1`` is fitted as an ordinary value unless it is passed in ``special``. Monotonic binning then puts the 2,475 reference customers coded -1, who were never contacted before, into one bin with the 78 customers contacted within 96 days, the group most likely to subscribe:
+
+>>> from kivi.binning import cut
+>>> mixed = monotonic_edges(reference["pdays"], target, max_bins=4)
+>>> mixed
+array([-inf,  96.,  inf])
+>>> print(f"IV = {woe_table(pd.cut(reference['pdays'], mixed), target)['iv'].sum():.3f}")
+IV = 0.069
+
+With ``special=[-1]`` the code and its labels are left out of the fit, and ``cut`` with the same code gives it a group of its own ahead of the intervals:
+
+>>> mono_pdays = monotonic_edges(reference["pdays"], target, max_bins=4, special=[-1])
+>>> mono_pdays
+array([ -inf, 105. , 188. , 211.2,   inf])
+>>> by_pdays = woe_table(cut(reference["pdays"], mono_pdays, special=[-1]), target)
+>>> by_pdays[["event", "non_event", "woe"]].round(3)
+                event  non_event    woe
+bin
+-1                228       2247 -0.257
+(-inf, 105.0]      49         57  1.880
+(105.0, 188.0]     41        116  0.991
+(188.0, 211.2]      5         21  0.596
+(211.2, inf]       25        211 -0.102
+>>> print(f"IV = {by_pdays['iv'].sum():.3f}")
+IV = 0.352
+
+Fitted on the contacted customers alone, the WOE falls steadily: the more recent the previous contact, the more likely a customer is to subscribe. ``max_bins`` and the trend apply to the intervals only, so each special group comes on top of them with a WOE of its own. ``chimerge_edges`` and ``tree_edges`` take ``special`` in the same way, and ``min_bin_share`` counts only the values that are fitted.
+
 Ties and constant values
 ------------------------
 
@@ -287,6 +320,8 @@ IV = 0.299
 
 The single bin had an IV of zero; separating the code shows that ``pdays`` is informative. The categories of the result are the special values in the order given, followed by the intervals, and ``woe_table`` and ``psi_table`` list the rows in that order. Special values are matched by equality, so ``-1`` and ``-1.0`` are the same code. Without ``special``, ``cut`` returns the same result as ``pandas.cut``.
 
+The supervised methods take ``special`` as well; see :ref:`supervised-special`.
+
 Applying the edges
 ------------------
 
@@ -327,4 +362,4 @@ Invalid input
 
 * ``values`` and ``target`` are Series without identical indices, or have different lengths;
 * ``target`` contains a label other than 0 and 1, or a missing label;
-* the observed values do not cover both classes.
+* the observed values, apart from special values, do not cover both classes.
