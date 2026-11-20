@@ -8,7 +8,6 @@ change of each group's share with the group's scorecard points.
 import math
 from collections.abc import Mapping
 from numbers import Real
-from typing import Literal
 
 import numpy as np
 import numpy.typing as npt
@@ -172,7 +171,7 @@ def csi_table(
     current: npt.ArrayLike,
     points: pd.DataFrame | pd.Series | Mapping[object, float],
     *,
-    unseen: float | Literal["raise"] = "raise",
+    unseen_points: float | None = None,
     reference_weights: npt.ArrayLike | None = None,
     current_weights: npt.ArrayLike | None = None,
 ) -> pd.DataFrame:
@@ -194,10 +193,12 @@ def csi_table(
         in a ``points`` column, such as ``table.loc[[variable]]`` of a
         `kivi.scorecard.points_table` result. A Series or mapping gives the
         points by group. A missing label gives the points of missing values.
-    unseen : float or "raise", default "raise"
-        Points for observed groups that are not in `points`, such as the
-        points that applicants of a new category receive. By default such
-        groups raise an error.
+    unseen_points : float, optional
+        Points of observed groups that are missing from `points`, such as a
+        new category that `kivi.woe.woe_transform` encoded with ``unseen``.
+        Its applicants receive the `kivi.scorecard.woe_to_points` result for
+        that WOE, not the WOE itself; see the Notes. By default such groups
+        raise an error.
     reference_weights, current_weights : array_like, optional
         Non-negative weight of each observation in the reference and the
         current sample, matched like the samples. The counts and shares are
@@ -217,10 +218,10 @@ def csi_table(
     ValueError
         If either sample is empty or not one-dimensional, `points` is not a
         DataFrame, Series or mapping, holds more than one variable, repeats
-        a group or has values that are not finite numbers, `unseen` is
-        neither ``"raise"`` nor a finite number, or `unseen` is ``"raise"``
-        and an observed group has no points. Also if a weight array is
-        invalid, as in `psi_table`.
+        a group or has values that are not finite numbers, `unseen_points`
+        is not a finite number, or an observed group has no points and
+        `unseen_points` is not given. Also if a weight array is invalid, as
+        in `psi_table`.
 
     See Also
     --------
@@ -254,6 +255,13 @@ def csi_table(
     applicants it does not have, so the sum would no longer be the change of
     the average points.
 
+    `unseen_points` is in points, like `points`. For applicants that
+    ``woe_transform(..., unseen=woe)`` encoded, it is
+    ``woe_to_points`` of a one-row frame that holds that WOE; a WOE of 0
+    gives the variable's share of the intercept and offset, the same for
+    every variable. Passing the WOE itself would give a wrong CSI without
+    an error.
+
     Some texts also call the PSI of a single variable its CSI; that is
     `psi_table` of the variable's groups. Rows are ordered as in
     `psi_table`, and groups of `points` observed in neither sample are left
@@ -280,13 +288,15 @@ def csi_table(
     column, -3.75.
     """
     labels, values = _points_by_group(points)
-    raise_unseen = isinstance(unseen, str) and unseen == "raise"
-    if not raise_unseen and (
-        isinstance(unseen, (bool, str)) or not isinstance(unseen, Real) or not math.isfinite(unseen)
+    if unseen_points is not None and (
+        isinstance(unseen_points, bool)
+        or not isinstance(unseen_points, Real)
+        or not math.isfinite(unseen_points)
     ):
-        raise ValueError(f"unseen must be 'raise' or a finite number, got {unseen!r}")
+        raise ValueError(f"unseen_points must be a finite number, got {unseen_points!r}")
     counts = _sample_counts(reference, current, reference_weights, current_weights)
-    group_points = _match(counts.index, labels, values, None if raise_unseen else float(unseen))
+    unseen = None if unseen_points is None else float(unseen_points)
+    group_points = _match(counts.index, labels, values, unseen)
     observed = counts.to_numpy()
     share = observed / observed.sum(axis=0)
     return counts.assign(
@@ -394,7 +404,7 @@ def _match(
             shown = ", ".join(repr(label) for label in absent[:5])
             raise ValueError(
                 f"{len(absent)} group(s) have no points, such as {shown}; "
-                "pass unseen to give them points"
+                "pass unseen_points to give them points"
             )
         result[~found] = unseen
     return result

@@ -3,7 +3,6 @@
 import math
 from collections.abc import Mapping
 from numbers import Integral, Real
-from typing import Literal
 
 import numpy as np
 import numpy.typing as npt
@@ -415,7 +414,7 @@ def reason_codes(
     *,
     top: int = 3,
     atol: float = 1e-4,
-    unseen: Literal["raise", "ignore"] = "raise",
+    unseen_points: float | Mapping[object, float] | pd.Series | None = None,
 ) -> pd.DataFrame:
     """Name the variables that cost each applicant the most points.
 
@@ -436,12 +435,14 @@ def reason_codes(
         Largest difference, in points, between an applicant's points and the
         points of a group for the applicant to be in that group. It absorbs
         rounding, for example of WOE values stored with six decimals.
-    unseen : {"raise", "ignore"}, default "raise"
-        What to do with points that match no group of the variable, such as
-        those of applicants whose WOE came from ``unseen`` in
-        `kivi.woe.woe_transform`. By default they raise an error;
-        ``"ignore"`` counts them as costing nothing, so the variable is not
-        a reason for those applicants.
+    unseen_points : float, mapping or pandas.Series, optional
+        Points of applicants in groups that `kivi.woe.woe_transform` encoded
+        with ``unseen``, one value for every variable or values by variable.
+        Points that match no group but lie within `atol` of their variable's
+        `unseen_points` cost nothing, so the variable is not a reason for
+        those applicants. They are the `woe_to_points` result for the WOE
+        passed as ``unseen``; see the Examples. By default every point must
+        match a group.
 
     Returns
     -------
@@ -456,9 +457,9 @@ def reason_codes(
         If `points` is not a DataFrame or has non-finite values, `table` is
         not a `points_table` result or lacks a variable of `points`, some
         points are farther than `atol` from every group of their variable
-        and `unseen` is ``"raise"``, `top` is not a positive integer, `atol`
-        is not a finite positive number, or `unseen` is neither ``"raise"``
-        nor ``"ignore"``.
+        and from its `unseen_points`, `top` is not a positive integer, `atol`
+        is not a finite positive number, or `unseen_points` is not a finite
+        number or a mapping or Series of finite numbers.
 
     See Also
     --------
@@ -474,15 +475,16 @@ def reason_codes(
     a cost below about `atol` is no cost.
 
     Points that match no group, such as those from a different intercept or
-    scaling, raise an error rather than giving reasons against the wrong
-    groups. So do, by default, the points of applicants in a group that had
-    no development observations, such as a new category, whose WOE came
-    from ``unseen`` in `kivi.woe.woe_transform`. That WOE is a value chosen
-    for the group, not evidence about the applicant, so ``unseen="ignore"``
-    gives no reason for it instead of the distance to the best group. It
-    also hides points from another model, so check the model first. Points
-    that lie within `atol` of a group are matched to that group, even when
-    their WOE came from ``unseen``.
+    scaling, or WOE values rounded more coarsely than `atol` allows, raise
+    an error rather than giving reasons against the wrong groups. So do, by
+    default, the points of applicants in a group that had no development
+    observations, such as a new category, whose WOE came from ``unseen`` in
+    `kivi.woe.woe_transform`. That WOE is a value chosen for the group, not
+    evidence about the applicant, so with `unseen_points` such points give
+    no reason instead of the distance to the best group. Only points near
+    `unseen_points` are exempt; any other mismatch still raises. Points that
+    lie within `atol` of a group are matched to that group, even when their
+    WOE came from ``unseen``.
 
     Examples
     --------
@@ -503,11 +505,19 @@ def reason_codes(
     2  housing     None
 
     An applicant with a housing status that the development sample did not
-    have was given a WOE of 0. With ``unseen="ignore"``, housing is not one
-    of the applicant's reasons:
+    have was encoded with ``woe_transform(..., unseen=0.0)``. The points of
+    a WOE of 0 are the `woe_to_points` result for a row of zeros, the same
+    base points for every variable. With these points as `unseen_points`,
+    housing is not one of the applicant's reasons:
 
+    >>> zero = woe_to_points(pd.DataFrame({"housing": [0.0], "contact": [0.0]}), *model, **scale)
+    >>> zero.round(2)
+       housing  contact
+    0   272.42   272.42
     >>> new = pd.DataFrame({"housing": [0.0], "contact": [0.6]})
-    >>> reason_codes(woe_to_points(new, *model, **scale), table, top=2, unseen="ignore")
+    >>> reason_codes(
+    ...     woe_to_points(new, *model, **scale), table, top=2, unseen_points=zero.iloc[0]
+    ... )
       reason_1 reason_2
     0  contact     None
     """
@@ -517,14 +527,13 @@ def reason_codes(
         raise ValueError(f"top must be a positive integer, got {top!r}")
     if isinstance(atol, bool) or not isinstance(atol, Real) or not 0 < atol < math.inf:
         raise ValueError(f"atol must be a finite positive number, got {atol!r}")
-    if not (isinstance(unseen, str) and unseen in ("raise", "ignore")):
-        raise ValueError(f"unseen must be 'raise' or 'ignore', got {unseen!r}")
     if not isinstance(table, pd.DataFrame) or table.index.name != "variable":
         raise ValueError(f"table must be a points_table result, got {_describe(table)}")
     if "points" not in table.columns:
         raise ValueError(f"table must have a points column, got columns {table.columns.tolist()}")
     groups = dict(iter(table["points"].groupby(level="variable", sort=False)))
     _check_present(points.columns, groups, "table")
+    exempt = _unseen_points(unseen_points, points.columns)
     values = points.to_numpy(dtype=float)
     invalid = ~np.isfinite(values)
     if invalid.any():
@@ -536,14 +545,21 @@ def reason_codes(
         group_points = np.sort(groups[variable].to_numpy(dtype=float))
         nearest = _nearest(group_points, values[:, column])
         far = np.abs(values[:, column] - nearest) > atol
-        if far.any() and unseen == "raise":
+        unseen = exempt[column]
+        if not np.isnan(unseen):
+            far &= np.abs(values[:, column] - unseen) > atol
+        if far.any():
             row = np.flatnonzero(far)[0]
+            also = "" if np.isnan(unseen) else f" or unseen_points {float(unseen)!r}"
             raise ValueError(
-                f"points of {variable!r} must match a group of table within atol={atol!r}, "
-                f"got {float(values[row, column])!r}, nearest group {float(nearest[row])!r}; "
-                "pass unseen='ignore' to count such points as costing nothing"
+                f"points of {variable!r} must match a group of table within atol={atol!r}"
+                f"{also}, got {float(values[row, column])!r}, nearest group "
+                f"{float(nearest[row])!r}; check atol and that points and table come from the "
+                "same model and scaling, and for groups that woe_transform encoded with unseen "
+                "pass their points as unseen_points"
             )
-        cost[:, column] = np.where(far, 0.0, group_points[-1] - nearest)
+        matched = np.abs(values[:, column] - nearest) <= atol
+        cost[:, column] = np.where(matched, group_points[-1] - nearest, 0.0)
     # Costs that differ by less than atol tie, so the stable sort keeps the column order.
     steps = np.round(cost / atol)
     order = np.argsort(-steps, axis=1, kind="stable")[:, :top]
@@ -553,6 +569,30 @@ def reason_codes(
     reasons[:, : names.shape[1]] = names
     columns = [f"reason_{rank}" for rank in range(1, top + 1)]
     return pd.DataFrame(reasons, index=points.index, columns=columns, dtype=object)
+
+
+def _unseen_points(unseen_points, variables: pd.Index) -> np.ndarray:
+    """Return the unseen points of each variable, NaN for a variable without them."""
+    if unseen_points is None:
+        return np.full(len(variables), np.nan)
+    if isinstance(unseen_points, (Mapping, pd.Series)):
+        by_variable = dict(unseen_points.items())
+        if isinstance(unseen_points, pd.Series) and unseen_points.index.has_duplicates:
+            repeated = unseen_points.index[unseen_points.index.duplicated()][0]
+            raise ValueError(f"unseen_points must name each variable once, got {repeated!r} twice")
+    else:
+        by_variable = dict.fromkeys(variables, unseen_points)
+    result = np.full(len(variables), np.nan)
+    for position, variable in enumerate(variables):
+        if variable not in by_variable:
+            continue
+        value = by_variable[variable]
+        if isinstance(value, bool) or not isinstance(value, Real) or not math.isfinite(value):
+            raise ValueError(
+                f"unseen_points must be finite numbers, got {value!r} for {variable!r}"
+            )
+        result[position] = float(value)
+    return result
 
 
 def _model_points(coefficients, intercept, pdo, base_score, base_odds) -> tuple[pd.Series, float]:

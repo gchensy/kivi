@@ -147,11 +147,11 @@ def test_points_outside_the_samples_are_left_out():
     assert table.index.tolist() == ["a", "b"]
 
 
-def test_unseen_gives_points_to_groups_without_points():
-    message = r"1 group\(s\) have no points, such as 'new'; pass unseen"
+def test_unseen_points_go_to_groups_without_points():
+    message = r"1 group\(s\) have no points, such as 'new'; pass unseen_points"
     with pytest.raises(ValueError, match=message):
         csi_table(["a", "b"], ["a", "new"], {"a": 1.0, "b": 2.0})
-    table = csi_table(["a", "b"], ["a", "new"], {"a": 1.0, "b": 2.0}, unseen=-4)
+    table = csi_table(["a", "b"], ["a", "new"], {"a": 1.0, "b": 2.0}, unseen_points=-4)
     assert table["points"].tolist() == [1.0, 2.0, -4.0]
     np.testing.assert_allclose(table["csi"], [0.0, -1.0, -2.0])
     # Missing values without a missing group in points are unseen too.
@@ -227,10 +227,34 @@ def test_invalid_points(points, message):
         csi_table(["a", "b"], ["a", "b"], points)
 
 
-@pytest.mark.parametrize("unseen", ["ignore", np.nan, np.inf, True, None])
-def test_invalid_unseen(unseen):
-    with pytest.raises(ValueError, match="unseen must be 'raise' or a finite number, got"):
-        csi_table(["a"], ["a"], {"a": 1.0}, unseen=unseen)
+@pytest.mark.parametrize("unseen_points", ["raise", np.nan, np.inf, True])
+def test_invalid_unseen_points(unseen_points):
+    with pytest.raises(ValueError, match="unseen_points must be a finite number, got"):
+        csi_table(["a"], ["a"], {"a": 1.0}, unseen_points=unseen_points)
+
+
+def test_csi_with_unseen_points_is_the_shift_of_the_average_points():
+    # A new job category in the monitoring sample: woe_transform gives it WOE 0, so its
+    # applicants receive the points of WOE 0, which must be passed as unseen_points.
+    data = Dataset.bank_data()
+    development = data.iloc[:3000]
+    monitoring = data.iloc[3000:].copy()
+    monitoring.iloc[:40, monitoring.columns.get_loc("job")] = "astronaut"
+    table = woe_table(development["job"], development["target"])
+    card = points_table({"job": table}, {"job": 0.9}, -2.0, **SCALE)
+
+    def score(frame):
+        woe = woe_transform(frame["job"], table, unseen=0.0)
+        return woe_to_points(pd.DataFrame({"job": woe}), {"job": 0.9}, -2.0, **SCALE)["job"]
+
+    shift = score(monitoring).mean() - score(development).mean()
+    zero = woe_to_points(pd.DataFrame({"job": [0.0]}), {"job": 0.9}, -2.0, **SCALE)["job"][0]
+    csi = csi_table(development["job"], monitoring["job"], card, unseen_points=zero)
+    assert csi.loc["astronaut", "current"] == 40 and csi.loc["astronaut", "points"] == zero
+    assert csi["csi"].sum() == pytest.approx(shift, rel=1e-10)
+    # The WOE itself in place of its points gives a very different, wrong answer.
+    wrong = csi_table(development["job"], monitoring["job"], card, unseen_points=0.0)
+    assert abs(wrong["csi"].sum() - shift) > 10
 
 
 @pytest.mark.parametrize(
