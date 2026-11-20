@@ -7,7 +7,7 @@ Binning, WOE, IV and PSI for risk modeling
 
 .. container:: kivi-lead
 
-   kivi is a pandas toolkit for credit risk and financial modeling. It fits bin edges on a development sample, measures how well each bin separates a binary outcome such as default, and tracks how the population shifts once a model is live. Every result is a pandas DataFrame with one row per bin.
+   kivi is a pandas toolkit for credit risk and financial modeling. It fits bin edges on a development sample, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard, scales it to points, evaluates and calibrates it, and tracks how the population shifts once a model is live. Tables come back as pandas DataFrames with one row per bin, grade or variable.
 
 .. container:: kivi-actions
 
@@ -65,11 +65,29 @@ Built for risk teams
 
       Fine and coarse classing, special values and monotonic WOE for logistic regression scorecards.
 
-   .. grid-item-card:: Variable screening
-      :link: user_guide/risk_workflow
+   .. grid-item-card:: Variable selection
+      :link: user_guide/selection
       :link-type: doc
 
-      Rank candidates by IV and catch leaks before they reach the model.
+      Rank candidates by IV, drop correlated variables and select a logistic model whose coefficients all point the right way.
+
+   .. grid-item-card:: Scaling and reason codes
+      :link: user_guide/scorecard
+      :link-type: doc
+
+      Turn the model into points with PDO scaling, score new applications and explain each score with reason codes.
+
+   .. grid-item-card:: Model performance
+      :link: user_guide/metrics
+      :link-type: doc
+
+      AUC, Gini, KS, gains and lift on development and validation samples.
+
+   .. grid-item-card:: Calibration
+      :link: user_guide/calibration
+      :link-type: doc
+
+      Prior correction, master scales and binomial, Jeffreys and Hosmer-Lemeshow tests per grade.
 
    .. grid-item-card:: Model monitoring
       :link: user_guide/psi

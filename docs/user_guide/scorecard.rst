@@ -111,8 +111,8 @@ Encode new applicants with the development WOE tables, as described in :doc:`woe
 
 The score is the scaled log odds of the model, so it equals ``pd_to_score`` of the model's probability:
 
->>> prob = 1 / (1 + np.exp(-(intercept + woe @ pd.Series(coefficients))))
->>> bool(np.allclose(points.sum(axis=1), pd_to_score(prob, **scale)))
+>>> probability = 1 / (1 + np.exp(-(intercept + woe @ pd.Series(coefficients))))
+>>> bool(np.allclose(points.sum(axis=1), pd_to_score(probability, **scale)))
 True
 
 Deployed scorecards usually round the points to whole numbers. Round the points table and the applicant points in the same way, with ``table.round()`` and ``points.round()``: ``woe_to_points`` computes each point exactly as ``points_table`` does, so the rounded values match. The rounded total can differ from the exact score by up to half a point per variable.

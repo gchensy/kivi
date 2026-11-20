@@ -49,8 +49,10 @@ def test_scores_follow_base_odds_and_pdo():
 
 
 def test_score_and_pd_are_inverse():
-    prob = np.array([1e-9, 0.001, 0.02, 0.5, 0.97, 1 - 1e-9])
-    np.testing.assert_allclose(score_to_pd(pd_to_score(prob, **SCALE), **SCALE), prob, rtol=1e-6)
+    probability = np.array([1e-9, 0.001, 0.02, 0.5, 0.97, 1 - 1e-9])
+    np.testing.assert_allclose(
+        score_to_pd(pd_to_score(probability, **SCALE), **SCALE), probability, rtol=1e-6
+    )
     np.testing.assert_allclose(score_to_pd([580, 600, 620], **SCALE), [1 / 26, 1 / 51, 1 / 101])
 
 
@@ -59,8 +61,8 @@ def test_extreme_scores_do_not_overflow():
 
 
 def test_conversions_keep_series_shapes_and_missing_values():
-    prob = pd.Series([0.02, np.nan], index=[7, 3], name="pd")
-    scores = pd_to_score(prob, **SCALE)
+    probability = pd.Series([0.02, np.nan], index=[7, 3], name="pd")
+    scores = pd_to_score(probability, **SCALE)
     assert isinstance(scores, pd.Series)
     assert scores.name == "pd" and scores.index.tolist() == [7, 3]
     assert np.isnan(scores[3])
@@ -71,10 +73,14 @@ def test_conversions_keep_series_shapes_and_missing_values():
     assert pd_to_score(np.full((2, 3), 0.5), **SCALE).shape == (2, 3)
 
 
-@pytest.mark.parametrize("prob,message", [(0, "got 0.0"), (1, "got 1.0"), ([0.5, 1.5], "got 1.5")])
-def test_invalid_probabilities(prob, message):
-    with pytest.raises(ValueError, match=f"prob must be strictly between 0 and 1, {message}"):
-        pd_to_score(prob, **SCALE)
+@pytest.mark.parametrize(
+    "probability,message", [(0, "got 0.0"), (1, "got 1.0"), ([0.5, 1.5], "got 1.5")]
+)
+def test_invalid_probabilities(probability, message):
+    with pytest.raises(
+        ValueError, match=f"probability must be strictly between 0 and 1, {message}"
+    ):
+        pd_to_score(probability, **SCALE)
 
 
 @pytest.mark.parametrize(
@@ -118,8 +124,8 @@ def test_points_add_up_to_the_model_score():
     table = points_table(TABLES, COEFFICIENTS, INTERCEPT, **SCALE)
     total = _points_of(table, "housing", "yes") + _points_of(table, "contact", "unknown")
     log_odds = INTERCEPT + 0.8 * 0.3 + 0.5 * 0.6
-    prob = 1 / (1 + math.exp(-log_odds))
-    assert total == pytest.approx(pd_to_score(prob, **SCALE), rel=1e-14)
+    probability = 1 / (1 + math.exp(-log_odds))
+    assert total == pytest.approx(pd_to_score(probability, **SCALE), rel=1e-14)
 
 
 def test_coefficients_set_the_order_and_extra_tables_are_ignored():

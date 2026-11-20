@@ -8,7 +8,7 @@ The functions below replace the 0.2.x classes. Dataset.bank_data() retains its i
    :widths: 35 65
 
    * - 0.2.x
-     - 0.4
+     - Replacement
    * - ``DistanceBins``
      - ``bin_edges(values, method="uniform")``, then ``pandas.cut`` and ``woe_table``
    * - ``FrequencyBins``
@@ -21,6 +21,14 @@ The functions below replace the 0.2.x classes. Dataset.bank_data() retains its i
      - ``woe_transform(groups, table)`` on groups formed with the development edges, from the release after 0.4.0
    * - ``PSI.fit()``
      - ``psi_table(before, after)`` on groups formed with the same edges
+   * - ``BinaryMetrics``, ``ModelEvaluate``, ``ScoreEvaluate``
+     - ``kivi.metrics``: ``roc_auc``, ``gini``, ``ks``, ``gains_table`` and ``brier_score``, from the release after 0.4.0
+   * - ``VIF``, ``StepWise``, ``feature.Corr``
+     - ``kivi.selection``: ``vif``, ``stepwise``, ``correlation_filter`` and ``logistic_regression``, from the release after 0.4.0
+   * - ``PDToScore``, ``BaseScoreAndPDO``
+     - ``kivi.scorecard``: ``pd_to_score``, ``score_to_pd``, ``score_scaling`` and ``points_table``, from the release after 0.4.0
+   * - ``get_omega``, ``MasterScale``, ``BinomialTest``, ``herfindahl``
+     - ``kivi.calibration``: ``prior_correction``, ``calibration_table``, ``binomial_test`` and ``herfindahl_index``, from the release after 0.4.0
    * - ``Dataset.bank_data()``
      - Unchanged
 
@@ -40,7 +48,17 @@ Population stability
 
 For PSI.fit(), form both sets of groups using the same reference edges, then call psi_table. It returns raw counts and a contribution per bin. Previously the psi column repeated the overall total. The new smoothing rule preserves counts and normalizes each distribution after replacing zeros. Recheck thresholds when migrating saved analyses.
 
+Models, scorecards and calibration
+----------------------------------
+
+These modules are new implementations, so compare their output with the legacy code on a fixed reference sample before switching.
+
+* The legacy ``lift`` column was cumulative. In ``gains_table``, ``lift`` is the lift of each band and ``cum_lift`` the cumulative lift. The metrics take a score that rises with risk, such as a PD; pass ``-score`` for scorecard points. ``ModelEvaluate`` rescaled each sample by its own minimum and maximum, so its scores were not comparable across samples; the new functions use the scores as given.
+* ``VIF`` called statsmodels without a constant, which measures uncentred R²; ``vif`` includes an intercept in every auxiliary regression, as in the textbook definition, so the values differ. ``stepwise`` replaces ``StepWise`` and by default keeps every coefficient positive, as WOE inputs require. ``logistic_regression`` fits the model in NumPy, so statsmodels is no longer needed.
+* ``BaseScoreAndPDO`` took bad:good odds, for example ``odds=1/50``. ``base_odds`` is good:bad, so pass ``base_odds=50``; passing ``1/50`` silently gives an offset of 712.9. The legacy ``PDToScore`` divided by ln 2 only in one of its branches; ``pd_to_score`` and ``score_to_pd`` are exact inverses.
+* ``get_omega`` becomes ``prior_correction`` for probabilities and ``corrected_intercept`` for the model intercept.
+
 Not yet ported
 --------------
 
-Releases 0.3 and 0.4 cover unweighted counts only. Keep existing weighted binning and scorecard workflows on their original version until their outputs have been validated on fixed reference samples. Spark, SQL, AHP, feature selection, model wrappers and application code remain in the historical revisions.
+Sample weights, variable selection, scorecards, model evaluation and calibration arrive in the release after 0.4.0. CSI, vintage analysis and strategy tools are planned. Spark, SQL, AHP, model wrappers and application code remain in the historical revisions.

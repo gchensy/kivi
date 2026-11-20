@@ -85,7 +85,7 @@ def score_scaling(*, pdo: float, base_score: float, base_odds: float) -> tuple[f
 
 
 def pd_to_score(
-    prob: npt.ArrayLike, *, pdo: float, base_score: float, base_odds: float
+    probability: npt.ArrayLike, *, pdo: float, base_score: float, base_odds: float
 ) -> float | pd.Series | npt.NDArray[np.float64]:
     """Convert event probabilities to scorecard scores.
 
@@ -95,7 +95,7 @@ def pd_to_score(
 
     Parameters
     ----------
-    prob : array_like
+    probability : array_like
         Event probabilities strictly between 0 and 1. Missing values give
         missing scores.
     pdo : float
@@ -108,13 +108,13 @@ def pd_to_score(
     Returns
     -------
     float, pandas.Series or numpy.ndarray
-        Scores with the shape of `prob`. A Series input gives a Series with
+        Scores with the shape of `probability`. A Series input gives a Series with
         the same index and name, and a scalar gives a float.
 
     Raises
     ------
     ValueError
-        If `prob` has values outside the open interval (0, 1), or the
+        If `probability` has values outside the open interval (0, 1), or the
         scaling arguments are invalid.
 
     See Also
@@ -124,7 +124,7 @@ def pd_to_score(
 
     Notes
     -----
-    The score is ``offset + factor * ln((1 - prob) / prob)``. A probability
+    The score is ``offset + factor * ln((1 - probability) / probability)``. A probability
     of exactly 0 or 1 has no finite score and raises an error; see
     `score_to_pd` for the scores whose probability rounds to 1.
 
@@ -136,11 +136,11 @@ def pd_to_score(
     array([600.  , 620.  , 550.52])
     """
     factor, offset = score_scaling(pdo=pdo, base_score=base_score, base_odds=base_odds)
-    values = np.asarray(prob, dtype=float)
+    values = np.asarray(probability, dtype=float)
     if np.any((values <= 0) | (values >= 1)):
         shown = float(values[(values <= 0) | (values >= 1)].flat[0])
-        raise ValueError(f"prob must be strictly between 0 and 1, got {shown!r}")
-    return _like(prob, offset + factor * (np.log1p(-values) - np.log(values)))
+        raise ValueError(f"probability must be strictly between 0 and 1, got {shown!r}")
+    return _like(probability, offset + factor * (np.log1p(-values) - np.log(values)))
 
 
 def score_to_pd(
@@ -196,8 +196,8 @@ def score_to_pd(
     factor, offset = score_scaling(pdo=pdo, base_score=base_score, base_odds=base_odds)
     log_odds = (np.asarray(score, dtype=float) - offset) / factor
     with np.errstate(invalid="ignore"):  # logaddexp warns on missing values
-        prob = np.exp(-np.logaddexp(0, log_odds))
-    return _like(score, prob)
+        probability = np.exp(-np.logaddexp(0, log_odds))
+    return _like(score, probability)
 
 
 def points_table(

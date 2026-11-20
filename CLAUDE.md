@@ -30,6 +30,29 @@ Fitting edges and grouping are deliberately separate steps:
 3. `kivi.woe.woe_table(groups, target)` and `kivi.stability.psi_table(reference, current)` take already-grouped series and return one row per group. Totals are the caller's `.sum()` of the `iv` / `psi` column.
 4. `kivi.woe.woe_transform(groups, table, unseen="raise")` maps groups back to the fitted WOE (the scorecard encoding). It factorizes the groups once, looks each distinct label up in the table by equality (intervals from the same edges match), and gives missing values the table's missing-group WOE. A label absent from the table raises unless `unseen` is a number, so new categories and empty development intervals never turn into silent NaN.
 
+The modeling modules build on these steps:
+
+- **`kivi.selection`**:
+  - Functions: `correlation_filter`, `vif`, `logistic_regression`, `stepwise` and the exception `SeparationError`.
+  - **Fitting.** `_logit` fits by IRLS on centred, scaled columns and maps the coefficients and covariance back to the original scale. Wald p-values use `math.erfc`.
+  - **Separation.** It is reported only with a certificate: some fitted probabilities sit at 0 or 1, and the Newton steps move every row towards its own class.
+  - **`vif`.** It includes an intercept, computed from one SVD of the standardized columns.
+  - **`stepwise(positive=True)`.** Every coefficient of the selected model stays positive, as WOE inputs require.
+- **`kivi.scorecard`**:
+  - **Scaling.** `score_scaling` gives factor = pdo / ln 2 and offset = base_score − factor·ln(base_odds), with the odds as good:bad.
+  - **Conversion and points.** `pd_to_score` and `score_to_pd` are exact inverses. `points_table` builds the card from WOE tables and coefficients, and `woe_to_points` scores new rows.
+  - **`reason_codes`.** Costs within `atol` of zero don't count, and every points value must match a group of the table.
+- **`kivi.metrics`**: `roc_auc`, `gini`, `ks`, `gains_table` and `brier_score`.
+  - They expect a score that rises with the event probability, so pass a PD or `-points`.
+  - `ks` is the absolute largest gap.
+  - `gains_table(score, target, *, bins)` takes an integer, which fits bands with `bin_edges` so that ties warn in the same way, or explicit edges. It keeps empty bands, so tables of two samples line up.
+- **`kivi.calibration`**: `prior_correction`, `corrected_intercept`, `calibration_table`, `binomial_test`, `jeffreys_test`, `hosmer_lemeshow` and `herfindahl_index`.
+  - `calibration_table` counts through `_counts.group_counts` and returns `total, event, event_rate, mean_probability`.
+  - The distribution functions (regularized incomplete beta and gamma, normal CDF) live in the private `_stats`.
+- **Shared naming:**
+  - The data argument comes first and the target second, as in `woe_table(groups, target)`, `roc_auc(score, target)` and `stepwise(X, target)`.
+  - A predicted probability argument is always called `probability`.
+
 Deprecations warn with `FutureWarning` for one minor version before removal. `_deprecation.positional_deprecated("method", removed_in="0.6.0")` keeps the documented keyword-only signature of `bin_edges` while still accepting `method` by position, and `kivi.evaluate` is a module-level `__getattr__` alias of `kivi.stability`. New code and docs must not use either pattern, because pytest and the doctests treat warnings as errors.
 
 Public functions accept one-dimensional array_like input through `_validation.as_series`, which leaves Series untouched. `woe_table` and the supervised binning functions require identical indices only when both inputs are Series; otherwise they match by position. Error messages name the argument and the value received, and tests check them with `pytest.raises(..., match=)`.
@@ -84,5 +107,6 @@ From `docs/development/legacy_review.rst` and `docs/release/migration.rst`:
 
 - The core depends only on NumPy and pandas. Infrastructure-specific code (Spark, SQL, etc.) belongs in optional integrations and must not be imported at module load.
 - Functions must not mutate caller inputs; anything random takes a local seed instead of touching NumPy's global state.
-- Weighted binning, scorecards, Spark, SQL, AHP, feature selection and model wrappers exist only in git history before commit 740ea6c. When porting one, validate against fixed reference samples first. Supervised binning was re-implemented rather than ported; `docs/release/migration.rst` lists how it differs from the legacy `Chi2Bins` and `TreeBins`.
+- **Out of scope.** Spark, SQL, AHP and model wrappers exist only in git history before commit 740ea6c. The user decided not to build the Spark and SQL integrations.
+- **Re-implemented, not ported.** Sample weights, supervised binning, variable selection, scorecards, metrics and calibration were each checked against the legacy outputs or reference implementations (statsmodels, scipy, mpmath). When porting anything else, validate against fixed reference samples first. `docs/release/migration.rst` lists how each one differs from its legacy counterpart.
 - Tests assert raw counts, normalized shares and hand-calculated metric values (the legacy tests only printed tables) — follow that pattern.
