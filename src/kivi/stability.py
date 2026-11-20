@@ -9,13 +9,18 @@ import numpy.typing as npt
 import pandas as pd
 
 from ._counts import divergence, group_counts
-from ._validation import as_count_columns, as_series
+from ._validation import as_count_columns, as_series, as_weights
 
 __all__ = ["psi", "psi_table"]
 
 
 def psi_table(
-    reference: npt.ArrayLike, current: npt.ArrayLike, *, smoothing: float = 0.5
+    reference: npt.ArrayLike,
+    current: npt.ArrayLike,
+    *,
+    smoothing: float = 0.5,
+    reference_weights: npt.ArrayLike | None = None,
+    current_weights: npt.ArrayLike | None = None,
 ) -> pd.DataFrame:
     r"""Compare two samples using their population stability index.
 
@@ -29,6 +34,11 @@ def psi_table(
         categories observed in only one sample are included.
     smoothing : float, default 0.5
         Positive replacement for a zero count when calculating shares.
+    reference_weights, current_weights : array_like, optional
+        Non-negative weight of each observation in the reference and the
+        current sample, matched like the samples. The counts are then sums of
+        weights, and groups whose weights sum to zero in both samples are left
+        out. `smoothing` is then in units of weight.
 
     Returns
     -------
@@ -40,7 +50,9 @@ def psi_table(
     ------
     ValueError
         If either sample is empty or not one-dimensional, or `smoothing` is
-        not finite and positive.
+        not finite and positive. Also if a weight array is not numeric, does
+        not give each observation of its sample one finite, non-negative weight
+        with a positive total, or has an index other than that of its sample.
 
     See Also
     --------
@@ -85,9 +97,12 @@ def psi_table(
     x            2        1  0.1733
     y            2        3  0.1014
     """
+    raw_reference, raw_current = reference, current
     reference, current = as_series(reference, "reference"), as_series(current, "current")
     if reference.empty or current.empty:
         raise ValueError("reference and current must both contain observations")
+    reference_mass = as_weights(reference_weights, raw_reference, "reference_weights", "reference")
+    current_mass = as_weights(current_weights, raw_current, "current_weights", "current")
     # pd.concat and join hash interval categories, which warns on NumPy < 2.2, so samples
     # binned with the same edges are joined by their codes and shares assigned by position.
     if isinstance(reference.dtype, pd.CategoricalDtype) and reference.dtype == current.dtype:
@@ -96,7 +111,15 @@ def psi_table(
     else:
         groups = pd.concat([reference, current], ignore_index=True)
     side = np.repeat([0, 1], [len(reference), len(current)])
-    counts = group_counts(groups, side)
+    mass = None
+    if reference_mass is not None or current_mass is not None:
+        mass = np.concatenate(
+            [
+                np.ones(len(reference)) if reference_mass is None else reference_mass,
+                np.ones(len(current)) if current_mass is None else current_mass,
+            ]
+        )
+    counts = group_counts(groups, side, mass)
     counts.columns = ["reference", "current"]
     share, _, contribution = divergence(counts.to_numpy(), smoothing)
     return counts.assign(reference_share=share[:, 0], current_share=share[:, 1], psi=contribution)
