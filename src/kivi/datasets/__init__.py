@@ -1,16 +1,18 @@
 """Example data for credit risk modeling.
 
-``load_bank`` loads a real data set with a binary target, and
-``make_loan_panel`` simulates the monthly history of a loan portfolio.
+``load_bank`` loads a real data set with a binary target,
+``make_loan_panel`` simulates the monthly history of a loan portfolio, and
+``make_applications`` simulates loan applications with an approval decision.
 """
 
 from importlib.resources import files
 
 import pandas as pd
 
+from ._applications import make_applications
 from ._loan_panel import make_loan_panel
 
-__all__ = ["load_bank", "make_loan_panel", "Dataset"]
+__all__ = ["load_bank", "make_applications", "make_loan_panel", "Dataset"]
 
 
 def load_bank() -> pd.DataFrame:

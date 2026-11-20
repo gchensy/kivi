@@ -1,0 +1,1 @@
+* ``logistic_regression`` and ``stepwise`` take ``weights``, frequency weights like those of statsmodels' ``GLM(freq_weights=...)``. Integer weights give the same coefficients, standard errors and selection as repeating rows; with fractional weights, such as those of reject inference, the standard errors and p-values are approximate.

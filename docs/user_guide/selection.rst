@@ -151,3 +151,26 @@ False
 .. note::
 
    Stepwise selection tests many models on the same data, so the p-values of the selected model are optimistic. Treat the result as a proposal: review each variable with the business, and check the model on a validation sample before using it.
+
+Weighted samples
+----------------
+
+``logistic_regression`` and ``stepwise`` take ``weights``: frequency weights that count each row as that many identical observations. Integer weights therefore give the same coefficients, standard errors and selection as repeating the rows:
+
+>>> weights = np.random.default_rng(0).integers(1, 4, len(X))
+>>> repeated = np.repeat(np.arange(len(X)), weights)
+>>> weighted = logistic_regression(X[selected], target, weights=weights)
+>>> np.allclose(weighted, logistic_regression(X[selected].iloc[repeated], target.iloc[repeated]))
+True
+>>> stepwise(X[kept], target, weights=weights).equals(
+...     stepwise(X[kept].iloc[repeated], target.iloc[repeated])
+... )
+True
+
+The standard errors treat the total weight as the number of independent observations, so they depend on the scale of the weights: doubling every weight divides them by :math:`\sqrt 2` and lowers every p-value, as doubling the sample would.
+
+>>> doubled = logistic_regression(X[selected], target, weights=2 * weights)
+>>> print(f"{(weighted['se'] / doubled['se']).mean():.4f}")
+1.4142
+
+Weights that do not count observations give approximate standard errors and p-values. The fractional weights of reject inference in :doc:`reject_inference` are such weights: each rejected applicant becomes a bad and a good row whose weights add up to 1, and those outcomes are inferred, not observed.

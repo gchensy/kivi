@@ -590,17 +590,17 @@ def test_stepwise_blocks_reentry_into_a_visited_set(monkeypatch):
     trace = []
     enter, remove = selection._enter, selection._remove
 
-    def traced_enter(design, labels, selected, visited, *rest):
-        entering = enter(design, labels, selected, visited, *rest)
-        unguarded = enter(design, labels, selected, set(), *rest)
+    def traced_enter(design, labels, mass, selected, visited, *rest):
+        entering = enter(design, labels, mass, selected, visited, *rest)
+        unguarded = enter(design, labels, mass, selected, set(), *rest)
         trace.append(
             ("enter", tuple(selected), entering and entering[0], unguarded and unguarded[0])
         )
         return entering
 
-    def traced_remove(design, labels, columns, selected, *rest):
+    def traced_remove(design, labels, mass, columns, selected, *rest):
         before = tuple(selected)
-        fitted = remove(design, labels, columns, selected, *rest)
+        fitted = remove(design, labels, mass, columns, selected, *rest)
         if before != tuple(selected):
             trace.append(("remove", before, tuple(selected)))
         return fitted
@@ -626,3 +626,158 @@ def test_stepwise_rejects_non_boolean_positive(positive):
     ):
         stepwise(pd.DataFrame({"x": BINARY_X}), BINARY_Y, positive=positive)
     assert stepwise(pd.DataFrame({"x": BINARY_X}), BINARY_Y, positive=np.True_).tolist() == []
+
+
+# --- weights ------------------------------------------------------------------------------
+
+
+@pytest.fixture(scope="module")
+def repeated(bank_woe):
+    """Integer weights, some zero, and the rows they repeat."""
+    X, target = bank_woe
+    weights = np.random.default_rng(0).integers(0, 4, len(X))
+    rows = np.repeat(np.arange(len(X)), weights)
+    return weights, X.iloc[rows], target.iloc[rows]
+
+
+def test_integer_weights_equal_repeated_rows(bank_woe, repeated):
+    X, target = bank_woe
+    weights, X_repeated, target_repeated = repeated
+    columns = ["poutcome", "contact", "housing", "loan", "marital"]
+    weighted = logistic_regression(X[columns], target, weights=weights)
+    expected = logistic_regression(X_repeated[columns], target_repeated)
+    pd.testing.assert_frame_equal(weighted, expected, rtol=1e-10)
+    assert weighted.attrs["log_likelihood"] == pytest.approx(
+        expected.attrs["log_likelihood"], rel=1e-12
+    )
+
+
+@pytest.mark.parametrize("direction", ["both", "forward", "backward"])
+@pytest.mark.parametrize("positive", [True, False])
+def test_stepwise_integer_weights_equal_repeated_rows(bank_woe, repeated, direction, positive):
+    X, target = bank_woe
+    weights, X_repeated, target_repeated = repeated
+    options = {"direction": direction, "positive": positive, "p_enter": 0.1, "p_remove": 0.2}
+    selected = stepwise(X, target, weights=weights, **options)
+    assert selected.equals(stepwise(X_repeated, target_repeated, **options))
+    assert len(selected) >= 4
+
+
+def test_fractional_weights_match_statsmodels(bank_woe):
+    X, target = bank_woe
+    weights = np.random.default_rng(1).random(len(X))
+    # statsmodels GLM(target, add_constant(X), Binomial(), freq_weights=weights)
+    # .fit(tol=1e-15, tol_criterion="params").
+    fitted = logistic_regression(X[["poutcome", "contact", "housing"]], target, weights=weights)
+    np.testing.assert_allclose(
+        fitted["coef"],
+        [-2.038247578689713, 0.8582512300427991, 0.7397672649198815, 0.7547436694071427],
+        rtol=1e-10,
+    )
+    np.testing.assert_allclose(
+        fitted["se"],
+        [0.07112065770921419, 0.09237337253191864, 0.16620454775086865, 0.21525695942682385],
+        rtol=1e-10,
+    )
+    assert fitted.attrs["log_likelihood"] == pytest.approx(-724.5255300904082, rel=1e-12)
+
+
+def test_scaling_the_weights_scales_the_variances():
+    X = pd.DataFrame({"x": BINARY_X})
+    unweighted = logistic_regression(X, BINARY_Y)
+    doubled = logistic_regression(X, BINARY_Y, weights=np.full(8, 2.0))
+    np.testing.assert_allclose(doubled["coef"], unweighted["coef"], rtol=1e-12)
+    np.testing.assert_allclose(doubled["se"], unweighted["se"] / math.sqrt(2), rtol=1e-12)
+    assert doubled.attrs["log_likelihood"] == pytest.approx(
+        2 * unweighted.attrs["log_likelihood"], rel=1e-12
+    )
+
+
+def test_binary_predictor_with_cell_weights():
+    # Non-events and events weigh 1.5 and 0.5 at x = 0 and 0.5 and 1.5 at x = 1, so the
+    # odds are 1/3 and 3, and the Woolf variances are sums of reciprocal cell weights.
+    X = pd.DataFrame({"x": [0.0, 0.0, 1.0, 1.0]})
+    fitted = logistic_regression(X, [0, 1, 0, 1], weights=[1.5, 0.5, 0.5, 1.5])
+    np.testing.assert_allclose(fitted["coef"], [math.log(1 / 3), math.log(9)], rtol=1e-12)
+    np.testing.assert_allclose(
+        fitted["se"], [math.sqrt(1 / 1.5 + 1 / 0.5), math.sqrt(2 / 1.5 + 2 / 0.5)], rtol=1e-12
+    )
+
+
+def test_zero_weights_equal_dropped_rows(bank_woe):
+    X, target = bank_woe
+    weights = np.where(np.arange(len(X)) % 3 == 0, 0.0, 1.0)
+    kept = weights > 0
+    columns = ["poutcome", "contact", "housing"]
+    pd.testing.assert_frame_equal(
+        logistic_regression(X[columns], target, weights=weights),
+        logistic_regression(X.loc[kept, columns], target[kept]),
+        rtol=1e-10,
+    )
+    assert stepwise(X, target, weights=weights).equals(stepwise(X[kept], target[kept]))
+
+
+def test_columns_are_checked_on_the_rows_with_positive_weight():
+    X = pd.DataFrame({"a": [1.0, 2.0, 2.0, 2.0, 2.0], "b": [0.0, 1.0, 0.0, 1.0, 1.0]})
+    target = [0, 0, 1, 1, 0]
+    message = "X column 'a' is constant on the rows with positive weight"
+    with pytest.raises(ValueError, match=message):
+        logistic_regression(X, target, weights=[0, 1, 1, 1, 1])
+    with pytest.raises(ValueError, match=message):
+        stepwise(X, target, weights=[0, 1, 1, 1, 1])
+    X["c"] = [5.0, 1.0, 0.0, 1.0, 1.0]
+    message = (
+        "X column 'c' is a linear combination of the intercept and the columns before it "
+        "on the rows with positive weight"
+    )
+    with pytest.raises(ValueError, match=message):
+        logistic_regression(X[["b", "c"]], target, weights=[0, 1, 1, 1, 1])
+
+
+def test_zero_weights_can_separate_the_classes():
+    X = pd.DataFrame({"x": [1.0, 2.0, 3.0, 4.0]})
+    logistic_regression(X, [0, 1, 0, 1])
+    with pytest.raises(SeparationError):
+        logistic_regression(X, [0, 1, 0, 1], weights=[1, 0, 0, 1])
+
+
+@pytest.mark.parametrize(
+    ("weights", "message"),
+    [
+        ([1, 1, 1], "weights must have one weight per row of X, got 3 for 8"),
+        ([1, -1, 1, 1, 1, 1, 1, 1], "weights must be finite and non-negative"),
+        ([1, np.nan, 1, 1, 1, 1, 1, 1], "weights must be finite and non-negative"),
+        (["1"] * 8, "weights must be numeric, got dtype"),
+        ([True] * 8, "weights must be numeric, got dtype bool"),
+        ([0] * 8, r"weights must have a finite, positive total, got 0.0"),
+        (
+            [1, 1, 1, 0, 1, 0, 0, 0],
+            "weights must give both target classes a positive total, got 4.0 for 0 and 0.0 for 1",
+        ),
+        ([[1] * 8], "weights must be one-dimensional, got 2 dimensions"),
+    ],
+)
+def test_invalid_weights(weights, message):
+    X = pd.DataFrame({"x": BINARY_X})
+    for function in (logistic_regression, stepwise):
+        with pytest.raises(ValueError, match=message):
+            function(X, BINARY_Y, weights=weights)
+
+
+def test_weights_must_have_the_index_of_X():
+    X = pd.DataFrame({"x": BINARY_X})
+    with pytest.raises(ValueError, match="X and weights must have identical indices"):
+        logistic_regression(X, BINARY_Y, weights=pd.Series(1.0, index=range(1, 9)))
+    unit = logistic_regression(X, BINARY_Y, weights=np.ones(8))
+    pd.testing.assert_frame_equal(unit, logistic_regression(X, BINARY_Y))
+
+
+def test_weighted_fit_does_not_mutate_inputs(bank_woe):
+    X, target = bank_woe
+    weights = pd.Series(np.random.default_rng(2).random(len(X)), index=X.index)
+    copies = X.copy(), target.copy(), weights.copy()
+    logistic_regression(X[["poutcome", "contact"]], target, weights=weights)
+    stepwise(X, target, weights=weights)
+    pd.testing.assert_frame_equal(X, copies[0])
+    pd.testing.assert_series_equal(target, copies[1])
+    pd.testing.assert_series_equal(weights, copies[2])

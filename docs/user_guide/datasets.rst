@@ -1,7 +1,7 @@
 Example data
 ============
 
-:mod:`kivi.datasets` provides two kinds of example data: real bank marketing data with one row per customer and a binary target, and a synthetic panel of loans with one row per loan and month.
+:mod:`kivi.datasets` provides three kinds of example data: real bank marketing data with one row per customer and a binary target, a synthetic panel of loans with one row per loan and month, and synthetic loan applications with one row per applicant and an approval decision.
 
 Bank marketing data
 -------------------
@@ -67,7 +67,66 @@ Each loan is repaid in equal monthly instalments at 1% interest a month. Its sta
 
 A loan leaves the panel in the month it pays its last instalment, which can come after its term if it was behind. Loans are not charged off or prepaid.
 
+Synthetic loan applications
+---------------------------
+
+``make_applications`` simulates loan applications that an incumbent scorecard and two policy rules decided, for the reject inference in :doc:`reject_inference`. Every applicant has a true default flag, also the rejected ones, so that the inferred outcomes can be compared with the real ones. The same ``rng`` seed always gives the same applications:
+
+>>> from kivi.datasets import make_applications
+>>> applications = make_applications(n_applicants=10000, rng=0)
+>>> applications.shape
+(10000, 10)
+>>> print(applications["approved"].mean())
+0.677
+
+The columns are:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 75
+
+   * - Column
+     - Meaning
+   * - ``age``
+     - Age in years, from 18 to 75.
+   * - ``income``
+     - Monthly income, rounded to tens.
+   * - ``debt_to_income``
+     - Monthly debt payments over income, rounded to hundredths.
+   * - ``inquiries``
+     - Number of credit inquiries in the last six months.
+   * - ``housing``
+     - A categorical: ``own``, ``mortgage`` or ``rent``.
+   * - ``employment``
+     - A categorical: ``permanent``, ``temporary`` or ``self_employed``.
+   * - ``incumbent_pd``
+     - PD of the scorecard that decided the application, rounded to four decimals.
+   * - ``policy_decline``
+     - True if a policy rule declined the application, whatever its PD: a debt-to-income ratio above 0.6 or an age below 21.
+   * - ``approved``
+     - True if ``incumbent_pd`` is below 0.15 and no policy rule declined the application.
+   * - ``target``
+     - 1 if the applicant defaults, else 0.
+
+How the applications are simulated
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The default probability rises with the debt-to-income ratio and the number of inquiries, falls with age and income, and is higher for renters and for temporary and self-employed applicants. A hidden risk factor that no column holds also raises it, and the number of inquiries rises with that factor.
+
+The incumbent scorecard weighs the features differently and ignores ``housing``. Like an underwriter with a credit bureau report, it also sees part of the hidden risk factor. Rejected applicants are therefore riskier than approved applicants with the same features, so a model fitted on the approved applicants alone underestimates how often the rejected ones default:
+
+>>> eligible = applications[~applications["policy_decline"]]
+>>> eligible.groupby("approved")["target"].mean().round(3)
+approved
+False    0.301
+True     0.097
+Name: target, dtype: float64
+
+.. warning::
+
+   In practice, the outcome is known only for approved applicants. ``target`` is given for the rejected applicants only to evaluate reject inference; fitting a model on it would make reject inference pointless.
+
 Dataset and attribution
 -----------------------
 
-Bank Marketing by S. Moro, P. Rita and P. Cortez (2014) is distributed under CC BY 4.0. The bundled CSV was converted from the legacy workbook. The loader encodes subscription as 1 and non-subscription as 0. See the `dataset record <https://doi.org/10.24432/C5K306>`_ and `license <https://creativecommons.org/licenses/by/4.0/>`_. The loan panel is synthetic and has no source to attribute.
+Bank Marketing by S. Moro, P. Rita and P. Cortez (2014) is distributed under CC BY 4.0. The bundled CSV was converted from the legacy workbook. The loader encodes subscription as 1 and non-subscription as 0. See the `dataset record <https://doi.org/10.24432/C5K306>`_ and `license <https://creativecommons.org/licenses/by/4.0/>`_. The loan panel and the applications are synthetic and have no source to attribute.

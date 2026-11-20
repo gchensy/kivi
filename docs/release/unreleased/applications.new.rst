@@ -1,0 +1,1 @@
+* ``kivi.datasets.make_applications`` simulates seeded loan applications with numeric and categorical features, the PD of an incumbent scorecard, policy declines, the approval decision and a true default flag for every applicant, to try reject inference on.
