@@ -1,5 +1,5 @@
-Population stability
-====================
+Population stability index
+==========================
 
 .. currentmodule:: kivi.stability
 
