@@ -8,6 +8,52 @@ Changes merged since the last release.
 
 .. release-fragments::
 
+0.8.0 (2026-11-21)
+------------------
+
+New
+^^^
+
+* ``kivi.binning`` groups the categories of categorical variables in the same two steps as numeric binning. ``category_groups`` pools the categories below ``min_share`` or ``min_count`` into one group, and ``chimerge_groups`` sorts the categories by their smoothed WOE and merges neighbours by ChiMerge under ``max_groups``, ``alpha`` and ``min_group_share``. Both return a dict from category to group, take ``special`` and ``weights``, and leave missing values out. ``group_categories`` applies the dict to any sample; a category that it does not map raises an error unless ``unseen`` names the group it should join.
+* ``fit_spec`` groups a categorical column that ``method`` names with ``"rare"`` or ``"chimerge"``; ``special`` and ``options`` then apply to it, and so does ``bins`` with ``"chimerge"``. ``BinningSpec`` keeps the groupings in a new ``groups`` field and applies them in ``cut`` and ``woe_transform``. Columns without a grouping are fitted as before.
+* The unseen policy of a grouped column can name one of its groups as ``{"group": label}``: ``cut`` then assigns new categories to that group, and ``woe_transform`` gives them its WOE.
+* A ``BinningSpec`` with a grouped column is saved with ``format_version`` 2, which adds the groupings and the unseen groups; every other specification is still saved as version 1, so earlier versions of kivi read it. ``from_json`` reads both versions.
+
+* The new module ``kivi.lifetime`` covers lifetime PDs and the expected credit loss of IFRS 9. ``convert_pd`` converts a PD term structure, such as the cumulative bad rates of a vintage table, between cumulative, marginal and conditional PDs, and keeps the months on book that a cohort has not reached missing. ``transition_pd`` projects the cumulative PD of each state of a transition matrix over any number of periods, with the default state made absorbing.
+* ``expected_credit_loss`` adds up the marginal PD, the LGD and the EAD of each period after the reporting date, discounted at the effective interest rate, into the 12-month or the lifetime expected credit loss of each account. The LGD and the EAD can be constants, one value per account or schedules per account and period.
+* ``significant_increase`` flags a significant increase in credit risk from a relative and an absolute PD threshold, which have no defaults because they are the entity's policy. ``assign_stages`` gives stages 1 to 3 from these flags, the days past due backstops, by default more than 30 days for stage 2 and 90 days or more for stage 3 as presumed by IFRS 9, and defaulted flags, and ``stage_table`` sums the exposure and the loss allowance of each stage, with its coverage ratio.
+
+* The new module ``kivi.monitoring`` tracks a score over time. ``monitoring_table`` gives one row per period, such as a month, with the number of observations, the known outcomes and events, the AUC, Gini and KS of the known outcomes, and the PSI of the score against a reference period or a reference sample, on bands fitted once on the reference. A missing target marks an outcome that is not known yet; it counts in ``total`` but not in the event columns, and a period without both classes has NaN discrimination instead of an error.
+* ``stability_table`` gives the PSI of every grouped variable in every period against the same reference, for the variable part of a stability report. Both functions take ``weights``, and integer weights give the same table as repeating rows, for ``monitoring_table`` on the same band edges.
+
+* ``kivi.metrics.roc_table`` lists the points of the ROC curve, one row per distinct score from the highest to the lowest, with the cumulative event and non-event counts, the true and false positive rates and the precision. The trapezoids under it add up to ``roc_auc``, and the largest gap between the rates is ``ks``.
+* ``kivi.metrics.roc_auc_interval`` gives the AUC and the Gini coefficient a standard error and a confidence interval at a ``level``, using DeLong's method with the fast midrank algorithm of Sun and Xu.
+* ``kivi.metrics.delong_test`` tests whether two scores of the same observations have the same AUC, and returns both AUCs, their difference with its standard error and interval, the z statistic and the two-sided p-value.
+* The standard errors read ``weights`` as frequency weights, so integer weights give the same results as repeating rows. They reproduce the DeLong results that Stata's and SAS's manuals publish for the data of Hanley and McNeil (1982) and of DeLong et al. (1988).
+
+Changed
+^^^^^^^
+
+* ``BinningSpec.format_version`` is now the version of the JSON format that each specification writes, 1 or 2, instead of a class attribute equal to 1. The new class constant ``BinningSpec.FORMAT_VERSION`` is the newest version that kivi reads, now 2.
+
+* The topic guides follow one outline with the same section titles, such as ``Special values``, ``Sample weights`` and ``Errors and warnings``, and their openings link to the steps before and after them. The binning guide gathers its special values in one section, and the univariate profile shows special codes after the screening by IV. The first mention of a kivi function in each section links to its API entry.
+* The API reference starts with two new pages: the conventions that every function follows, such as the order of the arguments, keyword-only options, inputs and results, sample weights and error messages, and a glossary of credit risk terms. Its module pages come in the order of the user guide, each with an introduction and a link to its guide, and ``:mod:`` links now reach them.
+* The migration guide lists the ROC and precision-recall curves, precision, recall, F1 score and confusion matrix of ``BinaryMetrics`` and the correlation heatmaps of ``evaluate/Heatmap.py`` as not ported, with their replacements.
+
+* The user guide gains the guides "Model monitoring" and "Lifetime PD and expected credit loss" in their places in a project. The glossary and the conventions page cover the terms and rules of the new functions. The risk modeling workflow reports the DeLong interval of the Gini and points on to monitoring and the expected credit loss. The guides have new charts for category grouping, the ROC curve, the monitoring report, variable stability by period and PD term structures, and the README shows the monitoring and lifetime PD charts.
+
+Fixed
+^^^^^
+
+* ``kivi.metrics.roc_auc`` and ``kivi.metrics.gini`` could return a value just above 1 when fractional ``weights`` rounded the AUC past it. Both are now at most 1, as documented. Other values are unchanged.
+
+* ``kivi.stability.psi_table``, ``kivi.stability.csi_table`` and ``kivi.monitoring.stability_table`` counted the groups of the current sample under the wrong labels when both samples were unordered categoricals with the same categories listed in another order, such as ``["a", "b"]`` and ``["b", "a"]``. The groups are now matched by label.
+* ``kivi.stability.psi_table`` and ``kivi.stability.csi_table`` raised pandas' ``IntCastingNaNError`` for two samples of ``pandas.cut`` bins on other integer edges when one of them had missing values. Such bins are now joined as intervals of floats, which compare equal to the integer intervals.
+
+* ``kivi.stability.psi_table`` and ``kivi.stability.csi_table`` no longer emit a ``RuntimeWarning`` ("invalid value encountered in cast") on NumPy older than 2.2 when one sample holds ``pandas.cut`` bins with an infinite edge and the other sample has other groups: bins cut on other edges or with unused categories removed, intervals that are not categorical, or other labels. The tables are unchanged.
+
+* A ``weights`` Series was compared only with the index of the data, so when the score, the values or the groups were an array, it was matched by position to a ``target`` Series with another index. The functions of ``kivi.metrics``, ``kivi.woe.woe_table``, ``kivi.calibration.calibration_table``, ``platt_fit`` and ``isotonic_fit``, the supervised functions of ``kivi.binning``, and ``kivi.selection.logistic_regression`` and ``stepwise`` now raise in that case, for example "target and weights must have identical indices", as they do for any other two Series that describe the same observations.
+
 0.7.0 (2026-11-20)
 ------------------
 

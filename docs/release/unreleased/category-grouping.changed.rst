@@ -1,1 +1,0 @@
-* ``BinningSpec.format_version`` is now the version of the JSON format that each specification writes, 1 or 2, instead of a class attribute equal to 1. The new class constant ``BinningSpec.FORMAT_VERSION`` is the newest version that kivi reads, now 2.
