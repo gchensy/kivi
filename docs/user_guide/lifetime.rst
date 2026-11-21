@@ -44,8 +44,10 @@ IFRS 9 allocates each exposure to one of three stages, which decide its horizon:
      - Credit risk increased significantly since initial recognition
      - Lifetime ECL
    * - 3
-     - Credit-impaired, in default
+     - Credit-impaired
      - Lifetime ECL
+
+IFRS 9 defines credit-impaired exposures by events that hurt their expected cash flows, such as a default or the significant financial difficulty of the borrower. In practice, lenders usually align them with their definition of default.
 
 A worked example
 ----------------
@@ -119,7 +121,7 @@ month_on_book
 18             0.0717   0.0940
 24             0.0734   0.0940
 
-The pooled curve reaches the oldest month on book of the panel for every cohort. It lies below the curve of the oldest cohort, 2024-01, which was riskier than the average one, and beyond month on book 18 it rests on seven cohorts or fewer.
+The pooled curve reaches the oldest month on book of the panel for every cohort. From month on book 12 on, it lies below the curve of the oldest cohort, 2024-01, which was riskier than the average one, and beyond month on book 18 it rests on seven cohorts or fewer.
 
 From the reporting date
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -217,10 +219,12 @@ The exposure at default of each month is the balance that the loan is expected t
 >>> growth = 1.01
 >>> ead = book[["balance"]].to_numpy() * (growth**remaining - growth**paid) / (growth**remaining - 1)
 
-With an LGD of 45% and the loans' effective interest rate of 1% a month, :func:`~kivi.lifetime.expected_credit_loss` gives the 12-month and the lifetime ECL of each loan:
+The losses are discounted at the loans' effective interest rate of 1% a month. A loan already at 90+ has defaulted at the reporting date, so its loss is measured at that date without discounting, and its rate is 0. With an LGD of 45%, :func:`~kivi.lifetime.expected_credit_loss` gives the 12-month and the lifetime ECL of each loan:
 
->>> twelve_month = expected_credit_loss(account_pd, 0.45, ead, rate=0.01, horizon=12)
->>> lifetime = expected_credit_loss(account_pd, 0.45, ead, rate=0.01)
+>>> defaulted = book["status"] == "90+"
+>>> rate = np.where(defaulted, 0.0, 0.01)
+>>> twelve_month = expected_credit_loss(account_pd, 0.45, ead, rate=rate, horizon=12)
+>>> lifetime = expected_credit_loss(account_pd, 0.45, ead, rate=rate)
 >>> losses = pd.DataFrame(
 ...     {
 ...         "status": book["status"],
@@ -235,11 +239,11 @@ With an LGD of 45% and the loans' effective interest rate of 1% a month, :func:`
 loan_id
 2697     current         25   2999.08         36.00     56.27
 2723       30-59         25   4069.08       1017.32   1028.66
-2790         90+         25  10371.94       4621.16   4621.16
+2790         90+         25  10371.94       4667.37   4667.37
 2809        1-29         25   3331.36        307.70    325.47
 3383       60-89         28   6964.51       2680.77   2688.99
 
-These are the first loans of each bucket with more than two years to run. The lifetime ECL of the current loan is half as large again as its 12-month ECL: its PD is 0 for three months and its risk builds up over the following ones. The delinquent loans default mostly within the year, so their two ECLs are close. For a loan already at 90+, the PD is 1 in the first month, and the ECL is the LGD times the balance, discounted over that month: 0.45 × 10,371.94 / 1.01 = 4,621.16.
+These are the first loans of each bucket with more than two years to run. The lifetime ECL of the current loan is half as large again as its 12-month ECL: its PD is 0 for three months and its risk builds up over the following ones. The delinquent loans default mostly within the year, so their two ECLs are close. For a loan already at 90+, the PD is 1 in the first month and the rate is 0, so the ECL is the LGD times the balance: 0.45 × 10,371.94 = 4,667.37.
 
 Stage allocation
 ----------------
@@ -258,12 +262,14 @@ Compare PDs of the same horizon. In the panel, a loan's delinquency bucket is th
 
 >>> probability = cumulative.loc[book["status"], 12].to_numpy()
 >>> origination_probability = np.full(len(book), cumulative.loc["current", 12])
->>> sicr = significant_increase(probability, origination_probability, relative=2.0, absolute=0.01)
+>>> increase = significant_increase(
+...     probability, origination_probability, relative=2.0, absolute=0.01
+... )
 
-:func:`~kivi.lifetime.assign_stages` adds the backstops: an exposure more than 30 days past due is at least in stage 2, and one more than 90 days past due, or flagged as defaulted, is in stage 3. The defaults of 30 and 90 days follow the rebuttable presumptions of IFRS 9; pass ``stage_2_days`` and ``stage_3_days`` for other ones. The panel records buckets rather than days, so the example takes the middle of each bucket and flags the 90+ loans as defaulted:
+:func:`~kivi.lifetime.assign_stages` adds the backstops: an exposure more than 30 days past due is at least in stage 2, and one 90 days past due or more, or flagged as defaulted, is in stage 3. The defaults follow the rebuttable presumptions of IFRS 9: credit risk has increased significantly when contractual payments are more than 30 days past due (paragraph 5.5.11), and default occurs no later than when a financial asset is 90 days past due (paragraph B5.5.37). Pass ``stage_2_days`` and ``stage_3_days`` for other thresholds. The panel records buckets rather than days, so the example takes the middle of each bucket, and it flags the 90+ loans as defaulted:
 
 >>> days_past_due = np.array([0, 15, 45, 75, 105])[book["status"].cat.codes]
->>> stage = assign_stages(sicr, days_past_due=days_past_due, defaulted=book["status"] == "90+")
+>>> stage = assign_stages(increase, days_past_due=days_past_due, defaulted=defaulted)
 >>> pd.crosstab(book["status"], stage)
 stage       1   2    3
 status
@@ -275,12 +281,10 @@ current  4076   0    0
 
 The PD test flags every delinquent bucket, so here the stages follow the buckets. A behavioural score or a rating would also separate the current loans from each other.
 
-The backstops, like the PD thresholds, must be exceeded: an exposure exactly 30 days past due stays in stage 1, as in the "more than 30 days past due" of IFRS 9.
+The wording of the two presumptions sets the boundaries. Like the PD thresholds, the 30 days must be exceeded, so an exposure exactly 30 days past due stays in stage 1, while an exposure exactly 90 days past due is already in stage 3:
 
->>> assign_stages([False] * 5, days_past_due=[0, 30, 31, 90, 91])
+>>> assign_stages([False] * 5, days_past_due=[0, 30, 31, 89, 90])
 array([1, 1, 2, 2, 3])
-
-To count 30 and 90 days past due already, pass ``stage_2_days=29`` and ``stage_3_days=89``.
 
 Loss allowance by stage
 -----------------------
@@ -292,11 +296,11 @@ The loss allowance of a loan in stage 1 is its 12-month ECL, and that of a loan 
 >>> table.round(4)
        total     exposure  exposure_share  expected_credit_loss  coverage
 stage
-1       4076  22660955.57          0.9126            219165.568    0.0097
-2        135    739820.77          0.0298            129643.361    0.1752
-3        205   1431123.43          0.0576            637629.251    0.4455
+1       4076  22660955.57          0.9126           219165.5680    0.0097
+2        135    739820.77          0.0298           129643.3610    0.1752
+3        205   1431123.43          0.0576           644005.5435    0.4500
 >>> print(f"{table['expected_credit_loss'].sum() / table['exposure'].sum():.4f}")
-0.0397
+0.0400
 
 Reading the result
 ------------------
@@ -318,7 +322,7 @@ Reading the result
    * - ``coverage``
      - ``expected_credit_loss`` divided by ``exposure``, the coverage ratio. NaN for a stage without exposure.
 
-The coverage ratio rises from stage to stage, here from 1% in stage 1 to 18% in stage 2 and 45% in stage 3. In stage 3 the default has happened, so the coverage is close to the LGD. In stage 1 it is below the LGD times the 12-month PD of a current loan, 0.45 × 0.0393 = 1.8%, because the balances amortize and many loans have less than a year to run. The coverage of the portfolio, 4.0% here, is the sum of the loss allowances divided by the sum of the exposures. The share of the exposure in stage 2 shows how much of the book carries lifetime losses; recompute the table with other thresholds to see how much the allowance depends on them.
+The coverage ratio rises from stage to stage, here from 1% in stage 1 to 18% in stage 2 and 45% in stage 3. In stage 3 the default has happened and the loss is not discounted, so the coverage is the LGD. In stage 1 it is below the LGD times the 12-month PD of a current loan, 0.45 × 0.0393 = 1.8%, because the balances amortize and many loans have less than a year to run. The coverage of the portfolio, 4.0% here, is the sum of the loss allowances divided by the sum of the exposures. The share of the exposure in stage 2 shows how much of the book carries lifetime losses; recompute the table with other thresholds to see how much the allowance depends on them.
 
 Missing values
 --------------
@@ -338,6 +342,8 @@ Limits
 - A transition matrix gives a term structure only as far as the movements are a time-homogeneous Markov chain: the same probabilities in every period, whatever the age of a loan or the time it has spent in its state.
 - IFRS 9 asks for an unbiased, probability-weighted amount that reflects forecasts of economic conditions. These functions compute the ECL of one set of PDs, LGDs and EADs: compute it for each economic scenario and weight the results with the probabilities of the scenarios.
 - Early repayment enters only through the EAD schedule and through the vintage curves, which count repaid loans as not bad.
+- For revolving facilities, such as credit cards, IFRS 9 measures the expected credit losses over the period in which the lender is exposed to credit risk, which can be longer than the contractual period (paragraphs B5.5.39 and B5.5.40). Choose the periods and the EAD schedule, including drawings of undrawn limits, for that period.
+- :func:`~kivi.lifetime.significant_increase` does not apply the exemption for exposures with low credit risk at the reporting date (paragraph 5.5.10); combine its flags with a low-risk criterion of your own.
 - :func:`~kivi.lifetime.assign_stages` looks at one reporting date. Probation periods, during which an exposure that no longer meets a criterion stays in its stage, need the history of each exposure and are not applied, and neither are the rules for assets that are credit-impaired when they are purchased or originated.
 
 Errors and warnings

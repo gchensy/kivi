@@ -354,6 +354,28 @@ def test_transition_pd_with_states_of_two_levels():
     np.testing.assert_allclose(result.to_numpy(), transition_pd(MATRIX, horizons=3).to_numpy())
 
 
+def test_transition_pd_messages_show_states_of_two_levels_as_plain_tuples():
+    states = pd.MultiIndex.from_arrays([np.array([1, 1, 2]), np.array([10, 20, 30])])
+    matrix = pd.DataFrame(
+        [[0.5, 0.4, 0.0], [0.1, 0.7, 0.2], [0.0, 0.0, 1.0]], index=states, columns=states
+    )
+    with pytest.raises(ValueError, match=r"got 0\.9 for state \(1, 10\); divide each row"):
+        transition_pd(matrix, horizons=2)
+    repeated = pd.MultiIndex.from_arrays([np.array([1, 1]), np.array([10, 10])])
+    with pytest.raises(ValueError, match=r"must not repeat a state, got \(1, 10\) more than once"):
+        transition_pd(pd.DataFrame(np.eye(2), index=repeated, columns=repeated), horizons=2)
+
+
+def test_transition_pd_horizons_as_whole_number_scalars():
+    expected = transition_pd(MATRIX, horizons=2)
+    for horizons in (2.0, np.float64(2.0), np.int64(2)):
+        pd.testing.assert_frame_equal(transition_pd(MATRIX, horizons=horizons), expected)
+    with pytest.raises(
+        ValueError, match=r"sequence of increasing positive integers, got \[2, 1\]$"
+    ):
+        transition_pd(MATRIX, horizons=pd.Series([2, 1]))
+
+
 def test_transition_pd_default_state_must_be_a_label():
     states = pd.IntervalIndex.from_breaks([0, 30, 60, 90])
     matrix = pd.DataFrame(MATRIX.to_numpy(), index=states, columns=states)
@@ -420,7 +442,9 @@ def test_transition_pd_rejects_invalid_matrices(matrix, message):
         transition_pd(matrix, horizons=2)
 
 
-@pytest.mark.parametrize("horizons", [0, -1, True, 2.0, [], [2, 1], [1, 1], [0, 1], [1.5], [[1]]])
+@pytest.mark.parametrize(
+    "horizons", [0, -1, True, 2.5, np.inf, "2", [], [2, 1], [1, 1], [0, 1], [1.5], [[1]]]
+)
 def test_transition_pd_rejects_invalid_horizons(horizons):
     with pytest.raises(ValueError, match="horizons must be a positive integer or a sequence"):
         transition_pd(MATRIX, horizons=horizons)
@@ -563,6 +587,25 @@ def test_expected_credit_loss_broadcasts_pandas_inputs_with_one_row_or_column():
     # A row for all accounts still has one column per period, so its columns must match.
     with pytest.raises(ValueError, match="probability and lgd must have identical columns"):
         expected_credit_loss(frame, pd.DataFrame([[0.5] * 3]), schedule, rate=0.05)
+
+
+def test_expected_credit_loss_with_one_account_or_one_period():
+    # With one account, a single row is broadcast: only the labels of probability are used.
+    frame = pd.DataFrame([[0.1, 0.2]], index=["x"], columns=[1, 2])
+    result = expected_credit_loss(frame, pd.DataFrame([[0.5]]), 100.0, rate=0.0)
+    pd.testing.assert_series_equal(
+        result, pd.Series([15.0], index=["x"], name="expected_credit_loss")
+    )
+    result = expected_credit_loss(frame, pd.Series([0.5], index=["y"]), 100.0, rate=0.0)
+    assert result.index.tolist() == ["x"]
+    # With one period, a column per account is broadcast over the periods.
+    index = pd.Index(["x", "y"])
+    one_period = pd.DataFrame({"pd": [0.1, 0.2]}, index=index)
+    lgd = pd.DataFrame({"lgd": [0.5, 0.4]}, index=index)
+    result = expected_credit_loss(one_period, lgd, 100.0, rate=0.0)
+    np.testing.assert_allclose(result, [5.0, 8.0])
+    with pytest.raises(ValueError, match="probability and lgd must have identical indices"):
+        expected_credit_loss(one_period, lgd.set_axis(["y", "x"]), 100.0, rate=0.0)
 
 
 def test_expected_credit_loss_discounts_only_the_periods_it_adds_up():
@@ -758,12 +801,17 @@ def test_assign_stages_hand_example():
     assert stage.dtype == np.int64
 
 
-def test_assign_stages_backstops_are_strict():
-    days = [0, 30, 31, 90, 91]
-    np.testing.assert_array_equal(assign_stages([0] * 5, days_past_due=days), [1, 1, 2, 2, 3])
+def test_assign_stages_backstops_follow_ifrs_9():
+    # More than 30 days past due is stage 2 (5.5.11); 90 days past due is already stage 3 (B5.5.37).
+    days = [0, 30, 31, 89, 90, 91]
+    np.testing.assert_array_equal(assign_stages([0] * 6, days_past_due=days), [1, 1, 2, 2, 3, 3])
     np.testing.assert_array_equal(
-        assign_stages([0] * 5, days_past_due=days, stage_2_days=29, stage_3_days=89),
-        [1, 2, 2, 3, 3],
+        assign_stages([0] * 6, days_past_due=days, stage_2_days=29, stage_3_days=91),
+        [1, 2, 2, 2, 2, 3],
+    )
+    # Fractions of a day compare as numbers.
+    np.testing.assert_array_equal(
+        assign_stages([0] * 3, days_past_due=[30.5, 89.9, 90.0]), [2, 2, 3]
     )
 
 
@@ -782,11 +830,19 @@ def test_assign_stages_returns_a_series_for_series_inputs():
 @pytest.mark.parametrize(
     ("args", "kwargs", "message"),
     [
-        (([],), {}, "sicr must not be empty"),
-        (([0, 2],), {}, "sicr must contain only booleans or 0 and 1, got 2"),
+        (([],), {}, "significant_increase must not be empty"),
+        (([0, 2],), {}, "significant_increase must contain only booleans or 0 and 1, got 2"),
         (([0, 1],), {"defaulted": [0, np.nan]}, "defaulted must contain only booleans or 0 and 1"),
-        (([0, 1],), {"defaulted": [0]}, "sicr and defaulted must have the same length, got 2 and"),
-        (([0, 1],), {"days_past_due": [0]}, "sicr and days_past_due must have the same length"),
+        (
+            ([0, 1],),
+            {"defaulted": [0]},
+            "significant_increase and defaulted must have the same length, got 2 and 1",
+        ),
+        (
+            ([0, 1],),
+            {"days_past_due": [0]},
+            "significant_increase and days_past_due must have the same length",
+        ),
         (([0],), {"days_past_due": [-1]}, "days_past_due must be finite and non-negative, got -1"),
         (([0],), {"days_past_due": [np.nan]}, "days_past_due must be finite and non-negative"),
         (([0],), {"days_past_due": [True]}, "days_past_due must be real and numeric, got dtype"),
@@ -801,7 +857,7 @@ def test_assign_stages_returns_a_series_for_series_inputs():
         (
             (pd.Series([0, 1]),),
             {"days_past_due": pd.Series([0, 1], index=[1, 2])},
-            "sicr and days_past_due must have identical indices",
+            "significant_increase and days_past_due must have identical indices",
         ),
     ],
 )
@@ -851,6 +907,24 @@ def test_stage_table_integer_weights_equal_repeated_rows():
     assert np.isnan(weighted.loc[3, "coverage"])
 
 
+def test_stage_table_with_fractional_weights_by_hand():
+    stage = [1, 1, 2, 3]
+    exposure = [100.0, 300.0, 200.0, 50.0]
+    allowance = [1.0, 2.0, 10.0, 20.0]
+    table = stage_table(stage, exposure, allowance, weights=[0.5, 1.5, 2.0, 0.25])
+    # Stage 1: 0.5 + 1.5 = 2 exposures, 50 + 450 = 500 exposure and 0.5 + 3 = 3.5 allowance.
+    np.testing.assert_allclose(table["total"], [2.0, 2.0, 0.25])
+    np.testing.assert_allclose(table["exposure"], [500.0, 400.0, 12.5])
+    np.testing.assert_allclose(table["exposure_share"], [500 / 912.5, 400 / 912.5, 12.5 / 912.5])
+    np.testing.assert_allclose(table["expected_credit_loss"], [3.5, 20.0, 5.0])
+    np.testing.assert_allclose(table["coverage"], [0.007, 0.05, 0.4])
+
+
+def test_stage_table_without_exposure():
+    table = stage_table([1, 2], [0.0, 0.0], [0.0, 0.0])
+    assert table["exposure_share"].isna().all() and table["coverage"].isna().all()
+
+
 def test_stage_table_totals_add_up_to_the_portfolio():
     rng = np.random.default_rng(6)
     stage = rng.integers(1, 4, size=200)
@@ -873,8 +947,8 @@ def test_stage_table_totals_add_up_to_the_portfolio():
         ((["1"], [1.0], [0.0]), {}, "stage must be real and numeric, got dtype"),
         (([1, 2], [1.0], [0.0, 0.0]), {}, "stage and exposure must have the same length"),
         (([1], [-1.0], [0.0]), {}, "exposure must be finite and non-negative, got -1.0"),
-        (([1], [1.0], [np.nan]), {}, "loss must be finite and non-negative, got nan"),
-        (([1], [1.0], [True]), {}, "loss must be real and numeric, got dtype bool"),
+        (([1], [1.0], [np.nan]), {}, "allowance must be finite and non-negative, got nan"),
+        (([1], [1.0], [True]), {}, "allowance must be real and numeric, got dtype bool"),
         (([1], [1.0], [0.0]), {"weights": [-1.0]}, "weights must be finite and non-negative"),
         (([1], [1.0], [0.0]), {"weights": [1.0, 1.0]}, "weights must have one weight per value"),
         (
@@ -909,11 +983,11 @@ def test_lifetime_workflow_on_a_loan_panel(panel):
     remaining = (on_book["term"] - on_book["month_on_book"]).to_numpy()
     ead = np.where(np.arange(1, periods + 1) <= remaining[:, None], on_book[["balance"]], 0.0)
     lifetime = expected_credit_loss(marginal, 0.45, ead, rate=0.01)
-    twelve_month = expected_credit_loss(marginal, 0.45, ead, rate=0.01, horizon=6)
-    assert (lifetime >= twelve_month).all()
+    six_month = expected_credit_loss(marginal, 0.45, ead, rate=0.01, horizon=6)
+    assert (lifetime >= six_month).all()
     days = on_book["status"].cat.codes.to_numpy() * 30.0
     stage = assign_stages(np.zeros(len(on_book), dtype=bool), days_past_due=days)
-    allowance = np.where(stage == 1, twelve_month, lifetime)
+    allowance = np.where(stage == 1, six_month, lifetime)
     summary = stage_table(stage, on_book["balance"].to_numpy(), allowance)
     assert summary["total"].sum() == len(on_book)
     np.testing.assert_allclose(summary["expected_credit_loss"].sum(), allowance.sum())

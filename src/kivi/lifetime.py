@@ -10,9 +10,9 @@ accounts to the three stages of IFRS 9, and ``stage_table`` summarizes the
 exposure and the loss allowance of each stage.
 
 Period 1 is the first period after the starting point of a term structure,
-such as the origination or the reporting date, and every threshold is
-exceeded strictly: a PD that more than doubled, an exposure more than 30
-days past due.
+such as the origination or the reporting date. The PD thresholds and the
+30-day backstop are exceeded strictly, while an exposure 90 days past due is
+already in stage 3, as in the presumptions of IFRS 9.
 """
 
 import math
@@ -210,9 +210,10 @@ def transition_pd(
     Returns
     -------
     pandas.DataFrame
-        Cumulative PD with one row per starting state, indexed by ``state``,
-        and one column per horizon, labelled ``horizon``. The row of the
-        default state is 1.
+        Cumulative PD with one row per starting state, indexed by ``state``
+        or, for states with several levels, by the levels of the index of
+        `matrix`, and one column per horizon, labelled ``horizon``. The row
+        of the default state is 1.
 
     Raises
     ------
@@ -350,8 +351,8 @@ def expected_credit_loss(
         period. Give the periods after the maturity of an account an
         exposure of 0. Series and DataFrames with one row per account must
         have identical indices, and DataFrames with one column per period
-        identical columns; inputs with one row for all accounts or one
-        column for all periods are broadcast.
+        identical columns. A single row or column is broadcast, so with one
+        account or one period only the labels of `probability` are used.
     rate : float or array_like
         Effective interest rate per period at which the losses are
         discounted, greater than -1, as one value or one value per account.
@@ -366,8 +367,9 @@ def expected_credit_loss(
     Returns
     -------
     pandas.Series or numpy.ndarray
-        Expected credit loss of each account, in the units of `ead`. If an
-        input with one row per account is a pandas object, a Series named
+        Expected credit loss of each account, in the units of `ead`. If
+        `probability` is a DataFrame, or another input with one row per
+        account of several is a pandas object, a Series named
         ``expected_credit_loss`` with its index; otherwise an array.
 
     Raises
@@ -418,6 +420,12 @@ def expected_credit_loss(
       An account that matures within the horizon has an exposure of 0 after
       maturity, so its 12-month and lifetime expected credit losses are
       equal.
+
+    An exposure already in default at the reporting date has defaulted at
+    that date, not at the end of a period. Give it a marginal PD of 1 in
+    period 1 and a rate of 0, so that its expected credit loss is its LGD
+    times its EAD: the LGD of a defaulted exposure usually discounts the
+    recoveries already.
 
     A missing PD, LGD or EAD in a period that is added up, or a missing
     rate, gives the account a missing expected credit loss, as in
@@ -631,7 +639,7 @@ def significant_increase(
 
 
 def assign_stages(
-    sicr: npt.ArrayLike,
+    significant_increase: npt.ArrayLike,
     *,
     days_past_due: npt.ArrayLike | None = None,
     defaulted: npt.ArrayLike | None = None,
@@ -642,34 +650,35 @@ def assign_stages(
 
     Stage 1 holds the exposures whose credit risk has not increased
     significantly since initial recognition, stage 2 those whose credit risk
-    has, and stage 3 the credit-impaired exposures, in default. The days
-    past due act as backstops: an exposure more than `stage_2_days` past due
-    is at least in stage 2, and one more than `stage_3_days` past due, or
-    flagged as defaulted, is in stage 3.
+    has, and stage 3 the credit-impaired exposures. The days past due act as
+    backstops: an exposure more than `stage_2_days` past due is at least in
+    stage 2, and one at least `stage_3_days` past due, or flagged as
+    defaulted, is in stage 3.
 
     Parameters
     ----------
-    sicr : array_like
+    significant_increase : array_like
         Whether the credit risk of each exposure has increased significantly
         since initial recognition, as booleans or 0 and 1, such as the
-        result of `significant_increase`, possibly combined with qualitative
-        criteria.
+        result of the function `significant_increase`, possibly combined
+        with qualitative criteria.
     days_past_due : array_like, optional
         Days past due of each exposure at the reporting date, finite and
         non-negative. Without it, the backstops do not apply.
     defaulted : array_like, optional
-        Whether each exposure is in default under the entity's definition of
-        default, as booleans or 0 and 1. Defaulted exposures are in stage 3.
+        Whether each exposure is credit-impaired, usually because it is in
+        default under the entity's definition of default, as booleans or 0
+        and 1. These exposures are in stage 3.
     stage_2_days : float, default 30
         Exposures more than this many days past due are at least in stage 2.
         The default follows the rebuttable presumption of IFRS 9, paragraph
-        5.5.11, that credit risk has increased significantly when payments
-        are more than 30 days past due.
+        5.5.11, that credit risk has increased significantly when contractual
+        payments are more than 30 days past due.
     stage_3_days : float, default 90
-        Exposures more than this many days past due are in stage 3. The
-        default follows the 90 days past due of the rebuttable presumption
-        of default in IFRS 9, paragraph B5.5.37. It must be greater than
-        `stage_2_days`.
+        Exposures this many days past due or more are in stage 3. The default
+        follows the rebuttable presumption of IFRS 9, paragraph B5.5.37, that
+        default occurs no later than when a financial asset is 90 days past
+        due. It must be greater than `stage_2_days`.
 
     Returns
     -------
@@ -681,8 +690,9 @@ def assign_stages(
     ------
     ValueError
         If the inputs are empty, not one-dimensional, of different lengths
-        or Series with different indices, `sicr` or `defaulted` has a value
-        other than 0 and 1, or `days_past_due` is not real and numeric or
+        or Series with different indices, `significant_increase` or
+        `defaulted` has a value other than 0 and 1, or `days_past_due` is not
+        real and numeric or
         has a missing, negative or infinite value. Also if `stage_2_days` or
         `stage_3_days` is not a finite, non-negative number, or
         `stage_3_days` is not greater than `stage_2_days`.
@@ -695,37 +705,42 @@ def assign_stages(
 
     Notes
     -----
-    The stage of an exposure is 3 if it is defaulted or more than
-    `stage_3_days` past due, otherwise 2 if `sicr` is true or it is more
-    than `stage_2_days` past due, and otherwise 1. The comparisons are
-    strict, so with the defaults an exposure exactly 30 days past due stays
-    in stage 1; pass 29 and 89 for backstops at 30 and 90 days past due or
-    more.
+    The stage of an exposure is 3 if it is defaulted or at least
+    `stage_3_days` past due, otherwise 2 if `significant_increase` is true
+    or it is more than `stage_2_days` past due, and otherwise 1. With the
+    defaults, an exposure exactly 30 days past due therefore stays in stage
+    1, and one exactly 90 days past due is in stage 3, as the wording of the
+    two presumptions says.
 
-    The thresholds, the definition of default and the treatment of cures
-    are the policy of the reporting entity. Probation periods, during which
-    an exposure that no longer meets a criterion stays in its stage, need
-    the history of each exposure and are not applied.
+    IFRS 9 defines credit-impaired exposures by events that hurt their
+    expected cash flows, such as a default or the significant financial
+    difficulty of the borrower. In practice, entities usually align them
+    with their definition of default. The thresholds, the definition of
+    default and the treatment of cures are the policy of the reporting
+    entity. Probation periods, during which an exposure that no longer meets
+    a criterion stays in its stage, need the history of each exposure and
+    are not applied.
 
     Examples
     --------
     >>> from kivi.lifetime import assign_stages
-    >>> sicr = [False, True, False, False, False]
-    >>> days_past_due = [0, 0, 45, 120, 0]
+    >>> increase = [False, True, False, False, False]
+    >>> days_past_due = [0, 0, 45, 90, 0]
     >>> defaulted = [False, False, False, False, True]
-    >>> assign_stages(sicr, days_past_due=days_past_due, defaulted=defaulted)
+    >>> assign_stages(increase, days_past_due=days_past_due, defaulted=defaulted)
     array([1, 2, 2, 3, 3])
     """
-    inputs = {"sicr": sicr, "days_past_due": days_past_due, "defaulted": defaulted}
+    name = "significant_increase"
+    inputs = {name: significant_increase, "days_past_due": days_past_due, "defaulted": defaulted}
     index = _shared_index(inputs)
-    flags = as_series(sicr, "sicr")
+    flags = as_series(significant_increase, name)
     if not len(flags):
-        raise ValueError("sicr must not be empty")
-    increased = _binary(flags, "sicr")
+        raise ValueError(f"{name} must not be empty")
+    increased = _binary(flags, name)
     days = None
     if days_past_due is not None:
         days = _vector(days_past_due, "days_past_due")
-        _same_length(increased, days, ("sicr", "days_past_due"))
+        _same_length(increased, days, (name, "days_past_due"))
         invalid = ~np.isfinite(days) | (days < 0)
         if invalid.any():
             raise ValueError(
@@ -734,11 +749,11 @@ def assign_stages(
     impaired = np.zeros(len(increased), dtype=bool)
     if defaulted is not None:
         impaired = _binary(as_series(defaulted, "defaulted"), "defaulted")
-        _same_length(increased, impaired, ("sicr", "defaulted"))
-    for value, name in ((stage_2_days, "stage_2_days"), (stage_3_days, "stage_3_days")):
+        _same_length(increased, impaired, (name, "defaulted"))
+    for value, option in ((stage_2_days, "stage_2_days"), (stage_3_days, "stage_3_days")):
         if not _is_number(value) or not 0 <= value < math.inf:
             raise ValueError(
-                f"{name} must be a finite, non-negative number, got {first_value(value)!r}"
+                f"{option} must be a finite, non-negative number, got {first_value(value)!r}"
             )
     if not stage_3_days > stage_2_days:
         raise ValueError(
@@ -747,7 +762,7 @@ def assign_stages(
         )
     if days is not None:
         increased = increased | (days > stage_2_days)
-        impaired = impaired | (days > stage_3_days)
+        impaired = impaired | (days >= stage_3_days)
     stage = np.where(impaired, 3, np.where(increased, 2, 1)).astype(np.int64)
     if index is None:
         return stage
@@ -757,7 +772,7 @@ def assign_stages(
 def stage_table(
     stage: npt.ArrayLike,
     exposure: npt.ArrayLike,
-    loss: npt.ArrayLike,
+    allowance: npt.ArrayLike,
     *,
     weights: npt.ArrayLike | None = None,
 ) -> pd.DataFrame:
@@ -774,16 +789,16 @@ def stage_table(
     exposure : array_like
         Exposure of each account at the reporting date, such as its gross
         carrying amount, finite and non-negative.
-    loss : array_like
-        Expected credit loss of each account, finite and non-negative: the
-        12-month expected credit loss in stage 1 and the lifetime expected
-        credit loss in stages 2 and 3. Series inputs must have identical
-        indices; otherwise the inputs are matched by position.
+    allowance : array_like
+        Loss allowance of each account, finite and non-negative: its 12-month
+        expected credit loss in stage 1 and its lifetime expected credit loss
+        in stages 2 and 3. Series inputs must have identical indices;
+        otherwise the inputs are matched by position.
     weights : array_like, optional
         Non-negative weight of each exposure, such as the inverse of its
-        sampling rate, matched like `exposure`. Counts, exposures and losses
-        become sums of weights, so integer weights give the same table as
-        repeating rows.
+        sampling rate, matched like `exposure`. Counts, exposures and
+        allowances become sums of weights, so integer weights give the same
+        table as repeating rows.
 
     Returns
     -------
@@ -797,8 +812,8 @@ def stage_table(
     ValueError
         If the inputs are empty, not one-dimensional, of different lengths
         or Series with different indices, or not real and numeric. Also if
-        `stage` has a value other than 1, 2 and 3, `exposure` or `loss` has
-        a missing, negative or infinite value, or `weights` is not numeric
+        `stage` has a value other than 1, 2 and 3, `exposure` or `allowance`
+        has a missing, negative or infinite value, or `weights` is not numeric
         or does not give each exposure one finite, non-negative weight with
         a positive total.
 
@@ -815,9 +830,10 @@ def stage_table(
 
     - ``total``: the number of exposures, :math:`\sum_i w_i`;
     - ``exposure``: :math:`\sum_i w_i E_i`, with the exposures :math:`E_i`;
-    - ``exposure_share``: the stage's share of the exposure of all stages;
-    - ``expected_credit_loss``: :math:`\sum_i w_i L_i`, with the losses
-      :math:`L_i`;
+    - ``exposure_share``: the stage's share of the exposure of all stages,
+      NaN for every stage when the total exposure is 0;
+    - ``expected_credit_loss``: :math:`\sum_i w_i L_i`, with the loss
+      allowances :math:`L_i`;
     - ``coverage``: ``expected_credit_loss`` divided by ``exposure``, NaN
       for a stage without exposure.
 
@@ -830,15 +846,15 @@ def stage_table(
     >>> from kivi.lifetime import stage_table
     >>> stage = [1, 1, 1, 2, 3]
     >>> exposure = [1000.0, 2000.0, 1000.0, 800.0, 200.0]
-    >>> loss = [5.0, 8.0, 3.0, 40.0, 90.0]
-    >>> stage_table(stage, exposure, loss)
+    >>> allowance = [5.0, 8.0, 3.0, 40.0, 90.0]
+    >>> stage_table(stage, exposure, allowance)
            total  exposure  exposure_share  expected_credit_loss  coverage
     stage
     1          3    4000.0            0.80                  16.0     0.004
     2          1     800.0            0.16                  40.0     0.050
     3          1     200.0            0.04                  90.0     0.450
     """
-    inputs = {"stage": stage, "exposure": exposure, "loss": loss, "weights": weights}
+    inputs = {"stage": stage, "exposure": exposure, "allowance": allowance, "weights": weights}
     _shared_index(inputs)
     raw_stage = stage
     stage = as_series(stage, "stage")
@@ -852,7 +868,7 @@ def stage_table(
         raise ValueError(f"stage must contain only 1, 2 and 3, got {first_value(stage[invalid])!r}")
     code = stage.to_numpy(dtype=float).astype(np.intp) - 1
     amounts = {}
-    for values, name in ((exposure, "exposure"), (loss, "loss")):
+    for values, name in ((exposure, "exposure"), (allowance, "allowance")):
         array = _vector(values, name)
         _same_length(code, array, ("stage", name))
         invalid = ~np.isfinite(array) | (array < 0)
@@ -866,7 +882,7 @@ def stage_table(
         amounts = {name: mass * array for name, array in amounts.items()}
     total = np.bincount(code, weights=mass, minlength=3)
     stage_exposure = np.bincount(code, weights=amounts["exposure"], minlength=3)
-    stage_loss = np.bincount(code, weights=amounts["loss"], minlength=3)
+    stage_loss = np.bincount(code, weights=amounts["allowance"], minlength=3)
     return pd.DataFrame(
         {
             "total": total,
@@ -984,7 +1000,7 @@ def _transition_probabilities(matrix) -> tuple[npt.NDArray[np.float64], pd.Index
                 f"{list(states)} and {list(matrix.columns)}"
             )
         if states.has_duplicates:
-            repeated = first_value(states[states.duplicated()])
+            repeated = states[states.duplicated()][:1].tolist()[0]
             raise ValueError(f"matrix must not repeat a state, got {repeated!r} more than once")
         frame = matrix
     else:
@@ -1000,7 +1016,8 @@ def _check_transition_rows(probabilities: np.ndarray, states: pd.Index, default:
     rows = np.delete(np.arange(len(states)), default)
     for row in rows:
         values = probabilities[row]
-        state = first_value(states[row])
+        # tolist gives Python scalars, also inside the tuples of a MultiIndex.
+        state = states[row : row + 1].tolist()[0]
         if np.isnan(values).any():
             raise ValueError(
                 f"matrix must not have missing values outside the row of the default state, got "
@@ -1026,10 +1043,14 @@ def _horizons(horizons) -> npt.NDArray[np.int64]:
         "horizons must be a positive integer or a sequence of increasing positive integers, "
         "got {!r}"
     )
-    shown = first_value(horizons) if np.ndim(horizons) == 0 else horizons
+    if isinstance(horizons, pd.Series | pd.Index | np.ndarray):
+        shown = horizons.tolist()
+    else:
+        shown = first_value(horizons) if np.ndim(horizons) == 0 else horizons
     error = ValueError(message.format(shown))
-    if isinstance(horizons, Integral) and not isinstance(horizons, bool):
-        if not 1 <= horizons < 2**63:
+    if np.ndim(horizons) == 0:
+        # Whole numbers are accepted as scalars as in sequences, such as 12.0.
+        if not (_is_number(horizons) and float(horizons).is_integer() and 1 <= horizons < 2**63):
             raise error
         return np.arange(1, int(horizons) + 1)
     if np.ndim(horizons) != 1:
@@ -1062,15 +1083,19 @@ def _account_index(inputs: dict, accounts: int, periods: int) -> pd.Index | None
     """Return the index of the pandas inputs with one row per account, or None without any.
 
     Those inputs must share their index, and DataFrames with one column per period their
-    columns. Inputs with one row for all accounts or one column for all periods are broadcast,
-    so their labels are not compared.
+    columns. A single row or column is broadcast, so its labels are not compared, also when
+    there is only one account or one period; the labels of probability are always used.
     """
     rows, columns = [], []
     for name, values in inputs.items():
+        # A single row or column is broadcast, unless it is the shape of probability itself.
+        own = name == "probability"
         if isinstance(values, pd.Series | pd.DataFrame) and len(values) == accounts:
-            rows.append((name, values.index))
+            if own or accounts > 1:
+                rows.append((name, values.index))
         if isinstance(values, pd.DataFrame) and values.shape[1] == periods:
-            columns.append((name, values.columns))
+            if own or periods > 1:
+                columns.append((name, values.columns))
     for labels, kind in ((rows, "indices"), (columns, "columns")):
         for name, other in labels[1:]:
             if not other.equals(labels[0][1]):
