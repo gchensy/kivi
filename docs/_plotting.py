@@ -617,8 +617,8 @@ def factor_sensitivity(results: pd.DataFrame, true_rate: float, known_pd: float)
     """Inferred bad rate and refitted mean PD of the rejects for each ``factor``."""
     fig, ax = plt.subplots(figsize=(6.4, 4.0))
     for column, color, reference, label in (
-        ("inferred", AMBER, true_rate, 'rejects["target"].mean()'),
-        ("reject_pd", BLUE, known_pd, "reject_pd of known"),
+        ("inferred", AMBER, true_rate, 'results["known"]["inferred"]'),
+        ("reject_pd", BLUE, known_pd, 'results["known"]["reject_pd"]'),
     ):
         ax.plot(results.index, results[column], color=color, marker="o", linewidth=2, label=column)
         ax.axhline(reference, color=color, linestyle="--", linewidth=1.2, label=label)

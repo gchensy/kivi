@@ -423,7 +423,8 @@ def _bands(
     if not isinstance(bins, Integral) or isinstance(bins, bool):
         edges = _band_edges(pooled, bins, None)
     else:
-        # bin_edges warns about ties with advice on special values, which do not apply here.
+        # Warn about tied scores here instead, in terms of bands and at the caller of
+        # parceling or reweighting.
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UserWarning)
             edges = _band_edges(pooled, bins, None)

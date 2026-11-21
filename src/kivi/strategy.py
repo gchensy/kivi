@@ -586,9 +586,9 @@ def _real(values, name: str, *, booleans: bool = False) -> np.ndarray:
     With ``booleans``, True and False count as 1 and 0, as probabilities do in
     `kivi.metrics` and `kivi.calibration`. An empty sequence gives an empty array.
     """
+    if np.ndim(values) == 1 and not len(values):
+        return np.empty(0)
     if not isinstance(values, pd.Series) and np.ndim(values) == 1:
-        if not len(values):
-            return np.empty(0)
         # pandas reads [0.1, None] and nullable arrays as numbers, where NumPy keeps objects.
         values = pd.Series(values)
     if isinstance(values, pd.Series):

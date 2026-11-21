@@ -75,8 +75,6 @@ def bin_edges(
     UserWarning
         If tied edges leave fewer bins than requested, for example when a
         single value accounts for a large share of the reference.
-    FutureWarning
-        If `method` is passed by position.
 
     See Also
     --------

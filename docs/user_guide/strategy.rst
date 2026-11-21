@@ -146,7 +146,7 @@ cutoff
 
 .. plot::
    :alt: Bad rate of the approved book against the approval rate for the current and the new score, with the cut-offs of the swap set marked
-   :caption: The bad rate of the approved book at each approval rate. Up to an approval rate of about 65%, the new score approves a book with a lower bad rate; above it, the two curves meet. The points mark the cut-offs of the swap set.
+   :caption: The bad rate of the approved book at each approval rate. Up to an approval rate of about 65%, the new score approves a book with a lower bad rate; above it, the two curves run close together, with the new score mostly a little higher. The points mark the cut-offs of the swap set.
 
    kp.figure_cutoff_curves()
 

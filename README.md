@@ -37,7 +37,7 @@ screen and bin the variables, fit and scale the model, calibrate it, price the c
 - 🔍 **Transparent results.** Tables return raw counts, smoothed shares and a contribution per bin, grade or cut-off, not just one number.
 - 💾 **Reproducible in production.** `fit_spec` bins a whole data frame, and `BinningSpec` saves the edges and WOE tables as versioned JSON, so production groups new data exactly as development did.
 - 🧩 **Nothing silently dropped.** Missing values, special codes such as `-1` and categories seen in only one sample get their own group.
-- ⚖️ **Sample weights throughout.** Binning, WOE, PSI, the metrics, calibration, the model fits and the strategy tables take `weights`, and integer weights give the same results as repeated rows.
+- ⚖️ **Sample weights throughout.** Binning, WOE, PSI, the metrics, calibration, the model fits and the strategy tables take sample weights, and integer weights count like repeated rows: the same counts, rates and coefficients. Only quantile edges differ, because weighted quantiles do not interpolate.
 - 🧊 **Honest smoothing.** Empty cells are replaced by `smoothing` (default 0.5) before normalizing, and the reported counts are never altered.
 - 🐼 **Just pandas and NumPy.** No Spark, no database drivers and no global random state in the core.
 - 🌏 **Bilingual, tested docs.** Every example in the English and Chinese manuals runs in CI.

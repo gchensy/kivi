@@ -398,6 +398,10 @@ def test_expected_loss_of_no_exposures_is_empty():
     result = expected_loss([], 0.45, 100)
     assert isinstance(result, np.ndarray)
     assert result.shape == (0,)
+    # An empty Series has the object dtype, and keeps its (empty) index.
+    series = expected_loss(pd.Series([], dtype=object), 0.45, 100)
+    assert isinstance(series, pd.Series)
+    assert series.empty
 
 
 def test_expected_loss_does_not_mutate_inputs():

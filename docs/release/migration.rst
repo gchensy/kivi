@@ -80,14 +80,20 @@ Version 0.6.0 replaces three more legacy classes. They are new implementations a
 Master scales, variable profiles and strategy
 ---------------------------------------------
 
-Version 0.7.0 replaces the last legacy classes for model development. Compare their output with the legacy code on a fixed reference sample before switching.
+Version 0.7.0 replaces the legacy master scale and variable profile. Compare their output with the legacy code on a fixed reference sample before switching.
 
 * ``MasterScale.fit_grade_df`` and ``confirm_master_scale`` become ``fit_grade_pd`` and ``master_scale``. ``fit_grade_pd`` fits the logarithm of the default rate by least squares weighted with the number of observations of each grade, where the legacy fit gave every grade the same weight; the two agree when the grades are equally large. A grade without defaults enters the fit with half a default instead of a logarithm of zero. The bounds between grades are the geometric means of adjacent PDs; pass ``boundary="arithmetic"`` for the midpoints of the legacy scale.
 * ``PDToRant(pd, ranking)`` becomes ``assign_grades(probability, scale)``. The legacy function put a PD that lies exactly on a bound in the grade above it; ``assign_grades`` puts it in the grade below, as the intervals of ``pandas.cut`` are closed on the right. It returns an ordered categorical of the grade labels instead of grade numbers.
-* ``FeatureEvaluate(df, target_name).stats()`` becomes ``profile_table(frame.drop(columns=target_name), frame[target_name])``. The columns follow kivi's names, such as ``missing_share``, ``missing_event_rate`` and ``non_missing_lift``, and a lift is NaN instead of -9999 when its group is empty. The signed Gini coefficient of the values replaces the AUC and KS of a univariate logistic fit. The table adds the IV of a quick binning, special codes, sample weights and the ``tied_bins`` column.
+* ``FeatureEvaluate(df, target_name).stats()`` becomes ``profile_table(frame.drop(columns=target_name), frame[target_name])``. The columns follow kivi's names, such as ``missing_share``, ``missing_event_rate`` and ``non_missing_lift``, and a target without events raises an error, where the legacy lifts were -9999. The signed Gini coefficient of the values replaces the AUC and KS of a univariate logistic fit. The table adds the IV of a quick binning, special codes, sample weights and the ``tied_bins`` column.
 * Strategy analysis, reject inference and weighted model fits have no 0.2.x counterpart. ``kivi.strategy`` replaces approval and bad-rate tables built by hand from score bands, ``kivi.reject_inference`` infers the outcomes of declined applicants, and ``logistic_regression`` and ``stepwise`` take ``weights`` to refit on them.
 
 Not ported
 ----------
 
-Spark, SQL, AHP, model wrappers and application code are out of scope and remain in the historical revisions. Of the legacy master scale, the random redistribution of ``BetaDistribution`` and ``MasterScale.cal_quantile`` is not ported. Of ``FeatureEvaluate``, the skewness, kurtosis, coefficient of variation, KS test, univariate logistic fit and chi-squared test are not ported; compute them with pandas or scipy where they are needed.
+Spark, SQL, AHP, model wrappers and application code are out of scope and remain in the historical revisions. These 0.2.x tools have no replacement either:
+
+* The charts of ``DefaultAnalysis``, ``plot_bin`` and ``Calibration.CalibrationCurve``. kivi returns tables, which any plotting library can draw.
+* The sampling helpers ``sampling`` and ``upsampling``, and the ratio and cross features of ``FeatureTools``. Use pandas.
+* The grading by the Beta distribution in ``BetaCalibration``, ``BetaDistribution`` and ``MasterScale.cal_quantile``, and ``model_score_by_weight``. ``master_scale`` and ``woe_to_points`` cover the same steps without them.
+* The repayment-schedule calculations of ``PortfolioAnalysis.Vintage``. Derive the delinquency status with pandas and pass the panel to ``vintage_table``.
+* The skewness, kurtosis, coefficient of variation, KS test, univariate logistic fit and chi-squared test of ``FeatureEvaluate``. Compute them with pandas or scipy where they are needed.
