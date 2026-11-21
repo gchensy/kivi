@@ -99,6 +99,12 @@ The volume falls in the last quarter, when fewer permanent employees apply. The 
 >>> round(gini(approved["incumbent_pd"], approved["target"]), 3)
 0.309
 
+.. plot::
+   :alt: Three panels by month: applications and known outcomes, the Gini coefficient with the development value as a dashed line, and the PSI with the 0.1 and 0.25 thresholds
+   :caption: The monitoring report by month. Top: the applications and those with a known outcome; the last quarter has none yet. Middle: the Gini coefficient of each month against the 0.309 of the approved development applications. Bottom: the PSI against the development scores, far below the 0.1 and 0.25 thresholds also in the last quarter.
+
+   kp.figure_monitoring_report()
+
 With about 130 events a month, the Gini coefficient of a single month moves by several points from sampling noise alone, so read a trend over several months rather than one low value. The last quarter has no known outcomes, and its discrimination is NaN.
 
 The PSI stays at about 0.01 or below up to September and rises to about 0.02 to 0.03 in the last quarter: still a small shift by the usual thresholds. The mix of applicants has changed, but employment is only one input of the score, so the score moves less than the population. The variable report below shows which variables moved.
@@ -175,6 +181,12 @@ period
 2025-10   0.001   0.001           0.007      0.001    0.003       0.110
 2025-11   0.010   0.004           0.003      0.001    0.000       0.131
 2025-12   0.004   0.004           0.005      0.002    0.001       0.104
+
+.. plot::
+   :alt: Heatmap of the PSI of six variables in twelve months, coloured by the 0.1 and 0.25 thresholds, with employment above 0.1 from October to December
+   :caption: PSI of each variable of the model in each month, coloured by the 0.1 and 0.25 thresholds. Only ``employment`` crosses 0.1, from October, when half of the permanent employees no longer apply.
+
+   kp.figure_stability_heatmap()
 
 Every variable stays below 0.01 up to September. From October, ``employment`` rises above 0.1, a moderate shift, while the other variables do not move: the report points at the change of mix before any outcomes of the new applicants are known. Each entry is the PSI of :func:`~kivi.stability.psi_table` for the month alone, which shows the groups that moved:
 

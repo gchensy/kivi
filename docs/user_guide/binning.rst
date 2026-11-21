@@ -348,6 +348,12 @@ The groups come in increasing order of WOE, so their WOE rises from the first to
 >>> woe_table(group_categories(current["job"], groups), current["target"])["woe"].round(3).tolist()
 [-0.22, -0.054, 1.09]
 
+.. plot::
+   :alt: WOE of the twelve jobs on the reference and the later sample, sorted by reference WOE, with the three merged groups shaded and the WOE of each group drawn as steps
+   :caption: WOE of each job on the reference sample (circles) and on the later sample (diamonds), sorted by reference WOE. The shaded bands are the three groups of ``chimerge_groups`` and the steps the WOE of each group: the jobs move between the samples, but the groups keep their order.
+
+   kp.figure_category_groups()
+
 Grouping lowers the information value on both samples. The IV of many small groups is biased upward, because each group adds a positive term even where its WOE is noise, so a lower IV with stable groups is often the better variable:
 
 >>> rows = {}

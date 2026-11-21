@@ -16,9 +16,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from cycler import cycler
+from matplotlib.colors import BoundaryNorm, ListedColormap
 from matplotlib.ticker import FixedLocator, FuncFormatter, PercentFormatter
 
-from kivi.binning import bin_edges, chimerge_edges, monotonic_edges, tree_edges
+from kivi.binning import (
+    bin_edges,
+    chimerge_edges,
+    chimerge_groups,
+    group_categories,
+    monotonic_edges,
+    tree_edges,
+)
 from kivi.calibration import (
     assign_grades,
     calibration_table,
@@ -27,14 +35,16 @@ from kivi.calibration import (
     prior_correction,
 )
 from kivi.datasets import Dataset, load_bank, make_applications, make_loan_panel
-from kivi.metrics import gains_table
+from kivi.lifetime import convert_pd, transition_pd
+from kivi.metrics import delong_test, gains_table, gini, roc_table
+from kivi.monitoring import monitoring_table, stability_table
 from kivi.reject_inference import fuzzy_augmentation
 from kivi.selection import logistic_regression
 from kivi.spec import fit_spec
 from kivi.stability import psi_table
 from kivi.strategy import cutoff_table
 from kivi.univariate import profile_table
-from kivi.vintage import vintage_table
+from kivi.vintage import transition_matrix, vintage_table
 from kivi.woe import woe_table, woe_transform
 
 BLUE = "#2f5bd3"
@@ -396,6 +406,20 @@ def binning_methods(values: pd.Series, bins: int = 5):
     return fig
 
 
+def _thresholds(ax, values, colors) -> None:
+    for threshold, color in zip(values, colors, strict=True):
+        ax.axhline(threshold, color=color, linestyle="--", linewidth=1)
+        ax.text(
+            1.005,
+            threshold,
+            f"{threshold:g}",
+            transform=ax.get_yaxis_transform(),
+            va="center",
+            fontsize=8.5,
+            color=color,
+        )
+
+
 def iv_ranking(iv: pd.Series, limit: float = 0.65):
     """Horizontal IV bars with the usual 0.02 / 0.1 / 0.3 reading bands."""
     iv = iv.sort_values()
@@ -451,17 +475,7 @@ def psi_monitor(psi: pd.Series, sizes: pd.Series):
     colors = [BLUE if v < 0.1 else AMBER if v < 0.25 else RED for v in psi]
     fig, ax = plt.subplots(figsize=(8, 3.4))
     ax.bar(x, psi, color=colors, width=0.62)
-    for threshold, color in ((0.1, AMBER), (0.25, RED)):
-        ax.axhline(threshold, color=color, linestyle="--", linewidth=1)
-        ax.text(
-            1.005,
-            threshold,
-            f"{threshold:g}",
-            transform=ax.get_yaxis_transform(),
-            va="center",
-            fontsize=8.5,
-            color=color,
-        )
+    _thresholds(ax, (0.1, 0.25), (AMBER, RED))
     ax.set_xticks(
         x, [f"{period}\nn={n}" for period, n in zip(psi.index, sizes, strict=True)], fontsize=8.5
     )
@@ -701,6 +715,198 @@ def missing_profile(profile: pd.DataFrame):
     return fig
 
 
+def category_steps(by_label: pd.DataFrame, by_group: pd.DataFrame, groups: dict):
+    """WOE of each category and of its group, on the reference and the current sample.
+
+    ``by_label`` and ``by_group`` hold a ``reference`` and a ``current`` WOE
+    column, indexed by category and by group; ``groups`` maps each category to
+    its group. The categories are sorted by their reference WOE and the groups
+    are shaded.
+    """
+    order = by_label.sort_values("reference")
+    labels = [groups[category] for category in order.index]
+    starts = [i for i in range(len(labels)) if i == 0 or labels[i] != labels[i - 1]]
+    edges = np.r_[starts, len(labels)] - 0.5
+    fig, ax = plt.subplots(figsize=(8, 3.8))
+    for k, (low, high) in enumerate(zip(edges[:-1], edges[1:], strict=True)):
+        ax.axvspan(low, high, color="#eef1f7" if k % 2 == 0 else "#f8f9fb", zorder=0)
+    x = np.arange(len(order))
+    styles = (("reference", BLUE, "o", "-"), ("current", AMBER, "D", "--"))
+    for column, color, marker, linestyle in styles:
+        ax.stairs(
+            by_group.loc[[labels[i] for i in starts], column],
+            edges,
+            baseline=None,
+            color=color,
+            linewidth=2,
+            linestyle=linestyle,
+        )
+        ax.plot(x, order[column], linestyle="none", marker=marker, markersize=6, color=color)
+    ax.axhline(0, color=GRAY, linewidth=1)
+    handles = [
+        plt.Line2D([], [], color=color, marker=marker, linestyle=linestyle, linewidth=2)
+        for _, color, marker, linestyle in styles
+    ]
+    ax.legend(handles, [column for column, *_ in styles], loc="upper left")
+    ax.set_xlim(edges[0], edges[-1])
+    ax.set_xticks(x, order.index, rotation=35, ha="right", fontsize=8.5)
+    ax.set_ylabel("woe")
+    ax.grid(axis="y")
+    fig.tight_layout()
+    return fig
+
+
+def roc_curves(tables: dict[str, pd.DataFrame], mark_ks: bool = False):
+    """ROC curves of ``roc_table`` results; ``mark_ks`` marks the largest gap of the first."""
+    fig, ax = plt.subplots(figsize=(5.6, 4.6))
+    ax.plot([0, 1], [0, 1], color=GRAY, linestyle="--", linewidth=1)
+    colors = [BLUE] if len(tables) == 1 else [GRAY, BLUE, AMBER]
+    for (label, table), color in zip(tables.items(), colors, strict=False):
+        ax.plot(
+            table["false_positive_rate"],
+            table["true_positive_rate"],
+            color=color,
+            linewidth=2 if len(tables) == 1 else 1.6,
+            label=label,
+        )
+    if mark_ks:
+        table = next(iter(tables.values()))
+        gap = table["true_positive_rate"] - table["false_positive_rate"]
+        row = table.loc[gap.idxmax()]
+        x, y = row["false_positive_rate"], row["true_positive_rate"]
+        ax.plot([x, x], [x, y], color=RED, linewidth=1.8)
+        ax.annotate(
+            f"ks {gap.max():.3f}",
+            (x, (x + y) / 2),
+            xytext=(6, 0),
+            textcoords="offset points",
+            va="center",
+            fontsize=8.5,
+            color=RED,
+        )
+    for axis in (ax.xaxis, ax.yaxis):
+        axis.set_major_formatter(PercentFormatter(1, decimals=0))
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1.02)
+    ax.set_xlabel("false_positive_rate")
+    ax.set_ylabel("true_positive_rate")
+    ax.grid(True, axis="both")
+    ax.legend(loc="lower right")
+    fig.tight_layout()
+    return fig
+
+
+def monitoring_chart(report: pd.DataFrame, development_gini: float):
+    """Counts, Gini and PSI of a ``monitoring_table`` report, one panel each."""
+    x = np.arange(len(report))
+    fig, (top, middle, bottom) = plt.subplots(3, 1, figsize=(8, 6.4), sharex=True)
+    top.bar(x, report["total"], color=LIGHT_BLUE, width=0.62, label="total")
+    top.bar(x, report["known"], color=BLUE, width=0.62, label="known")
+    top.legend(loc="lower right", bbox_to_anchor=(1, 1.01), ncols=2, borderaxespad=0)
+    top.set_ylim(0, report["total"].max() * 1.1)
+    middle.plot(x, report["gini"], color=BLUE, marker="o", linewidth=2)
+    middle.axhline(development_gini, color=AMBER, linestyle="--", linewidth=1.2)
+    middle.text(
+        1.005,
+        development_gini,
+        f"{development_gini:.3f}",
+        transform=middle.get_yaxis_transform(),
+        va="center",
+        fontsize=8.5,
+        color=AMBER,
+    )
+    middle.set_ylim(0, max(report["gini"].max(), development_gini) * 1.3)
+    middle.set_ylabel("gini")
+    psi = report["psi"]
+    colors = [BLUE if v < 0.1 else AMBER if v < 0.25 else RED for v in psi]
+    bottom.bar(x, psi, color=colors, width=0.62)
+    _thresholds(bottom, (0.1, 0.25), (AMBER, RED))
+    bottom.set_ylim(0, max(psi.max() * 1.18, 0.3))
+    bottom.set_ylabel("psi")
+    bottom.set_xticks(x, _labels(report.index), fontsize=8.5)
+    bottom.set_xlim(-0.6, len(x) - 0.4)
+    fig.tight_layout()
+    return fig
+
+
+def stability_heatmap(stability: pd.DataFrame):
+    """PSI of every variable in every period, coloured by the 0.1 / 0.25 conventions."""
+    values = stability.to_numpy(dtype=float)
+    cmap = ListedColormap(["#eef2fc", "#fcdcae", "#f8b4b4"])
+    norm = BoundaryNorm([0, 0.1, 0.25], ncolors=cmap.N, extend="max")
+    fig, ax = plt.subplots(figsize=(8, 0.3 * len(stability) + 1.4))
+    image = ax.imshow(values, cmap=cmap, norm=norm, aspect="auto")
+    for (row, column), value in np.ndenumerate(values):
+        ax.text(column, row, f"{value:.3f}", ha="center", va="center", fontsize=8.5)
+    ax.set_xticks(np.arange(values.shape[1]), stability.columns, fontsize=9)
+    ax.set_yticks(np.arange(values.shape[0]), _labels(stability.index), fontsize=8.5)
+    ax.tick_params(length=0)
+    ax.xaxis.tick_top()
+    ax.set_xlabel(stability.columns.name)
+    ax.xaxis.set_label_position("top")
+    ax.set_ylabel(stability.index.name)
+    ax.grid(False)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    bar = fig.colorbar(image, ax=ax, ticks=[0, 0.1, 0.25], extend="max", fraction=0.04)
+    bar.set_label("psi")
+    bar.outline.set_visible(False)
+    fig.tight_layout()
+    return fig
+
+
+def term_structures(curves: pd.DataFrame, pooled: pd.Series):
+    """Cumulative PD of each cohort by month on book (thin) and the pooled curve (bold)."""
+    fig, ax = plt.subplots(figsize=(8, 3.8))
+    for _, row in curves.iterrows():
+        observed = row.dropna()
+        ax.plot(observed.index, observed.to_numpy(), color=LIGHT_BLUE, linewidth=0.9)
+    ax.plot([], [], color=LIGHT_BLUE, linewidth=0.9, label=curves.index.name)
+    ax.plot(pooled.index, pooled.to_numpy(), color=BLUE, linewidth=2.8, label="pooled")
+    ax.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+    ax.set_xlabel("month_on_book")
+    ax.set_ylabel("cumulative")
+    ax.set_xlim(0, curves.columns.max())
+    ax.set_ylim(bottom=0)
+    ax.legend(loc="upper left")
+    fig.tight_layout()
+    return fig
+
+
+def state_term_structures(cumulative: pd.DataFrame, vintage: pd.Series, state: str):
+    """Cumulative PD of each state by horizon, with a vintage curve dashed next to ``state``."""
+    fig, ax = plt.subplots(figsize=(8, 4.0))
+    colors = dict(zip(cumulative.index, [BLUE, TEAL, AMBER, RED, GRAY], strict=False))
+    for name, row in cumulative.iterrows():
+        ax.plot(row.index, row.to_numpy(), color=colors[name], linewidth=2)
+        ax.annotate(
+            str(name),
+            (row.index[-1], row.iloc[-1]),
+            xytext=(5, 0),
+            textcoords="offset points",
+            va="center",
+            fontsize=8.5,
+            color=colors[name],
+        )
+    ax.plot(vintage.index, vintage.to_numpy(), color=colors[state], linestyle="--", linewidth=1.6)
+    ax.annotate(
+        "vintage",
+        (vintage.index[-1], vintage.iloc[-1]),
+        xytext=(4, -3),
+        textcoords="offset points",
+        va="top",
+        fontsize=8.5,
+        color=colors[state],
+    )
+    ax.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+    ax.set_xlabel("horizon")
+    ax.set_xlim(0, cumulative.columns.max())
+    ax.set_ylim(0, 1.05)
+    ax.grid(True, axis="both")
+    fig.tight_layout()
+    return fig
+
+
 # Recipes for the documentation pages ---------------------------------------
 
 
@@ -765,6 +971,27 @@ def figure_tree():
 def figure_monotonic():
     _, reference, _ = _samples()
     return monotonic_pooling(reference["balance"], reference["target"])
+
+
+def figure_category_groups():
+    _, reference, current = _samples()
+    job, target = reference["job"], reference["target"]
+    by_label = pd.DataFrame(
+        {
+            "reference": woe_table(job, target)["woe"],
+            "current": woe_table(current["job"], current["target"])["woe"],
+        }
+    )
+    groups = chimerge_groups(job, target)
+    by_group = pd.DataFrame(
+        {
+            "reference": woe_table(group_categories(job, groups), target)["woe"],
+            "current": woe_table(group_categories(current["job"], groups), current["target"])[
+                "woe"
+            ],
+        }
+    )
+    return category_steps(by_label, by_group, groups)
 
 
 def figure_woe_job():
@@ -845,6 +1072,28 @@ def figure_gains():
     dev_score, val_score, target = _woe_score_samples()
     edges = bin_edges(dev_score, bins=5).round(2)
     return gains_chart(gains_table(val_score, target, bins=edges))
+
+
+def figure_roc_curve():
+    _, val_score, y = _woe_score_samples()
+    return roc_curves({"val_score": roc_table(val_score, y)}, mark_ks=True)
+
+
+def figure_roc_comparison():
+    _, development, validation = _samples()
+    _, val_score, y = _woe_score_samples()
+
+    def with_variable(column):
+        table = woe_table(development[column], development["target"])
+        return val_score + woe_transform(validation[column], table)
+
+    tests = {
+        column: delong_test(val_score, with_variable(column), y) for column in ["month", "loan"]
+    }
+    tables = {f"current_auc = {tests['month']['current_auc']:.3f}": roc_table(val_score, y)}
+    for column, test in tests.items():
+        tables[f"{column}: new_auc = {test['new_auc']:.3f}"] = roc_table(with_variable(column), y)
+    return roc_curves(tables)
 
 
 def _calibration_samples():
@@ -978,6 +1227,75 @@ def figure_vintage():
     return vintage_curves(ever_90.iloc[::3], "status == '90+'")
 
 
+def _monitoring_samples():
+    """The development sample, the applications of 2025 and their outcomes, as in the guide."""
+    development = make_applications(n_applicants=10000, rng=0)
+    applications = make_applications(n_applicants=24000, rng=1)
+    months = pd.period_range("2025-01", periods=12, freq="M")
+    applications["month"] = months[np.arange(24000) * 12 // 24000]
+    rng = np.random.default_rng(2)
+    permanent = applications["employment"] == "permanent"
+    left_out = (applications["month"] >= months[9]) & permanent & (rng.random(24000) < 0.5)
+    applications = applications[~left_out]
+    known = applications["approved"] & (applications["month"] <= months[8])
+    return development, applications, applications["target"].where(known)
+
+
+def figure_monitoring_report():
+    development, applications, outcome = _monitoring_samples()
+    report = monitoring_table(
+        applications["incumbent_pd"],
+        applications["month"],
+        outcome,
+        reference_score=development["incumbent_pd"],
+    )
+    approved = development[development["approved"]]
+    return monitoring_chart(report, gini(approved["incumbent_pd"], approved["target"]))
+
+
+def figure_stability_heatmap():
+    development, applications, _ = _monitoring_samples()
+    features = ["age", "income", "debt_to_income", "inquiries", "housing", "employment"]
+    spec = fit_spec(
+        development[features],
+        development["target"],
+        bins={"inquiries": [-np.inf, 0, 1, 2, np.inf]},
+    )
+    stability = stability_table(
+        spec.cut(applications[features]),
+        applications["month"],
+        reference_groups=spec.cut(development[features]),
+    )
+    return stability_heatmap(stability)
+
+
+def _lifetime_curves():
+    """The loan panel, its 90+ vintage table and the pooled curve of the lifetime guide."""
+    panel = make_loan_panel(rng=0)
+    ever_90 = vintage_table(
+        panel["loan_id"], panel["cohort"], panel["month_on_book"], panel["status"] == "90+"
+    )
+    hazard = convert_pd(ever_90, kind="cumulative", to="conditional")
+    curve = convert_pd(hazard.mean(), kind="conditional", to="cumulative")
+    return panel, ever_90, curve
+
+
+def figure_lifetime_term_structure():
+    _, ever_90, curve = _lifetime_curves()
+    return term_structures(ever_90, curve)
+
+
+def figure_lifetime_transition():
+    panel, _, curve = _lifetime_curves()
+    later = panel[["loan_id", "month_on_book", "status"]].assign(
+        month_on_book=panel["month_on_book"] - 1
+    )
+    pairs = panel.merge(later, on=["loan_id", "month_on_book"], suffixes=("", "_next"))
+    monthly = transition_matrix(pairs["status"], pairs["status_next"], normalize=True)
+    cumulative = transition_pd(monthly, horizons=36)
+    return state_term_structures(cumulative, curve, "current")
+
+
 README_FIGURES = {
     "readme-woe.svg": figure_quickstart_woe,
     "readme-iv.svg": figure_iv_ranking,
@@ -986,6 +1304,8 @@ README_FIGURES = {
     "readme-vintage.svg": figure_vintage,
     "readme-strategy.svg": figure_cutoff_curves,
     "readme-reject.svg": figure_reject_factor,
+    "readme-monitoring.svg": figure_monitoring_report,
+    "readme-lifetime.svg": figure_lifetime_term_structure,
 }
 
 

@@ -121,6 +121,12 @@ month_on_book
 18             0.0717   0.0940
 24             0.0734   0.0940
 
+.. plot::
+   :alt: Cumulative 90+ bad rate of every cohort by month on book as thin lines, and the cumulative PD of the pooled conditional PDs as a bold line
+   :caption: Cumulative 90+ bad rate of each cohort by month on book (thin) and the curve of the pooled conditional PDs (bold). The young cohorts stop after a few months on book, while the pooled curve runs to the last month on book of the panel.
+
+   kp.figure_lifetime_term_structure()
+
 The pooled curve reaches the oldest month on book of the panel for every cohort. From month on book 12 on, it lies below the curve of the oldest cohort, 2024-01, which was riskier than the average one, and beyond month on book 18 it rests on seven cohorts or fewer.
 
 From the reporting date
@@ -172,6 +178,12 @@ Because :math:`P^{a+b} = P^a P^b`, the PD at :math:`a + b` months is the PD at :
 12  0.0393   0.0417
 18  0.0666   0.0717
 24  0.0932   0.0734
+
+.. plot::
+   :alt: Cumulative PD by horizon for the states current, 1-29, 30-59, 60-89 and 90+, with the pooled vintage curve as a dashed line next to the current state
+   :caption: Cumulative PD of each state by horizon from the monthly transition matrix. The dashed line is the pooled vintage curve, which follows the curve of the current state in the first year and levels off in the second.
+
+   kp.figure_lifetime_transition()
 
 The two agree in the first year and part in the second. The matrix mixes loans of every age, while the chance of missing an instalment depends on the month on book, and the vintage curve beyond month on book 18 rests on a few cohorts.
 
