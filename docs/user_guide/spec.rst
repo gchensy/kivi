@@ -14,9 +14,9 @@ With the defaults, every numeric column gets five quantile bins and every other 
 >>> import warnings
 >>> import numpy as np
 >>> import pandas as pd
->>> from kivi.datasets import Dataset
+>>> from kivi.datasets import load_bank
 >>> from kivi.spec import BinningSpec, fit_spec
->>> data = Dataset.bank_data()
+>>> data = load_bank()
 >>> development, monitoring = data.iloc[:3000], data.iloc[3000:]
 >>> with warnings.catch_warnings(record=True) as caught:
 ...     warnings.simplefilter("always")

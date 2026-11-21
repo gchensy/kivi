@@ -130,11 +130,11 @@ Requires Python 3.10+, NumPy 1.24+ and pandas 2.0+. For the latest development v
 ```python
 import pandas as pd
 from kivi.binning import bin_edges
-from kivi.datasets import Dataset
+from kivi.datasets import load_bank
 from kivi.stability import psi_table
 from kivi.woe import woe_table
 
-data = Dataset.bank_data()                      # 4,521 bank marketing customers
+data = load_bank()                              # 4,521 bank marketing customers
 reference, current = data.iloc[:3000], data.iloc[3000:]
 
 edges = bin_edges(reference["age"], bins=5)     # 1. fit once on the reference

@@ -78,9 +78,9 @@ The bank data give a more realistic example. The score below adds up the WOE val
 
 >>> import numpy as np
 >>> import pandas as pd
->>> from kivi.datasets import Dataset
+>>> from kivi.datasets import load_bank
 >>> from kivi.woe import woe_table, woe_transform
->>> data = Dataset.bank_data()
+>>> data = load_bank()
 >>> development, validation = data.iloc[:3000], data.iloc[3000:]
 >>> def to_groups(frame):
 ...     return pd.DataFrame({

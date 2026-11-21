@@ -26,8 +26,8 @@ Quantile bins hold roughly equal numbers of observations, which suits skewed var
 
 Account balances are typical of financial data: most customers hold small amounts and a few hold very large ones. On the bank data, quantile bins split the reference sample evenly, while uniform bins put almost everyone into the first bin.
 
->>> from kivi.datasets import Dataset
->>> data = Dataset.bank_data()
+>>> from kivi.datasets import load_bank
+>>> data = load_bank()
 >>> reference = data.iloc[:3000]
 >>> balance = reference["balance"]
 >>> quantile = pd.cut(balance, bin_edges(balance, bins=5))
@@ -403,9 +403,9 @@ Many credit variables use codes such as ``-1`` or ``-999`` for "not applicable" 
 In the bundled data, ``pdays`` is ``-1`` for the 82% of customers who were not contacted in an earlier campaign. Without ``special``, every quantile is tied at ``-1``: ``bin_edges`` returns a single bin and warns that ``-1`` makes up 82% of the fitted values. With ``special=[-1]`` the remaining values are divided into five bins:
 
 >>> from kivi.binning import cut
->>> from kivi.datasets import Dataset
+>>> from kivi.datasets import load_bank
 >>> from kivi.woe import woe_table
->>> data = Dataset.bank_data()
+>>> data = load_bank()
 >>> edges = bin_edges(data["pdays"], bins=5, special=[-1])
 >>> edges
 array([-inf, 112., 179., 254., 343.,  inf])

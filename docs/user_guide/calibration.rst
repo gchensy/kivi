@@ -33,9 +33,9 @@ A master scale divides the PD range into a fixed set of grades, so that ratings 
 
 >>> import numpy as np
 >>> import pandas as pd
->>> from kivi.datasets import Dataset
+>>> from kivi.datasets import load_bank
 >>> from kivi.woe import woe_table, woe_transform
->>> data = Dataset.bank_data()
+>>> data = load_bank()
 >>> development, monitoring = data.iloc[:3000], data.iloc[3000:]
 >>> age_edges = np.array([-np.inf, 25, 35, 45, 55, 65, np.inf])
 >>> def to_groups(frame):
