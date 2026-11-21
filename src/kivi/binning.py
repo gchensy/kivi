@@ -1,13 +1,18 @@
-"""Numeric bin boundaries and bin assignment.
+"""Numeric bin boundaries, category groups and their assignment.
 
 ``bin_edges`` fits edges from the values alone. ``chimerge_edges``,
 ``tree_edges`` and ``monotonic_edges`` also use a binary target. All of them
 return increasing edges with infinite endpoints for ``pandas.cut``, or for
 ``cut``, which also gives each special value its own group.
+
+``category_groups`` pools rare categories and ``chimerge_groups`` merges
+categories with similar event rates. Both return a dict from category to
+group, which ``group_categories`` applies to any sample.
 """
 
 import math
 import warnings
+from collections.abc import Hashable, Mapping
 from numbers import Integral, Real
 from typing import Literal
 
@@ -18,7 +23,16 @@ import pandas as pd
 from ._counts import divergence
 from ._validation import as_series, as_weights
 
-__all__ = ["bin_edges", "cut", "chimerge_edges", "tree_edges", "monotonic_edges"]
+__all__ = [
+    "bin_edges",
+    "cut",
+    "chimerge_edges",
+    "tree_edges",
+    "monotonic_edges",
+    "category_groups",
+    "chimerge_groups",
+    "group_categories",
+]
 
 
 def bin_edges(
@@ -617,9 +631,509 @@ def monotonic_edges(
     return np.r_[-np.inf, interior, np.inf]
 
 
+def category_groups(
+    values: npt.ArrayLike,
+    *,
+    min_share: float = 0.05,
+    min_count: float = 0,
+    rare_label: str | float = "other",
+    special: npt.ArrayLike | None = None,
+    weights: npt.ArrayLike | None = None,
+) -> dict[Hashable, Hashable]:
+    """Fit a grouping that pools the rare categories of a reference sample.
+
+    A category is rare when it makes up less than ``min_share`` of the fitted
+    values or has fewer than ``min_count`` of them. The rare categories form
+    one group labelled ``rare_label``, and every other category is a group of
+    its own. Apply the grouping with `group_categories` to the reference and
+    to every sample compared with it.
+
+    Parameters
+    ----------
+    values : array_like
+        One-dimensional category labels of the reference sample, such as a
+        list, a NumPy array or a pandas Series of strings. Missing values are
+        omitted.
+    min_share : float, default 0.05
+        Share of the fitted values, from 0 to 1, below which a category is
+        rare. With `weights`, the share of their total weight.
+    min_count : float, default 0
+        Number of fitted values, or their total weight with `weights`, below
+        which a category is rare. The default leaves the decision to
+        `min_share`.
+    rare_label : str, int or float, default "other"
+        Label of the group of rare categories. It must differ from the
+        categories that are not rare and from the special codes.
+    special : array_like, optional
+        Special codes, such as ``"unknown"``, that are omitted when the
+        grouping is fitted. Each one is a group of its own, however rare.
+    weights : array_like, optional
+        Non-negative weight of each value, for example the inverse of its
+        sampling rate. Values with zero weight are left out, and the counts
+        of the categories are sums of weights.
+
+    Returns
+    -------
+    dict
+        The group of each category: first the special codes in the order
+        given, then the categories that are not rare, each mapped to itself,
+        then the rare categories, mapped to `rare_label`. Categories follow
+        the order in which they first appear, or the order of the categories
+        of a categorical input.
+
+    Raises
+    ------
+    ValueError
+        If `values` is not one-dimensional or has no values apart from
+        missing, special and zero-weight values, `min_share` is not between 0
+        and 1, `min_count` is not a finite, non-negative number, `rare_label`
+        is neither a string nor a number or is the label of a category that
+        is not rare or of a special code, or `special` is not
+        one-dimensional or contains a missing value or a boolean.
+        Also if `weights` is not numeric, does not give each value one finite,
+        non-negative weight with a positive total, or has an index other than
+        that of `values`.
+
+    See Also
+    --------
+    chimerge_groups : Merge categories with similar event rates.
+    group_categories : Assign values to the fitted groups.
+    kivi.woe.woe_table : Weight of evidence of the resulting groups.
+    kivi.stability.psi_table : Stability of the resulting groups.
+
+    Notes
+    -----
+    Rare categories are pooled whatever their event rates, so a rare
+    category with a high event rate can share a group with one with a low
+    rate. `chimerge_groups` uses the target to avoid this. The group of rare
+    categories can itself hold less than `min_share` of the values.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from kivi.binning import category_groups, group_categories
+    >>> values = pd.Series(["a", "a", "a", "a", "b", "b", "b", "c", "d", None])
+    >>> groups = category_groups(values, min_share=0.2)
+    >>> groups
+    {'a': 'a', 'b': 'b', 'c': 'other', 'd': 'other'}
+    >>> group_categories(values, groups).tolist()
+    ['a', 'a', 'a', 'a', 'b', 'b', 'b', 'other', 'other', nan]
+    """
+    _check_share(min_share, "min_share", 1)
+    if (
+        isinstance(min_count, bool)
+        or not isinstance(min_count, Real)
+        or not (math.isfinite(min_count) and min_count >= 0)
+    ):
+        raise ValueError(f"min_count must be a finite, non-negative number, got {min_count!r}")
+    if (
+        isinstance(rare_label, (bool, np.bool_))
+        or not isinstance(rare_label, (str, Real))
+        or (isinstance(rare_label, Real) and math.isnan(rare_label))
+    ):
+        raise ValueError(f"rare_label must be a string or a number, got {rare_label!r}")
+    rare_label = _python(rare_label)
+    labels, totals, codes = _category_counts(values, None, special, weights)
+    rare = (totals / totals.sum() < min_share) | (totals < min_count)
+    kept = [label for label, is_rare in zip(labels, rare, strict=True) if not is_rare]
+    if rare.any() and rare_label in {*kept, *codes}:
+        raise ValueError(
+            f"rare_label {rare_label!r} is the label of a category that is not rare or of a "
+            "special code; choose another rare_label"
+        )
+    groups = {code: code for code in codes}
+    groups.update((label, label) for label in kept)
+    groups.update(
+        (label, rare_label) for label, is_rare in zip(labels, rare, strict=True) if is_rare
+    )
+    return groups
+
+
+def chimerge_groups(
+    values: npt.ArrayLike,
+    target: npt.ArrayLike,
+    *,
+    max_groups: int = 5,
+    alpha: float | None = 0.05,
+    min_group_share: float = 0.05,
+    smoothing: float = 0.5,
+    special: npt.ArrayLike | None = None,
+    weights: npt.ArrayLike | None = None,
+) -> dict[Hashable, Hashable]:
+    """Fit a grouping that merges categories with similar event rates by ChiMerge.
+
+    The categories are sorted by their WOE, with zero counts smoothed as in
+    :func:`kivi.woe.woe_table`, and neighbours in that order are merged.
+    First, while some group holds less than ``min_group_share`` of the
+    fitted values, the smallest one is merged with the neighbour whose
+    chi-square statistic with it is smaller. Then, as in `chimerge_edges`,
+    the adjacent pair with the smallest chi-square statistic is merged while
+    more than ``max_groups`` groups remain or while some adjacent pair is not
+    significantly different at level ``alpha``. The groups are sorted by WOE
+    again after every merge, so the WOE of the final groups increases from
+    the first to the last.
+
+    Parameters
+    ----------
+    values : array_like
+        One-dimensional category labels, such as a list, a NumPy array or a
+        pandas Series of strings. Missing values and their labels are omitted.
+    target : array_like
+        Binary labels, with 1 indicating the event. If `values` and `target`
+        are both pandas Series, they must have identical indices; otherwise
+        they are matched by position.
+    max_groups : int, default 5
+        Maximum number of groups, not counting the special codes.
+    alpha : float or None, default 0.05
+        Significance level of the chi-square test with one degree of freedom.
+        Adjacent groups are merged until every pair differs at this level.
+        Pass None to merge down to ``max_groups`` only.
+    min_group_share : float, default 0.05
+        Minimum share of the fitted values in every group, from 0 to 0.5, or
+        of their total weight when `weights` is given. Missing and special
+        values do not count towards it.
+    smoothing : float, default 0.5
+        Positive replacement for a zero count when calculating the WOE that
+        orders the groups, as in :func:`kivi.woe.woe_table`. Use the same
+        value there to see the same order.
+    special : array_like, optional
+        Special codes, such as ``"unknown"``, that are omitted with their
+        labels when the grouping is fitted. Each one is a group of its own.
+    weights : array_like, optional
+        Non-negative weight of each observation, for example the inverse of
+        its sampling rate, matched like `target`. Observations with zero
+        weight are left out, and the counts of each group are sums of
+        weights. The chi-square test treats the weighted counts as counts, so
+        scale the weights to sum to the sample size when the p-values matter.
+        `smoothing` is then in units of weight.
+
+    Returns
+    -------
+    dict
+        The group of each category: first the special codes in the order
+        given, each mapped to itself, then the categories of each group, in
+        increasing order of the group's WOE. A group of one category keeps
+        its label; a merged group is labelled with the labels of its
+        categories, in increasing order of their own WOE, joined by ``", "``.
+
+    Raises
+    ------
+    ValueError
+        If `max_groups` is not a positive integer, `alpha` is neither None
+        nor between 0 and 1, `min_group_share` is not between 0 and 0.5,
+        `smoothing` is not finite and positive, `values` and `target` are not
+        one-dimensional or their indices or lengths do not match, `special`
+        is not one-dimensional or contains a missing value or a boolean,
+        `values` has no values apart from missing, special and zero-weight
+        values, `target` has labels other than 0 and 1 or lacks one of them
+        in the rows that are fitted, or the label of a merged group would be
+        the label of another group.
+        Also if `weights` is not numeric, does not give each value one finite,
+        non-negative weight with a positive total, or has an index other than
+        that of `values`.
+
+    See Also
+    --------
+    category_groups : Pool rare categories without a target.
+    chimerge_edges : Merge the bins of a numeric variable in the same way.
+    group_categories : Assign values to the fitted groups.
+
+    Notes
+    -----
+    The chi-square statistic of two adjacent groups is the one described in
+    `chimerge_edges`. Sorting by WOE puts categories with similar event rates
+    next to each other, so that each merge joins the categories most alike.
+    A category that is not merged is a group of its own, so with
+    ``min_group_share=0`` and ``alpha=None`` a variable with at most
+    ``max_groups`` categories keeps all of them.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from kivi.binning import chimerge_groups
+    >>> values = pd.Series(["a"] * 4 + ["b"] * 4 + ["c"] * 4 + ["d"] * 4)
+    >>> target = pd.Series([0, 0, 0, 1] + [1, 1, 1, 0] + [0, 0, 0, 0] + [1, 1, 1, 1])
+    >>> chimerge_groups(values, target, max_groups=2, alpha=None)
+    {'c': 'c, a', 'a': 'c, a', 'b': 'b, d', 'd': 'b, d'}
+    """
+    _check_count(max_groups, "max_groups")
+    if alpha is not None and not (isinstance(alpha, Real) and 0 < alpha < 1):
+        raise ValueError(f"alpha must be None or between 0 and 1, got {alpha!r}")
+    _check_share(min_group_share, "min_group_share", 0.5)
+    if (
+        isinstance(smoothing, bool)
+        or not isinstance(smoothing, Real)
+        or not (math.isfinite(smoothing) and smoothing > 0)
+    ):
+        raise ValueError(f"smoothing must be finite and positive, got {smoothing!r}")
+    labels, counts, codes = _category_counts(values, target, special, weights)
+    order = np.argsort(_woe(counts, smoothing), kind="stable")
+    labels = [labels[position] for position in order]
+    members = _merge_categories(counts[order], max_groups, alpha, min_group_share, smoothing)
+    groups = {code: code for code in codes}
+    taken = set(codes)
+    for ranks in members:
+        names = [labels[rank] for rank in sorted(ranks)]
+        label = names[0] if len(names) == 1 else ", ".join(str(name) for name in names)
+        if label in taken:
+            raise ValueError(
+                f"two groups would have the label {label!r}; rename the categories whose "
+                "labels contain ', '"
+            )
+        taken.add(label)
+        groups.update((name, label) for name in names)
+    return groups
+
+
+def group_categories(
+    values: npt.ArrayLike,
+    groups: Mapping[Hashable, Hashable],
+    *,
+    unseen: Hashable = "raise",
+) -> pd.Series | pd.Categorical:
+    """Assign category labels to the groups of a fitted grouping.
+
+    Each value is replaced with its group in `groups`, the dict returned by
+    `category_groups` or `chimerge_groups`, or one written or edited by
+    hand. Missing values stay missing, so :func:`kivi.woe.woe_table` counts
+    them as a group of their own.
+
+    Parameters
+    ----------
+    values : array_like
+        One-dimensional category labels to assign.
+    groups : mapping
+        Group of each category, as a dict from category to group. Neither a
+        category nor a group can be missing.
+    unseen : default "raise"
+        Group of the values whose category is not in `groups`, such as a new
+        category: one of the groups in `groups`, for example the group of
+        rare categories. By default such values raise an error, so that they
+        never become missing values.
+
+    Returns
+    -------
+    pandas.Series or pandas.Categorical
+        Categorical groups whose categories are the groups in the order in
+        which they first appear in `groups`. A Series input gives a Series
+        with the same index and name.
+
+    Raises
+    ------
+    ValueError
+        If `values` is not one-dimensional, `groups` is not a mapping or has
+        a missing or non-scalar category or group, `unseen` is neither
+        ``"raise"`` nor one of the groups, or `unseen` is ``"raise"`` and some
+        values are categories that `groups` does not map.
+
+    See Also
+    --------
+    category_groups : Pool rare categories.
+    chimerge_groups : Merge categories with similar event rates.
+    cut : Assign numeric values to bins.
+    kivi.woe.woe_transform : Replace each group with its WOE.
+
+    Notes
+    -----
+    Categories are matched by equality, as in :func:`kivi.woe.woe_transform`,
+    so ``1`` and ``1.0`` are the same category but ``"1"`` is another. The
+    string ``"raise"`` always raises, so it cannot name the group of unseen
+    categories.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from kivi.binning import group_categories
+    >>> groups = {"a": "a", "b": "b, c", "c": "b, c"}
+    >>> group_categories(pd.Series(["c", "a", None, "b"]), groups)
+    0    b, c
+    1       a
+    2     NaN
+    3    b, c
+    dtype: category
+    Categories (2, object): ['a', 'b, c']
+
+    A category that the grouping does not know raises an error unless
+    `unseen` names a group for it:
+
+    >>> group_categories(["d", "a"], groups)
+    Traceback (most recent call last):
+    ...
+    ValueError: values have 1 category that groups does not map, such as 'd'; ...
+    >>> group_categories(["d", "a"], groups, unseen="b, c")
+    ['b, c', 'a']
+    Categories (2, object): ['a', 'b, c']
+    """
+    mapping = _checked_groups(groups, "groups")
+    series = as_series(values, "values")
+    group_of_key, labels = pd.factorize(_object_index(mapping.values()))
+    raise_unseen = isinstance(unseen, str) and unseen == "raise"
+    if not raise_unseen:
+        found = -1
+        if pd.api.types.is_scalar(unseen) and not _is_missing(unseen):
+            found = int(labels.get_indexer(_object_index([unseen]))[0])
+        if found < 0:
+            raise ValueError(f"unseen must be 'raise' or one of the groups, got {unseen!r}")
+    position, levels = pd.factorize(series, sort=False)
+    levels = np.asarray(levels, dtype=object)
+    key = _object_index(mapping).get_indexer(_object_index(levels))
+    level_group = np.r_[group_of_key, -1][key]
+    unmapped = key < 0
+    if unmapped.any():
+        if raise_unseen:
+            shown = ", ".join(repr(_python(level)) for level in levels[unmapped][:5])
+            count = int(unmapped.sum())
+            raise ValueError(
+                f"values have {count} {'category' if count == 1 else 'categories'} that groups "
+                f"does not map, such as {shown}; pass unseen to give them a group"
+            )
+        level_group[unmapped] = found
+    grouped = pd.Categorical.from_codes(np.r_[level_group, -1][position], categories=labels)
+    if isinstance(values, pd.Series):
+        return pd.Series(grouped, index=series.index, name=series.name)
+    return grouped
+
+
 def _check_count(value, name: str) -> None:
     if isinstance(value, bool) or not isinstance(value, Integral) or value < 1:
         raise ValueError(f"{name} must be a positive integer, got {value!r}")
+
+
+def _check_share(value, name: str, upper: float) -> None:
+    if isinstance(value, bool) or not isinstance(value, Real) or not 0 <= value <= upper:
+        raise ValueError(f"{name} must be between 0 and {upper:g}, got {value!r}")
+
+
+def _python(value):
+    """Return a NumPy number, boolean or string as the Python scalar it holds."""
+    if isinstance(value, (np.number, np.bool_, np.str_)):
+        return value.item()
+    return value
+
+
+def _is_missing(value) -> bool:
+    missing = pd.isna(value)
+    return isinstance(missing, (bool, np.bool_)) and bool(missing)
+
+
+def _object_index(values) -> pd.Index:
+    """Return labels as an object Index, which matches them by equality."""
+    labels = list(values)
+    array = np.empty(len(labels), dtype=object)
+    array[:] = labels
+    return pd.Index(array, dtype=object)
+
+
+def _checked_groups(groups, argument: str) -> dict:
+    """Return a grouping as a dict of Python labels, rejecting missing and non-scalar labels."""
+    if not isinstance(groups, Mapping):
+        raise ValueError(
+            f"{argument} must be a mapping from category to group, got {type(groups).__name__}"
+        )
+    checked = {}
+    for category, group in groups.items():
+        for label, role in ((category, "category"), (group, "group")):
+            if not pd.api.types.is_scalar(label) or _is_missing(label):
+                raise ValueError(
+                    f"{argument} must map non-missing scalar categories to non-missing scalar "
+                    f"groups, got the {role} {label!r}; missing values always form their own group"
+                )
+        checked[_python(category)] = _python(group)
+    return checked
+
+
+def _category_counts(
+    values: npt.ArrayLike,
+    target: npt.ArrayLike | None,
+    special: npt.ArrayLike | None,
+    weights: npt.ArrayLike | None,
+) -> tuple[list, np.ndarray, list]:
+    """Fitted categories, their counts and the special codes, as Python labels.
+
+    The counts are the number of values of each category without a target,
+    or its (non_event, event) counts with one, as sums of weights with
+    `weights`. Missing values, special codes and zero-weight values are left
+    out together with their labels. Categories follow their first appearance,
+    or the order of the categories of a categorical input.
+    """
+    raw_values = values
+    if target is not None and isinstance(values, pd.Series) and isinstance(target, pd.Series):
+        if not values.index.equals(target.index):
+            raise ValueError("values and target must have identical indices")
+    series = as_series(values, "values")
+    if target is not None:
+        target = as_series(target, "target")
+        if len(series) != len(target):
+            raise ValueError(
+                f"values and target must have the same length, got {len(series)} and {len(target)}"
+            )
+        if not target.isin([0, 1]).all():
+            raise ValueError("target must contain only 0 and 1 and no missing labels")
+    codes = _special_values(special)
+    mass = as_weights(weights, raw_values)
+    position, levels = pd.factorize(series, sort=isinstance(series.dtype, pd.CategoricalDtype))
+    levels = np.asarray(levels, dtype=object)
+    fitted = position >= 0
+    excluded = ["missing"]
+    if special is not None:
+        is_special = codes.get_indexer(_object_index(levels)) >= 0
+        fitted &= ~np.r_[is_special, False][position]
+        excluded.append("special")
+    if mass is not None:
+        fitted &= mass > 0
+        excluded.append("zero-weight")
+    if not fitted.any():
+        names = ", ".join(excluded[:-1]) + " and " + excluded[-1] if excluded[1:] else "missing"
+        raise ValueError(f"values have no categories to fit apart from {names} values")
+    # Order the categories among the fitted rows only, so that rows left out, such as those
+    # with zero weight, do not change it.
+    if isinstance(series.dtype, pd.CategoricalDtype):
+        used, category = np.unique(position[fitted], return_inverse=True)
+    else:
+        category, used = pd.factorize(position[fitted])
+    labels = [_python(level) for level in levels[used]]
+    weight = None if mass is None else mass[fitted]
+    if target is None:
+        counts = np.bincount(category, weights=weight, minlength=len(labels))
+    else:
+        side = target.to_numpy()[fitted].astype(np.intp)
+        if side.min() == side.max():
+            rows = "observed and not special" if special is not None else "observed"
+            if mass is not None:
+                rows += " with a positive weight"
+            raise ValueError(f"target must contain both 0 and 1 where values are {rows}")
+        counts = np.bincount(2 * category + side, weights=weight, minlength=2 * len(labels))
+        counts = counts.reshape(-1, 2)
+    return labels, counts, [_python(code) for code in codes]
+
+
+def _merge_categories(
+    counts: np.ndarray, max_groups: int, alpha: float | None, min_share: float, smoothing: float
+) -> list[list[int]]:
+    """Merge (non_event, event) counts sorted by WOE; return the rows of each final group."""
+    members = [[row] for row in range(len(counts))]
+    counts = counts.astype(float)
+    while len(counts) > 1:
+        totals = counts.sum(axis=1)
+        statistic = _pair_chi2(counts)
+        small = totals / totals.sum() < min_share
+        if small.any():
+            group = int(np.argmin(np.where(small, totals, np.inf)))
+            if group == 0 or (group < len(counts) - 1 and statistic[group] < statistic[group - 1]):
+                pair = group
+            else:
+                pair = group - 1
+        else:
+            pair = int(np.argmin(statistic))
+            significant = alpha is None or math.erfc(math.sqrt(statistic[pair] / 2)) < alpha
+            if len(counts) <= max_groups and significant:
+                break
+        counts[pair] += counts[pair + 1]
+        counts = np.delete(counts, pair + 1, axis=0)
+        members[pair : pair + 2] = [members[pair] + members[pair + 1]]
+        order = np.argsort(_woe(counts, smoothing), kind="stable")
+        counts, members = counts[order], [members[row] for row in order]
+    return members
 
 
 def _observed(
