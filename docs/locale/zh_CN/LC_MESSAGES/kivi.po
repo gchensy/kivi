@@ -6126,6 +6126,9 @@ msgstr "未发布"
 msgid "Changes merged since the last release."
 msgstr "上次发布以来合并的改动。"
 
+msgid "0.7.0 (2026-11-20)"
+msgstr "0.7.0（2026-11-20）"
+
 msgid "New"
 msgstr "新增"
 
@@ -6225,6 +6228,20 @@ msgstr ""
 "以及数值取值的 Gini 系数。分位数重合会记录在 ``tied_bins`` 列中，而不会对每一列发出警告； ``special`` 编码和 ``weights`` 的用法与 "
 "``fit_spec`` 相同。"
 
+msgid "Changed"
+msgstr "变更"
+
+msgid ""
+"The risk modeling workflow screens the candidates with ``profile_table``, calibrates the PD on a "
+"master scale with ``master_scale`` and ``assign_grades``, and sets a cut-off with "
+"``cutoff_table`` and ``expected_loss_table``. The user guide has new charts for cut-off curves, "
+"reject inference, grade PDs and missing values, and the README shows the cut-off and reject "
+"inference charts."
+msgstr ""
+"风控建模流程示例改用 ``profile_table`` 筛选候选变量，用 ``master_scale`` 和 ``assign_grades`` 在主标尺上校准 PD，并用 "
+"``cutoff_table`` 和 ``expected_loss_table`` 设定截断点。用户指南新增截断点曲线、拒绝推断、等级 PD 和缺失值图，README "
+"也展示了截断点图和拒绝推断图。"
+
 msgid "Fixed"
 msgstr "修复"
 
@@ -6316,9 +6333,6 @@ msgid ""
 msgstr ""
 "``roc_auc`` 、 ``gini`` 、 ``ks`` 、 ``gains_table`` 、 ``brier_score`` 和 ``calibration_table`` 与 "
 "``woe_table`` 一样接受 ``weights`` 。计数变为权重之和，整数权重与重复相应行的结果相同（ ``gains_table`` 须使用固定边界）。"
-
-msgid "Changed"
-msgstr "变更"
 
 msgid ""
 "The risk modeling workflow saves the shortlist's binning with ``fit_spec`` and adds the "
