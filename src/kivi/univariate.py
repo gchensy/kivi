@@ -14,8 +14,15 @@ import numpy.typing as npt
 import pandas as pd
 
 from . import binning, metrics, woe
-from ._validation import as_series, as_weights
-from .spec import _check_finite, _checked_codes, _fitted_columns, _is_numeric, _shown_list
+from ._validation import (
+    as_series,
+    as_weights,
+    check_finite_column,
+    checked_codes,
+    fitted_columns,
+    is_binned_dtype,
+    shown_list,
+)
 
 __all__ = ["profile_table"]
 
@@ -182,7 +189,7 @@ def profile_table(
     """
     if not isinstance(frame, pd.DataFrame):
         raise ValueError(f"frame must be a pandas DataFrame, got {type(frame).__name__}")
-    names = _fitted_columns(frame, columns)
+    names = fitted_columns(frame, columns)
     if not len(frame):
         raise ValueError("frame must have at least one row")
     binning._check_count(bins, "bins")
@@ -195,7 +202,9 @@ def profile_table(
                 "weights must give both target classes a positive total, got "
                 f"{float(totals[0])!r} for 0 and {float(totals[1])!r} for 1"
             )
-    kinds = {name: "numeric" if _is_numeric(frame[name].dtype) else "categorical" for name in names}
+    kinds = {
+        name: "numeric" if is_binned_dtype(frame[name].dtype) else "categorical" for name in names
+    }
     codes = _special_codes(special, kinds)
     weight = np.ones(len(frame)) if mass is None else mass
     rows = []
@@ -205,7 +214,7 @@ def profile_table(
                 raise ValueError(f"column {name!r} must be real, got dtype {frame[name].dtype}")
             # Rows without weight count for nothing, whatever value they hold.
             used = frame[name] if mass is None else frame[name][mass > 0]
-            _check_finite(used, codes.get(name, ()), name)
+            check_finite_column(used, codes.get(name, ()), name)
         rows.append(
             _profile(frame[name], kinds[name], codes.get(name, ()), labels, weight, mass, bins)
         )
@@ -343,14 +352,12 @@ def _special_codes(special: Mapping | None, kinds: dict[str, str]) -> dict[str, 
         raise ValueError(f"special must be a dict by column, got {type(special).__name__}")
     unknown = [name for name in special if name not in kinds]
     if unknown:
-        raise ValueError(f"special names columns that are not profiled: {_shown_list(unknown)}")
+        raise ValueError(f"special names columns that are not profiled: {shown_list(unknown)}")
     categorical = [name for name in special if kinds[name] != "numeric"]
     if categorical:
         raise ValueError(
-            "special names categorical columns, which keep their labels: "
-            f"{_shown_list(categorical)}"
+            f"special names categorical columns, which keep their labels: {shown_list(categorical)}"
         )
     return {
-        name: _checked_codes(value, f"special of column {name!r}")
-        for name, value in special.items()
+        name: checked_codes(value, f"special of column {name!r}") for name, value in special.items()
     }

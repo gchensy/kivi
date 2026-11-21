@@ -5,6 +5,7 @@ which work on NumPy arrays with one row per group and two count columns.
 """
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
 from ._validation import check_smoothing
@@ -45,6 +46,12 @@ def group_rows(groups: pd.Series, levels: pd.Index) -> np.ndarray:
     if missing.any():  # get_indexer does not match missing values on pandas 2.0
         rows[missing] = missing_row[0] if len(missing_row) else -1
     return rows
+
+
+def ratio(numerator: np.ndarray, denominator: np.ndarray) -> npt.NDArray[np.float64]:
+    """Elementwise ratio that is NaN, without a warning, where the denominator is 0."""
+    result = np.full(len(numerator), np.nan)
+    return np.divide(numerator, denominator, out=result, where=denominator > 0)
 
 
 def shares(counts: np.ndarray, smoothing: float) -> np.ndarray:

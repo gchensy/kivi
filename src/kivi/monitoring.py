@@ -14,8 +14,16 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._counts import divergence
-from ._validation import as_series, as_weights, check_smoothing, first_value
+from ._counts import divergence, ratio
+from ._validation import (
+    as_series,
+    as_weights,
+    check_smoothing,
+    finite_scores,
+    first_value,
+    known_outcomes,
+    shared_index,
+)
 from .metrics import _band_edges, ks, roc_auc
 
 __all__ = ["monitoring_table", "stability_table"]
@@ -190,7 +198,9 @@ def monitoring_table(
     The March outcomes of two observations are not known yet, so its
     discrimination rests on the other two.
     """
-    _check_indices({"score": score, "period": period, "target": target, "weights": weights})
+    shared_index(
+        {"score": score, "period": period, "target": target, "weights": weights}, frames=True
+    )
     _one_reference(reference_period, reference_score, "reference_score")
     check_smoothing(smoothing)
     raw_score = score
@@ -201,9 +211,9 @@ def monitoring_table(
         )
     if not len(score):
         raise ValueError("score and period must not be empty")
-    values = _finite_scores(score, "score")
+    values = finite_scores(score, "score")
     mass = as_weights(weights, raw_score, of="score")
-    known, event = (None, None) if target is None else _outcomes(target, len(score))
+    known, event = (None, None) if target is None else known_outcomes(target, len(score), "score")
     code, periods, categorical = _periods(period)
     totals = _period_sums(code, len(periods), mass)
 
@@ -227,7 +237,7 @@ def monitoring_table(
         labels = event.astype(np.intp)
         columns["known"] = _period_sums(code[known], len(periods), _subset(mass, known))
         columns["event"] = _period_sums(code[event], len(periods), _subset(mass, event))
-        columns["event_rate"] = _ratio(columns["event"], columns["known"])
+        columns["event_rate"] = ratio(columns["event"], columns["known"])
         auc, ks_value = _discrimination(code, values, labels, known, mass, len(periods))
         columns.update(auc=auc, gini=2 * auc - 1, ks=ks_value)
     columns["psi"] = psi
@@ -355,7 +365,7 @@ def stability_table(
     _check_columns(groups, "groups")
     if not len(groups):
         raise ValueError("groups must have at least one row")
-    _check_indices({"groups": groups, "period": period, "weights": weights})
+    shared_index({"groups": groups, "period": period, "weights": weights}, frames=True)
     _one_reference(reference_period, reference_groups, "reference_groups")
     check_smoothing(smoothing)
     period = as_series(period, "period")
@@ -443,52 +453,6 @@ def _row_weights(weights, frame: pd.DataFrame, name: str, of: str) -> np.ndarray
     return as_weights(weights, frame, name, of)
 
 
-def _check_indices(inputs: dict) -> None:
-    """Require every Series or DataFrame among the inputs to have the index of the first one."""
-    indexed = {
-        name: values
-        for name, values in inputs.items()
-        if isinstance(values, (pd.Series, pd.DataFrame))
-    }
-    names = list(indexed)
-    for name in names[1:]:
-        if not indexed[name].index.equals(indexed[names[0]].index):
-            raise ValueError(f"{names[0]} and {name} must have identical indices")
-
-
-def _finite_scores(values: pd.Series, name: str) -> np.ndarray:
-    """Finite float scores; booleans are accepted, as in ``kivi.metrics``."""
-    dtype = values.dtype
-    if not pd.api.types.is_numeric_dtype(dtype) or pd.api.types.is_complex_dtype(dtype):
-        raise ValueError(f"{name} must be real and numeric, got dtype {dtype}")
-    array = values.to_numpy(dtype=float, na_value=np.nan)
-    finite = np.isfinite(array)
-    if not finite.all():
-        raise ValueError(
-            f"{name} must be finite, got {(~finite).sum()} missing or infinite value(s) "
-            f"such as {float(array[~finite][0])!r}"
-        )
-    return array
-
-
-def _outcomes(target, length: int) -> tuple[np.ndarray, np.ndarray]:
-    """Boolean masks of the known outcomes and of the events; missing labels are unknown."""
-    target = as_series(target, "target")
-    if len(target) != length:
-        raise ValueError(
-            f"target must have one label per value of score, got {len(target)} for {length}"
-        )
-    missing = target.isna().to_numpy(dtype=bool)
-    # For nullable dtypes pandas 2.0 returns an object array, which ~ would negate as integers.
-    invalid = ~(target.isin([0, 1]).to_numpy(dtype=bool) | missing)
-    if invalid.any():
-        shown = first_value(target[invalid])
-        raise ValueError(f"target must contain only 0, 1 and missing values, got {shown!r}")
-    event = np.zeros(length, dtype=bool)
-    event[~missing] = target[~missing].to_numpy(dtype=float) == 1
-    return ~missing, event
-
-
 def _periods(period: pd.Series) -> tuple[np.ndarray, pd.Index, bool]:
     """Code of each observation's period, the periods in order, and whether they are categorical.
 
@@ -569,7 +533,7 @@ def _reference_scores(reference_score, reference_weights) -> tuple[np.ndarray, n
             f"reference_score must be real and numeric, got dtype {reference_score.dtype}; "
             "pass the scores of the reference rows, such as score[mask], not the mask"
         )
-    values = _finite_scores(reference_score, "reference_score")
+    values = finite_scores(reference_score, "reference_score")
     mass = as_weights(reference_weights, raw_reference, "reference_weights", "reference_score")
     return values, mass
 
@@ -667,9 +631,3 @@ def _discrimination(
 
 def _subset(mass: np.ndarray | None, rows: np.ndarray) -> np.ndarray | None:
     return None if mass is None else mass[rows]
-
-
-def _ratio(numerator: np.ndarray, denominator: np.ndarray) -> npt.NDArray[np.float64]:
-    """Elementwise ratio that is NaN, without a warning, where the denominator is 0."""
-    result = np.full(len(numerator), np.nan)
-    return np.divide(numerator, denominator, out=result, where=denominator > 0)
