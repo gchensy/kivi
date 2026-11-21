@@ -160,11 +160,11 @@ The rates are the ``cum_event_share`` and ``cum_non_event_share`` of a gains tab
 Confidence interval of the AUC
 ------------------------------
 
-Another sample of customers would give another AUC. :func:`~kivi.metrics.roc_auc_interval` estimates the standard error of the AUC by the method of DeLong, DeLong and Clarke-Pearson (1988), which makes no assumption about the distribution of the scores. Each event gets a placement value, the share of non-events that score below it, and each non-event the share of events that score above it, with ties counted as one half. Both sets of placement values average to the AUC :math:`\hat\theta`. With :math:`m` events and :math:`n` non-events, the variance of the AUC is estimated by
+Another sample of customers would give another AUC. :func:`~kivi.metrics.roc_auc_interval` estimates the standard error of the AUC by the method of DeLong, DeLong and Clarke-Pearson (1988), which makes no assumption about the distribution of the scores. Each event gets a placement value, the share of non-events that score below it, and each non-event the share of events that score above it, with ties counted as one half. Both sets of placement values average to the AUC :math:`\hat\theta`. With :math:`n_1` events and :math:`n_0` non-events, as in the definitions above, the variance of the AUC is estimated by
 
 .. math::
 
-   \mathrm{SE}^2 = \frac{S_{10}}{m} + \frac{S_{01}}{n},
+   \mathrm{SE}^2 = \frac{S_{10}}{n_1} + \frac{S_{01}}{n_0},
 
 where :math:`S_{10}` and :math:`S_{01}` are the sample variances of the placement values of the events and of the non-events. The interval at the confidence ``level`` is :math:`\hat\theta \pm z \, \mathrm{SE}`, with the normal quantile :math:`z`, which is 1.96 for the default level of 0.95, and it is cut off at 0 and 1. The Gini coefficient gets the same interval, rescaled to :math:`2\,\mathrm{AUC} - 1`.
 
@@ -183,7 +183,7 @@ On the validation sample, the AUC of 0.716 is known to about 0.04 either way:
 auc      0.716  0.022  0.673  0.759
 gini     0.431  0.044  0.346  0.517
 
-The development and validation samples hold different customers, so their AUCs are independent and the standard error of their difference is :math:`\sqrt{\mathrm{SE}_1^2 + \mathrm{SE}_2^2}`. The difference between the two samples is well within the noise:
+The development and validation samples hold different customers, so their AUCs can be treated as independent, with a difference whose standard error is :math:`\sqrt{\mathrm{SE}_1^2 + \mathrm{SE}_2^2}`. This is only a rough check, because the WOE values were fitted on the development sample, whose AUC is therefore optimistic. The difference between the two samples is well within the noise:
 
 >>> import math
 >>> dev, val = (roc_auc_interval(s, t).loc["auc"] for s, t in samples.values())
@@ -349,7 +349,7 @@ A weight that is the same for every observation of a class leaves the AUC unchan
 Limits
 ------
 
-* The intervals and the test rest on a normal approximation, which is poor for an AUC close to 0 or 1 and for a class with few observations. A score that separates the classes perfectly has a standard error of 0. Without weights, both functions need at least two events and two non-events, and with weights a total weight above 1 in each class.
+* The intervals and the test rest on a normal approximation, which is poor for an AUC close to 0 or 1 and for a class with few observations. The standard error is 0 whenever the placement values are constant within each class, as they are for a score that separates the classes perfectly, one that reverses them and a constant score, so the interval collapses to the estimate. Without weights, both functions need at least two events and two non-events, and with weights a total weight above 1 in each class.
 * :func:`~kivi.metrics.delong_test` needs both scores on the same observations. For the AUCs of different samples, combine the standard errors of the two intervals, as in the comparison of the development and validation samples above.
 * The standard errors measure the noise of sampling customers from one population. A shift of the population over time is a separate question, which :doc:`psi` answers.
 * kivi gives no p-value for the KS statistic and no confidence bands for the ROC curve or the gains table.

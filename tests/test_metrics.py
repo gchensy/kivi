@@ -420,7 +420,15 @@ def test_weights_match_like_target():
     assert ks(score, target, weights=nullable) == 1.0
 
 
-@pytest.mark.parametrize("metric", [roc_auc, gini, ks, gains_table, roc_table, roc_auc_interval])
+def _delong_test_of_one_score(score, target, **kwargs):
+    """Call delong_test with the same scores twice, to share the checks of the other metrics."""
+    return delong_test(score, score, target, **kwargs)
+
+
+@pytest.mark.parametrize(
+    "metric",
+    [roc_auc, gini, ks, gains_table, roc_table, roc_auc_interval, _delong_test_of_one_score],
+)
 @pytest.mark.parametrize(
     "weights,message",
     [
@@ -428,7 +436,7 @@ def test_weights_match_like_target():
         ([0, 0, 0, 0, 0, 0], "weights must have a finite, positive total, got 0.0"),
         ([1, 1, 1, 1, 1, -1], "weights must be finite and non-negative"),
         ([1, 1, 1, 1, 1, np.nan], "weights must be finite and non-negative"),
-        ([1, 1], "weights must have one weight per value of score, got 2 for 6"),
+        ([1, 1], "weights must have one weight per value of (score|current), got 2 for 6"),
         (["a"] * 6, "weights must be numeric, got dtype"),
     ],
 )
@@ -835,6 +843,10 @@ def test_standard_errors_on_the_bank_data_with_large_weights():
         (1e-10, -6.361340902404056),
         (1e-300, -37.0470962993612),
         (0.5, 0.0),
+        # Next to the median the residual is taken against p - 1/2, which is exact there.
+        (0.500000001, 2.5066282037387115e-09),
+        (0.50049, 0.0012282481633903062),
+        (0.4997, -0.0007519885532626153),
     ],
 )
 def test_normal_quantile_matches_reference_values(probability, expected):
@@ -887,12 +899,27 @@ def test_delong_test_finds_no_difference_when_classes_reorder_internally():
     assert checked > 100
 
 
-def test_roc_auc_interval_bounds_stay_ordered_when_the_auc_rounds_past_one():
-    # The weighted AUC rounds to 1 + 2**-52 here, and its standard error is 0.
-    interval = roc_auc_interval([0, 2, 3, 1], [0, 1, 1, 1], weights=[5.0, 0.3, 0.7, 0.3])
-    assert interval.loc["auc", "estimate"] == pytest.approx(1.0, abs=1e-15)
-    assert interval.loc["auc", "lower"] == interval.loc["auc", "upper"] == 1.0
-    assert interval.loc["gini", "lower"] == interval.loc["gini", "upper"] == 1.0
+def test_weighted_auc_that_rounds_past_one_is_one():
+    # U / (n_1 n_0) rounds to 1 + 2**-52 with these weights; the AUC is clipped to 1.
+    score, target, weights = [0, 2, 3, 1], [0, 1, 1, 1], [5.0, 0.3, 0.7, 0.3]
+    assert roc_auc(score, target, weights=weights) == 1.0
+    assert gini(score, target, weights=weights) == 1.0
+    # The standard error is 0, and the estimate lies in its own interval.
+    interval = roc_auc_interval(score, target, weights=weights)
+    assert (interval["estimate"] == 1.0).all() and (interval["se"] == 0.0).all()
+    assert (interval["lower"] == 1.0).all() and (interval["upper"] == 1.0).all()
+    assert delong_test(score, score, target, weights=weights)["new_auc"] == 1.0
+
+
+@pytest.mark.parametrize(
+    "score,auc",
+    [([1, 2, 3, 4, 5], 1.0), ([5, 4, 3, 2, 1], 0.0), ([1, 1, 1, 1, 1], 0.5)],
+)
+def test_standard_error_is_zero_for_constant_placement_values(score, auc):
+    # Perfect, reversed and constant scores give every event, and every non-event, the same
+    # placement value, so the interval collapses to the estimate.
+    interval = roc_auc_interval(score, [0, 0, 1, 1, 1] if auc != 0.5 else [0, 0, 1, 1, 0])
+    assert interval.loc["auc"].tolist() == [auc, 0.0, auc, auc]
 
 
 def test_one_weighted_row_per_class_is_enough():

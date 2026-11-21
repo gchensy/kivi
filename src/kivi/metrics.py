@@ -441,8 +441,8 @@ def roc_auc_interval(
 
     Notes
     -----
-    Let :math:`m` be the number of events and :math:`n` that of non-events.
-    The placement value :math:`V_{10,i}` of event :math:`i` is the share of
+    Let :math:`n_1` be the number of events and :math:`n_0` that of
+    non-events. The placement value :math:`V_{10,i}` of event :math:`i` is the share of
     non-events that score below it, and the placement value :math:`V_{01,j}`
     of non-event :math:`j` is the share of events that score above it, with
     ties counted as one half. Both average to the AUC :math:`\hat\theta`, and
@@ -450,9 +450,9 @@ def roc_auc_interval(
 
     .. math::
 
-       \widehat{\mathrm{Var}}(\hat\theta) = \frac{S_{10}}{m} + \frac{S_{01}}{n},
+       \widehat{\mathrm{Var}}(\hat\theta) = \frac{S_{10}}{n_1} + \frac{S_{01}}{n_0},
        \qquad
-       S_{10} = \frac{1}{m - 1} \sum_{i=1}^{m} (V_{10,i} - \hat\theta)^2,
+       S_{10} = \frac{1}{n_1 - 1} \sum_{i=1}^{n_1} (V_{10,i} - \hat\theta)^2,
 
     with :math:`S_{01}` defined in the same way over the non-events. The
     placement values come from midranks, as in the algorithm of Sun and
@@ -468,11 +468,13 @@ def roc_auc_interval(
     are rescaled in the same way and the standard error doubles.
 
     The normal approximation is poor when the AUC is close to 0 or 1 or a
-    class has few observations. A score that separates the two classes
-    perfectly has a standard error of 0.
+    class has few observations. The standard error is 0 whenever the
+    placement values are constant within each class, as they are for a
+    score that separates the classes perfectly, one that reverses them and a
+    constant score, so the interval collapses to the estimate.
 
-    With weights, :math:`m` and :math:`n` are the total weights of the two
-    classes, and each squared deviation counts with the weight of its
+    With weights, :math:`n_1` and :math:`n_0` are the total weights of the
+    two classes, and each squared deviation counts with the weight of its
     observation. Weights that stand for a population larger than the sample,
     such as inverse sampling rates, therefore give too small a standard
     error.
@@ -597,12 +599,12 @@ def delong_test(
     .. math::
 
        \widehat{\mathrm{Var}}(\hat\theta_{\mathrm{new}} -
-       \hat\theta_{\mathrm{current}}) = \frac{S^D_{10}}{m} +
-       \frac{S^D_{01}}{n},
+       \hat\theta_{\mathrm{current}}) = \frac{S^D_{10}}{n_1} +
+       \frac{S^D_{01}}{n_0},
 
     where :math:`S^D_{10}` and :math:`S^D_{01}` are the sample variances of
-    :math:`D_{10,i}` over the :math:`m` events and of :math:`D_{01,j}` over
-    the :math:`n` non-events. This equals the variance of the contrast in
+    :math:`D_{10,i}` over the :math:`n_1` events and of :math:`D_{01,j}`
+    over the :math:`n_0` non-events. This equals the variance of the contrast in
     DeLong et al., which adds the two variances and subtracts twice the
     covariance. Under the hypothesis of equal AUCs, :math:`z` is
     approximately standard normal.
@@ -913,7 +915,8 @@ def _auc(values: np.ndarray, labels: np.ndarray, weights: np.ndarray | None) -> 
     # it equals R_1 - n_1 (n_1 + 1) / 2 without subtracting large rank sums.
     below = np.cumsum(non_event) - non_event
     u = np.sum(event * (below + 0.5 * non_event))
-    return float(u / (float(event.sum()) * float(non_event.sum())))
+    # Fractional weights can round U / (n_1 n_0) to just past 1; counts are exact.
+    return min(float(u / (float(event.sum()) * float(non_event.sum()))), 1.0)
 
 
 def _placements(

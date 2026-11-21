@@ -185,13 +185,17 @@ def normal_quantile(probability: float) -> float:
     if probability < _ACKLAM_LOW:
         q = math.sqrt(-2 * math.log(probability))
         x = _horner(_ACKLAM_C, q) / _horner(_ACKLAM_D, q)
+        if x * x / 2 > 700:  # below about 1e-305 the density underflows; keep the approximation
+            return x
+        # The residual of the normal CDF, 0.5 erfc(-x / sqrt(2)), which is accurate for x <= 0.
+        error = 0.5 * math.erfc(-x / math.sqrt(2)) - probability
     else:
         q = probability - 0.5
         x = q * _horner(_ACKLAM_A, q * q) / _horner(_ACKLAM_B, q * q)
-    if x * x / 2 > 700:  # below about 1e-305 the density underflows; keep the approximation
-        return x
-    # Halley's method on the normal CDF, 0.5 erfc(-x / sqrt(2)), which is accurate for x <= 0.
-    error = 0.5 * math.erfc(-x / math.sqrt(2)) - probability
+        # Compare with p - 1/2, which is exact near the median, so that the residual keeps its
+        # relative accuracy as x approaches 0.
+        error = 0.5 * math.erf(x / math.sqrt(2)) - q
+    # One step of Halley's method.
     u = error * math.sqrt(2 * math.pi) * math.exp(x * x / 2)
     return x - u / (1 + x * u / 2)
 
