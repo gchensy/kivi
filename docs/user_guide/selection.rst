@@ -13,10 +13,10 @@ Group every candidate as in :doc:`risk_workflow`: quantile bins for most numeric
 >>> import numpy as np
 >>> import pandas as pd
 >>> from kivi.binning import bin_edges
->>> from kivi.datasets import Dataset
+>>> from kivi.datasets import load_bank
 >>> from kivi.selection import correlation_filter, logistic_regression, stepwise, vif
 >>> from kivi.woe import woe_table, woe_transform
->>> data = Dataset.bank_data()
+>>> data = load_bank()
 >>> development = data.iloc[:3000]
 >>> target = development["target"]
 >>> edges = {
