@@ -1,7 +1,9 @@
 Credit strategy
 ===============
 
-A scorecard ranks applicants; a credit strategy decides whom to approve. :mod:`kivi.strategy` supports the decisions that follow: ``cutoff_table`` shows what each candidate cut-off approves and how many bad outcomes it lets through, ``swap_set`` compares the decisions of a current and a new score, and ``expected_loss`` and ``expected_loss_table`` turn PDs, LGDs and exposures into the expected loss of each applicant and of each grade.
+A scorecard ranks applicants; a credit strategy decides whom to approve. :mod:`kivi.strategy` supports the decisions that follow: :func:`~kivi.strategy.cutoff_table` shows what each candidate cut-off approves and how many bad outcomes it lets through, :func:`~kivi.strategy.swap_set` compares the decisions of a current and a new score, and :func:`~kivi.strategy.expected_loss` and :func:`~kivi.strategy.expected_loss_table` turn PDs, LGDs and exposures into the expected loss of each applicant and of each grade.
+
+The strategy follows :doc:`calibration`, which gives PDs and grades, and comes before the :doc:`binning specifications <spec>` that take the model to production.
 
 Score direction and the approval rule
 -------------------------------------
@@ -56,7 +58,7 @@ The new scorecard ranks the applicants a little better:
 Choosing a cut-off
 ------------------
 
-``cutoff_table`` takes the candidate cut-offs and reports, for each, the approved book and what the cut-off rejects. A PD of 1 approves everyone and gives the reference row:
+:func:`~kivi.strategy.cutoff_table` takes the candidate cut-offs and reports, for each, the approved book and what the cut-off rejects. A PD of 1 approves everyone and gives the reference row:
 
 >>> from kivi.strategy import cutoff_table
 >>> cutoffs = [0.05, 0.08, 0.1, 0.15, 0.2, 1]
@@ -109,7 +111,7 @@ array([0.04 , 0.056, 0.104, 0.112, 0.123, 0.477])
 
 Suppose a good loan earns a margin :math:`m` and a bad loan loses :math:`L`. A group of applicants with bad rate :math:`b` earns :math:`(1 - b)\,m - b L`, which is positive while :math:`b < m / (m + L)`. With a margin of 1 and a loss of 10 the break-even bad rate is :math:`1/11 \approx 9.1\%`. The applicants between 0.05 and 0.08 default at 5.6% and pay for themselves, while those between 0.08 and 0.10 default at 10.4% and do not, so 0.08 is the most profitable of these cut-offs. For a well-calibrated PD the break-even rate is itself the PD cut-off; the marginal rates check it against the observed outcomes.
 
-An integer ``cutoffs`` places the cut-offs at the quantile edges of ``bin_edges``, so that the rows approve about a fifth, two fifths and so on of the applicants. Tied scores move the steps, because all applicants with the same score get the same decision:
+An integer ``cutoffs`` places the cut-offs at the quantile edges of :func:`~kivi.binning.bin_edges`, so that the rows approve about a fifth, two fifths and so on of the applicants. Tied scores move the steps, because all applicants with the same score get the same decision:
 
 >>> cutoff_table(current, y, cutoffs=5)[["approved", "approval_rate", "approved_event_rate"]].round(3)
           approved  approval_rate  approved_event_rate
@@ -123,7 +125,7 @@ inf           1521          1.000                0.114
 Swap sets
 ---------
 
-A new score changes the decisions of some applicants. At the cut-offs of both scores, ``swap_set`` sorts the applicants into four groups: those both scores approve, the swap-outs that only the current score approves, the swap-ins that only the new score approves, and those both decline. To compare the scores at the same approval rate, give the new score the cut-off that approves as many applicants as the current cut-off of 0.10:
+A new score changes the decisions of some applicants. At the cut-offs of both scores, :func:`~kivi.strategy.swap_set` sorts the applicants into four groups: those both scores approve, the swap-outs that only the current score approves, the swap-ins that only the new score approves, and those both decline. To compare the scores at the same approval rate, give the new score the cut-off that approves as many applicants as the current cut-off of 0.10:
 
 >>> from kivi.strategy import swap_set
 >>> approved = int((current <= 0.1).sum())
@@ -174,7 +176,7 @@ The expected loss of an exposure is the product of its probability of default, i
 
    \mathrm{EL} = \mathrm{PD} \times \mathrm{LGD} \times \mathrm{EAD}.
 
-The bank data have no loan amounts, so the examples take the average balance as the exposure, with negative balances set to zero, and one LGD of 45% for all applicants. ``expected_loss`` accepts one value or one per applicant for the LGD and the EAD, and keeps the index of a Series:
+The bank data have no loan amounts, so the examples take the average balance as the exposure, with negative balances set to zero, and one LGD of 45% for all applicants. :func:`~kivi.strategy.expected_loss` accepts one value or one per applicant for the LGD and the EAD, and keeps the index of a Series:
 
 >>> from kivi.strategy import expected_loss
 >>> ead = applicants["balance"].clip(lower=0)
@@ -185,7 +187,7 @@ The bank data have no loan amounts, so the examples take the average balance as 
 3002    181.98
 dtype: float64
 
-Pass the expected losses as ``loss`` to ``cutoff_table`` to add the expected loss of the approved book:
+Pass the expected losses as ``loss`` to :func:`~kivi.strategy.cutoff_table` to add the expected loss of the approved book:
 
 >>> table = cutoff_table(new, y, cutoffs=cutoffs, loss=el)
 >>> table.assign(loss_per_approved=table["approved_loss"] / table["approved"])[
@@ -205,7 +207,7 @@ Approving everyone carries an expected loss of 125,487, or 82.50 per applicant. 
 Expected loss by grade
 ----------------------
 
-``expected_loss_table`` adds up the exposures and expected losses of each grade or other group. Cut the PDs of the new score at the edges of a master scale, as in :doc:`calibration`:
+:func:`~kivi.strategy.expected_loss_table` adds up the exposures and expected losses of each grade or other group. Cut the PDs of the new score at the edges of a master scale, as in :doc:`calibration`:
 
 >>> from kivi.strategy import expected_loss_table
 >>> pd_edges = [0, 0.05, 0.08, 0.12, 0.2, 0.4, 1]
@@ -230,7 +232,7 @@ E    0.2573
 F    0.6478
 Name: exposure_weighted_probability, dtype: float64
 
-The expected loss rate, expected loss divided by exposure, rises from 1.7% in grade A to 29% in grade F. With one LGD for everyone it is the LGD times the exposure-weighted PD; with an LGD per applicant it also reflects the collateral of each grade. The rows follow the grades of the scale, as in ``calibration_table``, and grades without applicants are left out.
+The expected loss rate, expected loss divided by exposure, rises from 1.7% in grade A to 29% in grade F. With one LGD for everyone it is the LGD times the exposure-weighted PD; with an LGD per applicant it also reflects the collateral of each grade. The rows follow the grades of the scale, as in :func:`~kivi.calibration.calibration_table`, and grades without applicants are left out.
 
 The portfolio totals are the sums of the columns, and its expected loss rate is the ratio of two sums:
 
@@ -255,7 +257,7 @@ F       0.027          0.144
 
 Grades E and F hold under a tenth of the exposure but almost 30% of the expected loss. A policy that declines grade F, a PD above 0.4, gives up 2.7% of the exposure and avoids 14.4% of the expected loss; the price of those loans would otherwise have to cover a loss rate of 29%.
 
-Weighted samples
-----------------
+Sample weights
+--------------
 
-``cutoff_table``, ``swap_set`` and ``expected_loss_table`` take ``weights``, one non-negative weight per applicant, as the functions of :mod:`kivi.metrics` do. Counts, exposures and losses become sums of weights, and integer weights give the same counts and sums as repeating rows. For ``cutoff_table`` this holds on explicit cut-offs: an integer ``cutoffs`` uses the weighted quantiles of ``bin_edges``, which can differ from the quantiles of repeated rows. Use the weights of an outcome-based sample, which keeps all bad outcomes but only some of the good ones, to report approval and bad rates for the whole population.
+:func:`~kivi.strategy.cutoff_table`, :func:`~kivi.strategy.swap_set` and :func:`~kivi.strategy.expected_loss_table` take ``weights``, one non-negative weight per applicant, as the functions of :mod:`kivi.metrics` do. Counts, exposures and losses become sums of weights, and integer weights give the same counts and sums as repeating rows. For ``cutoff_table`` this holds on explicit cut-offs: an integer ``cutoffs`` uses the weighted quantiles of :func:`~kivi.binning.bin_edges`, which can differ from the quantiles of repeated rows. Use the weights of an outcome-based sample, which keeps all bad outcomes but only some of the good ones, to report approval and bad rates for the whole population.

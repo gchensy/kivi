@@ -1,12 +1,12 @@
 Example data
 ============
 
-:mod:`kivi.datasets` provides three kinds of example data: real bank marketing data with one row per customer and a binary target, a synthetic panel of loans with one row per loan and month, and synthetic loan applications with one row per applicant and an approval decision.
+:mod:`kivi.datasets` provides three kinds of example data: real bank marketing data with one row per customer and a binary target, a synthetic panel of loans with one row per loan and month, and synthetic loan applications with one row per applicant and an approval decision. :func:`~kivi.datasets.load_bank`, :func:`~kivi.datasets.make_loan_panel` and :func:`~kivi.datasets.make_applications` return them.
 
 Bank marketing data
 -------------------
 
-``load_bank()`` loads 4,521 customers from the Bank Marketing data set. It has sixteen features and an integer ``target``: 1 means that the customer subscribed to a term deposit.
+:func:`~kivi.datasets.load_bank` loads 4,521 customers from the Bank Marketing data set. It has sixteen features and an integer ``target``: 1 means that the customer subscribed to a term deposit.
 
 >>> from kivi.datasets import load_bank
 >>> data = load_bank()
@@ -17,12 +17,12 @@ Bank marketing data
 >>> data["target"].value_counts().to_dict()
 {0: 4000, 1: 521}
 
-The examples in this documentation split the rows by position only to demonstrate two samples; the split is not chronological. Earlier examples call ``Dataset.bank_data()``, which returns the same data and keeps working.
+The examples in this documentation split the rows by position only to demonstrate two samples; the split is not chronological. Earlier examples call :meth:`Dataset.bank_data() <kivi.datasets.Dataset.bank_data>`, which returns the same data and keeps working.
 
 Synthetic loan panel
 --------------------
 
-``make_loan_panel`` simulates the monthly history of a portfolio of instalment loans, for the vintage and roll-rate analysis in :doc:`vintage`. The data is generated, not taken from a real portfolio, and the same ``rng`` seed always gives the same panel:
+:func:`~kivi.datasets.make_loan_panel` simulates the monthly history of a portfolio of instalment loans, for the vintage and roll-rate analysis in :doc:`vintage`. The data is generated, not taken from a real portfolio, and the same ``rng`` seed always gives the same panel:
 
 >>> from kivi.datasets import make_loan_panel
 >>> panel = make_loan_panel(n_loans=5000, n_months=24, rng=0)
@@ -70,7 +70,7 @@ A loan leaves the panel in the month it pays its last instalment, which can come
 Synthetic loan applications
 ---------------------------
 
-``make_applications`` simulates loan applications that an incumbent scorecard and two policy rules decided, for the reject inference in :doc:`reject_inference`. Every applicant has a true default flag, also the rejected ones, so that the inferred outcomes can be compared with the real ones. The same ``rng`` seed always gives the same applications:
+:func:`~kivi.datasets.make_applications` simulates loan applications that an incumbent scorecard and two policy rules decided, for the reject inference in :doc:`reject_inference`. Every applicant has a true default flag, also the rejected ones, so that the inferred outcomes can be compared with the real ones. The same ``rng`` seed always gives the same applications:
 
 >>> from kivi.datasets import make_applications
 >>> applications = make_applications(n_applicants=10000, rng=0)

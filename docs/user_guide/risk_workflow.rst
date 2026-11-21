@@ -15,7 +15,7 @@ This example follows the steps of a scorecard project with kivi: profile and scr
 Screen variables by IV
 ----------------------
 
-Start with a profile of every candidate. ``profile_table`` gives each one row with its missing values, its most frequent value and, with the target, the IV of a quick, uniform binning: five quantile bins for numeric variables and the raw labels for categorical ones; see :doc:`univariate`. The IV of each variable gives a first ranking, and ``tied_bins`` marks the numeric variables whose tied values leave fewer bins than requested:
+Start with a profile of every candidate. :func:`~kivi.univariate.profile_table` gives each one row with its missing values, its most frequent value and, with the target, the IV of a quick, uniform binning: five quantile bins for numeric variables and the raw labels for categorical ones; see :doc:`univariate`. The IV of each variable gives a first ranking, and ``tied_bins`` marks the numeric variables whose tied values leave fewer bins than requested:
 
 >>> from kivi.univariate import profile_table
 >>> profile = profile_table(development.drop(columns="target"), development["target"])
@@ -65,12 +65,12 @@ Each variable on the shortlist gets edges that can be explained: merged balance 
 >>> dev_groups = to_groups(development)
 >>> tables = {column: woe_table(dev_groups[column], development["target"]) for column in dev_groups}
 
-``tables`` holds one ``woe_table`` result per variable. Review each one as a WOE chart (see :doc:`woe_iv`) before moving on. ``pdays`` and ``poutcome`` both describe the previous campaign, so check how strongly they are correlated before keeping both.
+``tables`` holds one :func:`~kivi.woe.woe_table` result per variable. Review each one as a WOE chart (see :doc:`woe_iv`) before moving on. ``pdays`` and ``poutcome`` both describe the previous campaign, so check how strongly they are correlated before keeping both.
 
 Encode with WOE
 ---------------
 
-A logistic regression on WOE values is the classic scorecard model. Replace each group with the WOE from the development tables using ``woe_transform``:
+A logistic regression on WOE values is the classic scorecard model. Replace each group with the WOE from the development tables using :func:`~kivi.woe.woe_transform`:
 
 >>> def to_woe(groups):
 ...     return pd.DataFrame({
@@ -88,7 +88,7 @@ A logistic regression on WOE values is the classic scorecard model. Replace each
 Save the binning
 ----------------
 
-Production systems must group and encode new applications exactly as the development sample was. ``fit_spec`` fits the edges and the WOE table of every column at once, and the resulting ``BinningSpec`` saves them as versioned JSON; see :doc:`spec`. Passing the edges of the shortlist as ``bins`` reproduces the encoding above:
+Production systems must group and encode new applications exactly as the development sample was. :func:`~kivi.spec.fit_spec` fits the edges and the WOE table of every column at once, and the resulting :class:`~kivi.spec.BinningSpec` saves them as versioned JSON; see :doc:`spec`. Passing the edges of the shortlist as ``bins`` reproduces the encoding above:
 
 >>> from kivi.spec import BinningSpec, fit_spec
 >>> spec = fit_spec(development, development["target"], columns=list(dev_groups), bins=numeric_edges)
@@ -103,7 +103,7 @@ Store the JSON with the model. A scoring service that loads it with ``BinningSpe
 Select variables and fit the model
 ----------------------------------
 
-Strongly correlated variables carry the same information and make the coefficients unstable. ``correlation_filter`` keeps the variable with the higher IV from each pair correlated above 0.7, and ``stepwise`` then selects variables by the p-values of a logistic regression. With WOE inputs every coefficient should be positive, and ``stepwise`` rejects a variable that would make one negative; see :doc:`selection`.
+Strongly correlated variables carry the same information and make the coefficients unstable. :func:`~kivi.selection.correlation_filter` keeps the variable with the higher IV from each pair correlated above 0.7, and :func:`~kivi.selection.stepwise` then selects variables by the p-values of a logistic regression. With WOE inputs every coefficient should be positive, and ``stepwise`` rejects a variable that would make one negative; see :doc:`selection`.
 
 >>> from kivi.selection import correlation_filter, logistic_regression, stepwise
 >>> target = development["target"]
@@ -132,7 +132,7 @@ The bank data record the outcome of every customer. A credit development sample 
 Scale to a scorecard
 --------------------
 
-``points_table`` turns the WOE tables and the coefficients into points for every group. Here 20 points double the odds of a good outcome, and a score of 600 stands for good:bad odds of 50; see :doc:`scorecard`. A higher WOE means more risk and therefore fewer points:
+:func:`~kivi.scorecard.points_table` turns the WOE tables and the coefficients into points for every group. Here 20 points double the odds of a good outcome, and a score of 600 stands for good:bad odds of 50; see :doc:`scorecard`. A higher WOE means more risk and therefore fewer points:
 
 >>> from kivi.scorecard import points_table, woe_to_points
 >>> scale = dict(pdo=20, base_score=600, base_odds=50)
@@ -186,7 +186,7 @@ The riskiest band, about a fifth of the monitoring sample, holds 48% of its even
 Check calibration
 -----------------
 
-Rating grades give PDs from different models one meaning. ``master_scale`` builds a scale from the PD of each grade, here five grades in which each PD doubles the one before, and ``assign_grades`` gives every customer of the monitoring sample the grade of their PD; see :doc:`calibration`. Each grade is then compared with its PD. The Jeffreys test asks whether a grade has more events than its PD predicts, so a small p-value flags a grade that underestimates risk:
+Rating grades give PDs from different models one meaning. :func:`~kivi.calibration.master_scale` builds a scale from the PD of each grade, here five grades in which each PD doubles the one before, and :func:`~kivi.calibration.assign_grades` gives every customer of the monitoring sample the grade of their PD; see :doc:`calibration`. Each grade is then compared with its PD. The Jeffreys test asks whether a grade has more events than its PD predicts, so a small p-value flags a grade that underestimates risk:
 
 >>> from kivi.calibration import assign_grades, calibration_table, jeffreys_test, master_scale
 >>> scale = master_scale(np.geomspace(0.025, 0.4, 5), labels=list("ABCDE"))
@@ -217,7 +217,7 @@ No grade is rejected at the 5% level, but grades A and B come close: their event
 Set a cut-off
 -------------
 
-The scorecard ranks the applicants, and a cut-off decides whom to approve. ``cutoff_table`` shows, for each candidate PD cut-off, the share of applicants it approves, the bad rate of the approved book and the share of the events it turns away; see :doc:`strategy`. The upper bounds of the grades as cut-offs approve the grades up to each one:
+The scorecard ranks the applicants, and a cut-off decides whom to approve. :func:`~kivi.strategy.cutoff_table` shows, for each candidate PD cut-off, the share of applicants it approves, the bad rate of the approved book and the share of the events it turns away; see :doc:`strategy`. The upper bounds of the grades as cut-offs approve the grades up to each one:
 
 >>> from kivi.strategy import cutoff_table, expected_loss_table
 >>> policies = cutoff_table(mon_pd, y_mon, cutoffs=scale["upper"])
@@ -233,7 +233,7 @@ E              1.000                0.114                 0.000
 
 Approving the grades up to C, a PD of at most 14.1%, approves 75.4% of the applicants at a bad rate of 7.8% and turns away 48.6% of the events. Approving grade D as well approves 94.2% at a bad rate of 9.4%. Which row to choose is a business decision; the table shows its price.
 
-The expected loss of an exposure is its PD times its loss given default times its exposure at default. ``expected_loss_table`` adds it up for each grade. The bank data have no loan amounts, so the example takes the balance, floored at zero, as the exposure and one LGD of 45%:
+The expected loss of an exposure is its PD times its loss given default times its exposure at default. :func:`~kivi.strategy.expected_loss_table` adds it up for each grade. The bank data have no loan amounts, so the example takes the balance, floored at zero, as the exposure and one LGD of 45%:
 
 >>> exposure = monitoring["balance"].clip(lower=0)
 >>> by_grade = expected_loss_table(grades, mon_pd, 0.45, exposure)

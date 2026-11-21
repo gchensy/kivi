@@ -5,6 +5,8 @@ The user guide follows the steps of a credit risk model in the order of a projec
 
 kivi keeps fitting and applying apart. Bin edges, WOE tables, master scales and cut-offs are fitted on the development sample and then applied unchanged to every later sample, so that counts and rates stay comparable. The tables take the groups as they are, so category labels can be passed directly.
 
+Every function follows the rules of :doc:`/api/conventions`, such as the order of its arguments and the meaning of ``weights``, and the :doc:`/api/glossary` defines the terms that these guides use.
+
 .. grid:: 1 1 2 2
    :gutter: 3
 

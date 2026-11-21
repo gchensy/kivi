@@ -3,6 +3,8 @@ Scorecard
 
 A scorecard turns a logistic regression on WOE values into points. Every applicant receives the points of their group in each variable, and the points add up to a score that stands for the odds of a good outcome. kivi takes the coefficients and the intercept as plain numbers, so the model can come from any library.
 
+The scorecard follows :doc:`variable selection <selection>` and :doc:`reject_inference`, which give the coefficients, and comes before :doc:`metrics`, which evaluates the score. :func:`~kivi.scorecard.score_scaling`, :func:`~kivi.scorecard.pd_to_score` and :func:`~kivi.scorecard.score_to_pd` set the scale, :func:`~kivi.scorecard.points_table` and :func:`~kivi.scorecard.woe_to_points` give the points, and :func:`~kivi.scorecard.reason_codes` explains a score.
+
 Scaling
 -------
 
@@ -23,7 +25,7 @@ Every function of :mod:`kivi.scorecard` takes the three numbers as keyword argum
 >>> print(f"factor = {factor:.2f}, offset = {offset:.2f}")
 factor = 28.85, offset = 487.12
 
-On this scale, odds of 50:1, a PD of 1/51, score 600, and odds of 100:1 score 20 points more. ``score_to_pd`` converts in the other direction:
+On this scale, odds of 50:1, a PD of 1/51, score 600, and odds of 100:1 score 20 points more. :func:`~kivi.scorecard.score_to_pd` converts in the other direction:
 
 >>> pd_to_score([1 / 51, 1 / 101, 0.1], **scale).round(1)
 array([600. , 620. , 550.5])
@@ -54,7 +56,7 @@ The example below builds a small scorecard on the bundled bank data. The data re
 >>> target = development["target"]
 >>> tables = {column: woe_table(dev_groups[column], target) for column in dev_groups}
 
-A logistic regression of ``target`` on the four WOE columns of the development sample gives the coefficients and the intercept below, rounded to three decimals. ``points_table`` turns them into points:
+A logistic regression of ``target`` on the four WOE columns of the development sample gives the coefficients and the intercept below, rounded to three decimals. :func:`~kivi.scorecard.points_table` turns them into points:
 
 >>> from kivi.scorecard import points_table
 >>> coefficients = {"poutcome": 0.899, "contact": 0.658, "housing": 0.691, "age": 0.714}
@@ -95,7 +97,7 @@ The intercept :math:`\beta_0` and the offset are spread evenly across the variab
 Scoring applicants
 ------------------
 
-Encode new applicants with the development WOE tables, as described in :doc:`woe_iv`, and give them the points of each variable with ``woe_to_points``. The row sums are the scores:
+Encode new applicants with the development WOE tables, as described in :doc:`woe_iv`, and give them the points of each variable with :func:`~kivi.scorecard.woe_to_points`. The row sums are the scores:
 
 >>> from kivi.scorecard import woe_to_points
 >>> mon_groups = to_groups(monitoring)
@@ -109,18 +111,18 @@ Encode new applicants with the development WOE tables, as described in :doc:`woe
 3001     143.1    153.8    142.9  139.8  579.7
 3002     143.1    131.8    142.9  137.1  554.9
 
-The score is the scaled log odds of the model, so it equals ``pd_to_score`` of the model's probability:
+The score is the scaled log odds of the model, so it equals :func:`~kivi.scorecard.pd_to_score` of the model's probability:
 
 >>> probability = 1 / (1 + np.exp(-(intercept + woe @ pd.Series(coefficients))))
 >>> bool(np.allclose(points.sum(axis=1), pd_to_score(probability, **scale)))
 True
 
-Deployed scorecards usually round the points to whole numbers. Round the points table and the applicant points in the same way, with ``table.round()`` and ``points.round()``: ``woe_to_points`` computes each point exactly as ``points_table`` does, so the rounded values match. The rounded total can differ from the exact score by up to half a point per variable.
+Deployed scorecards usually round the points to whole numbers. Round the points table and the applicant points in the same way, with ``table.round()`` and ``points.round()``: ``woe_to_points`` computes each point exactly as :func:`~kivi.scorecard.points_table` does, so the rounded values match. The rounded total can differ from the exact score by up to half a point per variable.
 
 Reason codes
 ------------
 
-A declined applicant is told which variables lowered the score most. ``reason_codes`` matches the points of each variable to a group of the points table, compares them with those of the variable's best group and lists the variables from the largest shortfall:
+A declined applicant is told which variables lowered the score most. :func:`~kivi.scorecard.reason_codes` matches the points of each variable to a group of the points table, compares them with those of the variable's best group and lists the variables from the largest shortfall:
 
 >>> from kivi.scorecard import reason_codes
 >>> reason_codes(points, table).head(3)
@@ -133,7 +135,7 @@ Applicant 3000 was contacted by telephone, 21.3 points below the best contact gr
 
 The scaling does not change the order of the reasons, because every shortfall is :math:`\mathrm{factor} \cdot \beta_j` times a difference in WOE. Points that match no group of the table within ``atol``, for example points computed with another intercept, raise an error instead of giving reasons against the wrong groups.
 
-Applicants in a group without development observations, such as a new category, have no group of their own in the table. Their WOE comes from ``unseen`` in ``woe_transform``, a value chosen for the group rather than evidence about the applicant, so by default their points raise an error too. Pass their points as ``unseen_points`` to count them as costing nothing: the variable is then not a reason for those applicants. ``unseen_points`` holds points, not a WOE. Run ``woe_to_points`` on a one-row frame that holds the WOE given to ``unseen``; a WOE of 0 gives the base points, the same for every variable. Below, the first applicant has a housing status that the development sample did not have:
+Applicants in a group without development observations, such as a new category, have no group of their own in the table. Their WOE comes from ``unseen`` in :func:`~kivi.woe.woe_transform`, a value chosen for the group rather than evidence about the applicant, so by default their points raise an error too. Pass their points as ``unseen_points`` to count them as costing nothing: the variable is then not a reason for those applicants. ``unseen_points`` holds points, not a WOE. Run :func:`~kivi.scorecard.woe_to_points` on a one-row frame that holds the WOE given to ``unseen``; a WOE of 0 gives the base points, the same for every variable. Below, the first applicant has a housing status that the development sample did not have:
 
 >>> new = pd.DataFrame({"housing": ["rented", "no"], "contact": ["telephone", "unknown"]})
 >>> new_woe = pd.DataFrame({
