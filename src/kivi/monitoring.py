@@ -14,7 +14,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._counts import divergence, ratio
+from ._counts import concat_groups, divergence, ratio
 from ._validation import (
     as_series,
     as_weights,
@@ -558,20 +558,7 @@ def _levels(groups: pd.Series) -> np.ndarray:
 
 def _shared_levels(reference: pd.Series, current: pd.Series) -> tuple[np.ndarray, np.ndarray]:
     """Group codes of the current and the reference values, from one factorization of both."""
-    # pd.concat hashes interval categories, which warns on NumPy < 2.2, so samples binned with
-    # the same edges are joined by their codes, as in kivi.stability.psi_table.
-    categorical = [isinstance(values.dtype, pd.CategoricalDtype) for values in (reference, current)]
-    if all(categorical) and current.dtype == reference.dtype:
-        codes = np.concatenate([reference.cat.codes, current.cat.codes])
-        both = pd.Series(pd.Categorical.from_codes(codes, dtype=current.dtype))
-    elif any(categorical):
-        # Concatenating other categoricals also hashes their categories, so compare the labels
-        # as objects, by equality, as pd.concat does for categoricals of different categories.
-        labels = [values.astype(object).to_numpy() for values in (reference, current)]
-        both = pd.Series(np.concatenate(labels), dtype=object)
-    else:
-        both = pd.concat([reference, current], ignore_index=True)
-    levels = _levels(both)
+    levels = _levels(concat_groups(reference, current))
     return levels[len(reference) :], levels[: len(reference)]
 
 
