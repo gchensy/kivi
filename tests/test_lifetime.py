@@ -334,6 +334,7 @@ def test_transition_pd_horizons_as_a_sequence():
     every = transition_pd(MATRIX, horizons=24)
     some = transition_pd(MATRIX, horizons=[1, 12, 24])
     pd.testing.assert_frame_equal(some, every[[1, 12, 24]])
+    # A sequence is read like data, so whole numbers held as floats are accepted.
     pd.testing.assert_frame_equal(transition_pd(MATRIX, horizons=np.array([12.0])), every[[12]])
 
 
@@ -366,10 +367,17 @@ def test_transition_pd_messages_show_states_of_two_levels_as_plain_tuples():
         transition_pd(pd.DataFrame(np.eye(2), index=repeated, columns=repeated), horizons=2)
 
 
-def test_transition_pd_horizons_as_whole_number_scalars():
+def test_transition_pd_horizons_as_integer_scalars():
     expected = transition_pd(MATRIX, horizons=2)
-    for horizons in (2.0, np.float64(2.0), np.int64(2)):
-        pd.testing.assert_frame_equal(transition_pd(MATRIX, horizons=horizons), expected)
+    pd.testing.assert_frame_equal(transition_pd(MATRIX, horizons=np.int64(2)), expected)
+    # A number of periods is an integer, as for expected_credit_loss; 2.0 used to be accepted.
+    for horizons in (2.0, np.float64(2.0), np.float32(3.0)):
+        with pytest.raises(
+            ValueError,
+            match=rf"positive integer or a sequence of increasing positive integers, got "
+            rf"{float(horizons)!r}$",
+        ):
+            transition_pd(MATRIX, horizons=horizons)
     with pytest.raises(
         ValueError, match=r"sequence of increasing positive integers, got \[2, 1\]$"
     ):
@@ -730,6 +738,31 @@ def test_significant_increase_thresholds_are_strict():
     # A PD of 0 at origination: any positive PD is an infinite ratio.
     flags = significant_increase([0.0, 0.001], [0.0, 0.0], relative=3.0, absolute=None)
     np.testing.assert_array_equal(flags, [False, True])
+
+
+def test_significant_increase_does_not_let_rounding_decide_ties():
+    # In floating point 0.04 - 0.03 > 0.01 and 0.45 > 1.5 * 0.30; all three used to be flagged.
+    flags = significant_increase(
+        [0.04, 0.07, 0.45], [0.03, 0.06, 0.30], relative=None, absolute=0.01
+    )
+    np.testing.assert_array_equal(flags, [False, False, True])
+    flags = significant_increase([0.45, 0.6], [0.30, 0.2], relative=1.5, absolute=None)
+    np.testing.assert_array_equal(flags, [False, True])
+    # Every pair of two-decimal PDs 0.01 apart is a tie; 71 of the 89 used to be flagged.
+    origination = np.arange(1, 90) / 100
+    probability = np.arange(2, 91) / 100
+    assert not significant_increase(probability, origination, relative=None, absolute=0.01).any()
+    assert significant_increase(probability + 1e-9, origination, relative=None, absolute=0.01).all()
+    # So is every PD that is exactly 1.5 or 2 times a three-decimal PD.
+    for ratio, last in ((1.5, 666), (2.0, 499)):
+        origination = np.arange(1, last + 1) / 1000
+        probability = np.arange(1, last + 1) * int(ratio * 2) / 2000
+        assert not significant_increase(
+            probability, origination, relative=ratio, absolute=None
+        ).any()
+        assert significant_increase(
+            probability * (1 + 1e-12), origination, relative=ratio, absolute=None
+        ).all()
 
 
 def test_significant_increase_returns_a_series_for_series_inputs():

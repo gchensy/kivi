@@ -2,7 +2,6 @@
 
 import math
 import warnings
-from numbers import Real
 from typing import Literal
 
 import numpy as np
@@ -13,6 +12,7 @@ from . import _logit
 from ._counts import group_counts, group_rows
 from ._stats import betainc, chi2_sf
 from ._validation import (
+    as_real,
     as_series,
     as_weights,
     check_smoothing,
@@ -20,6 +20,7 @@ from ._validation import (
     is_real,
     like_input,
     scores_and_labels,
+    shown,
 )
 
 __all__ = [
@@ -103,12 +104,9 @@ def prior_correction(
     array([0.02  , 0.0051, 0.0011])
     """
     omega = _odds_ratio(sample_rate, population_rate)
-    values = np.asarray(probability, dtype=float)
+    values = as_real(probability, "probability", booleans=True)
     _check_unit_interval(values, "probability")
-    corrected = omega * values / (omega * values + 1 - values)
-    if isinstance(probability, pd.Series):
-        return pd.Series(corrected, index=probability.index, name=probability.name)
-    return float(corrected) if corrected.ndim == 0 else corrected
+    return like_input(probability, omega * values / (omega * values + 1 - values))
 
 
 def corrected_intercept(intercept: float, *, sample_rate: float, population_rate: float) -> float:
@@ -630,7 +628,7 @@ def calibration_table(
     invalid = ~target.isin([0, 1]).to_numpy(dtype=bool)
     if invalid.any():
         raise ValueError(f"target must contain only 0 and 1, got {target[invalid].tolist()[0]!r}")
-    probabilities = probability.to_numpy(dtype=float)
+    probabilities = as_real(probability, "probability", booleans=True)
     if np.isnan(probabilities).any():
         raise ValueError("probability must not have missing values")
     _check_unit_interval(probabilities, "probability")
@@ -947,7 +945,7 @@ def herfindahl_index(counts: npt.ArrayLike, *, normalize: bool = False) -> float
         raise ValueError(f"normalize must be True or False, got {normalize!r}")
     if np.ndim(counts) != 1:
         raise ValueError(f"counts must be one-dimensional, got {np.ndim(counts)} dimensions")
-    values = np.asarray(counts, dtype=float)
+    values = as_real(counts, "counts")
     invalid = ~np.isfinite(values) | (values < 0)
     if invalid.any():
         raise ValueError(f"counts must be finite and non-negative, got {_first(values, invalid)}")
@@ -1103,7 +1101,10 @@ def fit_grade_pd(
     event : array_like
         Number of defaults in each grade, ordered from the grade with the
         lowest risk to the grade with the highest. Weighted counts, such as
-        those of a weighted `calibration_table`, are accepted.
+        those of a weighted `calibration_table`, must be on the scale of
+        observation counts, because `smoothing` is a number of defaults: on
+        a smaller scale, such as with weights that sum to 1, the smoothed
+        rate of a grade without defaults is too high.
     total : array_like
         Number of observations in each grade. A grade without observations
         is left out of the fit but still gets a fitted PD, so pass a 0 for
@@ -1124,9 +1125,10 @@ def fit_grade_pd(
     ValueError
         If the inputs are not one-dimensional, have different lengths or
         Series indices, are not finite and non-negative, or `event` exceeds
-        `total`; if fewer than two grades have observations or `smoothing`
-        is not finite and positive. Also if the fitted PDs do not rise with
-        the grade or reach 1.
+        `total`; if fewer than two grades have observations, or `smoothing`
+        is not finite and positive or not smaller than the total of a grade
+        without defaults. Also if the fitted PDs do not rise with the grade
+        or reach 1.
 
     See Also
     --------
@@ -1167,8 +1169,8 @@ def fit_grade_pd(
     if len(indices) == 2 and not indices[0].equals(indices[1]):
         raise ValueError("event and total must have identical indices when they are Series")
     check_smoothing(smoothing)
-    events = _numeric_values(event, "event")
-    totals = _numeric_values(total, "total")
+    events = _numeric_values(event, "event", booleans=False)
+    totals = _numeric_values(total, "total", booleans=False)
     if len(events) != len(totals):
         raise ValueError(
             f"event and total must have the same length, got {len(events)} and {len(totals)}"
@@ -1189,6 +1191,17 @@ def fit_grade_pd(
     if observed.sum() < 2:
         raise ValueError(
             f"total must have observations in at least two grades, got {int(observed.sum())}"
+        )
+    # A smoothed rate of 1 or more would leave the logarithm without meaning.
+    unsmoothable = observed & (events == 0) & (totals <= smoothing)
+    if unsmoothable.any():
+        position = int(np.argmax(unsmoothable))
+        label = indices[0][position] if indices else position + 1
+        raise ValueError(
+            f"smoothing must be smaller than the total of each grade without defaults, got "
+            f"{shown(smoothing)} for grade {shown(label)} with a total of "
+            f"{_first(totals, unsmoothable)}; pass counts on the scale of observations or a "
+            "smaller smoothing"
         )
     grade = np.arange(1, len(totals) + 1, dtype=float)
     x, weight = grade[observed], totals[observed]
@@ -1325,7 +1338,7 @@ def _isotonic_bands(
     edges: npt.ArrayLike, probabilities: npt.ArrayLike
 ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """Check and return the band edges and probabilities of an isotonic calibration."""
-    edges = _numeric_values(edges, "edges")
+    edges = _numeric_values(edges, "edges", booleans=False)
     probabilities = _numeric_values(probabilities, "probabilities")
     if (
         edges.ndim != 1
@@ -1404,30 +1417,15 @@ def _float_scores(values: npt.ArrayLike, name: str) -> npt.NDArray[np.float64]:
     return _numeric_values(values, name)
 
 
-def _numeric_values(values: npt.ArrayLike, name: str) -> npt.NDArray[np.float64]:
+def _numeric_values(
+    values: npt.ArrayLike, name: str, *, booleans: bool = True
+) -> npt.NDArray[np.float64]:
     """Return one-dimensional real numeric values as floats, with missing values as NaN.
 
-    Lists and object arrays are judged by their elements, as a Series built
-    from them, so numbers held as strings are rejected however they arrive.
+    Booleans count as 1 and 0, as in probabilities and scores, unless ``booleans`` is
+    False, as for counts and edges.
     """
-    series = as_series(values, name)
-    if pd.api.types.is_object_dtype(series.dtype):
-        series = series.infer_objects()
-    dtype = series.dtype
-    if series.empty and pd.api.types.is_object_dtype(dtype):
-        return np.empty(0)
-    if not pd.api.types.is_numeric_dtype(dtype) or pd.api.types.is_complex_dtype(dtype):
-        shown = next(
-            (
-                value
-                for value in series
-                if not isinstance(value, Real)
-                and not (pd.api.types.is_scalar(value) and pd.isna(value))
-            ),
-            series.iloc[0],
-        )
-        raise ValueError(f"{name} must be real and numeric, got {shown!r} of dtype {dtype}")
-    return series.to_numpy(dtype=float, na_value=np.nan)
+    return as_real(as_series(values, name), name, booleans=booleans)
 
 
 def _odds_ratio(sample_rate: float, population_rate: float) -> float:
@@ -1460,10 +1458,13 @@ def _grade_inputs(
         raise ValueError(
             "event, total and probability must have identical indices when they are Series"
         )
+    values = (
+        as_real(event, "event"),
+        as_real(total, "total"),
+        as_real(probability, "probability", booleans=True),
+    )
     try:
-        arrays = np.broadcast_arrays(
-            *(np.asarray(v, dtype=float) for v in (event, total, probability))
-        )
+        arrays = np.broadcast_arrays(*values)
     except ValueError as error:
         raise ValueError(
             f"event, total and probability cannot be broadcast together: {error}"

@@ -8,7 +8,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._validation import is_integral, is_real, like_input, woe_values
+from ._validation import as_real, is_integral, is_real, like_input, shared_index, shown, woe_values
 
 __all__ = [
     "pd_to_score",
@@ -80,8 +80,9 @@ def score_scaling(*, pdo: float, base_score: float, base_odds: float) -> tuple[f
         raise ValueError(f"pdo must be positive, got {pdo!r}")
     if base_odds <= 0:
         raise ValueError(f"base_odds must be positive, got {base_odds!r}")
-    factor = pdo / math.log(2)
-    return factor, base_score - factor * math.log(base_odds)
+    # Python floats, so that a float32 argument does not round the scores to float32.
+    factor = float(pdo) / math.log(2)
+    return factor, float(base_score) - factor * math.log(float(base_odds))
 
 
 def pd_to_score(
@@ -114,8 +115,8 @@ def pd_to_score(
     Raises
     ------
     ValueError
-        If `probability` has values outside the open interval (0, 1), or the
-        scaling arguments are invalid.
+        If `probability` is not real and numeric or has values outside the
+        open interval (0, 1), or the scaling arguments are invalid.
 
     See Also
     --------
@@ -136,10 +137,10 @@ def pd_to_score(
     array([600.  , 620.  , 550.52])
     """
     factor, offset = score_scaling(pdo=pdo, base_score=base_score, base_odds=base_odds)
-    values = np.asarray(probability, dtype=float)
+    values = as_real(probability, "probability", booleans=True)
     if np.any((values <= 0) | (values >= 1)):
-        shown = float(values[(values <= 0) | (values >= 1)].flat[0])
-        raise ValueError(f"probability must be strictly between 0 and 1, got {shown!r}")
+        outside = float(values[(values <= 0) | (values >= 1)].flat[0])
+        raise ValueError(f"probability must be strictly between 0 and 1, got {outside!r}")
     return like_input(probability, offset + factor * (np.log1p(-values) - np.log(values)))
 
 
@@ -171,7 +172,8 @@ def score_to_pd(
     Raises
     ------
     ValueError
-        If the scaling arguments are invalid.
+        If `score` is not real and numeric, or the scaling arguments are
+        invalid.
 
     See Also
     --------
@@ -194,7 +196,7 @@ def score_to_pd(
     array([0.03846, 0.01961, 0.0099 ])
     """
     factor, offset = score_scaling(pdo=pdo, base_score=base_score, base_odds=base_odds)
-    log_odds = (np.asarray(score, dtype=float) - offset) / factor
+    log_odds = (as_real(score, "score", booleans=True) - offset) / factor
     with np.errstate(invalid="ignore"):  # logaddexp warns on missing values
         probability = np.exp(-np.logaddexp(0, log_odds))
     return like_input(score, probability)
@@ -245,8 +247,8 @@ def points_table(
     ValueError
         If `tables` is not a mapping or lacks a variable of `coefficients`,
         a table has no ``woe`` column, repeats a group or has non-finite WOE
-        values, the coefficients are empty, repeated or not finite numbers,
-        or the scaling arguments are invalid.
+        values, the coefficients are empty, repeated or not finite numbers
+        or include the intercept, or the scaling arguments are invalid.
 
     See Also
     --------
@@ -303,7 +305,7 @@ def points_table(
         raise ValueError(
             f"tables must be a mapping of variable to table, got {type(tables).__name__}"
         )
-    _check_present(slope.index, tables, "tables")
+    _check_variables(slope.index, tables, "tables")
     woe = [_woe_column(tables[variable], variable) for variable in slope.index]
     variable_codes = np.repeat(np.arange(len(woe)), [len(column) for column in woe])
     values = np.concatenate([column.to_numpy(dtype=float) for column in woe])
@@ -339,7 +341,8 @@ def woe_to_points(
     woe : pandas.DataFrame or mapping
         WOE values with one column per variable, such as the result of
         `kivi.woe.woe_transform` for each variable. Columns without a
-        coefficient are ignored.
+        coefficient are ignored. The Series of a mapping must have
+        identical indices; other values are matched by position.
     coefficients : mapping or pandas.Series
         Logistic regression coefficient of each variable's WOE, for a model
         of the event probability. The columns follow this order.
@@ -361,8 +364,10 @@ def woe_to_points(
     ------
     ValueError
         If `woe` is not a DataFrame or mapping, lacks or repeats a variable
-        of `coefficients` or has non-finite values, the coefficients are empty,
-        repeated or not finite, or the scaling arguments are invalid.
+        of `coefficients`, has non-finite values or is a mapping of Series
+        with different indices, the coefficients are empty, repeated, not
+        finite or include the intercept, or the scaling arguments are
+        invalid.
 
     See Also
     --------
@@ -394,10 +399,12 @@ def woe_to_points(
     """
     slope, base = _model_points(coefficients, intercept, pdo, base_score, base_odds)
     if isinstance(woe, Mapping):
+        # pandas would align the Series by label, which is not how kivi matches observations.
+        shared_index({f"woe[{variable!r}]": values for variable, values in woe.items()})
         woe = pd.DataFrame(woe)  # type: ignore[arg-type]  # a mapping of columns
     elif not isinstance(woe, pd.DataFrame):
         raise ValueError(f"woe must be a DataFrame or a mapping, got {type(woe).__name__}")
-    _check_present(slope.index, woe.columns, "woe")
+    _check_variables(slope.index, woe.columns, "woe")
     repeated = woe.columns[woe.columns.duplicated() & woe.columns.isin(slope.index)]
     if len(repeated):
         raise ValueError(f"woe must have one column per variable, got {repeated[0]!r} twice")
@@ -454,12 +461,13 @@ def reason_codes(
     Raises
     ------
     ValueError
-        If `points` is not a DataFrame or has non-finite values, `table` is
-        not a `points_table` result or lacks a variable of `points`, some
-        points are farther than `atol` from every group of their variable
-        and from its `unseen_points`, `top` is not a positive integer, `atol`
-        is not a finite positive number, or `unseen_points` is not a finite
-        number or a mapping or Series of finite numbers.
+        If `points` is not a DataFrame, repeats a column or has non-finite
+        values, `table` is not a `points_table` result, lacks a variable of
+        `points` or has non-finite points for one, some points are farther
+        than `atol` from every group of their variable and from its
+        `unseen_points`, `top` is not a positive integer, `atol` is not a
+        finite positive number, or `unseen_points` is not a finite number or
+        a mapping or Series of finite numbers.
 
     See Also
     --------
@@ -531,6 +539,11 @@ def reason_codes(
         raise ValueError(f"table must be a points_table result, got {_describe(table)}")
     if "points" not in table.columns:
         raise ValueError(f"table must have a points column, got columns {table.columns.tolist()}")
+    repeated = points.columns[points.columns.duplicated()]
+    if len(repeated):
+        raise ValueError(
+            f"points must have one column per variable, got {shown(repeated[0])} twice"
+        )
     groups = dict(iter(table["points"].groupby(level="variable", sort=False)))
     _check_present(points.columns, groups, "table")
     exempt = _unseen_points(unseen_points, points.columns)
@@ -543,6 +556,9 @@ def reason_codes(
     cost = np.empty_like(values)
     for column, variable in enumerate(points.columns):
         group_points = np.sort(groups[variable].to_numpy(dtype=float))
+        if not np.isfinite(group_points).all():
+            bad = float(group_points[~np.isfinite(group_points)][0])
+            raise ValueError(f"table must have finite points, got {bad!r} for {shown(variable)}")
         nearest = _nearest(group_points, values[:, column])
         far = np.abs(values[:, column] - nearest) > atol
         unseen = exempt[column]
@@ -638,6 +654,14 @@ def _woe_column(table: pd.DataFrame | pd.Series, variable: object) -> pd.Series:
             f"got {float(values[invalid][0])!r} for group {woe.index[invalid][0]!r}"
         )
     return woe
+
+
+def _check_variables(variables: pd.Index, available: Container[object], name: str) -> None:
+    """Require an entry of ``available`` for each variable of the coefficients."""
+    if "intercept" in variables and "intercept" not in available:
+        # As in the coef column of logistic_regression, whose intercept row is named so.
+        raise ValueError("coefficients has an 'intercept' entry; drop it and pass it as intercept")
+    _check_present(variables, available, name)
 
 
 def _check_present(variables: pd.Index, available: Container[object], name: str) -> None:

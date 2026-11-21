@@ -1,0 +1,1 @@
+* ``kivi.selection.vif`` gave a finite VIF for some exact linear combinations: 1.003 for ``a`` when ``c`` is ``b + 1e-5 * a``, and 5.6e29 for the two columns of a frame with two rows. A column now has an infinite VIF when it is a linear combination of the others up to rounding, as documented; the VIFs of the other columns are unchanged.
