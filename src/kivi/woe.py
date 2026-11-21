@@ -5,6 +5,7 @@ encodes groups with the fitted WOE. ``woe`` and ``iv`` compute the same
 measures from counts that are already aggregated.
 """
 
+import math
 from typing import Literal
 
 import numpy as np
@@ -12,7 +13,7 @@ import numpy.typing as npt
 import pandas as pd
 
 from ._counts import divergence, group_counts
-from ._validation import as_count_columns, as_series, as_weights, is_real, woe_values
+from ._validation import as_count_columns, as_series, as_weights, is_real, shown, woe_values
 
 __all__ = ["iv", "woe", "woe_table", "woe_transform"]
 
@@ -267,9 +268,10 @@ def woe_transform(
         The result of `woe_table`, or a Series of WOE values indexed by group.
         A missing label in the index gives the WOE of missing values.
     unseen : float or "raise", default "raise"
-        WOE for groups that are not in `table`, such as a new category, an
-        interval without development observations, or missing values when
-        `table` has no missing group. By default such groups raise an error.
+        Finite WOE for groups that are not in `table`, such as a new
+        category, an interval without development observations, or missing
+        values when `table` has no missing group. By default such groups
+        raise an error.
 
     Returns
     -------
@@ -281,8 +283,8 @@ def woe_transform(
     ------
     ValueError
         If `groups` is not one-dimensional, `table` has no ``woe`` column or
-        repeats a group, `unseen` is neither ``"raise"`` nor a number, or
-        `unseen` is ``"raise"`` and some groups are not in `table`.
+        repeats a group, `unseen` is neither ``"raise"`` nor a finite number,
+        or `unseen` is ``"raise"`` and some groups are not in `table`.
 
     See Also
     --------
@@ -292,8 +294,9 @@ def woe_transform(
     Notes
     -----
     Labels are matched by equality, so an interval from ``pandas.cut`` matches
-    the interval with the same edges in `table`. Use the edges fitted on the
-    development sample for every sample that is transformed.
+    the interval with the same edges in `table`, and a number matches only an
+    equal label, never the interval that contains it. Use the edges fitted on
+    the development sample for every sample that is transformed.
 
     Examples
     --------
@@ -307,15 +310,23 @@ def woe_transform(
     """
     woe = woe_values(table)
     raise_unseen = isinstance(unseen, str) and unseen == "raise"
-    if not raise_unseen and (isinstance(unseen, (bool, str)) or not is_real(unseen)):
-        raise ValueError(f"unseen must be 'raise' or a number, got {unseen!r}")
+    if not raise_unseen and (
+        isinstance(unseen, (bool, np.bool_, str))
+        or not is_real(unseen)
+        or not math.isfinite(unseen)
+    ):
+        raise ValueError(f"unseen must be 'raise' or a finite number, got {shown(unseen)}")
     series = as_series(groups, "groups")
     levels: pd.Index | np.ndarray
     codes, levels = pd.factorize(series, sort=False, use_na_sentinel=False)
     levels = np.asarray(levels, dtype=object)
     is_missing = pd.isna(levels)
     labelled = ~pd.isna(woe.index)
-    position = pd.Index(np.asarray(woe.index[labelled], dtype=object)).get_indexer(levels)
+    # An object index compares labels with ==. Without dtype=object, pandas would infer an
+    # IntervalIndex from interval labels and look numbers up in the interval containing them.
+    position = pd.Index(np.asarray(woe.index[labelled], dtype=object), dtype=object).get_indexer(
+        levels
+    )
     position[is_missing] = -1
     values = woe.to_numpy(dtype=float)
     level_woe = np.full(len(levels), np.nan)
@@ -327,9 +338,9 @@ def woe_transform(
     if not found.all():
         if raise_unseen:
             missing = levels[~found]
-            shown = ", ".join(repr(label) for label in missing[:5])
+            examples = ", ".join(shown(label) for label in missing[:5])
             raise ValueError(
-                f"{len(missing)} group(s) are not in table, such as {shown}; "
+                f"{len(missing)} group(s) are not in table, such as {examples}; "
                 "pass unseen to give them a WOE"
             )
         level_woe[~found] = unseen
