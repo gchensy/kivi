@@ -14,6 +14,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
+from ._counts import ratio
 from ._stats import normal_quantile
 from ._validation import scores_and_labels
 from .binning import _fit_edges
@@ -374,7 +375,7 @@ def roc_table(
             "cum_event": cum_event,
             "false_positive_rate": cum_non_event / cum_non_event[-1],
             "true_positive_rate": cum_event / cum_event[-1],
-            "precision": _ratio(cum_event, cum_non_event + cum_event),
+            "precision": ratio(cum_event, cum_non_event + cum_event),
         },
         index=pd.Index(np.concatenate([[np.inf], distinct[::-1]]), name="threshold"),
     )
@@ -804,7 +805,7 @@ def gains_table(
     non_event, event = counts[::-1].T
     total = non_event + event
     inverse_rate = total.sum() / event.sum()
-    event_rate = _ratio(event, total)
+    event_rate = ratio(event, total)
     cum_event_share = np.cumsum(event) / event.sum()
     cum_non_event_share = np.cumsum(non_event) / non_event.sum()
     return pd.DataFrame(
@@ -818,7 +819,7 @@ def gains_table(
             "cum_event_share": cum_event_share,
             "cum_total_share": np.cumsum(total) / total.sum(),
             "ks": np.abs(cum_event_share - cum_non_event_share),
-            "cum_lift": _ratio(np.cumsum(event), np.cumsum(total)) * inverse_rate,
+            "cum_lift": ratio(np.cumsum(event), np.cumsum(total)) * inverse_rate,
         },
         index=index,
     )
@@ -996,12 +997,6 @@ def _distinct_counts(
 ) -> npt.NDArray[np.int64] | npt.NDArray[np.float64]:
     """(non_event, event) counts at each distinct score, from the lowest score to the highest."""
     return _score_counts(values, labels, weights)[1]
-
-
-def _ratio(numerator: np.ndarray, denominator: np.ndarray) -> npt.NDArray[np.float64]:
-    """Elementwise ratio that is NaN, without a warning, where the denominator is 0."""
-    result = np.full(len(numerator), np.nan)
-    return np.divide(numerator, denominator, out=result, where=denominator > 0)
 
 
 def _band_edges(values: np.ndarray, bins, weights: np.ndarray | None) -> npt.NDArray[np.float64]:

@@ -630,7 +630,8 @@ def calibration_table(
     if np.isnan(probabilities).any():
         raise ValueError("probability must not have missing values")
     _check_unit_interval(probabilities, "probability")
-    mass = as_weights(weights, raw_groups, of="groups")
+    others = {name: inputs[name] for name in ("target", "probability")}
+    mass = as_weights(weights, raw_groups, of="groups", others=others)
     counts = group_counts(groups, target.to_numpy(dtype=np.intp), mass)
     rows = group_rows(groups, counts.index)
     total = counts.to_numpy().sum(axis=1)

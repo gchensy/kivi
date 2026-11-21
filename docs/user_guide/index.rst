@@ -1,9 +1,9 @@
 User guide
 ==========
 
-The user guide follows the steps of a credit risk model in the order of a project: profile and bin the candidate variables, encode them with WOE, select the variables and fit the model, infer the outcomes of rejected applicants, scale the model to a scorecard, evaluate and calibrate it, set the cut-offs, save the binning for production, and monitor the population and the loans that the model approves. :doc:`risk_workflow` runs these steps on the bundled data from start to finish.
+The user guide follows the steps of a credit risk model in the order of a project: profile and bin the candidate variables, encode them with WOE, select the variables and fit the model, infer the outcomes of rejected applicants, scale the model to a scorecard, evaluate and calibrate it, set the cut-offs, save the binning for production, monitor the model period by period, follow the loans that it approves, and measure their expected credit loss under IFRS 9. :doc:`risk_workflow` runs the steps from the profile to the stability report on the bundled data, leaving out reject inference.
 
-kivi keeps fitting and applying apart. Bin edges, WOE tables, master scales and cut-offs are fitted on the development sample and then applied unchanged to every later sample, so that counts and rates stay comparable. The tables take the groups as they are, so category labels can be passed directly.
+kivi keeps fitting and applying apart. Bin edges, category groupings, WOE tables, master scales and cut-offs are fitted on the development sample and then applied unchanged to every later sample, so that counts and rates stay comparable. The tables take the groups as they are, so category labels can be passed directly.
 
 Every function follows the rules of :doc:`/api/conventions`, such as the order of its arguments and the meaning of ``weights``, and the :doc:`/api/glossary` defines the terms that these guides use.
 
@@ -26,7 +26,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: binning
       :link-type: doc
 
-      Quantile, uniform and custom edges, special values, merging fine bins, supervised binning and missing values.
+      Quantile, uniform and custom edges, special values, merging fine bins, supervised binning, grouping the categories of categorical variables, and missing values.
 
    .. grid-item-card:: Weight of evidence and information value
       :link: woe_iv
@@ -56,7 +56,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: metrics
       :link-type: doc
 
-      AUC, Gini, KS and gains tables, with the score oriented so that higher means riskier.
+      AUC, Gini, KS, gains and ROC tables, with the score oriented so that higher means riskier, and the confidence interval and DeLong test of an AUC.
 
    .. grid-item-card:: Calibration
       :link: calibration
@@ -74,7 +74,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: spec
       :link-type: doc
 
-      Bin a whole data frame at once and save the edges and WOE tables as versioned JSON for production scoring.
+      Bin a whole data frame at once, including category groupings, and save the edges and WOE tables as versioned JSON for production scoring.
 
    .. grid-item-card:: Population stability index
       :link: psi
@@ -82,11 +82,23 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
 
       Compare the distribution of two samples, including categories seen in only one of them, and measure each variable's effect on the score with CSI.
 
+   .. grid-item-card:: Model monitoring
+      :link: monitoring
+      :link-type: doc
+
+      A per-period report of the population, the known outcomes, AUC, Gini, KS and PSI of a score, and the PSI of every variable by period.
+
    .. grid-item-card:: Vintage and roll-rate analysis
       :link: vintage
       :link-type: doc
 
       Cumulative bad rates by cohort and month on book, roll rates and transition matrices between delinquency buckets.
+
+   .. grid-item-card:: Lifetime PD and expected credit loss
+      :link: lifetime
+      :link-type: doc
+
+      PD term structures from vintage curves and transition matrices, 12-month and lifetime expected credit loss, and IFRS 9 stages.
 
    .. grid-item-card:: Example data
       :link: datasets
@@ -110,5 +122,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
    strategy
    spec
    psi
+   monitoring
    vintage
+   lifetime
    *

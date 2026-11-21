@@ -769,6 +769,14 @@ def test_stability_table_reference_with_other_interval_categories():
     assert table.loc["a", "age"] == 0.0
 
 
+def test_stability_table_reference_with_categories_in_another_order():
+    # The dtypes are equal, but code 0 is "a" in the reference and "b" in the current groups.
+    reference = pd.DataFrame({"x": pd.Categorical(["a", "a", "b"], categories=["a", "b"])})
+    current = pd.DataFrame({"x": pd.Categorical(["a", "a", "a"], categories=["b", "a"])})
+    table = stability_table(current, [1, 1, 1], reference_groups=reference)
+    assert table.loc[1, "x"] == pytest.approx(hand_psi([2, 1], [3, 0]))
+
+
 def test_stability_table_empty_categorical_period():
     groups = pd.DataFrame({"housing": ["own", "rent", "own", "own"]})
     period = pd.Categorical(["q1", "q1", "q3", "q3"], categories=["q1", "q2", "q3"], ordered=True)

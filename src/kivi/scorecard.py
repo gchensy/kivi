@@ -8,8 +8,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._validation import like_input
-from .woe import _woe_values
+from ._validation import like_input, woe_values
 
 __all__ = [
     "pd_to_score",
@@ -624,7 +623,7 @@ def _model_points(coefficients, intercept, pdo, base_score, base_odds) -> tuple[
 
 def _woe_column(table: pd.DataFrame | pd.Series, variable: object) -> pd.Series:
     try:
-        woe = _woe_values(table)
+        woe = woe_values(table)
     except ValueError as error:
         raise ValueError(f"invalid table for {variable!r}: {error}") from None
     values = woe.to_numpy(dtype=float)

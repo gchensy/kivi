@@ -13,7 +13,7 @@ import numpy.typing as npt
 import pandas as pd
 
 from ._counts import divergence, group_counts
-from ._validation import as_count_columns, as_series, as_weights
+from ._validation import as_count_columns, as_series, as_weights, woe_values
 
 __all__ = ["iv", "woe", "woe_table", "woe_transform"]
 
@@ -114,7 +114,7 @@ def woe_table(
     if isinstance(groups, pd.Series) and isinstance(target, pd.Series):
         if not groups.index.equals(target.index):
             raise ValueError("groups and target must have identical indices")
-    raw_groups = groups
+    raw_groups, raw_target = groups, target
     groups, target = as_series(groups, "groups"), as_series(target, "target")
     if len(groups) != len(target):
         raise ValueError(
@@ -122,7 +122,7 @@ def woe_table(
         )
     if not target.isin([0, 1]).all() or target.nunique() != 2:
         raise ValueError("target must contain both 0 and 1 and no missing labels")
-    mass = as_weights(weights, raw_groups, of="groups")
+    mass = as_weights(weights, raw_groups, of="groups", others={"target": raw_target})
     counts = group_counts(groups, target.to_numpy(dtype=np.intp), mass)
     totals = counts.to_numpy().sum(axis=0)
     if not (totals > 0).all():
@@ -306,7 +306,7 @@ def woe_transform(
     >>> woe_transform(pd.Series(["b", "a", None]), table, unseen=0.0).round(4).tolist()
     [-0.6931, 0.6931, 0.0]
     """
-    woe = _woe_values(table)
+    woe = woe_values(table)
     raise_unseen = isinstance(unseen, str) and unseen == "raise"
     if not raise_unseen and (isinstance(unseen, (bool, str)) or not isinstance(unseen, Real)):
         raise ValueError(f"unseen must be 'raise' or a number, got {unseen!r}")
@@ -337,17 +337,3 @@ def woe_transform(
     if isinstance(groups, pd.Series):
         return pd.Series(result, index=series.index, name=series.name)
     return result
-
-
-def _woe_values(table: pd.DataFrame | pd.Series) -> pd.Series:
-    if isinstance(table, pd.DataFrame):
-        if "woe" not in table.columns:
-            raise ValueError("table must have a woe column, as returned by woe_table")
-        table = table["woe"]
-    elif not isinstance(table, pd.Series):
-        raise ValueError(
-            f"table must be a woe_table result or a Series, got {type(table).__name__}"
-        )
-    if table.index.has_duplicates or pd.isna(table.index).sum() > 1:
-        raise ValueError("table must have one row per group")
-    return table

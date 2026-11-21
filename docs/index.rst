@@ -7,7 +7,7 @@ Credit risk modeling with pandas
 
 .. container:: kivi-lead
 
-   kivi is a pandas toolkit for credit risk and financial modeling. It profiles and bins the candidate variables, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard, infers the outcomes of rejected applicants, scales the model to points, evaluates it and calibrates it on a master scale, prices the cut-offs and the expected loss, tracks how the population shifts once the model is live, and follows how the approved loans perform. Tables come back as pandas DataFrames with one row per bin, grade, cut-off or variable.
+   kivi is a pandas toolkit for credit risk and financial modeling. It profiles the candidate variables, bins them and groups their categories, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard, infers the outcomes of rejected applicants, scales the model to points, evaluates it and calibrates it on a master scale, and prices the cut-offs and the expected loss. Once the model is live, it monitors the score period by period, follows how the approved loans perform, and measures their expected credit loss under IFRS 9. Tables come back as pandas DataFrames with one row per bin, grade, cut-off, period or variable.
 
 .. container:: kivi-actions
 
@@ -74,7 +74,7 @@ Built for risk teams
       :link: user_guide/binning
       :link-type: doc
 
-      Fine and coarse classing, special values and monotonic WOE for logistic regression scorecards.
+      Fine and coarse classing, special values, monotonic WOE and grouped categories for logistic regression scorecards.
 
    .. grid-item-card:: WOE and IV
       :link: user_guide/woe_iv
@@ -104,7 +104,7 @@ Built for risk teams
       :link: user_guide/metrics
       :link-type: doc
 
-      AUC, Gini, KS, gains and lift on development and validation samples.
+      AUC, Gini, KS, gains and ROC tables on development and validation samples, with the confidence interval of an AUC and the DeLong test of two scores.
 
    .. grid-item-card:: Calibration
       :link: user_guide/calibration
@@ -130,11 +130,23 @@ Built for risk teams
 
       Compare live data with the development sample bin by bin, track PSI over time and measure each variable's effect on the score with CSI.
 
+   .. grid-item-card:: Model monitoring
+      :link: user_guide/monitoring
+      :link-type: doc
+
+      One row per period with the population, the known outcomes, AUC, Gini, KS and the PSI of the score, and the PSI of every variable by period.
+
    .. grid-item-card:: Vintage and roll-rate analysis
       :link: user_guide/vintage
       :link-type: doc
 
       Vintage curves by origination cohort, roll rates and transition matrices between delinquency buckets.
+
+   .. grid-item-card:: Lifetime PD and expected credit loss
+      :link: user_guide/lifetime
+      :link-type: doc
+
+      PD term structures from vintage curves and transition matrices, 12-month and lifetime ECL, and the three IFRS 9 stages.
 
 How it works
 ------------
@@ -145,7 +157,7 @@ How it works
 
    .. grid-item-card:: Profile and bin
 
-      ``profile_table`` gives a first look at every candidate. ``bin_edges``, or a supervised method such as ``monotonic_edges``, fits edges on the development sample once, and every later sample is cut with them. The outer edges are infinite, so later values always fall into a bin.
+      ``profile_table`` gives a first look at every candidate. ``bin_edges``, or a supervised method such as ``monotonic_edges``, fits edges on the development sample once, and ``chimerge_groups`` groups the categories of a categorical variable. Every later sample is cut with the same edges and groups, and the outer edges are infinite, so later values always fall into a bin.
 
    .. grid-item-card:: Encode and fit
 
@@ -153,19 +165,19 @@ How it works
 
    .. grid-item-card:: Scale and evaluate
 
-      ``points_table`` turns the model into points, and ``gains_table``, ``roc_auc`` and ``ks`` measure how well the score ranks applicants on a holdout sample.
+      ``points_table`` turns the model into points, and ``gains_table``, ``roc_auc`` and ``ks`` measure how well the score ranks applicants on a holdout sample. ``roc_auc_interval`` shows how precisely a sample measures the AUC.
 
-   .. grid-item-card:: Calibrate
+   .. grid-item-card:: Calibrate and decide
 
-      ``master_scale`` and ``assign_grades`` group the PDs into grades, and ``calibration_table`` with the binomial and Jeffreys tests checks the PD of each grade.
-
-   .. grid-item-card:: Decide
-
-      ``cutoff_table`` shows what each cut-off approves and lets through, ``swap_set`` compares two scores, and ``expected_loss_table`` adds up the expected loss of each grade.
+      ``master_scale`` and ``assign_grades`` group the PDs into grades, and the binomial and Jeffreys tests check the PD of each grade. ``cutoff_table`` shows what each cut-off approves, and ``expected_loss_table`` adds up the expected loss of each grade.
 
    .. grid-item-card:: Deploy and monitor
 
-      ``BinningSpec`` saves the binning as JSON for production. ``psi_table`` and ``csi_table`` compare live data with development, and ``vintage_table`` follows the approved loans.
+      ``BinningSpec`` saves the binning as JSON for production. ``monitoring_table`` and ``stability_table`` compare every period with the development sample, and ``csi_table`` measures each variable's effect on the score.
+
+   .. grid-item-card:: Follow the loans
+
+      ``vintage_table`` and ``transition_matrix`` follow the approved loans. ``convert_pd`` and ``transition_pd`` turn them into PD term structures, and ``expected_credit_loss`` and ``assign_stages`` give the IFRS 9 loss allowance.
 
 Documentation
 -------------
@@ -183,13 +195,13 @@ Documentation
       :link: user_guide/index
       :link-type: doc
 
-      One page per step of a risk model, from the profile of the candidates to vintage analysis, with definitions, worked examples and how to read each result.
+      One page per step of a risk model, from the profile of the candidates to the expected credit loss of the approved loans, with definitions, worked examples and how to read each result.
 
    .. grid-item-card:: API reference
       :link: api
       :link-type: doc
 
-      Parameters, return values and examples for every public function.
+      Parameters, return values and examples for every public function, the conventions they share and a glossary of the terms.
 
    .. grid-item-card:: Release notes
       :link: release/index

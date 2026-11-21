@@ -3,7 +3,7 @@ Population stability index
 
 :func:`~kivi.stability.psi_table` compares the distribution of a variable in two samples, typically the development sample and a later monitoring sample. Group both samples with the same edges or labels before calling it. :func:`~kivi.stability.csi_table` measures how much such a change moves a scorecard's score; see :ref:`characteristic-stability`.
 
-Stability is monitored once a model is in use, on samples grouped as its :doc:`binning specification <spec>` groups them. :doc:`vintage` then follows the loans that the model approves.
+Stability is monitored once a model is in use, on samples grouped as its :doc:`binning specification <spec>` groups them. :doc:`monitoring` then repeats the PSI and the measures of :doc:`metrics` period by period.
 
 Definition
 ----------
@@ -115,6 +115,8 @@ dtype: float64
    kp.figure_psi_monitor()
 
 The months that cross the thresholds are also the smallest. With 20 customers, the December value mostly reflects sampling noise. Set a minimum sample size before a high PSI raises an alert.
+
+For a model in production, :func:`~kivi.monitoring.stability_table` computes this table for every variable at once, and :func:`~kivi.monitoring.monitoring_table` the PSI of the score together with the outcomes and the discrimination of each period; see :doc:`monitoring`.
 
 .. _characteristic-stability:
 

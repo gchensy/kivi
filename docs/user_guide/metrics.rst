@@ -155,6 +155,12 @@ The threshold with the largest gap flags 104 of the 173 events, a true positive 
 threshold
 0.284263         104            378               0.601      0.216
 
+.. plot::
+   :alt: ROC curve of the validation score, true positive rate against false positive rate, with the diagonal and the KS marked as a vertical segment
+   :caption: ROC curve of the WOE score on the validation sample. The vertical segment at the threshold with the largest gap between the two rates is the KS; the dashed diagonal is a random ordering.
+
+   kp.figure_roc_curve()
+
 The rates are the ``cum_event_share`` and ``cum_non_event_share`` of a gains table with one band per distinct score, and scikit-learn's ``roc_curve(target, score, drop_intermediate=False)`` gives the same points.
 
 Confidence interval of the AUC
@@ -214,6 +220,12 @@ lower        0.0041 -0.0029
 upper        0.0451  0.0221
 z            2.3509  1.5015
 p_value      0.0187  0.1332
+
+.. plot::
+   :alt: ROC curves of the current WOE score and of the scores with month or loan added, on the validation sample, with each AUC in the legend
+   :caption: ROC curves of the current score and of the scores with ``month`` or ``loan`` added, on the validation sample. ``month`` lifts the curve at false positive rates between about 5% and 45%; the curve with ``loan`` stays close to the current one.
+
+   kp.figure_roc_comparison()
 
 ``difference`` is ``new_auc`` minus ``current_auc``, ``lower`` and ``upper`` bound it at the confidence ``level``, and ``p_value`` is the two-sided p-value of ``z``. Adding ``month`` raises the AUC by 0.025, and the interval of the gain excludes 0. The gain of 0.010 from ``loan`` could be chance (p = 0.13), although its standard error of 0.006 is a third of that of either AUC on its own. For a one-sided test that the new score ranks better, halve ``p_value`` when ``z`` is positive.
 

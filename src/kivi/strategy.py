@@ -18,8 +18,18 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._counts import group_counts, group_rows
-from ._validation import as_series, as_weights, first_value, like_input, scores_and_labels
+from ._counts import group_counts, group_rows, ratio
+from ._validation import (
+    as_real,
+    as_series,
+    as_weights,
+    finite_scores,
+    is_real_dtype,
+    known_outcomes,
+    like_input,
+    scores_and_labels,
+    shared_index,
+)
 from .binning import _fit_edges
 
 __all__ = ["cutoff_table", "swap_set", "expected_loss", "expected_loss_table"]
@@ -145,7 +155,7 @@ def cutoff_table(
     0.5                     0.75                       0.0
     1.0                     0.00                       0.0
     """
-    _check_indices({"score": score, "target": target, "loss": loss, "weights": weights})
+    shared_index({"score": score, "target": target, "loss": loss, "weights": weights})
     values, labels, mass = scores_and_labels(score, target, "score", weights=weights)
     points = _cutoff_values(values, cutoffs, mass)
     amounts = None if loss is None else _loss_amounts(loss, score)
@@ -169,7 +179,7 @@ def cutoff_table(
         "approved": approved,
         "approval_rate": approved / (total_event + total_non_event),
         "approved_event": approved_event,
-        "approved_event_rate": _ratio(approved_event, approved),
+        "approved_event_rate": ratio(approved_event, approved),
         "rejected_event_share": (total_event - approved_event) / total_event,
         "rejected_non_event_share": (total_non_event - approved_non_event) / total_non_event,
     }
@@ -289,7 +299,7 @@ def swap_set(
     decline approve      1  0.125      0      0         NaN
             decline      3  0.375      0      0         NaN
     """
-    _check_indices({"current": current, "new": new, "target": target, "weights": weights})
+    shared_index({"current": current, "new": new, "target": target, "weights": weights})
     raw_current = current
     current, new = as_series(current, "current"), as_series(new, "new")
     if len(current) != len(new):
@@ -298,7 +308,7 @@ def swap_set(
         )
     if not len(current):
         raise ValueError("current and new must not be empty")
-    current, new = _finite_scores(current, "current"), _finite_scores(new, "new")
+    current, new = finite_scores(current, "current"), finite_scores(new, "new")
     declined = 2 * (current > _cutoff(current_cutoff, "current_cutoff")) + (
         new > _cutoff(new_cutoff, "new_cutoff")
     )
@@ -306,14 +316,14 @@ def swap_set(
     total = np.bincount(declined, weights=mass, minlength=4)
     columns = {"total": total, "share": total / total.sum()}
     if target is not None:
-        known, event = _outcomes(target, len(current))
+        known, event = known_outcomes(target, len(current), "current")
         if mass is None:
             columns["known"] = np.bincount(declined[known], minlength=4)
             columns["event"] = np.bincount(declined[event], minlength=4)
         else:
             columns["known"] = np.bincount(declined, weights=known * mass, minlength=4)
             columns["event"] = np.bincount(declined, weights=event * mass, minlength=4)
-        columns["event_rate"] = _ratio(columns["event"], columns["known"])
+        columns["event_rate"] = ratio(columns["event"], columns["known"])
     index = pd.MultiIndex.from_product([_DECISIONS, _DECISIONS], names=["current", "new"])
     return pd.DataFrame(columns, index=index)
 
@@ -380,7 +390,7 @@ def expected_loss(
     array([ 9. , 22.5, 22.5])
     """
     inputs = {"probability": probability, "lgd": lgd, "ead": ead}
-    _check_indices(inputs)
+    shared_index(inputs)
     arrays, template = _loss_inputs(inputs)
     return like_input(template, arrays["probability"] * arrays["lgd"] * arrays["ead"])
 
@@ -488,7 +498,7 @@ def expected_loss_table(
     B    0.175
     Name: exposure_weighted_probability, dtype: float64
     """
-    _check_indices(
+    shared_index(
         {"groups": groups, "probability": probability, "lgd": lgd, "ead": ead, "weights": weights}
     )
     raw_groups = groups
@@ -519,11 +529,11 @@ def expected_loss_table(
         {
             "total": counts.to_numpy()[:, 0],
             "exposure": group_exposure,
-            "exposure_weighted_probability": _ratio(
+            "exposure_weighted_probability": ratio(
                 group_sum(exposure * arrays["probability"]), group_exposure
             ),
             "expected_loss": group_loss,
-            "expected_loss_rate": _ratio(group_loss, group_exposure),
+            "expected_loss_rate": ratio(group_loss, group_exposure),
         },
         index=counts.index,
     )
@@ -548,7 +558,7 @@ def _cutoff_values(values: np.ndarray, cutoffs, weights: np.ndarray | None) -> n
     if np.ndim(cutoffs) != 1:
         raise ValueError(message.format(cutoffs))
     series = cutoffs if isinstance(cutoffs, pd.Series) else pd.Series(cutoffs)
-    if not len(series) or not _is_real(series.dtype):
+    if not len(series) or not is_real_dtype(series.dtype):
         raise ValueError(message.format(cutoffs))
     array = series.to_numpy(dtype=float, na_value=np.nan)
     if np.isnan(array).any() or not (np.diff(array) > 0).all():
@@ -562,82 +572,8 @@ def _cutoff(value, name: str) -> float:
     return float(value)
 
 
-def _check_indices(inputs: dict) -> None:
-    """Require every Series among the inputs to have the index of the first one."""
-    series = {name: values for name, values in inputs.items() if isinstance(values, pd.Series)}
-    names = list(series)
-    for name in names[1:]:
-        if not series[name].index.equals(series[names[0]].index):
-            raise ValueError(f"{names[0]} and {name} must have identical indices")
-
-
-def _is_real(dtype) -> bool:
-    """Whether a NumPy or pandas dtype holds real numbers other than booleans."""
-    return (
-        pd.api.types.is_numeric_dtype(dtype)
-        and not pd.api.types.is_bool_dtype(dtype)
-        and not pd.api.types.is_complex_dtype(dtype)
-    )
-
-
-def _real(values, name: str, *, booleans: bool = False) -> np.ndarray:
-    """Float array of real numeric values, keeping the shape; missing values become NaN.
-
-    With ``booleans``, True and False count as 1 and 0, as probabilities do in
-    `kivi.metrics` and `kivi.calibration`. An empty sequence gives an empty array.
-    """
-    if np.ndim(values) == 1 and not len(values):
-        return np.empty(0)
-    if not isinstance(values, pd.Series) and np.ndim(values) == 1:
-        # pandas reads [0.1, None] and nullable arrays as numbers, where NumPy keeps objects.
-        values = pd.Series(values)
-    if isinstance(values, pd.Series):
-        dtype = values.dtype
-        if _is_real(dtype) or (booleans and pd.api.types.is_bool_dtype(dtype)):
-            return values.to_numpy(dtype=float, na_value=np.nan)
-    else:
-        array = np.asarray(values)
-        dtype = array.dtype
-        if _is_real(dtype) or (booleans and pd.api.types.is_bool_dtype(dtype)):
-            return array.astype(float)
-    raise ValueError(f"{name} must be real and numeric, got dtype {dtype}")
-
-
-def _finite_scores(values: pd.Series, name: str) -> np.ndarray:
-    """Finite float scores; booleans are accepted, as in ``kivi.metrics``."""
-    dtype = values.dtype
-    if not pd.api.types.is_numeric_dtype(dtype) or pd.api.types.is_complex_dtype(dtype):
-        raise ValueError(f"{name} must be real and numeric, got dtype {dtype}")
-    array = values.to_numpy(dtype=float, na_value=np.nan)
-    finite = np.isfinite(array)
-    if not finite.all():
-        raise ValueError(
-            f"{name} must be finite, got {(~finite).sum()} missing or infinite value(s) "
-            f"such as {float(array[~finite][0])!r}"
-        )
-    return array
-
-
-def _outcomes(target, length: int) -> tuple[np.ndarray, np.ndarray]:
-    """Boolean masks of the known outcomes and of the events; missing labels are unknown."""
-    target = as_series(target, "target")
-    if len(target) != length:
-        raise ValueError(
-            f"target must have one label per value of current, got {len(target)} for {length}"
-        )
-    missing = target.isna().to_numpy(dtype=bool)
-    # For nullable dtypes pandas 2.0 returns an object array, which ~ would negate as integers.
-    invalid = ~(target.isin([0, 1]).to_numpy(dtype=bool) | missing)
-    if invalid.any():
-        shown = first_value(target[invalid])
-        raise ValueError(f"target must contain only 0, 1 and missing values, got {shown!r}")
-    event = np.zeros(length, dtype=bool)
-    event[~missing] = target[~missing].to_numpy(dtype=float) == 1
-    return ~missing, event
-
-
 def _loss_amounts(loss, score) -> np.ndarray:
-    amounts = _real(as_series(loss, "loss"), "loss")
+    amounts = as_real(as_series(loss, "loss"), "loss")
     if len(amounts) != len(score):
         raise ValueError(
             f"loss must have one value per value of score, got {len(amounts)} for {len(score)}"
@@ -658,7 +594,8 @@ def _loss_inputs(inputs: dict, length: int | None = None) -> tuple[dict, object]
     """
     # Booleans count as 0 and 1 in probabilities, as elsewhere in kivi, but not in LGDs or EADs.
     arrays = {
-        name: _real(values, name, booleans=name == "probability") for name, values in inputs.items()
+        name: as_real(values, name, booleans=name == "probability")
+        for name, values in inputs.items()
     }
     if length is not None:
         for name, array in arrays.items():
@@ -700,9 +637,3 @@ def _loss_inputs(inputs: dict, length: int | None = None) -> tuple[dict, object]
             f"Series index, got shape {shape}"
         )
     return arrays, template
-
-
-def _ratio(numerator: np.ndarray, denominator: np.ndarray) -> npt.NDArray[np.float64]:
-    """Elementwise ratio that is NaN, without a warning, where the denominator is 0."""
-    result = np.full(len(numerator), np.nan)
-    return np.divide(numerator, denominator, out=result, where=denominator > 0)

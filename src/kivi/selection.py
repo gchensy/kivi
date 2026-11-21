@@ -629,6 +629,7 @@ def _model_inputs(
     frame, values = _as_frame(X)
     if "intercept" in frame.columns:
         raise ValueError("X must not have a column labelled 'intercept'")
+    raw_target = target
     target = as_series(target, "target")
     if len(target) != len(frame):
         raise ValueError(
@@ -643,7 +644,7 @@ def _model_inputs(
         raise ValueError(
             f"weights must have one weight per row of X, got {len(weights)} for {len(frame)}"
         )
-    mass = as_weights(weights, frame, of="X")
+    mass = as_weights(weights, frame, of="X", others={"target": raw_target})
     totals = np.bincount(labels.astype(np.intp), weights=mass, minlength=2)
     if not (totals > 0).all():
         raise ValueError(

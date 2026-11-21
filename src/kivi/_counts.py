@@ -5,6 +5,7 @@ which work on NumPy arrays with one row per group and two count columns.
 """
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
 from ._validation import check_smoothing
@@ -45,6 +46,55 @@ def group_rows(groups: pd.Series, levels: pd.Index) -> np.ndarray:
     if missing.any():  # get_indexer does not match missing values on pandas 2.0
         rows[missing] = missing_row[0] if len(missing_row) else -1
     return rows
+
+
+def concat_groups(first: pd.Series, second: pd.Series) -> pd.Series:
+    """Join the groups of two samples into one Series with a new index, as ``pd.concat`` does.
+
+    ``pd.concat`` hashes the dtype of each sample, and hashing a categorical
+    dtype whose categories are intervals with an infinite endpoint, as
+    ``pandas.cut`` makes them for edges from -inf to inf, warns on
+    NumPy < 2.2. Categoricals of the same dtype are therefore joined by their
+    codes, in the category order of ``first``, and other interval categoricals
+    are first converted to the dtype that ``pd.concat`` would give them:
+    intervals when both samples hold intervals closed on the same side,
+    otherwise objects.
+    """
+    if isinstance(first.dtype, pd.CategoricalDtype) and first.dtype == second.dtype:
+        codes = second.cat.codes.to_numpy()
+        if not second.cat.categories.equals(first.cat.categories):
+            # Unordered dtypes are equal when they list the same categories in another order.
+            position = first.cat.categories.get_indexer(second.cat.categories)
+            codes = np.where(codes < 0, -1, position[codes])
+        codes = np.concatenate([first.cat.codes.to_numpy(), codes])
+        return pd.Series(pd.Categorical.from_codes(codes, dtype=first.dtype))
+    samples = [first, second]
+    intervals = [_interval_dtype(values.dtype) for values in samples]
+    same_side = None not in intervals and intervals[0].closed == intervals[1].closed
+    for number, values in enumerate(samples):
+        if isinstance(values.dtype, pd.CategoricalDtype) and intervals[number] is not None:
+            if same_side:
+                # Missing codes become missing intervals.
+                codes = values.cat.codes.to_numpy()
+                samples[number] = pd.Series(
+                    values.cat.categories.array.take(codes, allow_fill=True)
+                )
+            else:
+                samples[number] = values.astype(object)
+    return pd.concat(samples, ignore_index=True)
+
+
+def _interval_dtype(dtype) -> pd.IntervalDtype | None:
+    """Return the interval dtype of the values or the categories, or None for other dtypes."""
+    if isinstance(dtype, pd.CategoricalDtype):
+        dtype = dtype.categories.dtype
+    return dtype if isinstance(dtype, pd.IntervalDtype) else None
+
+
+def ratio(numerator: np.ndarray, denominator: np.ndarray) -> npt.NDArray[np.float64]:
+    """Elementwise ratio that is NaN, without a warning, where the denominator is 0."""
+    result = np.full(len(numerator), np.nan)
+    return np.divide(numerator, denominator, out=result, where=denominator > 0)
 
 
 def shares(counts: np.ndarray, smoothing: float) -> np.ndarray:

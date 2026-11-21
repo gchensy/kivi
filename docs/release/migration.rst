@@ -16,13 +16,15 @@ The functions below replace the 0.2.x classes. Dataset.bank_data() retains its i
    * - ``abnormal_vals=[...]``
      - ``special=[...]`` in ``bin_edges`` and ``kivi.binning.cut``
    * - ``CategoryBins``
-     - ``woe_table(labels, target)``
+     - ``woe_table(labels, target)``, after ``category_groups`` or ``chimerge_groups`` and ``group_categories`` where the labels should be grouped, from 0.8.0
    * - ``WOEScore``
      - ``woe_transform(groups, table)`` on groups formed with the development edges, from 0.5.0
    * - ``PSI.fit()``
      - ``psi_table(before, after)`` on groups formed with the same edges
    * - ``BinaryMetrics``, ``ModelEvaluate``, ``ScoreEvaluate``
-     - ``kivi.metrics``: ``roc_auc``, ``gini``, ``ks``, ``gains_table`` and ``brier_score``, from 0.5.0
+     - ``kivi.metrics``: ``roc_auc``, ``gini``, ``ks``, ``gains_table`` and ``brier_score``, from 0.5.0, and ``roc_table``, ``roc_auc_interval`` and ``delong_test``, from 0.8.0
+   * - ``ScoreEvaluate.score_psi``, ``add_psi``
+     - ``kivi.monitoring``: ``monitoring_table`` and ``stability_table``, from 0.8.0
    * - ``VIF``, ``StepWise``, ``feature.Corr``
      - ``kivi.selection``: ``vif``, ``stepwise``, ``correlation_filter`` and ``logistic_regression``, from 0.5.0
    * - ``PDToScore``, ``BaseScoreAndPDO``
@@ -87,13 +89,23 @@ Version 0.7.0 replaces the legacy master scale and variable profile. Compare the
 * ``FeatureEvaluate(df, target_name).stats()`` becomes ``profile_table(frame.drop(columns=target_name), frame[target_name])``. The columns follow kivi's names, such as ``missing_share``, ``missing_event_rate`` and ``non_missing_lift``, and a target without events raises an error, where the legacy lifts were -9999. The signed Gini coefficient of the values replaces the AUC and KS of a univariate logistic fit. The table adds the IV of a quick binning, special codes, sample weights and the ``tied_bins`` column.
 * Strategy analysis, reject inference and weighted model fits have no 0.2.x counterpart. ``kivi.strategy`` replaces approval and bad-rate tables built by hand from score bands, ``kivi.reject_inference`` infers the outcomes of declined applicants, and ``logistic_regression`` and ``stepwise`` take ``weights`` to refit on them.
 
+Category grouping, validation and monitoring
+--------------------------------------------
+
+Version 0.8.0 groups categorical variables, adds the ROC table and the uncertainty of an AUC, and monitors a model period by period. These are new implementations as well.
+
+* ``CategoryBins`` kept the labels of a categorical variable as they were. ``category_groups`` pools the rare categories and ``chimerge_groups`` merges the categories with similar event rates; both return a dictionary from category to group that is fitted on the reference sample, and ``group_categories`` applies it to every sample. A category that the grouping does not know raises an error unless ``unseen`` names its group. ``fit_spec`` groups a column with the methods ``"rare"`` and ``"chimerge"``, and a specification that groups a column is saved as format version 2, which 0.7.0 and earlier refuse to read.
+* ``BinaryMetrics.roc_curve`` returned the points of scikit-learn's ``roc_curve`` with its default ``drop_intermediate=True``. ``roc_table`` has one row for every distinct score, as ``roc_curve`` with ``drop_intermediate=False``, with the cumulative counts, the two rates and the precision. Its ``precision`` and ``true_positive_rate`` columns are the precision and the recall at each threshold, so it also gives the precision-recall curve. ``roc_auc_interval`` adds the DeLong standard error and interval of the AUC and the Gini, and ``delong_test`` compares the AUCs of two scores on the same sample; the legacy code had neither.
+* ``ScoreEvaluate.score_psi`` and ``add_psi`` compared the band totals of two lift tables. ``monitoring_table`` compares every period with one reference sample on score bands fitted once, adds the known outcomes, the AUC, the Gini and the KS of each period, and counts an observation without a known outcome in the population only. ``stability_table`` gives the PSI of every variable in every period.
+* Lifetime PD term structures, the IFRS 9 expected credit loss and the allocation to stages have no 0.2.x counterpart; see ``kivi.lifetime``.
+
 Not ported
 ----------
 
 Spark, SQL, AHP, model wrappers and application code are out of scope and remain in the historical revisions. These 0.2.x tools have no replacement either:
 
 * The charts of ``DefaultAnalysis``, ``plot_bin``, ``Calibration.CalibrationCurve`` and the ``plot_*`` methods of ``BinaryMetrics``, and the correlation heatmaps ``diagonal_corr`` and ``structure_corr`` of ``evaluate/Heatmap.py``. kivi returns tables, which any plotting library can draw; for the heatmaps, draw ``X.corr()`` of the WOE-encoded candidates, which ``correlation_filter`` uses as well.
-* The ROC and precision-recall curves, the precision, recall and F1 score and the confusion matrix of ``BinaryMetrics``. The area under the ROC curve is ported as ``roc_auc``, and the cumulative shares of ``gains_table`` give the points of both curves at the band edges. Precision, recall, F1 and the confusion matrix judge predicted labels at one threshold, which a scorecard sets with a cut-off: ``cutoff_table`` gives the events that each cut-off approves and the shares of events and non-events that it rejects. Use scikit-learn's ``roc_curve``, ``precision_recall_curve`` and ``confusion_matrix`` where the full curves or the matrix are needed.
+* The F1 score and the confusion matrix of ``BinaryMetrics``. They judge predicted labels at one threshold, which a scorecard sets with a cut-off: ``cutoff_table`` gives the events that each cut-off approves and the shares of events and non-events that it rejects, and each row of ``roc_table`` gives the counts of the flagged events and non-events at its threshold. Use scikit-learn's ``f1_score`` and ``confusion_matrix`` where they are needed.
 * The sampling helpers ``sampling`` and ``upsampling``, and the ratio and cross features of ``FeatureTools``. Use pandas.
 * The grading by the Beta distribution in ``BetaCalibration``, ``BetaDistribution`` and ``MasterScale.cal_quantile``, and ``model_score_by_weight``. ``master_scale`` and ``woe_to_points`` cover the same steps without them.
 * The repayment-schedule calculations of ``PortfolioAnalysis.Vintage``. Derive the delinquency status with pandas and pass the panel to ``vintage_table``.

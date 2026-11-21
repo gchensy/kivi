@@ -22,9 +22,17 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._validation import as_series, as_weights, first_value
-from .strategy import _is_real, _ratio
-from .vintage import _binary
+from ._counts import ratio
+from ._validation import (
+    as_flags,
+    as_real,
+    as_series,
+    as_weights,
+    check_real_dtype,
+    first_value,
+    is_real_dtype,
+    shared_index,
+)
 
 __all__ = [
     "convert_pd",
@@ -608,7 +616,7 @@ def significant_increase(
     """
     names = ("probability", "origination_probability")
     pairs = {"probability": probability, "origination_probability": origination_probability}
-    index = _shared_index(pairs)
+    index = shared_index(pairs)
     current, origination = (_vector(pairs[name], name, booleans=True) for name in names)
     _same_length(current, origination, names)
     for values, name in ((current, "probability"), (origination, "origination_probability")):
@@ -732,11 +740,11 @@ def assign_stages(
     """
     name = "significant_increase"
     inputs = {name: significant_increase, "days_past_due": days_past_due, "defaulted": defaulted}
-    index = _shared_index(inputs)
+    index = shared_index(inputs)
     flags = as_series(significant_increase, name)
     if not len(flags):
         raise ValueError(f"{name} must not be empty")
-    increased = _binary(flags, name)
+    increased = as_flags(flags, name)
     days = None
     if days_past_due is not None:
         days = _vector(days_past_due, "days_past_due")
@@ -748,7 +756,7 @@ def assign_stages(
             )
     impaired = np.zeros(len(increased), dtype=bool)
     if defaulted is not None:
-        impaired = _binary(as_series(defaulted, "defaulted"), "defaulted")
+        impaired = as_flags(as_series(defaulted, "defaulted"), "defaulted")
         _same_length(increased, impaired, (name, "defaulted"))
     for value, option in ((stage_2_days, "stage_2_days"), (stage_3_days, "stage_3_days")):
         if not _is_number(value) or not 0 <= value < math.inf:
@@ -855,12 +863,12 @@ def stage_table(
     3          1     200.0            0.04                  90.0     0.450
     """
     inputs = {"stage": stage, "exposure": exposure, "allowance": allowance, "weights": weights}
-    _shared_index(inputs)
+    shared_index(inputs)
     raw_stage = stage
     stage = as_series(stage, "stage")
     if not len(stage):
         raise ValueError("stage must not be empty")
-    if not _is_real(stage.dtype):
+    if not is_real_dtype(stage.dtype):
         raise ValueError(f"stage must be real and numeric, got dtype {stage.dtype}")
     # For nullable dtypes pandas 2.0 returns an object array, which ~ would negate as integers.
     invalid = ~stage.isin([1, 2, 3]).to_numpy(dtype=bool)
@@ -887,9 +895,9 @@ def stage_table(
         {
             "total": total,
             "exposure": stage_exposure,
-            "exposure_share": _ratio(stage_exposure, np.full(3, stage_exposure.sum())),
+            "exposure_share": ratio(stage_exposure, np.full(3, stage_exposure.sum())),
             "expected_credit_loss": stage_loss,
-            "coverage": _ratio(stage_loss, stage_exposure),
+            "coverage": ratio(stage_loss, stage_exposure),
         },
         index=pd.Index([1, 2, 3], name="stage"),
     )
@@ -898,11 +906,6 @@ def stage_table(
 def _is_number(value) -> bool:
     """Whether a scalar is a real number other than a boolean or NaN."""
     return isinstance(value, Real) and not isinstance(value, bool) and not math.isnan(value)
-
-
-def _check_dtype(dtype, name: str, *, booleans: bool = False) -> None:
-    if not (_is_real(dtype) or (booleans and pd.api.types.is_bool_dtype(dtype))):
-        raise ValueError(f"{name} must be real and numeric, got dtype {dtype}")
 
 
 def _missing_as_float(series: pd.Series) -> pd.Series:
@@ -917,7 +920,7 @@ def _float_frame(frame: pd.DataFrame, name: str, *, booleans: bool = False) -> n
     if any(pd.api.types.is_object_dtype(dtype) for dtype in frame.dtypes):
         frame = frame.apply(_missing_as_float)
     for dtype in frame.dtypes:
-        _check_dtype(dtype, name, booleans=booleans)
+        check_real_dtype(dtype, name, booleans=booleans)
     return frame.to_numpy(dtype=float, na_value=np.nan)
 
 
@@ -930,7 +933,7 @@ def _curves(values, name: str) -> npt.NDArray[np.float64]:
         series = _missing_as_float(as_series(values, name))
         if not len(series):
             raise ValueError(f"{name} must have at least one period")
-        _check_dtype(series.dtype, name, booleans=True)
+        check_real_dtype(series.dtype, name, booleans=True)
         curves = series.to_numpy(dtype=float, na_value=np.nan)[None, :]
     else:
         # pandas reads [[0.1, None]] and nullable arrays as numbers, where NumPy keeps objects.
@@ -1056,7 +1059,7 @@ def _horizons(horizons) -> npt.NDArray[np.int64]:
     if np.ndim(horizons) != 1:
         raise error
     series = horizons if isinstance(horizons, pd.Series) else pd.Series(horizons)
-    if not len(series) or not _is_real(series.dtype):
+    if not len(series) or not is_real_dtype(series.dtype):
         raise error
     values = series.to_numpy(dtype=float, na_value=np.nan)
     if (
@@ -1068,15 +1071,6 @@ def _horizons(horizons) -> npt.NDArray[np.int64]:
     ):
         raise error
     return values.astype(np.int64)
-
-
-def _shared_index(inputs: dict) -> pd.Index | None:
-    """Return the index that the Series among the inputs share, or None without a Series."""
-    series = [(name, values) for name, values in inputs.items() if isinstance(values, pd.Series)]
-    for name, values in series[1:]:
-        if not values.index.equals(series[0][1].index):
-            raise ValueError(f"{series[0][0]} and {name} must have identical indices")
-    return series[0][1].index if series else None
 
 
 def _account_index(inputs: dict, accounts: int, periods: int) -> pd.Index | None:
@@ -1104,12 +1098,14 @@ def _account_index(inputs: dict, accounts: int, periods: int) -> pd.Index | None
 
 
 def _vector(values, name: str, *, booleans: bool = False) -> npt.NDArray[np.float64]:
-    """One-dimensional real numbers as floats; missing values become NaN."""
+    """One-dimensional, non-empty real numbers as floats; missing values become NaN.
+
+    Unlike `kivi._validation.as_real` alone, it reads values that are all missing as floats.
+    """
     series = _missing_as_float(as_series(values, name))
     if not len(series):
         raise ValueError(f"{name} must not be empty")
-    _check_dtype(series.dtype, name, booleans=booleans)
-    return series.to_numpy(dtype=float, na_value=np.nan)
+    return as_real(series, name, booleans=booleans)
 
 
 def _same_length(first: np.ndarray, second: np.ndarray, names: tuple[str, str]) -> None:
@@ -1136,7 +1132,7 @@ def _schedule(values, name: str, shape: tuple[int, int]) -> npt.NDArray[np.float
     )
     if dimensions == 0:
         array = np.asarray(values)
-        _check_dtype(array.dtype, name)
+        check_real_dtype(array.dtype, name)
         array = array.astype(float).reshape(1, 1)
     elif dimensions == 1:
         array = _vector(values, name)
@@ -1157,7 +1153,7 @@ def _per_account(values, name: str, accounts: int) -> npt.NDArray[np.float64]:
     """One value or one value per account as a 1-D float array."""
     if np.ndim(values) == 0:
         array = np.asarray(values)
-        _check_dtype(array.dtype, name)
+        check_real_dtype(array.dtype, name)
         return array.astype(float).reshape(1)
     if np.ndim(values) != 1:
         raise ValueError(

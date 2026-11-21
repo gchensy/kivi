@@ -49,7 +49,7 @@ Read the ranking critically before building the shortlist:
 Bin the shortlist
 -----------------
 
-Each variable on the shortlist gets edges that can be explained: merged balance bins with a monotonic WOE, a bin of its own for the ``pdays == -1`` code, policy age bands, and the raw labels of the categorical variables. Keep the binning in one place so that development and monitoring data are grouped identically.
+Each variable on the shortlist gets edges that can be explained: merged balance bins with a monotonic WOE, a bin of its own for the ``pdays == -1`` code, policy age bands, and the raw labels of the categorical variables. The twelve labels of ``job`` could also be grouped first, as in :ref:`category-groups`; this example keeps them as they are. Keep the binning in one place so that development and monitoring data are grouped identically.
 
 >>> fine = bin_edges(development["balance"], bins=10)
 >>> numeric_edges = {
@@ -183,6 +183,18 @@ bin
 
 The riskiest band, about a fifth of the monitoring sample, holds 48% of its events at about twice the average event rate.
 
+A monitoring sample of this size measures the Gini with some uncertainty. :func:`~kivi.metrics.roc_auc_interval` gives the DeLong standard error and the 95% interval of the AUC and of the Gini:
+
+>>> from kivi.metrics import roc_auc_interval
+>>> roc_auc_interval(mon_pd, y_mon).round(3)
+      estimate     se  lower  upper
+auc      0.687  0.023  0.643  0.732
+gini     0.375  0.045  0.286  0.464
+>>> print(f"development Gini = {gini(dev_pd, target):.3f}")
+development Gini = 0.432
+
+With 173 events among 1,521 customers, the interval of the Gini runs from 0.286 to 0.464. It contains the development Gini of 0.432, which is itself optimistic because the binning, the variables and the coefficients were all fitted on the development sample, so the lower Gini of the monitoring sample is within the sampling noise. :doc:`metrics` also compares two scores on the same sample with the DeLong test.
+
 Check calibration
 -----------------
 
@@ -290,4 +302,4 @@ The score itself is monitored the same way, with bands fitted on the development
 >>> print(f"score PSI = {score_psi['psi'].sum():.4f}")
 score PSI = 0.0029
 
-:doc:`psi` shows what a shift looks like and how to track PSI period by period.
+:doc:`psi` shows what a shift looks like. In production, :func:`~kivi.monitoring.monitoring_table` repeats this PSI for every period together with the known outcomes and the Gini, and :func:`~kivi.monitoring.stability_table` the PSI of every variable; see :doc:`monitoring`. Once the approved loans are booked, :doc:`vintage` follows their delinquency, and :doc:`lifetime` turns it into PD term structures and the IFRS 9 loss allowance.

@@ -10,7 +10,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._validation import as_series, as_weights, first_value
+from ._validation import as_flags, as_series, as_weights, first_value, shared_index
 
 __all__ = ["vintage_table", "transition_matrix", "roll_rates"]
 
@@ -132,7 +132,15 @@ def vintage_table(
     2024-02 cohort has not reached month on book 3.
     """
     names = ("loan", "cohort", "month_on_book", "bad")
-    _check_indices((loan, cohort, month_on_book, bad, weights), (*names, "weights"))
+    shared_index(
+        {
+            "loan": loan,
+            "cohort": cohort,
+            "month_on_book": month_on_book,
+            "bad": bad,
+            "weights": weights,
+        }
+    )
     raw_loan = loan
     loan, cohort, month_on_book, bad = (
         as_series(values, name)
@@ -153,7 +161,7 @@ def vintage_table(
     cohort_code, cohort_label = pd.factorize(cohort, sort=True)
     _check_not_missing(cohort_code, "cohort")
     mob = _whole_numbers(month_on_book, "month_on_book")
-    flag = _binary(bad, "bad")
+    flag = as_flags(bad, "bad")
 
     # The cohort and the weight of each loan come from its first row; all rows must agree.
     n_loans = len(loan_label)
@@ -419,7 +427,7 @@ def roll_rates(
 
 def _transitions(before, after, states, weights):
     """States as an Index, the state code of each entity before and after, and the weights."""
-    _check_indices((before, after, weights), ("before", "after", "weights"))
+    shared_index({"before": before, "after": after, "weights": weights})
     raw_after = after
     before, after = as_series(before, "before"), as_series(after, "after")
     if len(before) != len(after):
@@ -489,15 +497,6 @@ def _state_codes(values: pd.Series, labels: pd.Index, name: str) -> np.ndarray:
     return codes.astype(np.intp)
 
 
-def _check_indices(inputs, names) -> None:
-    """Series among ``inputs`` must share one index; other inputs are matched by position."""
-    series = [(values, name) for values, name in zip(inputs, names, strict=True)]
-    series = [(values, name) for values, name in series if isinstance(values, pd.Series)]
-    for values, name in series[1:]:
-        if not values.index.equals(series[0][0].index):
-            raise ValueError(f"{series[0][1]} and {name} must have identical indices")
-
-
 def _check_not_missing(codes: np.ndarray, name: str) -> None:
     missing = codes < 0
     if missing.any():
@@ -518,14 +517,3 @@ def _whole_numbers(values: pd.Series, name: str) -> npt.NDArray[np.int64]:
     if invalid.any():
         raise ValueError(f"{name} must contain whole numbers, got {float(array[invalid][0])!r}")
     return array.astype(np.int64)
-
-
-def _binary(values: pd.Series, name: str) -> npt.NDArray[np.bool_]:
-    """0/1 or boolean values as a bool array."""
-    # For nullable dtypes pandas 2.0 returns an object array, which ~ would negate as integers.
-    invalid = ~values.isin([0, 1]).to_numpy(dtype=bool)
-    if invalid.any():
-        raise ValueError(
-            f"{name} must contain only booleans or 0 and 1, got {first_value(values[invalid])!r}"
-        )
-    return values.to_numpy(dtype=bool)

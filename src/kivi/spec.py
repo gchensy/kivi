@@ -23,7 +23,17 @@ import pandas as pd
 import kivi
 
 from . import binning, woe
-from ._validation import as_series, as_weights
+from ._validation import (
+    as_series,
+    as_weights,
+    check_finite_column,
+    checked_codes,
+    column_list,
+    fitted_columns,
+    is_binned_dtype,
+    shown,
+    shown_list,
+)
 
 __all__ = ["BinningSpec", "fit_spec"]
 
@@ -178,7 +188,7 @@ class BinningSpec:
             for name, value in _entries(self.edges, numeric, "edges", "numeric ").items()
         }
         special = {
-            name: _checked_codes(value, f"special codes of column {name!r}")
+            name: checked_codes(value, f"special codes of column {name!r}")
             for name, value in _entries(self.special, numeric, "special", "numeric ").items()
         }
         groups = _checked_groupings(self.groups, kinds)
@@ -347,7 +357,7 @@ class BinningSpec:
             clash = labels.get_indexer(binning._object_index(new)) >= 0
             if clash.any():
                 raise ValueError(
-                    f"column {name!r}: the category {_shown(new[clash][0])} is not in its "
+                    f"column {name!r}: the category {shown(new[clash][0])} is not in its "
                     "grouping but is the label of one of its groups; add it to the grouping to "
                     "choose its group"
                 )
@@ -452,7 +462,7 @@ class BinningSpec:
                 )
                 raise ValueError(
                     f"column {name!r}: {int(outside.sum())} value(s) {problem}, "
-                    f"such as {_shown(example)}; give the column an unseen WOE"
+                    f"such as {shown(example)}; give the column an unseen WOE"
                 )
             try:
                 values = woe.woe_transform(groups[name], self.tables[name]["woe"], unseen=unseen)
@@ -500,10 +510,10 @@ class BinningSpec:
         >>> fit_spec(frame, [1, 0, 0, 1], bins=2).select(["housing"])
         BinningSpec(columns=['housing'])
         """
-        names = _column_list(columns, "columns")
+        names = column_list(columns, "columns")
         absent = [name for name in names if name not in self.kinds]
         if absent:
-            raise ValueError(f"columns must be in the specification, got {_shown_list(absent)}")
+            raise ValueError(f"columns must be in the specification, got {shown_list(absent)}")
         numeric = [name for name in names if self.kinds[name] == "numeric"]
         return BinningSpec(
             kinds={name: self.kinds[name] for name in names},
@@ -808,7 +818,7 @@ class BinningSpec:
             if kind == "categorical":
                 groups[name] = values.array
                 continue
-            if not _is_numeric(values.dtype) and values.notna().any():
+            if not is_binned_dtype(values.dtype) and values.notna().any():
                 raise ValueError(
                     f"column {name!r} was fitted as numeric but has dtype {values.dtype}; "
                     "convert it with pandas.to_numeric so that its special codes are matched"
@@ -822,10 +832,10 @@ class BinningSpec:
             raise ValueError(f"frame must be a pandas DataFrame, got {type(frame).__name__}")
         absent = [name for name in self.kinds if name not in frame.columns]
         if absent:
-            raise ValueError(f"frame lacks columns of the specification: {_shown_list(absent)}")
+            raise ValueError(f"frame lacks columns of the specification: {shown_list(absent)}")
         repeated = [name for name in self.kinds if (frame.columns == name).sum() > 1]
         if repeated:
-            raise ValueError(f"frame has more than one column named {_shown_list(repeated)}")
+            raise ValueError(f"frame has more than one column named {shown_list(repeated)}")
         return frame
 
 
@@ -988,13 +998,15 @@ def fit_spec(
     """
     if not isinstance(frame, pd.DataFrame):
         raise ValueError(f"frame must be a pandas DataFrame, got {type(frame).__name__}")
-    names = _fitted_columns(frame, columns)
+    names = fitted_columns(frame, columns)
     labels = _target_labels(target, frame, names)
     _check_smoothing(smoothing)
     mass = as_weights(weights, frame.index.to_series(), of="frame")
     if mass is not None and not (np.bincount(labels, weights=mass, minlength=2) > 0).all():
         raise ValueError("weights must give both target classes a positive total")
-    kinds = {name: "numeric" if _is_numeric(frame[name].dtype) else "categorical" for name in names}
+    kinds = {
+        name: "numeric" if is_binned_dtype(frame[name].dtype) else "categorical" for name in names
+    }
     numeric = [name for name in names if kinds[name] == "numeric"]
     if not isinstance(bins, Mapping) and np.ndim(bins) != 0:
         raise ValueError(f"bins must be an integer or a dict by column, got {bins!r}")
@@ -1005,14 +1017,14 @@ def fit_spec(
         if rare:
             raise ValueError(
                 "bins names columns grouped with 'rare', which take min_share or min_count in "
-                f"options instead: {_shown_list(rare)}"
+                f"options instead: {shown_list(rare)}"
             )
     counts = _per_column(
         bins, [name for name in binned if grouped.get(name) != "rare"], kinds, "bins", 5
     )
     codes = _per_column({} if special is None else special, binned, kinds, "special", ())
     codes = {
-        name: (_checked_codes if name in methods else _checked_labels)(
+        name: (checked_codes if name in methods else _checked_labels)(
             value, f"special of column {name!r}"
         )
         for name, value in codes.items()
@@ -1021,7 +1033,7 @@ def fit_spec(
     policies = _per_column(unseen, names, kinds, "unseen", "raise", _checked_unseen)
     for name in names:
         if name in numeric:
-            _check_finite(frame[name], codes[name], name)
+            check_finite_column(frame[name], codes[name], name)
         else:
             _warn_if_numbers(frame[name], name)
     edges = {}
@@ -1122,42 +1134,6 @@ def _same(value, other) -> bool:
     return bool(value == other)
 
 
-def _fitted_columns(frame: pd.DataFrame, columns: Sequence[str] | None) -> list[str]:
-    if columns is None:
-        names = list(frame.columns)
-        if not names:
-            raise ValueError("frame must have at least one column to fit")
-        for name in names:
-            if not isinstance(name, str):
-                raise ValueError(f"column names must be strings, got {name!r}")
-    else:
-        names = _column_list(columns, "columns")
-        absent = [name for name in names if name not in frame.columns]
-        if absent:
-            raise ValueError(f"columns must be columns of frame, got {_shown_list(absent)}")
-    repeated = list(dict.fromkeys(name for name in names if (frame.columns == name).sum() > 1))
-    if repeated:
-        raise ValueError(f"frame has more than one column named {_shown_list(repeated)}")
-    return names
-
-
-def _column_list(columns: Sequence[str], argument: str) -> list[str]:
-    if isinstance(columns, str) or not isinstance(columns, (Sequence, pd.Index, np.ndarray)):
-        raise ValueError(
-            f"{argument} must be a sequence of column names, got {type(columns).__name__}"
-        )
-    names = list(columns)
-    if not names:
-        raise ValueError(f"{argument} must name at least one column")
-    for name in names:
-        if not isinstance(name, str):
-            raise ValueError(f"column names must be strings, got {name!r}")
-    repeated = sorted({name for name in names if names.count(name) > 1})
-    if repeated:
-        raise ValueError(f"{argument} must not repeat a column, got {_shown_list(repeated)}")
-    return [str(name) for name in names]
-
-
 def _target_labels(target: npt.ArrayLike, frame: pd.DataFrame, names: list[str]) -> np.ndarray:
     if isinstance(target, pd.Series):
         if target.name is not None and target.name in names:
@@ -1176,10 +1152,6 @@ def _target_labels(target: npt.ArrayLike, frame: pd.DataFrame, names: list[str])
     return series.to_numpy(dtype=np.intp)
 
 
-def _is_numeric(dtype) -> bool:
-    return pd.api.types.is_numeric_dtype(dtype) and not pd.api.types.is_bool_dtype(dtype)
-
-
 def _per_column(value, names, kinds, argument, default, check=None):
     """Resolve a setting of the columns ``names``: one value for all or a dict by column."""
     if not isinstance(value, Mapping):
@@ -1189,12 +1161,12 @@ def _per_column(value, names, kinds, argument, default, check=None):
         return dict.fromkeys(names, value)
     unknown = [key for key in value if key not in kinds]
     if unknown:
-        raise ValueError(f"{argument} names columns that are not fitted: {_shown_list(unknown)}")
+        raise ValueError(f"{argument} names columns that are not fitted: {shown_list(unknown)}")
     categorical = [key for key in value if key not in names]
     if categorical:
         raise ValueError(
             f"{argument} names categorical columns, which keep their labels unless method "
-            f"groups them: {_shown_list(categorical)}"
+            f"groups them: {shown_list(categorical)}"
         )
     resolved = {}
     for name in names:
@@ -1248,7 +1220,7 @@ def _check_options(name: str, function, extra) -> None:
         accepts = ", ".join(sorted(accepted)) if accepted else "no options"
         raise ValueError(
             f"options of column {name!r} must be arguments of {function.__name__} other than "
-            f"those fit_spec sets ({accepts}), got {_shown_list(rejected)}"
+            f"those fit_spec sets ({accepts}), got {shown_list(rejected)}"
         )
 
 
@@ -1258,7 +1230,7 @@ def _methods(method, numeric: list[str], kinds: dict) -> tuple[dict, dict]:
         return _per_column(method, numeric, kinds, "method", "quantile", _checked_method), {}
     unknown = [key for key in method if key not in kinds]
     if unknown:
-        raise ValueError(f"method names columns that are not fitted: {_shown_list(unknown)}")
+        raise ValueError(f"method names columns that are not fitted: {shown_list(unknown)}")
     categorical = [key for key in method if kinds[key] == "categorical"]
     wrong = [
         key
@@ -1268,7 +1240,7 @@ def _methods(method, numeric: list[str], kinds: dict) -> tuple[dict, dict]:
     if wrong:
         raise ValueError(
             "method names categorical columns, which can only be grouped with 'chimerge' or "
-            f"'rare': {_shown_list(wrong)}"
+            f"'rare': {shown_list(wrong)}"
         )
     binning_methods = {key: value for key, value in method.items() if key not in categorical}
     methods = _per_column(binning_methods, numeric, kinds, "method", "quantile", _checked_method)
@@ -1365,18 +1337,6 @@ def _fit_edges(values, labels, fitter, codes, smoothing, mass, name, method):
     return edges
 
 
-def _check_finite(values: pd.Series, codes: tuple, name: str) -> None:
-    # pandas.cut would leave -inf in no interval and count it as missing.
-    infinite = np.isinf(values.to_numpy(dtype=float, na_value=np.nan))
-    if codes:
-        infinite = infinite & ~values.isin(list(codes)).to_numpy(dtype=bool)
-    if infinite.any():
-        raise ValueError(
-            f"column {name!r} has infinite values that are not special codes; pass infinite "
-            "codes in special"
-        )
-
-
 def _warn_if_numbers(values: pd.Series, name: str) -> None:
     if values.dtype == object and pd.api.types.infer_dtype(values, skipna=True) in (
         "integer",
@@ -1421,9 +1381,9 @@ def _entries(mapping, names: list[str], argument: str, kind: str = "") -> dict:
     if missing or extra:
         problems = []
         if missing:
-            problems.append(f"no entry for {_shown_list(missing)}")
+            problems.append(f"no entry for {shown_list(missing)}")
         if extra:
-            problems.append(f"an entry for {_shown_list(extra)}, which are not {kind}columns")
+            problems.append(f"an entry for {shown_list(extra)}, which are not {kind}columns")
         raise ValueError(
             f"{argument} must have one entry per {kind}column, but has " + " and ".join(problems)
         )
@@ -1448,19 +1408,6 @@ def _checked_edges(value, argument: str) -> npt.NDArray[np.float64]:
     return edges
 
 
-def _checked_codes(value, argument: str) -> tuple:
-    if isinstance(value, str):
-        raise ValueError(f"{argument} must be a list of codes, got {value!r}")
-    codes = []
-    for code in pd.unique(as_series(value, argument)):
-        # A string never matches a value of a numeric column, and True would match 1 only
-        # sometimes, so neither is a valid code.
-        if isinstance(code, (bool, np.bool_)) or not isinstance(code, Real) or math.isnan(code):
-            raise ValueError(f"{argument} must be non-missing numbers, got {_shown(code)}")
-        codes.append(int(code) if isinstance(code, Integral) else float(code))
-    return tuple(codes)
-
-
 def _checked_labels(value, argument: str) -> tuple:
     """Check the special codes of a categorical column: labels, not missing or boolean."""
     if isinstance(value, str):
@@ -1469,7 +1416,7 @@ def _checked_labels(value, argument: str) -> tuple:
     for code in pd.unique(as_series(value, argument)):
         if isinstance(code, (bool, np.bool_)) or binning._is_missing(code):
             raise ValueError(
-                f"{argument} must be non-missing labels other than booleans, got {_shown(code)}"
+                f"{argument} must be non-missing labels other than booleans, got {shown(code)}"
             )
         codes.append(_label(code, argument))
     return tuple(codes)
@@ -1484,7 +1431,7 @@ def _checked_groupings(groups, kinds: dict) -> dict:
     if foreign:
         raise ValueError(
             "groups must have entries for categorical columns only, but has an entry for "
-            f"{_shown_list(foreign)}"
+            f"{shown_list(foreign)}"
         )
     return {name: _checked_grouping(groups[name], name) for name in kinds if name in groups}
 
@@ -1556,7 +1503,7 @@ def _checked_unseen(value, argument: str) -> float | str | dict:
         return {"group": group}
     if isinstance(value, bool) or not isinstance(value, Real) or not math.isfinite(value):
         raise ValueError(
-            f"{argument} must be 'raise' or a finite number, got {_shown(value)}; a grouped "
+            f"{argument} must be 'raise' or a finite number, got {shown(value)}; a grouped "
             "column also takes {'group': label}"
         )
     return float(value)
@@ -1570,7 +1517,7 @@ def _check_unseen_group(group, name: str, grouped: bool, table: pd.DataFrame) ->
         )
     if table.index.get_indexer(binning._object_index([group]))[0] < 0:
         raise ValueError(
-            f"unseen of column {name!r} names the group {_shown(group)}, which its table lacks"
+            f"unseen of column {name!r} names the group {shown(group)}, which its table lacks"
         )
 
 
@@ -1618,14 +1565,14 @@ def _checked_table(
         if foreign:
             raise ValueError(
                 f"{where} has groups that are neither special codes nor intervals of its "
-                f"edges: {_shown_list(foreign)}"
+                f"edges: {shown_list(foreign)}"
             )
     if grouping is not None:
         groups = binning._object_index(dict.fromkeys(grouping.values()))
         observed = labels[~missing]
         foreign = observed[groups.get_indexer(observed) < 0].tolist()
         if foreign:
-            raise ValueError(f"{where} has groups that its grouping lacks: {_shown_list(foreign)}")
+            raise ValueError(f"{where} has groups that its grouping lacks: {shown_list(foreign)}")
     return table
 
 
@@ -1742,7 +1689,7 @@ def _numeric_bins(labels: pd.Index, edges: np.ndarray, codes: tuple) -> list:
 def _numeric_labels(labels: pd.Index, edges: list, codes: tuple, where: str) -> pd.Index:
     """Turn intervals given by exact edges back into the labels of ``pandas.cut``."""
     edges = _checked_edges(edges, f"edges of {where}")
-    codes = _checked_codes(codes, f"special codes of {where}")
+    codes = checked_codes(codes, f"special codes of {where}")
     groups = _groups(edges, codes)
     positions = {
         (float(left), float(right)): len(codes) + index
@@ -1792,9 +1739,9 @@ def _check_keys(data: Mapping, expected: set[str], where: str) -> None:
         subject = f"{where} of the specification" if where else "the specification"
         problems = []
         if missing:
-            problems.append(f"lacks {_shown_list(missing)}")
+            problems.append(f"lacks {shown_list(missing)}")
         if unknown:
-            problems.append(f"has unknown keys {_shown_list(unknown)}")
+            problems.append(f"has unknown keys {shown_list(unknown)}")
         raise ValueError(f"{subject} " + " and ".join(problems))
 
 
@@ -1803,13 +1750,3 @@ def _reject_constant(name: str):
         f"JSON must not contain {name}; kivi writes missing labels as null and infinite "
         'numbers as {"float": "inf"}'
     )
-
-
-def _shown(value) -> str:
-    if isinstance(value, (np.generic,)):
-        value = value.item()
-    return repr(value)
-
-
-def _shown_list(values) -> str:
-    return "[" + ", ".join(_shown(value) for value in values) + "]"

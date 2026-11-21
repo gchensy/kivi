@@ -5,6 +5,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
 .. glossary::
 
+   Absorbing state
+      A state of a transition matrix that a loan never leaves once it has entered it, such as default. The powers of the matrix then accumulate the probability of having reached it; see :doc:`/user_guide/lifetime`.
+
    Accepts and rejects
       The applicants that a previous policy approved and declined. The outcome is known only for the accepts, so a model developed on them alone may misjudge the rejects; see :doc:`/user_guide/reject_inference`.
 
@@ -12,10 +15,13 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       The probability that a randomly chosen event scores higher than a randomly chosen non-event, with ties counted as one half. A score unrelated to the target has an AUC of about 0.5; see :doc:`/user_guide/metrics`.
 
    Binning
-      Dividing the values of a numeric variable into intervals, the bins, whose edges are fitted on a reference sample and then applied to every other sample. Scorecard development calls it classing: fine classing forms many small bins, and coarse classing merges them into a few that are large enough to be stable; see :doc:`/user_guide/binning`.
+      Dividing the values of a numeric variable into intervals, the bins, whose edges are fitted on a reference sample and then applied to every other sample. Scorecard development calls it classing: fine classing forms many small bins, and coarse classing merges them into a few that are large enough to be stable. A categorical variable is binned by grouping its categories instead; see :doc:`/user_guide/binning`.
 
    Binning specification
-      The edges, special codes and WOE tables of every column of a model, fitted together and saved as versioned JSON, so that production data are grouped and encoded exactly as the development sample; see :doc:`/user_guide/spec`.
+      The edges, category groupings, special codes and WOE tables of every column of a model, fitted together and saved as versioned JSON, so that production data are grouped and encoded exactly as the development sample; see :doc:`/user_guide/spec`.
+
+   Category grouping
+      A mapping from each category of a categorical variable to a group, fitted on a reference sample by pooling rare categories or by merging categories with similar event rates, and applied unchanged to every other sample; see :ref:`category-groups`.
 
    Characteristic stability index (CSI)
       The change of a variable's average scorecard points from a reference sample to a current one: the change of each group's share times the group's points, summed over the groups. Over all the variables of a scorecard, the CSI values add up to the change of the average score; see :ref:`characteristic-stability`.
@@ -23,8 +29,29 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Cohort
       The loans originated in the same period, usually a month, followed together as they age in a vintage table; see :doc:`/user_guide/vintage`.
 
+   Conditional PD
+      The probability of a default in a period given that there was none before it, also called the hazard rate; see :doc:`/user_guide/lifetime`.
+
+   Coverage ratio
+      The loss allowance of a group of loans divided by their exposure; see :doc:`/user_guide/lifetime`.
+
+   Credit-impaired
+      IFRS 9 calls a loan credit-impaired once events with a detrimental effect on its expected cash flows have occurred, such as significant financial difficulty of the borrower or a breach of contract like a default or a past-due event. Lenders usually align it with their definition of default, and such loans are in stage 3; see :doc:`/user_guide/lifetime`.
+
+   Cumulative PD
+      The probability of a default in any of the periods from the first up to a given one, which never falls as the horizon grows; see :doc:`/user_guide/lifetime`.
+
    Cut-off
       The score that separates approval from decline. kivi approves the scores at or below the cut-off, because its scores rise with the risk; see :doc:`/user_guide/strategy`.
+
+   Days past due (DPD)
+      The number of days for which a contractual payment has been overdue. IFRS 9 rebuttably presumes a significant increase in credit risk when a payment is more than 30 days past due, and default no later than when it is 90 days past due; see :doc:`/user_guide/lifetime`.
+
+   DeLong test
+      A test of whether two scores have the same AUC on the same sample. It uses the variances and the covariance of the two AUCs that DeLong, DeLong and Clarke-Pearson (1988) derived from the placement values; see :doc:`/user_guide/metrics`.
+
+   Effective interest rate
+      The rate that discounts the estimated future cash flows of a loan over its expected life to its gross carrying amount at initial recognition. IFRS 9 discounts expected credit losses at this rate; see :doc:`/user_guide/lifetime`.
 
    Event and non-event
       The two outcomes of a binary target: an event has target 1, such as a default or another bad outcome, and a non-event has target 0. The guides read the subscription of the bundled bank data as the event; see :doc:`/user_guide/woe_iv`.
@@ -34,6 +61,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Ever bad
       A loan is ever bad by a month on book if it was bad at any month on book up to then, even if it has cured since. The cumulative bad rates of a vintage table count the loans that are ever bad; see :doc:`/user_guide/vintage`.
+
+   Expected credit loss (ECL)
+      Under IFRS 9, the present value of the credit losses of an exposure, weighted with the probabilities of default. The 12-month ECL counts the losses from defaults in the next 12 months, and the lifetime ECL those over the remaining life of the exposure; see :doc:`/user_guide/lifetime`.
 
    Expected loss (EL)
       The loss that an exposure is expected to cause: its probability of default times its loss given default times its exposure at default; see :doc:`/user_guide/strategy`.
@@ -59,14 +89,32 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Lift
       The event rate of a group divided by the event rate of the whole sample. A lift above 1 marks a group that is riskier than average; see :doc:`/user_guide/metrics`.
 
+   Loss allowance
+      The provision that IFRS 9 requires for the expected credit losses of a loan: the 12-month ECL in stage 1 and the lifetime ECL in stages 2 and 3; see :doc:`/user_guide/lifetime`.
+
    Loss given default (LGD)
       The share of the exposure that is lost when a borrower defaults, after recoveries and collateral; see :doc:`/user_guide/strategy`.
+
+   Marginal PD
+      The probability, seen from the starting point, of a default in one given period. The marginal PDs of the periods up to a horizon add up to the cumulative PD; see :doc:`/user_guide/lifetime`.
 
    Master scale
       A fixed set of grades that divides the PD range from 0 to 1, so that ratings from different models share one meaning; see :doc:`/user_guide/calibration`.
 
+   Monitoring report
+      A table with one row per period that tracks a model in use: its population, the known outcomes, its discrimination and the stability of its score against a reference sample; see :doc:`/user_guide/monitoring`.
+
    Month on book
       The number of months since a loan was originated. A vintage table compares cohorts at the same month on book; see :doc:`/user_guide/vintage`.
+
+   Outcome window
+      The time after which the outcome of an observation is known, such as twelve months after a loan was granted. Until it has passed, the target is missing and the outcome counts as unknown; see :doc:`/user_guide/monitoring`.
+
+   PD term structure
+      The PD of each period after a starting point, such as the origination of a loan or the reporting date, given as cumulative, marginal or conditional PDs; see :doc:`/user_guide/lifetime`.
+
+   Placement value
+      For an event, the share of non-events that score below it, and for a non-event, the share of events that score above it, with ties counted as one half. The average over either class is the AUC, and their variances give its DeLong standard error; see :doc:`/user_guide/metrics`.
 
    Points to double the odds (PDO)
       The number of scorecard points by which the score rises when the good:bad odds double. Together with a base score and the odds at that score, it sets the scale of a scorecard; see :doc:`/user_guide/scorecard`.
@@ -74,29 +122,53 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Population stability index (PSI)
       A measure of how much the distribution of a variable or a score has shifted between a reference sample and a current one, summed over the groups from the change of each group's share; see :doc:`/user_guide/psi`.
 
+   Precision
+      The share of events among the observations that a score flags at a threshold, that is, the event rate of the flagged observations; see :doc:`/user_guide/metrics`.
+
    Probability of default (PD)
       The probability that a borrower defaults within a given horizon, usually twelve months. kivi calls a predicted PD, or any other predicted event probability, ``probability``; see :doc:`/user_guide/calibration`.
 
    Reason codes
       The variables that lowered an applicant's score most, compared with the best group of each variable, as given to a declined applicant; see :doc:`/user_guide/scorecard`.
 
+   Reference sample
+      The sample that later samples are compared with, usually the development sample or a period right after it. Bin edges, score bands and groups are fitted on it; see :doc:`/user_guide/monitoring`.
+
    Reject inference
       Methods that supply outcomes for rejected applicants, as rows with weights or as weights for the accepts, so that a model can be refitted on all applicants; see :doc:`/user_guide/reject_inference`.
 
+   Reporting date
+      The date at which a loss allowance is measured. Period 1 of an expected credit loss is the first period after it; see :doc:`/user_guide/lifetime`.
+
+   ROC curve
+      The true positive rate, the share of events flagged, against the false positive rate, the share of non-events flagged, as the threshold moves through the scores from the riskiest down. The area under it is the AUC, and its largest vertical distance from the diagonal is the KS; see :doc:`/user_guide/metrics`.
+
    Roll rate
       The share of the loans in a delinquency bucket at one month end that are in the next worse bucket at the next month end; see :doc:`/user_guide/vintage`.
+
+   Significant increase in credit risk (SICR)
+      The IFRS 9 criterion that moves a loan from stage 1 to stage 2: its risk of default has risen significantly since initial recognition. Each lender sets the test in its own policy, for example as relative and absolute increases of the PD; see :doc:`/user_guide/lifetime`.
 
    Smoothing
       The value that replaces an empty count before shares are computed, 0.5 by default, so that the WOE, the IV and the PSI of a group stay finite. Counts are reported as observed, and only the shares are smoothed; see :doc:`/user_guide/woe_iv`.
 
    Special codes
-      Values that stand for a state rather than a measurement, such as -1 for "never contacted" or 999 for "no record". Passed in ``special``, they are left out of the fit of the edges and each gets a group of its own; see :ref:`special-values`.
+      Values that stand for a state rather than a measurement, such as -1 for "never contacted", 999 for "no record" or the label "unknown" of a categorical variable. Passed in ``special``, they are left out of the fit of the edges or of the grouping and each gets a group of its own; see :ref:`special-values`.
+
+   Stage
+      One of the three IFRS 9 buckets of a loan: stage 1 for loans without a significant increase in credit risk, with a 12-month ECL; stage 2 for loans with one, with a lifetime ECL; and stage 3 for credit-impaired loans, also with a lifetime ECL; see :doc:`/user_guide/lifetime`.
+
+   Standard error and confidence interval
+      The standard error measures how much an estimate, such as an AUC, would vary from sample to sample. A confidence interval at a level such as 95% is a range around the estimate that would cover the true value in that share of samples; see :doc:`/user_guide/metrics`.
 
    Swap set
       The four groups of applicants that two scores, each with its cut-off, approve or decline. The swap-outs are approved only by the current score and the swap-ins only by the new one; see :doc:`/user_guide/strategy`.
 
    Transition matrix
       A table that counts the loans or obligors that moved from each state to each other state between two dates, such as delinquency buckets or rating grades; see :doc:`/user_guide/vintage`.
+
+   Unseen category
+      A category of a later sample that did not occur in the reference sample, so that its grouping or WOE table has no row for it. kivi raises an error for such a category unless an ``unseen`` policy says how to treat it; see :doc:`/user_guide/woe_iv`.
 
    Vintage table
       The cumulative ever-bad rate of each cohort by month on book; see :doc:`/user_guide/vintage`.

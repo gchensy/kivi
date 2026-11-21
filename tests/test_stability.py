@@ -285,3 +285,123 @@ def test_tuple_labels_match_from_a_mapping():
     table = csi_table(reference, current, {("a", 1): 10.0, ("b", 2): 20.0})
     assert table["points"].tolist() == [10.0, 20.0]
     np.testing.assert_allclose(table["csi"], [5.0, -10.0])
+
+
+def _interval(left, right):
+    return pd.Interval(float(left), float(right), closed="right")
+
+
+EDGES = [-np.inf, 2, np.inf]
+LOW, HIGH = _interval(-np.inf, 2), _interval(2, np.inf)
+
+
+def _other_groups():
+    """Samples that pd.concat would join by hashing interval categories with an infinite
+    endpoint, which warns on NumPy < 2.2: both samples, the groups and their counts."""
+    yield (
+        "other edges",
+        pd.cut(pd.Series([1.0, 2, 3, 4]), EDGES),
+        pd.cut(pd.Series([1.0, 3, 4, 5]), [-np.inf, 3, np.inf]),
+        {LOW: (2, 0), HIGH: (2, 0), _interval(-np.inf, 3): (0, 2), _interval(3, np.inf): (0, 2)},
+    )
+    yield (
+        "unused categories removed",
+        pd.cut(pd.Series([1.0, 3]), EDGES),
+        pd.cut(pd.Series([1.0, 1]), EDGES).cat.remove_unused_categories(),
+        {LOW: (1, 2), HIGH: (1, 0)},
+    )
+    yield (
+        "object intervals",
+        pd.cut(pd.Series([3.0, 1]), EDGES),
+        pd.Series([LOW, LOW, HIGH], dtype=object),
+        {HIGH: (1, 1), LOW: (1, 2)},
+    )
+    yield (
+        "object intervals first",
+        pd.Series([LOW, LOW, HIGH], dtype=object),
+        pd.cut(pd.Series([3.0, 1]), EDGES),
+        {LOW: (2, 1), HIGH: (1, 1)},
+    )
+    yield (
+        "strings",
+        pd.cut(pd.Series([1.0, 3, np.nan]), EDGES),
+        pd.Series(["x", "x"]),
+        {LOW: (1, 0), HIGH: (1, 0), np.nan: (1, 0), "x": (0, 2)},
+    )
+    yield (
+        "strings first",
+        pd.Series(["x", "x"]),
+        pd.cut(pd.Series([3.0, np.nan]), EDGES),
+        {"x": (2, 0), HIGH: (0, 1), np.nan: (0, 1)},
+    )
+
+
+@pytest.mark.parametrize(
+    "reference,current,expected",
+    [case[1:] for case in _other_groups()],
+    ids=[case[0] for case in _other_groups()],
+)
+def test_interval_groups_of_other_categories_are_joined_without_hashing(
+    reference, current, expected, monkeypatch
+):
+    def unhashable(self):
+        raise AssertionError("CategoricalDtype was hashed")
+
+    # Groups in first-observed order, as pd.concat gives them.
+    labels = list(expected)
+    points = {label: 10.0 * (number + 1) for number, label in enumerate(labels)}
+    monkeypatch.setattr(pd.CategoricalDtype, "__hash__", unhashable)
+    psi = psi_table(reference, current)
+    csi = csi_table(reference, current, points)
+    monkeypatch.undo()
+    counts = np.array(list(expected.values()))
+    for table in (psi, csi):
+        # Compare the labels one by one: comparing indices hashes intervals on NumPy < 2.2.
+        assert len(table) == len(labels)
+        for label, expected_label in zip(table.index, labels, strict=True):
+            assert (pd.isna(label) and pd.isna(expected_label)) or label == expected_label
+        np.testing.assert_equal(table["reference"].to_numpy(), counts[:, 0])
+        np.testing.assert_equal(table["current"].to_numpy(), counts[:, 1])
+    shares = counts / counts.sum(axis=0)
+    np.testing.assert_allclose(csi["csi"], (shares[:, 1] - shares[:, 0]) * list(points.values()))
+    smoothed = np.where(counts == 0, 0.5, counts)
+    smoothed = smoothed / smoothed.sum(axis=0)
+    np.testing.assert_allclose(
+        psi["psi"], (smoothed[:, 1] - smoothed[:, 0]) * np.log(smoothed[:, 1] / smoothed[:, 0])
+    )
+
+
+def test_interval_groups_on_other_edges_keep_the_interval_dtype():
+    # As pd.concat gives them: intervals closed on the same side stay intervals.
+    reference = pd.cut(pd.Series([1.0, 2, 3, 4]), EDGES)
+    current = pd.cut(pd.Series([1.0, 3, 4, 5]), [-np.inf, 3, np.inf])
+    assert isinstance(psi_table(reference, current).index, pd.IntervalIndex)
+    assert psi_table(reference, current).index.dtype == pd.IntervalDtype("float64", "right")
+    current = pd.cut(pd.Series([1.0, 3]), EDGES, right=False)
+    assert psi_table(reference, current).index.dtype == object
+
+
+def test_categories_listed_in_another_order_are_matched_by_label():
+    # The dtypes are equal, but code 0 is "a" in the reference and "b" in the current sample.
+    reference = pd.Series(["a", "a", "b"], dtype=pd.CategoricalDtype(["a", "b"]))
+    current = pd.Series(["a", "a", "a", None], dtype=pd.CategoricalDtype(["b", "a"]))
+    table = psi_table(reference, current)
+    assert table.index.tolist()[:2] == ["a", "b"] and pd.isna(table.index[2])
+    np.testing.assert_equal(table["reference"].to_numpy(), [2, 1, 0])
+    np.testing.assert_equal(table["current"].to_numpy(), [3, 0, 1])
+    np.testing.assert_allclose(table, psi_table(reference, current.astype(object)))
+    csi = csi_table(reference, current, {"a": 10.0, "b": 20.0, np.nan: 0.0})
+    np.testing.assert_allclose(csi["csi"], [(3 / 4 - 2 / 3) * 10, (0 - 1 / 3) * 20, 0.0])
+
+
+def test_integer_interval_groups_with_missing_values_on_other_edges():
+    # pd.concat cast both to integer intervals, which cannot hold the missing value.
+    reference = pd.cut(pd.Series([1, 3, np.nan]), [0, 2, 4])
+    current = pd.cut(pd.Series([1, 3]), [0, 1, 4])
+    table = psi_table(reference, current)
+    labels = [pd.Interval(0, 2), pd.Interval(2, 4), np.nan, pd.Interval(0, 1), pd.Interval(1, 4)]
+    assert len(table) == len(labels)
+    for label, expected in zip(table.index, labels, strict=True):
+        assert (pd.isna(label) and pd.isna(expected)) or label == expected
+    np.testing.assert_equal(table["reference"].to_numpy(), [1, 1, 1, 0, 0])
+    np.testing.assert_equal(table["current"].to_numpy(), [0, 0, 0, 1, 1])

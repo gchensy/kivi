@@ -13,7 +13,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._counts import divergence, group_counts
+from ._counts import concat_groups, divergence, group_counts
 from ._validation import as_count_columns, as_series, as_weights
 
 __all__ = ["csi_table", "psi", "psi_table"]
@@ -320,13 +320,7 @@ def _sample_counts(
         raise ValueError("reference and current must both contain observations")
     reference_mass = as_weights(reference_weights, raw_reference, "reference_weights", "reference")
     current_mass = as_weights(current_weights, raw_current, "current_weights", "current")
-    # pd.concat and join hash interval categories, which warns on NumPy < 2.2, so samples
-    # binned with the same edges are joined by their codes and shares assigned by position.
-    if isinstance(reference.dtype, pd.CategoricalDtype) and reference.dtype == current.dtype:
-        codes = np.concatenate([reference.cat.codes, current.cat.codes])
-        groups = pd.Series(pd.Categorical.from_codes(codes, dtype=reference.dtype))
-    else:
-        groups = pd.concat([reference, current], ignore_index=True)
+    groups = concat_groups(reference, current)
     side = np.repeat([0, 1], [len(reference), len(current)])
     mass = None
     if reference_mass is not None or current_mass is not None:
