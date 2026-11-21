@@ -31,6 +31,22 @@ def group_counts(
     return pd.DataFrame(counts, index=pd.Index(levels, name="bin"))
 
 
+def group_rows(groups: pd.Series, levels: pd.Index) -> np.ndarray:
+    """Return the row of `levels`, from `group_counts`, of each observation, or -1 if absent."""
+    if isinstance(levels, pd.CategoricalIndex):
+        # Map category codes to rows instead of looking up the labels: that hashes
+        # interval categories, which warns on NumPy < 2.2. Code -1 is a missing value.
+        row_of_code = np.full(len(levels.categories) + 1, -1, dtype=np.intp)
+        row_of_code[levels.codes] = np.arange(len(levels))
+        return row_of_code[groups.cat.codes.to_numpy()]
+    rows = levels.get_indexer(groups)
+    missing = groups.isna().to_numpy(dtype=bool)
+    missing_row = np.flatnonzero(pd.isna(levels))
+    if missing.any():  # get_indexer does not match missing values on pandas 2.0
+        rows[missing] = missing_row[0] if len(missing_row) else -1
+    return rows
+
+
 def shares(counts: np.ndarray, smoothing: float) -> np.ndarray:
     """Replace zero counts with ``smoothing``, then normalize each column."""
     check_smoothing(smoothing)

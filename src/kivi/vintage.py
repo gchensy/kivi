@@ -10,7 +10,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._validation import as_series, as_weights
+from ._validation import as_series, as_weights, first_value
 
 __all__ = ["vintage_table", "transition_matrix", "roll_rates"]
 
@@ -164,8 +164,8 @@ def vintage_table(
         row = conflict[0]
         first = cohort.iloc[first_row[loan_code[row]]]
         raise ValueError(
-            f"each loan must have one cohort, got {_scalar(first)!r} and "
-            f"{_scalar(cohort.iloc[row])!r} for loan {_scalar(loan.iloc[row])!r}"
+            f"each loan must have one cohort, got {first_value(first)!r} and "
+            f"{first_value(cohort.iloc[row])!r} for loan {first_value(loan.iloc[row])!r}"
         )
     loan_mass = np.ones(n_loans)
     if mass is not None:
@@ -176,7 +176,7 @@ def vintage_table(
             raise ValueError(
                 f"weights must be the same on every row of a loan, got "
                 f"{float(loan_mass[loan_code[row]])!r} and {float(mass[row])!r} for loan "
-                f"{_scalar(loan.iloc[row])!r}"
+                f"{first_value(loan.iloc[row])!r}"
             )
 
     # Rows by loan and month on book: duplicates are adjacent, and so is each loan's first bad row.
@@ -187,7 +187,7 @@ def vintage_table(
         row = order[repeated[0]]
         raise ValueError(
             f"each loan must have at most one row per month on book, got two rows for loan "
-            f"{_scalar(loan.iloc[row])!r} at month on book {int(mob[row])}"
+            f"{first_value(loan.iloc[row])!r} at month on book {int(mob[row])}"
         )
     columns = np.unique(mob)
     # Column position of each loan's first bad month on book; loans never bad get len(columns).
@@ -448,10 +448,8 @@ def _state_labels(before: pd.Series, after: pd.Series, states) -> pd.Index:
             raise ValueError(f"states must be one-dimensional, got {states!r}")
         labels = pd.Index(states)
         if labels.has_duplicates:
-            raise ValueError(
-                f"states must not contain duplicates, got {_scalar(labels[labels.duplicated()])!r}"
-                " more than once"
-            )
+            repeated = first_value(labels[labels.duplicated()])
+            raise ValueError(f"states must not contain duplicates, got {repeated!r} more than once")
         return labels
     categories = [
         values.dtype.categories
@@ -469,9 +467,10 @@ def _state_labels(before: pd.Series, after: pd.Series, states) -> pd.Index:
     try:
         return values.sort_values()
     except TypeError:
+        first, second = first_value(values), first_value(values[1:])
         raise ValueError(
-            f"before and after have values that cannot be sorted, such as {_scalar(values)!r} and "
-            f"{_scalar(values[1:])!r}; pass states to give their order"
+            f"before and after have values that cannot be sorted, such as {first!r} and "
+            f"{second!r}; pass states to give their order"
         ) from None
 
 
@@ -485,7 +484,7 @@ def _state_codes(values: pd.Series, labels: pd.Index, name: str) -> np.ndarray:
     unknown = codes < 0
     if unknown.any():
         raise ValueError(
-            f"{name} must contain only values in states, got {_scalar(values[unknown])!r}"
+            f"{name} must contain only values in states, got {first_value(values[unknown])!r}"
         )
     return codes.astype(np.intp)
 
@@ -527,14 +526,6 @@ def _binary(values: pd.Series, name: str) -> npt.NDArray[np.bool_]:
     invalid = ~values.isin([0, 1]).to_numpy(dtype=bool)
     if invalid.any():
         raise ValueError(
-            f"{name} must contain only booleans or 0 and 1, got {_scalar(values[invalid])!r}"
+            f"{name} must contain only booleans or 0 and 1, got {first_value(values[invalid])!r}"
         )
     return values.to_numpy(dtype=bool)
-
-
-def _scalar(values):
-    """First value of ``values`` (or ``values`` itself) as a Python scalar, for error messages."""
-    value = values.iloc[0] if isinstance(values, pd.Series) else values
-    if isinstance(value, pd.Index):
-        value = value[0]
-    return value.item() if isinstance(value, np.generic) else value

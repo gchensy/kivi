@@ -14,7 +14,7 @@ import numpy.typing as npt
 import pandas as pd
 
 from ._validation import scores_and_labels
-from .binning import bin_edges
+from .binning import _fit_edges
 
 __all__ = ["roc_auc", "gini", "ks", "gains_table", "brier_score"]
 
@@ -506,8 +506,15 @@ def _band_edges(values: np.ndarray, bins, weights: np.ndarray | None) -> npt.NDA
     if isinstance(bins, Integral) and not isinstance(bins, bool):
         if bins < 1:
             raise ValueError(message.format(bins))
-        # The same edges, and the same warning for tied quantiles, as bin_edges.
-        return bin_edges(values, bins=int(bins), weights=weights)
+        # The edges of bin_edges; the warning for tied quantiles points at the caller of
+        # gains_table and gives advice that applies to it.
+        return _fit_edges(
+            values,
+            int(bins),
+            weights=weights,
+            advice="pass fewer bins or explicit edges",
+            stacklevel=4,
+        )
     try:
         edges = np.asarray(bins, dtype=float)
     except (TypeError, ValueError):

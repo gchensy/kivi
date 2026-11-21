@@ -137,6 +137,12 @@ F      0.3477       0.4683  1.0000
 
 The fitted PDs grow by a factor of 1.81 from grade to grade and follow the default rates of grades B to E closely. Grade F, with a default rate of 64%, lies far above the line: it holds only 81 customers and so weighs little in the fit. The tests below show whether that matters.
 
+.. plot::
+   :alt: Observed default rate of each grade of the development sample, the PDs fitted by fit_grade_pd and the geometric grid of the scale, on a logarithmic axis
+   :caption: Observed default rates of the development sample by grade, the PDs fitted by ``fit_grade_pd`` and the geometric grid of the scale, on a logarithmic axis. Larger points hold more customers; grade F lies above the fitted line.
+
+   kp.figure_grade_fit()
+
 Grades given by their bounds
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

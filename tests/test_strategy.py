@@ -136,8 +136,12 @@ def test_cutoff_table_is_the_cumulative_gains_table_on_bank_data():
 
 def test_cutoff_table_warns_when_ties_leave_fewer_cutoffs():
     score = [1, 1, 1, 1, 1, 1, 2, 3]
-    with pytest.warns(UserWarning, match="tied edges leave"):
+    message = "tied edges leave 2 of the 4 requested bins; .*pass fewer cutoffs or explicit"
+    with pytest.warns(UserWarning, match=message) as caught:
         table = cutoff_table(score, TARGET, cutoffs=4)
+    # cutoff_table has no special argument, and the warning points at this call.
+    assert "special" not in str(caught[0].message)
+    assert caught[0].filename == __file__
     assert table["approved"].iloc[-1] == 8
 
 
@@ -381,6 +385,19 @@ def test_expected_loss_keeps_the_series_index_and_missing_values():
     from_ead = expected_loss([0.1, 0.2], 0.5, pd.Series([10.0, 20.0], index=["a", "b"]))
     assert from_ead.index.tolist() == ["a", "b"]
     np.testing.assert_allclose(from_ead, [0.5, 2.0])
+
+
+def test_expected_loss_counts_boolean_probabilities_as_0_and_1():
+    # As in kivi.calibration and kivi.metrics; LGDs and EADs still reject booleans.
+    np.testing.assert_allclose(expected_loss([True, False], 0.5, 100), [50.0, 0.0])
+    table = expected_loss_table(["A", "A", "B"], [True, False, True], 0.5, 100.0)
+    np.testing.assert_allclose(table["expected_loss"], [50.0, 50.0])
+
+
+def test_expected_loss_of_no_exposures_is_empty():
+    result = expected_loss([], 0.45, 100)
+    assert isinstance(result, np.ndarray)
+    assert result.shape == (0,)
 
 
 def test_expected_loss_does_not_mutate_inputs():

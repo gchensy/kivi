@@ -144,6 +144,12 @@ The new score swaps out 105 applicants with a bad rate of 15.2% and swaps in 118
 cutoff
 0.105181       797                0.051
 
+.. plot::
+   :alt: Bad rate of the approved book against the approval rate for the current and the new score, with the cut-offs of the swap set marked
+   :caption: The bad rate of the approved book at each approval rate. Up to an approval rate of about 65%, the new score approves a book with a lower bad rate; above it, the two curves meet. The points mark the cut-offs of the swap set.
+
+   kp.figure_cutoff_curves()
+
 A new score is worth adopting when its swap-ins are better than its swap-outs; the applicants both scores approve or decline do not change. The row shares give the approval rate of each score, for example ``swaps["share"].xs("approve", level="new").sum()`` for the new one.
 
 In practice the outcomes of the swap-ins are unknown: the current score declined them, so they never received a loan. Pass a target with missing values for unknown outcomes. They count in ``total`` and ``share`` but not in ``known``, ``event`` and ``event_rate``:
@@ -157,7 +163,7 @@ approve approve    679  0.446    679     33       0.049
 decline approve    118  0.078      0      0         NaN
         decline    619  0.407      0      0         NaN
 
-The swap-outs are known, but the bad rate of the swap-ins is missing, and with it half of the comparison. Reject inference estimates the outcomes of declined applicants from their scores and the outcomes of similar approved ones. Pass the inferred labels, or the augmented sample with its weights, to fill in the table, and treat the result as an estimate: it depends on the assumptions of the inference.
+The swap-outs are known, but the bad rate of the swap-ins is missing, and with it half of the comparison. Reject inference, described in :doc:`reject_inference`, estimates the outcomes of declined applicants from their scores and the outcomes of similar approved ones. Pass the inferred labels, or the augmented sample with its weights, to fill in the table, and treat the result as an estimate: it depends on the assumptions of the inference.
 
 Expected loss
 -------------

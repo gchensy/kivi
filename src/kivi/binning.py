@@ -113,6 +113,25 @@ def bin_edges(
     >>> bin_edges([-1, -1, -1, 10, 20, 30, 40], bins=2, special=[-1])
     array([-inf,  25.,  inf])
     """
+    return _fit_edges(values, bins, method=method, special=special, weights=weights)
+
+
+def _fit_edges(
+    values: npt.ArrayLike,
+    bins: int,
+    *,
+    method: str = "quantile",
+    special: npt.ArrayLike | None = None,
+    weights: npt.ArrayLike | None = None,
+    advice: str = "consider passing it in special",
+    stacklevel: int = 3,
+) -> npt.NDArray[np.float64]:
+    """Fit the edges of `bin_edges`.
+
+    `advice` ends the warning about tied edges. Callers without a `special`
+    argument pass their own, and a `stacklevel` that points the warning at
+    the line that called them.
+    """
     _check_count(bins, "bins")
     if method not in ("quantile", "uniform"):
         raise ValueError(f"method must be 'quantile' or 'uniform', got {method!r}")
@@ -135,9 +154,9 @@ def bin_edges(
         warnings.warn(
             f"tied edges leave {len(edges) - 1} of the {bins} requested bins; the value "
             f"{levels[top]:g} makes up {totals[top] / totals.sum():.0%} of the fitted values, "
-            "consider passing it in special",
+            f"{advice}",
             UserWarning,
-            stacklevel=2,
+            stacklevel=stacklevel,
         )
     return edges
 

@@ -5,13 +5,13 @@ build-backend = "hatchling.build"
 [project]
 name = "kivi"
 version = "0.6.0"
-description = "Binning, WOE, IV and PSI for credit risk modeling with pandas"
+description = "Credit risk modeling with pandas: binning, WOE, scorecards, calibration, strategy and monitoring"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 license-files = ["LICENSE", "DATA-LICENSE.txt"]
 authors = [{name = "Chensy"}]
-keywords = ["credit risk", "risk management", "scorecard", "credit scoring", "binning", "weight of evidence", "woe", "information value", "psi", "population stability", "model monitoring", "pandas"]
+keywords = ["credit risk", "risk management", "scorecard", "credit scoring", "binning", "weight of evidence", "woe", "information value", "psi", "population stability", "model monitoring", "master scale", "reject inference", "expected loss", "pandas"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Financial and Insurance Industry",

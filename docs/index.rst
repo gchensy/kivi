@@ -2,18 +2,23 @@
 
 .. rst-class:: kivi-home
 
-Binning, WOE, IV and PSI for risk modeling
-==========================================
+Credit risk modeling with pandas
+================================
 
 .. container:: kivi-lead
 
-   kivi is a pandas toolkit for credit risk and financial modeling. It fits bin edges on a development sample, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard, scales it to points, evaluates and calibrates it, tracks how the population shifts once a model is live, and follows how the approved loans perform. Tables come back as pandas DataFrames with one row per bin, grade or variable.
+   kivi is a pandas toolkit for credit risk and financial modeling. It profiles and bins the candidate variables, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard, infers the outcomes of rejected applicants, scales the model to points, evaluates it and calibrates it on a master scale, prices the cut-offs and the expected loss, tracks how the population shifts once the model is live, and follows how the approved loans perform. Tables come back as pandas DataFrames with one row per bin, grade, cut-off or variable.
 
 .. container:: kivi-actions
 
    .. button-ref:: getting_started/quickstart
       :ref-type: doc
       :color: primary
+
+   .. button-ref:: user_guide/risk_workflow
+      :ref-type: doc
+      :color: primary
+      :outline:
 
    .. button-ref:: api
       :ref-type: doc
@@ -59,17 +64,23 @@ Built for risk teams
 .. grid:: 1 1 3 3
    :gutter: 3
 
-   .. grid-item-card:: End-to-end workflow
-      :link: user_guide/risk_workflow
+   .. grid-item-card:: Univariate profile
+      :link: user_guide/univariate
       :link-type: doc
 
-      One worked scorecard project, from IV screening to the stability report, with every step tested.
+      Missing values, distributions, event rates and a first IV ranking of every candidate in one table.
 
-   .. grid-item-card:: Scorecard development
+   .. grid-item-card:: Binning
       :link: user_guide/binning
       :link-type: doc
 
       Fine and coarse classing, special values and monotonic WOE for logistic regression scorecards.
+
+   .. grid-item-card:: WOE and IV
+      :link: user_guide/woe_iv
+      :link-type: doc
+
+      The WOE and IV of every bin, with smoothing that leaves the counts alone, and the WOE encoding of new data.
 
    .. grid-item-card:: Variable selection
       :link: user_guide/selection
@@ -77,7 +88,13 @@ Built for risk teams
 
       Rank candidates by IV, drop correlated variables and select a logistic model whose coefficients all point the right way.
 
-   .. grid-item-card:: Scaling and reason codes
+   .. grid-item-card:: Reject inference
+      :link: user_guide/reject_inference
+      :link-type: doc
+
+      Infer the outcomes of declined applicants by fuzzy augmentation, parceling or reweighting, and refit the model on all applicants.
+
+   .. grid-item-card:: Scorecard
       :link: user_guide/scorecard
       :link-type: doc
 
@@ -95,19 +112,25 @@ Built for risk teams
 
       Prior correction, master scales, binomial, Jeffreys and Hosmer-Lemeshow tests per grade, and Platt and isotonic recalibration.
 
-   .. grid-item-card:: Production scoring
+   .. grid-item-card:: Credit strategy
+      :link: user_guide/strategy
+      :link-type: doc
+
+      Approval and bad rates of every cut-off, swap sets between a current and a new score, and expected loss by grade.
+
+   .. grid-item-card:: Binning specifications
       :link: user_guide/spec
       :link-type: doc
 
       Save the binning and WOE of every variable as versioned JSON, so production groups new data exactly as development did.
 
-   .. grid-item-card:: Model monitoring
+   .. grid-item-card:: Population stability
       :link: user_guide/psi
       :link-type: doc
 
       Compare live data with the development sample bin by bin, track PSI over time and measure each variable's effect on the score with CSI.
 
-   .. grid-item-card:: Portfolio analysis
+   .. grid-item-card:: Vintage and roll-rate analysis
       :link: user_guide/vintage
       :link-type: doc
 
@@ -120,17 +143,29 @@ How it works
    :gutter: 3
    :class-container: kivi-steps
 
-   .. grid-item-card:: Fit edges once
+   .. grid-item-card:: Profile and bin
 
-      Call ``bin_edges`` on the reference sample, or a supervised method such as ``monotonic_edges`` that also uses the target. The outer edges are infinite, so later values always fall into a bin.
+      ``profile_table`` gives a first look at every candidate. ``bin_edges``, or a supervised method such as ``monotonic_edges``, fits edges on the development sample once, and every later sample is cut with them. The outer edges are infinite, so later values always fall into a bin.
 
-   .. grid-item-card:: Cut every sample
+   .. grid-item-card:: Encode and fit
 
-      Apply the saved edges with ``pandas.cut``. Categorical columns skip this step and are passed as they are.
+      ``woe_table`` measures each bin against the target and ``woe_transform`` encodes it. ``stepwise`` and ``logistic_regression`` select the variables and fit the model, with ``weights`` for inferred rejects.
 
-   .. grid-item-card:: Measure
+   .. grid-item-card:: Scale and evaluate
 
-      ``woe_table`` scores each bin against the target and ``psi_table`` compares two samples. Sum a column for the total.
+      ``points_table`` turns the model into points, and ``gains_table``, ``roc_auc`` and ``ks`` measure how well the score ranks applicants on a holdout sample.
+
+   .. grid-item-card:: Calibrate
+
+      ``master_scale`` and ``assign_grades`` group the PDs into grades, and ``calibration_table`` with the binomial and Jeffreys tests checks the PD of each grade.
+
+   .. grid-item-card:: Decide
+
+      ``cutoff_table`` shows what each cut-off approves and lets through, ``swap_set`` compares two scores, and ``expected_loss_table`` adds up the expected loss of each grade.
+
+   .. grid-item-card:: Deploy and monitor
+
+      ``BinningSpec`` saves the binning as JSON for production. ``psi_table`` and ``csi_table`` compare live data with development, and ``vintage_table`` follows the approved loans.
 
 Documentation
 -------------
@@ -148,7 +183,7 @@ Documentation
       :link: user_guide/index
       :link-type: doc
 
-      How bins are fitted and how WOE, IV and PSI are defined, including missing values and smoothing.
+      One page per step of a risk model, from the profile of the candidates to vintage analysis, with definitions, worked examples and how to read each result.
 
    .. grid-item-card:: API reference
       :link: api

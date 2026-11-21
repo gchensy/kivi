@@ -90,6 +90,12 @@ poutcome           0.825               0.092         0.794
 
 Customers whose contact type is missing responded at 5.0%, less than half the rate of 11.6% of all customers. A missing value that carries information like this is worth its own group in the binning, which ``woe_table`` gives it.
 
+.. plot::
+   :alt: Share of missing values and their lift for job, education, contact and poutcome
+   :caption: Share of missing values and their lift for the four columns with missing values. The missing values of ``job`` respond more often than average, those of the other columns less often.
+
+   kp.figure_missing_profile()
+
 Screening by IV
 ---------------
 
