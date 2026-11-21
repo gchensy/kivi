@@ -32,6 +32,7 @@ from ._validation import (
     fitted_columns,
     is_binned_dtype,
     is_integral,
+    is_real_dtype,
     shown,
     shown_list,
 )
@@ -91,8 +92,10 @@ class BinningSpec:
     tables : mapping
         The `kivi.woe.woe_table` result of each column. The groups of a
         numeric column are its special codes and the intervals of its edges,
-        and those of a grouped column the groups of its grouping. Missing
-        values form a group labelled NaN.
+        labelled as `kivi.binning.cut` labels them or by the exact edges, and
+        those of a grouped column the groups of its grouping. Missing values
+        form a group labelled NaN. The tables keep the labels of
+        `kivi.binning.cut`.
     unseen : mapping
         ``"raise"`` or a finite WOE for each column, used for values whose
         group is not in the column's table. A grouped column can instead
@@ -295,8 +298,10 @@ class BinningSpec:
         """Group every column of a sample as in development.
 
         Numeric columns are assigned to their bins with `kivi.binning.cut`,
-        using the fitted edges and special codes. Grouped categorical columns
-        are assigned to their groups as by `kivi.binning.group_categories`.
+        using the fitted edges and special codes; an infinite value that is
+        not a special code is in no bin and stays missing. Grouped
+        categorical columns are assigned to their groups as by
+        `kivi.binning.group_categories`.
         A category that the grouping does not map joins the group that the
         column's unseen policy names, if any, and otherwise keeps its own
         label, so that `kivi.stability.psi_table` shows it as a new group.
@@ -324,12 +329,12 @@ class BinningSpec:
         ValueError
             If `frame` is not a DataFrame, lacks a column of the
             specification or has it twice, a column fitted as numeric has
-            values but not a numeric dtype, which could hide its special
-            codes; convert such a column with ``pandas.to_numeric``. Also if
-            a grouped column without an unseen group has a category that its
-            grouping does not map but that is the label of one of its groups,
-            so that its group would be ambiguous. The message names the
-            column.
+            values but not a real numeric dtype, such as a string or complex
+            dtype, which could hide its special codes; convert such a column
+            with ``pandas.to_numeric``. Also if a grouped column without an
+            unseen group has a category that its grouping does not map but
+            that is the label of one of its groups, so that its group would
+            be ambiguous. The message names the column.
 
         See Also
         --------
@@ -403,10 +408,11 @@ class BinningSpec:
         ValueError
             If `frame` is not a DataFrame, lacks a column of the
             specification or has it twice, a column fitted as numeric has
-            values but not a numeric dtype, or a column with the unseen policy
-            ``"raise"`` has values whose group is not in its table or, for a
-            grouped column, whose category its grouping does not map. The
-            message names the column.
+            values but not a real numeric dtype, or a column with the unseen
+            policy ``"raise"`` has values whose group is not in its table,
+            infinite values that are not special codes or, for a grouped
+            column, categories that its grouping does not map. The message
+            names the column.
 
         See Also
         --------
@@ -416,10 +422,10 @@ class BinningSpec:
 
         Notes
         -----
-        The intervals of the edges are closed on the right, so ``-inf`` falls
-        outside every interval. `cut` leaves it missing, as ``pandas.cut``
-        does, and `woe_transform` treats it as unseen rather than giving it
-        the WOE of missing values.
+        An infinite value that is not a special code of its column, such as
+        the result of a division by zero, is in no group: `cut` leaves it
+        missing, and `woe_transform` treats it as unseen rather than giving
+        it the WOE of missing values or of the last interval.
 
         Examples
         --------
@@ -453,8 +459,9 @@ class BinningSpec:
             unseen = cast("float | Literal['raise'] | dict[str, Hashable]", self.unseen[name])
             if isinstance(unseen, dict):
                 unseen = float(_group_woe(self.tables[name], unseen["group"]))
-            # Values that are not missing but fall into no group: -inf in a numeric column, and
-            # a category that its grouping does not map in a grouped one.
+            # Values that are not missing but fall into no group: an infinite value that is not a
+            # special code in a numeric column, and a category that its grouping does not map in
+            # a grouped one.
             outside = np.zeros(len(frame), dtype=bool)
             if kind == "numeric":
                 outside = groups[name].isna().to_numpy(dtype=bool) & frame[name].notna().to_numpy(
@@ -465,7 +472,7 @@ class BinningSpec:
             if outside.any() and unseen == "raise":
                 example = frame[name][outside].iloc[0]
                 problem = (
-                    "fall outside the edges"
+                    "are infinite and not special codes"
                     if kind == "numeric"
                     else "have categories that its grouping does not map"
                 )
@@ -834,13 +841,24 @@ class BinningSpec:
             if kind == "categorical":
                 groups[name] = values.array
                 continue
-            if not is_binned_dtype(values.dtype) and values.notna().any():
+            if pd.api.types.is_complex_dtype(values.dtype):
+                raise ValueError(
+                    f"column {name!r} was fitted as numeric but has the complex dtype "
+                    f"{values.dtype}; pass its real part"
+                )
+            if not is_real_dtype(values.dtype) and values.notna().any():
                 raise ValueError(
                     f"column {name!r} was fitted as numeric but has dtype {values.dtype}; "
                     "convert it with pandas.to_numeric so that its special codes are matched"
                 )
             codes = list(self.special[name]) or None
-            groups[name] = binning.cut(values, self.edges[name], special=codes).array  # type: ignore[union-attr]  # a Series in gives a Series
+            # An infinite value that is not a special code falls into no group, so that
+            # woe_transform treats it as unseen; binning.cut would raise for it.
+            groups[name] = binning.cut(
+                values.mask(_infinite(values, self.special[name])),
+                self.edges[name],
+                special=codes,
+            ).array  # type: ignore[union-attr]  # a Series in gives a Series
         return groups, unmapped
 
     def _sample(self, frame: pd.DataFrame) -> pd.DataFrame:
@@ -883,10 +901,11 @@ def fit_spec(
     ----------
     frame : pandas.DataFrame
         Development sample with one column per variable. Columns with a
-        numeric dtype other than bool are binned. Columns of any other dtype,
-        such as object, string, category or bool, are categorical: each label
-        is a group unless `method` groups the column. Convert integer codes
-        to the category dtype to keep them as labels.
+        numeric dtype other than bool and complex are binned, and complex
+        columns are rejected. Columns of any other dtype, such as object,
+        string, category or bool, are categorical: each label is a group
+        unless `method` groups the column. Convert integer codes to the
+        category dtype to keep them as labels.
     target : array_like
         Binary labels, with 1 indicating the event, one per row of `frame`.
         A Series must have the same index as `frame`; other inputs are
@@ -955,7 +974,8 @@ def fit_spec(
     ValueError
         If `frame` is not a DataFrame or has no columns to fit, `columns`
         repeats a column or names one that `frame` lacks, a column name is
-        not a string, the columns include the target, or `target` does not
+        not a string, a column has a complex dtype, the columns include the
+        target, or `target` does not
         give each row a label 0 or 1 or lacks one of the two classes. If a
         dict names a column that is not fitted, `method` gives a categorical
         column a method other than ``"chimerge"`` or ``"rare"``, `bins`,
@@ -1020,6 +1040,12 @@ def fit_spec(
     mass = as_weights(weights, frame.index.to_series(), of="frame")
     if mass is not None and not (np.bincount(labels, weights=mass, minlength=2) > 0).all():
         raise ValueError("weights must give both target classes a positive total")
+    for name in names:
+        if pd.api.types.is_complex_dtype(frame[name].dtype):
+            raise ValueError(
+                f"column {name!r} has the complex dtype {frame[name].dtype}, which kivi can "
+                "neither bin nor group; pass its real part or its absolute value"
+            )
     kinds: dict[str, Literal["numeric", "categorical"]] = {
         name: "numeric" if is_binned_dtype(frame[name].dtype) else "categorical" for name in names
     }
@@ -1393,6 +1419,14 @@ def _fit_edges(
     return edges
 
 
+def _infinite(values: pd.Series, codes: tuple[float, ...]) -> npt.NDArray[np.bool_]:
+    """Mark the infinite values of a numeric column that are not among its special codes."""
+    infinite = np.isinf(values.to_numpy(dtype=float, na_value=np.nan))
+    if codes:
+        infinite &= ~values.isin(list(codes)).to_numpy(dtype=bool)
+    return infinite
+
+
 def _warn_if_numbers(values: pd.Series, name: str) -> None:
     if values.dtype == object and pd.api.types.infer_dtype(values, skipna=True) in (
         "integer",
@@ -1617,6 +1651,9 @@ def _checked_table(
         ):
             raise ValueError(f"{where} must hold finite numbers, but column {column!r} does not")
     table = _canonical_table(table, f"labels of the {where}")
+    if numeric is not None:
+        # Accept the intervals of the exact edges as well as the rounded labels of pandas.cut.
+        table.index = _cut_labels(table.index, *numeric)
     labels = table.index
     missing = pd.isna(labels)
     if missing.sum() > 1 or labels[~missing].has_duplicates:
@@ -1747,6 +1784,28 @@ def _numeric_bins(labels: pd.Index, edges: np.ndarray, codes: tuple) -> list:
                 {"interval": [_encode(float(left)), _encode(float(right))], "closed": "right"}
             )
     return bins
+
+
+def _cut_labels(labels: pd.Index, edges: np.ndarray, codes: tuple) -> pd.Index:
+    """Replace each interval between two adjacent edges with its ``pandas.cut`` label.
+
+    The intervals of ``pandas.cut`` have bounds rounded for display, so a table labelled
+    with the intervals of the exact edges would otherwise match none of them. Other
+    labels are kept as they are.
+    """
+    groups = _groups(edges, codes)
+    positions = {
+        (float(left), float(right)): len(codes) + index
+        for index, (left, right) in enumerate(zip(edges[:-1], edges[1:], strict=True))
+    }
+    result = []
+    for label in labels:
+        if isinstance(label, pd.Interval) and label.closed == "right":
+            position = positions.get((label.left, label.right))
+            if position is not None:
+                label = groups[position]
+        result.append(label)
+    return pd.Index(result, dtype=object, name=labels.name)
 
 
 def _numeric_labels(labels: pd.Index, edges: npt.ArrayLike, codes: tuple, where: str) -> pd.Index:

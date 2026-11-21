@@ -117,9 +117,10 @@ def test_cut_groups_like_binning_cut():
     groups = spec.cut(new)
     assert groups.columns.tolist() == ["x", "c"]
     assert groups.index.tolist() == [10, 11, 12, 13, 14, 15]
-    expected = cut(new["x"], [-INF, 3.5, INF], special=[-1])
+    expected = cut(new["x"].replace(INF, np.nan), [-INF, 3.5, INF], special=[-1])
     assert groups["x"].cat.categories.tolist() == expected.cat.categories.tolist()
-    np.testing.assert_array_equal(groups["x"].cat.codes, [0, 1, 1, 2, 2, -1])
+    # inf is not a special code, so it falls into no group and stays missing.
+    np.testing.assert_array_equal(groups["x"].cat.codes, [0, 1, 1, 2, -1, -1])
     # Categorical columns are returned as they are.
     pd.testing.assert_series_equal(groups["c"], new["c"])
 
@@ -127,13 +128,13 @@ def test_cut_groups_like_binning_cut():
 def test_woe_transform_matches_hand_calculation():
     spec = _fit(unseen={"c": 0.0})
     new = pd.DataFrame(
-        {"x": [-1, 0.5, 3.5, 3.6, INF, None], "c": ["b", "z", None, "a", "a", "c"]},
+        {"x": [-1, 0.5, 3.5, 3.6, 70.0, None], "c": ["b", "z", None, "a", "a", "c"]},
         index=[10, 11, 12, 13, 14, 15],
     )
     encoded = spec.woe_transform(new)
     assert encoded.index.tolist() == [10, 11, 12, 13, 14, 15]
     assert encoded.dtypes.tolist() == [np.float64, np.float64]
-    # -1, the lower bin twice, the upper bin twice (inf included) and the missing group.
+    # -1, the lower bin twice, the upper bin twice and the missing group.
     np.testing.assert_allclose(encoded["x"], np.log([1, 0.5, 0.5, 2, 2, 1]))
     # "z" is unseen and gets 0; the missing label has its own group.
     np.testing.assert_allclose(encoded["c"], np.log([0.4, 1, 2.4, 1.2, 1.2, 2.4]))
@@ -180,23 +181,82 @@ def test_unseen_policy_is_per_column():
     assert isinstance(everywhere.unseen["x"], float)
 
 
-def test_minus_infinity_is_unseen_rather_than_missing():
-    new = pd.DataFrame({"x": [-INF, None], "c": ["a", "a"]})
+@pytest.mark.parametrize("infinite", [-INF, INF])
+def test_infinity_is_unseen_rather_than_missing(infinite):
+    new = pd.DataFrame({"x": [infinite, None], "c": ["a", "a"]})
     spec = _fit()
     assert spec.cut(new)["x"].isna().all()
     with pytest.raises(
-        ValueError, match="column 'x': 1 value\\(s\\) fall outside the edges, such as -inf"
+        ValueError,
+        match=f"column 'x': 1 value\\(s\\) are infinite and not special codes, such as {infinite}",
     ):
         spec.woe_transform(new)
     lenient = _fit(unseen={"x": 0.5})
-    # The missing value keeps the WOE of the missing group, ln(1 / 1).
+    # The missing value keeps the WOE of the missing group, ln(1 / 1); inf no longer gets the
+    # WOE of the last interval, ln(2).
     np.testing.assert_allclose(lenient.woe_transform(new)["x"], [0.5, 0.0])
+
+
+def test_infinite_special_codes_keep_their_group():
+    frame = FRAME.assign(x=FRAME["x"].replace(-1.0, INF))
+    spec = fit_spec(frame, TARGET, bins=2, special={"x": [INF]})
+    new = pd.DataFrame({"x": [INF, 0.5, -INF], "c": ["a", "a", "a"]})
+    assert spec.cut(new)["x"].tolist()[:2] == [INF, spec.cut(new)["x"].cat.categories[1]]
+    with pytest.raises(ValueError, match="1 value\\(s\\) are infinite and not special codes"):
+        spec.woe_transform(new)
+    np.testing.assert_allclose(
+        spec.woe_transform(new.iloc[:2])["x"], spec.tables["x"]["woe"].to_numpy()[:2]
+    )
+
+
+def test_complex_columns_are_rejected():
+    frame = pd.DataFrame({"z": np.arange(10) + 1j * np.arange(10), "x": FRAME["x"]})
+    with pytest.raises(
+        ValueError, match="column 'z' has the complex dtype complex128, which kivi can neither"
+    ):
+        fit_spec(frame, TARGET, bins=2)
+    spec = _fit()
+    with pytest.raises(
+        ValueError, match="column 'x' was fitted as numeric but has the complex dtype complex128"
+    ):
+        spec.woe_transform(pd.DataFrame({"x": [1.0 + 0j], "c": ["a"]}))
+
+
+def test_tables_may_label_intervals_by_their_exact_edges():
+    values = pd.Series(np.arange(1, 9.0) / 7)
+    target = pd.Series([0, 0, 1, 0, 1, 1, 0, 1])
+    spec = fit_spec(pd.DataFrame({"x": values}), target, bins=2)
+    edges = spec.edges["x"]
+    # pandas.cut shows the edge rounded, as 0.643.
+    assert str(spec.tables["x"].index[0]) == "(-inf, 0.643]"
+    exact = woe_table(pd.cut(values, pd.IntervalIndex.from_breaks(edges)), target)
+    assert exact.index[0] == pd.Interval(-np.inf, edges[1]) != spec.tables["x"].index[0]
+    replaced = dataclasses.replace(spec, tables={"x": exact})
+    assert replaced == spec
+    assert replaced.tables["x"].index.tolist() == spec.tables["x"].index.tolist()
+    assert_frame_equal(
+        replaced.woe_transform(pd.DataFrame({"x": values})),
+        spec.woe_transform(pd.DataFrame({"x": values})),
+    )
+    # An exact and a rounded label of the same interval are the same group. Object indices
+    # keep pandas from hashing the intervals, which warns on NumPy < 2.2.
+    rounded = spec.tables["x"]
+    both = pd.DataFrame(
+        rounded.to_numpy()[[0, 0, 1]],
+        columns=rounded.columns,
+        index=pd.Index([exact.index[0], *rounded.index], dtype=object),
+    )
+    with pytest.raises(ValueError, match="table of column 'x' must have one row per group"):
+        dataclasses.replace(spec, tables={"x": both})
+    other = exact.set_axis(pd.Index([pd.Interval(-np.inf, 0.6), exact.index[1]], dtype=object))
+    with pytest.raises(ValueError, match="neither special codes nor intervals of its edges"):
+        dataclasses.replace(spec, tables={"x": other})
 
 
 def test_minus_infinity_is_reported_without_a_missing_group():
     observed = FRAME["x"].notna()
     spec = fit_spec(FRAME.loc[observed, ["x"]], TARGET[observed], bins=2, special={"x": [-1]})
-    with pytest.raises(ValueError, match="column 'x': 1 value\\(s\\) fall outside the edges"):
+    with pytest.raises(ValueError, match="column 'x': 1 value\\(s\\) are infinite and not special"):
         spec.woe_transform(pd.DataFrame({"x": [-INF, 1.0]}))
 
 

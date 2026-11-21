@@ -269,7 +269,9 @@ def _profile(
                 edges = binning.bin_edges(values, bins, special=list(codes) or None, weights=mass)
         else:
             edges = np.array([-np.inf, np.inf])
-        groups = binning.cut(values, edges, special=list(codes) or None)
+        # Rows without weight count for nothing, and their values were not checked, so they
+        # must not reach cut, which raises for an infinite value that is not a special code.
+        groups = binning.cut(values.where(weight > 0), edges, special=list(codes) or None)
         tied = len(edges) - 1 < bins
     else:
         groups, tied = values, False

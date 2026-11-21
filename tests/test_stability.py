@@ -206,6 +206,13 @@ def test_points_table_rows_of_one_variable_only():
         csi_table(["lo"], ["hi"], table)
     result = csi_table(["lo", "hi"], ["hi", "hi"], table.loc[["a"]])
     assert result["points"].tolist() == table.loc[["a"], "points"].tolist()
+    # A flat table names the variables in a column; it must not mix their groups either.
+    with pytest.raises(
+        ValueError, match="points must hold the groups of one variable, got 2 variables: 'a', 'b'"
+    ):
+        csi_table(["lo"], ["hi"], table.reset_index())
+    flat = csi_table(["lo", "hi"], ["hi", "hi"], table.loc[["a"]].reset_index())
+    pd.testing.assert_frame_equal(flat, result)
 
 
 @pytest.mark.parametrize(

@@ -21,7 +21,7 @@ import numpy.typing as npt
 import pandas as pd
 
 from ._counts import divergence
-from ._validation import as_series, as_weights, first_value, is_integral, is_real
+from ._validation import as_series, as_weights, first_value, is_integral, is_real, shown
 
 __all__ = [
     "bin_edges",
@@ -178,12 +178,14 @@ def cut(
 ) -> pd.Series | pd.Categorical:
     """Assign values to bins, with a separate group for each special value.
 
-    Without `special` the result is the same as ``pandas.cut(values, edges)``.
+    Without `special` the result is the same as ``pandas.cut(values, edges)``
+    for every finite value.
 
     Parameters
     ----------
     values : array_like
         One-dimensional numeric values to assign. Missing values stay missing.
+        Infinite values must be special codes.
     edges : array_like
         Increasing bin edges, usually from `bin_edges`.
     special : array_like, optional
@@ -200,9 +202,10 @@ def cut(
     Raises
     ------
     ValueError
-        If `values` is not one-dimensional or is not numeric apart from special
-        values, `edges` does not increase, or `special` is not one-dimensional
-        or contains a missing value or a boolean.
+        If `values` is not one-dimensional, is not numeric apart from special
+        values or has an infinite value that is not a special value, `edges`
+        does not increase, or `special` is not one-dimensional or contains a
+        missing value or a boolean.
 
     See Also
     --------
@@ -216,9 +219,12 @@ def cut(
     A special value is matched by equality, so ``-1`` and ``-1.0`` are the
     same code. Values that are not numbers, such as strings read from a
     file, are also matched after conversion with ``pandas.to_numeric``, so
-    the string ``"-1"`` falls into the group of the code ``-1``. Values
+    the string ``"-1"`` falls into the group of the code ``-1``. Finite values
     outside the edges become missing, as with ``pandas.cut``; the infinite
-    outer edges of `bin_edges` avoid this.
+    outer edges of `bin_edges` avoid this. An infinite value raises an error
+    unless it is a special value, because ``pandas.cut`` would leave ``-inf``
+    in no interval, so that it would count as a missing value, and put
+    ``inf`` in the last interval.
 
     Examples
     --------
@@ -238,8 +244,15 @@ def cut(
     special = _special_values(special)
     position = _special_positions(series, special)
     is_special = position >= 0
+    numbers = pd.to_numeric(series.mask(is_special), errors="raise")
+    infinite = np.isinf(numbers.to_numpy(dtype=float, na_value=np.nan))
+    if infinite.any():
+        raise ValueError(
+            "values must be finite or special values, got "
+            f"{shown(numbers[infinite].iloc[0])}; pass infinite codes in special"
+        )
     intervals = pd.cut(
-        pd.to_numeric(series.mask(is_special), errors="raise"),
+        numbers,
         edges,  # type: ignore[arg-type]  # pandas.cut takes any array_like of edges
     )
     if special.empty:

@@ -117,6 +117,28 @@ def test_cut_without_special_matches_pandas():
     )
 
 
+@pytest.mark.parametrize("infinite", [-np.inf, np.inf, "inf"])
+def test_cut_rejects_infinite_values_that_are_not_special(infinite):
+    # pandas.cut would leave -inf in no interval, where it counts as missing, and put inf in the
+    # last interval.
+    edges = bin_edges([1, 2, 3, 4], 2)
+    expected = "-inf" if infinite == -np.inf else "inf"
+    with pytest.raises(
+        ValueError,
+        match=f"values must be finite or special values, got {expected}; pass infinite codes",
+    ):
+        cut(pd.Series([1.0, infinite, None], dtype=object), edges)
+    # A text "inf" matches the code inf after pandas.to_numeric, like other special values.
+    groups = cut(pd.Series([infinite, 1.0, None], dtype=object), edges, special=[float(infinite)])
+    np.testing.assert_equal(groups.cat.codes.to_numpy(), [0, 1, -1])
+    assert groups.cat.categories[0] == float(infinite)
+
+
+def test_cut_keeps_finite_values_outside_the_edges_missing():
+    groups = cut([0.5, 1.5, 9.0], [1, 2, 3])
+    np.testing.assert_equal(groups.codes, [-1, 0, -1])
+
+
 def test_special_value_bins_on_bank_pdays():
     bank = Dataset.bank_data()
     is_special = bank.pdays == -1
@@ -368,13 +390,38 @@ def test_woe_transform_handles_unseen_groups():
     with pytest.raises(ValueError, match=r"2 group\(s\) are not in table, such as 'c', nan"):
         woe_transform(["a", "c", None, "c"], table)
     np.testing.assert_equal(woe_transform(["a", "c", None], table, unseen=-1.5), [0.0, -1.5, -1.5])
-    assert np.isnan(woe_transform(["c"], table, unseen=np.nan)).all()
+    for value in (np.nan, np.inf, -np.inf):
+        with pytest.raises(ValueError, match=f"'raise' or a finite number, got {value}"):
+            woe_transform(["c"], table, unseen=value)
     edges = [-np.inf, 0, 10, np.inf]
     by_interval = woe_table(pd.cut(pd.Series([5, 15, 5, 15]), edges), pd.Series([1, 0, 0, 1]))
     with pytest.raises(
         ValueError, match=r"1 group\(s\) are not in table, such as Interval\(-inf, 0.0"
     ):
         woe_transform(pd.cut(pd.Series([-5, 5]), edges), by_interval)
+
+
+def test_woe_transform_matches_numbers_by_equality_not_containment():
+    values = pd.Series([1.0, 2, 3, 4, 5, 6, 7, 8])
+    target = pd.Series([0, 0, 1, 0, 1, 1, 0, 1])
+    edges = [-np.inf, 4.5, np.inf]
+    table = woe_table(pd.cut(values, edges), target)
+    # Raw numbers are not groups: each would otherwise get the WOE of the interval holding it.
+    with pytest.raises(
+        ValueError, match=r"2 group\(s\) are not in table, such as 1.0, 7.0; pass unseen"
+    ):
+        woe_transform(pd.Series([1.0, 7.0]), table)
+    # A special code that the development table never saw is unseen, not binned.
+    groups = cut(pd.Series([-1.0, 2.0, 7.0]), edges, special=[-1])
+    with pytest.raises(ValueError, match=r"1 group\(s\) are not in table, such as -1;"):
+        woe_transform(groups, table)
+    np.testing.assert_allclose(
+        woe_transform(groups, table, unseen=0.25), [0.25, -np.log(3), np.log(3)]
+    )
+    np.testing.assert_allclose(woe_transform(groups, table["woe"], unseen=0.25)[1:], table["woe"])
+    # Equal labels still match across types, such as 1 and 1.0.
+    by_number = woe_table(pd.Series([1, 1, 2, 2]), pd.Series([1, 0, 1, 1]))
+    np.testing.assert_allclose(woe_transform([1.0, 2.0], by_number), by_number["woe"])
 
 
 def test_woe_transform_on_bank_matches_lookup():
@@ -396,9 +443,9 @@ def test_woe_transform_on_bank_matches_lookup():
         (["a"], pd.Series([0.1, 0.2], index=["a", "a"]), "raise", "one row per group"),
         (["a"], pd.Series([0.1, 0.2], index=[np.nan, None]), "raise", "one row per group"),
         (["a"], {"a": 0.1}, "raise", "woe_table result or a Series, got dict"),
-        (["a"], pd.Series([0.1], index=["a"]), "zero", "'raise' or a number, got 'zero'"),
-        (["a"], pd.Series([0.1], index=["a"]), True, "'raise' or a number, got True"),
-        (["a"], pd.Series([0.1], index=["a"]), None, "'raise' or a number, got None"),
+        (["a"], pd.Series([0.1], index=["a"]), "zero", "'raise' or a finite number, got 'zero'"),
+        (["a"], pd.Series([0.1], index=["a"]), True, "'raise' or a finite number, got True"),
+        (["a"], pd.Series([0.1], index=["a"]), None, "'raise' or a finite number, got None"),
         (np.ones((2, 2)), pd.Series([0.1], index=["a"]), "raise", "groups must be one-dimensional"),
     ],
 )

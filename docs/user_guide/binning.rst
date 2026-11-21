@@ -536,6 +536,8 @@ Invalid input
 * ``special`` is not one-dimensional or contains a missing value;
 * the reference has no observations apart from missing and special values, or contains an infinite value that is not special.
 
+:func:`~kivi.binning.cut` raises ``ValueError`` for an infinite value that is not a special value, because ``pandas.cut`` would count ``-inf`` as missing and put ``inf`` in the last interval. Pass infinite codes in ``special`` to give each one its own group.
+
 :func:`~kivi.binning.chimerge_edges`, :func:`~kivi.binning.tree_edges` and :func:`~kivi.binning.monotonic_edges` raise ``ValueError`` for the same problems with the values, for an option outside its range, and when:
 
 * ``values`` and ``target`` are Series without identical indices, or have different lengths;
