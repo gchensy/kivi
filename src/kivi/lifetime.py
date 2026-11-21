@@ -157,7 +157,7 @@ def convert_pd(
     for name, value in (("kind", kind), ("to", to)):
         if not (isinstance(value, str) and value in _KINDS):
             raise ValueError(
-                f"{name} must be 'cumulative', 'marginal' or 'conditional', got {value!r}"
+                f"{name} must be 'cumulative', 'marginal' or 'conditional', got {_plain(value)!r}"
             )
     values = _curves(probability, "probability")
     _check_curves(values, kind)
@@ -280,10 +280,14 @@ def transition_pd(
     else:
         try:
             default = states.get_loc(default_state)
-        except (KeyError, TypeError, pd.errors.InvalidIndexError):
-            default = None
-        if not isinstance(default, Integral):
-            raise ValueError(f"default_state must be one of the states, got {default_state!r}")
+            # get_loc also finds the interval that holds a number; the label itself must match.
+            found = isinstance(default, Integral) and bool(states[default] == default_state)
+        except (KeyError, TypeError, ValueError, pd.errors.InvalidIndexError):
+            found = False
+        if not found:
+            raise ValueError(
+                f"default_state must be one of the states, got {_plain(default_state)!r}"
+            )
     _check_transition_rows(probabilities, states, default)
 
     absorbing = probabilities.copy()
@@ -291,18 +295,18 @@ def transition_pd(
     absorbing[default, default] = 1.0
     result = np.empty((len(states), len(steps)))
     power = np.eye(len(states))
-    position = 0
-    for step in range(1, int(steps[-1]) + 1):
-        # P^h = P^(h-1) P: the default column gains P^(h-1)[i, d] times 1 plus non-negative terms.
-        power = power @ absorbing
-        if step == steps[position]:
-            result[:, position] = power[:, default]
-            position += 1
+    previous = 0
+    for position, step in enumerate(steps):
+        # P^h = P^g P^(h - g) for the previous horizon g. The default row of every power is
+        # exactly the unit row, so the default column gains P^g[i, d] times 1 plus non-negative
+        # terms and does not decrease, also after rounding.
+        power = power @ np.linalg.matrix_power(absorbing, int(step - previous))
+        result[:, position] = power[:, default]
+        previous = step
     # Rounding can move an entry by a unit in the last place; keep the PDs monotone and at most 1.
     result = np.minimum(np.maximum.accumulate(result, axis=1), 1.0)
-    return pd.DataFrame(
-        result, index=states.rename("state"), columns=pd.Index(steps, name="horizon")
-    )
+    index = states.rename("state") if states.nlevels == 1 else states
+    return pd.DataFrame(result, index=index, columns=pd.Index(steps, name="horizon"))
 
 
 def expected_credit_loss(
@@ -343,7 +347,10 @@ def expected_credit_loss(
         `lgd`: one value, one value per account, such as the balance at the
         reporting date, or a schedule, such as the balance expected in each
         period. Give the periods after the maturity of an account an
-        exposure of 0.
+        exposure of 0. Series and DataFrames with one row per account must
+        have identical indices, and DataFrames with one column per period
+        identical columns; inputs with one row for all accounts or one
+        column for all periods are broadcast.
     rate : float or array_like
         Effective interest rate per period at which the losses are
         discounted, greater than -1, as one value or one value per account.
@@ -359,8 +366,8 @@ def expected_credit_loss(
     -------
     pandas.Series or numpy.ndarray
         Expected credit loss of each account, in the units of `ead`. If an
-        input is a pandas object, a Series named ``expected_credit_loss``
-        with its index; otherwise an array.
+        input with one row per account is a pandas object, a Series named
+        ``expected_credit_loss`` with its index; otherwise an array.
 
     Raises
     ------
@@ -371,8 +378,8 @@ def expected_credit_loss(
         have different indices or columns. Also if `probability` or `lgd`
         has a value outside [0, 1], a row of `probability` adds up to more
         than 1, `ead` has a negative or infinite value, `rate` is not finite
-        and greater than -1, or `horizon` is not a positive integer up to
-        the number of periods.
+        and greater than -1 or makes a discount factor overflow, or
+        `horizon` is not a positive integer up to the number of periods.
 
     See Also
     --------
@@ -425,8 +432,6 @@ def expected_credit_loss(
     0.03 × 0.5 × 700 / 1.05² = 9.52 in period 2 and 0.03 × 0.5 × 400 /
     1.05³ = 5.18 in period 3.
     """
-    inputs = {"probability": probability, "lgd": lgd, "ead": ead, "rate": rate}
-    index = _check_frames(inputs)
     if np.ndim(probability) != 2:
         raise ValueError(
             "probability must be two-dimensional, with one row per account and one column per "
@@ -437,7 +442,12 @@ def expected_credit_loss(
     if not accounts:
         raise ValueError("probability must have at least one account")
     _check_missing(marginal, "probability")
-    _check_curves(marginal, "marginal")
+    total = marginal.sum(axis=1)
+    excess = total > 1 + _TOLERANCE
+    if excess.any():
+        raise ValueError(
+            f"probability must add up to at most 1 in each row, got {float(total[excess][0])!r}"
+        )
     loss_given_default = _schedule(lgd, "lgd", marginal.shape)
     outside = (loss_given_default < 0) | (loss_given_default > 1)
     if outside.any():
@@ -459,16 +469,29 @@ def expected_credit_loss(
     if horizon is None:
         horizon = periods
     elif isinstance(horizon, bool) or not isinstance(horizon, Integral) or horizon < 1:
-        raise ValueError(f"horizon must be a positive integer, got {horizon!r}")
+        raise ValueError(f"horizon must be a positive integer, got {_plain(horizon)!r}")
     elif horizon > periods:
         raise ValueError(
             f"horizon must be at most the number of periods of probability, {periods}, "
-            f"got {horizon}"
+            f"got {_plain(horizon)}"
         )
+    index = _account_index(
+        {"probability": probability, "lgd": lgd, "ead": ead, "rate": rate}, accounts, periods
+    )
 
-    discount = (1.0 + rates[:, None]) ** -np.arange(1.0, periods + 1.0)
-    terms = marginal * loss_given_default * exposure * discount
-    loss = terms[:, : int(horizon)].sum(axis=1)
+    horizon = int(horizon)
+    with np.errstate(over="ignore"):
+        discount = (1.0 + rates[:, None]) ** -np.arange(1.0, horizon + 1.0)
+    overflow = ~np.isfinite(discount).all(axis=1)
+    if overflow.any():
+        raise ValueError(
+            f"rate must keep the discount factors finite over {horizon} periods, got "
+            f"{float(rates[overflow][0])!r}"
+        )
+    terms = (
+        marginal[:, :horizon] * loss_given_default[:, :horizon] * exposure[:, :horizon] * discount
+    )
+    loss = terms.sum(axis=1)
     if index is None:
         return loss
     return pd.Series(loss, index=index, name="expected_credit_loss")
@@ -572,7 +595,7 @@ def significant_increase(
     """
     names = ("probability", "origination_probability")
     pairs = {"probability": probability, "origination_probability": origination_probability}
-    index = _check_frames(pairs)
+    index = _shared_index(pairs)
     current, origination = (_vector(pairs[name], name, booleans=True) for name in names)
     _same_length(current, origination, names)
     for values, name in ((current, "probability"), (origination, "origination_probability")):
@@ -587,14 +610,14 @@ def significant_increase(
         if not _is_number(relative) or not 1 < relative < math.inf:
             raise ValueError(
                 f"relative must be None or a ratio greater than 1, such as 2 for a PD that "
-                f"doubled, got {relative!r}"
+                f"doubled, got {_plain(relative)!r}"
             )
         flag &= current > relative * origination
     if absolute is not None:
         if not _is_number(absolute) or not 0 < absolute < 1:
             raise ValueError(
                 f"absolute must be None or a number between 0 and 1, such as 0.01 for one "
-                f"percentage point, got {absolute!r}"
+                f"percentage point, got {_plain(absolute)!r}"
             )
         flag &= current - origination > absolute
     if index is None:
@@ -689,7 +712,7 @@ def assign_stages(
     array([1, 2, 2, 3, 3])
     """
     inputs = {"sicr": sicr, "days_past_due": days_past_due, "defaulted": defaulted}
-    index = _check_frames(inputs)
+    index = _shared_index(inputs)
     flags = as_series(sicr, "sicr")
     if not len(flags):
         raise ValueError("sicr must not be empty")
@@ -709,11 +732,11 @@ def assign_stages(
         _same_length(increased, impaired, ("sicr", "defaulted"))
     for value, name in ((stage_2_days, "stage_2_days"), (stage_3_days, "stage_3_days")):
         if not _is_number(value) or not 0 <= value < math.inf:
-            raise ValueError(f"{name} must be a finite, non-negative number, got {value!r}")
+            raise ValueError(f"{name} must be a finite, non-negative number, got {_plain(value)!r}")
     if not stage_3_days > stage_2_days:
         raise ValueError(
-            f"stage_3_days must be greater than stage_2_days, got {stage_3_days!r} and "
-            f"{stage_2_days!r}"
+            f"stage_3_days must be greater than stage_2_days, got {_plain(stage_3_days)!r} and "
+            f"{_plain(stage_2_days)!r}"
         )
     if days is not None:
         increased = increased | (days > stage_2_days)
@@ -809,7 +832,7 @@ def stage_table(
     3          1     200.0            0.04                  90.0     0.450
     """
     inputs = {"stage": stage, "exposure": exposure, "loss": loss, "weights": weights}
-    _check_frames(inputs)
+    _shared_index(inputs)
     raw_stage = stage
     stage = as_series(stage, "stage")
     if not len(stage):
@@ -854,9 +877,30 @@ def _is_number(value) -> bool:
     return isinstance(value, Real) and not isinstance(value, bool) and not math.isnan(value)
 
 
+def _plain(value):
+    """Return a NumPy scalar as a Python scalar, so that messages read alike on NumPy 1 and 2."""
+    return value.item() if isinstance(value, np.generic) else value
+
+
 def _check_dtype(dtype, name: str, *, booleans: bool = False) -> None:
     if not (_is_real(dtype) or (booleans and pd.api.types.is_bool_dtype(dtype))):
         raise ValueError(f"{name} must be real and numeric, got dtype {dtype}")
+
+
+def _missing_as_float(series: pd.Series) -> pd.Series:
+    """Read a column of missing values only as floats, as pandas reads [0.1, None]."""
+    if pd.api.types.is_object_dtype(series.dtype) and len(series) and series.isna().all():
+        return series.astype(float)
+    return series
+
+
+def _float_frame(frame: pd.DataFrame, name: str, *, booleans: bool = False) -> np.ndarray:
+    """Real numbers of a DataFrame as a float array; missing values become NaN."""
+    if any(pd.api.types.is_object_dtype(dtype) for dtype in frame.dtypes):
+        frame = frame.apply(_missing_as_float)
+    for dtype in frame.dtypes:
+        _check_dtype(dtype, name, booleans=booleans)
+    return frame.to_numpy(dtype=float, na_value=np.nan)
 
 
 def _curves(values, name: str) -> npt.NDArray[np.float64]:
@@ -865,7 +909,7 @@ def _curves(values, name: str) -> npt.NDArray[np.float64]:
     if dimensions not in (1, 2):
         raise ValueError(f"{name} must be one- or two-dimensional, got {dimensions} dimensions")
     if dimensions == 1:
-        series = as_series(values, name)
+        series = _missing_as_float(as_series(values, name))
         if not len(series):
             raise ValueError(f"{name} must have at least one period")
         _check_dtype(series.dtype, name, booleans=True)
@@ -875,9 +919,7 @@ def _curves(values, name: str) -> npt.NDArray[np.float64]:
         frame = values if isinstance(values, pd.DataFrame) else pd.DataFrame(values)
         if not frame.shape[1]:
             raise ValueError(f"{name} must have at least one period")
-        for dtype in frame.dtypes:
-            _check_dtype(dtype, name, booleans=True)
-        curves = frame.to_numpy(dtype=float, na_value=np.nan)
+        curves = _float_frame(frame, name, booleans=True)
     outside = (curves < 0) | (curves > 1)
     if outside.any():
         raise ValueError(f"{name} must be between 0 and 1, got {float(curves[outside][0])!r}")
@@ -948,9 +990,7 @@ def _transition_probabilities(matrix) -> tuple[npt.NDArray[np.float64], pd.Index
         states = pd.RangeIndex(frame.shape[0])
     if frame.shape[0] != frame.shape[1] or not frame.shape[0]:
         raise ValueError(f"matrix must be square and not empty, got shape {frame.shape}")
-    for dtype in frame.dtypes:
-        _check_dtype(dtype, "matrix")
-    return frame.to_numpy(dtype=float, na_value=np.nan), states
+    return _float_frame(frame, "matrix"), states
 
 
 def _check_transition_rows(probabilities: np.ndarray, states: pd.Index, default: int) -> None:
@@ -984,49 +1024,60 @@ def _horizons(horizons) -> npt.NDArray[np.int64]:
         "horizons must be a positive integer or a sequence of increasing positive integers, "
         "got {!r}"
     )
+    error = ValueError(message.format(_plain(horizons)))
     if isinstance(horizons, Integral) and not isinstance(horizons, bool):
-        if horizons < 1:
-            raise ValueError(message.format(horizons))
+        if not 1 <= horizons < 2**63:
+            raise error
         return np.arange(1, int(horizons) + 1)
     if np.ndim(horizons) != 1:
-        raise ValueError(message.format(horizons))
+        raise error
     series = horizons if isinstance(horizons, pd.Series) else pd.Series(horizons)
     if not len(series) or not _is_real(series.dtype):
-        raise ValueError(message.format(horizons))
+        raise error
     values = series.to_numpy(dtype=float, na_value=np.nan)
     if (
         not np.isfinite(values).all()
         or (values != np.round(values)).any()
         or values[0] < 1
+        or values[-1] >= 2.0**63
         or not (np.diff(values) > 0).all()
     ):
-        raise ValueError(message.format(horizons))
+        raise error
     return values.astype(np.int64)
 
 
-def _check_frames(inputs: dict) -> pd.Index | None:
-    """Pandas inputs must share one index, and DataFrames one set of columns.
+def _shared_index(inputs: dict) -> pd.Index | None:
+    """Return the index that the Series among the inputs share, or None without a Series."""
+    series = [(name, values) for name, values in inputs.items() if isinstance(values, pd.Series)]
+    for name, values in series[1:]:
+        if not values.index.equals(series[0][1].index):
+            raise ValueError(f"{series[0][0]} and {name} must have identical indices")
+    return series[0][1].index if series else None
 
-    Returns the shared index, or None if no input is a pandas object.
+
+def _account_index(inputs: dict, accounts: int, periods: int) -> pd.Index | None:
+    """Return the index of the pandas inputs with one row per account, or None without any.
+
+    Those inputs must share their index, and DataFrames with one column per period their
+    columns. Inputs with one row for all accounts or one column for all periods are broadcast,
+    so their labels are not compared.
     """
-    indexed = [
-        (name, values)
-        for name, values in inputs.items()
-        if isinstance(values, pd.Series | pd.DataFrame)
-    ]
-    for name, values in indexed[1:]:
-        if not values.index.equals(indexed[0][1].index):
-            raise ValueError(f"{indexed[0][0]} and {name} must have identical indices")
-    frames = [(name, values) for name, values in indexed if isinstance(values, pd.DataFrame)]
-    for name, values in frames[1:]:
-        if not values.columns.equals(frames[0][1].columns):
-            raise ValueError(f"{frames[0][0]} and {name} must have identical columns")
-    return indexed[0][1].index if indexed else None
+    rows, columns = [], []
+    for name, values in inputs.items():
+        if isinstance(values, pd.Series | pd.DataFrame) and len(values) == accounts:
+            rows.append((name, values.index))
+        if isinstance(values, pd.DataFrame) and values.shape[1] == periods:
+            columns.append((name, values.columns))
+    for labels, kind in ((rows, "indices"), (columns, "columns")):
+        for name, other in labels[1:]:
+            if not other.equals(labels[0][1]):
+                raise ValueError(f"{labels[0][0]} and {name} must have identical {kind}")
+    return rows[0][1] if rows else None
 
 
 def _vector(values, name: str, *, booleans: bool = False) -> npt.NDArray[np.float64]:
     """One-dimensional real numbers as floats; missing values become NaN."""
-    series = as_series(values, name)
+    series = _missing_as_float(as_series(values, name))
     if not len(series):
         raise ValueError(f"{name} must not be empty")
     _check_dtype(series.dtype, name, booleans=booleans)
@@ -1066,9 +1117,7 @@ def _schedule(values, name: str, shape: tuple[int, int]) -> npt.NDArray[np.float
         array = array[:, None]
     elif dimensions == 2:
         frame = values if isinstance(values, pd.DataFrame) else pd.DataFrame(values)
-        for dtype in frame.dtypes:
-            _check_dtype(dtype, name)
-        array = frame.to_numpy(dtype=float, na_value=np.nan)
+        array = _float_frame(frame, name)
         if array.shape[0] not in (1, accounts) or array.shape[1] not in (1, periods):
             raise ValueError(message.format(array.shape))
     else:

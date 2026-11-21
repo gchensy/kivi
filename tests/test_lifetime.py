@@ -206,6 +206,15 @@ def test_convert_pd_accepts_booleans_and_nullable_values():
     )
 
 
+def test_convert_pd_reads_columns_of_missing_values_as_numbers():
+    # pandas reads a column of None only as objects.
+    np.testing.assert_allclose(
+        convert_pd([[0.1, None], [0.2, None]], kind="cumulative", to="marginal"),
+        [[0.1, np.nan], [0.2, np.nan]],
+    )
+    assert np.isnan(convert_pd([None, None], kind="marginal", to="cumulative")).all()
+
+
 def test_convert_pd_does_not_mutate_its_input():
     frame = pd.DataFrame(random_curves(3))
     original = frame.copy()
@@ -326,6 +335,32 @@ def test_transition_pd_horizons_as_a_sequence():
     some = transition_pd(MATRIX, horizons=[1, 12, 24])
     pd.testing.assert_frame_equal(some, every[[1, 12, 24]])
     pd.testing.assert_frame_equal(transition_pd(MATRIX, horizons=np.array([12.0])), every[[12]])
+
+
+def test_transition_pd_at_very_long_horizons():
+    result = transition_pd(MATRIX, horizons=[12, 10**15])
+    np.testing.assert_allclose(result[10**15], [1.0, 1.0, 1.0])
+    pd.testing.assert_series_equal(result[12], transition_pd(MATRIX, horizons=12)[12])
+    for horizons in ([1e19], 2**63):
+        with pytest.raises(ValueError, match="horizons must be a positive integer or a sequence"):
+            transition_pd(MATRIX, horizons=horizons)
+
+
+def test_transition_pd_with_states_of_two_levels():
+    states = pd.MultiIndex.from_tuples([("retail", "A"), ("retail", "B"), ("retail", "D")])
+    matrix = pd.DataFrame(MATRIX.to_numpy(), index=states, columns=states)
+    result = transition_pd(matrix, horizons=3, default_state=("retail", "D"))
+    assert result.index.equals(states)
+    np.testing.assert_allclose(result.to_numpy(), transition_pd(MATRIX, horizons=3).to_numpy())
+
+
+def test_transition_pd_default_state_must_be_a_label():
+    states = pd.IntervalIndex.from_breaks([0, 30, 60, 90])
+    matrix = pd.DataFrame(MATRIX.to_numpy(), index=states, columns=states)
+    with pytest.raises(ValueError, match="default_state must be one of the states, got 75"):
+        transition_pd(matrix, horizons=2, default_state=75)
+    result = transition_pd(matrix, horizons=2, default_state=pd.Interval(60, 90))
+    np.testing.assert_allclose(result[2], [0.054, 0.342, 1.0])
 
 
 def test_transition_pd_of_an_array():
@@ -483,6 +518,42 @@ def test_expected_credit_loss_returns_a_series_for_pandas_inputs():
     assert result.index.equals(index) and result.name == "expected_credit_loss"
 
 
+def test_expected_credit_loss_broadcasts_pandas_inputs_with_one_row_or_column():
+    expected = expected_credit_loss(ECL_MARGINAL, 0.5, ECL_SCHEDULE, rate=0.05)
+    # One row for all accounts: the labels are not compared, and the result is an array.
+    for lgd in (pd.Series([0.5]), pd.DataFrame([[0.5, 0.5, 0.5]]), pd.DataFrame([[0.5]])):
+        result = expected_credit_loss(ECL_MARGINAL, lgd, ECL_SCHEDULE, rate=pd.Series([0.05]))
+        assert isinstance(result, np.ndarray)
+        np.testing.assert_allclose(result, expected)
+    # One column for all periods keeps the index of the accounts.
+    index = pd.Index(["x", "y"], name="account")
+    frame = pd.DataFrame(ECL_MARGINAL, index=index, columns=[1, 2, 3])
+    schedule = pd.DataFrame(ECL_SCHEDULE, index=index, columns=[1, 2, 3])
+    one_row = pd.DataFrame([[0.5] * 3], columns=[1, 2, 3])
+    for lgd in (pd.DataFrame({"lgd": [0.5, 0.5]}, index=index), one_row):
+        result = expected_credit_loss(frame, lgd, schedule, rate=0.05)
+        pd.testing.assert_series_equal(
+            result, pd.Series(expected, index=index, name="expected_credit_loss")
+        )
+    with pytest.raises(ValueError, match="probability and lgd must have identical indices"):
+        expected_credit_loss(frame, pd.DataFrame({"lgd": [0.5, 0.5]}), schedule, rate=0.05)
+    # A row for all accounts still has one column per period, so its columns must match.
+    with pytest.raises(ValueError, match="probability and lgd must have identical columns"):
+        expected_credit_loss(frame, pd.DataFrame([[0.5] * 3]), schedule, rate=0.05)
+
+
+def test_expected_credit_loss_discounts_only_the_periods_it_adds_up():
+    marginal = np.full((1, 400), 0.001)
+    with pytest.raises(
+        ValueError, match="rate must keep the discount factors finite over 400 periods, got -0.9"
+    ):
+        expected_credit_loss(marginal, 0.5, 100.0, rate=-0.9)
+    # Over one period the factor is 10, and nothing overflows.
+    np.testing.assert_allclose(
+        expected_credit_loss(marginal, 0.5, 100.0, rate=-0.9, horizon=1), [0.5], rtol=1e-12
+    )
+
+
 def test_expected_credit_loss_accepts_boolean_probabilities_only():
     result = expected_credit_loss([[True, False]], 0.5, 100.0, rate=0.0)
     np.testing.assert_allclose(result, [50.0])
@@ -509,7 +580,11 @@ def test_expected_credit_loss_does_not_mutate_its_inputs():
         (([0.1, 0.2], 0.5, 100.0), {}, "probability must be two-dimensional, .* got 1 dimensions"),
         ((np.zeros((0, 3)), 0.5, 100.0), {}, "probability must have at least one account"),
         (([[np.nan, 0.1]], 0.5, 100.0), {}, "probability must not have missing values, got 1"),
-        (([[0.6, 0.5]], 0.5, 100.0), {}, "probability must add up to at most 1 .* got 1.1"),
+        (
+            ([[0.6, 0.5]], 0.5, 100.0),
+            {},
+            "probability must add up to at most 1 in each row, got 1.1",
+        ),
         (([[0.1, 1.5]], 0.5, 100.0), {}, "probability must be between 0 and 1, got 1.5"),
         (([[0.1, 0.1]], 1.2, 100.0), {}, "lgd must be between 0 and 1, got 1.2"),
         (([[0.1, 0.1]], np.nan, 100.0), {}, "lgd must not have missing values, got 1"),
@@ -621,6 +696,13 @@ def test_significant_increase_rejects_invalid_thresholds(kwargs, message):
         significant_increase([0.1], [0.05], **kwargs)
 
 
+def test_significant_increase_messages_show_numpy_scalars_as_numbers():
+    with pytest.raises(ValueError, match=r"doubled, got 0\.5$"):
+        significant_increase([0.1], [0.05], relative=np.float64(0.5), absolute=None)
+    with pytest.raises(ValueError, match=r"got 90 and 90$"):
+        assign_stages([0], stage_2_days=np.int64(90), stage_3_days=np.int64(90))
+
+
 @pytest.mark.parametrize(
     ("probability", "origination", "message"),
     [
@@ -629,6 +711,7 @@ def test_significant_increase_rejects_invalid_thresholds(kwargs, message):
         ([0.1, np.nan], [0.1, 0.1], "probability must not have missing values, got 1"),
         ([0.1, 0.1], [0.1, 1.1], "origination_probability must be between 0 and 1, got 1.1"),
         (["a"], [0.1], "probability must be real and numeric, got dtype"),
+        ([None], [0.1], "probability must not have missing values, got 1"),
         (
             pd.Series([0.1, 0.2]),
             pd.Series([0.1, 0.2], index=[1, 2]),
