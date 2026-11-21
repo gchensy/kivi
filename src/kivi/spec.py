@@ -11,10 +11,10 @@ import inspect
 import json
 import math
 import warnings
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Callable, Hashable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from numbers import Integral, Real
-from typing import Any, ClassVar, Literal
+from typing import Any, ClassVar, Literal, NoReturn, TypeGuard, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -31,6 +31,7 @@ from ._validation import (
     column_list,
     fitted_columns,
     is_binned_dtype,
+    is_integral,
     shown,
     shown_list,
 )
@@ -43,14 +44,17 @@ _FORMAT = "kivi.BinningSpec"
 # earlier versions of kivi.
 _FORMAT_VERSION = 2
 _KINDS = ("numeric", "categorical")
-_FITTERS = {
+_FITTERS: dict[str, Callable[..., npt.NDArray[np.float64]]] = {
     "quantile": binning.bin_edges,
     "uniform": binning.bin_edges,
     "chimerge": binning.chimerge_edges,
     "tree": binning.tree_edges,
     "monotonic": binning.monotonic_edges,
 }
-_GROUPERS = {"chimerge": binning.chimerge_groups, "rare": binning.category_groups}
+_GROUPERS: dict[str, Callable[..., dict[Hashable, Hashable]]] = {
+    "chimerge": binning.chimerge_groups,
+    "rare": binning.category_groups,
+}
 # Arguments that fit_spec passes itself and that options must therefore not contain.
 _SET_BY_FIT = {"bins", "max_bins", "max_groups", "method", "special", "weights", "smoothing"}
 
@@ -178,7 +182,7 @@ class BinningSpec:
     groups: Mapping[str, Mapping[Any, Any]] | None = None
     FORMAT_VERSION: ClassVar[int] = _FORMAT_VERSION
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate the fields and replace them with read-only copies."""
         kinds = _checked_kinds(self.kinds)
         names = list(kinds)
@@ -260,7 +264,9 @@ class BinningSpec:
         """Hash the JSON text, consistently with equality."""
         return hash(self.to_json())
 
-    def __reduce__(self):
+    def __reduce__(
+        self,
+    ) -> tuple[Callable[[Mapping[str, Any]], "BinningSpec"], tuple[dict[str, Any]]]:
         """Pickle through the dict format, which validates the fields again."""
         return (type(self).from_dict, (self.to_dict(),))
 
@@ -347,11 +353,11 @@ class BinningSpec:
         for name, (new, position) in unmapped.items():
             if not len(new):
                 continue
-            labels = groups[name].categories
+            labels = cast(pd.Categorical, groups[name]).categories
             policy = self.unseen[name]
             if isinstance(policy, dict):
                 into = labels.get_indexer(binning._object_index([policy["group"]]))[0]
-                codes = np.where(position >= 0, into, groups[name].codes)
+                codes = np.where(position >= 0, into, cast(pd.Categorical, groups[name]).codes)
                 groups[name] = pd.Categorical.from_codes(codes, categories=labels)
                 continue
             clash = labels.get_indexer(binning._object_index(new)) >= 0
@@ -362,7 +368,9 @@ class BinningSpec:
                     "choose its group"
                 )
             # An unmapped category keeps its own label, after the groups.
-            codes = np.where(position >= 0, len(labels) + position, groups[name].codes)
+            codes = np.where(
+                position >= 0, len(labels) + position, cast(pd.Categorical, groups[name]).codes
+            )
             categories = labels.append(binning._object_index(new))
             groups[name] = pd.Categorical.from_codes(codes, categories=categories)
         return pd.DataFrame(groups, index=frame.index)
@@ -437,11 +445,12 @@ class BinningSpec:
         1 -1.7228   0.0000
         """
         frame = self._sample(frame)
+        groups: dict[str, pd.api.extensions.ExtensionArray] | pd.DataFrame
         groups, unmapped = self._grouping(frame)
         groups = pd.DataFrame(groups, index=frame.index)
         encoded = {}
         for name, kind in self.kinds.items():
-            unseen = self.unseen[name]
+            unseen = cast("float | Literal['raise'] | dict[str, Hashable]", self.unseen[name])
             if isinstance(unseen, dict):
                 unseen = float(_group_woe(self.tables[name], unseen["group"]))
             # Values that are not missing but fall into no group: -inf in a numeric column, and
@@ -468,7 +477,7 @@ class BinningSpec:
                 values = woe.woe_transform(groups[name], self.tables[name]["woe"], unseen=unseen)
             except ValueError as error:
                 raise ValueError(f"column {name!r}: {error}") from error
-            values = values.to_numpy(dtype=float, copy=True)
+            values = values.to_numpy(dtype=float, copy=True)  # type: ignore[union-attr]  # a Series in gives a Series
             if outside.any():
                 values[outside] = unseen
             encoded[name] = values
@@ -523,7 +532,7 @@ class BinningSpec:
             unseen={name: self.unseen[name] for name in names},
             smoothing=self.smoothing,
             kivi_version=self.kivi_version,
-            groups={name: self.groups[name] for name in names if name in self.groups},
+            groups={name: self.groups[name] for name in names if name in self.groups},  # type: ignore[index, operator]  # never None after __post_init__
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -562,8 +571,8 @@ class BinningSpec:
             if kind == "numeric":
                 entry["edges"] = [_encode(float(edge)) for edge in self.edges[name]]
                 entry["special"] = [_encode(code) for code in self.special[name]]
-            if name in self.groups:
-                entry["groups"] = _encode_groups(self.groups[name])
+            if name in self.groups:  # type: ignore[operator]  # never None after __post_init__
+                entry["groups"] = _encode_groups(self.groups[name])  # type: ignore[index]  # as above
             policy = self.unseen[name]
             entry["unseen"] = (
                 {"group": _encode(policy["group"])} if isinstance(policy, dict) else policy
@@ -682,7 +691,7 @@ class BinningSpec:
                 )
         return cls(
             kinds=kinds,
-            edges=edges,
+            edges=edges,  # type: ignore[arg-type]  # __post_init__ turns the lists into arrays
             special=special,
             tables=tables,
             unseen=unseen,
@@ -800,18 +809,25 @@ class BinningSpec:
             )
         return cls.from_dict(json.loads(text, parse_constant=_reject_constant))
 
-    def _grouping(self, frame: pd.DataFrame) -> tuple[dict, dict]:
+    def _grouping(
+        self, frame: pd.DataFrame
+    ) -> tuple[
+        dict[str, pd.api.extensions.ExtensionArray],
+        dict[str, tuple[np.ndarray, npt.NDArray[np.intp]]],
+    ]:
         """Group every column; for grouped columns, also return the categories they do not map.
 
         Values whose category a grouping does not map are missing in the groups. The second
         dict holds, for each grouped column, those categories in order of first appearance and
         the position of each value among them, or -1.
         """
+        groups: dict[str, pd.api.extensions.ExtensionArray]
         groups, unmapped = {}, {}
+        codes: npt.NDArray[np.intp] | list[float] | None
         for name, kind in self.kinds.items():
             values = frame[name]
-            if name in self.groups:
-                codes, labels, new, position = _grouped(values, self.groups[name])
+            if name in self.groups:  # type: ignore[operator]  # never None after __post_init__
+                codes, labels, new, position = _grouped(values, self.groups[name])  # type: ignore[index]  # as above
                 groups[name] = pd.Categorical.from_codes(codes, categories=labels)
                 unmapped[name] = (new, position)
                 continue
@@ -824,7 +840,7 @@ class BinningSpec:
                     "convert it with pandas.to_numeric so that its special codes are matched"
                 )
             codes = list(self.special[name]) or None
-            groups[name] = binning.cut(values, self.edges[name], special=codes).array
+            groups[name] = binning.cut(values, self.edges[name], special=codes).array  # type: ignore[union-attr]  # a Series in gives a Series
         return groups, unmapped
 
     def _sample(self, frame: pd.DataFrame) -> pd.DataFrame:
@@ -1004,7 +1020,7 @@ def fit_spec(
     mass = as_weights(weights, frame.index.to_series(), of="frame")
     if mass is not None and not (np.bincount(labels, weights=mass, minlength=2) > 0).all():
         raise ValueError("weights must give both target classes a positive total")
-    kinds = {
+    kinds: dict[str, Literal["numeric", "categorical"]] = {
         name: "numeric" if is_binned_dtype(frame[name].dtype) else "categorical" for name in names
     }
     numeric = [name for name in names if kinds[name] == "numeric"]
@@ -1051,6 +1067,7 @@ def fit_spec(
             frame[name], labels, function, arguments, codes[name], smoothing, mass, name
         )
     tables = {}
+    groups: pd.Series | pd.Categorical
     for name in names:
         groups = frame[name]
         try:
@@ -1082,12 +1099,17 @@ class _Columns(Mapping):
 
     __slots__ = ("_values", "_copy", "_label")
 
-    def __init__(self, values: dict, copy=None, label: str | None = None):
+    def __init__(
+        self,
+        values: dict[str, Any],
+        copy: Callable[[Any], Any] | None = None,
+        label: str | None = None,
+    ) -> None:
         self._values = values
         self._copy = copy
         self._label = label
 
-    def __getitem__(self, name: str):
+    def __getitem__(self, name: str) -> Any:
         value = self._values[name]
         return value if self._copy is None else self._copy(value)
 
@@ -1105,7 +1127,7 @@ class _Columns(Mapping):
             _same(self._values[name], other[name]) for name in self._values
         )
 
-    __hash__ = None
+    __hash__ = None  # type: ignore[assignment]  # unhashable, like dict
 
     def __repr__(self) -> str:
         if self._label is not None:
@@ -1123,7 +1145,7 @@ def _copy_table(table: pd.DataFrame) -> pd.DataFrame:
     return table.copy()
 
 
-def _same(value, other) -> bool:
+def _same(value: object, other: object) -> bool:
     if isinstance(value, pd.DataFrame):
         return isinstance(other, pd.DataFrame) and value.equals(other)
     if isinstance(value, np.ndarray):
@@ -1152,7 +1174,14 @@ def _target_labels(target: npt.ArrayLike, frame: pd.DataFrame, names: list[str])
     return series.to_numpy(dtype=np.intp)
 
 
-def _per_column(value, names, kinds, argument, default, check=None):
+def _per_column(
+    value: object,
+    names: list[str],
+    kinds: Mapping[str, str],
+    argument: str,
+    default: Any,
+    check: Callable[[Any, str], Any] | None = None,
+) -> dict[str, Any]:
     """Resolve a setting of the columns ``names``: one value for all or a dict by column."""
     if not isinstance(value, Mapping):
         if argument in ("special", "options"):
@@ -1180,22 +1209,24 @@ def _per_column(value, names, kinds, argument, default, check=None):
     return resolved
 
 
-def _checked_method(value, argument: str) -> str:
+def _checked_method(value: object, argument: str) -> str:
     if not isinstance(value, str) or value not in _FITTERS:
         names = ", ".join(repr(name) for name in _FITTERS)
         raise ValueError(f"{argument} must be one of {names}, got {value!r}")
     return value
 
 
-def _fitter(name: str, method: str, bins, extra):
+def _fitter(
+    name: str, method: str, bins: npt.ArrayLike | None, extra: Mapping[str, Any]
+) -> npt.NDArray[np.float64] | tuple[Callable[..., npt.NDArray[np.float64]], dict[str, Any]]:
     """Explicit edges, or the binning function of a column and its keyword arguments."""
-    if np.ndim(bins) == 1 and not isinstance(bins, str):
+    if np.ndim(bins) == 1 and not isinstance(bins, str):  # type: ignore[arg-type]  # np.ndim(None) is 0
         if extra:
             raise ValueError(f"options of column {name!r} must be empty when bins gives its edges")
         return _checked_edges(bins, f"edges of column {name!r}")
     if not (
         (bins is None and method == "monotonic")
-        or (isinstance(bins, Integral) and not isinstance(bins, bool) and bins >= 1)
+        or (is_integral(bins) and not isinstance(bins, bool) and bins >= 1)
     ):
         allowed = "a positive integer, None" if method == "monotonic" else "a positive integer"
         raise ValueError(f"bins of column {name!r} must be {allowed} or edges, got {bins!r}")
@@ -1206,7 +1237,7 @@ def _fitter(name: str, method: str, bins, extra):
     return function, {"max_bins": bins, **extra}
 
 
-def _check_options(name: str, function, extra) -> None:
+def _check_options(name: str, function: Callable[..., Any], extra: object) -> None:
     """Check that the options of a column are keyword arguments of its function."""
     if not isinstance(extra, Mapping):
         raise ValueError(f"options of column {name!r} must be a dict, got {type(extra).__name__}")
@@ -1224,7 +1255,9 @@ def _check_options(name: str, function, extra) -> None:
         )
 
 
-def _methods(method, numeric: list[str], kinds: dict) -> tuple[dict, dict]:
+def _methods(
+    method: object, numeric: list[str], kinds: Mapping[str, str]
+) -> tuple[dict[str, str], dict[str, str]]:
     """Binning method of each numeric column and grouping method of each grouped column."""
     if not isinstance(method, Mapping):
         return _per_column(method, numeric, kinds, "method", "quantile", _checked_method), {}
@@ -1247,7 +1280,9 @@ def _methods(method, numeric: list[str], kinds: dict) -> tuple[dict, dict]:
     return methods, {name: method[name] for name in kinds if name in categorical}
 
 
-def _grouper(name: str, method: str, bins, extra):
+def _grouper(
+    name: str, method: str, bins: object, extra: Mapping[str, Any]
+) -> tuple[Callable[..., dict[Hashable, Hashable]], dict[str, Any]]:
     """Return the grouping function of a categorical column and its keyword arguments."""
     function = _GROUPERS[method]
     if method == "chimerge" and (
@@ -1262,7 +1297,16 @@ def _grouper(name: str, method: str, bins, extra):
     return function, dict(extra)
 
 
-def _fit_groups(values, labels, function, arguments, codes, smoothing, mass, name):
+def _fit_groups(
+    values: pd.Series,
+    labels: npt.NDArray[np.intp],
+    function: Callable[..., dict[Hashable, Hashable]],
+    arguments: Mapping[str, Any],
+    codes: tuple[Hashable, ...],
+    smoothing: float,
+    mass: npt.NDArray[np.float64] | None,
+    name: str,
+) -> dict[Hashable, Hashable]:
     observed = values.notna().to_numpy(dtype=bool)
     if codes:
         observed = observed & ~values.isin(list(codes)).to_numpy(dtype=bool)
@@ -1285,7 +1329,9 @@ def _fit_groups(values, labels, function, arguments, codes, smoothing, mass, nam
         raise ValueError(f"column {name!r}: {error}") from error
 
 
-def _grouped(values: pd.Series, grouping: dict) -> tuple:
+def _grouped(
+    values: pd.Series, grouping: Mapping[Hashable, Hashable]
+) -> tuple[npt.NDArray[np.intp], pd.Index, np.ndarray, npt.NDArray[np.intp]]:
     """Group codes of a grouped column, its groups, and the categories it does not map.
 
     Returns the code of each value among the groups, which is -1 for missing values and
@@ -1293,6 +1339,7 @@ def _grouped(values: pd.Series, grouping: dict) -> tuple:
     categories in order of first appearance; and the position of each value among them, or -1.
     """
     group_of_key, labels = pd.factorize(binning._object_index(grouping.values()))
+    levels: pd.Index | np.ndarray
     position, levels = pd.factorize(values, sort=False)
     levels = np.asarray(levels, dtype=object)
     key = binning._object_index(grouping).get_indexer(binning._object_index(levels))
@@ -1303,7 +1350,16 @@ def _grouped(values: pd.Series, grouping: dict) -> tuple:
     return codes, labels, levels[unmapped], new_position[position]
 
 
-def _fit_edges(values, labels, fitter, codes, smoothing, mass, name, method):
+def _fit_edges(
+    values: pd.Series,
+    labels: npt.NDArray[np.intp],
+    fitter: npt.NDArray[np.float64] | tuple[Callable[..., npt.NDArray[np.float64]], dict[str, Any]],
+    codes: tuple[float, ...],
+    smoothing: float,
+    mass: npt.NDArray[np.float64] | None,
+    name: str,
+    method: str,
+) -> npt.NDArray[np.float64]:
     if isinstance(fitter, np.ndarray):
         return fitter
     function, arguments = fitter
@@ -1352,16 +1408,16 @@ def _warn_if_numbers(values: pd.Series, name: str) -> None:
         )
 
 
-def _check_smoothing(smoothing) -> None:
+def _check_smoothing(smoothing: object) -> None:
     if (
         isinstance(smoothing, bool)
         or not isinstance(smoothing, Real)
-        or not (math.isfinite(smoothing) and smoothing > 0)
+        or not (math.isfinite(smoothing) and smoothing > 0)  # type: ignore[operator]  # Real declares only < and <=
     ):
         raise ValueError(f"smoothing must be finite and positive, got {smoothing!r}")
 
 
-def _checked_kinds(kinds) -> dict[str, str]:
+def _checked_kinds(kinds: object) -> dict[str, Literal["numeric", "categorical"]]:
     if not isinstance(kinds, Mapping) or not kinds:
         raise ValueError("kinds must be a non-empty mapping from column names to kinds")
     for name, kind in kinds.items():
@@ -1372,7 +1428,7 @@ def _checked_kinds(kinds) -> dict[str, str]:
     return dict(kinds)
 
 
-def _entries(mapping, names: list[str], argument: str, kind: str = "") -> dict:
+def _entries(mapping: object, names: list[str], argument: str, kind: str = "") -> dict[str, Any]:
     """Return the entries of a mapping in the order of ``names``, which must be its keys."""
     if not isinstance(mapping, Mapping):
         raise ValueError(f"{argument} must be a mapping, got {type(mapping).__name__}")
@@ -1390,7 +1446,7 @@ def _entries(mapping, names: list[str], argument: str, kind: str = "") -> dict:
     return {name: mapping[name] for name in names}
 
 
-def _checked_edges(value, argument: str) -> npt.NDArray[np.float64]:
+def _checked_edges(value: object, argument: str) -> npt.NDArray[np.float64]:
     try:
         edges = np.array(value, dtype=float)
     except (TypeError, ValueError) as error:
@@ -1408,7 +1464,7 @@ def _checked_edges(value, argument: str) -> npt.NDArray[np.float64]:
     return edges
 
 
-def _checked_labels(value, argument: str) -> tuple:
+def _checked_labels(value: npt.ArrayLike, argument: str) -> tuple[Hashable, ...]:
     """Check the special codes of a categorical column: labels, not missing or boolean."""
     if isinstance(value, str):
         raise ValueError(f"{argument} must be a list of codes, got {value!r}")
@@ -1422,7 +1478,9 @@ def _checked_labels(value, argument: str) -> tuple:
     return tuple(codes)
 
 
-def _checked_groupings(groups, kinds: dict) -> dict:
+def _checked_groupings(
+    groups: object, kinds: Mapping[str, str]
+) -> dict[str, dict[Hashable, Hashable]]:
     """Check the groupings of a specification and return them in the order of its columns."""
     groups = {} if groups is None else groups
     if not isinstance(groups, Mapping):
@@ -1436,7 +1494,7 @@ def _checked_groupings(groups, kinds: dict) -> dict:
     return {name: _checked_grouping(groups[name], name) for name in kinds if name in groups}
 
 
-def _checked_grouping(grouping, name: str) -> dict:
+def _checked_grouping(grouping: object, name: str) -> dict[Hashable, Hashable]:
     """Return a grouping with Python labels, the categories of each group kept together."""
     where = f"grouping of column {name!r}"
     if not isinstance(grouping, Mapping):
@@ -1456,11 +1514,11 @@ def _checked_grouping(grouping, name: str) -> dict:
     return {category: group for group, categories in members.items() for category in categories}
 
 
-def _is_missing_label(label) -> bool:
+def _is_missing_label(label: object) -> bool:
     return isinstance(label, float) and math.isnan(label)
 
 
-def _encode_groups(grouping: dict) -> list[dict[str, Any]]:
+def _encode_groups(grouping: Mapping[Hashable, Hashable]) -> list[dict[str, Any]]:
     members: dict = {}
     for category, group in grouping.items():
         members.setdefault(group, []).append(category)
@@ -1470,10 +1528,12 @@ def _encode_groups(grouping: dict) -> list[dict[str, Any]]:
     ]
 
 
-def _decode_groups(rows, where: str) -> dict:
+def _decode_groups(rows: object, where: str) -> dict[Hashable, Hashable]:
     where = f"groups of {where}"
     if not isinstance(rows, list):
         raise ValueError(f"{where} must be a list, got {type(rows).__name__}")
+    grouping: dict[Hashable, Hashable]
+    groups: dict[Hashable, None]
     grouping, groups, count = {}, {}, 0
     for row in rows:
         if not isinstance(row, Mapping) or set(row) != {"group", "categories"}:
@@ -1493,7 +1553,7 @@ def _decode_groups(rows, where: str) -> dict:
     return grouping
 
 
-def _checked_unseen(value, argument: str) -> float | str | dict:
+def _checked_unseen(value: object, argument: str) -> float | str | dict[str, Hashable]:
     if isinstance(value, str) and value == "raise":
         return value
     if isinstance(value, Mapping) and set(value) == {"group"}:
@@ -1509,7 +1569,7 @@ def _checked_unseen(value, argument: str) -> float | str | dict:
     return float(value)
 
 
-def _check_unseen_group(group, name: str, grouped: bool, table: pd.DataFrame) -> None:
+def _check_unseen_group(group: Hashable, name: str, grouped: bool, table: pd.DataFrame) -> None:
     """Check that the unseen group of a column is one of the groups of its table."""
     if not grouped:
         raise ValueError(
@@ -1521,22 +1581,25 @@ def _check_unseen_group(group, name: str, grouped: bool, table: pd.DataFrame) ->
         )
 
 
-def _group_woe(table: pd.DataFrame, group) -> float:
+def _group_woe(table: pd.DataFrame, group: Hashable) -> float:
     return table["woe"].to_numpy()[table.index.get_indexer(binning._object_index([group]))[0]]
 
 
-def _copy_unseen(policy):
+def _copy_unseen(policy: float | str | dict[str, Hashable]) -> float | str | dict[str, Hashable]:
     return dict(policy) if isinstance(policy, dict) else policy
 
 
-def _decoded_unseen(value, where: str):
+def _decoded_unseen(value: Any, where: str) -> Any:
     if isinstance(value, Mapping) and set(value) == {"group"}:
         return {"group": _decode(value["group"], where)}
     return value
 
 
 def _checked_table(
-    table, name: str, numeric: tuple | None, grouping: dict | None = None
+    table: object,
+    name: str,
+    numeric: tuple[npt.NDArray[np.float64], tuple[float, ...]] | None,
+    grouping: Mapping[Hashable, Hashable] | None = None,
 ) -> pd.DataFrame:
     where = f"table of column {name!r}"
     if not isinstance(table, pd.DataFrame):
@@ -1544,7 +1607,7 @@ def _checked_table(
     if "woe" not in table.columns:
         raise ValueError(f"{where} must have a woe column, as returned by woe_table")
     for column in table.columns:
-        if not isinstance(column, str) or column == "bin":
+        if not isinstance(column, str) or column == "bin":  # type: ignore[redundant-expr]  # stubs type column names as str
             raise ValueError(f"{where} must have string column names other than 'bin'")
         values = table[column]
         if (
@@ -1584,7 +1647,7 @@ def _canonical_table(table: pd.DataFrame, where: str) -> pd.DataFrame:
     return table
 
 
-def _label(value, where: str):
+def _label(value: object, where: str) -> bool | int | float | str | pd.Interval:
     """Convert a label to a Python str, int, float, bool or interval, or NaN when missing."""
     if isinstance(value, pd.Interval):
         # pandas allows numeric, Timestamp and Timedelta bounds; _label rejects the last two.
@@ -1606,11 +1669,11 @@ def _label(value, where: str):
     )
 
 
-def _is_number(value) -> bool:
+def _is_number(value: object) -> TypeGuard[int | float]:
     return isinstance(value, (int, float)) and not isinstance(value, bool)
 
 
-def _encode(value):
+def _encode(value: object) -> object:
     """Encode a label for JSON: NaN as null, infinities and intervals as tagged objects."""
     if isinstance(value, pd.Interval):
         return {"interval": [_encode(value.left), _encode(value.right)], "closed": value.closed}
@@ -1622,7 +1685,7 @@ def _encode(value):
     return value
 
 
-def _decode(value, where: str):
+def _decode(value: object, where: str) -> str | int | float | pd.Interval:
     if value is None:
         return np.nan
     if isinstance(value, (str, int, float)):
@@ -1637,7 +1700,7 @@ def _decode(value, where: str):
                 numbers = all(
                     _is_number(bound) and not math.isnan(bound) for bound in (left, right)
                 )
-                if numbers and left <= right:
+                if numbers and left <= right:  # type: ignore[operator]  # numbers: both are numbers
                     return pd.Interval(left, right, closed=closed)
     raise ValueError(f"{where} has an invalid value {value!r}")
 
@@ -1645,7 +1708,7 @@ def _decode(value, where: str):
 _CLOSED = ("right", "left", "both", "neither")
 
 
-def _decode_list(values, where: str) -> list:
+def _decode_list(values: object, where: str) -> list[Any]:
     if not isinstance(values, list):
         raise ValueError(f"{where} must be a list, got {type(values).__name__}")
     return [_decode(value, where) for value in values]
@@ -1667,7 +1730,7 @@ def _groups(edges: np.ndarray, codes: tuple) -> pd.Index:
     The interval labels are those of ``pandas.cut``, whose bounds are rounded for display.
     """
     empty = pd.Series([], dtype=float)
-    categories = binning.cut(empty, edges, special=list(codes) or None).cat.categories
+    categories = binning.cut(empty, edges, special=list(codes) or None).cat.categories  # type: ignore[union-attr]  # a Series in gives a Series
     return pd.Index([_label(group, "groups") for group in categories], dtype=object)
 
 
@@ -1686,7 +1749,7 @@ def _numeric_bins(labels: pd.Index, edges: np.ndarray, codes: tuple) -> list:
     return bins
 
 
-def _numeric_labels(labels: pd.Index, edges: list, codes: tuple, where: str) -> pd.Index:
+def _numeric_labels(labels: pd.Index, edges: npt.ArrayLike, codes: tuple, where: str) -> pd.Index:
     """Turn intervals given by exact edges back into the labels of ``pandas.cut``."""
     edges = _checked_edges(edges, f"edges of {where}")
     codes = checked_codes(codes, f"special codes of {where}")
@@ -1709,7 +1772,7 @@ def _numeric_labels(labels: pd.Index, edges: list, codes: tuple, where: str) -> 
     return pd.Index(result, dtype=object, name="bin")
 
 
-def _decode_table(rows, where: str) -> pd.DataFrame:
+def _decode_table(rows: object, where: str) -> pd.DataFrame:
     where = f"table of {where}"
     if not isinstance(rows, list) or not rows:
         raise ValueError(f"{where} must be a non-empty list of groups")
@@ -1724,7 +1787,7 @@ def _decode_table(rows, where: str) -> pd.DataFrame:
         for key, value in row.items():
             if key != "bin" and not _is_number(value):
                 raise ValueError(f"{where} must hold numbers, got {key}={value!r}")
-    columns = [key for key in keys if key != "bin"]
+    columns = [key for key in keys if key != "bin"]  # type: ignore[union-attr]  # rows is not empty, so keys is set
     labels = [_decode(row["bin"], where) for row in rows]
     return pd.DataFrame(
         {column: [row[column] for row in rows] for column in columns},
@@ -1745,7 +1808,7 @@ def _check_keys(data: Mapping, expected: set[str], where: str) -> None:
         raise ValueError(f"{subject} " + " and ".join(problems))
 
 
-def _reject_constant(name: str):
+def _reject_constant(name: str) -> NoReturn:
     raise ValueError(
         f"JSON must not contain {name}; kivi writes missing labels as null and infinite "
         'numbers as {"float": "inf"}'

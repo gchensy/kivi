@@ -5,7 +5,6 @@ encodes groups with the fitted WOE. ``woe`` and ``iv`` compute the same
 measures from counts that are already aggregated.
 """
 
-from numbers import Real
 from typing import Literal
 
 import numpy as np
@@ -13,7 +12,7 @@ import numpy.typing as npt
 import pandas as pd
 
 from ._counts import divergence, group_counts
-from ._validation import as_count_columns, as_series, as_weights, woe_values
+from ._validation import as_count_columns, as_series, as_weights, is_real, woe_values
 
 __all__ = ["iv", "woe", "woe_table", "woe_transform"]
 
@@ -308,9 +307,10 @@ def woe_transform(
     """
     woe = woe_values(table)
     raise_unseen = isinstance(unseen, str) and unseen == "raise"
-    if not raise_unseen and (isinstance(unseen, (bool, str)) or not isinstance(unseen, Real)):
+    if not raise_unseen and (isinstance(unseen, (bool, str)) or not is_real(unseen)):
         raise ValueError(f"unseen must be 'raise' or a number, got {unseen!r}")
     series = as_series(groups, "groups")
+    levels: pd.Index | np.ndarray
     codes, levels = pd.factorize(series, sort=False, use_na_sentinel=False)
     levels = np.asarray(levels, dtype=object)
     is_missing = pd.isna(levels)

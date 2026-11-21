@@ -14,13 +14,12 @@ weights, in a form that the ``weights`` arguments of kivi accept:
 
 import math
 import warnings
-from numbers import Integral, Real
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._validation import as_series, like_input, scores_and_labels
+from ._validation import as_series, is_integral, is_real, like_input, scores_and_labels
 from .metrics import _band_edges
 
 __all__ = ["fuzzy_augmentation", "parceling", "reweighting"]
@@ -384,7 +383,7 @@ def reweighting(
     with np.errstate(invalid="ignore", divide="ignore"):
         weight = (total + np.bincount(rejected, minlength=size)) / total
     result = like_input(score, weight[accepted])
-    return result.rename("weight") if isinstance(result, pd.Series) else result
+    return result.rename("weight") if isinstance(result, pd.Series) else result  # type: ignore[return-value]  # one-dimensional, never a float
 
 
 def _scores(values: npt.ArrayLike, name: str) -> tuple[pd.Series, npt.NDArray[np.float64]]:
@@ -406,21 +405,16 @@ def _scores(values: npt.ArrayLike, name: str) -> tuple[pd.Series, npt.NDArray[np
 
 
 def _check_factor(factor: float) -> None:
-    if (
-        isinstance(factor, bool)
-        or not isinstance(factor, Real)
-        or not math.isfinite(factor)
-        or factor <= 0
-    ):
+    if isinstance(factor, bool) or not is_real(factor) or not math.isfinite(factor) or factor <= 0:
         raise ValueError(f"factor must be a positive finite number, got {factor!r}")
 
 
 def _bands(
-    values: np.ndarray, reject_values: np.ndarray, bins, consequence: str
+    values: np.ndarray, reject_values: np.ndarray, bins: int | npt.ArrayLike, consequence: str
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Return the band edges and the band of every accepted and rejected score."""
     pooled = np.concatenate([values, reject_values])
-    if not isinstance(bins, Integral) or isinstance(bins, bool):
+    if not is_integral(bins) or isinstance(bins, bool):
         edges = _band_edges(pooled, bins, None)
     else:
         # Warn about tied scores here instead, in terms of bands and at the caller of
@@ -454,7 +448,7 @@ def _bands(
         np.bincount(rejected, minlength=size) > 0
     )
     if unmatched.any():
-        band = int(np.argmax(unmatched))
+        band = int(np.argmax(unmatched))  # type: ignore[assignment]  # a band number from here on
         count = int((rejected == band).sum())
         raise ValueError(
             f"the score band ({float(edges[band])!r}, {float(edges[band + 1])!r}] holds {count} "

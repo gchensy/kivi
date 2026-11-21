@@ -1,6 +1,7 @@
 """Seeded generator of synthetic loan applications with an approval decision."""
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
 from ._loan_panel import _positive_integer
@@ -159,8 +160,8 @@ def make_applications(
             "income": income,
             "debt_to_income": debt_to_income,
             "inquiries": inquiries.astype(np.int64),
-            "housing": pd.Categorical.from_codes(housing, categories=HOUSING),
-            "employment": pd.Categorical.from_codes(employment, categories=EMPLOYMENT),
+            "housing": pd.Categorical.from_codes(housing, categories=HOUSING),  # type: ignore[call-overload]  # categories may be any list-like
+            "employment": pd.Categorical.from_codes(employment, categories=EMPLOYMENT),  # type: ignore[call-overload]  # categories may be any list-like
             "incumbent_pd": incumbent_pd,
             "policy_decline": policy_decline,
             "approved": (incumbent_pd < CUT_OFF) & ~policy_decline,
@@ -169,5 +170,5 @@ def make_applications(
     )
 
 
-def _logistic(log_odds: np.ndarray) -> np.ndarray:
+def _logistic(log_odds: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
     return 1 / (1 + np.exp(-log_odds))

@@ -1,15 +1,38 @@
 """Argument checks shared by the public functions."""
 
 import math
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from numbers import Integral, Real
+from typing import Any, TypeAlias, TypeGuard
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
+#: A NumPy or pandas dtype, as ``Series.dtype`` returns it.
+DTypeObj: TypeAlias = np.dtype[Any] | pd.api.extensions.ExtensionDtype
 
-def as_series(values, name: str) -> pd.Series:
+
+def is_real(value: object) -> TypeGuard[float]:
+    """Return ``isinstance(value, numbers.Real)``; type checkers read a True result as float.
+
+    mypy does not know that ``int``, ``float`` and the NumPy number types are
+    registered as `numbers.Real`, so after ``isinstance(value, Real)`` on a value
+    annotated ``float`` it would treat the rest of the function as unreachable
+    and leave it unchecked.
+    """
+    return isinstance(value, Real)
+
+
+def is_integral(value: object) -> TypeGuard[int]:
+    """Return ``isinstance(value, numbers.Integral)``; type checkers read True as int.
+
+    The counterpart of `is_real` for `numbers.Integral`.
+    """
+    return isinstance(value, Integral)
+
+
+def as_series(values: npt.ArrayLike, name: str) -> pd.Series:
     """Return a one-dimensional array_like as a Series without copying a Series."""
     if isinstance(values, pd.Series):
         return values
@@ -18,7 +41,7 @@ def as_series(values, name: str) -> pd.Series:
     return pd.Series(values)
 
 
-def is_real_dtype(dtype) -> bool:
+def is_real_dtype(dtype: DTypeObj) -> bool:
     """Whether a NumPy or pandas dtype holds real numbers other than booleans."""
     return (
         pd.api.types.is_numeric_dtype(dtype)
@@ -27,19 +50,19 @@ def is_real_dtype(dtype) -> bool:
     )
 
 
-def check_real_dtype(dtype, name: str, *, booleans: bool = False) -> None:
+def check_real_dtype(dtype: DTypeObj, name: str, *, booleans: bool = False) -> None:
     """Require a dtype of real numbers; with ``booleans``, also a boolean dtype."""
     if not (is_real_dtype(dtype) or (booleans and pd.api.types.is_bool_dtype(dtype))):
         raise ValueError(f"{name} must be real and numeric, got dtype {dtype}")
 
 
-def as_real(values, name: str, *, booleans: bool = False) -> np.ndarray:
+def as_real(values: npt.ArrayLike, name: str, *, booleans: bool = False) -> npt.NDArray[np.float64]:
     """Float array of real numeric values, keeping the shape; missing values become NaN.
 
     With ``booleans``, True and False count as 1 and 0, as probabilities do in
     `kivi.metrics` and `kivi.calibration`. An empty sequence gives an empty array.
     """
-    if np.ndim(values) == 1 and not len(values):
+    if np.ndim(values) == 1 and not len(values):  # type: ignore[arg-type]  # one-dimensional
         return np.empty(0)
     if not isinstance(values, pd.Series) and np.ndim(values) == 1:
         # pandas reads [0.1, None] and nullable arrays as numbers, where NumPy keeps objects.
@@ -52,7 +75,7 @@ def as_real(values, name: str, *, booleans: bool = False) -> np.ndarray:
     return array.astype(float)
 
 
-def finite_scores(values: pd.Series, name: str) -> np.ndarray:
+def finite_scores(values: pd.Series, name: str) -> npt.NDArray[np.float64]:
     """Finite float scores; booleans are accepted, as in ``kivi.metrics``."""
     dtype = values.dtype
     if not pd.api.types.is_numeric_dtype(dtype) or pd.api.types.is_complex_dtype(dtype):
@@ -78,7 +101,9 @@ def as_flags(values: pd.Series, name: str) -> npt.NDArray[np.bool_]:
     return values.to_numpy(dtype=bool)
 
 
-def known_outcomes(target, length: int, of: str) -> tuple[np.ndarray, np.ndarray]:
+def known_outcomes(
+    target: npt.ArrayLike, length: int, of: str
+) -> tuple[npt.NDArray[np.bool_], npt.NDArray[np.bool_]]:
     """Boolean masks of the known outcomes and of the events; missing labels are unknown.
 
     ``target`` needs one label per value of the argument ``of``, which has ``length`` values.
@@ -119,7 +144,9 @@ def check_smoothing(smoothing: float) -> None:
         raise ValueError(f"smoothing must be finite and positive, got {smoothing!r}")
 
 
-def as_count_columns(first, second, names: tuple[str, str]) -> np.ndarray:
+def as_count_columns(
+    first: npt.ArrayLike, second: npt.ArrayLike, names: tuple[str, str]
+) -> npt.NDArray[np.float64]:
     """Stack two one-dimensional count arrays into the columns of a float array."""
     columns = []
     for values, name in zip((first, second), names, strict=True):
@@ -143,13 +170,13 @@ def as_count_columns(first, second, names: tuple[str, str]) -> np.ndarray:
 
 
 def as_weights(
-    weights,
-    values,
+    weights: npt.ArrayLike | None,
+    values: npt.ArrayLike,
     name: str = "weights",
     of: str = "values",
     *,
     others: Mapping[str, object] | None = None,
-) -> np.ndarray | None:
+) -> npt.NDArray[np.float64] | None:
     """Return observation weights as a float array matched to ``values``, or None.
 
     ``values`` is the argument as the caller passed it, after it has been
@@ -172,9 +199,10 @@ def as_weights(
     if not pd.api.types.is_numeric_dtype(dtype) or pd.api.types.is_bool_dtype(dtype):
         raise ValueError(f"{name} must be numeric, got dtype {dtype}")
     array = series.to_numpy(dtype=float, na_value=np.nan)
-    if len(array) != len(values):
+    count = len(values)  # type: ignore[arg-type]  # one-dimensional: validated by the caller
+    if len(array) != count:
         raise ValueError(
-            f"{name} must have one weight per value of {of}, got {len(array)} for {len(values)}"
+            f"{name} must have one weight per value of {of}, got {len(array)} for {count}"
         )
     if not np.isfinite(array).all() or (array < 0).any():
         raise ValueError(f"{name} must be finite and non-negative")
@@ -238,7 +266,7 @@ def scores_and_labels(
     return values, labels, mass
 
 
-def first_value(values):
+def first_value(values: object) -> object:
     """First value of a Series or Index, or ``values`` itself, as a Python scalar.
 
     For error messages, which show NumPy scalars as plain numbers this way.
@@ -250,7 +278,9 @@ def first_value(values):
     return values.item() if isinstance(values, np.generic) else values
 
 
-def like_input(template, values: np.ndarray) -> float | pd.Series | np.ndarray:
+def like_input(
+    template: npt.ArrayLike, values: npt.NDArray[np.float64]
+) -> float | pd.Series | npt.NDArray[np.float64]:
     """Return values shaped like the input: a Series, a float or an array."""
     if isinstance(template, pd.Series):
         return pd.Series(values, index=template.index, name=template.name)
@@ -272,7 +302,7 @@ def woe_values(table: pd.DataFrame | pd.Series) -> pd.Series:
     return table
 
 
-def is_binned_dtype(dtype) -> bool:
+def is_binned_dtype(dtype: DTypeObj) -> bool:
     """Whether a column of this dtype is binned: numeric dtypes other than bool."""
     return pd.api.types.is_numeric_dtype(dtype) and not pd.api.types.is_bool_dtype(dtype)
 
@@ -315,7 +345,7 @@ def column_list(columns: Sequence[str], argument: str) -> list[str]:
     return [str(name) for name in names]
 
 
-def checked_codes(value, argument: str) -> tuple:
+def checked_codes(value: npt.ArrayLike, argument: str) -> tuple[float, ...]:
     """Return the special codes of a numeric column as a tuple of distinct Python numbers."""
     if isinstance(value, str):
         raise ValueError(f"{argument} must be a list of codes, got {value!r}")
@@ -329,7 +359,7 @@ def checked_codes(value, argument: str) -> tuple:
     return tuple(codes)
 
 
-def check_finite_column(values: pd.Series, codes: tuple, name: str) -> None:
+def check_finite_column(values: pd.Series, codes: tuple[float, ...], name: str) -> None:
     """Require the values of the numeric column ``name`` to be finite, or special codes."""
     # pandas.cut would leave -inf in no interval and count it as missing.
     infinite = np.isinf(values.to_numpy(dtype=float, na_value=np.nan))
@@ -342,13 +372,13 @@ def check_finite_column(values: pd.Series, codes: tuple, name: str) -> None:
         )
 
 
-def shown(value) -> str:
+def shown(value: object) -> str:
     """Return the repr of a value for an error message, showing NumPy scalars as Python ones."""
     if isinstance(value, (np.generic,)):
         value = value.item()
     return repr(value)
 
 
-def shown_list(values) -> str:
+def shown_list(values: Iterable[object]) -> str:
     """Return the values as a list for an error message, each shown like `shown`."""
     return "[" + ", ".join(shown(value) for value in values) + "]"

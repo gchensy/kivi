@@ -8,7 +8,7 @@ negate them before passing them in.
 """
 
 import math
-from numbers import Integral, Real
+from numbers import Integral
 
 import numpy as np
 import numpy.typing as npt
@@ -16,7 +16,7 @@ import pandas as pd
 
 from ._counts import ratio
 from ._stats import normal_quantile
-from ._validation import scores_and_labels
+from ._validation import is_integral, is_real, scores_and_labels
 from .binning import _fit_edges
 
 __all__ = [
@@ -798,7 +798,9 @@ def gains_table(
             f"score has {outside.sum()} value(s) outside the edges in bins, such as "
             f"{float(values[outside][0])!r}; use infinite outer edges"
         )
-    counts = np.bincount(2 * band + labels, weights=mass, minlength=2 * (len(edges) - 1))
+    counts: np.ndarray = np.bincount(
+        2 * band + labels, weights=mass, minlength=2 * (len(edges) - 1)
+    )
     counts = counts.reshape(-1, 2)
     # Highest band first; empty bands stay so that tables cut on the same edges line up.
     index = pd.IntervalIndex.from_breaks(edges, closed="right", name="bin")[::-1]
@@ -970,10 +972,10 @@ def _check_class_totals(labels: np.ndarray, weights: np.ndarray | None) -> None:
         )
 
 
-def _critical_value(level) -> float:
+def _critical_value(level: float) -> float:
     """Return the normal quantile at (1 + level) / 2, for an interval at confidence `level`."""
     # The check is on the float that is used, so a level that rounds to 1 is rejected too.
-    if isinstance(level, bool) or not isinstance(level, Real) or not 0 < float(level) < 1:
+    if isinstance(level, bool) or not is_real(level) or not 0 < float(level) < 1:
         raise ValueError(f"level must be a number between 0 and 1, got {level!r}")
     # (1 - level) / 2 keeps its precision when level is close to 1; 0.5 + level / 2 would not.
     return -normal_quantile((1 - float(level)) / 2)
@@ -999,10 +1001,12 @@ def _distinct_counts(
     return _score_counts(values, labels, weights)[1]
 
 
-def _band_edges(values: np.ndarray, bins, weights: np.ndarray | None) -> npt.NDArray[np.float64]:
+def _band_edges(
+    values: np.ndarray, bins: Integral | npt.ArrayLike, weights: np.ndarray | None
+) -> npt.NDArray[np.float64]:
     """Increasing band edges: quantile edges for an integer ``bins``, else ``bins`` itself."""
     message = "bins must be a positive integer or at least two increasing edges, got {!r}"
-    if isinstance(bins, Integral) and not isinstance(bins, bool):
+    if is_integral(bins) and not isinstance(bins, bool):
         if bins < 1:
             raise ValueError(message.format(bins))
         # The edges of bin_edges; the warning for tied quantiles points at the caller of

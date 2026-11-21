@@ -1,9 +1,10 @@
 """Seeded generator of a synthetic monthly panel of instalment loans."""
 
-from numbers import Integral
-
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
+
+from .._validation import is_integral
 
 STATUSES = ("current", "1-29", "30-59", "60-89", "90+")
 FIRST_COHORT = pd.Period("2024-01", freq="M")
@@ -131,6 +132,7 @@ def make_loan_panel(
     missed = np.zeros(n_loans, dtype=np.int64)
     closed = np.zeros(n_loans, dtype=bool)
     rows, months, paid_rows, missed_rows = [], [], [], []
+    month: int | npt.NDArray[np.int_]
     for month in range(1, n_months + 1):
         draw = rng.random(n_loans)
         on_book = (cohort < month) & ~closed
@@ -175,13 +177,13 @@ def make_loan_panel(
             "term": loan_term,
             "amount": amount[loan],
             "balance": np.round(balance, 2),
-            "status": pd.Categorical.from_codes(status, categories=STATUSES, ordered=True),
+            "status": pd.Categorical.from_codes(status, categories=STATUSES, ordered=True),  # type: ignore[call-overload]  # categories may be any list-like
         }
     )
 
 
-def _positive_integer(value, name: str) -> int:
+def _positive_integer(value: int, name: str) -> int:
     """``value`` as an int, or a ValueError naming the argument."""
-    if isinstance(value, bool) or not isinstance(value, Integral) or value < 1:
+    if isinstance(value, bool) or not is_integral(value) or value < 1:
         raise ValueError(f"{name} must be a positive integer, got {value!r}")
     return int(value)

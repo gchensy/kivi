@@ -16,7 +16,8 @@ already in stage 3, as in the presumptions of IFRS 9.
 """
 
 import math
-from numbers import Integral, Real
+from collections.abc import Hashable
+from typing import TypeGuard
 
 import numpy as np
 import numpy.typing as npt
@@ -30,6 +31,8 @@ from ._validation import (
     as_weights,
     check_real_dtype,
     first_value,
+    is_integral,
+    is_real,
     is_real_dtype,
     shared_index,
 )
@@ -163,7 +166,7 @@ def convert_pd(
     2024-02        0.5  0.0  NaN
     """
     for name, value in (("kind", kind), ("to", to)):
-        if not (isinstance(value, str) and value in _KINDS):
+        if not (isinstance(value, str) and value in _KINDS):  # type: ignore[redundant-expr]  # rejects non-str values
             raise ValueError(
                 f"{name} must be 'cumulative', 'marginal' or 'conditional', got "
                 f"{first_value(value)!r}"
@@ -185,7 +188,7 @@ def transition_pd(
     matrix: npt.ArrayLike | pd.DataFrame,
     *,
     horizons: int | npt.ArrayLike,
-    default_state=None,
+    default_state: Hashable | None = None,
 ) -> pd.DataFrame:
     r"""Project the cumulative PD of each state from a transition matrix.
 
@@ -289,9 +292,9 @@ def transition_pd(
         default = len(states) - 1
     else:
         try:
-            default = states.get_loc(default_state)
+            default = states.get_loc(default_state)  # type: ignore[assignment]  # an int when found
             # get_loc also finds the interval that holds a number; the label itself must match.
-            found = isinstance(default, Integral) and bool(states[default] == default_state)
+            found = is_integral(default) and bool(states[default] == default_state)
         except (KeyError, TypeError, ValueError, pd.errors.InvalidIndexError):
             found = False
         if not found:
@@ -489,7 +492,7 @@ def expected_credit_loss(
         )
     if horizon is None:
         horizon = periods
-    elif isinstance(horizon, bool) or not isinstance(horizon, Integral) or horizon < 1:
+    elif isinstance(horizon, bool) or not is_integral(horizon) or horizon < 1:
         raise ValueError(f"horizon must be a positive integer, got {first_value(horizon)!r}")
     elif horizon > periods:
         raise ValueError(
@@ -903,9 +906,9 @@ def stage_table(
     )
 
 
-def _is_number(value) -> bool:
+def _is_number(value: object) -> TypeGuard[float]:
     """Whether a scalar is a real number other than a boolean or NaN."""
-    return isinstance(value, Real) and not isinstance(value, bool) and not math.isnan(value)
+    return is_real(value) and not isinstance(value, bool) and not math.isnan(value)
 
 
 def _missing_as_float(series: pd.Series) -> pd.Series:
@@ -924,7 +927,7 @@ def _float_frame(frame: pd.DataFrame, name: str, *, booleans: bool = False) -> n
     return frame.to_numpy(dtype=float, na_value=np.nan)
 
 
-def _curves(values, name: str) -> npt.NDArray[np.float64]:
+def _curves(values: npt.ArrayLike | pd.DataFrame, name: str) -> npt.NDArray[np.float64]:
     """PD curves as a float array with one row per curve; booleans count as 0 and 1."""
     dimensions = np.ndim(values)
     if dimensions not in (1, 2):
@@ -937,7 +940,7 @@ def _curves(values, name: str) -> npt.NDArray[np.float64]:
         curves = series.to_numpy(dtype=float, na_value=np.nan)[None, :]
     else:
         # pandas reads [[0.1, None]] and nullable arrays as numbers, where NumPy keeps objects.
-        frame = values if isinstance(values, pd.DataFrame) else pd.DataFrame(values)
+        frame = values if isinstance(values, pd.DataFrame) else pd.DataFrame(values)  # type: ignore[arg-type]  # takes any 2-D array_like
         if not frame.shape[1]:
             raise ValueError(f"{name} must have at least one period")
         curves = _float_frame(frame, name, booleans=True)
@@ -991,7 +994,9 @@ def _from_cumulative(cumulative: np.ndarray, to: str) -> npt.NDArray[np.float64]
     return conditional
 
 
-def _transition_probabilities(matrix) -> tuple[npt.NDArray[np.float64], pd.Index]:
+def _transition_probabilities(
+    matrix: npt.ArrayLike | pd.DataFrame,
+) -> tuple[npt.NDArray[np.float64], pd.Index]:
     """Return the matrix as a float array, and its states."""
     if np.ndim(matrix) != 2:
         raise ValueError(f"matrix must be two-dimensional, got {np.ndim(matrix)} dimensions")
@@ -1007,7 +1012,7 @@ def _transition_probabilities(matrix) -> tuple[npt.NDArray[np.float64], pd.Index
             raise ValueError(f"matrix must not repeat a state, got {repeated!r} more than once")
         frame = matrix
     else:
-        frame = pd.DataFrame(matrix)
+        frame = pd.DataFrame(matrix)  # type: ignore[arg-type]  # takes any 2-D array_like
         states = pd.RangeIndex(frame.shape[0])
     if frame.shape[0] != frame.shape[1] or not frame.shape[0]:
         raise ValueError(f"matrix must be square and not empty, got shape {frame.shape}")
@@ -1040,7 +1045,7 @@ def _check_transition_rows(probabilities: np.ndarray, states: pd.Index, default:
             )
 
 
-def _horizons(horizons) -> npt.NDArray[np.int64]:
+def _horizons(horizons: int | npt.ArrayLike) -> npt.NDArray[np.int64]:
     """Increasing positive whole numbers of periods."""
     message = (
         "horizons must be a positive integer or a sequence of increasing positive integers, "
@@ -1097,7 +1102,7 @@ def _account_index(inputs: dict, accounts: int, periods: int) -> pd.Index | None
     return rows[0][1] if rows else None
 
 
-def _vector(values, name: str, *, booleans: bool = False) -> npt.NDArray[np.float64]:
+def _vector(values: npt.ArrayLike, name: str, *, booleans: bool = False) -> npt.NDArray[np.float64]:
     """One-dimensional, non-empty real numbers as floats; missing values become NaN.
 
     Unlike `kivi._validation.as_real` alone, it reads values that are all missing as floats.
@@ -1122,7 +1127,9 @@ def _check_missing(values: np.ndarray, name: str) -> None:
         raise ValueError(f"{name} must not have missing values, got {missing.sum()}")
 
 
-def _schedule(values, name: str, shape: tuple[int, int]) -> npt.NDArray[np.float64]:
+def _schedule(
+    values: float | npt.ArrayLike | pd.DataFrame, name: str, shape: tuple[int, int]
+) -> npt.NDArray[np.float64]:
     """One value, one per account or a schedule per account and period, as a 2-D float array."""
     accounts, periods = shape
     dimensions = np.ndim(values)
@@ -1140,7 +1147,7 @@ def _schedule(values, name: str, shape: tuple[int, int]) -> npt.NDArray[np.float
             raise ValueError(message.format(array.shape))
         array = array[:, None]
     elif dimensions == 2:
-        frame = values if isinstance(values, pd.DataFrame) else pd.DataFrame(values)
+        frame = values if isinstance(values, pd.DataFrame) else pd.DataFrame(values)  # type: ignore[arg-type]  # takes any 2-D array_like
         array = _float_frame(frame, name)
         if array.shape[0] not in (1, accounts) or array.shape[1] not in (1, periods):
             raise ValueError(message.format(array.shape))
@@ -1149,7 +1156,9 @@ def _schedule(values, name: str, shape: tuple[int, int]) -> npt.NDArray[np.float
     return array
 
 
-def _per_account(values, name: str, accounts: int) -> npt.NDArray[np.float64]:
+def _per_account(
+    values: float | npt.ArrayLike, name: str, accounts: int
+) -> npt.NDArray[np.float64]:
     """One value or one value per account as a 1-D float array."""
     if np.ndim(values) == 0:
         array = np.asarray(values)

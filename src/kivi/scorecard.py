@@ -1,14 +1,14 @@
 """Scorecard scaling, points and reason codes."""
 
 import math
-from collections.abc import Mapping
-from numbers import Integral, Real
+from collections.abc import Container, Mapping
+from numbers import Real
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._validation import like_input, woe_values
+from ._validation import is_integral, is_real, like_input, woe_values
 
 __all__ = [
     "pd_to_score",
@@ -74,7 +74,7 @@ def score_scaling(*, pdo: float, base_score: float, base_odds: float) -> tuple[f
     factor = 28.8539, offset = 487.1229
     """
     for name, value in (("pdo", pdo), ("base_score", base_score), ("base_odds", base_odds)):
-        if isinstance(value, bool) or not isinstance(value, Real) or not math.isfinite(value):
+        if isinstance(value, bool) or not is_real(value) or not math.isfinite(value):
             raise ValueError(f"{name} must be a finite number, got {value!r}")
     if pdo <= 0:
         raise ValueError(f"pdo must be positive, got {pdo!r}")
@@ -315,7 +315,7 @@ def points_table(
     # A column keeps every label as given: an index level would merge labels that compare
     # equal, such as True and 1, and would hash interval labels, which warns on NumPy < 2.2.
     labels = np.concatenate([np.asarray(column.index, dtype=object) for column in woe])
-    table.insert(0, "bin", pd.array(labels, dtype=object))
+    table.insert(0, "bin", pd.array(labels, dtype=object))  # type: ignore[arg-type]  # pandas-stubs omit dtype=object
     return table.astype({"bin": object})
 
 
@@ -394,7 +394,7 @@ def woe_to_points(
     """
     slope, base = _model_points(coefficients, intercept, pdo, base_score, base_odds)
     if isinstance(woe, Mapping):
-        woe = pd.DataFrame(woe)
+        woe = pd.DataFrame(woe)  # type: ignore[arg-type]  # a mapping of columns
     elif not isinstance(woe, pd.DataFrame):
         raise ValueError(f"woe must be a DataFrame or a mapping, got {type(woe).__name__}")
     _check_present(slope.index, woe.columns, "woe")
@@ -523,11 +523,11 @@ def reason_codes(
     """
     if not isinstance(points, pd.DataFrame):
         raise ValueError(f"points must be a DataFrame, got {type(points).__name__}")
-    if isinstance(top, bool) or not isinstance(top, Integral) or top < 1:
+    if isinstance(top, bool) or not is_integral(top) or top < 1:
         raise ValueError(f"top must be a positive integer, got {top!r}")
-    if isinstance(atol, bool) or not isinstance(atol, Real) or not 0 < atol < math.inf:
+    if isinstance(atol, bool) or not is_real(atol) or not 0 < atol < math.inf:
         raise ValueError(f"atol must be a finite positive number, got {atol!r}")
-    if not isinstance(table, pd.DataFrame) or table.index.name != "variable":
+    if not isinstance(table, pd.DataFrame) or table.index.name != "variable":  # type: ignore[redundant-expr]  # checked at runtime
         raise ValueError(f"table must be a points_table result, got {_describe(table)}")
     if "points" not in table.columns:
         raise ValueError(f"table must have a points column, got columns {table.columns.tolist()}")
@@ -571,7 +571,9 @@ def reason_codes(
     return pd.DataFrame(reasons, index=points.index, columns=columns, dtype=object)
 
 
-def _unseen_points(unseen_points, variables: pd.Index) -> np.ndarray:
+def _unseen_points(
+    unseen_points: float | Mapping[object, float] | pd.Series | None, variables: pd.Index
+) -> npt.NDArray[np.float64]:
     """Return the unseen points of each variable, NaN for a variable without them."""
     if unseen_points is None:
         return np.full(len(variables), np.nan)
@@ -595,19 +597,21 @@ def _unseen_points(unseen_points, variables: pd.Index) -> np.ndarray:
     return result
 
 
-def _model_points(coefficients, intercept, pdo, base_score, base_odds) -> tuple[pd.Series, float]:
+def _model_points(
+    coefficients: Mapping[object, float] | pd.Series,
+    intercept: float,
+    pdo: float,
+    base_score: float,
+    base_odds: float,
+) -> tuple[pd.Series, float]:
     """Return the points per unit of WOE and the base points of each variable."""
     factor, offset = score_scaling(pdo=pdo, base_score=base_score, base_odds=base_odds)
-    if (
-        isinstance(intercept, bool)
-        or not isinstance(intercept, Real)
-        or not math.isfinite(intercept)
-    ):
+    if isinstance(intercept, bool) or not is_real(intercept) or not math.isfinite(intercept):
         raise ValueError(f"intercept must be a finite number, got {intercept!r}")
     if isinstance(coefficients, Mapping):
         coefficients = pd.Series(dict(coefficients), dtype=object)
     elif not isinstance(coefficients, pd.Series):
-        kind = type(coefficients).__name__
+        kind = type(coefficients).__name__  # type: ignore[unreachable]  # checked at runtime
         raise ValueError(f"coefficients must be a mapping or Series by variable, got {kind}")
     if coefficients.empty:
         raise ValueError("coefficients must name at least one variable, got none")
@@ -636,14 +640,16 @@ def _woe_column(table: pd.DataFrame | pd.Series, variable: object) -> pd.Series:
     return woe
 
 
-def _check_present(variables: pd.Index, available, name: str) -> None:
+def _check_present(variables: pd.Index, available: Container[object], name: str) -> None:
     missing = [variable for variable in variables if variable not in available]
     if missing:
         shown = ", ".join(repr(variable) for variable in missing[:5])
         raise ValueError(f"{name} has no entry for {len(missing)} variable(s): {shown}")
 
 
-def _nearest(sorted_values: np.ndarray, values: np.ndarray) -> np.ndarray:
+def _nearest(
+    sorted_values: npt.NDArray[np.float64], values: npt.NDArray[np.float64]
+) -> npt.NDArray[np.float64]:
     """Return the element of the sorted array nearest to each value."""
     right = np.clip(np.searchsorted(sorted_values, values), 0, len(sorted_values) - 1)
     left = np.clip(right - 1, 0, len(sorted_values) - 1)

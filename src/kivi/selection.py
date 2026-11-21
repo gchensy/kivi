@@ -1,8 +1,8 @@
 """Variable selection for scorecards built on WOE-encoded variables."""
 
 import warnings
-from numbers import Real
-from typing import Literal
+from collections.abc import Hashable
+from typing import Literal, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -10,7 +10,7 @@ import pandas as pd
 
 from . import _logit
 from ._logit import SeparationError
-from ._validation import as_series, as_weights
+from ._validation import as_series, as_weights, is_real
 
 __all__ = ["SeparationError", "correlation_filter", "logistic_regression", "stepwise", "vif"]
 
@@ -92,7 +92,7 @@ def correlation_filter(
     >>> correlation_filter(X, priority=iv).tolist()
     ['b', 'c']
     """
-    if isinstance(threshold, bool) or not isinstance(threshold, Real) or not 0 <= threshold <= 1:
+    if isinstance(threshold, bool) or not is_real(threshold) or not 0 <= threshold <= 1:
         raise ValueError(f"threshold must be between 0 and 1, got {threshold!r}")
     frame, values = _as_frame(X)
     _check_not_constant(frame, values, "its correlation is undefined")
@@ -489,7 +489,17 @@ def stepwise(
     return frame.columns[np.sort(np.array(selected, dtype=np.intp))]
 
 
-def _remove(design, labels, mass, columns, selected, visited, p_remove, positive, fitted):
+def _remove(
+    design: npt.NDArray[np.float64],
+    labels: npt.NDArray[np.float64],
+    mass: npt.NDArray[np.float64] | None,
+    columns: pd.Index,
+    selected: list[int],
+    visited: set[frozenset[int]],
+    p_remove: float,
+    positive: bool,
+    fitted: _logit.LogitFit | None,
+) -> _logit.LogitFit:
     """Remove failing variables from `selected` in place and return the fit of the rest.
 
     `fitted` is the converged fit of `selected` when the last step added a variable.
@@ -520,9 +530,19 @@ def _remove(design, labels, mass, columns, selected, visited, p_remove, positive
         fitted = None
 
 
-def _enter(design, labels, mass, selected, visited, p_enter, positive, fitted):
+def _enter(
+    design: npt.NDArray[np.float64],
+    labels: npt.NDArray[np.float64],
+    mass: npt.NDArray[np.float64] | None,
+    selected: list[int],
+    visited: set[frozenset[int]],
+    p_enter: float,
+    positive: bool,
+    fitted: _logit.LogitFit | None,
+) -> tuple[int, _logit.LogitFit] | None:
     """Return the best candidate to add and its fit, or None."""
     start = None if fitted is None else np.r_[fitted.coef, 0.0]
+    best: tuple[int, _logit.LogitFit] | None
     best, best_z = None, -np.inf
     for candidate in range(design.shape[1] - 1):
         if candidate in selected or frozenset([*selected, candidate]) in visited:
@@ -542,7 +562,12 @@ def _enter(design, labels, mass, selected, visited, p_enter, positive, fitted):
     return best
 
 
-def _warm_fit(design, labels, mass, start) -> _logit.LogitFit:
+def _warm_fit(
+    design: npt.NDArray[np.float64],
+    labels: npt.NDArray[np.float64],
+    mass: npt.NDArray[np.float64] | None,
+    start: npt.NDArray[np.float64] | None,
+) -> _logit.LogitFit:
     """Fit from `start`, and from zero if the information becomes singular on the way."""
     try:
         return _logit.fit(design, labels, weights=mass, start=start)
@@ -552,7 +577,13 @@ def _warm_fit(design, labels, mass, start) -> _logit.LogitFit:
         return _logit.fit(design, labels, weights=mass)
 
 
-def _fit(design, labels, columns: pd.Index, mass, start=None) -> _logit.LogitFit:
+def _fit(
+    design: npt.NDArray[np.float64],
+    labels: npt.NDArray[np.float64],
+    columns: pd.Index,
+    mass: npt.NDArray[np.float64] | None,
+    start: npt.NDArray[np.float64] | None = None,
+) -> _logit.LogitFit:
     """Fit a model on the intercept and `columns`, naming the column of a singular fit."""
     try:
         return _warm_fit(design, labels, mass, start)
@@ -581,7 +612,7 @@ def _with_intercept(values: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
 
 
 def _check_level(level: float, name: str) -> None:
-    if isinstance(level, bool) or not isinstance(level, Real) or not 0 < level <= 1:
+    if isinstance(level, bool) or not is_real(level) or not 0 < level <= 1:
         raise ValueError(f"{name} must be greater than 0 and at most 1, got {level!r}")
 
 
@@ -592,13 +623,13 @@ def _as_frame(X: pd.DataFrame | npt.ArrayLike) -> tuple[pd.DataFrame, npt.NDArra
     else:
         if np.ndim(X) != 2:
             raise ValueError(f"X must be two-dimensional, got {np.ndim(X)} dimensions")
-        frame = pd.DataFrame(X)
+        frame = pd.DataFrame(X)  # type: ignore[arg-type]  # a two-dimensional array_like
     if len(frame) < 2:
         raise ValueError(f"X must have at least 2 rows, got {len(frame)}")
     if not frame.shape[1]:
         raise ValueError("X must have at least one column")
     if frame.columns.has_duplicates:
-        label = frame.columns[frame.columns.duplicated()][0]
+        label: Hashable = frame.columns[frame.columns.duplicated()][0]
         raise ValueError(f"X must have unique column labels, got {label!r} more than once")
     for label, dtype in frame.dtypes.items():
         if not pd.api.types.is_numeric_dtype(dtype):
@@ -609,14 +640,18 @@ def _as_frame(X: pd.DataFrame | npt.ArrayLike) -> tuple[pd.DataFrame, npt.NDArra
     values = frame.to_numpy(dtype=float, na_value=np.nan)
     finite = np.isfinite(values).all(axis=0)
     if not finite.all():
-        label = frame.columns[np.argmin(finite)]
+        label = frame.columns[np.argmin(finite)]  # type: ignore[call-overload]  # a NumPy integer selects one label
         raise ValueError(f"X column {label!r} must not contain missing or infinite values")
     return frame, values
 
 
 def _model_inputs(
-    X, target, weights=None
-) -> tuple[pd.DataFrame, np.ndarray, np.ndarray, np.ndarray | None]:
+    X: pd.DataFrame | npt.ArrayLike,
+    target: npt.ArrayLike,
+    weights: npt.ArrayLike | None = None,
+) -> tuple[
+    pd.DataFrame, npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.float64] | None
+]:
     """Validate a model's inputs like `woe_table`.
 
     Return the frame, and the values, labels and weights of the rows with
@@ -640,11 +675,13 @@ def _model_inputs(
     labels = target.to_numpy(dtype=float)
     if weights is None:
         return frame, values, labels, None
-    if np.ndim(weights) == 1 and len(weights) != len(frame):
+    if np.ndim(weights) == 1 and len(weights) != len(frame):  # type: ignore[arg-type]  # one-dimensional
         raise ValueError(
-            f"weights must have one weight per row of X, got {len(weights)} for {len(frame)}"
+            f"weights must have one weight per row of X, got {len(weights)} for {len(frame)}"  # type: ignore[arg-type]  # one-dimensional
         )
-    mass = as_weights(weights, frame, of="X", others={"target": raw_target})
+    mass = cast(
+        npt.NDArray[np.float64], as_weights(weights, frame, of="X", others={"target": raw_target})
+    )
     totals = np.bincount(labels.astype(np.intp), weights=mass, minlength=2)
     if not (totals > 0).all():
         raise ValueError(
@@ -678,16 +715,18 @@ def _priority(priority: npt.ArrayLike | None, columns: pd.Index) -> npt.NDArray[
 
 
 def _check_not_constant(
-    frame: pd.DataFrame, values: np.ndarray, reason: str, where: str = ""
+    frame: pd.DataFrame, values: npt.NDArray[np.float64], reason: str, where: str = ""
 ) -> None:
     constant = np.ptp(values, axis=0) == 0
     if constant.any():
         raise ValueError(
-            f"X column {frame.columns[np.argmax(constant)]!r} is constant{where}; {reason}"
+            f"X column {frame.columns[np.argmax(constant)]!r} is constant{where}; {reason}"  # type: ignore[call-overload]  # a NumPy integer selects one label
         )
 
 
-def _check_independent(frame: pd.DataFrame, values: np.ndarray, *, weighted: bool) -> None:
+def _check_independent(
+    frame: pd.DataFrame, values: npt.NDArray[np.float64], *, weighted: bool
+) -> None:
     where = " on the rows with positive weight" if weighted else ""
     _check_not_constant(frame, values, "it cannot be told apart from the intercept", where)
     dependent = _logit.dependent_column(_with_intercept(values))

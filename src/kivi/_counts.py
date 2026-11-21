@@ -8,7 +8,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._validation import check_smoothing
+from ._validation import DTypeObj, check_smoothing
 
 
 def group_counts(
@@ -22,7 +22,7 @@ def group_counts(
     """
     ordered = isinstance(groups.dtype, pd.CategoricalDtype)
     codes, levels = pd.factorize(groups, sort=ordered, use_na_sentinel=False)
-    counts = np.bincount(2 * codes + side, weights=weights, minlength=2 * len(levels))
+    counts: np.ndarray = np.bincount(2 * codes + side, weights=weights, minlength=2 * len(levels))
     counts = counts.reshape(-1, 2)
     if weights is not None:
         # Filter the arrays, not a DataFrame: indexing a frame by interval categories hashes
@@ -40,7 +40,7 @@ def group_rows(groups: pd.Series, levels: pd.Index) -> np.ndarray:
         row_of_code = np.full(len(levels.categories) + 1, -1, dtype=np.intp)
         row_of_code[levels.codes] = np.arange(len(levels))
         return row_of_code[groups.cat.codes.to_numpy()]
-    rows = levels.get_indexer(groups)
+    rows = levels.get_indexer(groups)  # type: ignore[arg-type]  # takes any array_like
     missing = groups.isna().to_numpy(dtype=bool)
     missing_row = np.flatnonzero(pd.isna(levels))
     if missing.any():  # get_indexer does not match missing values on pandas 2.0
@@ -70,7 +70,9 @@ def concat_groups(first: pd.Series, second: pd.Series) -> pd.Series:
         return pd.Series(pd.Categorical.from_codes(codes, dtype=first.dtype))
     samples = [first, second]
     intervals = [_interval_dtype(values.dtype) for values in samples]
-    same_side = None not in intervals and intervals[0].closed == intervals[1].closed
+    same_side = (
+        None not in intervals and intervals[0].closed == intervals[1].closed  # type: ignore[union-attr]  # not None
+    )
     for number, values in enumerate(samples):
         if isinstance(values.dtype, pd.CategoricalDtype) and intervals[number] is not None:
             if same_side:
@@ -84,7 +86,7 @@ def concat_groups(first: pd.Series, second: pd.Series) -> pd.Series:
     return pd.concat(samples, ignore_index=True)
 
 
-def _interval_dtype(dtype) -> pd.IntervalDtype | None:
+def _interval_dtype(dtype: DTypeObj) -> pd.IntervalDtype | None:
     """Return the interval dtype of the values or the categories, or None for other dtypes."""
     if isinstance(dtype, pd.CategoricalDtype):
         dtype = dtype.categories.dtype

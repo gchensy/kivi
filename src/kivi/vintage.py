@@ -406,7 +406,7 @@ def roll_rates(
     Name: roll_rate, dtype: float64
     """
     ordered = all(
-        isinstance(getattr(values, "dtype", None), pd.CategoricalDtype) and values.dtype.ordered
+        isinstance(getattr(values, "dtype", None), pd.CategoricalDtype) and values.dtype.ordered  # type: ignore[union-attr]  # a CategoricalDtype
         for values in (before, after)
     )
     if states is None and not ordered:
@@ -425,7 +425,12 @@ def roll_rates(
     return pd.Series(rate, index=labels[:-1].rename("before"), name="roll_rate")
 
 
-def _transitions(before, after, states, weights):
+def _transitions(
+    before: npt.ArrayLike,
+    after: npt.ArrayLike,
+    states: npt.ArrayLike | None,
+    weights: npt.ArrayLike | None,
+) -> tuple[pd.Index, npt.NDArray[np.intp], npt.NDArray[np.intp], npt.NDArray[np.float64] | None]:
     """States as an Index, the state code of each entity before and after, and the weights."""
     shared_index({"before": before, "after": after, "weights": weights})
     raw_after = after
@@ -449,12 +454,12 @@ def _transitions(before, after, states, weights):
     return labels, before_code, _state_codes(after, labels, "after"), mass
 
 
-def _state_labels(before: pd.Series, after: pd.Series, states) -> pd.Index:
+def _state_labels(before: pd.Series, after: pd.Series, states: npt.ArrayLike | None) -> pd.Index:
     """Return the states in order: as given, the shared categories or the sorted values."""
     if states is not None:
         if np.ndim(states) != 1:
             raise ValueError(f"states must be one-dimensional, got {states!r}")
-        labels = pd.Index(states)
+        labels = pd.Index(states)  # type: ignore[arg-type]  # takes any array_like
         if labels.has_duplicates:
             repeated = first_value(labels[labels.duplicated()])
             raise ValueError(f"states must not contain duplicates, got {repeated!r} more than once")
@@ -482,13 +487,13 @@ def _state_labels(before: pd.Series, after: pd.Series, states) -> pd.Index:
         ) from None
 
 
-def _state_codes(values: pd.Series, labels: pd.Index, name: str) -> np.ndarray:
+def _state_codes(values: pd.Series, labels: pd.Index, name: str) -> npt.NDArray[np.intp]:
     """Position of each value in ``labels``; a value that is not a state raises."""
     # Categorical codes avoid hashing the labels, which warns for intervals on NumPy < 2.2.
     if isinstance(values.dtype, pd.CategoricalDtype) and values.dtype.categories.equals(labels):
         codes = values.cat.codes.to_numpy()
     else:
-        codes = labels.get_indexer(values)
+        codes = labels.get_indexer(values)  # type: ignore[arg-type]  # takes any array_like
     unknown = codes < 0
     if unknown.any():
         raise ValueError(
