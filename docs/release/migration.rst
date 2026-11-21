@@ -92,7 +92,8 @@ Not ported
 
 Spark, SQL, AHP, model wrappers and application code are out of scope and remain in the historical revisions. These 0.2.x tools have no replacement either:
 
-* The charts of ``DefaultAnalysis``, ``plot_bin`` and ``Calibration.CalibrationCurve``. kivi returns tables, which any plotting library can draw.
+* The charts of ``DefaultAnalysis``, ``plot_bin``, ``Calibration.CalibrationCurve`` and the ``plot_*`` methods of ``BinaryMetrics``, and the correlation heatmaps ``diagonal_corr`` and ``structure_corr`` of ``evaluate/Heatmap.py``. kivi returns tables, which any plotting library can draw; for the heatmaps, draw ``X.corr()`` of the WOE-encoded candidates, which ``correlation_filter`` uses as well.
+* The ROC and precision-recall curves, the precision, recall and F1 score and the confusion matrix of ``BinaryMetrics``. The area under the ROC curve is ported as ``roc_auc``, and the cumulative shares of ``gains_table`` give the points of both curves at the band edges. Precision, recall, F1 and the confusion matrix judge predicted labels at one threshold, which a scorecard sets with a cut-off: ``cutoff_table`` gives the events that each cut-off approves and the shares of events and non-events that it rejects. Use scikit-learn's ``roc_curve``, ``precision_recall_curve`` and ``confusion_matrix`` where the full curves or the matrix are needed.
 * The sampling helpers ``sampling`` and ``upsampling``, and the ratio and cross features of ``FeatureTools``. Use pandas.
 * The grading by the Beta distribution in ``BetaCalibration``, ``BetaDistribution`` and ``MasterScale.cal_quantile``, and ``model_score_by_weight``. ``master_scale`` and ``woe_to_points`` cover the same steps without them.
 * The repayment-schedule calculations of ``PortfolioAnalysis.Vintage``. Derive the delinquency status with pandas and pass the panel to ``vintage_table``.

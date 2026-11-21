@@ -1,7 +1,11 @@
 Vintage and roll-rate analysis
 ==============================
 
-.. currentmodule:: kivi.vintage
+.. module:: kivi.vintage
+
+Analyse a loan panel as the loans age. :func:`~kivi.vintage.vintage_table` gives the cumulative bad rate of each cohort by month on book, and :func:`~kivi.vintage.transition_matrix` and :func:`~kivi.vintage.roll_rates` show how loans move between delinquency buckets or grades.
+
+See :doc:`/user_guide/vintage` for examples on a synthetic loan panel.
 
 .. autosummary::
 

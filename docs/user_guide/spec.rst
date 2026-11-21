@@ -1,12 +1,12 @@
 Binning specifications
 ======================
 
-A scorecard must group and encode every variable in the same way in development, validation and production. ``fit_spec`` bins all the columns of a development sample in one call and measures the WOE of every group. The resulting ``BinningSpec`` groups and encodes any other sample with the same edges and WOE values. It can be saved as JSON and loaded again in production without changing the groups or the encoding.
+A scorecard must group and encode every variable in the same way in development, validation and production. :func:`~kivi.spec.fit_spec` bins all the columns of a development sample in one call and measures the WOE of every group. The resulting :class:`~kivi.spec.BinningSpec` groups and encodes any other sample with the same edges and WOE values. It can be saved as JSON and loaded again in production without changing the groups or the encoding.
 
-Each column is fitted with the functions of :doc:`binning` and :doc:`woe_iv`, so a column of the specification has exactly the edges and table that those steps give it alone.
+Each column is fitted with the functions of :doc:`binning` and :doc:`woe_iv`, so a column of the specification has exactly the edges and table that those steps give it alone. A specification takes a model to production once the :doc:`credit strategy <strategy>` is set, and the samples that it groups are monitored with the :doc:`population stability index <psi>`.
 
-Screen the candidates
----------------------
+Screening the candidates
+------------------------
 
 With the defaults, every numeric column gets five quantile bins and every other column keeps its labels. The information value of each column gives a first ranking. A warning names each column whose tied quantiles leave fewer bins than requested:
 
@@ -32,12 +32,12 @@ contact     0.215
 job         0.137
 dtype: float64
 
-``quick.tables`` maps each column to its ``woe_table`` result. The columns of ``frame`` are fitted unless ``columns`` names some of them. Leave the target out: ``fit_spec`` raises an error if a column has the name of the ``target`` series.
+``quick.tables`` maps each column to its :func:`~kivi.woe.woe_table` result. The columns of ``frame`` are fitted unless ``columns`` names some of them. Leave the target out: :func:`~kivi.spec.fit_spec` raises an error if a column has the name of the ``target`` series.
 
 Which columns are binned depends on their dtype. Numeric columns, apart from booleans, are binned; columns of any other dtype, such as strings, categories or booleans, keep their labels as groups. To keep integer codes as labels, convert the column to the ``category`` dtype before fitting. A column of dtype ``object`` that holds only numbers raises a warning, because each distinct number would become a group; convert it with ``pandas.to_numeric`` to bin it.
 
-Choose the binning of each column
----------------------------------
+Choosing the binning of each column
+-----------------------------------
 
 ``method``, ``bins``, ``special`` and ``options`` can each be a dict by column. Here ``balance`` is merged until its WOE is monotonic, ``pdays`` is split by a decision tree with the ``-1`` code ("not contacted before") in its own group, and ``age`` gets policy bands. A list of edges in ``bins`` is used as given; it must run from ``-inf`` to ``inf``, so that every future value falls into a bin:
 
@@ -65,16 +65,16 @@ bin
 (192.0, 356.0]    188       0.080 -0.414  0.009
 (356.0, inf]       68       0.191  0.588  0.010
 
-Special codes must be numbers, and infinite values must be special codes, as in ``bin_edges``. The methods are ``"quantile"`` and ``"uniform"`` for ``bin_edges`` and ``"chimerge"``, ``"tree"`` and ``"monotonic"`` for the supervised functions. ``bins`` is passed as ``bins`` to ``bin_edges`` and as ``max_bins`` to the others, and ``options`` holds their remaining arguments, such as ``alpha`` or ``min_bin_share``. ``"monotonic"`` uses the ``smoothing`` of the specification, so its trend holds in the tables. ``weights`` passes sample weights to every binning function and to ``woe_table``.
+Special codes must be numbers, and infinite values must be special codes, as in :func:`~kivi.binning.bin_edges`. The methods are ``"quantile"`` and ``"uniform"`` for ``bin_edges`` and ``"chimerge"``, ``"tree"`` and ``"monotonic"`` for the supervised functions. ``bins`` is passed as ``bins`` to ``bin_edges`` and as ``max_bins`` to the others, and ``options`` holds their remaining arguments, such as ``alpha`` or ``min_bin_share``. ``"monotonic"`` uses the ``smoothing`` of the specification, so its trend holds in the tables. ``weights`` passes sample weights to every binning function and to :func:`~kivi.woe.woe_table`.
 
 .. note::
 
-   ``fit_spec`` never re-bins a column on its own. The legacy ``WOEBatch`` lowered the number of bins until the WOE was monotonic; here the method and its options decide, and a column that should be monotonic is fitted with ``"monotonic"``.
+   :func:`~kivi.spec.fit_spec` never re-bins a column on its own. The legacy ``WOEBatch`` lowered the number of bins until the WOE was monotonic; here the method and its options decide, and a column that should be monotonic is fitted with ``"monotonic"``.
 
-Group and encode a sample
--------------------------
+Grouping and encoding a sample
+------------------------------
 
-``cut`` groups every column of a sample, and ``woe_transform`` replaces each group with its WOE. Both return the columns of the specification in its order, with the index of the sample:
+:meth:`~kivi.spec.BinningSpec.cut` groups every column of a sample, and :meth:`~kivi.spec.BinningSpec.woe_transform` replaces each group with its WOE. Both return the columns of the specification in its order, with the index of the sample:
 
 >>> spec.cut(monitoring)[["balance", "pdays", "age", "job"]].head(3)
              balance pdays           age         job
@@ -103,14 +103,14 @@ Traceback (most recent call last):
 ...
 ValueError: column 'job': 1 group(s) are not in table, such as 'astronaut'; ...
 
-The ``unseen`` argument of ``fit_spec`` sets a WOE for such values, for all columns or by column. The same holds for a special code or an interval that has no development observations, and for missing values when the development sample had none. A specification is immutable, so change the policy of a fitted one with ``dataclasses.replace``:
+The ``unseen`` argument of :func:`~kivi.spec.fit_spec` sets a WOE for such values, for all columns or by column. The same holds for a special code or an interval that has no development observations, and for missing values when the development sample had none. A specification is immutable, so change the policy of a fitted one with ``dataclasses.replace``:
 
 >>> lenient = dataclasses.replace(spec, unseen={**spec.unseen, "job": 0.0})
 >>> lenient.woe_transform(new)["job"].tolist()
 [0.0, 0.0]
 
-Keep the model variables
-------------------------
+Keeping the model variables
+---------------------------
 
 After variable selection, keep only the variables of the model before saving the specification for production:
 
@@ -120,12 +120,12 @@ After variable selection, keep only the variables of the model before saving the
 >>> production
 BinningSpec(columns=['balance', 'pdays', 'poutcome', 'contact', 'housing', 'job'])
 
-``production.tables`` can be passed to ``points_table`` as it is; see :doc:`scorecard`.
+``production.tables`` can be passed to :func:`~kivi.scorecard.points_table` as it is; see :doc:`scorecard`.
 
-Save and load a specification
------------------------------
+Saving and loading a specification
+----------------------------------
 
-``to_json`` writes the specification as JSON text, and ``from_json`` reads it back into an equal specification that groups and encodes every sample identically. Two specifications are equal when their JSON text is the same, which includes the version of kivi that fitted them:
+:meth:`~kivi.spec.BinningSpec.to_json` writes the specification as JSON text, and :meth:`~kivi.spec.BinningSpec.from_json` reads it back into an equal specification that groups and encodes every sample identically. Two specifications are equal when their JSON text is the same, which includes the version of kivi that fitted them:
 
 >>> text = production.to_json(indent=2)
 >>> loaded = BinningSpec.from_json(text)
@@ -143,7 +143,7 @@ The same specification always gives the same text, so it can be kept under versi
    Path("scorecard_spec.json").write_text(production.to_json(indent=2), encoding="utf-8")
    production = BinningSpec.from_json(Path("scorecard_spec.json").read_text(encoding="utf-8"))
 
-``to_dict`` gives the same content as a dict. Each column is one entry of ``variables``:
+:meth:`~kivi.spec.BinningSpec.to_dict` gives the same content as a dict. Each column is one entry of ``variables``:
 
 >>> entry = production.to_dict()["variables"][1]
 >>> entry["name"], entry["kind"], entry["unseen"], entry["special"]
@@ -175,7 +175,7 @@ The format
    * - ``variables``
      - One entry per column, in order, with ``name``, ``kind`` (``"numeric"`` or ``"categorical"``), ``unseen`` (``"raise"`` or a number) and ``table``, plus ``edges`` and ``special`` for numeric columns.
    * - ``table``
-     - One entry per group with its label ``bin`` and the columns of ``woe_table``. An interval of a numeric column is written with the two exact edges that bound it.
+     - One entry per group with its label ``bin`` and the columns of :func:`~kivi.woe.woe_table`. An interval of a numeric column is written with the two exact edges that bound it.
 
 JSON has no infinite numbers and does not keep the types of labels apart in every language, so labels and edges are written as follows:
 
@@ -196,7 +196,7 @@ JSON has no infinite numbers and does not keep the types of labels apart in ever
    * - The missing group
      - ``null``.
 
-Labels of categorical columns must be strings, integers, floats, booleans or intervals; ``fit_spec`` rejects other labels, such as dates. ``from_json`` checks every value and rejects ``NaN`` or ``Infinity`` in the text, so a damaged file fails with a message instead of encoding wrong values.
+Labels of categorical columns must be strings, integers, floats, booleans or intervals; :func:`~kivi.spec.fit_spec` rejects other labels, such as dates. :meth:`~kivi.spec.BinningSpec.from_json` checks every value and rejects ``NaN`` or ``Infinity`` in the text, so a damaged file fails with a message instead of encoding wrong values.
 
 The interval labels of a table are those of ``pandas.cut``, which rounds their bounds for display. The file writes each interval of a numeric column with its two exact edges instead, and ``from_json`` turns them back into the labels of ``pandas.cut``:
 
@@ -209,4 +209,4 @@ Interval(68.75, 125.7, closed='right')
 
 .. note::
 
-   Software outside kivi that reads the file should bin with ``edges``, match ``special`` codes before intervals as :func:`kivi.binning.cut` does, and find the row of each interval by its two edges. An interval without development observations has no row. Intervals are closed on the right, so ``-inf`` falls into no interval, and ``woe_transform`` treats it as unseen.
+   Software outside kivi that reads the file should bin with ``edges``, match ``special`` codes before intervals as :func:`kivi.binning.cut` does, and find the row of each interval by its two edges. An interval without development observations has no row. Intervals are closed on the right, so ``-inf`` falls into no interval, and :meth:`~kivi.spec.BinningSpec.woe_transform` treats it as unseen.

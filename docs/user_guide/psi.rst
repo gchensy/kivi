@@ -1,7 +1,9 @@
 Population stability index
 ==========================
 
-``psi_table`` compares the distribution of a variable in two samples, typically the development sample and a later monitoring sample. Group both samples with the same edges or labels before calling it. ``csi_table`` measures how much such a change moves a scorecard's score; see :ref:`characteristic-stability`.
+:func:`~kivi.stability.psi_table` compares the distribution of a variable in two samples, typically the development sample and a later monitoring sample. Group both samples with the same edges or labels before calling it. :func:`~kivi.stability.csi_table` measures how much such a change moves a scorecard's score; see :ref:`characteristic-stability`.
+
+Stability is monitored once a model is in use, on samples grouped as its :doc:`binning specification <spec>` groups them. :doc:`vintage` then follows the loans that the model approves.
 
 Definition
 ----------
@@ -15,8 +17,8 @@ For group :math:`i`, let :math:`q_i` be its share of the reference sample and :m
 
 Each contribution is zero or positive. PSI describes distribution change; it does not use the outcome label.
 
-Missing values and new categories
----------------------------------
+A worked example
+----------------
 
 Missing values form their own group, and categories appearing in only one sample are retained. Their empty cells are smoothed exactly as in :doc:`woe_iv`, so every contribution stays finite.
 
@@ -31,13 +33,12 @@ A            2        0           0.5714         0.1429  0.5941
 NaN          1        2           0.2857         0.5714  0.1980
 B            0        1           0.1429         0.2857  0.0990
 
-When only the counts per group are available, for example from a monitoring report, ``psi`` gives the total from the counts of each sample in the same group order:
+When only the counts per group are available, for example from a monitoring report, :func:`~kivi.stability.psi` gives the total from the counts of each sample in the same group order:
 
 >>> from kivi.stability import psi
 >>> round(psi([2, 1, 0], [0, 2, 1]), 4)
 0.8912
 
-For weighted samples, pass ``reference_weights`` and ``current_weights`` to ``psi_table``; the counts are then sums of weights.
 
 Stable and shifted samples
 --------------------------
@@ -131,7 +132,7 @@ The CSI is the change of the variable's average points from the reference to the
 
 .. note::
 
-   Some texts call the PSI of a single variable its CSI. kivi follows the score-weighted definition of the characteristic analysis report; for the PSI of a variable, use ``psi_table`` on its groups as above.
+   Some texts call the PSI of a single variable its CSI. kivi follows the score-weighted definition of the characteristic analysis report; for the PSI of a variable, use :func:`~kivi.stability.psi_table` on its groups as above.
 
 The example uses the scorecard of :doc:`scorecard`. Fit the WOE of four variables on the development sample and turn the model into points:
 
@@ -151,7 +152,7 @@ The example uses the scorecard of :doc:`scorecard`. Fit the WOE of four variable
 >>> scale = dict(pdo=20, base_score=600, base_odds=50)
 >>> table = points_table(tables, coefficients, -2.028, **scale)
 
-``csi_table`` takes the groups of both samples and the points of the variable's groups, here the rows of the points table for age:
+:func:`~kivi.stability.csi_table` takes the groups of both samples and the points of the variable's groups, here the rows of the points table for age:
 
 >>> age = csi_table(dev_groups["age"], mon_groups["age"], table.loc[["age"]])
 >>> age[["reference_share", "current_share", "points", "csi"]].round(4)
@@ -197,4 +198,9 @@ contact   0.0119 -0.9260
 housing   0.0050 -0.4637
 age       0.5311 -0.4126
 
-A group without points, such as a category that the development sample did not have, raises an error unless ``unseen_points`` gives the points that its customers receive. These are points, not a WOE: if ``woe_transform`` encoded the category with ``unseen=0.0``, pass the points of a WOE of 0, ``woe_to_points`` of a one-row frame of zeros, which are the same for every variable. For weighted samples, pass ``reference_weights`` and ``current_weights`` as for ``psi_table``.
+A group without points, such as a category that the development sample did not have, raises an error unless ``unseen_points`` gives the points that its customers receive. These are points, not a WOE: if :func:`~kivi.woe.woe_transform` encoded the category with ``unseen=0.0``, pass the points of a WOE of 0, :func:`~kivi.scorecard.woe_to_points` of a one-row frame of zeros, which are the same for every variable.
+
+Sample weights
+--------------
+
+For weighted samples, pass ``reference_weights`` and ``current_weights`` to :func:`~kivi.stability.psi_table`; the counts are then sums of weights. :func:`~kivi.stability.csi_table` takes the same two arguments, and its shares are then shares of the total weight of each sample.

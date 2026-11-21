@@ -23,7 +23,7 @@ Apart from the home page and the index page of each section, every page is one o
      - One step of a risk model: what it measures, an example and how to read the result. :doc:`/user_guide/datasets` describes the example data in the same way.
    * - Reference
      - The pages of the API reference
-     - One page per public module, generated from its docstrings.
+     - :doc:`/api/conventions`, the rules that every function follows; :doc:`/api/glossary`, the terms of the guides; and one page per public module, generated from its docstrings.
    * - Release notes
      - :doc:`/release/index` and :doc:`/release/migration`
      - What changed in each version, and how to move code from the 0.2.x classes to their replacements. The notes of a released version are not edited. The migration guide is revised whenever a release changes what it describes.
@@ -34,23 +34,46 @@ Apart from the home page and the index page of each section, every page is one o
 Where pages live
 ----------------
 
-* A public module ``kivi.<module>`` has an API page ``docs/api/<module>.rst`` and usually a topic guide ``docs/user_guide/<topic>.rst``. The toctrees of the API reference and of the user guide end with a glob, so a new page appears without editing them.
+* A public module ``kivi.<module>`` has an API page ``docs/api/<module>.rst`` and usually a topic guide ``docs/user_guide/<topic>.rst``. The toctrees of the API reference and of the user guide list their pages in the order of a project and end with a glob, so a new page appears at the end without editing them. The integration moves it to its place, as Entry points below describes.
+* The conventions and the glossary are ``docs/api/conventions.rst`` and ``docs/api/glossary.rst``. They come first in the API reference, and the index of the user guide links to both.
 * Page names are part of the URLs, and the language switch links each page to the page of the same name in the other edition. Change the title of a page rather than renaming or removing it.
 * The API page of a module and its topic guide have the same title. Its cards and its rows in the README use that title or a short form of it, such as WOE and IV.
 
 Topic guides
 ------------
 
-A topic guide follows the order of an analysis, so that readers can stop as soon as they have what they need:
+A topic guide follows the order of an analysis, so that readers can stop as soon as they have what they need. Its sections come in the order of the table below, with the titles that the table gives in inline code:
 
-1. An opening paragraph: the question that the step answers, where it sits in a risk model, and links to the steps before and after it.
-2. The definition, with the formula in a math block when there is one.
-3. A worked example on the bundled data.
-4. How to read the result: the direction of the measure, the usual thresholds and what to check next.
-5. Variants, each in a section with a fixed title: ``Special values``, ``Missing values`` or ``Sample weights``.
-6. The errors and warnings that readers are likely to meet, and how to resolve them.
+.. list-table::
+   :header-rows: 1
+   :widths: 25 75
 
-Leave out the parts that do not apply, but keep their order and titles, so that the guides read alike.
+   * - Section
+     - Contents
+   * - Opening, without a heading
+     - The question that the step answers and where it sits in a risk model, with links to the guides of the steps before and after it in the order of the user guide. The public functions that the page covers, each linked to its API entry. The opening has no examples.
+   * - ``Definition``
+     - The measure and its formula in a math block, before any example. Title it ``Definitions`` when it defines several measures, and leave it out when each tool of the page is defined in its own section.
+   * - ``A worked example``
+     - A few values that readers can check by hand, right after the definition.
+   * - Body sections
+     - One section for each task, tool or question of the step, in the order of a project, with an example on the bundled data and how to read its result. Title a body section with a noun phrase, such as ``Gains table``, or a gerund phrase, such as ``Choosing a cut-off``; imperative titles are for the steps of a tutorial. A body section may have subsections.
+   * - ``Reading the result``
+     - A table of the columns of the page's main result, the direction of the measure, its usual thresholds and what to check next. It follows the body sections whose examples print that result and comes before the body sections about other tools. On a page whose tools each return their own table, each body section describes its table instead.
+   * - ``Special values``
+     - How codes such as ``-1`` for "not applicable" are passed in ``special``, and which group they end up in.
+   * - ``Missing values``
+     - How missing values are counted, grouped or rejected.
+   * - ``Sample weights``
+     - What ``weights`` changes and what it leaves unchanged, and where weighted results differ from repeated rows.
+   * - ``Limits``
+     - What the method cannot tell, and what kivi leaves out.
+   * - ``Errors and warnings``
+     - The errors and warnings that readers are likely to meet, and how to resolve them.
+
+Leave out the sections that do not apply, but keep the order and the titles of the others, so that the guides read alike. A variant that one or two sentences explain can stay in the body section that it belongs to, and an error that belongs to one task can be shown where that task is; a section of its own is for a variant or error that needs an example.
+
+Section anchors are part of the URLs as well, and the READMEs link to some of them. Keep the title of a section that a README links to, and keep a label when its section moves.
 
 Examples
 --------
@@ -59,6 +82,7 @@ Examples
 * Examples use the data described in :doc:`/user_guide/datasets`, or a few values that readers can check by hand. Random data comes from a generator with a fixed seed.
 * Import each function from its module, as in ``from kivi.woe import woe_table``.
 * Examples must not warn: a warning raised by a doctest or by a chart recipe in docs/_plotting.py fails the build. When an example is about a warning, catch it with ``warnings.catch_warnings(record=True)`` and print the message.
+* All the examples of a page share one namespace, so a section can use what an earlier section defined. When sections move, check that every name is still defined before it is used.
 
 Charts
 ------
@@ -70,15 +94,42 @@ A pull request that adds a module describes the charts for its page in its descr
 Names and links
 ---------------
 
-* Write function, argument and column names as inline code, such as ``woe_table``, ``special`` or ``event_rate``.
-* In a topic guide, link the first mention of each kivi function to its API entry. Use the ``:func:`` role with the full name, such as ``kivi.woe.woe_table``, and a leading tilde, so that only the function name is shown.
+* Write argument and column names as inline code, such as ``special`` or ``event_rate``.
+* In the topic guides and the tutorials, link the first mention of a kivi function, class or module in each section to its API entry. Use the ``:func:``, ``:class:``, ``:exc:``, ``:meth:`` and ``:mod:`` roles with the full name and a leading tilde, such as ``:func:`~kivi.woe.woe_table```, so that only the name is shown. Keep the module in the text where it tells two functions apart, as in ``:func:`kivi.binning.cut``` next to ``pandas.cut``. Later mentions in the same section stay inline code.
+* ``woe``, ``iv``, ``psi``, ``ks`` and ``gini`` are the names of functions and of columns. Link them only where they mean the function.
+* Names inside examples are code and are not linked.
 * Link to another page with the ``:doc:`` role and to a section of another page with the ``:ref:`` role. Give a section a label only when a link points to it.
 
 API reference
 -------------
 
+* :doc:`/api` lists the conventions, the glossary and then the module pages in the order of the user guide, and ends with a glob for the pages that are not integrated yet. ``api/datasets`` comes last through the glob, so that the glob always matches a page.
+* A module page starts with its title, a ``module`` directive, which gives ``:mod:`` links their target, and an introduction: one or two sentences on what the module is for, with links to its main functions, and a sentence that links to its topic guide. The entries follow. For example:
+
+  .. code-block:: rst
+
+     Binning
+     =======
+
+     .. module:: kivi.binning
+
+     Fit bin edges on a reference sample and group every sample with the same edges.
+     :func:`~kivi.binning.bin_edges` fits them from the values alone, ...
+
+     See :doc:`/user_guide/binning` for examples and how to choose the edges.
+
+     .. autosummary::
+
+        bin_edges
+        cut
+
+     .. autofunction:: bin_edges
+
+     .. autofunction:: cut
+
 * The API page of a module documents every name in the module's ``__all__``: first in an ``autosummary`` table, then each with its own ``autofunction``, ``autoclass``, ``autoexception`` or ``automethod`` entry, in the same order. ``python docs/build.py`` stops when a name has no such entry.
 * Docstrings follow the numpydoc conventions and are validated with every check enabled, so a missing section, such as See Also or Examples, fails the build. Their paragraphs are translated like those of the pages.
+* :doc:`/api/conventions` holds the rules that every module follows, such as the order of the arguments and the meaning of ``weights``. A guide or a docstring states a rule of its own module and links to the conventions for the shared ones. :doc:`/api/glossary` defines each term once and links to the guide that uses it.
 
 Translations
 ------------
@@ -93,6 +144,8 @@ After changing English text:
 
 In a translation, put a space or Chinese punctuation on both sides of inline markup such as inline code and links, or the markup is not recognized. Translate each term as the catalog already translates it, so that the edition keeps one vocabulary.
 
+A change that only replaces markup, such as inline code by a link, leaves the translations valid. Apply it to the source strings and to their translations in ``kivi.po`` before step 1, so that the entries do not turn fuzzy.
+
 Entry points
 ------------
 
@@ -100,8 +153,13 @@ Some pages describe the library as a whole: ``README.md`` and ``README.zh-CN.md`
 
 * the title, the introduction and the steps on the home page;
 * the cards on the home page and on the index of the user guide, and the order of the user guide;
+* the order of the API reference;
+* the links to the previous and the next step in the openings of the guides next to a new one;
+* the terms of :doc:`/api/glossary` and the rules of :doc:`/api/conventions` that a new module adds;
 * the tables and the roadmap of both READMEs;
 * any sentence in :doc:`/release/migration` about functionality that is not ported yet.
+
+A pull request that adds a module lists in its description the glossary terms and the conventions that it needs, as it does for its charts.
 
 ``python docs/build.py`` lists every public function that the API tables of the READMEs leave out, and every user guide page without a card on the index of the user guide or a link in the READMEs. ``python docs/build.py --release`` refuses to run until the list is empty.
 

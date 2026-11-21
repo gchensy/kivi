@@ -1,14 +1,16 @@
 Reject inference
 ================
 
-A scorecard is developed on past applicants with a known outcome, and the outcome is known only for the applicants that the previous policy approved. The model learns from them and is then applied to every applicant, including the kind that used to be declined. Reject inference supplies outcomes for the rejected applicants so that the model can be refitted on all of them. :mod:`kivi.reject_inference` returns those outcomes as rows with weights, or returns weights for the approved applicants. The ``weights`` arguments of ``logistic_regression``, ``woe_table`` and ``fit_spec`` take either.
+A scorecard is developed on past applicants with a known outcome, and the outcome is known only for the applicants that the previous policy approved. The model learns from them and is then applied to every applicant, including the kind that used to be declined. Reject inference supplies outcomes for the rejected applicants so that the model can be refitted on all of them. :mod:`kivi.reject_inference` returns those outcomes as rows with weights, or returns weights for the approved applicants. The ``weights`` arguments of :func:`~kivi.selection.logistic_regression`, :func:`~kivi.woe.woe_table` and :func:`~kivi.spec.fit_spec` take either.
+
+Reject inference follows :doc:`variable selection <selection>`, whose model it refits on all applicants, and comes before the :doc:`scorecard`, which scales the refitted model. :func:`~kivi.reject_inference.fuzzy_augmentation` and :func:`~kivi.reject_inference.parceling` return inferred rows, and :func:`~kivi.reject_inference.reweighting` returns weights for the approved applicants.
 
 Every method rests on an assumption about the rejected applicants that the approved ones cannot confirm. The examples therefore use synthetic applications whose outcomes are known for everyone, so that each method can be checked against the model the full outcomes would give. Real data never allow that check.
 
 Applications and approvals
 --------------------------
 
-``make_applications`` simulates loan applications decided by an incumbent scorecard and two policy rules; :doc:`datasets` describes them. Policy declines would be declined whatever their score, so they are usually left out of the development population, as here. The approved applicants are the *accepts* and the others the *rejects*:
+:func:`~kivi.datasets.make_applications` simulates loan applications decided by an incumbent scorecard and two policy rules; :doc:`datasets` describes them. Policy declines would be declined whatever their score, so they are usually left out of the development population, as here. The approved applicants are the *accepts* and the others the *rejects*:
 
 >>> import numpy as np
 >>> import pandas as pd
@@ -69,7 +71,7 @@ The model predicts a bad rate of 19.1% for the rejects, who actually default at 
 Fuzzy augmentation
 ------------------
 
-``fuzzy_augmentation`` splits each reject into a bad row, weighted with its PD, and a good row with the rest of its weight of 1. The rows repeat the index of the rejects, so ``rejects.loc[inferred.index]`` gives their features:
+:func:`~kivi.reject_inference.fuzzy_augmentation` splits each reject into a bad row, weighted with its PD, and a good row with the rest of its weight of 1. The rows repeat the index of the rejects, so ``rejects.loc[inferred.index]`` gives their features:
 
 >>> from kivi.reject_inference import fuzzy_augmentation, parceling, reweighting
 >>> inferred = fuzzy_augmentation(reject_pd)
@@ -147,7 +149,7 @@ Here the known outcomes say which factor fits. With real data, the factor is an 
 Parceling
 ---------
 
-``parceling`` divides the scores of accepts and rejects into bands, by default ten quantile bands of both samples together. In each band, the rejects are labelled bad at the accepts' bad rate times ``factor``. The labels are drawn with a local generator, so a seed in ``rng`` makes them reproducible:
+:func:`~kivi.reject_inference.parceling` divides the scores of accepts and rejects into bands, by default ten quantile bands of both samples together. In each band, the rejects are labelled bad at the accepts' bad rate times ``factor``. The labels are drawn with a local generator, so a seed in ``rng`` makes them reproducible:
 
 >>> parcels = parceling(accept_pd, accepts["target"], reject_pd, factor=1.5, rng=0)
 >>> parcels["target"].value_counts()
@@ -167,7 +169,7 @@ The draw adds noise to the refit. Over ten seeds, the Gini on the second sample 
 >>> print(f"{min(g['gini'] for g in ginis):.3f} to {max(g['gini'] for g in ginis):.3f}")
 0.418 to 0.425
 
-``expected=True`` instead returns the band's rate as the weight of a bad row and its complement as the weight of a good row, like ``fuzzy_augmentation``. That removes the noise of the draw, so the comparison below uses it:
+``expected=True`` instead returns the band's rate as the weight of a bad row and its complement as the weight of a good row, like :func:`~kivi.reject_inference.fuzzy_augmentation`. That removes the noise of the draw, so the comparison below uses it:
 
 >>> parcels = parceling(accept_pd, accepts["target"], reject_pd, factor=1.5, expected=True)
 >>> models["parceling"] = refit(parcels)
@@ -176,7 +178,7 @@ The draw adds noise to the refit. Over ten seeds, the Gini on the second sample 
 Reweighting
 -----------
 
-``reweighting`` adds no rows. In each score band, it gives every accept the weight (accepts + rejects) / accepts, so that the weighted accepts stand for all applicants of their band:
+:func:`~kivi.reject_inference.reweighting` adds no rows. In each score band, it gives every accept the weight (accepts + rejects) / accepts, so that the weighted accepts stand for all applicants of their band:
 
 >>> weights = reweighting(accept_pd, reject_pd)
 >>> print(f"{weights.min():.2f} to {weights.max():.2f}, total {weights.sum():.0f}")
@@ -237,7 +239,7 @@ With the accepts' WOE, the known model weighs every variable more than the accep
 Refitting the WOE
 -----------------
 
-The comparisons keep the accepts' WOE encoding. In practice, the groups are often refitted on the augmented sample with the inferred weights, so that the rejects also inform the WOE of the groups they fill. ``fit_spec`` takes the weights:
+The comparisons keep the accepts' WOE encoding. In practice, the groups are often refitted on the augmented sample with the inferred weights, so that the rejects also inform the WOE of the groups they fill. :func:`~kivi.spec.fit_spec` takes the weights:
 
 >>> inferred = fuzzy_augmentation(reject_pd, factor=1.5)
 >>> frame = pd.concat([accepts[features], rejects.loc[inferred.index, features]])
@@ -265,5 +267,5 @@ Limits
 ------
 
 * The methods infer outcomes from the accepts, so they cannot reveal what the accepts do not show. A factor above 1 encodes how much riskier the rejects are, and the data cannot estimate it.
-* The weights of every method make the standard errors of ``logistic_regression`` too small and the p-values of ``stepwise`` too low, because inferred rows and extra weight count as observations. Select the variables on the accepts and read the p-values of a refit as optimistic.
+* The weights of every method make the standard errors of :func:`~kivi.selection.logistic_regression` too small and the p-values of :func:`~kivi.selection.stepwise` too low, because inferred rows and extra weight count as observations. Select the variables on the accepts and read the p-values of a refit as optimistic.
 * kivi does not implement the Heckman two-stage model or other bivariate probit models of sample selection, nor iterative reclassification.

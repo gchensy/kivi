@@ -1,9 +1,11 @@
 Binning
 =======
 
-``bin_edges`` fits numeric bin edges on a reference sample and returns them as an array for ``pandas.cut``. The reference can be a list, a NumPy array or a pandas Series. Keep the array: the same edges must be applied to every sample that is compared with the reference.
+:func:`~kivi.binning.bin_edges` fits numeric bin edges on a reference sample and returns them as an array for ``pandas.cut``. The reference can be a list, a NumPy array or a pandas Series. Keep the array: the same edges must be applied to every sample that is compared with the reference.
 
 In credit scoring, binning is the classing step of scorecard development: a continuous variable becomes a handful of groups whose WOE can be read, explained to the business and monitored over time. This page compares the ways to choose the edges.
+
+Binning follows the :doc:`univariate profile <univariate>`, which ranks the candidates by a quick binning, and comes before the :doc:`weight of evidence <woe_iv>`, which measures and encodes the groups. ``bin_edges`` chooses the edges from the values alone; :func:`~kivi.binning.chimerge_edges`, :func:`~kivi.binning.tree_edges` and :func:`~kivi.binning.monotonic_edges` also use the target, and :func:`~kivi.binning.cut` groups a sample, with a group of its own for each special code.
 
 Quantile and uniform edges
 --------------------------
@@ -41,10 +43,10 @@ Account balances are typical of financial data: most customers hold small amount
 
 .. _custom-edges:
 
-Custom edges and special values
--------------------------------
+Custom edges
+------------
 
-The edges do not have to come from ``bin_edges``. Any increasing array works with ``pandas.cut`` and the metric functions, so policy bands and expert edges fit the same workflow. Keep infinite outer edges so that every future value is covered.
+The edges do not have to come from :func:`~kivi.binning.bin_edges`. Any increasing array works with ``pandas.cut`` and the metric functions, so policy bands and expert edges fit the same workflow. Keep infinite outer edges so that every future value is covered.
 
 >>> import numpy as np
 >>> from kivi.woe import woe_table
@@ -117,7 +119,7 @@ Choosing the merges by hand works for a few variables. The supervised methods in
 Supervised binning
 ------------------
 
-Quantile and uniform edges ignore the target. The supervised methods use it to place edges between customers with different event rates, which is what the WOE of each bin measures. They take the values and a 0/1 target, as Series on the same index or as arrays and lists matched by position, omit missing values and any codes passed in ``special`` while fitting, and return edges in the same form as ``bin_edges``: increasing, with infinite outer edges, ready for ``pandas.cut``, ``woe_table`` and ``psi_table``. Each returns at most ``max_bins`` bins, 5 by default.
+Quantile and uniform edges ignore the target. The supervised methods use it to place edges between customers with different event rates, which is what the WOE of each bin measures. They take the values and a 0/1 target, as Series on the same index or as arrays and lists matched by position, omit missing values and any codes passed in ``special`` while fitting, and return edges in the same form as :func:`~kivi.binning.bin_edges`: increasing, with infinite outer edges, ready for ``pandas.cut``, :func:`~kivi.woe.woe_table` and :func:`~kivi.stability.psi_table`. Each returns at most ``max_bins`` bins, 5 by default.
 
 .. list-table::
    :header-rows: 1
@@ -126,13 +128,13 @@ Quantile and uniform edges ignore the target. The supervised methods use it to p
    * - Function
      - How it fits the edges
      - Main options
-   * - ``chimerge_edges``
+   * - :func:`~kivi.binning.chimerge_edges`
      - Merges adjacent fine bins whose event rates do not differ significantly.
      - ``max_bins``, ``alpha``
-   * - ``tree_edges``
+   * - :func:`~kivi.binning.tree_edges`
      - Splits the values where a decision tree gains the most purity.
      - ``max_bins``, ``min_bin_share``, ``criterion``
-   * - ``monotonic_edges``
+   * - :func:`~kivi.binning.monotonic_edges`
      - Merges adjacent fine bins until the WOE rises or falls steadily.
      - ``max_bins``, ``direction``
 
@@ -141,7 +143,7 @@ As with ``bin_edges``, fit the edges on the reference sample only and apply the 
 ChiMerge
 ^^^^^^^^
 
-``chimerge_edges`` starts from fine quantile bins, 20 by default, and repeatedly merges the adjacent pair whose event rates are most alike, the pair with the smallest chi-square statistic. Merging continues while more than ``max_bins`` bins remain or while some adjacent pair does not differ significantly at level ``alpha``.
+:func:`~kivi.binning.chimerge_edges` starts from fine quantile bins, 20 by default, and repeatedly merges the adjacent pair whose event rates are most alike, the pair with the smallest chi-square statistic. Merging continues while more than ``max_bins`` bins remain or while some adjacent pair does not differ significantly at level ``alpha``.
 
 >>> from kivi.binning import chimerge_edges, monotonic_edges, tree_edges
 >>> target = reference["target"]
@@ -169,7 +171,7 @@ Five bins were allowed, but with five and with four bins some adjacent pair stil
 Decision tree
 ^^^^^^^^^^^^^
 
-``tree_edges`` grows a decision tree on the one variable. Each split cuts a bin at the value that most reduces the impurity of the target, measured by entropy (the default) or by the Gini index with ``criterion="gini"``. The bin whose best split gains the most is split next, until there are ``max_bins`` bins or no allowed split reduces the impurity. ``min_bin_share`` keeps every bin above a share of the observations, 5% by default, so that its WOE rests on enough customers. The interior edges are observed values.
+:func:`~kivi.binning.tree_edges` grows a decision tree on the one variable. Each split cuts a bin at the value that most reduces the impurity of the target, measured by entropy (the default) or by the Gini index with ``criterion="gini"``. The bin whose best split gains the most is split next, until there are ``max_bins`` bins or no allowed split reduces the impurity. ``min_bin_share`` keeps every bin above a share of the observations, 5% by default, so that its WOE rests on enough customers. The interior edges are observed values.
 
 >>> tree = tree_edges(balance, target)
 >>> tree
@@ -197,7 +199,7 @@ The tree separates the classes best, but it does not look for a trend: customers
 Monotonic binning
 ^^^^^^^^^^^^^^^^^
 
-``monotonic_edges`` also starts from fine quantile bins. Whenever two adjacent bins break the trend, it merges them and recomputes the WOE (pool adjacent violators), so the WOE of the final bins is strictly increasing or strictly decreasing. If more than ``max_bins`` bins remain, it then merges the most similar adjacent pairs by chi-square. ``direction="auto"`` tries both trends and keeps the one with the larger information value; pass ``"increasing"`` or ``"decreasing"`` to impose the trend that the business expects.
+:func:`~kivi.binning.monotonic_edges` also starts from fine quantile bins. Whenever two adjacent bins break the trend, it merges them and recomputes the WOE (pool adjacent violators), so the WOE of the final bins is strictly increasing or strictly decreasing. If more than ``max_bins`` bins remain, it then merges the most similar adjacent pairs by chi-square. ``direction="auto"`` tries both trends and keeps the one with the larger information value; pass ``"increasing"`` or ``"decreasing"`` to impose the trend that the business expects.
 
 >>> mono = monotonic_edges(balance, target)
 >>> mono
@@ -210,7 +212,7 @@ True
 >>> print(f"IV = {by_trend['iv'].sum():.3f}")
 IV = 0.124
 
-The trend is checked with the same smoothing as ``woe_table``, so the WOE that ``woe_table`` reports for these bins is monotonic as well, even when a bin has no events.
+The trend is checked with the same smoothing as :func:`~kivi.woe.woe_table`, so the WOE that ``woe_table`` reports for these bins is monotonic as well, even when a bin has no events.
 
 .. plot::
    :alt: WOE of the fine balance bins with the pooled monotonic WOE, and the WOE of the five final bins
@@ -249,65 +251,32 @@ monotonic_edges     5         0.124       0.020
 
 On the reference sample all three supervised methods beat five quantile bins. On the later sample they fall behind: much of the extra separation they found in balance was noise, which is common for a weak variable and a few hundred events. Validate supervised edges on a later or held-out sample before adopting them, and keep the variable under PSI monitoring once it is in use.
 
-.. _supervised-special:
+Applying the edges
+------------------
 
-Special codes
-^^^^^^^^^^^^^
+Infinite endpoints cover finite future observations outside the training range. Use the saved edges with pandas.cut on every sample.
 
-A code such as ``pdays == -1`` is fitted as an ordinary value unless it is passed in ``special``. Monotonic binning then puts the 2,475 reference customers coded -1, who were never contacted before, into one bin with the 78 customers contacted within 96 days, the group most likely to subscribe:
+>>> edges = bin_edges(pd.Series([10, 20, 30, 40, 50, 60]), bins=2)
+>>> edges
+array([-inf,  35.,  inf])
+>>> pd.cut(pd.Series([5, 35, 99, None]), edges)
+0    (-inf, 35.0]
+1    (-inf, 35.0]
+2     (35.0, inf]
+3             NaN
+dtype: category
+Categories (2, interval[float64, right]): [(-inf, 35.0] < (35.0, inf]]
 
->>> from kivi.binning import cut
->>> mixed = monotonic_edges(reference["pdays"], target, max_bins=4)
->>> mixed
-array([-inf,  96.,  inf])
->>> print(f"IV = {woe_table(pd.cut(reference['pdays'], mixed), target)['iv'].sum():.3f}")
-IV = 0.069
+Intervals are closed on the right, so a value equal to an edge belongs to the lower bin. Pass ``labels=False`` to ``pandas.cut`` for integer bin numbers instead of intervals.
 
-With ``special=[-1]`` the code and its labels are left out of the fit, and ``cut`` with the same code gives it a group of its own ahead of the intervals:
-
->>> mono_pdays = monotonic_edges(reference["pdays"], target, max_bins=4, special=[-1])
->>> mono_pdays
-array([ -inf, 105. , 188. , 211.2,   inf])
->>> by_pdays = woe_table(cut(reference["pdays"], mono_pdays, special=[-1]), target)
->>> by_pdays[["event", "non_event", "woe"]].round(3)
-                event  non_event    woe
-bin
--1                228       2247 -0.257
-(-inf, 105.0]      49         57  1.880
-(105.0, 188.0]     41        116  0.991
-(188.0, 211.2]      5         21  0.596
-(211.2, inf]       25        211 -0.102
->>> print(f"IV = {by_pdays['iv'].sum():.3f}")
-IV = 0.352
-
-Fitted on the contacted customers alone, the WOE falls steadily: the more recent the previous contact, the more likely a customer is to subscribe. ``max_bins`` and the trend apply to the intervals only, so each special group comes on top of them with a WOE of its own. ``chimerge_edges`` and ``tree_edges`` take ``special`` in the same way, and ``min_bin_share`` counts only the values that are fitted.
-
-Ties and constant values
-------------------------
-
-Tied cut points are collapsed. A constant reference produces one bin.
-
->>> with warnings.catch_warnings(record=True) as caught:
-...     warnings.simplefilter("always")
-...     tied = bin_edges(pd.Series([0, 0, 0, 0, 1, 2]), bins=4)
-...     constant = bin_edges(pd.Series([7, 7, 7]))
->>> tied
-array([-inf, 0.75,  inf])
->>> constant
-array([-inf,  inf])
->>> for warning in caught:
-...     print(warning.message)
-tied edges leave 2 of the 4 requested bins; the value 0 makes up 67% of the fitted values, consider passing it in special
-tied edges leave 1 of the 5 requested bins; the value 7 makes up 100% of the fitted values, consider passing it in special
-
-The number of bins can therefore be smaller than requested, and ``bin_edges`` then issues a ``UserWarning``. A single value that covers much of the reference, such as a code for "not applicable", often causes this. Pass that value in ``special``, as described in the next section.
+Pass categorical labels directly to the metric functions. A missing label is a separate group. Only observed groups appear. Categorical groups, including the result of ``pandas.cut``, follow the order of their categories with missing values last; other labels follow the order in which they first appear. For WOE, group and target series must have identical indices; arrays and lists are matched by position. :doc:`/api/conventions` describes these rules for every function.
 
 .. _special-values:
 
 Special values
 --------------
 
-Many credit variables use codes such as ``-1`` or ``-999`` for "not applicable" or "no record". Such a code is not a measurement, so it should neither shape the edges nor share an interval with real values. Pass the codes in ``special`` to ``bin_edges`` to leave them out of the fit, and pass the same codes to ``kivi.binning.cut`` to give each one its own group.
+Many credit variables use codes such as ``-1`` or ``-999`` for "not applicable" or "no record". Such a code is not a measurement, so it should neither shape the edges nor share an interval with real values. Pass the codes in ``special`` to :func:`~kivi.binning.bin_edges` to leave them out of the fit, and pass the same codes to :func:`kivi.binning.cut` to give each one its own group.
 
 In the bundled data, ``pdays`` is ``-1`` for the 82% of customers who were not contacted in an earlier campaign. Without ``special``, every quantile is tied at ``-1``: ``bin_edges`` returns a single bin and warns that ``-1`` makes up 82% of the fitted values. With ``special=[-1]`` the remaining values are divided into five bins:
 
@@ -332,51 +301,84 @@ bin
 >>> print(f"IV = {result['iv'].sum():.3f}")
 IV = 0.299
 
-The single bin had an IV of zero; separating the code shows that ``pdays`` is informative. The categories of the result are the special values in the order given, followed by the intervals, and ``woe_table`` and ``psi_table`` list the rows in that order. Special values are matched by equality, so ``-1`` and ``-1.0`` are the same code. Without ``special``, ``cut`` returns the same result as ``pandas.cut``.
+The single bin had an IV of zero; separating the code shows that ``pdays`` is informative. The categories of the result are the special values in the order given, followed by the intervals, and :func:`~kivi.woe.woe_table` and :func:`~kivi.stability.psi_table` list the rows in that order. Special values are matched by equality, so ``-1`` and ``-1.0`` are the same code. Without ``special``, ``cut`` returns the same result as ``pandas.cut``.
 
-The supervised methods take ``special`` as well; see :ref:`supervised-special`.
+.. _supervised-special:
+
+Special values in supervised binning
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A code such as ``pdays == -1`` is fitted as an ordinary value unless it is passed in ``special``. Monotonic binning then puts the 2,475 reference customers coded -1, who were never contacted before, into one bin with the 78 customers contacted within 96 days, the group most likely to subscribe:
+
+>>> mixed = monotonic_edges(reference["pdays"], target, max_bins=4)
+>>> mixed
+array([-inf,  96.,  inf])
+>>> print(f"IV = {woe_table(pd.cut(reference['pdays'], mixed), target)['iv'].sum():.3f}")
+IV = 0.069
+
+With ``special=[-1]`` the code and its labels are left out of the fit, and :func:`~kivi.binning.cut` with the same code gives it a group of its own ahead of the intervals:
+
+>>> mono_pdays = monotonic_edges(reference["pdays"], target, max_bins=4, special=[-1])
+>>> mono_pdays
+array([ -inf, 105. , 188. , 211.2,   inf])
+>>> by_pdays = woe_table(cut(reference["pdays"], mono_pdays, special=[-1]), target)
+>>> by_pdays[["event", "non_event", "woe"]].round(3)
+                event  non_event    woe
+bin
+-1                228       2247 -0.257
+(-inf, 105.0]      49         57  1.880
+(105.0, 188.0]     41        116  0.991
+(188.0, 211.2]      5         21  0.596
+(211.2, inf]       25        211 -0.102
+>>> print(f"IV = {by_pdays['iv'].sum():.3f}")
+IV = 0.352
+
+Fitted on the contacted customers alone, the WOE falls steadily: the more recent the previous contact, the more likely a customer is to subscribe. ``max_bins`` and the trend apply to the intervals only, so each special group comes on top of them with a WOE of its own. :func:`~kivi.binning.chimerge_edges` and :func:`~kivi.binning.tree_edges` take ``special`` in the same way, and ``min_bin_share`` counts only the values that are fitted.
+
+Missing values
+--------------
+
+Missing reference values are ignored when the edges are fitted, and ``pandas.cut`` leaves them missing. The metric functions then count them as a separate group.
 
 Sample weights
 --------------
 
-``bin_edges`` and the supervised methods take ``weights``, for example the inverse sampling rates of a stratified development sample, so that quantile edges and bin counts describe the population rather than the sample. Weighted quantiles use the inverted CDF, so every interior edge is an observed value, while unweighted quantile edges interpolate between observations:
+:func:`~kivi.binning.bin_edges` and the supervised methods take ``weights``, for example the inverse sampling rates of a stratified development sample, so that quantile edges and bin counts describe the population rather than the sample. Weighted quantiles use the inverted CDF, so every interior edge is an observed value, while unweighted quantile edges interpolate between observations:
 
 >>> bin_edges([1, 2, 3, 4], bins=2)
 array([-inf,  2.5,  inf])
 >>> bin_edges([1, 2, 3, 4], bins=2, weights=[1, 1, 1, 3])
 array([-inf,   3.,  inf])
 
-Observations with zero weight are left out; the supervised methods leave out their labels too. :doc:`woe_iv` shows the same weights in ``woe_table``.
+Observations with zero weight are left out; the supervised methods leave out their labels too. :doc:`woe_iv` shows the same weights in :func:`~kivi.woe.woe_table`.
 
-Applying the edges
-------------------
+Errors and warnings
+-------------------
 
-Infinite endpoints cover finite future observations outside the training range. Use the saved edges with pandas.cut on every sample.
+Ties and constant values
+^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> edges = bin_edges(pd.Series([10, 20, 30, 40, 50, 60]), bins=2)
->>> edges
-array([-inf,  35.,  inf])
->>> pd.cut(pd.Series([5, 35, 99, None]), edges)
-0    (-inf, 35.0]
-1    (-inf, 35.0]
-2     (35.0, inf]
-3             NaN
-dtype: category
-Categories (2, interval[float64, right]): [(-inf, 35.0] < (35.0, inf]]
+Tied cut points are collapsed. A constant reference produces one bin.
 
-Intervals are closed on the right, so a value equal to an edge belongs to the lower bin. Pass ``labels=False`` to ``pandas.cut`` for integer bin numbers instead of intervals.
+>>> with warnings.catch_warnings(record=True) as caught:
+...     warnings.simplefilter("always")
+...     tied = bin_edges(pd.Series([0, 0, 0, 0, 1, 2]), bins=4)
+...     constant = bin_edges(pd.Series([7, 7, 7]))
+>>> tied
+array([-inf, 0.75,  inf])
+>>> constant
+array([-inf,  inf])
+>>> for warning in caught:
+...     print(warning.message)
+tied edges leave 2 of the 4 requested bins; the value 0 makes up 67% of the fitted values, consider passing it in special
+tied edges leave 1 of the 5 requested bins; the value 7 makes up 100% of the fitted values, consider passing it in special
 
-Missing values and categories
------------------------------
-
-Missing reference values are ignored when the edges are fitted, and ``pandas.cut`` leaves them missing. The metric functions then count them as a separate group.
-
-Pass categorical labels directly to the metric functions. A missing label is a separate group. Only observed groups appear. Categorical groups, including the result of ``pandas.cut``, follow the order of their categories with missing values last; other labels follow the order in which they first appear. For WOE, group and target series must have identical indices; arrays and lists are matched by position.
+The number of bins can therefore be smaller than requested, and :func:`~kivi.binning.bin_edges` then issues a ``UserWarning``. A single value that covers much of the reference, such as a code for "not applicable", often causes this. Pass that value in ``special``, as described in :ref:`special-values`.
 
 Invalid input
--------------
+^^^^^^^^^^^^^
 
-``bin_edges`` raises ``ValueError`` when:
+:func:`~kivi.binning.bin_edges` raises ``ValueError`` when:
 
 * ``bins`` is not a positive integer;
 * ``method`` is neither ``"quantile"`` nor ``"uniform"``;
@@ -384,7 +386,7 @@ Invalid input
 * ``special`` is not one-dimensional or contains a missing value;
 * the reference has no observations apart from missing and special values, or contains an infinite value that is not special.
 
-``chimerge_edges``, ``tree_edges`` and ``monotonic_edges`` raise ``ValueError`` for the same problems with the values, for an option outside its range, and when:
+:func:`~kivi.binning.chimerge_edges`, :func:`~kivi.binning.tree_edges` and :func:`~kivi.binning.monotonic_edges` raise ``ValueError`` for the same problems with the values, for an option outside its range, and when:
 
 * ``values`` and ``target`` are Series without identical indices, or have different lengths;
 * ``target`` contains a label other than 0 and 1, or a missing label;

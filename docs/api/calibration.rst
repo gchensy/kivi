@@ -1,7 +1,11 @@
 Calibration
 ===========
 
-.. currentmodule:: kivi.calibration
+.. module:: kivi.calibration
+
+Check and correct predicted probabilities. :func:`~kivi.calibration.prior_correction` and :func:`~kivi.calibration.corrected_intercept` correct them for the sampling of the development data, :func:`~kivi.calibration.master_scale`, :func:`~kivi.calibration.fit_grade_pd` and :func:`~kivi.calibration.assign_grades` build a master scale and assign its grades, :func:`~kivi.calibration.calibration_table` and the tests count and test the grades, and :func:`~kivi.calibration.platt_fit` and :func:`~kivi.calibration.isotonic_fit` recalibrate a score.
+
+See :doc:`/user_guide/calibration` for examples on the bundled data.
 
 .. autosummary::
 
