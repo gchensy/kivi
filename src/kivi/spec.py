@@ -93,12 +93,6 @@ class BinningSpec:
         `kivi.binning.chimerge_groups`. Categorical columns without an entry
         keep their labels as groups. By default no column is grouped.
 
-    Attributes
-    ----------
-    format_version : int
-        Version of the JSON format that `to_json` writes: 2 if a column is
-        grouped, otherwise 1.
-
     Raises
     ------
     ValueError
