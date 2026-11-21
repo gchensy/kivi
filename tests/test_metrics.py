@@ -848,3 +848,71 @@ def test_normal_quantile_matches_reference_values(probability, expected):
 def test_normal_quantile_rejects_probabilities_outside_the_open_interval(probability):
     with pytest.raises(ValueError, match="probability must be between 0 and 1"):
         normal_quantile(probability)
+
+
+@pytest.mark.parametrize(
+    "current,new,target,weights",
+    [
+        # Two non-events change places: every (event, non-event) pair keeps its order.
+        ([0, 1, 2, 3, 4], [0, 1, 3, 2, 4], [0, 1, 0, 0, 1], [1.5, 0.8, 2.3, 2.9, 2.1]),
+        # Two events change places, and the rounded AUCs differ while the placements agree.
+        ([0, 1, 2, 3], [0, 2, 3, 1], [0, 1, 1, 1], [5, 0.3, 0.7, 0.3]),
+    ],
+)
+def test_delong_test_ignores_rounding_of_fractional_weights(current, new, target, weights):
+    test = delong_test(current, new, target, weights=weights)
+    assert test["difference"] == 0.0 and test["se"] == 0.0
+    assert test["lower"] == test["upper"] == 0.0
+    assert np.isnan(test["z"]) and np.isnan(test["p_value"])
+
+
+def test_delong_test_finds_no_difference_when_classes_reorder_internally():
+    # Swapping two adjacent scores of the same class keeps every (event, non-event) pair in
+    # order, so whatever the weights, the test must not report a difference.
+    rng = np.random.default_rng(21)
+    checked = 0
+    for _ in range(400):
+        n = int(rng.integers(6, 30))
+        target = np.r_[0, 0, 1, 1, rng.integers(0, 2, n - 4)]
+        current = rng.permutation(n).astype(float)
+        k = int(rng.integers(0, n - 1))
+        a, b = np.argsort(current)[k : k + 2]
+        if target[a] != target[b]:
+            continue
+        new = current.copy()
+        new[[a, b]] = current[[b, a]]
+        test = delong_test(current, new, target, weights=rng.uniform(0.5, 5, n))
+        assert test["difference"] == 0.0 and np.isnan(test["p_value"])
+        checked += 1
+    assert checked > 100
+
+
+def test_roc_auc_interval_bounds_stay_ordered_when_the_auc_rounds_past_one():
+    # The weighted AUC rounds to 1 + 2**-52 here, and its standard error is 0.
+    interval = roc_auc_interval([0, 2, 3, 1], [0, 1, 1, 1], weights=[5.0, 0.3, 0.7, 0.3])
+    assert interval.loc["auc", "estimate"] == pytest.approx(1.0, abs=1e-15)
+    assert interval.loc["auc", "lower"] == interval.loc["auc", "upper"] == 1.0
+    assert interval.loc["gini", "lower"] == interval.loc["gini", "upper"] == 1.0
+
+
+def test_one_weighted_row_per_class_is_enough():
+    # A row of weight 3 stands for three observations.
+    interval = roc_auc_interval([1, 2, 3], [0, 0, 1], weights=[1, 1, 3])
+    rows = roc_auc_interval([1, 2, 3, 3, 3], [0, 0, 1, 1, 1])
+    pd.testing.assert_frame_equal(interval, rows)
+
+
+def test_level_is_checked_as_a_float():
+    from fractions import Fraction
+
+    with pytest.raises(ValueError, match=r"level must be a number between 0 and 1, got Fraction"):
+        roc_auc_interval(SCORE, TARGET, level=Fraction(1) - Fraction(1, 10**30))
+    fraction = roc_auc_interval(SCORE, TARGET, level=Fraction(19, 20))
+    pd.testing.assert_frame_equal(fraction, roc_auc_interval(SCORE, TARGET))
+    numpy_level = roc_auc_interval(SCORE, TARGET, level=np.float32(0.5))
+    assert numpy_level.loc["auc", "lower"] > roc_auc_interval(SCORE, TARGET).loc["auc", "lower"]
+
+
+def test_normal_quantile_far_in_the_tail():
+    # scipy.stats.norm.ppf(1e-310); the approximation alone is accurate to about 1e-9.
+    assert normal_quantile(1e-310) == pytest.approx(-37.663060331949524, rel=1e-8)

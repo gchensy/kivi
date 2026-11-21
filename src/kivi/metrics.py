@@ -402,10 +402,10 @@ def roc_auc_interval(
         Finite numeric scores that are higher for a higher event probability.
         Negate scorecard points, which are higher for a lower risk.
     target : array_like
-        Binary labels, with 1 indicating the event. There must be at least
-        two events and two non-events. If `score` and `target` are both
-        pandas Series, they must have identical indices; otherwise they are
-        matched by position.
+        Binary labels, with 1 indicating the event. Without `weights` there
+        must be at least two events and two non-events. If `score` and
+        `target` are both pandas Series, they must have identical indices;
+        otherwise they are matched by position.
     level : float, default 0.95
         Confidence level of the interval, between 0 and 1.
     weights : array_like, optional
@@ -426,12 +426,13 @@ def roc_auc_interval(
     ------
     ValueError
         If the inputs are empty or not one-dimensional, their indices or
-        lengths do not match, `target` has a label other than 0 and 1 or
-        fewer than two of either, or `score` is not real and numeric or has a
-        missing or infinite value. Also if `level` is not a number between 0
-        and 1, or if `weights` is not numeric, does not give each
-        observation one finite, non-negative weight, has an index other than
-        that of `score`, or gives a class a total weight of 1 or less.
+        lengths do not match, `target` has a label other than 0 and 1 or,
+        without `weights`, fewer than two of either, or `score` is not real
+        and numeric or has a missing or infinite value. Also if `level` is
+        not a number between 0 and 1, or if `weights` is not numeric, does
+        not give each observation one finite, non-negative weight, has an
+        index other than that of `score`, or gives a class a total weight of
+        1 or less.
 
     See Also
     --------
@@ -505,7 +506,8 @@ def roc_auc_interval(
     z = _critical_value(level)
     auc = _auc(values, labels, mass)
     se = math.sqrt(_delong_variance(_placements(values, labels, mass), labels, mass))
-    lower, upper = max(auc - z * se, 0.0), min(auc + z * se, 1.0)
+    # A weighted AUC can round to just past 0 or 1, so clip both bounds.
+    lower, upper = np.clip([auc - z * se, auc + z * se], 0.0, 1.0).tolist()
     return pd.DataFrame(
         {
             "estimate": [auc, 2 * auc - 1],
@@ -544,10 +546,10 @@ def delong_test(
         Finite numeric scores of the other model for the same observations,
         in the same direction.
     target : array_like
-        Binary labels, with 1 indicating the event. There must be at least
-        two events and two non-events. Any two of `current`, `new` and
-        `target` that are pandas Series must have identical indices;
-        otherwise they are matched by position.
+        Binary labels, with 1 indicating the event. Without `weights` there
+        must be at least two events and two non-events. Any two of
+        `current`, `new` and `target` that are pandas Series must have
+        identical indices; otherwise they are matched by position.
     level : float, default 0.95
         Confidence level of the interval of the difference, between 0 and 1.
     weights : array_like, optional
@@ -570,13 +572,13 @@ def delong_test(
     ------
     ValueError
         If the inputs are empty or not one-dimensional, their indices or
-        lengths do not match, `target` has a label other than 0 and 1 or
-        fewer than two of either, or `current` or `new` is not real and
-        numeric or has a missing or infinite value. Also if `level` is not
-        a number between 0 and 1, or if `weights` is not numeric, does not
-        give each observation one finite, non-negative weight, has an index
-        other than that of a Series among the scores, or gives a class a
-        total weight of 1 or less.
+        lengths do not match, `target` has a label other than 0 and 1 or,
+        without `weights`, fewer than two of either, or `current` or `new`
+        is not real and numeric or has a missing or infinite value. Also if
+        `level` is not a number between 0 and 1, or if `weights` is not
+        numeric, does not give each observation one finite, non-negative
+        weight, has an index other than that of a Series among the scores,
+        or gives a class a total weight of 1 or less.
 
     See Also
     --------
@@ -608,7 +610,11 @@ def delong_test(
     For a one-sided test that the new score ranks better, halve
     ``p_value`` when ``z`` is positive. When the two scores order every pair
     of an event and a non-event in the same way, the difference and its
-    standard error are both 0, and ``z`` and ``p_value`` are NaN.
+    standard error are both 0, and ``z`` and ``p_value`` are NaN; with
+    fractional weights, a difference and a standard error that are both
+    within rounding error of 0 count as 0. A difference with a standard
+    error of 0, such as that between a constant score and one that
+    separates the classes, gives an infinite ``z`` and a ``p_value`` of 0.
 
     Weights count as in `roc_auc_interval`, so inverse sampling rates give
     too small a standard error.
@@ -651,17 +657,24 @@ def delong_test(
     placement = _placements(new_values, labels, mass) - _placements(current_values, labels, mass)
     se = math.sqrt(_delong_variance(placement, labels, mass))
     difference = new_auc - current_auc
+    if mass is not None:
+        # Counts are exact, but sums of fractional weights are rounded, and in another order for
+        # each score: scores that order every pair alike can differ by rounding alone.
+        rounding = 8 * np.finfo(float).eps * len(labels)
+        if abs(difference) <= rounding and se <= rounding:
+            difference = se = 0.0
     with np.errstate(divide="ignore", invalid="ignore"):
         z = float(np.float64(difference) / se)
     p_value = math.nan if math.isnan(z) else math.erfc(abs(z) / math.sqrt(2))
+    lower, upper = np.clip([difference - z_level * se, difference + z_level * se], -1.0, 1.0)
     return pd.Series(
         {
             "current_auc": current_auc,
             "new_auc": new_auc,
             "difference": difference,
             "se": se,
-            "lower": max(difference - z_level * se, -1.0),
-            "upper": min(difference + z_level * se, 1.0),
+            "lower": float(lower),
+            "upper": float(upper),
             "z": z,
             "p_value": p_value,
         }
@@ -955,7 +968,8 @@ def _check_class_totals(labels: np.ndarray, weights: np.ndarray | None) -> None:
 
 def _critical_value(level) -> float:
     """Return the normal quantile at (1 + level) / 2, for an interval at confidence `level`."""
-    if isinstance(level, bool) or not isinstance(level, Real) or not 0 < level < 1:
+    # The check is on the float that is used, so a level that rounds to 1 is rejected too.
+    if isinstance(level, bool) or not isinstance(level, Real) or not 0 < float(level) < 1:
         raise ValueError(f"level must be a number between 0 and 1, got {level!r}")
     # (1 - level) / 2 keeps its precision when level is close to 1; 0.5 + level / 2 would not.
     return -normal_quantile((1 - float(level)) / 2)
