@@ -20,7 +20,7 @@ and the AUC, Gini and KS are those of :doc:`metrics`, computed on the known outc
 
    \mathrm{PSI}_t = \sum_i (p_{t,i} - q_i) \ln \frac{p_{t,i}}{q_i}.
 
-The reference is either one of the periods, often the first after development, or a separate sample, usually the development sample itself. The PSI does not use the outcomes, so it is available as soon as the scores of a period are. As in :doc:`metrics`, the score rises with the risk: pass a PD as it is and negate scorecard points.
+The reference is either one of the periods, often the first after development, passed as ``reference_period``, or a separate sample, usually the development sample itself, passed as ``reference_score``. The PSI does not use the outcomes, so it is available as soon as the scores of a period are. As in :doc:`metrics`, the score rises with the risk: pass a PD as it is and negate scorecard points.
 
 A worked example
 ----------------
@@ -32,7 +32,7 @@ Three months of four scores each, where two outcomes of March are not known yet.
 >>> score = [0.1, 0.2, 0.3, 0.4, 0.2, 0.3, 0.6, 0.7, 0.5, 0.6, 0.8, 0.9]
 >>> target = [0, 0, 1, 1, 0, 1, 0, 1, 0, np.nan, 1, np.nan]
 >>> period = ["2024-01"] * 4 + ["2024-02"] * 4 + ["2024-03"] * 4
->>> table = monitoring_table(score, period, target, reference="2024-01", bins=2)
+>>> table = monitoring_table(score, period, target, reference_period="2024-01", bins=2)
 >>> table[["total", "known", "event", "event_rate"]]
          total  known  event  event_rate
 period
@@ -51,7 +51,7 @@ January has two scores in each band, February one and three, and March none and 
 A monitoring report
 -------------------
 
-The examples on this page use the synthetic applications of :func:`~kivi.datasets.make_applications`, scored by an incumbent scorecard whose PD is ``incumbent_pd``; see :doc:`datasets`. One sample of 10,000 applications is the development sample, and a second one stands for the 24,000 applications of 2025, 2,000 a month. From October, a new broker channel brings in more applicants on temporary contracts and self-employed ones; the example leaves out half of the permanent employees of the last quarter:
+The examples on this page use the synthetic applications of :func:`~kivi.datasets.make_applications`, scored by an incumbent scorecard whose PD is ``incumbent_pd``; see :doc:`datasets`. One sample of 10,000 applications is the development sample, and a second one stands for the 24,000 applications of 2025, 2,000 a month. From October, a marketing campaign aimed at permanent employees ends, and half of them no longer apply, which changes the mix of applicants; the example leaves out half of the permanent employees of the last quarter:
 
 >>> import pandas as pd
 >>> from kivi.datasets import make_applications
@@ -72,7 +72,7 @@ The outcome of an application is known only if it was approved, and only once it
 ...     applications["incumbent_pd"],
 ...     applications["month"],
 ...     outcome,
-...     reference=development["incumbent_pd"],
+...     reference_score=development["incumbent_pd"],
 ... )
 >>> report.round(3)
          total  known  event  event_rate    auc   gini     ks    psi
@@ -92,7 +92,7 @@ period
 
 The ten score bands are the deciles of the development scores, as :func:`~kivi.binning.bin_edges` fits them, so the PSI of each month compares its scores with the development scores on the same bands.
 
-The volume falls in the last quarter, when the permanent employees are fewer. The event rate stays close to the 9.7% of the approved applications of the development sample, and the Gini coefficient scatters around their value of 0.31:
+The volume falls in the last quarter, when fewer permanent employees apply. The event rate stays close to the 9.7% of the approved applications of the development sample, and the Gini coefficient scatters around their value of 0.31:
 
 >>> from kivi.metrics import gini
 >>> approved = development[development["approved"]]
@@ -101,12 +101,12 @@ The volume falls in the last quarter, when the permanent employees are fewer. Th
 
 With about 130 events a month, the Gini coefficient of a single month moves by several points from sampling noise alone, so read a trend over several months rather than one low value. The last quarter has no known outcomes, and its discrimination is NaN.
 
-The PSI stays at about 0.01 or below up to September and rises to between 0.02 and 0.03 in the last quarter: still a small shift by the usual thresholds. The broker channel has changed the applicants, but employment is only one input of the score, so the score moves less than the population. The variable report below shows which variables moved.
+The PSI stays at about 0.01 or below up to September and rises to about 0.02 to 0.03 in the last quarter: still a small shift by the usual thresholds. The mix of applicants has changed, but employment is only one input of the score, so the score moves less than the population. The variable report below shows which variables moved.
 
 The reference can also be a period, such as the first month of the year. Its PSI is then 0, and the other months are compared with it:
 
 >>> by_month = monitoring_table(
-...     applications["incumbent_pd"], applications["month"], outcome, reference="2025-01"
+...     applications["incumbent_pd"], applications["month"], outcome, reference_period="2025-01"
 ... )
 >>> by_month["psi"].round(3).tail(4)
 period
@@ -140,6 +140,8 @@ Read each column against the development sample rather than against a fixed numb
 
 The PSI of the score follows the conventions of :doc:`psi`: below 0.1 a small shift, from 0.1 to 0.25 a moderate one and above 0.25 a large one. A shift of the score asks which variables moved and whether the event rate moves with them. In a small period the PSI and the discrimination mostly reflect sampling noise, so read them together with ``total`` and ``known``, and set a minimum size before a value raises an alert.
 
+The two functions of this page keep every category of a categorical period as a row, also one without observations, whose counts are 0 and whose other columns are NaN, so that the monthly reports of different samples line up even when a month has no applications. :func:`~kivi.vintage.vintage_table` and :func:`~kivi.calibration.calibration_table` leave such categories out, so join their tables to these by period label rather than by position. Periods that are not categorical are the distinct values that occur, sorted.
+
 Variable stability
 ------------------
 
@@ -156,7 +158,7 @@ Variable stability
 >>> stability = stability_table(
 ...     spec.cut(applications[features]),
 ...     applications["month"],
-...     reference=spec.cut(development[features]),
+...     reference_groups=spec.cut(development[features]),
 ... )
 >>> stability.round(3)
 variable    age  income  debt_to_income  inquiries  housing  employment
@@ -174,7 +176,7 @@ period
 2025-11   0.010   0.004           0.003      0.001    0.000       0.131
 2025-12   0.004   0.004           0.005      0.002    0.001       0.104
 
-Every variable stays below 0.01 up to September. From October, ``employment`` rises above 0.1, a moderate shift, while the other variables do not move: the report points at the broker channel before any of its outcomes are known. Each entry is the PSI of :func:`~kivi.stability.psi_table` for the month alone, which shows the groups that moved:
+Every variable stays below 0.01 up to September. From October, ``employment`` rises above 0.1, a moderate shift, while the other variables do not move: the report points at the change of mix before any outcomes of the new applicants are known. Each entry is the PSI of :func:`~kivi.stability.psi_table` for the month alone, which shows the groups that moved:
 
 >>> from kivi.stability import psi_table
 >>> october = applications["month"] == months[9]
@@ -187,7 +189,7 @@ permanent                0.655          0.492  0.047
 temporary                0.197          0.287  0.034
 self_employed            0.148          0.221  0.030
 
-The share of permanent employees has fallen from 65% to 49%. Whether the new applicants default as the score expects shows only when their outcomes are known; until then, follow the event rate of the first months of the channel closely.
+The share of permanent employees has fallen from 65% to 49%. Whether the new mix defaults as the score expects shows only when its outcomes are known; follow the event rate of the last quarter closely as they arrive.
 
 Missing values
 --------------
@@ -195,12 +197,11 @@ Missing values
 * A missing target is an outcome that is not known yet. Most functions raise an error for a missing label, as :doc:`/api/conventions` describes; :func:`~kivi.monitoring.monitoring_table` reads it as an unknown outcome, as :func:`~kivi.strategy.swap_set` does. It counts in ``total`` but not in ``known``, ``event``, ``event_rate`` or the discrimination, so pass the outcomes that are not yet observed as missing values rather than as 0. A period without both classes among its known outcomes, such as the last quarter above, gets NaN discrimination instead of an error.
 * A missing score or a missing period raises an error: a missing score has no band and no rank, and an observation without a period has no row.
 * In :func:`~kivi.monitoring.stability_table`, a missing value is a group of its own, as in :func:`~kivi.stability.psi_table`, and groups observed in only one of the two samples are included.
-* A categorical period keeps every category as a row, also one without observations, whose counts are 0 and whose other columns are NaN. Monthly reports therefore line up even when a month has no applications. Other periods are the distinct values that occur.
 
 Sample weights
 --------------
 
-Both functions take ``weights``, one non-negative weight per observation, and ``reference_weights`` for a reference sample passed as ``reference``; a reference period takes its weights from ``weights``. Counts become sums of weights, as :doc:`/api/conventions` describes for every function, and the discrimination and the PSI are weighted. On the same band edges, integer weights give the same table as repeating rows. An integer ``bins`` fits the edges by weighted quantiles, as :func:`~kivi.binning.bin_edges` does, so its edges can differ from those of the repeated rows.
+Both functions take ``weights``, one non-negative weight per observation, and ``reference_weights`` for a reference sample passed as ``reference_score`` or ``reference_groups``; a reference period takes its weights from ``weights``. Counts become sums of weights, as :doc:`/api/conventions` describes for every function, and the discrimination and the PSI are weighted. On the same band edges, integer weights give the same table as repeating rows. An integer ``bins`` fits the edges by weighted quantiles, as :func:`~kivi.binning.bin_edges` does, so its edges can differ from those of the repeated rows.
 
 Monitoring samples often keep every event but only some of the non-events. Below, every application with an event or an unknown outcome is kept, but only a quarter of the known non-events, which get a weight of 4:
 
@@ -212,7 +213,7 @@ Monitoring samples often keep every event but only some of the non-events. Below
 ...         sample["incumbent_pd"],
 ...         sample["month"],
 ...         outcome[sampled],
-...         reference=development["incumbent_pd"],
+...         reference_score=development["incumbent_pd"],
 ...         **options,
 ...     )
 ...     return table["event_rate"]
@@ -249,20 +250,20 @@ An integer ``bins`` fits quantile edges on the reference scores. When many refer
 ...         applications["incumbent_pd"].round(1),
 ...         applications["month"],
 ...         outcome,
-...         reference=development["incumbent_pd"].round(1),
+...         reference_score=development["incumbent_pd"].round(1),
 ...     )
 >>> print(caught[0].message)
 tied edges leave 3 of the 10 requested bins; the value 0.1 makes up 56% of the fitted values, pass fewer bins or explicit edges
 
 Pass fewer bins or explicit edges, such as those of the development report, to remove the warning. Explicit edges must cover every score, so use infinite outer edges; a score outside them raises an error.
 
-A ``reference`` that is a single value is read as a period label, and one that is not a period raises an error that lists the first periods:
+The reference is ``reference_period`` or ``reference_score``, or ``reference_groups`` for :func:`~kivi.monitoring.stability_table`; passing neither or both raises an error. A ``reference_period`` that is not one of the periods raises an error that lists the first periods:
 
 >>> monitoring_table(
-...     applications["incumbent_pd"], applications["month"], outcome, reference="2024-12"
+...     applications["incumbent_pd"], applications["month"], outcome, reference_period="2024-12"
 ... )
 Traceback (most recent call last):
     ...
-ValueError: reference must be a period of period or a reference sample, got '2024-12', which is not one of the periods Period('2025-01', 'M'), Period('2025-02', 'M'), Period('2025-03', 'M'), ...
+ValueError: reference_period must be one of the periods Period('2025-01', 'M'), Period('2025-02', 'M'), Period('2025-03', 'M'), ..., got '2024-12'
 
-Pass a reference sample as a list, an array or a Series. A tuple is read as a period label, so that periods such as ``(2025, 1)`` work.
+A list of labels is not a period label, and a boolean mask of the reference rows is not a sample of scores, so both raise an error too. Pass the scores of the reference rows, such as ``score[mask]``, as ``reference_score``.
