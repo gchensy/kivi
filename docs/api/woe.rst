@@ -1,5 +1,5 @@
-Weight of evidence
-==================
+Weight of evidence and information value
+========================================
 
 .. currentmodule:: kivi.woe
 

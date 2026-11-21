@@ -3479,8 +3479,8 @@ msgstr "写出分箱方案。"
 msgid "Rebuild the specification from a dict."
 msgstr "由 dict 重建分箱方案。"
 
-msgid "Population stability"
-msgstr "群体稳定性"
+msgid "Population stability index"
+msgstr "群体稳定性指标"
 
 msgid ":py:obj:`psi_table <kivi.stability.psi_table>`\\ \\(reference\\, current\\, \\*\\[\\, ...\\]\\)"
 msgstr ":py:obj:`psi_table <kivi.stability.psi_table>`\\ \\(reference\\, current\\, \\*\\[\\, ...\\]\\)"
@@ -3758,6 +3758,414 @@ msgstr "[R05dcc8ea5547-1]_"
 msgid "The average points fall from 32.5 to 28.75, by the sum of the ``csi`` column, -3.75."
 msgstr "平均分值从 32.5 降到 28.75，降幅即 ``csi`` 列之和 -3.75。"
 
+msgid "Credit strategy"
+msgstr "信贷策略"
+
+msgid ""
+":py:obj:`cutoff_table <kivi.strategy.cutoff_table>`\\ \\(score\\, target\\, \\*\\[\\, cutoffs\\, "
+"...\\]\\)"
+msgstr ""
+":py:obj:`cutoff_table <kivi.strategy.cutoff_table>`\\ \\(score\\, target\\, \\*\\[\\, cutoffs\\, "
+"...\\]\\)"
+
+msgid "Summarize the approved book and the rejected events at each cut-off."
+msgstr "汇总每个截断点下通过客群的情况及被拒绝的事件。"
+
+msgid ":py:obj:`swap_set <kivi.strategy.swap_set>`\\ \\(current\\, new\\[\\, target\\, weights\\]\\)"
+msgstr ":py:obj:`swap_set <kivi.strategy.swap_set>`\\ \\(current\\, new\\[\\, target\\, weights\\]\\)"
+
+msgid "Compare the decisions of a current and a new score at their cut-offs."
+msgstr "在各自的截断点上比较现行评分与新评分的审批决策。"
+
+msgid ":py:obj:`expected_loss <kivi.strategy.expected_loss>`\\ \\(probability\\, lgd\\, ead\\)"
+msgstr ":py:obj:`expected_loss <kivi.strategy.expected_loss>`\\ \\(probability\\, lgd\\, ead\\)"
+
+msgid "Compute the expected loss of each exposure from its PD, LGD and EAD."
+msgstr "根据 PD、LGD 和 EAD 计算每笔敞口的预期损失。"
+
+msgid ""
+":py:obj:`expected_loss_table <kivi.strategy.expected_loss_table>`\\ \\(groups\\, probability\\, "
+"...\\)"
+msgstr ""
+":py:obj:`expected_loss_table <kivi.strategy.expected_loss_table>`\\ \\(groups\\, probability\\, "
+"...\\)"
+
+msgid "Summarize exposure and expected loss by grade or other group."
+msgstr "按等级或其他分组汇总敞口和预期损失。"
+
+msgid ""
+"A cut-off approves every observation whose score is at or below it, so a higher cut-off approves "
+"more applicants and lets more events through. Each row shows the size and the event rate of the "
+"approved book and the shares of events and non-events that the cut-off rejects."
+msgstr "截断点通过所有评分不高于它的观测，因此截断点越高，通过的申请人越多，放进来的事件也越多。每一行给出通过客群的规模和事件率，以及该截断点拒绝的事件和非事件所占的比例。"
+
+msgid ""
+"Finite numeric scores that are higher for a higher risk, such as a PD. Negate scorecard points, "
+"which are higher for a lower risk."
+msgstr "有限的数值评分，风险越高，评分越高，例如 PD。评分卡分数越高表示风险越低，因此须取负后再传入。"
+
+msgid "**cutoffs**"
+msgstr "**cutoffs**"
+
+msgid ""
+"Number of quantile cut-offs, or increasing cut-off values. An integer `n` uses the edges of "
+"``kivi.binning.bin_edges(score, bins=n)`` above the lowest, so the rows approve about 1/n, 2/n "
+"and so on up to all of the sample, and tied scores can leave fewer rows. Pass explicit values as "
+"a sequence, also for a single cut-off, such as ``[0.1]``. With `weights`, an integer gives "
+"weighted quantiles, as ``bin_edges(score, bins=n, weights=weights)`` does."
+msgstr ""
+"分位数截断点的数量，或递增的截断点取值。整数 `n` 使用 ``kivi.binning.bin_edges(score, bins=n)`` 中最低边界以上的各个边界，因此各行大约通过样本的 "
+"1/n、2/n，依此类推直至全部样本；相同评分可能使行数减少。显式取值须以序列传入，单个截断点也是如此，例如 ``[0.1]`` 。使用 `weights` 时，整数会得到加权分位数，与 "
+"``bin_edges(score, bins=n, weights=weights)`` 相同。"
+
+msgid "**loss**"
+msgstr "**loss**"
+
+msgid ""
+"Non-negative loss of each observation, matched like `target`, such as its expected loss from "
+"`expected_loss` or the loss realized on a defaulted account. The table then has a column "
+"``approved_loss``."
+msgstr "每个观测的非负损失，对应方式与 `target` 相同，例如由 `expected_loss` 得到的预期损失，或违约账户的实际损失。此时表中会增加一列 ``approved_loss`` 。"
+
+msgid ""
+"Non-negative weight of each observation, such as the inverse of its sampling rate, matched like "
+"`target`. Counts and losses become sums of weights. On the same cut-offs, integer weights give "
+"the same table as repeating rows; an integer `cutoffs` can give other cut-offs, because weighted "
+"quantiles use the inverted CDF."
+msgstr ""
+"每个观测的非负权重，例如其抽样比例的倒数，对应方式与 `target` 相同。计数和损失变为权重之和。在相同截断点上，整数权重与重复相应行得到的表相同；而整数 `cutoffs` "
+"可能得到不同的截断点，因为加权分位数采用逆累积分布（inverted CDF）。"
+
+msgid ""
+"One row per cut-off, from the lowest to the highest, indexed by the cut-off value. The columns "
+"are described in the Notes."
+msgstr "每个截断点一行，从低到高排列，以截断点取值为索引。各列含义见“说明”。"
+
+msgid ""
+"If the inputs are empty or not one-dimensional, their indices or lengths do not match, `target` "
+"has a label other than 0 and 1 or lacks one of them, `score` is not real and numeric or has a "
+"missing or infinite value, or `cutoffs` is neither a positive integer nor a sequence of "
+"increasing numbers. Also if `loss` is not numeric or does not give each observation one finite, "
+"non-negative loss, or `weights` is not numeric, does not give each observation one finite, non-"
+"negative weight, has an index other than that of `score`, or leaves a class without weight."
+msgstr ""
+"如果输入为空或不是一维的，索引或长度不一致，`target` 含有 0 和 1 以外的标签或缺少其中之一，`score` 不是实数数值或含有缺失值、无穷值，或 `cutoffs` "
+"既不是正整数也不是递增数值的序列。此外，如果 `loss` 不是数值或没有为每个观测给出一个有限非负的损失，或 `weights` 不是数值、没有为每个观测给出一个有限非负的权重、索引与 "
+"`score` 不同，或使某一类没有权重。"
+
+msgid ""
+"If `cutoffs` is an integer and tied scores leave fewer cut-offs than requested, as in "
+"`kivi.binning.bin_edges`."
+msgstr "如果 `cutoffs` 是整数，且相同评分使截断点少于请求的数量，与 `kivi.binning.bin_edges` 相同。"
+
+msgid ":obj:`swap_set`"
+msgstr ":obj:`swap_set`"
+
+msgid "Compare the decisions of two scores at their cut-offs."
+msgstr "在各自的截断点上比较两个评分的审批决策。"
+
+msgid ":obj:`expected_loss`"
+msgstr ":obj:`expected_loss`"
+
+msgid "Expected loss of each exposure, to pass as `loss`."
+msgstr "每笔敞口的预期损失，可作为 `loss` 传入。"
+
+msgid ":obj:`kivi.metrics.gains_table`"
+msgstr ":obj:`kivi.metrics.gains_table`"
+
+msgid "Event rates of the bands between cut-offs."
+msgstr "相邻截断点之间各评分段的事件率。"
+
+msgid ""
+"A score equal to the cut-off is approved, so tied scores always get the same decision. With the "
+"cut-offs of an integer `cutoffs`, the approved book of a row consists of the bands of "
+"``kivi.metrics.gains_table`` with ``bins=cutoffs`` up to that cut-off."
+msgstr ""
+"等于截断点的评分予以通过，因此相同评分总是得到相同的决策。对于整数 `cutoffs` 给出的截断点，某一行的通过客群由 ``bins=cutoffs`` 时 "
+"``kivi.metrics.gains_table`` 中直至该截断点的各评分段组成。"
+
+msgid "``approved``: observations with a score at or below the cut-off, or the sum of their weights;"
+msgstr "``approved``：评分不高于截断点的观测数，或它们的权重之和；"
+
+msgid "``approval_rate``: ``approved`` divided by the whole sample;"
+msgstr "``approval_rate``：``approved`` 除以整个样本；"
+
+msgid "``approved_event``: events among the approved observations;"
+msgstr "``approved_event``：通过的观测中的事件数；"
+
+msgid ""
+"``approved_event_rate``: ``approved_event`` divided by ``approved``, the bad rate of the approved"
+" book, NaN when nothing is approved;"
+msgstr "``approved_event_rate``：``approved_event`` 除以 ``approved``，即通过客群的坏账率；没有通过任何观测时为 NaN；"
+
+msgid ""
+"``rejected_event_share`` and ``rejected_non_event_share``: shares of all events and of all non-"
+"events with a score above the cut-off;"
+msgstr "``rejected_event_share`` 和 ``rejected_non_event_share``：评分高于截断点的事件和非事件分别占全部事件和全部非事件的比例；"
+
+msgid ""
+"``approved_loss``: with `loss`, the sum of the losses of the approved observations, weighted with"
+" `weights`."
+msgstr "``approved_loss``：传入 `loss` 时，通过的观测的损失之和，按 `weights` 加权。"
+
+msgid ""
+"A higher cut-off raises the approval rate and lowers both rejected shares. "
+"``rejected_event_share`` is the share of bad outcomes the cut-off avoids, and "
+"``rejected_non_event_share`` the share of good business it gives up."
+msgstr ""
+"截断点越高，通过率越高，两个拒绝比例都越低。``rejected_event_share`` 是该截断点避开的坏结果所占比例，``rejected_non_event_share`` "
+"是它放弃的好业务所占比例。"
+
+msgid ""
+"Each score approves the observations at or below its cut-off. The four rows are the observations "
+"both scores approve, the swap-outs that only the current score approves, the swap-ins that only "
+"the new score approves, and those both decline."
+msgstr "每个评分通过不高于其截断点的观测。四行依次为：两个评分都通过的观测、只有现行评分通过的换出（swap-out）、只有新评分通过的换入（swap-in），以及两个评分都拒绝的观测。"
+
+msgid "**current**"
+msgstr "**current**"
+
+msgid ""
+"Finite numeric scores of the current model, higher for a higher risk, such as a PD. Negate "
+"scorecard points."
+msgstr "现行模型的有限数值评分，风险越高，评分越高，例如 PD。评分卡分数须取负。"
+
+msgid "**new**"
+msgstr "**new**"
+
+msgid ""
+"Finite numeric scores of the new model, of the same length as `current` and higher for a higher "
+"risk. The two scores need not be on the same scale."
+msgstr "新模型的有限数值评分，长度与 `current` 相同，风险越高，评分越高。两个评分不必采用同一刻度。"
+
+msgid ""
+"Binary labels, with 1 indicating the event, and missing values for unknown outcomes, such as the "
+"applicants the current score declined. Without `target`, the table only counts the observations."
+msgstr "二元标签，1 表示事件，缺失值表示结果未知，例如被现行评分拒绝的申请人。不传入 `target` 时，表中只统计观测数。"
+
+msgid "**current_cutoff**"
+msgstr "**current_cutoff**"
+
+msgid "Cut-off of the current score. Observations with a `current` score at or below it are approved."
+msgstr "现行评分的截断点。`current` 评分不高于它的观测予以通过。"
+
+msgid "**new_cutoff**"
+msgstr "**new_cutoff**"
+
+msgid "Cut-off of the new score, applied in the same way to `new`."
+msgstr "新评分的截断点，以同样方式作用于 `new`。"
+
+msgid ""
+"Non-negative weight of each observation, such as the inverse of its sampling rate. Counts become "
+"sums of weights, so integer weights give the same table as repeating rows."
+msgstr "每个观测的非负权重，例如其抽样比例的倒数。计数变为权重之和，因此整数权重与重复相应行得到的表相同。"
+
+msgid ""
+"Four rows indexed by the decisions of the two scores, ``current`` and ``new``, each "
+"``\"approve\"`` or ``\"decline\"``. The columns are ``total`` and ``share``, and with `target` "
+"also ``known``, ``event`` and ``event_rate``; see the Notes."
+msgstr ""
+"四行，以两个评分的决策 ``current`` 和 ``new`` 为索引，取值均为 ``\"approve\"`` 或 ``\"decline\"``。列为 ``total`` 和 "
+"``share``，传入 `target` 时还有 ``known``、``event`` 和 ``event_rate``；见“说明”。"
+
+msgid ""
+"If the inputs are empty or not one-dimensional, their lengths differ, or they are Series with "
+"different indices; `current` or `new` is not real and numeric or has a missing or infinite value;"
+" `target` has a value other than 0, 1 and missing; a cut-off is not a number or is missing; or "
+"`weights` is not numeric, does not give each observation one finite, non-negative weight with a "
+"positive total, or has an index other than that of `current`."
+msgstr ""
+"如果输入为空或不是一维的，长度不同，或为索引不同的 Series；`current` 或 `new` 不是实数数值或含有缺失值、无穷值；`target` 含有 0、1 "
+"和缺失值以外的值；截断点不是数值或为缺失值；或 `weights` 不是数值、没有为每个观测给出一个有限非负且总和为正的权重，或索引与 `current` 不同。"
+
+msgid ":obj:`cutoff_table`"
+msgstr ":obj:`cutoff_table`"
+
+msgid "Approval and event rates over a range of cut-offs."
+msgstr "一系列截断点下的通过率和事件率。"
+
+msgid ""
+"The rows ``(\"approve\", \"decline\")`` and ``(\"decline\", \"approve\")`` are the swap-outs and "
+"the swap-ins. Every row is reported, also when it is empty. The columns are:"
+msgstr "``(\"approve\", \"decline\")`` 和 ``(\"decline\", \"approve\")`` 两行分别是换出和换入。每一行都会列出，即使为空。各列为："
+
+msgid "``total``: observations in the row, or the sum of their weights;"
+msgstr "``total``：该行的观测数，或它们的权重之和；"
+
+msgid "``share``: ``total`` divided by the whole sample;"
+msgstr "``share``：``total`` 除以整个样本；"
+
+msgid "``known``: observations in the row with a known outcome;"
+msgstr "``known``：该行中结果已知的观测数；"
+
+msgid "``event``: events in the row;"
+msgstr "``event``：该行的事件数；"
+
+msgid "``event_rate``: ``event`` divided by ``known``, NaN without known outcomes."
+msgstr "``event_rate``：``event`` 除以 ``known``；没有已知结果时为 NaN。"
+
+msgid ""
+"The outcomes of the applicants the current score declined are usually unknown, because they never"
+" received a loan. The rows of current declines, including the swap-ins, then have no "
+"``event_rate``, and the swap set alone cannot show whether the new score accepts better "
+"applicants than it rejects. Reject inference estimates the missing outcomes; pass the inferred "
+"labels, with weights for an augmented sample, to complete the table."
+msgstr ""
+"被现行评分拒绝的申请人从未获得贷款，因此其结果通常未知。这时现行评分拒绝的各行（包括换入）没有 "
+"``event_rate``，仅凭交换集无法判断新评分接受的申请人是否优于它拒绝的申请人。拒绝推断可以估计缺失的结果；传入推断得到的标签（对扩充样本还需传入权重），即可补全该表。"
+
+msgid "The current declines usually have no known outcome:"
+msgstr "现行评分拒绝的申请人通常没有已知结果："
+
+msgid ""
+"The expected loss is the product of the probability of default, the loss given default and the "
+"exposure at default."
+msgstr "预期损失是违约概率、违约损失率与违约风险敞口的乘积。"
+
+msgid "Probabilities of default, from 0 to 1. Missing values give missing losses."
+msgstr "违约概率，取值在 0 到 1 之间。缺失值对应的损失也为缺失。"
+
+msgid "**lgd**"
+msgstr "**lgd**"
+
+msgid ""
+"Loss given default as a share of the exposure, from 0 to 1, as one value for all exposures or one"
+" per exposure."
+msgstr "违约损失率，即损失占敞口的比例，取值在 0 到 1 之间；可以为所有敞口给出一个值，也可以每笔敞口一个值。"
+
+msgid "**ead**"
+msgstr "**ead**"
+
+msgid ""
+"Exposure at default, such as the outstanding balance, finite and non-negative, as one value or "
+"one per exposure."
+msgstr "违约风险敞口，例如未偿余额，须为有限非负值；可以给出一个值，也可以每笔敞口一个值。"
+
+msgid ""
+"Expected losses, in the units of `ead`, with the broadcast shape of the inputs. If an input is a "
+"Series, the result is a Series with its index and name; scalar inputs give a float."
+msgstr "预期损失，单位与 `ead` 相同，形状为各输入广播后的形状。如果某个输入是 Series，结果为具有其索引和名称的 Series；输入均为标量时返回 float。"
+
+msgid ""
+"If an input is not real and numeric, the inputs cannot be broadcast together, Series inputs have "
+"different indices, `probability` or `lgd` has a value outside [0, 1], or `ead` has a negative or "
+"infinite value."
+msgstr "如果某个输入不是实数数值，各输入无法一起广播，作为 Series 的输入索引不同，`probability` 或 `lgd` 含有 [0, 1] 以外的值，或 `ead` 含有负值或无穷值。"
+
+msgid ":obj:`expected_loss_table`"
+msgstr ":obj:`expected_loss_table`"
+
+msgid "Exposure and expected loss by grade."
+msgstr "按等级汇总的敞口和预期损失。"
+
+msgid "Pass the expected losses as `loss` to sum them by cut-off."
+msgstr "将预期损失作为 `loss` 传入，按截断点求和。"
+
+msgid ":obj:`kivi.scorecard.score_to_pd`"
+msgstr ":obj:`kivi.scorecard.score_to_pd`"
+
+msgid "The PD implied by a scorecard score."
+msgstr "评分卡分数所对应的 PD。"
+
+#, python-brace-format
+msgid ""
+"For an exposure with probability of default :math:`\\mathrm{PD}`, loss given default "
+":math:`\\mathrm{LGD}` and exposure at default :math:`\\mathrm{EAD}`,"
+msgstr "对于违约概率为 :math:`\\mathrm{PD}`、违约损失率为 :math:`\\mathrm{LGD}`、违约风险敞口为 :math:`\\mathrm{EAD}` 的敞口，"
+
+#, python-brace-format
+msgid "\\mathrm{EL} = \\mathrm{PD} \\times \\mathrm{LGD} \\times \\mathrm{EAD}."
+msgstr "\\mathrm{EL} = \\mathrm{PD} \\times \\mathrm{LGD} \\times \\mathrm{EAD}."
+
+msgid ""
+"The PD refers to a horizon, usually one year, and the expected loss refers to the same horizon. "
+"Missing values are not checked and give a missing loss."
+msgstr "PD 对应一个期限，通常为一年，预期损失也对应同一期限。缺失值不做检查，对应的损失为缺失。"
+
+msgid ""
+"Each row adds up the exposures and expected losses of a group, such as a grade of a master scale,"
+" and gives their ratio, the expected loss rate."
+msgstr "每一行汇总一个分组（例如主标尺的一个等级）的敞口和预期损失，并给出两者之比，即预期损失率。"
+
+msgid "Probability of default of each exposure, from 0 to 1, without missing values."
+msgstr "每笔敞口的违约概率，取值在 0 到 1 之间，不得含有缺失值。"
+
+msgid "Loss given default, from 0 to 1, as one value for all exposures or one per exposure."
+msgstr "违约损失率，取值在 0 到 1 之间；可以为所有敞口给出一个值，也可以每笔敞口一个值。"
+
+msgid ""
+"Exposure at default, finite and non-negative, as one value or one per exposure. Series inputs "
+"must have identical indices; otherwise the inputs are matched by position."
+msgstr "违约风险敞口，须为有限非负值；可以给出一个值，也可以每笔敞口一个值。作为 Series 传入的输入，索引必须完全相同；否则按位置对应。"
+
+msgid ""
+"Non-negative weight of each exposure, such as the inverse of its sampling rate, matched like "
+"`probability`. Counts, exposures and losses become sums of weights, so integer weights give the "
+"same groups and sums as repeating rows, and groups whose weights sum to zero are left out. Groups"
+" that are not categorical keep the order in which they first appear, also in rows of zero weight,"
+" so their order can differ from that of repeated rows."
+msgstr ""
+"每笔敞口的非负权重，例如其抽样比例的倒数，对应方式与 `probability` "
+"相同。计数、敞口和损失都变为加权和，因此整数权重与重复相应行得到的分组和各项和相同；权重之和为零的分组不列出。非分类型的分组按首次出现的顺序排列，权重为零的行也计入顺序，因此其顺序可能与重复行不同。"
+
+msgid "One row per group with the columns described in the Notes."
+msgstr "每个分组一行，各列含义见“说明”。"
+
+msgid ""
+"If `groups` or `probability` is empty or not one-dimensional, an input does not have one value "
+"per exposure or a Series index other than that of the others, `probability`, `lgd` or `ead` is "
+"not real and numeric or has a missing value, `probability` or `lgd` has a value outside [0, 1], "
+"or `ead` has a negative or infinite value. Also if `weights` is not numeric, does not give each "
+"exposure one finite, non-negative weight with a positive total, or has an index other than that "
+"of `groups`."
+msgstr ""
+"如果 `groups` 或 `probability` 为空或不是一维的，某个输入没有为每笔敞口给出一个值，或其 Series 索引与其他输入不同，`probability`、`lgd` 或 "
+"`ead` 不是实数数值或含有缺失值，`probability` 或 `lgd` 含有 [0, 1] 以外的值，或 `ead` 含有负值或无穷值。此外，如果 `weights` "
+"不是数值、没有为每笔敞口给出一个有限非负且总和为正的权重，或索引与 `groups` 不同。"
+
+msgid "Expected loss of each exposure."
+msgstr "每笔敞口的预期损失。"
+
+msgid ":obj:`kivi.calibration.calibration_table`"
+msgstr ":obj:`kivi.calibration.calibration_table`"
+
+msgid "Observed and predicted default rates by grade."
+msgstr "按等级比较实际与预测的违约率。"
+
+msgid "For the exposures :math:`i` of a group, with weights :math:`w_i`, the columns are:"
+msgstr "对于一个分组中权重为 :math:`w_i` 的敞口 :math:`i`，各列为："
+
+msgid "``total``: the number of exposures, :math:`\\sum_i w_i`;"
+msgstr "``total``：敞口数， :math:`\\sum_i w_i`；"
+
+#, python-brace-format
+msgid "``exposure``: :math:`\\sum_i w_i \\mathrm{EAD}_i`;"
+msgstr "``exposure``： :math:`\\sum_i w_i \\mathrm{EAD}_i`；"
+
+#, python-brace-format
+msgid ""
+"``exposure_weighted_probability``: :math:`\\sum_i w_i \\mathrm{EAD}_i \\mathrm{PD}_i / \\sum_i "
+"w_i \\mathrm{EAD}_i`;"
+msgstr ""
+"``exposure_weighted_probability``： :math:`\\sum_i w_i \\mathrm{EAD}_i \\mathrm{PD}_i / \\sum_i "
+"w_i \\mathrm{EAD}_i`；"
+
+#, python-brace-format
+msgid "``expected_loss``: :math:`\\sum_i w_i \\mathrm{PD}_i \\mathrm{LGD}_i \\mathrm{EAD}_i`;"
+msgstr "``expected_loss``： :math:`\\sum_i w_i \\mathrm{PD}_i \\mathrm{LGD}_i \\mathrm{EAD}_i`；"
+
+msgid "``expected_loss_rate``: ``expected_loss`` divided by ``exposure``."
+msgstr "``expected_loss_rate``：``expected_loss`` 除以 ``exposure``。"
+
+msgid ""
+"The two ratios are NaN for a group without exposure. With one LGD for all exposures, "
+"``expected_loss_rate`` is the LGD times ``exposure_weighted_probability``. The portfolio's "
+"expected loss is the sum of the ``expected_loss`` column, and its expected loss rate is that sum "
+"divided by the sum of ``exposure``."
+msgstr ""
+"没有敞口的分组，两个比率均为 NaN。所有敞口使用同一 LGD 时，``expected_loss_rate`` 等于 LGD 乘以 "
+"``exposure_weighted_probability``。组合的预期损失是 ``expected_loss`` 列之和，其预期损失率是该和除以 ``exposure`` 之和。"
+
 msgid "Univariate profile"
 msgstr "单变量概况"
 
@@ -3949,8 +4357,8 @@ msgstr "快速分箱只给出初步排序而非最终排序：五个等频箱的
 msgid "With a target, the event rates and the separation of each column:"
 msgstr "有目标变量时，给出各列的事件率和区分能力："
 
-msgid "Portfolio analysis"
-msgstr "资产组合分析"
+msgid "Vintage and roll-rate analysis"
+msgstr "Vintage 与滚动率分析"
 
 msgid ""
 ":py:obj:`vintage_table <kivi.vintage.vintage_table>`\\ \\(loan\\, cohort\\, month\\_on\\_book\\, "
@@ -4245,8 +4653,8 @@ msgid ""
 "after one month per roll, if the movements follow a Markov chain."
 msgstr "状态改善、保持不变或恶化超过一档的对象只计入分母。从一个月末到下一个月末，贷款最多再恶化一个逾期档位，因此如果迁移服从马尔可夫链，各滚动率的乘积估计了正常贷款在经过与滚动次数相同的月数后处于最差档位的比例。"
 
-msgid "Weight of evidence"
-msgstr "证据权重"
+msgid "Weight of evidence and information value"
+msgstr "证据权重与信息值"
 
 msgid ":py:obj:`woe_table <kivi.woe.woe_table>`\\ \\(groups\\, target\\, \\*\\[\\, smoothing\\, ...\\]\\)"
 msgstr ":py:obj:`woe_table <kivi.woe.woe_table>`\\ \\(groups\\, target\\, \\*\\[\\, smoothing\\, ...\\]\\)"
@@ -4473,8 +4881,303 @@ msgstr "\\mathrm{IV} = \\sum_i (p_i - q_i) \\ln \\frac{p_i}{q_i},"
 msgid "which equals the sum of the ``iv`` column of `woe_table` for the same groups."
 msgstr "它等于相同分组下 `woe_table` 中 ``iv`` 列之和。"
 
+msgid "Writing documentation"
+msgstr "编写文档"
+
+msgid ""
+"The English and the simplified Chinese editions are built from the same pages and docstrings. "
+"This page describes how they are organized and written. :doc:`index` covers the checks that every"
+" pull request runs."
+msgstr "英文版和简体中文版由同一套页面和 docstring 构建。本页说明文档的组织方式和写法；每个拉取请求都要运行的检查见 :doc:`index` 。"
+
+msgid "Kinds of pages"
+msgstr "页面类型"
+
+msgid ""
+"Apart from the home page and the index page of each section, every page is one of five kinds, and"
+" its kind decides what it contains."
+msgstr "除首页和各部分的目录页外，每个页面都属于下列五种类型之一，类型决定了页面的内容。"
+
+msgid "Kind"
+msgstr "类型"
+
+msgid "Pages"
+msgstr "页面"
+
+msgid "Contents"
+msgstr "内容"
+
+msgid "Tutorial"
+msgstr "教程"
+
+msgid "The pages of the getting started section, and :doc:`/user_guide/risk_workflow`"
+msgstr "快速开始部分的各个页面，以及 :doc:`/user_guide/risk_workflow`"
+
+msgid ""
+"The installation, and worked examples on the bundled data from start to finish. They link to the "
+"topic guides for the details instead of repeating them."
+msgstr "安装说明，以及用随包数据从头到尾完成的示例。细节链接到对应的主题指南，不在教程里重复。"
+
+msgid "Topic guide"
+msgstr "主题指南"
+
+msgid "The other pages of the user guide"
+msgstr "用户指南的其余页面"
+
+msgid ""
+"One step of a risk model: what it measures, an example and how to read the result. "
+":doc:`/user_guide/datasets` describes the example data in the same way."
+msgstr "风控模型中的一个步骤：它衡量什么、一个示例，以及如何解读结果。 :doc:`/user_guide/datasets` 以同样的方式介绍示例数据。"
+
+msgid "Reference"
+msgstr "参考"
+
+msgid "The pages of the API reference"
+msgstr "API 参考的各个页面"
+
+msgid "One page per public module, generated from its docstrings."
+msgstr "每个公共模块一页，由模块的 docstring 生成。"
+
+msgid "Release notes"
+msgstr "版本说明"
+
+msgid ":doc:`/release/index` and :doc:`/release/migration`"
+msgstr ":doc:`/release/index` 和 :doc:`/release/migration`"
+
+msgid ""
+"What changed in each version, and how to move code from the 0.2.x classes to their replacements. "
+"The notes of a released version are not edited. The migration guide is revised whenever a release"
+" changes what it describes."
+msgstr "每个版本的变化，以及如何把使用 0.2.x 类的代码迁移到替代接口。已发布版本的说明不再修改；当某个版本改变了迁移指南所描述的内容时，迁移指南随之修订。"
+
+msgid "Contributor guide"
+msgstr "贡献者指南"
+
+msgid "The pages of this section"
+msgstr "本节的各个页面"
+
+msgid ""
+"How to work on kivi. :doc:`legacy_review` records the review of the 0.2.x code that preceded the "
+"rewrite."
+msgstr "如何参与 kivi 的开发。 :doc:`legacy_review` 记录重写之前对 0.2.x 代码的评审。"
+
+msgid "Where pages live"
+msgstr "页面位置"
+
+msgid ""
+"A public module ``kivi.<module>`` has an API page ``docs/api/<module>.rst`` and usually a topic "
+"guide ``docs/user_guide/<topic>.rst``. The toctrees of the API reference and of the user guide "
+"end with a glob, so a new page appears without editing them."
+msgstr ""
+"公共模块 ``kivi.<module>`` 有一个 API 页面 ``docs/api/<module>.rst`` ，通常还有一个主题指南 "
+"``docs/user_guide/<topic>.rst`` 。API 参考和用户指南的 toctree 都以通配符结尾，所以新页面无需修改它们就会出现。"
+
+msgid ""
+"Page names are part of the URLs, and the language switch links each page to the page of the same "
+"name in the other edition. Change the title of a page rather than renaming or removing it."
+msgstr "页面名是 URL 的一部分，语言切换也会把每个页面链接到另一种语言中同名的页面。需要调整时改页面标题，不要重命名或删除页面。"
+
+msgid ""
+"The API page of a module and its topic guide have the same title. Its cards and its rows in the "
+"README use that title or a short form of it, such as WOE and IV."
+msgstr "同一个模块的 API 页面和主题指南使用同一个标题。它的卡片和 README 中的行使用这个标题或其简称，例如 WOE 与 IV。"
+
+msgid "Topic guides"
+msgstr "主题指南"
+
+msgid ""
+"A topic guide follows the order of an analysis, so that readers can stop as soon as they have "
+"what they need:"
+msgstr "主题指南按分析的顺序组织，读者找到所需内容即可停下："
+
+msgid ""
+"An opening paragraph: the question that the step answers, where it sits in a risk model, and "
+"links to the steps before and after it."
+msgstr "开篇一段：这一步回答什么问题，在风控模型中处于什么位置，并链接到前后的步骤。"
+
+msgid "The definition, with the formula in a math block when there is one."
+msgstr "定义；有公式时放在 math 块中。"
+
+msgid "A worked example on the bundled data."
+msgstr "基于随包数据的计算示例。"
+
+msgid "How to read the result: the direction of the measure, the usual thresholds and what to check next."
+msgstr "如何解读结果：指标的方向、常用阈值，以及接下来要检查什么。"
+
+msgid ""
+"Variants, each in a section with a fixed title: ``Special values``, ``Missing values`` or "
+"``Sample weights``."
+msgstr ""
+"各种变体，每种放在一个固定标题的小节中： ``Special values`` （特殊值）、 ``Missing values`` （缺失值）或 ``Sample weights`` "
+"（样本权重）。"
+
+msgid "The errors and warnings that readers are likely to meet, and how to resolve them."
+msgstr "读者可能遇到的错误和警告，以及解决方法。"
+
+msgid ""
+"Leave out the parts that do not apply, but keep their order and titles, so that the guides read "
+"alike."
+msgstr "不适用的部分可以省略，但要保持顺序和标题不变，让各篇指南读起来一致。"
+
+msgid ""
+"Examples are doctests, and the ``build`` check runs them. Their output is real: when a change "
+"alters a printed table, run the code again and paste the new output instead of editing the "
+"numbers."
+msgstr "示例都是 doctest，由 ``build`` 检查运行。输出必须真实：改动影响了打印出的表格时，重新运行代码并粘贴新的输出，不要手工修改数字。"
+
+msgid ""
+"Examples use the data described in :doc:`/user_guide/datasets`, or a few values that readers can "
+"check by hand. Random data comes from a generator with a fixed seed."
+msgstr "示例使用 :doc:`/user_guide/datasets` 中介绍的数据，或者少量读者能手工验算的数值。随机数据由固定种子的生成器产生。"
+
+msgid "Import each function from its module, as in ``from kivi.woe import woe_table``."
+msgstr "每个函数都从其所在模块导入，例如 ``from kivi.woe import woe_table`` 。"
+
+msgid ""
+"Examples must not warn: a warning raised by a doctest or by a chart recipe in docs/_plotting.py "
+"fails the build. When an example is about a warning, catch it with "
+"``warnings.catch_warnings(record=True)`` and print the message."
+msgstr ""
+"示例不能产生警告：doctest 或 docs/_plotting.py 中的图表函数一旦发出警告，构建就会失败。如果示例要演示某个警告，请用 "
+"``warnings.catch_warnings(record=True)`` 捕获它并打印警告信息。"
+
+msgid "Charts"
+msgstr "图表"
+
+msgid ""
+"Charts are drawn when the documentation is built. A ``plot`` directive calls a ``figure_*`` "
+"function in ``docs/_plotting.py``, which recomputes the example shown just above the chart, so "
+"change the two together. Text inside a chart is limited to kivi's column and parameter names and "
+"to data values, so that one image serves both editions. The caption and the alternative text are "
+"translated."
+msgstr ""
+"图表在构建文档时绘制。 ``plot`` 指令调用 ``docs/_plotting.py`` 中的 ``figure_*`` "
+"函数，该函数重新计算图表上方示例的结果，所以两者要一起修改。图中的文字只使用 kivi 的列名、参数名和数据值，这样一张图可以同时用于两种语言。图注和替代文本会被翻译。"
+
+msgid ""
+"A pull request that adds a module describes the charts for its page in its description. They are "
+"added to ``docs/_plotting.py`` when the page is integrated, together with the entry points."
+msgstr "新增模块的拉取请求在描述中说明其页面需要的图表。这些图表在集成该页面时，与入口页面一起加入 ``docs/_plotting.py`` 。"
+
+msgid "Names and links"
+msgstr "名称与链接"
+
+msgid ""
+"Write function, argument and column names as inline code, such as ``woe_table``, ``special`` or "
+"``event_rate``."
+msgstr "函数名、参数名和列名写成行内代码，例如 ``woe_table`` 、 ``special`` 或 ``event_rate`` 。"
+
+msgid ""
+"In a topic guide, link the first mention of each kivi function to its API entry. Use the "
+"``:func:`` role with the full name, such as ``kivi.woe.woe_table``, and a leading tilde, so that "
+"only the function name is shown."
+msgstr ""
+"在主题指南中，每个 kivi 函数第一次出现时链接到它的 API 条目。使用 ``:func:`` 角色和完整名称，例如 ``kivi.woe.woe_table`` "
+"，并在前面加波浪号，这样只显示函数名。"
+
+msgid ""
+"Link to another page with the ``:doc:`` role and to a section of another page with the ``:ref:`` "
+"role. Give a section a label only when a link points to it."
+msgstr "链接到其他页面用 ``:doc:`` 角色，链接到其他页面的某个小节用 ``:ref:`` 角色。只有当某个链接指向一个小节时，才给它加标签。"
+
+msgid ""
+"The API page of a module documents every name in the module's ``__all__``: first in an "
+"``autosummary`` table, then each with its own ``autofunction``, ``autoclass``, ``autoexception`` "
+"or ``automethod`` entry, in the same order. ``python docs/build.py`` stops when a name has no "
+"such entry."
+msgstr ""
+"模块的 API 页面要记录模块 ``__all__`` 中的每个名称：先列在 ``autosummary`` 表中，再按同样的顺序各自给出 ``autofunction`` 、 "
+"``autoclass`` 、 ``autoexception`` 或 ``automethod`` 条目。某个名称没有这样的条目时， ``python docs/build.py`` 会停止。"
+
+msgid ""
+"Docstrings follow the numpydoc conventions and are validated with every check enabled, so a "
+"missing section, such as See Also or Examples, fails the build. Their paragraphs are translated "
+"like those of the pages."
+msgstr "docstring 遵循 numpydoc 约定，并启用全部校验项，因此缺少某个小节（例如 See Also 或 Examples）会导致构建失败。docstring 的段落和页面一样需要翻译。"
+
+msgid "Translations"
+msgstr "翻译"
+
+msgid ""
+"The Chinese edition is generated from ``docs/locale/zh_CN/LC_MESSAGES/kivi.po``. Every paragraph "
+"of the English pages and of the public docstrings is one entry in that file. ``python "
+"docs/build.py`` stops when an entry is missing, fuzzy or no longer used."
+msgstr ""
+"中文版由 ``docs/locale/zh_CN/LC_MESSAGES/kivi.po`` 生成。英文页面和公共 docstring "
+"中的每个段落都对应该文件中的一个条目。如果有条目缺失、标记为 fuzzy 或已不再使用，``python docs/build.py`` 会停止构建。"
+
+msgid "After changing English text:"
+msgstr "修改英文内容后："
+
+msgid ""
+"Run ``python docs/build.py --update-po``. New strings are added with an empty translation, and "
+"changed strings keep their old translation marked as fuzzy."
+msgstr "运行 ``python docs/build.py --update-po``。新字符串以空译文加入，已修改的字符串保留旧译文并标记为 fuzzy。"
+
+msgid "Translate the empty entries, review the fuzzy ones and delete their ``#, fuzzy`` line."
+msgstr "翻译空条目，复核 fuzzy 条目并删除其 ``#, fuzzy`` 行。"
+
+msgid "Run ``python docs/build.py`` again."
+msgstr "再次运行 ``python docs/build.py``。"
+
+msgid ""
+"In a translation, put a space or Chinese punctuation on both sides of inline markup such as "
+"inline code and links, or the markup is not recognized. Translate each term as the catalog "
+"already translates it, so that the edition keeps one vocabulary."
+msgstr "翻译时，行内代码、链接等行内标记的两侧要留空格或使用中文标点，否则标记无法识别。每个术语沿用翻译目录中已有的译法，让中文版保持统一的用词。"
+
+msgid "Entry points"
+msgstr "入口页面"
+
+msgid ""
+"Some pages describe the library as a whole: ``README.md`` and ``README.zh-CN.md``, the home page,"
+" the index of the user guide and :doc:`/user_guide/risk_workflow`. A pull request that adds a "
+"module leaves them alone. They are updated together after a group of such pull requests has "
+"merged, and that update rewrites them for the library as it now is instead of only appending to "
+"them:"
+msgstr ""
+"有些页面描述整个库： ``README.md`` 和 ``README.zh-CN.md`` 、首页、用户指南目录页以及 :doc:`/user_guide/risk_workflow` "
+"。新增模块的拉取请求不修改它们。它们在一批这样的拉取请求合并之后统一更新，而且这次更新要按库的现状重写，而不只是追加内容："
+
+msgid "the title, the introduction and the steps on the home page;"
+msgstr "首页的标题、简介和步骤；"
+
+msgid "the cards on the home page and on the index of the user guide, and the order of the user guide;"
+msgstr "首页和用户指南目录页上的卡片，以及用户指南的页面顺序；"
+
+msgid "the tables and the roadmap of both READMEs;"
+msgstr "两份 README 中的表格和路线图；"
+
+msgid "any sentence in :doc:`/release/migration` about functionality that is not ported yet."
+msgstr ":doc:`/release/migration` 中关于尚未迁移功能的所有表述。"
+
+msgid ""
+"``python docs/build.py`` lists every public function that the API tables of the READMEs leave "
+"out, and every user guide page without a card on the index of the user guide or a link in the "
+"READMEs. ``python docs/build.py --release`` refuses to run until the list is empty."
+msgstr ""
+"``python docs/build.py`` 会列出 README 的 API 表格中遗漏的每个公共函数，以及每个在用户指南目录页上没有卡片、或在 README "
+"中没有链接的用户指南页面。在这个列表清空之前， ``python docs/build.py --release`` 拒绝运行。"
+
+msgid "Publishing the documentation"
+msgstr "发布文档"
+
+msgid ""
+"The ``Documentation`` workflow on GitHub Actions runs the tests and builds both editions for "
+"every pull request. On the master branch it also publishes docs/_build/html to the gh-pages "
+"branch, which serves https://gchensy.github.io/kivi/."
+msgstr ""
+"GitHub Actions 上的 ``Documentation`` 工作流会对每个拉取请求运行测试并构建两种语言的文档。在 master 分支上，它还会把 docs/_build/html "
+"发布到 gh-pages 分支，通过 https://gchensy.github.io/kivi/ 访问。"
+
 msgid "Development"
 msgstr "开发"
+
+msgid ""
+"This section is for contributors. This page sets up a checkout and describes the checks and the "
+"rules for pull requests. :doc:`documentation` describes how the documentation is organized, "
+"written and translated, and :doc:`releasing` how a version is published."
+msgstr "本节面向贡献者。本页介绍如何准备本地仓库，以及检查项和拉取请求的规则。 :doc:`documentation` 介绍文档的组织、写法和翻译， :doc:`releasing` 介绍如何发布版本。"
 
 msgid "Set up"
 msgstr "环境准备"
@@ -4500,14 +5203,6 @@ msgid ""
 "writes English and simplified Chinese editions under docs/_build/html. API signatures come from "
 "the installed package."
 msgstr "doctest 构建器会运行本文档页面和 docstring 中的全部示例。HTML 构建会在 docs/_build/html 下生成英文和简体中文两套文档。API 签名从已安装的包提取。"
-
-msgid ""
-"Examples must not warn: a warning raised by a doctest or by a chart recipe in docs/_plotting.py "
-"fails the build. When an example is about a warning, catch it with "
-"``warnings.catch_warnings(record=True)`` and print the message."
-msgstr ""
-"示例不能产生警告：doctest 或 docs/_plotting.py 中的图表函数一旦发出警告，构建就会失败。如果示例要演示某个警告，请用 "
-"``warnings.catch_warnings(record=True)`` 捕获它并打印警告信息。"
 
 msgid "Pull requests"
 msgstr "拉取请求"
@@ -4548,112 +5243,19 @@ msgstr ""
 msgid ""
 "A pull request that adds a module therefore only adds files: the module, its tests, a user guide "
 "page, an API page in ``docs/api/`` and a release note. The API reference and the user guide pick "
-"up new pages automatically. The README tables, the cards on the home page and on the user guide "
-"index, and the risk modeling workflow are updated together after a group of such pull requests "
-"has merged."
+"up new pages automatically. The pages that describe the whole library are updated together after "
+"a group of such pull requests has merged, as :doc:`documentation` describes."
 msgstr ""
-"因此，新增模块的 pull request 只需新增文件：模块本身、它的测试、一个用户指南页面、 ``docs/api/`` 中的一个 API 页面，以及一条发布说明。API "
-"参考和用户指南会自动收录新页面。README 中的表格、首页和用户指南目录页上的卡片，以及风控建模流程页，会在一批这样的 pull request 合并之后统一更新。"
-
-msgid "Translations"
-msgstr "翻译"
-
-msgid ""
-"The Chinese edition is generated from ``docs/locale/zh_CN/LC_MESSAGES/kivi.po``. Every paragraph "
-"of the English pages and of the public docstrings is one entry in that file. ``python "
-"docs/build.py`` stops when an entry is missing, fuzzy or no longer used."
-msgstr ""
-"中文版由 ``docs/locale/zh_CN/LC_MESSAGES/kivi.po`` 生成。英文页面和公共 docstring "
-"中的每个段落都对应该文件中的一个条目。如果有条目缺失、标记为 fuzzy 或已不再使用，``python docs/build.py`` 会停止构建。"
-
-msgid "After changing English text:"
-msgstr "修改英文内容后："
-
-msgid ""
-"Run ``python docs/build.py --update-po``. New strings are added with an empty translation, and "
-"changed strings keep their old translation marked as fuzzy."
-msgstr "运行 ``python docs/build.py --update-po``。新字符串以空译文加入，已修改的字符串保留旧译文并标记为 fuzzy。"
-
-msgid "Translate the empty entries, review the fuzzy ones and delete their ``#, fuzzy`` line."
-msgstr "翻译空条目，复核 fuzzy 条目并删除其 ``#, fuzzy`` 行。"
-
-msgid "Run ``python docs/build.py`` again."
-msgstr "再次运行 ``python docs/build.py``。"
-
-msgid ""
-"Both editions must keep the same page names, because the language switch links each page to its "
-"counterpart."
-msgstr "两种语言的页面名称必须保持一致，因为语言切换按钮会链接到另一语言中的同名页面。"
-
-msgid "Publishing the documentation"
-msgstr "发布文档"
-
-msgid ""
-"The ``Documentation`` workflow on GitHub Actions runs the tests and builds both editions for "
-"every pull request. On the master branch it also publishes docs/_build/html to the gh-pages "
-"branch, which serves https://gchensy.github.io/kivi/."
-msgstr ""
-"GitHub Actions 上的 ``Documentation`` 工作流会对每个拉取请求运行测试并构建两种语言的文档。在 master 分支上，它还会把 docs/_build/html "
-"发布到 gh-pages 分支，通过 https://gchensy.github.io/kivi/ 访问。"
-
-msgid "Releasing to PyPI"
-msgstr "发布到 PyPI"
-
-msgid ""
-"The ``Release`` workflow publishes kivi to PyPI when a version tag is pushed. It uses PyPI "
-"trusted publishing, so no API token is stored in the repository."
-msgstr "推送版本标签时，``Release`` 工作流会把 kivi 发布到 PyPI。它使用 PyPI 可信发布（trusted publishing），因此仓库中不保存任何 API 令牌。"
-
-msgid ""
-"Set ``version`` in ``pyproject.toml`` to the new version, for example ``0.3.1``. Run ``python "
-"docs/build.py --release 0.3.1``, which moves the release-note files into a section of "
-":doc:`/release/index` dated today, and translate the new heading."
-msgstr ""
-"把 ``pyproject.toml`` 中的 ``version`` 改为新版本号，例如 ``0.3.1`` 。运行 ``python docs/build.py --release "
-"0.3.1`` ，它会把发布说明文件移入 :doc:`/release/index` 中以当天日期命名的新章节；然后翻译新章节的标题。"
-
-msgid "Merge the change into the master branch."
-msgstr "将改动合并到 master 分支。"
-
-msgid "Tag the merged commit with ``v`` followed by the version and push the tag:"
-msgstr "在合并后的提交上打 ``v`` 加版本号的标签，并推送该标签："
-
-msgid ""
-"Pushing the tag starts the upload without an approval step, so push it only when the release is "
-"ready. The workflow stops before anything is uploaded if the tag does not match the version or "
-"points at a commit that is not on master. Otherwise it runs the tests, builds the source "
-"distribution and the wheel, checks them with twine and uploads them to PyPI. Only then does it "
-"create the GitHub release, with the distributions attached and notes generated from the merged "
-"pull requests. A version such as ``0.4.0rc1`` is marked as a pre-release."
-msgstr ""
-"推送标签后上传会直接开始，没有审批环节，因此只在准备好发布时才推送标签。如果标签与版本号不一致，或者标签指向的提交不在 master "
-"上，工作流会在上传任何内容之前停止。否则它会运行测试，构建源码包和 wheel，用 twine 检查后上传到 PyPI。上传成功后，它才会创建 GitHub "
-"release，附上安装包，并根据已合并的拉取请求生成说明。``0.4.0rc1`` 这类版本会被标记为预发布。"
-
-msgid "The repository protects this path in three places:"
-msgstr "仓库在三处保护这条发布路径："
-
-msgid "Only repository administrators can create, move or delete ``v*`` tags."
-msgstr "只有仓库管理员可以创建、移动或删除 ``v*`` 标签。"
-
-msgid "The ``pypi`` environment accepts deployments from ``v*`` tags only."
-msgstr "``pypi`` 环境只接受来自 ``v*`` 标签的部署。"
-
-msgid ""
-"PyPI trusts only the ``release.yml`` workflow of ``gchensy/kivi`` running in the ``pypi`` "
-"environment."
-msgstr "PyPI 只信任 ``gchensy/kivi`` 中在 ``pypi`` 环境下运行的 ``release.yml`` 工作流。"
-
-msgid ""
-"PyPI never accepts the same version twice. If a run fails before the upload, delete the tag with "
-"``git push origin :refs/tags/v0.3.1``, fix the problem and tag again. If the upload succeeded, "
-"release the fix under a new version."
-msgstr ""
-"PyPI 不接受重复上传同一个版本。如果运行在上传之前失败，可以用 ``git push origin :refs/tags/v0.3.1`` "
-"删除标签，修复问题后重新打标签。如果已经上传成功，请用新的版本号发布修复。"
+"因此，新增模块的拉取请求只需新增文件：模块本身、它的测试、一个用户指南页面、 ``docs/api/`` 中的一个 API 页面，以及一条发布说明。API "
+"参考和用户指南会自动收录新页面。描述整个库的页面会在一批这样的拉取请求合并之后统一更新，见 :doc:`documentation` 。"
 
 msgid "Legacy review"
 msgstr "旧版评审"
+
+msgid ""
+"This review of the 0.2.x code guided the rewrite in 0.3.0. Its findings describe the legacy "
+"implementation; :doc:`/release/migration` describes how each part was replaced."
+msgstr "这份对 0.2.x 代码的评审指导了 0.3.0 的重写。其中的发现描述的是旧版实现；各部分的替代方式见 :doc:`/release/migration` 。"
 
 msgid "Findings from the legacy implementation"
 msgstr "旧版实现中的问题"
@@ -4695,15 +5297,78 @@ msgid ""
 "and keep business SQL and local configuration outside the distribution."
 msgstr "项目范围。旧目录混合了建模算法、数据库、分布式计算、笔记本与部署配置。新增集成时应在可选模块内导入相应依赖，将业务 SQL 和本地配置保留在分发包之外。"
 
-msgid "Migration order"
-msgstr "迁移顺序"
+msgid "Outcome"
+msgstr "落实情况"
 
 msgid ""
-"Start with a fixed scorecard example. Compare old and new WOE on the same labeled rows, then "
-"validate score transformation and model evaluation against stored outputs. Port weighted or "
-"supervised binning next when a workflow requires it. Restore Spark and SQL independently after "
-"the core inputs and outputs are stable."
-msgstr "先固定一份评分卡样本，在相同标签和分箱上比较新旧 WOE，再用存档结果验证评分转换与模型评估。按业务需要迁移加权或监督分箱。核心输入输出稳定后，再分别接入 Spark 和 SQL。"
+"The rewrite began with binning, WOE and PSI and then rebuilt the rest of the scorecard workflow, "
+"checking each part against the legacy outputs or reference implementations on fixed samples. "
+":doc:`/release/index` lists the parts release by release. Spark, SQL, AHP and the model wrappers "
+"were not rebuilt. They are out of scope and remain in the repository history before the rewrite."
+msgstr ""
+"重写从分箱、WOE 和 PSI 开始，随后重建了评分卡流程的其余部分，每一部分都在固定样本上与旧版输出或参考实现核对过。 :doc:`/release/index` "
+"按版本列出了这些部分。Spark、SQL、AHP 和模型封装没有重建：它们不在范围内，保留在重写之前的仓库历史中。"
+
+msgid "Releasing to PyPI"
+msgstr "发布到 PyPI"
+
+msgid ""
+"The ``Release`` workflow publishes kivi to PyPI when a version tag is pushed. It uses PyPI "
+"trusted publishing, so no API token is stored in the repository."
+msgstr "推送版本标签时，``Release`` 工作流会把 kivi 发布到 PyPI。它使用 PyPI 可信发布（trusted publishing），因此仓库中不保存任何 API 令牌。"
+
+msgid ""
+"Set ``version`` in ``pyproject.toml`` to the new version, for example ``0.3.1``. Run ``python "
+"docs/build.py --release 0.3.1``, which moves the release-note files into a section of "
+":doc:`/release/index` dated today, and translate the new heading."
+msgstr ""
+"把 ``pyproject.toml`` 中的 ``version`` 改为新版本号，例如 ``0.3.1`` 。运行 ``python docs/build.py --release "
+"0.3.1`` ，它会把发布说明文件移入 :doc:`/release/index` 中以当天日期命名的新章节；然后翻译新章节的标题。"
+
+msgid ""
+"The command changes nothing while ``python docs/build.py`` still reports entry points to update, "
+"as described in :doc:`documentation`."
+msgstr "如果 ``python docs/build.py`` 仍报告有入口页面需要更新，这条命令不会做任何改动，详见 :doc:`documentation` 。"
+
+msgid "Merge the change into the master branch."
+msgstr "将改动合并到 master 分支。"
+
+msgid "Tag the merged commit with ``v`` followed by the version and push the tag:"
+msgstr "在合并后的提交上打 ``v`` 加版本号的标签，并推送该标签："
+
+msgid ""
+"Pushing the tag starts the upload without an approval step, so push it only when the release is "
+"ready. The workflow stops before anything is uploaded if the tag does not match the version or "
+"points at a commit that is not on master. Otherwise it runs the tests, builds the source "
+"distribution and the wheel, checks them with twine and uploads them to PyPI. Only then does it "
+"create the GitHub release, with the distributions attached and notes generated from the merged "
+"pull requests. A version such as ``0.4.0rc1`` is marked as a pre-release."
+msgstr ""
+"推送标签后上传会直接开始，没有审批环节，因此只在准备好发布时才推送标签。如果标签与版本号不一致，或者标签指向的提交不在 master "
+"上，工作流会在上传任何内容之前停止。否则它会运行测试，构建源码包和 wheel，用 twine 检查后上传到 PyPI。上传成功后，它才会创建 GitHub "
+"release，附上安装包，并根据已合并的拉取请求生成说明。``0.4.0rc1`` 这类版本会被标记为预发布。"
+
+msgid "The repository protects this path in three places:"
+msgstr "仓库在三处保护这条发布路径："
+
+msgid "Only repository administrators can create, move or delete ``v*`` tags."
+msgstr "只有仓库管理员可以创建、移动或删除 ``v*`` 标签。"
+
+msgid "The ``pypi`` environment accepts deployments from ``v*`` tags only."
+msgstr "``pypi`` 环境只接受来自 ``v*`` 标签的部署。"
+
+msgid ""
+"PyPI trusts only the ``release.yml`` workflow of ``gchensy/kivi`` running in the ``pypi`` "
+"environment."
+msgstr "PyPI 只信任 ``gchensy/kivi`` 中在 ``pypi`` 环境下运行的 ``release.yml`` 工作流。"
+
+msgid ""
+"PyPI never accepts the same version twice. If a run fails before the upload, delete the tag with "
+"``git push origin :refs/tags/v0.3.1``, fix the problem and tag again. If the upload succeeded, "
+"release the fix under a new version."
+msgstr ""
+"PyPI 不接受重复上传同一个版本。如果运行在上传之前失败，可以用 ``git push origin :refs/tags/v0.3.1`` "
+"删除标签，修复问题后重新打标签。如果已经上传成功，请用新的版本号发布修复。"
 
 msgid "Getting started"
 msgstr "快速开始"
@@ -4716,8 +5381,8 @@ msgstr "kivi 需要 Python 3.10 或更高版本，以及 NumPy 和 pandas。安�
 msgid "Installation"
 msgstr "安装"
 
-msgid "Install from GitHub or a local checkout and check the version."
-msgstr "从 GitHub 或本地仓库安装，并检查版本。"
+msgid "Install from PyPI, GitHub or a local checkout and check the version."
+msgstr "从 PyPI、GitHub 或本地仓库安装，并检查版本。"
 
 msgid "Quickstart"
 msgstr "快速上手"
@@ -4788,6 +5453,9 @@ msgid ""
 " last bin."
 msgstr "最外侧的边界为无穷，因此超出基准范围的年龄仍会落入第一个或最后一个箱。"
 
+msgid "Weight of evidence"
+msgstr "证据权重"
+
 msgid "``woe_table`` returns one row per bin, in the order of the intervals."
 msgstr "``woe_table`` 每箱返回一行，按区间顺序排列。"
 
@@ -4814,6 +5482,9 @@ msgstr "类别变量"
 
 msgid "Pass category labels directly; they need no edges."
 msgstr "类别标签可以直接传入，无需边界。"
+
+msgid "Population stability"
+msgstr "群体稳定性"
 
 msgid "``psi_table`` compares the two samples bin by bin. It does not use the target."
 msgstr "``psi_table`` 逐箱比较两个样本，不使用目标标签。"
@@ -4908,6 +5579,9 @@ msgid ""
 "variable's effect on the score with CSI."
 msgstr "逐箱比较线上数据与开发样本，按期跟踪 PSI，并用 CSI 衡量每个变量对分数的影响。"
 
+msgid "Portfolio analysis"
+msgstr "资产组合分析"
+
 msgid ""
 "Vintage curves by origination cohort, roll rates and transition matrices between delinquency "
 "buckets."
@@ -4955,9 +5629,6 @@ msgstr "分箱边界如何拟合，WOE、IV 和 PSI 如何定义，以及缺失�
 msgid "Parameters, return values and examples for every public function."
 msgstr "每个公共函数的参数、返回值和示例。"
 
-msgid "Release notes"
-msgstr "版本说明"
-
 msgid "What changed in each release and how to migrate code written for 0.2.x."
 msgstr "各版本的变化，以及如何迁移为 0.2.x 编写的代码。"
 
@@ -4996,6 +5667,31 @@ msgid ""
 msgstr ""
 "``assign_grades`` 以有序分类变量的形式为每个预测 PD 指定标尺上的等级， ``calibration_table`` 可以直接按标尺的顺序统计这些等级。恰好落在界限上的 PD"
 " 归入较低的等级，与 ``pandas.cut`` 相同。"
+
+msgid ""
+"The new module ``kivi.strategy`` supports the credit decisions that follow a scorecard. "
+"``cutoff_table`` shows, for each candidate cut-off of a PD or of negated points, the approval "
+"rate, the bad rate of the approved book, the shares of bads and goods it rejects and, with "
+"``loss``, the expected loss it approves. Scores at or below the cut-off are approved, so tied "
+"scores always get the same decision."
+msgstr ""
+"新模块 ``kivi.strategy`` 支撑评分卡之后的信贷决策。``cutoff_table`` 针对 PD "
+"或取负分数的每个候选截断点，给出通过率、通过客群的坏账率、被拒绝的坏客户和好客户所占比例，传入 ``loss`` "
+"时还给出通过客群的预期损失。评分不高于截断点即予以通过，因此相同评分总是得到相同的决策。"
+
+msgid ""
+"``swap_set`` compares the decisions of a current and a new score at their cut-offs: the "
+"applicants both approve, the swap-ins and swap-outs, and those both decline, with event rates "
+"where outcomes are known. A missing target marks an unknown outcome, such as that of an applicant"
+" the current score declined."
+msgstr ""
+"``swap_set`` "
+"在各自的截断点上比较现行评分与新评分的决策：两者都通过的申请人、换入和换出，以及两者都拒绝的申请人，并在结果已知时给出事件率。缺失的目标值表示结果未知，例如被现行评分拒绝的申请人。"
+
+msgid ""
+"``expected_loss`` multiplies PD, LGD and EAD, and ``expected_loss_table`` adds up the exposure "
+"and the expected loss of each grade, with the expected loss rate and the exposure-weighted PD."
+msgstr "``expected_loss`` 将 PD、LGD 与 EAD 相乘，``expected_loss_table`` 汇总每个等级的敞口和预期损失，并给出预期损失率和按敞口加权的 PD。"
 
 msgid ""
 "The new module ``kivi.univariate`` profiles the candidates of a model. ``profile_table`` "
@@ -6562,16 +7258,10 @@ msgid ""
 "missing values."
 msgstr "等频、等距与自定义边界，特殊值，合并细分箱，有监督分箱以及缺失值。"
 
-msgid "Weight of evidence and information value"
-msgstr "证据权重与信息值"
-
 msgid ""
 "Definitions, the smoothing rule for empty cells, how to read the result and how to encode new "
 "data."
 msgstr "定义、空单元格的平滑规则、结果的解读方法以及如何对新数据编码。"
-
-msgid "Population stability index"
-msgstr "群体稳定性指标"
 
 msgid ""
 "Compare the distribution of two samples, including categories seen in only one of them, and "
@@ -6598,9 +7288,6 @@ msgid ""
 "Prior correction, master scales, statistical tests of each grade's PD, and Platt and isotonic "
 "recalibration."
 msgstr "先验校正、主标尺、对每个评级 PD 的统计检验，以及 Platt 与保序回归重新校准。"
-
-msgid "Vintage and roll-rate analysis"
-msgstr "Vintage 与滚动率分析"
 
 msgid ""
 "Cumulative bad rates by cohort and month on book, roll rates and transition matrices between "
@@ -7819,6 +8506,264 @@ msgstr ""
 "在 kivi 之外读取该文件的软件应使用 ``edges`` 分箱，像 :func:`kivi.binning.cut` 一样先匹配 ``special`` "
 "编码再匹配区间，并按两个边界找到每个区间对应的行。开发样本中没有观测值的区间没有对应的行。区间为左开右闭，因此 ``-inf`` 不落入任何区间， ``woe_transform`` "
 "把它视为未见分组。"
+
+msgid ""
+"A scorecard ranks applicants; a credit strategy decides whom to approve. :mod:`kivi.strategy` "
+"supports the decisions that follow: ``cutoff_table`` shows what each candidate cut-off approves "
+"and how many bad outcomes it lets through, ``swap_set`` compares the decisions of a current and a"
+" new score, and ``expected_loss`` and ``expected_loss_table`` turn PDs, LGDs and exposures into "
+"the expected loss of each applicant and of each grade."
+msgstr ""
+"评分卡对申请人排序，信贷策略决定通过哪些申请人。:mod:`kivi.strategy` 支撑随后的决策：``cutoff_table`` "
+"显示每个候选截断点通过哪些申请人、放进多少坏结果，``swap_set`` 比较现行评分与新评分的决策，``expected_loss`` 和 ``expected_loss_table`` 将"
+" PD、LGD 和敞口转换为每个申请人和每个等级的预期损失。"
+
+msgid "Score direction and the approval rule"
+msgstr "评分方向与通过规则"
+
+msgid ""
+"As in :doc:`metrics`, every score is higher for a higher risk, such as a PD. An applicant is "
+"approved when the score is at or below the cut-off, so a higher cut-off approves more applicants."
+" A score equal to the cut-off is approved, and tied scores therefore always get the same "
+"decision."
+msgstr ""
+"与 :doc:`metrics` 相同，所有评分都是风险越高、评分越高，例如 "
+"PD。评分不高于截断点的申请人予以通过，因此截断点越高，通过的申请人越多。等于截断点的评分予以通过，所以相同评分总是得到相同的决策。"
+
+msgid ""
+"Scorecard points run the other way: a policy that approves 600 points or more approves the "
+"applicants whose negated points are at most -600. Pass ``-points`` and the negated cut-offs, for "
+"example ``cutoff_table(-points, target, cutoffs=[-620, -600, -580])``."
+msgstr ""
+"评分卡分数方向相反：通过 600 分及以上的策略，等于通过取负分数不超过 -600 的申请人。请传入 ``-points`` 和取负后的截断点，例如 "
+"``cutoff_table(-points, target, cutoffs=[-620, -600, -580])`` 。"
+
+msgid "PDs of two scorecards"
+msgstr "两张评分卡的 PD"
+
+msgid ""
+"The examples on this page use the bundled bank data. The data record a marketing response rather "
+"than a default, so read target 1 as a default, as in :doc:`scorecard`. The first 3,000 rows are "
+"the development sample and the remaining 1,521 rows stand for the applicants of a later period. "
+"Two logistic regressions on WOE values give the PDs of a current scorecard with four variables "
+"and of a new one that adds ``loan`` and ``marital``:"
+msgstr ""
+"本页示例使用内置的银行数据。该数据记录的是营销响应而非违约，因此与 :doc:`scorecard` 一样，将目标值 1 视为违约。前 3,000 行为开发样本，其余 1,521 "
+"行代表后一时期的申请人。基于 WOE 值的两个逻辑回归分别给出现行评分卡（四个变量）和新评分卡（增加 ``loan`` 和 ``marital`` ）的 PD："
+
+msgid "The new scorecard ranks the applicants a little better:"
+msgstr "新评分卡对申请人的排序略好一些："
+
+msgid "Choosing a cut-off"
+msgstr "选择截断点"
+
+msgid ""
+"``cutoff_table`` takes the candidate cut-offs and reports, for each, the approved book and what "
+"the cut-off rejects. A PD of 1 approves everyone and gives the reference row:"
+msgstr "``cutoff_table`` 接收候选截断点，并对每个截断点报告通过客群以及被拒绝的部分。PD 为 1 的截断点通过所有人，给出参照行："
+
+#, python-format
+msgid ""
+"Each row is a possible policy. A cut-off of 0.10 approves 784 of the 1,521 applicants, 51.5%, and"
+" their bad rate of 6.25% is about half the 11.4% of all applicants. It avoids 71.7% of the bad "
+"outcomes, but also turns away 45.5% of the good applicants. Raising the cut-off to 0.15 approves "
+"87.4% at a bad rate of 8.3%: the lender gains volume and accepts more risk. Which row to choose "
+"is a business decision; the table shows its price."
+msgstr ""
+"每一行都是一种可能的策略。截断点 0.10 通过 1,521 名申请人中的 784 名，即 51.5%，其坏账率为 6.25%，约为全部申请人 11.4% 的一半。它避开了 71.7% "
+"的坏结果，但也拒绝了 45.5% 的好申请人。将截断点提高到 0.15，通过率为 87.4%，坏账率为 "
+"8.3%：放款机构获得了更多业务量，也承担了更多风险。选择哪一行是业务决策，表中给出了每种选择的代价。"
+
+msgid "``approved``"
+msgstr "``approved``"
+
+msgid "Applicants with a score at or below the cut-off."
+msgstr "评分不高于截断点的申请人数。"
+
+msgid "``approval_rate``"
+msgstr "``approval_rate``"
+
+msgid "Share of all applicants that the cut-off approves."
+msgstr "截断点通过的申请人占全部申请人的比例。"
+
+msgid "``approved_event``, ``approved_event_rate``"
+msgstr "``approved_event``, ``approved_event_rate``"
+
+msgid "Events among the approved applicants and their rate, the bad rate of the approved book."
+msgstr "通过的申请人中的事件数及其比率，即通过客群的坏账率。"
+
+msgid "``rejected_event_share``"
+msgstr "``rejected_event_share``"
+
+msgid "Share of all events with a score above the cut-off: the bad outcomes the cut-off avoids."
+msgstr "评分高于截断点的事件占全部事件的比例，即该截断点避开的坏结果。"
+
+msgid "``rejected_non_event_share``"
+msgstr "``rejected_non_event_share``"
+
+msgid "Share of all non-events with a score above the cut-off: the good business the cut-off gives up."
+msgstr "评分高于截断点的非事件占全部非事件的比例，即该截断点放弃的好业务。"
+
+msgid "``approved_loss``"
+msgstr "``approved_loss``"
+
+msgid "With ``loss``, the sum of the losses of the approved applicants; see below."
+msgstr "传入 ``loss`` 时，通过的申请人的损失之和；见下文。"
+
+msgid ""
+"The bad rate of the approved book averages over everyone approved. The cut-off itself is better "
+"judged by the marginal bad rate, the bad rate of the applicants that a higher cut-off adds:"
+msgstr "通过客群的坏账率是对所有通过者的平均。评判截断点本身，更适合看边际坏账率，即提高截断点后新增申请人的坏账率："
+
+msgid ""
+"Suppose a good loan earns a margin :math:`m` and a bad loan loses :math:`L`. A group of "
+"applicants with bad rate :math:`b` earns :math:`(1 - b)\\,m - b L`, which is positive while "
+":math:`b < m / (m + L)`. With a margin of 1 and a loss of 10 the break-even bad rate is "
+":math:`1/11 \\approx 9.1\\%`. The applicants between 0.05 and 0.08 default at 5.6% and pay for "
+"themselves, while those between 0.08 and 0.10 default at 10.4% and do not, so 0.08 is the most "
+"profitable of these cut-offs. For a well-calibrated PD the break-even rate is itself the PD cut-"
+"off; the marginal rates check it against the observed outcomes."
+msgstr ""
+"假设一笔好贷款赚取利润 :math:`m`，一笔坏贷款损失 :math:`L`。坏账率为 :math:`b` 的一组申请人带来 :math:`(1 - b)\\,m - b L` 的收益，当 "
+":math:`b < m / (m + L)` 时为正。利润为 1、损失为 10 时，盈亏平衡坏账率为 :math:`1/11 \\approx 9.1\\%`。PD 在 0.05 到 0.08"
+" 之间的申请人违约率为 5.6%，能够覆盖自身的损失；而 0.08 到 0.10 之间的申请人违约率为 10.4%，无法覆盖，因此在这些截断点中 0.08 的利润最高。对于校准良好的 "
+"PD，盈亏平衡坏账率本身就是 PD 截断点；边际坏账率则用实际结果对其加以检验。"
+
+msgid ""
+"An integer ``cutoffs`` places the cut-offs at the quantile edges of ``bin_edges``, so that the "
+"rows approve about a fifth, two fifths and so on of the applicants. Tied scores move the steps, "
+"because all applicants with the same score get the same decision:"
+msgstr ""
+"整数 ``cutoffs`` 将截断点放在 ``bin_edges`` "
+"的分位数边界上，使各行大约通过五分之一、五分之二……的申请人。相同评分会使各级的位置偏移，因为评分相同的申请人总是得到相同的决策："
+
+msgid "Swap sets"
+msgstr "交换集"
+
+msgid ""
+"A new score changes the decisions of some applicants. At the cut-offs of both scores, "
+"``swap_set`` sorts the applicants into four groups: those both scores approve, the swap-outs that"
+" only the current score approves, the swap-ins that only the new score approves, and those both "
+"decline. To compare the scores at the same approval rate, give the new score the cut-off that "
+"approves as many applicants as the current cut-off of 0.10:"
+msgstr ""
+"新评分会改变部分申请人的决策。在两个评分各自的截断点上，``swap_set`` 将申请人分为四组：两个评分都通过的、只有现行评分通过的换出（swap-out）、只有新评分通过的换入（swap-"
+"in），以及两个评分都拒绝的。为了在相同通过率下比较两个评分，给新评分设定一个截断点，使其通过的申请人数与现行截断点 0.10 相同："
+
+msgid ""
+"The new score swaps out 105 applicants with a bad rate of 15.2% and swaps in 118 with a bad rate "
+"of 6.8%. Because of tied scores, its cut-off approves 797 applicants, 13 more than the current "
+"one, and the bad rate of the approved book falls from 6.25% to 5.1%:"
+msgstr ""
+"新评分换出 105 名坏账率为 15.2% 的申请人，换入 118 名坏账率为 6.8% 的申请人。由于存在相同评分，其截断点通过 797 名申请人，比现行截断点多 13 名，通过客群的坏账率从"
+" 6.25% 降至 5.1%："
+
+msgid ""
+"A new score is worth adopting when its swap-ins are better than its swap-outs; the applicants "
+"both scores approve or decline do not change. The row shares give the approval rate of each "
+"score, for example ``swaps[\"share\"].xs(\"approve\", level=\"new\").sum()`` for the new one."
+msgstr ""
+"当换入优于换出时，新评分才值得采用；两个评分都通过或都拒绝的申请人不受影响。各行的比例给出每个评分的通过率，例如新评分的通过率为 "
+"``swaps[\"share\"].xs(\"approve\", level=\"new\").sum()`` 。"
+
+msgid ""
+"In practice the outcomes of the swap-ins are unknown: the current score declined them, so they "
+"never received a loan. Pass a target with missing values for unknown outcomes. They count in "
+"``total`` and ``share`` but not in ``known``, ``event`` and ``event_rate``:"
+msgstr ""
+"实际上，换入申请人的结果是未知的：现行评分拒绝了他们，所以他们从未获得贷款。对结果未知的申请人，在目标值中传入缺失值。他们计入 ``total`` 和 ``share``，但不计入 "
+"``known``、``event`` 和 ``event_rate``："
+
+msgid ""
+"The swap-outs are known, but the bad rate of the swap-ins is missing, and with it half of the "
+"comparison. Reject inference estimates the outcomes of declined applicants from their scores and "
+"the outcomes of similar approved ones. Pass the inferred labels, or the augmented sample with its"
+" weights, to fill in the table, and treat the result as an estimate: it depends on the "
+"assumptions of the inference."
+msgstr "换出申请人的结果已知，但换入申请人的坏账率缺失，比较也就缺了一半。拒绝推断根据被拒申请人的评分和相似的已通过申请人的结果，估计被拒申请人的结果。传入推断得到的标签，或带权重的扩充样本，即可补全该表；但应把结果视为估计值，它取决于推断所依据的假设。"
+
+msgid "Expected loss"
+msgstr "预期损失"
+
+msgid ""
+"The expected loss of an exposure is the product of its probability of default, its loss given "
+"default and its exposure at default:"
+msgstr "一笔敞口的预期损失是其违约概率、违约损失率与违约风险敞口的乘积："
+
+#, python-format
+msgid ""
+"The bank data have no loan amounts, so the examples take the average balance as the exposure, "
+"with negative balances set to zero, and one LGD of 45% for all applicants. ``expected_loss`` "
+"accepts one value or one per applicant for the LGD and the EAD, and keeps the index of a Series:"
+msgstr ""
+"银行数据中没有贷款金额，因此示例以平均余额作为敞口，负余额记为零，所有申请人的 LGD 均取 45%。``expected_loss`` 的 LGD 和 EAD "
+"可以是一个值，也可以每个申请人一个值，并保留 Series 的索引："
+
+msgid ""
+"Pass the expected losses as ``loss`` to ``cutoff_table`` to add the expected loss of the approved"
+" book:"
+msgstr "将预期损失作为 ``loss`` 传给 ``cutoff_table``，即可加入通过客群的预期损失："
+
+msgid ""
+"Approving everyone carries an expected loss of 125,487, or 82.50 per applicant. A cut-off of 0.10"
+" approves half of the applicants and only a fifth of that expected loss, 35.26 per approved "
+"applicant. ``approved_loss`` adds up whatever is passed as ``loss``: pass realized losses to see "
+"the losses each cut-off lets through, whose difference from the last row is the loss it avoids, "
+"or pass the exposures to see the volume it approves."
+msgstr ""
+"通过所有人时，预期损失为 125,487，即每名申请人 82.50。截断点 0.10 通过一半申请人，预期损失却只有其五分之一，即每名通过的申请人 35.26。``approved_loss``"
+" 对作为 ``loss`` 传入的任何金额求和：传入实际损失，可看到每个截断点放进来的损失，它与最后一行之差就是该截断点避开的损失；传入敞口，可看到它通过的业务量。"
+
+msgid "Expected loss by grade"
+msgstr "按等级的预期损失"
+
+msgid ""
+"``expected_loss_table`` adds up the exposures and expected losses of each grade or other group. "
+"Cut the PDs of the new score at the edges of a master scale, as in :doc:`calibration`:"
+msgstr "``expected_loss_table`` 汇总每个等级或其他分组的敞口和预期损失。与 :doc:`calibration` 一样，按主标尺的边界切分新评分的 PD："
+
+#, python-format
+msgid ""
+"The expected loss rate, expected loss divided by exposure, rises from 1.7% in grade A to 29% in "
+"grade F. With one LGD for everyone it is the LGD times the exposure-weighted PD; with an LGD per "
+"applicant it also reflects the collateral of each grade. The rows follow the grades of the scale,"
+" as in ``calibration_table``, and grades without applicants are left out."
+msgstr ""
+"预期损失率即预期损失除以敞口，从 A 级的 1.7% 上升到 F 级的 29%。所有人使用同一 LGD 时，它等于 LGD 乘以按敞口加权的 PD；每个申请人有各自的 LGD "
+"时，它还反映了各等级的担保情况。与 ``calibration_table`` 一样，各行按标尺的等级排列，没有申请人的等级不列出。"
+
+msgid ""
+"The portfolio totals are the sums of the columns, and its expected loss rate is the ratio of two "
+"sums:"
+msgstr "组合的合计是各列之和，其预期损失率是两个和之比："
+
+msgid ""
+"Comparing each grade's share of the exposure with its share of the expected loss shows where the "
+"losses concentrate:"
+msgstr "比较每个等级在敞口中的占比与在预期损失中的占比，可以看出损失集中在哪里："
+
+#, python-format
+msgid ""
+"Grades E and F hold under a tenth of the exposure but almost 30% of the expected loss. A policy "
+"that declines grade F, a PD above 0.4, gives up 2.7% of the exposure and avoids 14.4% of the "
+"expected loss; the price of those loans would otherwise have to cover a loss rate of 29%."
+msgstr ""
+"E 级和 F 级的敞口不到十分之一，却占预期损失的近 30%。拒绝 F 级（PD 高于 0.4）的策略放弃 2.7% 的敞口，避开 14.4% 的预期损失；否则这些贷款的定价就必须覆盖 29% "
+"的损失率。"
+
+msgid ""
+"``cutoff_table``, ``swap_set`` and ``expected_loss_table`` take ``weights``, one non-negative "
+"weight per applicant, as the functions of :mod:`kivi.metrics` do. Counts, exposures and losses "
+"become sums of weights, and integer weights give the same counts and sums as repeating rows. For "
+"``cutoff_table`` this holds on explicit cut-offs: an integer ``cutoffs`` uses the weighted "
+"quantiles of ``bin_edges``, which can differ from the quantiles of repeated rows. Use the weights"
+" of an outcome-based sample, which keeps all bad outcomes but only some of the good ones, to "
+"report approval and bad rates for the whole population."
+msgstr ""
+"``cutoff_table``、``swap_set`` 和 ``expected_loss_table`` 与 :mod:`kivi.metrics` 中的函数一样接受 "
+"``weights``，即每个申请人一个非负权重。计数、敞口和损失都变为加权和，整数权重与重复相应行得到的计数和各项和相同。对 ``cutoff_table`` "
+"而言，这只在显式截断点上成立：整数 ``cutoffs`` 使用 ``bin_edges`` "
+"的加权分位数，可能与重复行的分位数不同。对于保留全部坏结果、只保留部分好结果的按结果抽样样本，使用其权重即可报告整个总体的通过率和坏账率。"
 
 msgid ""
 "Before any variable is binned with care, look at all of them at once: how complete each one is, "
