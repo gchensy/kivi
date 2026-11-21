@@ -123,6 +123,22 @@ secondary    1512
 tertiary      915
 Name: total, dtype: int64
 
+To give new categories the WOE of one of the groups, for example the group of rare categories, name it in ``unseen`` as ``{"group": label}``. :meth:`~kivi.spec.BinningSpec.cut` then assigns them to that group, and :meth:`~kivi.spec.BinningSpec.woe_transform` gives them its WOE, which follows the group when the column is fitted again. Missing values get it as well when the development sample had none:
+
+>>> to_other = fit_spec(
+...     development,
+...     development["target"],
+...     columns=["education"],
+...     method={"education": "rare"},
+...     options={"education": {"min_share": 0.1}},
+...     unseen={"education": {"group": "other"}},
+... )
+>>> new_education = monitoring.head(2).assign(education=["doctorate", "primary"])
+>>> to_other.cut(new_education)["education"].tolist()
+['other', 'primary']
+>>> to_other.woe_transform(new_education)["education"].round(3).tolist()
+[-0.411, -0.348]
+
 Grouping and encoding a sample
 ------------------------------
 
@@ -219,13 +235,13 @@ The format
    * - ``format``
      - Always ``"kivi.BinningSpec"``.
    * - ``format_version``
-     - Version of the format: 2 when a column is grouped, otherwise 1, which earlier versions of kivi read as well. A file with a newer version raises an error that asks for a newer kivi, instead of being read in part.
+     - Version of the format: 2 when a column is grouped, otherwise 1, which earlier versions of kivi read as well. ``BinningSpec.FORMAT_VERSION`` is the newest version. A file with a newer version raises an error that asks for a newer kivi, instead of being read in part.
    * - ``kivi_version``
      - Version of kivi that fitted the specification.
    * - ``smoothing``
      - Smoothing of the WOE tables.
    * - ``variables``
-     - One entry per column, in order, with ``name``, ``kind`` (``"numeric"`` or ``"categorical"``), ``unseen`` (``"raise"`` or a number) and ``table``, plus ``edges`` and ``special`` for numeric columns and ``groups`` for grouped categorical columns.
+     - One entry per column, in order, with ``name``, ``kind`` (``"numeric"`` or ``"categorical"``), ``unseen`` (``"raise"``, a number or, for a grouped column, ``{"group": label}``) and ``table``, plus ``edges`` and ``special`` for numeric columns and ``groups`` for grouped categorical columns.
    * - ``groups``
      - One entry per group, in order, with its label ``group`` and the list of its ``categories``.
    * - ``table``

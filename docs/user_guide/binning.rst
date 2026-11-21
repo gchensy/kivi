@@ -325,7 +325,7 @@ Pooling needs no target, so it also suits variables that are only monitored. It 
 Merging categories by event rate
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:func:`~kivi.binning.chimerge_groups` sorts the categories by their WOE, smoothed as in :func:`~kivi.woe.woe_table`, and merges neighbours in that order, so that every group joins categories with similar event rates. First, a group that holds less than ``min_group_share`` of the reference, 5% by default, is merged with the neighbour it is more similar to. Then, as in :ref:`ChiMerge <supervised-binning>`, the neighbours with the smallest chi-square statistic are merged while more than ``max_groups`` groups remain or while some pair does not differ significantly at level ``alpha``. A merged group is labelled with its categories, in increasing order of their WOE:
+:func:`~kivi.binning.chimerge_groups` sorts the categories by their WOE, smoothed as in :func:`~kivi.woe.woe_table`, and merges neighbours in that order, so that every group joins categories with similar event rates. First, a group that holds less than ``min_group_share`` of the reference, 5% by default, is merged with the neighbour it is more similar to. Then, as in :ref:`ChiMerge <supervised-binning>`, the neighbours with the smallest chi-square statistic are merged while more than ``max_groups`` groups remain or while some pair does not differ significantly at level ``alpha``. Ties, between equal WOE or equal statistics, go to the category that appears first. A merged group is labelled with its categories in increasing order of their WOE, or, when it has more than five, with the first four and the number of the others, such as ``'a, b, c, d, ... (+3)'``:
 
 >>> groups = chimerge_groups(job, target)
 >>> groups["student"]
@@ -348,7 +348,7 @@ The groups come in increasing order of WOE, so their WOE rises from the first to
 >>> woe_table(group_categories(current["job"], groups), current["target"])["woe"].round(3).tolist()
 [-0.22, -0.054, 1.09]
 
-Fewer groups give a lower information value on both samples. The IV of many small groups is biased upward, because each group adds a positive term even where its WOE is noise, so a lower IV with stable groups is often the better variable:
+Grouping lowers the information value on both samples. The IV of many small groups is biased upward, because each group adds a positive term even where its WOE is noise, so a lower IV with stable groups is often the better variable:
 
 >>> rows = {}
 >>> for name, grouping in {"labels": None, "category_groups": rare, "chimerge_groups": groups}.items():
@@ -488,6 +488,13 @@ array([-inf,   3.,  inf])
 Observations with zero weight are left out; the supervised methods leave out their labels too. :doc:`woe_iv` shows the same weights in :func:`~kivi.woe.woe_table`.
 
 :func:`~kivi.binning.category_groups` and :func:`~kivi.binning.chimerge_groups` take ``weights`` as well. Shares, counts and the chi-square statistic then use sums of weights, so integer weights give the same grouping as repeated rows. A category whose rows all have zero weight is left out of the grouping, and :func:`~kivi.binning.group_categories` treats it as unseen.
+
+Limits
+------
+
+:func:`~kivi.binning.chimerge_groups` merges one pair of groups at a time, so its time grows with the square of the number of categories: a few seconds for 20,000 categories. For a variable with that many labels, such as a postcode, pool the rarest ones with :func:`~kivi.binning.category_groups` first, group the pooled labels with ``chimerge_groups``, and combine the two dicts as ``{category: groups[pooled[category]] for category in pooled}``.
+
+A grouping is fitted on the categories of the reference sample only. It cannot tell where a new category belongs; :func:`~kivi.binning.group_categories` raises an error for it or sends it to the group named in ``unseen``, and the right group is a business decision.
 
 Errors and warnings
 -------------------

@@ -819,6 +819,8 @@ def chimerge_groups(
         increasing order of the group's WOE. A group of one category keeps
         its label; a merged group is labelled with the labels of its
         categories, in increasing order of their own WOE, joined by ``", "``.
+        A group of more than five categories shows the first four, followed
+        by ``", ... (+n)"`` with the number ``n`` of the others.
 
     Raises
     ------
@@ -850,6 +852,14 @@ def chimerge_groups(
     A category that is not merged is a group of its own, so with
     ``min_group_share=0`` and ``alpha=None`` a variable with at most
     ``max_groups`` categories keeps all of them.
+
+    Ties go to the category that appears first, or that comes first among
+    the categories of a categorical input: categories with the same
+    smoothed WOE keep that order, and of two pairs, or of two small groups,
+    whose statistics or totals agree to a relative 1e-10, the first one is
+    merged. Each merge takes time in proportion to the number of groups, so
+    the fit takes time in proportion to the square of the number of
+    categories, a few seconds for 20,000 of them.
 
     Examples
     --------
