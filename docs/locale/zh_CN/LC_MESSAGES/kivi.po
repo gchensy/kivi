@@ -3227,8 +3227,8 @@ msgstr "写出分箱方案。"
 msgid "Rebuild the specification from a dict."
 msgstr "由 dict 重建分箱方案。"
 
-msgid "Population stability"
-msgstr "群体稳定性"
+msgid "Population stability index"
+msgstr "群体稳定性指标"
 
 msgid ":py:obj:`psi_table <kivi.stability.psi_table>`\\ \\(reference\\, current\\, \\*\\[\\, ...\\]\\)"
 msgstr ":py:obj:`psi_table <kivi.stability.psi_table>`\\ \\(reference\\, current\\, \\*\\[\\, ...\\]\\)"
@@ -3506,8 +3506,8 @@ msgstr "[R05dcc8ea5547-1]_"
 msgid "The average points fall from 32.5 to 28.75, by the sum of the ``csi`` column, -3.75."
 msgstr "平均分值从 32.5 降到 28.75，降幅即 ``csi`` 列之和 -3.75。"
 
-msgid "Portfolio analysis"
-msgstr "资产组合分析"
+msgid "Vintage and roll-rate analysis"
+msgstr "Vintage 与滚动率分析"
 
 msgid ""
 ":py:obj:`vintage_table <kivi.vintage.vintage_table>`\\ \\(loan\\, cohort\\, month\\_on\\_book\\, "
@@ -3802,8 +3802,8 @@ msgid ""
 "after one month per roll, if the movements follow a Markov chain."
 msgstr "状态改善、保持不变或恶化超过一档的对象只计入分母。从一个月末到下一个月末，贷款最多再恶化一个逾期档位，因此如果迁移服从马尔可夫链，各滚动率的乘积估计了正常贷款在经过与滚动次数相同的月数后处于最差档位的比例。"
 
-msgid "Weight of evidence"
-msgstr "证据权重"
+msgid "Weight of evidence and information value"
+msgstr "证据权重与信息值"
 
 msgid ":py:obj:`woe_table <kivi.woe.woe_table>`\\ \\(groups\\, target\\, \\*\\[\\, smoothing\\, ...\\]\\)"
 msgstr ":py:obj:`woe_table <kivi.woe.woe_table>`\\ \\(groups\\, target\\, \\*\\[\\, smoothing\\, ...\\]\\)"
@@ -4033,8 +4033,303 @@ msgstr "\\mathrm{IV} = \\sum_i (p_i - q_i) \\ln \\frac{p_i}{q_i},"
 msgid "which equals the sum of the ``iv`` column of `woe_table` for the same groups."
 msgstr "它等于相同分组下 `woe_table` 中 ``iv`` 列之和。"
 
+msgid "Writing documentation"
+msgstr "编写文档"
+
+msgid ""
+"The English and the simplified Chinese editions are built from the same pages and docstrings. "
+"This page describes how they are organized and written. :doc:`index` covers the checks that every"
+" pull request runs."
+msgstr "英文版和简体中文版由同一套页面和 docstring 构建。本页说明文档的组织方式和写法；每个拉取请求都要运行的检查见 :doc:`index` 。"
+
+msgid "Kinds of pages"
+msgstr "页面类型"
+
+msgid ""
+"Apart from the home page and the index page of each section, every page is one of five kinds, and"
+" its kind decides what it contains."
+msgstr "除首页和各部分的目录页外，每个页面都属于下列五种类型之一，类型决定了页面的内容。"
+
+msgid "Kind"
+msgstr "类型"
+
+msgid "Pages"
+msgstr "页面"
+
+msgid "Contents"
+msgstr "内容"
+
+msgid "Tutorial"
+msgstr "教程"
+
+msgid "The pages of the getting started section, and :doc:`/user_guide/risk_workflow`"
+msgstr "快速开始部分的各个页面，以及 :doc:`/user_guide/risk_workflow`"
+
+msgid ""
+"The installation, and worked examples on the bundled data from start to finish. They link to the "
+"topic guides for the details instead of repeating them."
+msgstr "安装说明，以及用随包数据从头到尾完成的示例。细节链接到对应的主题指南，不在教程里重复。"
+
+msgid "Topic guide"
+msgstr "主题指南"
+
+msgid "The other pages of the user guide"
+msgstr "用户指南的其余页面"
+
+msgid ""
+"One step of a risk model: what it measures, an example and how to read the result. "
+":doc:`/user_guide/datasets` describes the example data in the same way."
+msgstr "风控模型中的一个步骤：它衡量什么、一个示例，以及如何解读结果。 :doc:`/user_guide/datasets` 以同样的方式介绍示例数据。"
+
+msgid "Reference"
+msgstr "参考"
+
+msgid "The pages of the API reference"
+msgstr "API 参考的各个页面"
+
+msgid "One page per public module, generated from its docstrings."
+msgstr "每个公共模块一页，由模块的 docstring 生成。"
+
+msgid "Release notes"
+msgstr "版本说明"
+
+msgid ":doc:`/release/index` and :doc:`/release/migration`"
+msgstr ":doc:`/release/index` 和 :doc:`/release/migration`"
+
+msgid ""
+"What changed in each version, and how to move code from the 0.2.x classes to their replacements. "
+"The notes of a released version are not edited. The migration guide is revised whenever a release"
+" changes what it describes."
+msgstr "每个版本的变化，以及如何把使用 0.2.x 类的代码迁移到替代接口。已发布版本的说明不再修改；当某个版本改变了迁移指南所描述的内容时，迁移指南随之修订。"
+
+msgid "Contributor guide"
+msgstr "贡献者指南"
+
+msgid "The pages of this section"
+msgstr "本节的各个页面"
+
+msgid ""
+"How to work on kivi. :doc:`legacy_review` records the review of the 0.2.x code that preceded the "
+"rewrite."
+msgstr "如何参与 kivi 的开发。 :doc:`legacy_review` 记录重写之前对 0.2.x 代码的评审。"
+
+msgid "Where pages live"
+msgstr "页面位置"
+
+msgid ""
+"A public module ``kivi.<module>`` has an API page ``docs/api/<module>.rst`` and usually a topic "
+"guide ``docs/user_guide/<topic>.rst``. The toctrees of the API reference and of the user guide "
+"end with a glob, so a new page appears without editing them."
+msgstr ""
+"公共模块 ``kivi.<module>`` 有一个 API 页面 ``docs/api/<module>.rst`` ，通常还有一个主题指南 "
+"``docs/user_guide/<topic>.rst`` 。API 参考和用户指南的 toctree 都以通配符结尾，所以新页面无需修改它们就会出现。"
+
+msgid ""
+"Page names are part of the URLs, and the language switch links each page to the page of the same "
+"name in the other edition. Change the title of a page rather than renaming or removing it."
+msgstr "页面名是 URL 的一部分，语言切换也会把每个页面链接到另一种语言中同名的页面。需要调整时改页面标题，不要重命名或删除页面。"
+
+msgid ""
+"The API page of a module and its topic guide have the same title. Its cards and its rows in the "
+"README use that title or a short form of it, such as WOE and IV."
+msgstr "同一个模块的 API 页面和主题指南使用同一个标题。它的卡片和 README 中的行使用这个标题或其简称，例如 WOE 与 IV。"
+
+msgid "Topic guides"
+msgstr "主题指南"
+
+msgid ""
+"A topic guide follows the order of an analysis, so that readers can stop as soon as they have "
+"what they need:"
+msgstr "主题指南按分析的顺序组织，读者找到所需内容即可停下："
+
+msgid ""
+"An opening paragraph: the question that the step answers, where it sits in a risk model, and "
+"links to the steps before and after it."
+msgstr "开篇一段：这一步回答什么问题，在风控模型中处于什么位置，并链接到前后的步骤。"
+
+msgid "The definition, with the formula in a math block when there is one."
+msgstr "定义；有公式时放在 math 块中。"
+
+msgid "A worked example on the bundled data."
+msgstr "基于随包数据的计算示例。"
+
+msgid "How to read the result: the direction of the measure, the usual thresholds and what to check next."
+msgstr "如何解读结果：指标的方向、常用阈值，以及接下来要检查什么。"
+
+msgid ""
+"Variants, each in a section with a fixed title: ``Special values``, ``Missing values`` or "
+"``Sample weights``."
+msgstr ""
+"各种变体，每种放在一个固定标题的小节中： ``Special values`` （特殊值）、 ``Missing values`` （缺失值）或 ``Sample weights`` "
+"（样本权重）。"
+
+msgid "The errors and warnings that readers are likely to meet, and how to resolve them."
+msgstr "读者可能遇到的错误和警告，以及解决方法。"
+
+msgid ""
+"Leave out the parts that do not apply, but keep their order and titles, so that the guides read "
+"alike."
+msgstr "不适用的部分可以省略，但要保持顺序和标题不变，让各篇指南读起来一致。"
+
+msgid ""
+"Examples are doctests, and the ``build`` check runs them. Their output is real: when a change "
+"alters a printed table, run the code again and paste the new output instead of editing the "
+"numbers."
+msgstr "示例都是 doctest，由 ``build`` 检查运行。输出必须真实：改动影响了打印出的表格时，重新运行代码并粘贴新的输出，不要手工修改数字。"
+
+msgid ""
+"Examples use the data described in :doc:`/user_guide/datasets`, or a few values that readers can "
+"check by hand. Random data comes from a generator with a fixed seed."
+msgstr "示例使用 :doc:`/user_guide/datasets` 中介绍的数据，或者少量读者能手工验算的数值。随机数据由固定种子的生成器产生。"
+
+msgid "Import each function from its module, as in ``from kivi.woe import woe_table``."
+msgstr "每个函数都从其所在模块导入，例如 ``from kivi.woe import woe_table`` 。"
+
+msgid ""
+"Examples must not warn: a warning raised by a doctest or by a chart recipe in docs/_plotting.py "
+"fails the build. When an example is about a warning, catch it with "
+"``warnings.catch_warnings(record=True)`` and print the message."
+msgstr ""
+"示例不能产生警告：doctest 或 docs/_plotting.py 中的图表函数一旦发出警告，构建就会失败。如果示例要演示某个警告，请用 "
+"``warnings.catch_warnings(record=True)`` 捕获它并打印警告信息。"
+
+msgid "Charts"
+msgstr "图表"
+
+msgid ""
+"Charts are drawn when the documentation is built. A ``plot`` directive calls a ``figure_*`` "
+"function in ``docs/_plotting.py``, which recomputes the example shown just above the chart, so "
+"change the two together. Text inside a chart is limited to kivi's column and parameter names and "
+"to data values, so that one image serves both editions. The caption and the alternative text are "
+"translated."
+msgstr ""
+"图表在构建文档时绘制。 ``plot`` 指令调用 ``docs/_plotting.py`` 中的 ``figure_*`` "
+"函数，该函数重新计算图表上方示例的结果，所以两者要一起修改。图中的文字只使用 kivi 的列名、参数名和数据值，这样一张图可以同时用于两种语言。图注和替代文本会被翻译。"
+
+msgid ""
+"A pull request that adds a module describes the charts for its page in its description. They are "
+"added to ``docs/_plotting.py`` when the page is integrated, together with the entry points."
+msgstr "新增模块的拉取请求在描述中说明其页面需要的图表。这些图表在集成该页面时，与入口页面一起加入 ``docs/_plotting.py`` 。"
+
+msgid "Names and links"
+msgstr "名称与链接"
+
+msgid ""
+"Write function, argument and column names as inline code, such as ``woe_table``, ``special`` or "
+"``event_rate``."
+msgstr "函数名、参数名和列名写成行内代码，例如 ``woe_table`` 、 ``special`` 或 ``event_rate`` 。"
+
+msgid ""
+"In a topic guide, link the first mention of each kivi function to its API entry. Use the "
+"``:func:`` role with the full name, such as ``kivi.woe.woe_table``, and a leading tilde, so that "
+"only the function name is shown."
+msgstr ""
+"在主题指南中，每个 kivi 函数第一次出现时链接到它的 API 条目。使用 ``:func:`` 角色和完整名称，例如 ``kivi.woe.woe_table`` "
+"，并在前面加波浪号，这样只显示函数名。"
+
+msgid ""
+"Link to another page with the ``:doc:`` role and to a section of another page with the ``:ref:`` "
+"role. Give a section a label only when a link points to it."
+msgstr "链接到其他页面用 ``:doc:`` 角色，链接到其他页面的某个小节用 ``:ref:`` 角色。只有当某个链接指向一个小节时，才给它加标签。"
+
+msgid ""
+"The API page of a module documents every name in the module's ``__all__``: first in an "
+"``autosummary`` table, then each with its own ``autofunction``, ``autoclass``, ``autoexception`` "
+"or ``automethod`` entry, in the same order. ``python docs/build.py`` stops when a name has no "
+"such entry."
+msgstr ""
+"模块的 API 页面要记录模块 ``__all__`` 中的每个名称：先列在 ``autosummary`` 表中，再按同样的顺序各自给出 ``autofunction`` 、 "
+"``autoclass`` 、 ``autoexception`` 或 ``automethod`` 条目。某个名称没有这样的条目时， ``python docs/build.py`` 会停止。"
+
+msgid ""
+"Docstrings follow the numpydoc conventions and are validated with every check enabled, so a "
+"missing section, such as See Also or Examples, fails the build. Their paragraphs are translated "
+"like those of the pages."
+msgstr "docstring 遵循 numpydoc 约定，并启用全部校验项，因此缺少某个小节（例如 See Also 或 Examples）会导致构建失败。docstring 的段落和页面一样需要翻译。"
+
+msgid "Translations"
+msgstr "翻译"
+
+msgid ""
+"The Chinese edition is generated from ``docs/locale/zh_CN/LC_MESSAGES/kivi.po``. Every paragraph "
+"of the English pages and of the public docstrings is one entry in that file. ``python "
+"docs/build.py`` stops when an entry is missing, fuzzy or no longer used."
+msgstr ""
+"中文版由 ``docs/locale/zh_CN/LC_MESSAGES/kivi.po`` 生成。英文页面和公共 docstring "
+"中的每个段落都对应该文件中的一个条目。如果有条目缺失、标记为 fuzzy 或已不再使用，``python docs/build.py`` 会停止构建。"
+
+msgid "After changing English text:"
+msgstr "修改英文内容后："
+
+msgid ""
+"Run ``python docs/build.py --update-po``. New strings are added with an empty translation, and "
+"changed strings keep their old translation marked as fuzzy."
+msgstr "运行 ``python docs/build.py --update-po``。新字符串以空译文加入，已修改的字符串保留旧译文并标记为 fuzzy。"
+
+msgid "Translate the empty entries, review the fuzzy ones and delete their ``#, fuzzy`` line."
+msgstr "翻译空条目，复核 fuzzy 条目并删除其 ``#, fuzzy`` 行。"
+
+msgid "Run ``python docs/build.py`` again."
+msgstr "再次运行 ``python docs/build.py``。"
+
+msgid ""
+"In a translation, put a space or Chinese punctuation on both sides of inline markup such as "
+"inline code and links, or the markup is not recognized. Translate each term as the catalog "
+"already translates it, so that the edition keeps one vocabulary."
+msgstr "翻译时，行内代码、链接等行内标记的两侧要留空格或使用中文标点，否则标记无法识别。每个术语沿用翻译目录中已有的译法，让中文版保持统一的用词。"
+
+msgid "Entry points"
+msgstr "入口页面"
+
+msgid ""
+"Some pages describe the library as a whole: ``README.md`` and ``README.zh-CN.md``, the home page,"
+" the index of the user guide and :doc:`/user_guide/risk_workflow`. A pull request that adds a "
+"module leaves them alone. They are updated together after a group of such pull requests has "
+"merged, and that update rewrites them for the library as it now is instead of only appending to "
+"them:"
+msgstr ""
+"有些页面描述整个库： ``README.md`` 和 ``README.zh-CN.md`` 、首页、用户指南目录页以及 :doc:`/user_guide/risk_workflow` "
+"。新增模块的拉取请求不修改它们。它们在一批这样的拉取请求合并之后统一更新，而且这次更新要按库的现状重写，而不只是追加内容："
+
+msgid "the title, the introduction and the steps on the home page;"
+msgstr "首页的标题、简介和步骤；"
+
+msgid "the cards on the home page and on the index of the user guide, and the order of the user guide;"
+msgstr "首页和用户指南目录页上的卡片，以及用户指南的页面顺序；"
+
+msgid "the tables and the roadmap of both READMEs;"
+msgstr "两份 README 中的表格和路线图；"
+
+msgid "any sentence in :doc:`/release/migration` about functionality that is not ported yet."
+msgstr ":doc:`/release/migration` 中关于尚未迁移功能的所有表述。"
+
+msgid ""
+"``python docs/build.py`` lists every public function that the API tables of the READMEs leave "
+"out, and every user guide page without a card on the index of the user guide or a link in the "
+"READMEs. ``python docs/build.py --release`` refuses to run until the list is empty."
+msgstr ""
+"``python docs/build.py`` 会列出 README 的 API 表格中遗漏的每个公共函数，以及每个在用户指南目录页上没有卡片、或在 README "
+"中没有链接的用户指南页面。在这个列表清空之前， ``python docs/build.py --release`` 拒绝运行。"
+
+msgid "Publishing the documentation"
+msgstr "发布文档"
+
+msgid ""
+"The ``Documentation`` workflow on GitHub Actions runs the tests and builds both editions for "
+"every pull request. On the master branch it also publishes docs/_build/html to the gh-pages "
+"branch, which serves https://gchensy.github.io/kivi/."
+msgstr ""
+"GitHub Actions 上的 ``Documentation`` 工作流会对每个拉取请求运行测试并构建两种语言的文档。在 master 分支上，它还会把 docs/_build/html "
+"发布到 gh-pages 分支，通过 https://gchensy.github.io/kivi/ 访问。"
+
 msgid "Development"
 msgstr "开发"
+
+msgid ""
+"This section is for contributors. This page sets up a checkout and describes the checks and the "
+"rules for pull requests. :doc:`documentation` describes how the documentation is organized, "
+"written and translated, and :doc:`releasing` how a version is published."
+msgstr "本节面向贡献者。本页介绍如何准备本地仓库，以及检查项和拉取请求的规则。 :doc:`documentation` 介绍文档的组织、写法和翻译， :doc:`releasing` 介绍如何发布版本。"
 
 msgid "Set up"
 msgstr "环境准备"
@@ -4060,14 +4355,6 @@ msgid ""
 "writes English and simplified Chinese editions under docs/_build/html. API signatures come from "
 "the installed package."
 msgstr "doctest 构建器会运行本文档页面和 docstring 中的全部示例。HTML 构建会在 docs/_build/html 下生成英文和简体中文两套文档。API 签名从已安装的包提取。"
-
-msgid ""
-"Examples must not warn: a warning raised by a doctest or by a chart recipe in docs/_plotting.py "
-"fails the build. When an example is about a warning, catch it with "
-"``warnings.catch_warnings(record=True)`` and print the message."
-msgstr ""
-"示例不能产生警告：doctest 或 docs/_plotting.py 中的图表函数一旦发出警告，构建就会失败。如果示例要演示某个警告，请用 "
-"``warnings.catch_warnings(record=True)`` 捕获它并打印警告信息。"
 
 msgid "Pull requests"
 msgstr "拉取请求"
@@ -4108,112 +4395,19 @@ msgstr ""
 msgid ""
 "A pull request that adds a module therefore only adds files: the module, its tests, a user guide "
 "page, an API page in ``docs/api/`` and a release note. The API reference and the user guide pick "
-"up new pages automatically. The README tables, the cards on the home page and on the user guide "
-"index, and the risk modeling workflow are updated together after a group of such pull requests "
-"has merged."
+"up new pages automatically. The pages that describe the whole library are updated together after "
+"a group of such pull requests has merged, as :doc:`documentation` describes."
 msgstr ""
-"因此，新增模块的 pull request 只需新增文件：模块本身、它的测试、一个用户指南页面、 ``docs/api/`` 中的一个 API 页面，以及一条发布说明。API "
-"参考和用户指南会自动收录新页面。README 中的表格、首页和用户指南目录页上的卡片，以及风控建模流程页，会在一批这样的 pull request 合并之后统一更新。"
-
-msgid "Translations"
-msgstr "翻译"
-
-msgid ""
-"The Chinese edition is generated from ``docs/locale/zh_CN/LC_MESSAGES/kivi.po``. Every paragraph "
-"of the English pages and of the public docstrings is one entry in that file. ``python "
-"docs/build.py`` stops when an entry is missing, fuzzy or no longer used."
-msgstr ""
-"中文版由 ``docs/locale/zh_CN/LC_MESSAGES/kivi.po`` 生成。英文页面和公共 docstring "
-"中的每个段落都对应该文件中的一个条目。如果有条目缺失、标记为 fuzzy 或已不再使用，``python docs/build.py`` 会停止构建。"
-
-msgid "After changing English text:"
-msgstr "修改英文内容后："
-
-msgid ""
-"Run ``python docs/build.py --update-po``. New strings are added with an empty translation, and "
-"changed strings keep their old translation marked as fuzzy."
-msgstr "运行 ``python docs/build.py --update-po``。新字符串以空译文加入，已修改的字符串保留旧译文并标记为 fuzzy。"
-
-msgid "Translate the empty entries, review the fuzzy ones and delete their ``#, fuzzy`` line."
-msgstr "翻译空条目，复核 fuzzy 条目并删除其 ``#, fuzzy`` 行。"
-
-msgid "Run ``python docs/build.py`` again."
-msgstr "再次运行 ``python docs/build.py``。"
-
-msgid ""
-"Both editions must keep the same page names, because the language switch links each page to its "
-"counterpart."
-msgstr "两种语言的页面名称必须保持一致，因为语言切换按钮会链接到另一语言中的同名页面。"
-
-msgid "Publishing the documentation"
-msgstr "发布文档"
-
-msgid ""
-"The ``Documentation`` workflow on GitHub Actions runs the tests and builds both editions for "
-"every pull request. On the master branch it also publishes docs/_build/html to the gh-pages "
-"branch, which serves https://gchensy.github.io/kivi/."
-msgstr ""
-"GitHub Actions 上的 ``Documentation`` 工作流会对每个拉取请求运行测试并构建两种语言的文档。在 master 分支上，它还会把 docs/_build/html "
-"发布到 gh-pages 分支，通过 https://gchensy.github.io/kivi/ 访问。"
-
-msgid "Releasing to PyPI"
-msgstr "发布到 PyPI"
-
-msgid ""
-"The ``Release`` workflow publishes kivi to PyPI when a version tag is pushed. It uses PyPI "
-"trusted publishing, so no API token is stored in the repository."
-msgstr "推送版本标签时，``Release`` 工作流会把 kivi 发布到 PyPI。它使用 PyPI 可信发布（trusted publishing），因此仓库中不保存任何 API 令牌。"
-
-msgid ""
-"Set ``version`` in ``pyproject.toml`` to the new version, for example ``0.3.1``. Run ``python "
-"docs/build.py --release 0.3.1``, which moves the release-note files into a section of "
-":doc:`/release/index` dated today, and translate the new heading."
-msgstr ""
-"把 ``pyproject.toml`` 中的 ``version`` 改为新版本号，例如 ``0.3.1`` 。运行 ``python docs/build.py --release "
-"0.3.1`` ，它会把发布说明文件移入 :doc:`/release/index` 中以当天日期命名的新章节；然后翻译新章节的标题。"
-
-msgid "Merge the change into the master branch."
-msgstr "将改动合并到 master 分支。"
-
-msgid "Tag the merged commit with ``v`` followed by the version and push the tag:"
-msgstr "在合并后的提交上打 ``v`` 加版本号的标签，并推送该标签："
-
-msgid ""
-"Pushing the tag starts the upload without an approval step, so push it only when the release is "
-"ready. The workflow stops before anything is uploaded if the tag does not match the version or "
-"points at a commit that is not on master. Otherwise it runs the tests, builds the source "
-"distribution and the wheel, checks them with twine and uploads them to PyPI. Only then does it "
-"create the GitHub release, with the distributions attached and notes generated from the merged "
-"pull requests. A version such as ``0.4.0rc1`` is marked as a pre-release."
-msgstr ""
-"推送标签后上传会直接开始，没有审批环节，因此只在准备好发布时才推送标签。如果标签与版本号不一致，或者标签指向的提交不在 master "
-"上，工作流会在上传任何内容之前停止。否则它会运行测试，构建源码包和 wheel，用 twine 检查后上传到 PyPI。上传成功后，它才会创建 GitHub "
-"release，附上安装包，并根据已合并的拉取请求生成说明。``0.4.0rc1`` 这类版本会被标记为预发布。"
-
-msgid "The repository protects this path in three places:"
-msgstr "仓库在三处保护这条发布路径："
-
-msgid "Only repository administrators can create, move or delete ``v*`` tags."
-msgstr "只有仓库管理员可以创建、移动或删除 ``v*`` 标签。"
-
-msgid "The ``pypi`` environment accepts deployments from ``v*`` tags only."
-msgstr "``pypi`` 环境只接受来自 ``v*`` 标签的部署。"
-
-msgid ""
-"PyPI trusts only the ``release.yml`` workflow of ``gchensy/kivi`` running in the ``pypi`` "
-"environment."
-msgstr "PyPI 只信任 ``gchensy/kivi`` 中在 ``pypi`` 环境下运行的 ``release.yml`` 工作流。"
-
-msgid ""
-"PyPI never accepts the same version twice. If a run fails before the upload, delete the tag with "
-"``git push origin :refs/tags/v0.3.1``, fix the problem and tag again. If the upload succeeded, "
-"release the fix under a new version."
-msgstr ""
-"PyPI 不接受重复上传同一个版本。如果运行在上传之前失败，可以用 ``git push origin :refs/tags/v0.3.1`` "
-"删除标签，修复问题后重新打标签。如果已经上传成功，请用新的版本号发布修复。"
+"因此，新增模块的拉取请求只需新增文件：模块本身、它的测试、一个用户指南页面、 ``docs/api/`` 中的一个 API 页面，以及一条发布说明。API "
+"参考和用户指南会自动收录新页面。描述整个库的页面会在一批这样的拉取请求合并之后统一更新，见 :doc:`documentation` 。"
 
 msgid "Legacy review"
 msgstr "旧版评审"
+
+msgid ""
+"This review of the 0.2.x code guided the rewrite in 0.3.0. Its findings describe the legacy "
+"implementation; :doc:`/release/migration` describes how each part was replaced."
+msgstr "这份对 0.2.x 代码的评审指导了 0.3.0 的重写。其中的发现描述的是旧版实现；各部分的替代方式见 :doc:`/release/migration` 。"
 
 msgid "Findings from the legacy implementation"
 msgstr "旧版实现中的问题"
@@ -4255,15 +4449,78 @@ msgid ""
 "and keep business SQL and local configuration outside the distribution."
 msgstr "项目范围。旧目录混合了建模算法、数据库、分布式计算、笔记本与部署配置。新增集成时应在可选模块内导入相应依赖，将业务 SQL 和本地配置保留在分发包之外。"
 
-msgid "Migration order"
-msgstr "迁移顺序"
+msgid "Outcome"
+msgstr "落实情况"
 
 msgid ""
-"Start with a fixed scorecard example. Compare old and new WOE on the same labeled rows, then "
-"validate score transformation and model evaluation against stored outputs. Port weighted or "
-"supervised binning next when a workflow requires it. Restore Spark and SQL independently after "
-"the core inputs and outputs are stable."
-msgstr "先固定一份评分卡样本，在相同标签和分箱上比较新旧 WOE，再用存档结果验证评分转换与模型评估。按业务需要迁移加权或监督分箱。核心输入输出稳定后，再分别接入 Spark 和 SQL。"
+"The rewrite began with binning, WOE and PSI and then rebuilt the rest of the scorecard workflow, "
+"checking each part against the legacy outputs or reference implementations on fixed samples. "
+":doc:`/release/index` lists the parts release by release. Spark, SQL, AHP and the model wrappers "
+"were not rebuilt. They are out of scope and remain in the repository history before the rewrite."
+msgstr ""
+"重写从分箱、WOE 和 PSI 开始，随后重建了评分卡流程的其余部分，每一部分都在固定样本上与旧版输出或参考实现核对过。 :doc:`/release/index` "
+"按版本列出了这些部分。Spark、SQL、AHP 和模型封装没有重建：它们不在范围内，保留在重写之前的仓库历史中。"
+
+msgid "Releasing to PyPI"
+msgstr "发布到 PyPI"
+
+msgid ""
+"The ``Release`` workflow publishes kivi to PyPI when a version tag is pushed. It uses PyPI "
+"trusted publishing, so no API token is stored in the repository."
+msgstr "推送版本标签时，``Release`` 工作流会把 kivi 发布到 PyPI。它使用 PyPI 可信发布（trusted publishing），因此仓库中不保存任何 API 令牌。"
+
+msgid ""
+"Set ``version`` in ``pyproject.toml`` to the new version, for example ``0.3.1``. Run ``python "
+"docs/build.py --release 0.3.1``, which moves the release-note files into a section of "
+":doc:`/release/index` dated today, and translate the new heading."
+msgstr ""
+"把 ``pyproject.toml`` 中的 ``version`` 改为新版本号，例如 ``0.3.1`` 。运行 ``python docs/build.py --release "
+"0.3.1`` ，它会把发布说明文件移入 :doc:`/release/index` 中以当天日期命名的新章节；然后翻译新章节的标题。"
+
+msgid ""
+"The command changes nothing while ``python docs/build.py`` still reports entry points to update, "
+"as described in :doc:`documentation`."
+msgstr "如果 ``python docs/build.py`` 仍报告有入口页面需要更新，这条命令不会做任何改动，详见 :doc:`documentation` 。"
+
+msgid "Merge the change into the master branch."
+msgstr "将改动合并到 master 分支。"
+
+msgid "Tag the merged commit with ``v`` followed by the version and push the tag:"
+msgstr "在合并后的提交上打 ``v`` 加版本号的标签，并推送该标签："
+
+msgid ""
+"Pushing the tag starts the upload without an approval step, so push it only when the release is "
+"ready. The workflow stops before anything is uploaded if the tag does not match the version or "
+"points at a commit that is not on master. Otherwise it runs the tests, builds the source "
+"distribution and the wheel, checks them with twine and uploads them to PyPI. Only then does it "
+"create the GitHub release, with the distributions attached and notes generated from the merged "
+"pull requests. A version such as ``0.4.0rc1`` is marked as a pre-release."
+msgstr ""
+"推送标签后上传会直接开始，没有审批环节，因此只在准备好发布时才推送标签。如果标签与版本号不一致，或者标签指向的提交不在 master "
+"上，工作流会在上传任何内容之前停止。否则它会运行测试，构建源码包和 wheel，用 twine 检查后上传到 PyPI。上传成功后，它才会创建 GitHub "
+"release，附上安装包，并根据已合并的拉取请求生成说明。``0.4.0rc1`` 这类版本会被标记为预发布。"
+
+msgid "The repository protects this path in three places:"
+msgstr "仓库在三处保护这条发布路径："
+
+msgid "Only repository administrators can create, move or delete ``v*`` tags."
+msgstr "只有仓库管理员可以创建、移动或删除 ``v*`` 标签。"
+
+msgid "The ``pypi`` environment accepts deployments from ``v*`` tags only."
+msgstr "``pypi`` 环境只接受来自 ``v*`` 标签的部署。"
+
+msgid ""
+"PyPI trusts only the ``release.yml`` workflow of ``gchensy/kivi`` running in the ``pypi`` "
+"environment."
+msgstr "PyPI 只信任 ``gchensy/kivi`` 中在 ``pypi`` 环境下运行的 ``release.yml`` 工作流。"
+
+msgid ""
+"PyPI never accepts the same version twice. If a run fails before the upload, delete the tag with "
+"``git push origin :refs/tags/v0.3.1``, fix the problem and tag again. If the upload succeeded, "
+"release the fix under a new version."
+msgstr ""
+"PyPI 不接受重复上传同一个版本。如果运行在上传之前失败，可以用 ``git push origin :refs/tags/v0.3.1`` "
+"删除标签，修复问题后重新打标签。如果已经上传成功，请用新的版本号发布修复。"
 
 msgid "Getting started"
 msgstr "快速开始"
@@ -4276,8 +4533,8 @@ msgstr "kivi 需要 Python 3.10 或更高版本，以及 NumPy 和 pandas。安�
 msgid "Installation"
 msgstr "安装"
 
-msgid "Install from GitHub or a local checkout and check the version."
-msgstr "从 GitHub 或本地仓库安装，并检查版本。"
+msgid "Install from PyPI, GitHub or a local checkout and check the version."
+msgstr "从 PyPI、GitHub 或本地仓库安装，并检查版本。"
 
 msgid "Quickstart"
 msgstr "快速上手"
@@ -4348,6 +4605,9 @@ msgid ""
 " last bin."
 msgstr "最外侧的边界为无穷，因此超出基准范围的年龄仍会落入第一个或最后一个箱。"
 
+msgid "Weight of evidence"
+msgstr "证据权重"
+
 msgid "``woe_table`` returns one row per bin, in the order of the intervals."
 msgstr "``woe_table`` 每箱返回一行，按区间顺序排列。"
 
@@ -4374,6 +4634,9 @@ msgstr "类别变量"
 
 msgid "Pass category labels directly; they need no edges."
 msgstr "类别标签可以直接传入，无需边界。"
+
+msgid "Population stability"
+msgstr "群体稳定性"
 
 msgid "``psi_table`` compares the two samples bin by bin. It does not use the target."
 msgstr "``psi_table`` 逐箱比较两个样本，不使用目标标签。"
@@ -4468,6 +4731,9 @@ msgid ""
 "variable's effect on the score with CSI."
 msgstr "逐箱比较线上数据与开发样本，按期跟踪 PSI，并用 CSI 衡量每个变量对分数的影响。"
 
+msgid "Portfolio analysis"
+msgstr "资产组合分析"
+
 msgid ""
 "Vintage curves by origination cohort, roll rates and transition matrices between delinquency "
 "buckets."
@@ -4514,9 +4780,6 @@ msgstr "分箱边界如何拟合，WOE、IV 和 PSI 如何定义，以及缺失�
 
 msgid "Parameters, return values and examples for every public function."
 msgstr "每个公共函数的参数、返回值和示例。"
-
-msgid "Release notes"
-msgstr "版本说明"
 
 msgid "What changed in each release and how to migrate code written for 0.2.x."
 msgstr "各版本的变化，以及如何迁移为 0.2.x 编写的代码。"
@@ -5988,16 +6251,10 @@ msgid ""
 "missing values."
 msgstr "等频、等距与自定义边界，特殊值，合并细分箱，有监督分箱以及缺失值。"
 
-msgid "Weight of evidence and information value"
-msgstr "证据权重与信息值"
-
 msgid ""
 "Definitions, the smoothing rule for empty cells, how to read the result and how to encode new "
 "data."
 msgstr "定义、空单元格的平滑规则、结果的解读方法以及如何对新数据编码。"
-
-msgid "Population stability index"
-msgstr "群体稳定性指标"
 
 msgid ""
 "Compare the distribution of two samples, including categories seen in only one of them, and "
@@ -6024,9 +6281,6 @@ msgid ""
 "Prior correction, master scales, statistical tests of each grade's PD, and Platt and isotonic "
 "recalibration."
 msgstr "先验校正、主标尺、对每个评级 PD 的统计检验，以及 Platt 与保序回归重新校准。"
-
-msgid "Vintage and roll-rate analysis"
-msgstr "Vintage 与滚动率分析"
 
 msgid ""
 "Cumulative bad rates by cohort and month on book, roll rates and transition matrices between "
