@@ -406,6 +406,36 @@ def test_vif_is_infinite_for_exact_combinations_at_any_scale():
     np.testing.assert_allclose(result["d"], vif(X[["a", "b", "d"]])["d"], rtol=1e-10)
 
 
+def test_vif_is_infinite_for_combinations_with_a_small_coefficient():
+    # a = (c - b) / 1e-5, so all three are combinations; a used to get a VIF of 1.003.
+    a, b = np.random.default_rng(0).normal(size=(2, 100))
+    np.testing.assert_equal(
+        vif(pd.DataFrame({"a": a, "b": b, "c": b + 1e-5 * a})).to_numpy(), np.inf
+    )
+    # d takes no part, and its VIF is that of the regression on a and b alone.
+    d = np.random.default_rng(1).normal(size=100) + a
+    result = vif(pd.DataFrame({"a": a, "b": b, "c": b + 1e-5 * a, "d": d}))
+    np.testing.assert_equal(result[["a", "b", "c"]].to_numpy(), np.inf)
+    expected = vif(pd.DataFrame({"a": a, "b": b, "d": d}))["d"]
+    np.testing.assert_allclose(result["d"], expected, rtol=1e-10)
+
+
+def test_vif_is_infinite_where_r_squared_rounds_to_one():
+    # Two rows make two columns collinear; the VIFs used to be 5.6e29.
+    two_rows = pd.DataFrame({"a": [-0.7, -0.6], "b": [-1.3, 0.0]})
+    np.testing.assert_equal(vif(two_rows).to_numpy(), np.inf)
+    # With fewer rows than columns, a column outside the span of the others stays finite:
+    # c has a squared correlation of 1 / 28 with a, b and e, which are proportional.
+    X = pd.DataFrame({"a": [1.0, 2, 4], "b": [2.0, 4, 8], "e": [3.0, 6, 12], "c": [0.0, 1, 0]})
+    result = vif(X)
+    np.testing.assert_equal(result[["a", "b", "e"]].to_numpy(), np.inf)
+    assert result["c"] == pytest.approx(28 / 27, rel=1e-14)
+    # A near combination whose R^2 is distinguishable from 1 keeps a finite VIF.
+    a, b, noise = np.random.default_rng(2).normal(size=(3, 50))
+    near = vif(pd.DataFrame({"a": a, "b": b, "c": a + b + 1e-6 * noise})).to_numpy()
+    assert np.isfinite(near).all() and (near > 1e11).all()
+
+
 @pytest.mark.parametrize("function", [vif, correlation_filter])
 def test_vif_and_filter_need_two_rows(function):
     for rows in (0, 1):

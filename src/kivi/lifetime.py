@@ -49,6 +49,9 @@ __all__ = [
 _KINDS = ("cumulative", "marginal", "conditional")
 # Rounding allowed in sums of probabilities that must not exceed 1, or must equal 1.
 _TOLERANCE = 1e-9
+# The rounding of a PD, of a threshold and of the product or the difference that compares
+# them stays below 2 eps times the PD, so a margin of 4 eps keeps ties from counting.
+_TIES = 4 * np.finfo(float).eps
 
 
 def convert_pd(
@@ -588,6 +591,12 @@ def significant_increase(
        p > \mathrm{relative} \cdot p_0 \qquad \text{and} \qquad
        p - p_0 > \mathrm{absolute}.
 
+    Both comparisons are strict, and a PD that meets a threshold up to the
+    rounding of floating-point numbers, within a few units in the last
+    place of the PD, meets it exactly: in floating point, ``0.04 - 0.03``
+    exceeds ``0.01`` and ``1.5 * 0.30`` is below ``0.45``, but neither pair
+    is flagged.
+
     With both thresholds, an increase is significant only if it passes both
     tests, so that the absolute threshold keeps small changes of low PDs
     from counting. For a rule under which either test suffices, combine two
@@ -636,14 +645,14 @@ def significant_increase(
                 f"relative must be None or a ratio greater than 1, such as 2 for a PD that "
                 f"doubled, got {first_value(relative)!r}"
             )
-        flag &= current > relative * origination
+        flag &= current > relative * origination + _TIES * current
     if absolute is not None:
         if not _is_number(absolute) or not 0 < absolute < 1:
             raise ValueError(
                 f"absolute must be None or a number between 0 and 1, such as 0.01 for one "
                 f"percentage point, got {first_value(absolute)!r}"
             )
-        flag &= current - origination > absolute
+        flag &= current - origination > absolute + _TIES * current
     if index is None:
         return flag
     return pd.Series(flag, index=index, name="significant_increase")
@@ -1057,8 +1066,9 @@ def _horizons(horizons: int | npt.ArrayLike) -> npt.NDArray[np.int64]:
         shown = first_value(horizons) if np.ndim(horizons) == 0 else horizons
     error = ValueError(message.format(shown))
     if np.ndim(horizons) == 0:
-        # Whole numbers are accepted as scalars as in sequences, such as 12.0.
-        if not (_is_number(horizons) and float(horizons).is_integer() and 1 <= horizons < 2**63):
+        # A number of periods is an integer, as the horizon of expected_credit_loss; a
+        # sequence is read like data, so whole numbers such as 12.0 are accepted there.
+        if isinstance(horizons, bool) or not is_integral(horizons) or not 1 <= horizons < 2**63:
             raise error
         return np.arange(1, int(horizons) + 1)
     if np.ndim(horizons) != 1:

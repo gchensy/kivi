@@ -14,10 +14,6 @@ from ._validation import as_series, as_weights, is_real
 
 __all__ = ["SeparationError", "correlation_filter", "logistic_regression", "stepwise", "vif"]
 
-# Squared length of a column's component in the null space of X above which the column
-# counts as a linear combination of the others; rounding leaves components near 1e-15.
-_NULL_SPACE = 1e-10
-
 
 def correlation_filter(
     X: pd.DataFrame | npt.ArrayLike,
@@ -152,6 +148,15 @@ def vif(X: pd.DataFrame | npt.ArrayLike) -> pd.Series:
     the standard error of the variable's coefficient. With two columns of
     correlation :math:`r`, both have a VIF of :math:`1 / (1 - r^2)`.
 
+    A column counts as a linear combination of the others, with an
+    infinite VIF, when it is one up to rounding: when the singular value
+    decomposition of the standardized columns gives it a component in
+    their null space, or when its VIF reaches
+    :math:`1 / \epsilon \approx 4.5 \cdot 10^{15}`, so that :math:`1 - R_j^2`
+    is at most the machine epsilon :math:`\epsilon`, the spacing of
+    double-precision numbers at 1. Two rows, for example, make any two
+    columns collinear.
+
     Examples
     --------
     Two columns with a correlation of 0.9 both have a VIF of
@@ -181,11 +186,16 @@ def vif(X: pd.DataFrame | npt.ArrayLike) -> pd.Series:
     # With unit-length centred columns Z, Z'Z is the correlation matrix and its inverse,
     # whose diagonal holds the VIFs, is V diag(1 / s^2) V' from the SVD Z = U diag(s) V'.
     standardized = centered / np.linalg.norm(centered, axis=0)
-    singular, vt = np.linalg.svd(standardized, full_matrices=False)[1:]
-    rank = int((singular > max(standardized.shape) * np.finfo(float).eps * singular[0]).sum())
+    rows, columns = standardized.shape
+    # With fewer rows than columns, only the full V has a row for every direction.
+    singular, vt = np.linalg.svd(standardized, full_matrices=rows < columns)[1:]
+    eps = np.finfo(float).eps
+    rank = int((singular > max(rows, columns) * eps * singular[0]).sum())
     result = ((vt[:rank] / singular[:rank, None]) ** 2).sum(axis=0)
-    # A column with a component outside the row space of Z is a combination of the others.
-    result[1 - (vt[:rank] ** 2).sum(axis=0) > _NULL_SPACE] = np.inf
+    # A column with a component in the null space of Z, the rows of V beyond the rank, is a
+    # combination of the others, and so is a column whose 1 - R^2 = 1 / VIF is at most eps.
+    null = (vt[rank:] ** 2).sum(axis=0)
+    result[(null > columns * eps) | (result >= 1 / eps)] = np.inf
     return pd.Series(result, index=frame.columns, name="vif")
 
 

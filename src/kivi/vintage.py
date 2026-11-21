@@ -10,7 +10,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._validation import as_flags, as_series, as_weights, first_value, shared_index
+from ._validation import as_flags, as_series, as_weights, first_value, shared_index, shown
 
 __all__ = ["vintage_table", "transition_matrix", "roll_rates"]
 
@@ -40,7 +40,7 @@ def vintage_table(
         same on every row of a loan. Cohorts are sorted, and categorical
         cohorts follow the order of their categories.
     month_on_book : array_like
-        Whole number of months since origination of each row.
+        Whole, non-negative number of months since origination of each row.
     bad : array_like
         Whether the loan is bad at that month on book, as booleans or 0 and
         1. Pass the bad definition as a condition on the status, such as
@@ -66,9 +66,9 @@ def vintage_table(
         If the inputs are empty, not one-dimensional or of different lengths,
         or Series with different indices. Also if `loan` or `cohort` has a
         missing value, a loan has more than one cohort or more than one row
-        for a month on book, `month_on_book` has a value that is not a whole
-        number, `bad` has a value other than 0 and 1, or `weights` is not
-        valid or differs between the rows of a loan.
+        for a month on book, `month_on_book` has a value that is not a whole,
+        non-negative number, `bad` has a value other than 0 and 1, or
+        `weights` is not valid or differs between the rows of a loan.
 
     See Also
     --------
@@ -161,6 +161,11 @@ def vintage_table(
     cohort_code, cohort_label = pd.factorize(cohort, sort=True)
     _check_not_missing(cohort_code, "cohort")
     mob = _whole_numbers(month_on_book, "month_on_book")
+    if (mob < 0).any():
+        raise ValueError(
+            f"month_on_book must not be negative, got {int(mob[mob < 0][0])}; count the months "
+            "from origination"
+        )
     flag = as_flags(bad, "bad")
 
     # The cohort and the weight of each loan come from its first row; all rows must agree.
@@ -255,7 +260,8 @@ def transition_matrix(
         column. By default, the categories of categorical inputs, which must
         then be the same for both, or else the sorted distinct values.
         Sorting puts labels such as ``"current"`` after ``"90+"``, so pass
-        `states` or ordered categoricals for delinquency buckets.
+        `states` or ordered categoricals for delinquency buckets. A state
+        must not be missing.
     normalize : bool, default False
         If True, divide each row by its total, so that it holds the shares of
         the state's entities that moved to each state. A row without entities
@@ -278,8 +284,9 @@ def transition_matrix(
         If the inputs are empty, not one-dimensional, of different lengths or
         Series with different indices, have a missing value or a value that
         is not one of `states`, or `weights` is not valid. Also if `states`
-        is not one-dimensional or has duplicates, or is not given while
-        `before` and `after` are categoricals with different categories.
+        is not one-dimensional or has duplicates or missing values, or is
+        not given while `before` and `after` are categoricals with different
+        categories, or if `normalize` is not a boolean.
 
     See Also
     --------
@@ -318,6 +325,9 @@ def transition_matrix(
     B       0.000  0.500  0.5
     C       0.000  0.000  1.0
     """
+    if not isinstance(normalize, (bool, np.bool_)):
+        # pandas.crosstab takes "index", "columns" and "all", which would all give row shares.
+        raise ValueError(f"normalize must be True or False, got {shown(normalize)}")
     labels, before_code, after_code, mass = _transitions(before, after, states, weights)
     size = len(labels)
     counts = np.bincount(
@@ -460,6 +470,10 @@ def _state_labels(before: pd.Series, after: pd.Series, states: npt.ArrayLike | N
         if np.ndim(states) != 1:
             raise ValueError(f"states must be one-dimensional, got {states!r}")
         labels = pd.Index(states)  # type: ignore[arg-type]  # takes any array_like
+        if labels.hasnans:
+            raise ValueError(
+                f"states must not contain missing values, got {np.count_nonzero(labels.isna())}"
+            )
         if labels.has_duplicates:
             repeated = first_value(labels[labels.duplicated()])
             raise ValueError(f"states must not contain duplicates, got {repeated!r} more than once")

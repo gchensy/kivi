@@ -1,4 +1,5 @@
 import math
+import re
 from fractions import Fraction
 
 import numpy as np
@@ -385,6 +386,92 @@ def test_inputs_are_not_modified():
     np.testing.assert_array_equal(table["event"], [1, 1])
 
 
+RATES = {"sample_rate": 0.5, "population_rate": 0.02}
+STRING_DTYPE = "(object|str)"  # pandas 3 reads a list of strings as dtype str
+
+
+@pytest.mark.parametrize(
+    "call, message",
+    [
+        (lambda: prior_correction(["0.5", "0.2"], **RATES), "probability"),
+        (lambda: calibration_table(["a", "b"], [0, 1], ["0.1", "0.2"]), "probability"),
+        (lambda: binomial_test(["1"], [10], 0.1), "event"),
+        (lambda: jeffreys_test([1], ["10"], 0.1), "total"),
+        (lambda: hosmer_lemeshow([1, 2], [10, 10], ["0.1", "0.2"], ddof=0), "probability"),
+        (lambda: herfindahl_index(["50", "30"]), "counts"),
+    ],
+)
+def test_calibration_rejects_numbers_given_as_strings(call, message):
+    # These used to be read as floats: prior_correction gave [0.02, 0.0051].
+    pattern = rf"{message} must be real and numeric, got dtype {STRING_DTYPE} with the value '"
+    with pytest.raises(ValueError, match=pattern):
+        call()
+
+
+def test_calibration_reads_pd_na_as_missing_and_shows_the_wrong_element():
+    corrected = prior_correction([0.5, pd.NA], **RATES)
+    np.testing.assert_allclose(corrected, [0.02, np.nan], rtol=1e-15)
+    np.testing.assert_allclose(platt_predict([0.5, pd.NA], 2.0, -1.0), [0.5, np.nan], rtol=1e-15)
+    np.testing.assert_array_equal(
+        isotonic_predict(pd.Series([0.2, pd.NA], dtype=object), [-INF, 0.5, INF], [0.1, 0.9]),
+        [0.1, np.nan],
+    )
+    assert assign_grades([0.5, pd.NA], master_scale([0.1, 0.6])).isna().tolist() == [False, True]
+    np.testing.assert_allclose(herfindahl_index(np.array([3, 1], dtype=object)), 0.625)
+    with pytest.raises(ValueError, match="probability must not have missing values"):
+        calibration_table(["a", "b"], [0, 1], [0.1, pd.NA])
+    with pytest.raises(ValueError, match="probability must not have missing values"):
+        binomial_test([1, 2], [10, 10], [0.1, pd.NA])
+    # The message shows the element that is not a number, not the first element.
+    with pytest.raises(
+        ValueError, match="score must be real and numeric, got dtype object with the value 'a'"
+    ):
+        platt_predict([0.5, pd.NA, "a"], 1.0, 0.0)
+
+
+@pytest.mark.parametrize(
+    "call, message",
+    [
+        (
+            lambda: binomial_test([True], [True], 0.5),
+            "event must be real and numeric, got dtype bool",
+        ),
+        (
+            lambda: jeffreys_test(1, np.array([True]), 0.5),
+            "total must be real and numeric, got dtype bool",
+        ),
+        (
+            lambda: hosmer_lemeshow([True, 1], [10, 10], [0.1, 0.2], ddof=0),
+            "event must be real and numeric, got dtype object with the value True",
+        ),
+        (
+            lambda: herfindahl_index([True, False, True]),
+            "counts must be real and numeric, got dtype bool",
+        ),
+        (
+            lambda: fit_grade_pd([True, False], [10, 10]),
+            "event must be real and numeric, got dtype bool",
+        ),
+        (
+            lambda: fit_grade_pd([1, 2], [True, True]),
+            "total must be real and numeric, got dtype bool",
+        ),
+    ],
+)
+def test_count_arguments_reject_booleans(call, message):
+    # binomial_test([True], [True], 0.5) used to give 0.5 and
+    # herfindahl_index([True, False, True]) 0.5.
+    with pytest.raises(ValueError, match=message):
+        call()
+
+
+def test_probabilities_still_count_booleans_as_one_and_zero():
+    np.testing.assert_allclose(prior_correction([True, False], **RATES), [1.0, 0.0], atol=1e-15)
+    np.testing.assert_array_equal(binomial_test([3, 0], [10, 10], [True, False]), [1.0, 1.0])
+    table = calibration_table(["a", "a"], [0, 1], [False, True])
+    assert table["mean_probability"].tolist() == [0.5]
+
+
 def test_platt_fit_on_a_binary_score_reproduces_the_two_event_rates():
     # With two distinct scores the logistic curve passes through both event rates:
     # 1 event of 4 at score 2 and 3 of 4 at score 5, so logit(1/4) = 2a + b and
@@ -475,7 +562,10 @@ def test_predictions_take_the_same_inputs_however_they_arrive():
         isotonic_predict([0.2, None], edges, probabilities), [0.1, np.nan]
     )
     assert isotonic_predict([], edges, probabilities).shape == (0,)
-    with pytest.raises(ValueError, match="score must be real and numeric, got 'a'"):
+    with pytest.raises(
+        ValueError,
+        match=r"score must be real and numeric, got dtype (object|str) with the value 'a'",
+    ):
         isotonic_predict("a", edges, probabilities)
 
 
@@ -518,11 +608,21 @@ def test_platt_predict_shapes_and_extreme_scores():
     [
         ([0.1], np.nan, 0.0, "slope must be a finite number, got nan"),
         ([0.1], 1.0, True, "intercept must be a finite number, got True"),
-        (["a"], 1.0, 0.0, "score must be real and numeric, got 'a' of dtype"),
-        (pd.Series(["a"]), 1.0, 0.0, "score must be real and numeric, got 'a' of dtype"),
-        (np.array([1 + 1j]), 1.0, 0.0, r"must be real and numeric, got \(1\+1j\) of dtype complex"),
-        (np.array([1, "2"], dtype=object), 1.0, 0.0, "real and numeric, got '2' of dtype object"),
-        (pd.Series([1, "2"], dtype=object), 1.0, 0.0, "real and numeric, got '2' of dtype object"),
+        (
+            ["a"],
+            1.0,
+            0.0,
+            r"score must be real and numeric, got dtype (object|str) with the value 'a'",
+        ),
+        (
+            pd.Series(["a"]),
+            1.0,
+            0.0,
+            r"score must be real and numeric, got dtype (object|str) with",
+        ),
+        (np.array([1 + 1j]), 1.0, 0.0, "score must be real and numeric, got dtype complex128"),
+        (np.array([1, "2"], dtype=object), 1.0, 0.0, "got dtype object with the value '2'"),
+        (pd.Series([1, "2"], dtype=object), 1.0, 0.0, "got dtype object with the value '2'"),
         (np.ones((2, 2)), 1.0, 0.0, "score must be a scalar or one-dimensional, got 2 dimensions"),
         (pd.DataFrame({"s": [0.1]}), 1.0, 0.0, "scalar or one-dimensional, got 2 dimensions"),
     ],
@@ -711,8 +811,16 @@ def test_invalid_calibration_fits(fit, score, target, options, message):
         ([-INF, 1, INF], [0.1], r"one value for each of the 2 band\(s\), got shape \(1,\)"),
         ([-INF, 1, INF], [0.1, 1.2], "probabilities must be between 0 and 1, got 1.2"),
         ([-INF, 1, INF], [0.1, np.nan], "probabilities must not have missing values"),
-        ([-INF, 1, INF], ["a", "b"], "probabilities must be real and numeric, got 'a' of dtype"),
-        ([-INF, "1", INF], [0.1, 0.2], "edges must be real and numeric, got '1' of dtype object"),
+        (
+            [-INF, 1, INF],
+            ["a", "b"],
+            r"probabilities must be real and numeric, got dtype (object|str)",
+        ),
+        (
+            [-INF, "1", INF],
+            [0.1, 0.2],
+            "edges must be real and numeric, got dtype object with the value '1'",
+        ),
         (np.ones((2, 2)), [0.1], "edges must be one-dimensional, got 2 dimensions"),
     ],
 )
@@ -904,7 +1012,7 @@ def test_geometric_bound_is_the_documented_square_root():
         ([0.1, 1.0], {}, "strictly between 0 and 1, got 1.0"),
         ([0.1, 0.1], {}, "increase strictly from grade to grade, got 0.1 followed by 0.1"),
         ([0.1, 0.2, 0.15], {}, "got 0.2 followed by 0.15"),
-        (["0.1", "0.2"], {}, "real and numeric, got '0.1'"),
+        (["0.1", "0.2"], {}, r"real and numeric, got dtype (object|str) with the value '0.1'"),
         ([[0.1, 0.2]], {}, "one-dimensional"),
         ([0.1, 0.2], {"boundary": "harmonic"}, "'geometric' or 'arithmetic', got 'harmonic'"),
         ([0.1, 0.2], {"labels": ["A"]}, "one label for each of the 2 grade"),
@@ -1012,6 +1120,36 @@ def test_fit_grade_pd_keeps_the_series_index_and_accepts_weighted_counts():
 def test_invalid_fit_grade_pd(event, total, kwargs, message):
     with pytest.raises(ValueError, match=message):
         fit_grade_pd(event, total, **kwargs)
+
+
+def test_fit_grade_pd_needs_counts_on_the_scale_of_observations():
+    # Weights that sum to 1 used to raise "the fitted PDs must rise with the grade".
+    event, total = np.array([0, 3, 5, 18, 30]), np.array([400, 500, 300, 400, 200])
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "smoothing must be smaller than the total of each grade without defaults, got 0.5 "
+            "for grade 1 with a total of 0.4; pass counts on the scale of observations or a "
+            "smaller smoothing"
+        ),
+    ):
+        fit_grade_pd(event / 1000, total / 1000)
+    index = pd.Index(list("ABCDE"))
+    with pytest.raises(ValueError, match=r"got 0.4 for grade 'A' with a total of 0.4;"):
+        fit_grade_pd(
+            pd.Series(event * 1e-3, index=index),
+            pd.Series(total * 1e-3, index=index),
+            smoothing=0.4,
+        )
+    # Below the total, the smoothed rate of grade 1 is smoothing / total.
+    pd_values = fit_grade_pd(event, total, smoothing=np.float64(0.25))
+    np.testing.assert_allclose(pd_values, fit_grade_pd([0.25, 3, 5, 18, 30], total), rtol=1e-15)
+    # Grades with defaults or without observations take no smoothing, whatever their total.
+    np.testing.assert_allclose(
+        fit_grade_pd([0, 0.1, 5, 18], [0, 0.2, 300, 400]),
+        fit_grade_pd([0, 0.1, 5, 18], [0, 0.2, 300, 400], smoothing=1000),
+        rtol=1e-15,
+    )
 
 
 def test_fit_grade_pd_rejects_series_with_other_indices():
