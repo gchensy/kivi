@@ -234,11 +234,11 @@ def monitoring_table(
 
     columns = {"total": totals}
     if target is not None:
-        labels = event.astype(np.intp)
-        columns["known"] = _period_sums(code[known], len(periods), _subset(mass, known))
-        columns["event"] = _period_sums(code[event], len(periods), _subset(mass, event))
+        labels = event.astype(np.intp)  # type: ignore[union-attr]  # set with target
+        columns["known"] = _period_sums(code[known], len(periods), _subset(mass, known))  # type: ignore[arg-type]  # set with target
+        columns["event"] = _period_sums(code[event], len(periods), _subset(mass, event))  # type: ignore[arg-type]  # set with target
         columns["event_rate"] = ratio(columns["event"], columns["known"])
-        auc, ks_value = _discrimination(code, values, labels, known, mass, len(periods))
+        auc, ks_value = _discrimination(code, values, labels, known, mass, len(periods))  # type: ignore[arg-type]  # set with target
         columns.update(auc=auc, gini=2 * auc - 1, ks=ks_value)
     columns["psi"] = psi
     table = pd.DataFrame(columns, index=periods)
@@ -409,7 +409,7 @@ def stability_table(
     for column_number, column in enumerate(groups.columns):
         current = groups[column]
         if reference_rows is None:
-            levels, reference_level = _shared_levels(reference_groups[column], current)
+            levels, reference_level = _shared_levels(reference_groups[column], current)  # type: ignore[index]  # given when reference_rows is None
         else:
             levels = _levels(current)
             reference_level = levels[reference_rows]
@@ -423,7 +423,7 @@ def stability_table(
     return table.iloc[np.flatnonzero(totals > 0)]
 
 
-def _one_reference(reference_period, sample, sample_name: str) -> None:
+def _one_reference(reference_period: object, sample: object, sample_name: str) -> None:
     """Require exactly one of a reference period and a reference sample."""
     if reference_period is None and sample is None:
         raise ValueError(f"pass reference_period or {sample_name} to give the reference")
@@ -442,7 +442,9 @@ def _check_columns(frame: pd.DataFrame, name: str) -> None:
         raise ValueError(f"{name} must have unique column names, got {repeated!r} twice")
 
 
-def _row_weights(weights, frame: pd.DataFrame, name: str, of: str) -> np.ndarray | None:
+def _row_weights(
+    weights: npt.ArrayLike | None, frame: pd.DataFrame, name: str, of: str
+) -> np.ndarray | None:
     """Weights of the rows of a DataFrame, checked as in ``kivi._validation.as_weights``."""
     if weights is not None:
         length = len(as_series(weights, name))
@@ -464,7 +466,7 @@ def _periods(period: pd.Series) -> tuple[np.ndarray, pd.Index, bool]:
         # From codes, which does not hash the categories, as building from labels would.
         n_categories = len(period.cat.categories)
         labels = pd.Categorical.from_codes(np.arange(n_categories), dtype=period.dtype)
-        periods = pd.CategoricalIndex(labels, name="period")
+        periods: pd.Index = pd.CategoricalIndex(labels, name="period")
         categorical = True
     else:
         code, periods = pd.factorize(period, sort=True)
@@ -476,11 +478,11 @@ def _periods(period: pd.Series) -> tuple[np.ndarray, pd.Index, bool]:
     return code, periods, categorical
 
 
-def _reference_position(label, periods: pd.Index, sample_name: str) -> int:
+def _reference_position(label: object, periods: pd.Index, sample_name: str) -> int:
     """Position of the reference period `label` among `periods`."""
     if isinstance(label, np.ndarray) and label.ndim == 0:
         label = label.item()
-    if not isinstance(label, tuple) and np.ndim(label) != 0:
+    if not isinstance(label, tuple) and np.ndim(label) != 0:  # type: ignore[arg-type]  # takes any object
         raise ValueError(
             f"reference_period must be one period label, got a {type(label).__name__}; pass "
             f"the reference sample as {sample_name}"
@@ -508,7 +510,10 @@ def _reference_position(label, periods: pd.Index, sample_name: str) -> int:
 
 
 def _check_reference_period(
-    label, total: float, mass: np.ndarray | None, reference_weights
+    label: object,
+    total: float,
+    mass: np.ndarray | None,
+    reference_weights: npt.ArrayLike | None,
 ) -> None:
     """Require a reference period with observations, and no reference weights of its own."""
     if reference_weights is not None:
@@ -521,7 +526,9 @@ def _check_reference_period(
         raise ValueError(f"reference_period {first_value(label)!r} has no observations{detail}")
 
 
-def _reference_scores(reference_score, reference_weights) -> tuple[np.ndarray, np.ndarray | None]:
+def _reference_scores(
+    reference_score: npt.ArrayLike, reference_weights: npt.ArrayLike | None
+) -> tuple[np.ndarray, np.ndarray | None]:
     """Finite scores and weights of an explicit reference sample."""
     raw_reference = reference_score
     reference_score = as_series(reference_score, "reference_score")
@@ -578,7 +585,9 @@ def _period_psi(
     smoothing: float,
 ) -> np.ndarray:
     """PSI of each period's groups against the reference groups; NaN for an empty period."""
-    current = np.bincount(code * n_levels + level, weights=mass, minlength=n_periods * n_levels)
+    current: np.ndarray = np.bincount(
+        code * n_levels + level, weights=mass, minlength=n_periods * n_levels
+    )
     current = current.reshape(n_periods, n_levels)
     reference = np.bincount(reference_level, weights=reference_mass, minlength=n_levels)
     psi = np.full(n_periods, np.nan)

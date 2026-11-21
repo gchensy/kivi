@@ -12,7 +12,8 @@ when the score is at or below the cut-off.
 """
 
 import math
-from numbers import Integral, Real
+from collections.abc import Mapping
+from numbers import Real
 
 import numpy as np
 import numpy.typing as npt
@@ -24,6 +25,7 @@ from ._validation import (
     as_series,
     as_weights,
     finite_scores,
+    is_integral,
     is_real_dtype,
     known_outcomes,
     like_input,
@@ -162,8 +164,8 @@ def cutoff_table(
     order = np.argsort(values, kind="stable")
     labels = labels[order]
     if mass is None:
-        event_mass = labels
-        non_event_mass = 1 - labels
+        event_mass: np.ndarray = labels
+        non_event_mass: np.ndarray = 1 - labels
     else:
         event_mass = labels * mass[order]
         non_event_mass = (1 - labels) * mass[order]
@@ -539,10 +541,12 @@ def expected_loss_table(
     )
 
 
-def _cutoff_values(values: np.ndarray, cutoffs, weights: np.ndarray | None) -> np.ndarray:
+def _cutoff_values(
+    values: np.ndarray, cutoffs: int | npt.ArrayLike, weights: np.ndarray | None
+) -> np.ndarray:
     """Increasing cut-offs: quantile edges above the lowest for an integer, else the values."""
     message = "cutoffs must be a positive integer or a sequence of increasing numbers, got {!r}"
-    if isinstance(cutoffs, Integral) and not isinstance(cutoffs, bool):
+    if is_integral(cutoffs) and not isinstance(cutoffs, bool):
         if cutoffs < 1:
             raise ValueError(message.format(cutoffs))
         # The edges of bin_edges above the lowest; the last one, infinity, approves everyone.
@@ -566,17 +570,18 @@ def _cutoff_values(values: np.ndarray, cutoffs, weights: np.ndarray | None) -> n
     return array
 
 
-def _cutoff(value, name: str) -> float:
+def _cutoff(value: object, name: str) -> float:
     if isinstance(value, bool) or not isinstance(value, Real) or math.isnan(float(value)):
         raise ValueError(f"{name} must be a number, got {value!r}")
     return float(value)
 
 
-def _loss_amounts(loss, score) -> np.ndarray:
+def _loss_amounts(loss: npt.ArrayLike, score: npt.ArrayLike) -> npt.NDArray[np.float64]:
     amounts = as_real(as_series(loss, "loss"), "loss")
-    if len(amounts) != len(score):
+    count = len(score)  # type: ignore[arg-type]  # one-dimensional: validated by the caller
+    if len(amounts) != count:
         raise ValueError(
-            f"loss must have one value per value of score, got {len(amounts)} for {len(score)}"
+            f"loss must have one value per value of score, got {len(amounts)} for {count}"
         )
     invalid = ~np.isfinite(amounts) | (amounts < 0)
     if invalid.any():
@@ -586,7 +591,9 @@ def _loss_amounts(loss, score) -> np.ndarray:
     return amounts
 
 
-def _loss_inputs(inputs: dict, length: int | None = None) -> tuple[dict, object]:
+def _loss_inputs(
+    inputs: Mapping[str, npt.ArrayLike], length: int | None = None
+) -> tuple[dict[str, npt.NDArray[np.float64]], npt.ArrayLike]:
     """Broadcast and check PD, LGD and EAD; also return the input whose shape the result takes.
 
     With ``length``, for a table, every input must broadcast to that length and must not have
@@ -631,9 +638,9 @@ def _loss_inputs(inputs: dict, length: int | None = None) -> tuple[dict, object]
         )
     series = [values for values in inputs.values() if isinstance(values, pd.Series)]
     template = series[0] if series else inputs["probability"]
-    if series and shape != (len(template),):
+    if series and shape != (len(template),):  # type: ignore[arg-type]  # a Series here
         raise ValueError(
-            f"probability, lgd and ead must broadcast to the length {len(template)} of their "
+            f"probability, lgd and ead must broadcast to the length {len(template)} of their "  # type: ignore[arg-type]  # a Series here
             f"Series index, got shape {shape}"
         )
     return arrays, template

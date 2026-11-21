@@ -2,7 +2,7 @@
 
 import math
 import warnings
-from numbers import Integral, Real
+from numbers import Real
 from typing import Literal
 
 import numpy as np
@@ -12,7 +12,15 @@ import pandas as pd
 from . import _logit
 from ._counts import group_counts, group_rows
 from ._stats import betainc, chi2_sf
-from ._validation import as_series, as_weights, check_smoothing, like_input, scores_and_labels
+from ._validation import (
+    as_series,
+    as_weights,
+    check_smoothing,
+    is_integral,
+    is_real,
+    like_input,
+    scores_and_labels,
+)
 
 __all__ = [
     "assign_grades",
@@ -151,11 +159,7 @@ def corrected_intercept(intercept: float, *, sample_rate: float, population_rate
     >>> print(f"{corrected_intercept(0.0, sample_rate=0.5, population_rate=0.02):.4f}")
     -3.8918
     """
-    if (
-        isinstance(intercept, bool)
-        or not isinstance(intercept, Real)
-        or not math.isfinite(intercept)
-    ):
+    if isinstance(intercept, bool) or not is_real(intercept) or not math.isfinite(intercept):
         raise ValueError(f"intercept must be a finite number, got {intercept!r}")
     return intercept + math.log(_odds_ratio(sample_rate, population_rate))
 
@@ -339,7 +343,7 @@ def platt_predict(
     array([0.0293, 0.3775, 0.9241])
     """
     for name, value in (("slope", slope), ("intercept", intercept)):
-        if isinstance(value, bool) or not isinstance(value, Real) or not math.isfinite(value):
+        if isinstance(value, bool) or not is_real(value) or not math.isfinite(value):
             raise ValueError(f"{name} must be a finite number, got {value!r}")
     values = _float_scores(score, "score")
     # A huge score overflows to an infinite log odds, and logaddexp warns on missing values.
@@ -866,7 +870,7 @@ def hosmer_lemeshow(
     >>> print(f"statistic = {statistic:.3f}, pvalue = {pvalue:.3f}")
     statistic = 1.196, pvalue = 0.274
     """
-    if isinstance(ddof, bool) or not isinstance(ddof, Integral) or ddof < 0:
+    if isinstance(ddof, bool) or not is_integral(ddof) or ddof < 0:
         raise ValueError(f"ddof must be a non-negative integer, got {ddof!r}")
     event, total, probability, _ = _grade_inputs(event, total, probability)
     if event.ndim != 1:
@@ -1290,14 +1294,17 @@ def assign_grades(probability: npt.ArrayLike, scale: pd.DataFrame) -> pd.Series 
 
 
 def _pool_adjacent_violators(
-    total: np.ndarray, event: np.ndarray, *, increasing: bool
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    total: np.ndarray, event: npt.NDArray[np.float64], *, increasing: bool
+) -> tuple[npt.NDArray[np.intp], np.ndarray, npt.NDArray[np.float64]]:
     """Pool adjacent blocks of ordered scores until their event rates are strictly monotone.
 
     Returns the position of the last score of each block and the block's total
     and event weight.
     """
     sign = 1.0 if increasing else -1.0
+    last: list[int]
+    totals: list[float]
+    events: list[float]
     last, totals, events = [], [], []
     for position, (block_total, block_event) in enumerate(
         zip(total.tolist(), event.tolist(), strict=True)
@@ -1314,7 +1321,9 @@ def _pool_adjacent_violators(
     return np.array(last, dtype=np.intp), np.array(totals), np.array(events)
 
 
-def _isotonic_bands(edges, probabilities) -> tuple[np.ndarray, np.ndarray]:
+def _isotonic_bands(
+    edges: npt.ArrayLike, probabilities: npt.ArrayLike
+) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """Check and return the band edges and probabilities of an isotonic calibration."""
     edges = _numeric_values(edges, "edges")
     probabilities = _numeric_values(probabilities, "probabilities")
@@ -1356,7 +1365,7 @@ def _grade_labels(labels: npt.ArrayLike | None, grades: int) -> pd.Index:
     return pd.Index(series.to_numpy(), name="grade")
 
 
-def _scale_bounds(scale: pd.DataFrame) -> np.ndarray:
+def _scale_bounds(scale: pd.DataFrame) -> npt.NDArray[np.float64]:
     """Check a master scale and return the upper bounds of its grades."""
     if not isinstance(scale, pd.DataFrame):
         raise ValueError(f"scale must be a DataFrame from master_scale, got {type(scale).__name__}")
@@ -1381,13 +1390,13 @@ def _scale_bounds(scale: pd.DataFrame) -> np.ndarray:
     return upper
 
 
-def _float_scores(values: npt.ArrayLike, name: str) -> np.ndarray:
+def _float_scores(values: npt.ArrayLike, name: str) -> npt.NDArray[np.float64]:
     """Return a scalar or one-dimensional scores as floats, with missing values as NaN.
 
     A scalar gives a zero-dimensional array, so `like_input` returns a float.
     """
     if np.ndim(values) == 0 and not isinstance(values, pd.Series):
-        return _numeric_values([values], name).reshape(())
+        return _numeric_values([values], name).reshape(())  # type: ignore[arg-type]  # [scalar] is one-dimensional
     if np.ndim(values) > 1:
         raise ValueError(
             f"{name} must be a scalar or one-dimensional, got {np.ndim(values)} dimensions"
@@ -1395,7 +1404,7 @@ def _float_scores(values: npt.ArrayLike, name: str) -> np.ndarray:
     return _numeric_values(values, name)
 
 
-def _numeric_values(values: npt.ArrayLike, name: str) -> np.ndarray:
+def _numeric_values(values: npt.ArrayLike, name: str) -> npt.NDArray[np.float64]:
     """Return one-dimensional real numeric values as floats, with missing values as NaN.
 
     Lists and object arrays are judged by their elements, as a Series built
@@ -1423,20 +1432,22 @@ def _numeric_values(values: npt.ArrayLike, name: str) -> np.ndarray:
 
 def _odds_ratio(sample_rate: float, population_rate: float) -> float:
     for name, rate in (("sample_rate", sample_rate), ("population_rate", population_rate)):
-        if isinstance(rate, bool) or not isinstance(rate, Real) or not 0 < rate < 1:
+        if isinstance(rate, bool) or not is_real(rate) or not 0 < rate < 1:
             raise ValueError(f"{name} must be strictly between 0 and 1, got {rate!r}")
     return (population_rate / (1 - population_rate)) / (sample_rate / (1 - sample_rate))
 
 
-def _check_unit_interval(values: np.ndarray, name: str) -> None:
+def _check_unit_interval(values: npt.NDArray[np.float64], name: str) -> None:
     outside = (values < 0) | (values > 1)
     if outside.any():
         raise ValueError(f"{name} must be between 0 and 1, got {_first(values, outside)}")
 
 
 def _grade_inputs(
-    event, total, probability
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, pd.Index | None]:
+    event: npt.ArrayLike, total: npt.ArrayLike, probability: npt.ArrayLike
+) -> tuple[
+    npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.float64], pd.Index | None
+]:
     """Broadcast and check the per-grade inputs of the calibration tests.
 
     Also returns the index shared by the Series inputs, or None without Series.
@@ -1481,16 +1492,18 @@ def _grade_inputs(
     return event, total, probability, index
 
 
-def _pvalues(pvalue: np.ndarray, index: pd.Index | None) -> float | pd.Series | np.ndarray:
+def _pvalues(
+    pvalue: npt.NDArray[np.float64], index: pd.Index | None
+) -> float | pd.Series | npt.NDArray[np.float64]:
     if index is not None:
         return pd.Series(pvalue, index=index)
     return float(pvalue) if pvalue.ndim == 0 else pvalue
 
 
-def _whole(values: np.ndarray) -> np.ndarray:
+def _whole(values: npt.NDArray[np.float64]) -> npt.NDArray[np.bool_]:
     finite = np.isfinite(values)
     return finite & (np.where(finite, values, 0) % 1 == 0)
 
 
-def _first(values: np.ndarray, invalid: np.ndarray) -> str:
+def _first(values: npt.NDArray[np.float64], invalid: npt.NDArray[np.bool_]) -> str:
     return repr(float(values[invalid].flat[0]))

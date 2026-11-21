@@ -8,13 +8,14 @@ change of each group's share with the group's scorecard points.
 import math
 from collections.abc import Mapping
 from numbers import Real
+from typing import Any
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
 from ._counts import concat_groups, divergence, group_counts
-from ._validation import as_count_columns, as_series, as_weights
+from ._validation import as_count_columns, as_series, as_weights, is_real
 
 __all__ = ["csi_table", "psi", "psi_table"]
 
@@ -290,7 +291,7 @@ def csi_table(
     labels, values = _points_by_group(points)
     if unseen_points is not None and (
         isinstance(unseen_points, bool)
-        or not isinstance(unseen_points, Real)
+        or not is_real(unseen_points)
         or not math.isfinite(unseen_points)
     ):
         raise ValueError(f"unseen_points must be a finite number, got {unseen_points!r}")
@@ -335,8 +336,12 @@ def _sample_counts(
     return counts
 
 
-def _points_by_group(points) -> tuple[np.ndarray, np.ndarray]:
+def _points_by_group(
+    points: pd.DataFrame | pd.Series | Mapping[object, float],
+) -> tuple[np.ndarray, np.ndarray]:
     """Return the group labels, as an object array, and the float points of `points`."""
+    labels: pd.Series | pd.Index | list[object] | np.ndarray
+    values: pd.Series | list[Any]
     if isinstance(points, pd.DataFrame):
         if "points" not in points.columns:
             raise ValueError(

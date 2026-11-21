@@ -9118,11 +9118,16 @@ msgstr "未发布"
 msgid "Changes merged since the last release."
 msgstr "上次发布以来合并的改动。"
 
-msgid "0.8.0 (2026-11-21)"
-msgstr "0.8.0（2026-11-21）"
-
 msgid "New"
 msgstr "新增"
+
+msgid ""
+"kivi ships inline type hints and a ``py.typed`` marker, so type checkers such as mypy check code "
+"that calls it. Every function in the package is annotated and checked with mypy."
+msgstr "kivi 附带内联类型注解和 ``py.typed`` 标记，因此 mypy 等类型检查器可以检查调用 kivi 的代码。包中的每个函数都有注解，并经过 mypy 检查。"
+
+msgid "0.8.0 (2026-11-21)"
+msgstr "0.8.0（2026-11-21）"
 
 msgid ""
 "``kivi.binning`` groups the categories of categorical variables in the same two steps as numeric "

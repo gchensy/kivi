@@ -12,16 +12,16 @@ group, which ``group_categories`` applies to any sample.
 
 import math
 import warnings
-from collections.abc import Hashable, Mapping
+from collections.abc import Hashable, Iterable, Mapping
 from numbers import Integral, Real
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
 from ._counts import divergence
-from ._validation import as_series, as_weights, first_value
+from ._validation import as_series, as_weights, first_value, is_integral, is_real
 
 __all__ = [
     "bin_edges",
@@ -238,7 +238,10 @@ def cut(
     special = _special_values(special)
     position = _special_positions(series, special)
     is_special = position >= 0
-    intervals = pd.cut(pd.to_numeric(series.mask(is_special), errors="raise"), edges)
+    intervals = pd.cut(
+        pd.to_numeric(series.mask(is_special), errors="raise"),
+        edges,  # type: ignore[arg-type]  # pandas.cut takes any array_like of edges
+    )
     if special.empty:
         return intervals if isinstance(values, pd.Series) else intervals.array
     codes = intervals.cat.codes.to_numpy()
@@ -351,7 +354,7 @@ def chimerge_edges(
     """
     _check_count(max_bins, "max_bins")
     _check_count(initial_bins, "initial_bins")
-    if alpha is not None and not (isinstance(alpha, Real) and 0 < alpha < 1):
+    if alpha is not None and not (is_real(alpha) and 0 < alpha < 1):
         raise ValueError(f"alpha must be None or between 0 and 1, got {alpha!r}")
     observed, labels, mass = _labeled(values, target, special, weights)
     interior, counts = _fine_bins(observed, labels, initial_bins, mass)
@@ -461,7 +464,7 @@ def tree_edges(
     _check_count(max_bins, "max_bins")
     if (
         isinstance(min_bin_share, bool)
-        or not isinstance(min_bin_share, Real)
+        or not is_real(min_bin_share)
         or not 0 <= min_bin_share <= 0.5
     ):
         raise ValueError(f"min_bin_share must be between 0 and 0.5, got {min_bin_share!r}")
@@ -475,7 +478,7 @@ def tree_edges(
     min_count = min_bin_share * totals[-1]
     impurity = _entropy if criterion == "entropy" else _gini
 
-    def best_split(start, stop):
+    def best_split(start: int, stop: int) -> tuple[float, int | None]:
         # Cut points between unique values start..stop-1; left part is start..cut-1.
         cuts = np.arange(start + 1, stop)
         n_left = totals[cuts] - totals[start]
@@ -722,7 +725,7 @@ def category_groups(
     _check_share(min_share, "min_share", 1)
     if (
         isinstance(min_count, bool)
-        or not isinstance(min_count, Real)
+        or not is_real(min_count)
         or not (math.isfinite(min_count) and min_count >= 0)
     ):
         raise ValueError(
@@ -730,8 +733,8 @@ def category_groups(
         )
     if (
         isinstance(rare_label, (bool, np.bool_))
-        or not isinstance(rare_label, (str, Real))
-        or (isinstance(rare_label, Real) and math.isnan(rare_label))
+        or not (isinstance(rare_label, str) or is_real(rare_label))
+        or (is_real(rare_label) and math.isnan(rare_label))
     ):
         raise ValueError(
             f"rare_label must be a string or a number, got {first_value(rare_label)!r}"
@@ -871,12 +874,12 @@ def chimerge_groups(
     {'c': 'c, a', 'a': 'c, a', 'b': 'b, d', 'd': 'b, d'}
     """
     _check_count(max_groups, "max_groups")
-    if alpha is not None and not (isinstance(alpha, Real) and 0 < alpha < 1):
+    if alpha is not None and not (is_real(alpha) and 0 < alpha < 1):
         raise ValueError(f"alpha must be None or between 0 and 1, got {first_value(alpha)!r}")
     _check_share(min_group_share, "min_group_share", 0.5)
     if (
         isinstance(smoothing, bool)
-        or not isinstance(smoothing, Real)
+        or not is_real(smoothing)
         or not (math.isfinite(smoothing) and smoothing > 0)
     ):
         raise ValueError(f"smoothing must be finite and positive, got {first_value(smoothing)!r}")
@@ -990,6 +993,7 @@ def group_categories(
             raise ValueError(
                 f"unseen must be 'raise' or one of the groups, got {first_value(unseen)!r}"
             )
+    levels: pd.Index | np.ndarray
     position, levels = pd.factorize(series, sort=False)
     levels = np.asarray(levels, dtype=object)
     key = _object_index(mapping).get_indexer(_object_index(levels))
@@ -1010,29 +1014,29 @@ def group_categories(
     return grouped
 
 
-def _check_count(value, name: str) -> None:
-    if isinstance(value, bool) or not isinstance(value, Integral) or value < 1:
+def _check_count(value: int, name: str) -> None:
+    if isinstance(value, bool) or not is_integral(value) or value < 1:
         raise ValueError(f"{name} must be a positive integer, got {value!r}")
 
 
-def _check_share(value, name: str, upper: float) -> None:
-    if isinstance(value, bool) or not isinstance(value, Real) or not 0 <= value <= upper:
+def _check_share(value: float, name: str, upper: float) -> None:
+    if isinstance(value, bool) or not is_real(value) or not 0 <= value <= upper:
         raise ValueError(f"{name} must be between 0 and {upper:g}, got {first_value(value)!r}")
 
 
-def _python(value):
+def _python(value: object) -> Any:
     """Return a NumPy number, boolean or string as the Python scalar it holds."""
     if isinstance(value, (np.number, np.bool_, np.str_)):
         return value.item()
     return value
 
 
-def _is_missing(value) -> bool:
-    missing = pd.isna(value)
+def _is_missing(value: object) -> bool:
+    missing = pd.isna(value)  # type: ignore[call-overload]  # pandas.isna takes any object
     return isinstance(missing, (bool, np.bool_)) and bool(missing)
 
 
-def _object_index(values) -> pd.Index:
+def _object_index(values: Iterable[Hashable]) -> pd.Index:
     """Return labels as an object Index, which matches them by equality."""
     labels = list(values)
     array = np.empty(len(labels), dtype=object)
@@ -1040,13 +1044,13 @@ def _object_index(values) -> pd.Index:
     return pd.Index(array, dtype=object)
 
 
-def _checked_groups(groups, argument: str) -> dict:
+def _checked_groups(groups: object, argument: str) -> dict[Hashable, Hashable]:
     """Return a grouping as a dict of Python labels, rejecting missing and non-scalar labels."""
     if not isinstance(groups, Mapping):
         raise ValueError(
             f"{argument} must be a mapping from category to group, got {type(groups).__name__}"
         )
-    checked = {}
+    checked: dict[Hashable, Hashable] = {}
     for category, group in groups.items():
         for label, role in ((category, "category"), (group, "group")):
             if not pd.api.types.is_scalar(label) or _is_missing(label):
@@ -1088,6 +1092,7 @@ def _category_counts(
             raise ValueError("target must contain only 0 and 1 and no missing labels")
     codes = _special_values(special)
     mass = as_weights(weights, raw_values, others={"target": raw_target})
+    levels: pd.Index | np.ndarray
     position, levels = pd.factorize(series, sort=isinstance(series.dtype, pd.CategoricalDtype))
     levels = np.asarray(levels, dtype=object)
     fitted = position >= 0
@@ -1119,7 +1124,7 @@ def _category_counts(
     labels = [_python(level) for level in levels[used]]
     weight = None if mass is None else mass[fitted]
     if target is None:
-        counts = np.bincount(category, weights=weight, minlength=len(labels))
+        counts: np.ndarray = np.bincount(category, weights=weight, minlength=len(labels))
     else:
         side = target.to_numpy()[fitted].astype(np.intp)
         if side.min() == side.max():
@@ -1298,6 +1303,7 @@ def _special_positions(values: pd.Series, special: pd.Index) -> np.ndarray:
         # Fast path: look the numbers up among the numeric codes only. Integer
         # values compare with integer codes, so 2**53 + 1 never matches 2.0**53.
         integer = pd.api.types.is_integer_dtype(values.dtype)
+        numeric: list[int] | pd.Series
         numeric, codes = [], []
         for i, code in enumerate(special):
             if not isinstance(code, Real):
@@ -1305,7 +1311,7 @@ def _special_positions(values: pd.Series, special: pd.Index) -> np.ndarray:
             if integer and not isinstance(code, Integral):
                 if not (math.isfinite(code) and float(code).is_integer()):
                     continue
-                code = int(code)
+                code = int(code)  # type: ignore[call-overload]  # float-like codes define __int__
             numeric.append(i)
             codes.append(code)
         if numeric:
@@ -1365,7 +1371,7 @@ def _labeled(
 
 def _fine_bins(
     observed: np.ndarray, labels: np.ndarray, bins: int, weights: np.ndarray | None = None
-):
+) -> tuple[npt.NDArray[np.float64], np.ndarray]:
     """Interior quantile edges and (non_event, event) counts of each non-empty bin."""
     unique = np.unique(observed)
     if len(unique) <= bins:
@@ -1378,14 +1384,16 @@ def _fine_bins(
             quantiles = _weighted_quantile(observed, weights, probabilities)
         interior = np.unique(quantiles)[1:-1]
     position = np.searchsorted(interior, observed, side="left")
-    counts = np.bincount(2 * position + labels, weights=weights, minlength=2 * (len(interior) + 1))
+    counts: np.ndarray = np.bincount(
+        2 * position + labels, weights=weights, minlength=2 * (len(interior) + 1)
+    )
     counts = counts.reshape(-1, 2)
     # Interpolated quantiles can leave a bin empty; join it to the next bin.
     occupied = counts.sum(axis=1) > 0
     return interior[occupied[:-1]], counts[occupied]
 
 
-def _merge(interior: np.ndarray, counts: np.ndarray, pair: int):
+def _merge(interior: np.ndarray, counts: np.ndarray, pair: int) -> tuple[np.ndarray, np.ndarray]:
     """Merge bin ``pair`` with bin ``pair + 1``."""
     counts = counts.copy()
     counts[pair] += counts[pair + 1]
@@ -1424,7 +1432,7 @@ def _iv(counts: np.ndarray, smoothing: float) -> float:
 
 def _monotonic(
     interior: np.ndarray, counts: np.ndarray, sign: int, max_bins: int, smoothing: float
-):
+) -> tuple[np.ndarray, np.ndarray]:
     while len(counts) > 1:
         breaks = np.flatnonzero(sign * np.diff(_woe(counts, smoothing)) <= 0)
         if len(breaks):

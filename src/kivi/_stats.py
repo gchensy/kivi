@@ -25,7 +25,7 @@ _STIRLING_FROM = 10.0
 _lgamma = np.vectorize(math.lgamma, otypes=[float])
 
 
-def betainc(a: npt.ArrayLike, b: npt.ArrayLike, x: npt.ArrayLike) -> np.ndarray:
+def betainc(a: npt.ArrayLike, b: npt.ArrayLike, x: npt.ArrayLike) -> npt.NDArray[np.float64]:
     """Return the regularized incomplete beta function I_x(a, b), elementwise.
 
     ``a`` and ``b`` must be positive; ``x`` is clipped to [0, 1] and a missing
@@ -48,7 +48,9 @@ def betainc(a: npt.ArrayLike, b: npt.ArrayLike, x: npt.ArrayLike) -> np.ndarray:
     return result
 
 
-def _log_front(a: np.ndarray, b: np.ndarray, x: np.ndarray) -> np.ndarray:
+def _log_front(
+    a: npt.NDArray[np.float64], b: npt.NDArray[np.float64], x: npt.NDArray[np.float64]
+) -> npt.NDArray[np.float64]:
     """Return ln[x**a (1 - x)**b / B(a, b)] for 0 < x < 1."""
     result = np.empty_like(x)
     both = (a >= _STIRLING_FROM) & (b >= _STIRLING_FROM)
@@ -89,13 +91,13 @@ def _log_front(a: np.ndarray, b: np.ndarray, x: np.ndarray) -> np.ndarray:
     return result
 
 
-def _stirling_correction(z: np.ndarray) -> np.ndarray:
+def _stirling_correction(z: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
     """Return ln Gamma(z) - [(z - 1/2) ln z - z + ln(2 pi) / 2] for z >= 10."""
     w = 1 / (z * z)
     return (1 / 12 + w * (-1 / 360 + w * (1 / 1260 + w * (-1 / 1680 + w / 1188)))) / z
 
 
-def _log1pmx(t: np.ndarray) -> np.ndarray:
+def _log1pmx(t: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
     """Return ln(1 + t) - t, without cancellation for small t."""
     with np.errstate(divide="ignore"):  # t = -1 when 1 - x underflows; the limit is -inf
         result = np.log1p(t) - t
@@ -110,7 +112,9 @@ def _log1pmx(t: np.ndarray) -> np.ndarray:
     return result
 
 
-def _beta_fraction(a: np.ndarray, b: np.ndarray, x: np.ndarray) -> np.ndarray:
+def _beta_fraction(
+    a: npt.NDArray[np.float64], b: npt.NDArray[np.float64], x: npt.NDArray[np.float64]
+) -> npt.NDArray[np.float64]:
     """Evaluate the continued fraction of I_x(a, b) for x below the mean."""
     # The worst case needs O(sqrt(max(a, b))) terms.
     max_terms = 200 + 20 * math.ceil(math.sqrt(float(np.max(np.maximum(a, b)))))
@@ -243,7 +247,7 @@ def _horner(coefficients: tuple[float, ...], x: float) -> float:
     return result
 
 
-def _guard(values: np.ndarray) -> np.ndarray:
+def _guard(values: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
     return np.where(np.abs(values) < _TINY, _TINY, values)
 
 

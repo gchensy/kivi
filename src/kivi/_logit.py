@@ -66,7 +66,7 @@ SeparationError.__module__ = "kivi.selection"
 class SingularError(ValueError):
     """The Fisher information is numerically singular at `column` of the design."""
 
-    def __init__(self, column: int):
+    def __init__(self, column: int) -> None:
         super().__init__(f"design column {column} is nearly a linear combination of the others")
         self.column = column
 
@@ -252,7 +252,12 @@ def _standardize(
     return scaled, transform
 
 
-def _weakest_column(scaled, weights, event, non_event) -> int:
+def _weakest_column(
+    scaled: npt.NDArray[np.float64],
+    weights: npt.NDArray[np.float64],
+    event: npt.NDArray[np.float64],
+    non_event: npt.NDArray[np.float64],
+) -> int:
     """Return the column of the weighted design that the others explain best."""
     weighted = scaled * np.sqrt(weights * event * non_event)[:, None]
     diagonal = np.abs(np.diagonal(np.linalg.qr(weighted, mode="r")))

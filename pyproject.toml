@@ -31,7 +31,7 @@ Issues = "https://github.com/gchensy/kivi/issues"
 
 [project.optional-dependencies]
 test = ["pytest>=8", "pytest-cov>=6"]
-lint = ["ruff==0.17.6", "pre-commit>=3.5"]
+lint = ["ruff==0.17.6", "pre-commit>=3.5", "mypy==2.4.1", "pandas-stubs==3.1.0.261029"]
 docs = ["sphinx>=7.2", "pydata-sphinx-theme>=0.15", "numpydoc>=1.7", "sphinx-design>=0.6", "sphinx-copybutton>=0.5", "matplotlib>=3.7"]
 
 [tool.hatch.build.targets.wheel]
@@ -73,3 +73,18 @@ known-first-party = ["kivi"]
 # Docstrings are required for the public API, which numpydoc also validates in the docs build.
 "tests/**" = ["D"]
 "docs/**" = ["D"]
+
+# `mypy` checks the package against the installed NumPy, whose stubs need Python 3.12 since
+# NumPy 2.5, and the pandas-stubs pinned in the `lint` extra. Tests are not checked.
+[tool.mypy]
+files = ["src/kivi"]
+python_version = "3.12"
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+warn_unused_ignores = true
+warn_unreachable = true
+warn_redundant_casts = true
+strict_equality = true
+extra_checks = true
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
