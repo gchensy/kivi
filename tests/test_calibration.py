@@ -7,14 +7,17 @@ import pytest
 
 from kivi._stats import betainc, chi2_sf, gammaincc
 from kivi.calibration import (
+    assign_grades,
     binomial_test,
     calibration_table,
     corrected_intercept,
+    fit_grade_pd,
     herfindahl_index,
     hosmer_lemeshow,
     isotonic_fit,
     isotonic_predict,
     jeffreys_test,
+    master_scale,
     platt_fit,
     platt_predict,
     prior_correction,
@@ -835,3 +838,259 @@ def test_isotonic_rates_are_strictly_monotone_with_fractional_weights():
             probabilities = isotonic_fit(score, target, weights=weights, increasing=increasing)[1]
             steps = np.diff(probabilities) * (1 if increasing else -1)
             assert (steps > 0).all()
+
+
+# Master scale
+
+
+def test_master_scale_geometric_bounds_by_hand():
+    scale = master_scale([0.01, 0.02, 0.04, 0.08], labels=list("ABCD"))
+    assert list(scale.columns) == ["lower", "probability", "upper"]
+    assert scale.index.name == "grade"
+    assert scale.index.tolist() == ["A", "B", "C", "D"]
+    root2 = math.sqrt(2)
+    np.testing.assert_allclose(scale["upper"], [0.01 * root2, 0.02 * root2, 0.04 * root2, 1])
+    np.testing.assert_allclose(scale["lower"], [0, 0.01 * root2, 0.02 * root2, 0.04 * root2])
+    np.testing.assert_array_equal(scale["probability"], [0.01, 0.02, 0.04, 0.08])
+    # Each bound is the midpoint on a log scale: the same ratio to the PD below and above.
+    bounds = scale["upper"].to_numpy()[:-1]
+    probability = scale["probability"].to_numpy()
+    np.testing.assert_allclose(bounds / probability[:-1], probability[1:] / bounds)
+
+
+def test_master_scale_arithmetic_bounds_match_the_legacy_midpoints():
+    # The 0.2 MasterScale.confirm_master_scale: midpoints of adjacent PDs, 0 and 1 at the ends.
+    probability = np.array([0.003, 0.007, 0.02, 0.05, 0.11, 0.3])
+    middle = (probability[1:] + probability[:-1]) / 2
+    scale = master_scale(probability, boundary="arithmetic")
+    np.testing.assert_array_equal(scale["lower"], np.hstack(([0], middle)))
+    np.testing.assert_array_equal(scale["upper"], np.hstack((middle, [1])))
+    assert scale.index.tolist() == [1, 2, 3, 4, 5, 6]
+    # The arithmetic mean lies above the geometric one.
+    geometric = master_scale(probability)
+    assert (scale["upper"].to_numpy()[:-1] > geometric["upper"].to_numpy()[:-1]).all()
+
+
+def test_master_scale_from_a_geometric_grid_and_one_grade():
+    scale = master_scale(np.geomspace(0.0005, 0.256, 10))
+    ratio = scale["probability"].to_numpy()[1:] / scale["probability"].to_numpy()[:-1]
+    np.testing.assert_allclose(ratio, 2.0)
+    np.testing.assert_allclose(scale["upper"].to_numpy()[:-1], scale["probability"][:-1] * 2**0.5)
+    single = master_scale(pd.Series([0.05], index=["x"]), labels=["only"])
+    assert single.loc["only"].tolist() == [0.0, 0.05, 1.0]
+
+
+def test_master_scale_of_tiny_pds_does_not_underflow():
+    scale = master_scale([1e-200, 4e-200])
+    assert scale["upper"].iloc[0] == pytest.approx(2e-200, rel=1e-14)
+
+
+def test_geometric_bound_is_the_documented_square_root():
+    # A PD computed as sqrt(p1 * p2) lies on the bound, so it gets the lower grade.
+    rng = np.random.default_rng(5)
+    for _ in range(200):
+        low, high = np.sort(rng.uniform(1e-4, 0.5, 2))
+        scale = master_scale([low, high])
+        assert scale["upper"].iloc[0] == math.sqrt(low * high)
+        assert assign_grades([math.sqrt(low * high)], scale).tolist() == [1]
+
+
+@pytest.mark.parametrize(
+    "probability, kwargs, message",
+    [
+        ([], {}, "at least one grade"),
+        ([0.1, np.nan], {}, "missing values"),
+        ([0.0, 0.1], {}, "strictly between 0 and 1, got 0.0"),
+        ([0.1, 1.0], {}, "strictly between 0 and 1, got 1.0"),
+        ([0.1, 0.1], {}, "increase strictly from grade to grade, got 0.1 followed by 0.1"),
+        ([0.1, 0.2, 0.15], {}, "got 0.2 followed by 0.15"),
+        (["0.1", "0.2"], {}, "real and numeric, got '0.1'"),
+        ([[0.1, 0.2]], {}, "one-dimensional"),
+        ([0.1, 0.2], {"boundary": "harmonic"}, "'geometric' or 'arithmetic', got 'harmonic'"),
+        ([0.1, 0.2], {"labels": ["A"]}, "one label for each of the 2 grade"),
+        ([0.1, 0.2], {"labels": ["A", "A"]}, "unique, got 'A' more than once"),
+        ([0.1, 0.2], {"labels": ["A", None]}, "missing values"),
+        ([0.1, 0.2], {"labels": "AB"}, "one label per grade, got the string 'AB'"),
+    ],
+)
+def test_invalid_master_scale(probability, kwargs, message):
+    with pytest.raises(ValueError, match=message):
+        master_scale(probability, **kwargs)
+
+
+# Reference values from statsmodels.api.WLS(np.log(event / total), add_constant(grade),
+# weights=total) in a separate environment.
+FIT_EVENT = [1, 3, 5, 18, 30, 41, 60]
+FIT_TOTAL = [900, 800, 600, 700, 400, 250, 150]
+FIT_WLS = [
+    0.0012174551656290661,
+    0.003309514007820783,
+    0.008996539073619655,
+    0.02445607273814208,
+    0.06648106442699613,
+    0.18072124558467337,
+    0.4912702419429589,
+]
+
+
+def test_fit_grade_pd_matches_weighted_least_squares():
+    np.testing.assert_allclose(fit_grade_pd(FIT_EVENT, FIT_TOTAL), FIT_WLS, rtol=1e-12)
+
+
+def test_fit_grade_pd_with_equal_totals_is_the_legacy_ordinary_fit():
+    # statsmodels.api.OLS(np.log(event / 500), add_constant(grade)), as in the 0.2 fit_grade_df.
+    expected = [
+        0.0027894980558815126,
+        0.005558430013909008,
+        0.011075879459525557,
+        0.022070099919395736,
+        0.04397748388577863,
+        0.08763073551942817,
+        0.17461539699771758,
+    ]
+    np.testing.assert_allclose(fit_grade_pd(FIT_EVENT, [500] * 7), expected, rtol=1e-12)
+
+
+def test_fit_grade_pd_weighs_like_repeated_observations():
+    # Weighting by total equals an unweighted fit with one point per observation.
+    grade = np.repeat(np.arange(1, 8), FIT_TOTAL)
+    log_rate = np.repeat(np.log(np.divide(FIT_EVENT, FIT_TOTAL)), FIT_TOTAL)
+    slope, intercept = np.polyfit(grade, log_rate, 1)
+    np.testing.assert_allclose(
+        fit_grade_pd(FIT_EVENT, FIT_TOTAL), np.exp(intercept + slope * np.arange(1, 8)), rtol=1e-10
+    )
+    # The rates, not the counts, enter the fit: scaling both leaves the PDs unchanged.
+    np.testing.assert_allclose(
+        fit_grade_pd(np.multiply(FIT_EVENT, 2.5), np.multiply(FIT_TOTAL, 2.5)), FIT_WLS, rtol=1e-12
+    )
+
+
+def test_fit_grade_pd_smooths_zero_defaults_and_skips_empty_grades():
+    # Two observed grades: the line passes through both rates, the first smoothed to 0.5 / 100.
+    np.testing.assert_allclose(fit_grade_pd([0, 4, 0], [100, 100, 0]), [0.005, 0.04, 0.32])
+    np.testing.assert_allclose(
+        fit_grade_pd([0, 4, 0], [100, 100, 0], smoothing=1), [0.01, 0.04, 0.16]
+    )
+    # statsmodels WLS on the grades 1, 2, 3 and 5, with the zero count replaced by 0.5.
+    expected = [
+        0.0011009745491989051,
+        0.0046463200169688905,
+        0.019608345820340677,
+        0.08275091349839876,
+        0.3492244449154917,
+    ]
+    np.testing.assert_allclose(
+        fit_grade_pd([0, 2, 7, 0, 25], [500, 400, 300, 0, 100]), expected, rtol=1e-12
+    )
+
+
+def test_fit_grade_pd_keeps_the_series_index_and_accepts_weighted_counts():
+    index = pd.Index(list("ABCDEFG"), name="bin")
+    fitted = fit_grade_pd(pd.Series(FIT_EVENT, index=index), pd.Series(FIT_TOTAL, index=index))
+    assert isinstance(fitted, pd.Series)
+    assert fitted.index.equals(index)
+    np.testing.assert_allclose(fitted, FIT_WLS, rtol=1e-12)
+    fractional = fit_grade_pd([0.5, 1.5, 4.25], [100.5, 80.25, 60.0])
+    assert (np.diff(fractional) > 0).all()
+
+
+@pytest.mark.parametrize(
+    "event, total, kwargs, message",
+    [
+        ([1, 2], [10, 10, 10], {}, "same length, got 2 and 3"),
+        ([1, -1], [10, 10], {}, "event must be finite and non-negative, got -1.0"),
+        ([1, 2], [10, np.inf], {}, "total must be finite and non-negative, got inf"),
+        ([1, 12], [10, 10], {}, "must not exceed total, got 12.0 events among 10.0"),
+        ([1, 0, 0], [10, 0, 0], {}, "at least two grades, got 1"),
+        ([5, 1], [10, 10], {}, "rise with the grade.*slope of -1.609"),
+        ([2, 2], [10, 10], {}, "rise with the grade.*slope of 0.0"),
+        ([1, 6, 0], [10, 10, 0], {}, "last grade must be below 1, got 3.59"),
+        ([1, 2], [10, 10], {"smoothing": 0}, "smoothing must be finite and positive"),
+        (["1", "2"], [10, 10], {}, "event must be real and numeric"),
+    ],
+)
+def test_invalid_fit_grade_pd(event, total, kwargs, message):
+    with pytest.raises(ValueError, match=message):
+        fit_grade_pd(event, total, **kwargs)
+
+
+def test_fit_grade_pd_rejects_series_with_other_indices():
+    with pytest.raises(ValueError, match="identical indices"):
+        fit_grade_pd(pd.Series([1, 2]), pd.Series([10, 10], index=[1, 2]))
+
+
+SCALE = master_scale([0.01, 0.04, 0.16, 0.5], labels=["A", "B", "C", "D"])
+
+
+def test_assign_grades_matches_pandas_cut_closed_on_the_right():
+    rng = np.random.default_rng(3)
+    upper = SCALE["upper"].to_numpy()
+    probability = np.concatenate(
+        [rng.uniform(0, 1, 500), upper, [0.0, 1.0], np.nextafter(upper, 0)]
+    )
+    grades = assign_grades(probability, SCALE)
+    assert isinstance(grades, pd.Categorical)
+    assert grades.ordered
+    assert grades.categories.tolist() == ["A", "B", "C", "D"]
+    expected = pd.cut(probability, np.r_[0, upper], labels=SCALE.index, include_lowest=True)
+    np.testing.assert_array_equal(grades.codes, expected.codes)
+    # A PD on a bound goes to the grade below it, and 0 to the first grade.
+    assert assign_grades([0.0, 0.02, 0.08, 0.2828, 1.0], SCALE).tolist() == list("AABCD")
+
+
+def test_assign_grades_keeps_series_index_and_missing_values():
+    probability = pd.Series([0.3, None, 0.005], index=[7, 8, 9], name="pd")
+    grades = assign_grades(probability, SCALE)
+    assert grades.index.tolist() == [7, 8, 9]
+    assert grades.name == "pd"
+    assert grades.cat.codes.tolist() == [3, -1, 0]
+    nullable = assign_grades(pd.Series([0.3, pd.NA], dtype="Float64"), SCALE)
+    assert nullable.cat.codes.tolist() == [3, -1]
+
+
+def test_assign_grades_feeds_calibration_table_in_grade_order():
+    probability = pd.Series([0.3, 0.005, 0.03, 0.9, 0.006, 0.02])
+    target = pd.Series([1, 0, 0, 1, 0, 1])
+    table = calibration_table(assign_grades(probability, SCALE), target, probability)
+    # Grade C has no observations and is left out; the others follow the scale.
+    assert table.index.tolist() == ["A", "B", "D"]
+    assert table["total"].tolist() == [3, 1, 2]
+    assert table["event"].tolist() == [1, 0, 2]
+    np.testing.assert_allclose(table["mean_probability"], [(0.005 + 0.006 + 0.02) / 3, 0.03, 0.6])
+
+
+@pytest.mark.parametrize(
+    "probability, message",
+    [
+        ([0.1, 1.2], "between 0 and 1, got 1.2"),
+        ([-0.1], "between 0 and 1, got -0.1"),
+        ([[0.1]], "one-dimensional"),
+        (["a"], "real and numeric"),
+    ],
+)
+def test_invalid_assign_grades_probability(probability, message):
+    with pytest.raises(ValueError, match=message):
+        assign_grades(probability, SCALE)
+
+
+@pytest.mark.parametrize(
+    "scale, message",
+    [
+        (SCALE.to_numpy(), "DataFrame from master_scale, got ndarray"),
+        (SCALE.drop(columns="lower"), "missing 'lower'"),
+        (SCALE.iloc[:0], "at least one grade"),
+        (SCALE.set_axis(["A", "A", "C", "D"]), "unique, non-missing grade labels"),
+        (SCALE.set_axis(["A", None, "C", "D"]), "unique, non-missing grade labels"),
+        (SCALE.iloc[:3], "cover \\[0, 1\\], got grades from 0.0 to 0.2828"),
+        (SCALE.iloc[1:], "cover \\[0, 1\\], got grades from 0.02"),
+        (SCALE.assign(lower=[0, 0.02, 0.07, 0.2828]), "each starting where the one before"),
+        (SCALE.iloc[::-1].assign(lower=0.0, upper=1.0), "increasing grades"),
+        (
+            SCALE.set_axis(pd.MultiIndex.from_tuples([(1, "A"), (1, "B"), (2, "C"), (2, "D")])),
+            "unique, non-missing grade labels",
+        ),
+    ],
+)
+def test_invalid_assign_grades_scale(scale, message):
+    with pytest.raises(ValueError, match=message):
+        assign_grades([0.1], scale)

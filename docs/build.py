@@ -1,19 +1,25 @@
 """Build the English and Simplified Chinese documentation.
 
-``python docs/build.py`` checks that the zh_CN catalog covers every source
-string, then writes both editions and a language chooser to docs/_build/html.
+``python docs/build.py`` checks that every public name has an API entry and
+that the zh_CN catalog covers every source string, then writes both editions
+and a language chooser to docs/_build/html. It also lists the README rows and
+user guide cards that are still missing; these are filled in when a group of
+new modules is integrated.
 ``python docs/build.py --update-po`` merges new and changed source strings
 into the catalog (changed ones are marked fuzzy) and stops.
 ``python docs/build.py --merge-po`` resolves a merge or rebase conflict in the
 catalog by keeping the translations of both sides, then updates it like
 ``--update-po``.
 ``python docs/build.py --release VERSION`` moves the release-note fragments
-into a section for VERSION dated today and deletes them.
+into a section for VERSION dated today and deletes them. It refuses while any
+README row or user guide card is missing.
 """
 
 import argparse
+import ast
 import datetime
 import io
+import re
 import shutil
 import subprocess
 import sys
@@ -26,6 +32,13 @@ docs = Path(__file__).resolve().parent
 build = docs / "_build"
 catalog_path = docs / "locale" / "zh_CN" / "LC_MESSAGES" / "kivi.po"
 editions = (("en", "en"), ("zh", "zh_CN"))
+package = docs.parent / "src" / "kivi"
+readmes = ("README.md", "README.zh-CN.md")
+# Public names that the README tables leave out on purpose. Exceptions are left out too.
+not_in_readme = {"kivi.datasets.Dataset": "the 0.2.x loader, kept for old code; see load_bank"}
+api_entry = re.compile(
+    r"^\s*\.\. auto(?:function|class|exception|method|data|attribute)::\s+([\w.]+)", re.MULTILINE
+)
 
 
 def sphinx(builder: str, output: Path, *options: str) -> None:
@@ -133,6 +146,97 @@ def release_notes(version: str) -> None:
     )
 
 
+def public_api() -> dict[str, list[str]]:
+    """Map each public module of kivi to the names in its ``__all__``.
+
+    The source is parsed rather than imported, so that the check always reads
+    this checkout even when an editable install points at another one.
+    """
+    modules = {}
+    sources = [(path.stem, path) for path in sorted(package.glob("*.py"))]
+    sources += [(path.parent.name, path) for path in sorted(package.glob("*/__init__.py"))]
+    for module, path in sources:
+        if module.startswith("_"):
+            continue
+        names = None
+        for node in ast.parse(path.read_text(encoding="utf-8")).body:
+            if isinstance(node, ast.Assign):
+                targets = node.targets
+            elif isinstance(node, (ast.AnnAssign, ast.AugAssign)) and node.value is not None:
+                targets = [node.target]
+            else:
+                continue
+            if not any(
+                isinstance(target, ast.Name) and target.id == "__all__" for target in targets
+            ):
+                continue
+            try:
+                value = list(ast.literal_eval(node.value))
+            except ValueError:
+                sys.exit(f"kivi.{module} must give __all__ as a literal list of names.")
+            names = names + value if isinstance(node, ast.AugAssign) and names else value
+        if names is None:
+            sys.exit(f"kivi.{module} must list its public names in __all__.")
+        modules[module] = names
+    return modules
+
+
+def check_api_pages(modules: dict[str, list[str]]) -> None:
+    """Stop unless docs/api/<module>.rst documents every public name of the module."""
+    problems = []
+    for module, names in modules.items():
+        page = docs / "api" / f"{module}.rst"
+        if not page.exists():
+            problems.append(f"kivi.{module} has no API page docs/api/{module}.rst")
+            continue
+        # ``automethod:: Dataset.bank_data`` documents the class Dataset through its method.
+        documented = {
+            target.removeprefix(f"kivi.{module}.").split(".")[0]
+            for target in api_entry.findall(page.read_text(encoding="utf-8"))
+        }
+        problems += [
+            f"docs/api/{module}.rst has no entry for {name}"
+            for name in names
+            if name not in documented
+        ]
+    if problems:
+        for problem in problems:
+            print(f"  {problem}", file=sys.stderr)
+        sys.exit(f"{len(problems)} public names without an API entry.")
+
+
+def entry_point_gaps(modules: dict[str, list[str]]) -> list[str]:
+    """List the README rows and user guide cards that the integration still has to add."""
+    guides = sorted(p.stem for p in (docs / "user_guide").glob("*.rst") if p.stem != "index")
+    gaps = []
+    for readme in readmes:
+        text = (docs.parent / readme).read_text(encoding="utf-8")
+        rows = "\n".join(line for line in text.splitlines() if line.startswith("|"))
+        for module, names in modules.items():
+            for name in names:
+                listed = re.search(rf"`kivi\.{module}\.{name}[`.(]", rows)
+                exempt = name.endswith("Error") or f"kivi.{module}.{name}" in not_in_readme
+                if not (listed or exempt):
+                    gaps.append(f"{readme} does not list kivi.{module}.{name}")
+        for page in guides:
+            for edition in ("en", "zh"):
+                if f"/{edition}/user_guide/{page}.html" not in text:
+                    gaps.append(f"{readme} does not link the {edition} edition of {page}")
+    cards = (docs / "user_guide" / "index.rst").read_text(encoding="utf-8")
+    gaps += [
+        f"docs/user_guide/index.rst has no card for {page}"
+        for page in guides
+        if not re.search(rf"^\s+:link: {page}\s*$", cards, re.MULTILINE)
+    ]
+    return gaps
+
+
+def report_gaps(gaps: list[str]) -> None:
+    print(f"{len(gaps)} entry points to update before the next release:", file=sys.stderr)
+    for gap in gaps:
+        print(f"  {gap}", file=sys.stderr)
+
+
 def check_catalog(template) -> None:
     with open(catalog_path, "rb") as source:
         catalog = read_po(source, locale="zh_CN")
@@ -178,14 +282,20 @@ def main() -> None:
     if args.merge_po:
         merge_catalog()
         return
+    if args.update_po:
+        update_catalog(extract_template())
+        return
+    modules = public_api()
+    check_api_pages(modules)
+    gaps = entry_point_gaps(modules)
+    if gaps:
+        report_gaps(gaps)
     if args.release:
+        if gaps:
+            sys.exit("Update them first, as docs/development/documentation.rst describes.")
         release_notes(args.release)
         return
-    template = extract_template()
-    if args.update_po:
-        update_catalog(template)
-        return
-    check_catalog(template)
+    check_catalog(extract_template())
     html = build / "html"
     shutil.rmtree(html, ignore_errors=True)
     for folder, locale in editions:

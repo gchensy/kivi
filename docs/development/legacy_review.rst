@@ -1,6 +1,8 @@
 Legacy review
 =============
 
+This review of the 0.2.x code guided the rewrite in 0.3.0. Its findings describe the legacy implementation; :doc:`/release/migration` describes how each part was replaced.
+
 Findings from the legacy implementation
 ---------------------------------------
 
@@ -11,7 +13,7 @@ Findings from the legacy implementation
 * Coverage. Legacy scorecard and WOE tests printed tables without asserting the expected numbers. Use frozen datasets to check fitted boundaries, score direction, special values and row counts before porting these workflows.
 * Project scope. The former source tree mixed modeling, databases, distributed execution, notebooks and deployment configuration. Keep infrastructure-specific imports inside optional integrations and keep business SQL and local configuration outside the distribution.
 
-Migration order
----------------
+Outcome
+-------
 
-Start with a fixed scorecard example. Compare old and new WOE on the same labeled rows, then validate score transformation and model evaluation against stored outputs. Port weighted or supervised binning next when a workflow requires it. Restore Spark and SQL independently after the core inputs and outputs are stable.
+The rewrite began with binning, WOE and PSI and then rebuilt the rest of the scorecard workflow, checking each part against the legacy outputs or reference implementations on fixed samples. :doc:`/release/index` lists the parts release by release. Spark, SQL, AHP and the model wrappers were not rebuilt. They are out of scope and remain in the repository history before the rewrite.

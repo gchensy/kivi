@@ -10,7 +10,7 @@ kivi needs Python 3.10 or newer with NumPy and pandas. Install it, then follow t
       :link: install
       :link-type: doc
 
-      Install from GitHub or a local checkout and check the version.
+      Install from PyPI, GitHub or a local checkout and check the version.
 
    .. grid-item-card:: Quickstart
       :link: quickstart
