@@ -34,7 +34,7 @@ from kivi.calibration import (
     master_scale,
     prior_correction,
 )
-from kivi.datasets import Dataset, load_bank, make_applications, make_loan_panel
+from kivi.datasets import load_bank, make_applications, make_loan_panel
 from kivi.lifetime import convert_pd, transition_pd
 from kivi.metrics import delong_test, gains_table, gini, roc_table
 from kivi.monitoring import monitoring_table, stability_table
@@ -911,7 +911,7 @@ def state_term_structures(cumulative: pd.DataFrame, vintage: pd.Series, state: s
 
 
 def _samples():
-    data = Dataset.bank_data()
+    data = load_bank()
     return data, data.iloc[:3000], data.iloc[3000:]
 
 

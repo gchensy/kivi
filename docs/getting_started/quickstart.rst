@@ -9,11 +9,11 @@ Load the data
 The bundled bank marketing data records whether a customer subscribed to a term deposit. The split below demonstrates two samples; the rows do not represent a chronological validation split.
 
 >>> import pandas as pd
->>> from kivi.datasets import Dataset
+>>> from kivi.datasets import load_bank
 >>> from kivi.binning import bin_edges
 >>> from kivi.woe import woe_table
 >>> from kivi.stability import psi_table
->>> data = Dataset.bank_data()
+>>> data = load_bank()
 >>> data.shape
 (4521, 17)
 >>> print(f"{data['target'].mean():.3f}")

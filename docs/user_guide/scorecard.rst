@@ -43,9 +43,9 @@ The example below builds a small scorecard on the bundled bank data. The data re
 
 >>> import numpy as np
 >>> import pandas as pd
->>> from kivi.datasets import Dataset
+>>> from kivi.datasets import load_bank
 >>> from kivi.woe import woe_table, woe_transform
->>> data = Dataset.bank_data()
+>>> data = load_bank()
 >>> development, monitoring = data.iloc[:3000], data.iloc[3000:]
 >>> age_edges = np.array([-np.inf, 25, 35, 45, 55, 65, np.inf])
 >>> def to_groups(frame):
