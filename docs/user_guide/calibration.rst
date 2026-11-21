@@ -1,7 +1,7 @@
 Calibration
 ===========
 
-A PD model is calibrated when its probabilities match the default rates that are later observed. Calibration is a separate question from ranking: a model can order applicants well and still predict default rates that are too low for the whole portfolio. :mod:`kivi.calibration` corrects probabilities for the sampling of the development data, summarizes the grades of a master scale and tests them, and maps a score to probabilities with Platt scaling or isotonic regression.
+A PD model is calibrated when its probabilities match the default rates that are later observed. Calibration is a separate question from ranking: a model can order applicants well and still predict default rates that are too low for the whole portfolio. :mod:`kivi.calibration` corrects probabilities for the sampling of the development data, builds a master scale, summarizes its grades and tests them, and maps a score to probabilities with Platt scaling or isotonic regression.
 
 Correcting for oversampling
 ---------------------------
@@ -27,7 +27,7 @@ The correction keeps the order of the probabilities. For a logistic regression i
 Grades of a master scale
 ------------------------
 
-A master scale divides the PD range into a fixed set of grades, so that ratings from different models share one meaning. The examples below use the PDs of the scorecard from :doc:`scorecard` on the development and monitoring samples:
+A master scale divides the PD range into a fixed set of grades, so that ratings from different models share one meaning. Each grade has a PD, and the bounds between the grades decide which grade a predicted PD falls into. The examples below use the PDs of the scorecard from :doc:`scorecard` on the development and monitoring samples:
 
 >>> import numpy as np
 >>> import pandas as pd
@@ -54,9 +54,94 @@ A master scale divides the PD range into a fixed set of grades, so that ratings 
 ...     return 1 / (1 + np.exp(2.028 - woe @ coefficients))
 >>> dev_prob, probability = predict(development), predict(monitoring)
 
-Assign the grades with ``pandas.cut`` and the PD edges of the scale, then compare the observed default rate of each grade with its mean predicted PD using ``calibration_table``. The intervals are closed on the right, so a PD on an edge goes to the lower grade, and ``include_lowest=True`` keeps a PD of exactly 0 in the first grade:
+Building a scale
+^^^^^^^^^^^^^^^^
+
+The PDs of a master scale usually grow by a constant factor from grade to grade. ``master_scale`` takes the PD of each grade and adds the bounds of the grades. Here the PDs are a geometric grid of six grades from 2% to 64%, each with twice the PD of the grade before:
+
+>>> from kivi.calibration import assign_grades, fit_grade_pd, master_scale
+>>> scale = master_scale(np.geomspace(0.02, 0.64, 6), labels=list("ABCDEF"))
+>>> scale.round(4)
+        lower  probability   upper
+grade
+A      0.0000         0.02  0.0283
+B      0.0283         0.04  0.0566
+C      0.0566         0.08  0.1131
+D      0.1131         0.16  0.2263
+E      0.2263         0.32  0.4525
+F      0.4525         0.64  1.0000
+
+Each bound is the geometric mean of the PDs on either side of it, their midpoint on a logarithmic scale, so a PD goes to the grade whose PD is nearer by ratio. ``boundary="arithmetic"`` takes the arithmetic mean instead, as the 0.2 versions of kivi did. The arithmetic mean lies above the geometric one, so each grade reaches further up than down. Grade A then holds the PDs up to 3% instead of 2.83%:
+
+>>> arithmetic = master_scale(scale["probability"], labels=scale.index, boundary="arithmetic")
+>>> arithmetic["upper"].round(4)
+grade
+A    0.03
+B    0.06
+C    0.12
+D    0.24
+E    0.48
+F    1.00
+Name: upper, dtype: float64
+
+With arithmetic bounds, most PDs of a grade lie above its PD, so the observed default rate of a calibrated model tends to exceed the PD of the grade.
+
+Assigning the grades
+^^^^^^^^^^^^^^^^^^^^
+
+``assign_grades`` gives each PD the grade whose bounds hold it. A PD on a bound goes to the lower grade, as the intervals of ``pandas.cut`` are closed on the right, and a PD of 0 goes to the first grade. The grades are an ordered categorical of the labels, so ``calibration_table`` lists them in the order of the scale when it compares the observed default rate of each grade with its mean predicted PD. Joining the scale adds the PD of each grade:
 
 >>> from kivi.calibration import calibration_table
+>>> grades = assign_grades(probability, scale)
+>>> scale_table = calibration_table(grades, monitoring["target"], probability)
+>>> scale_table.join(scale["probability"]).round(3)
+     total  event  event_rate  mean_probability  probability
+bin
+B      328     13       0.040             0.042         0.04
+C      459     36       0.078             0.080         0.08
+D      632     72       0.114             0.136         0.16
+E       56     21       0.375             0.267         0.32
+F       46     31       0.674             0.636         0.64
+
+The model gives no customer a PD below 2.83%, so grade A is empty and ``calibration_table`` leaves it out.
+
+Fitting the PDs of the grades
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The PDs of the grades can also come from the default rates observed in them. ``fit_grade_pd`` fits the logarithm of the default rate as a straight line in the grade number, by least squares weighted with the number of observations of each grade, so the fitted PDs again grow by a constant factor. A grade without defaults enters the fit with half a default, and a grade without observations is left out of the fit but still gets a PD. Count the development sample by the grades of the scale:
+
+>>> dev_counts = calibration_table(assign_grades(dev_prob, scale), target, dev_prob)
+>>> dev_counts["event_rate"].round(3)
+bin
+B    0.043
+C    0.084
+D    0.133
+E    0.272
+F    0.642
+Name: event_rate, dtype: float64
+
+The grades are numbered by their position in the input, so reindex the counts to every grade of the scale before the fit. The empty grade A then keeps its place with a count of 0:
+
+>>> dev_counts = dev_counts.reindex(scale.index, fill_value=0)
+>>> fitted_pd = fit_grade_pd(dev_counts["event"], dev_counts["total"])
+>>> fitted = master_scale(fitted_pd, labels=scale.index)
+>>> fitted.round(4)
+        lower  probability   upper
+grade
+A      0.0000       0.0238  0.0321
+B      0.0321       0.0432  0.0582
+C      0.0582       0.0784  0.1056
+D      0.1056       0.1423  0.1917
+E      0.1917       0.2582  0.3477
+F      0.3477       0.4683  1.0000
+
+The fitted PDs grow by a factor of 1.81 from grade to grade and follow the default rates of grades B to E closely. Grade F, with a default rate of 64%, lies far above the line: it holds only 81 customers and so weighs little in the fit. The tests below show whether that matters.
+
+Grades given by their bounds
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A scale can also be given by its bounds alone, for example by an existing rating system. Cut the PDs at the bounds with ``pandas.cut``, whose intervals are closed on the right like those of ``assign_grades``; ``include_lowest=True`` keeps a PD of exactly 0 in the first grade. The rest of this page uses these grades:
+
 >>> pd_edges = [0, 0.05, 0.08, 0.12, 0.2, 0.4, 1]
 >>> grades = pd.cut(probability, pd_edges, labels=list("ABCDEF"), include_lowest=True)
 >>> table = calibration_table(grades, monitoring["target"], probability)
@@ -118,6 +203,29 @@ F         0.735      0.501     0.005     0.003
    kp.figure_calibration()
 
 For the same counts, the Jeffreys p-value is always a little lower than the binomial one, so the Jeffreys test rejects slightly more readily. Both tests assume independent defaults; defaults that move together in a downturn make them reject more often than their nominal level.
+
+On a master scale, test each grade against its own PD as well, the PD that every customer of the grade is assigned. On the monitoring sample, the fitted scale from above passes for grades B to E, but grade F has more defaults than its PD of 47% predicts:
+
+>>> fitted_table = calibration_table(
+...     assign_grades(probability, fitted), monitoring["target"], probability
+... ).join(fitted["probability"])
+>>> fitted_table.assign(
+...     binomial=binomial_test(
+...         fitted_table["event"], fitted_table["total"], fitted_table["probability"]
+...     ),
+...     jeffreys=jeffreys_test(
+...         fitted_table["event"], fitted_table["total"], fitted_table["probability"]
+...     ),
+... )[["total", "event", "event_rate", "probability", "binomial", "jeffreys"]].round(3)
+     total  event  event_rate  probability  binomial  jeffreys
+bin
+B      328     13       0.040        0.043     0.664     0.611
+C      456     36       0.079        0.078     0.509     0.474
+D      620     70       0.113        0.142     0.986     0.984
+E       70     23       0.329        0.258     0.115     0.092
+F       47     31       0.660        0.468     0.006     0.004
+
+The straight line understates the riskiest grade. Give grade F the PD of its own default rate instead, or merge it into grade E, and test the scale again.
 
 Testing all grades at once
 --------------------------
