@@ -87,7 +87,7 @@ b            0      1
 a            2      0
 NaN          0      1
 
-Categories are matched to a fitted table or grouping by equality, and a category that it does not know raises an error unless ``unseen`` says how to treat it. :func:`~kivi.woe.woe_transform`, :func:`~kivi.binning.group_categories`, :func:`~kivi.stability.csi_table` and :func:`~kivi.scorecard.reason_codes` share this rule, the last two through ``unseen_points``.
+Categories are matched to a fitted table or grouping by equality, and a category that it does not know raises an error unless ``unseen`` says how to treat it. :func:`~kivi.woe.woe_transform`, :func:`~kivi.binning.group_categories` and :func:`~kivi.stability.csi_table` share this rule, the last through ``unseen_points``. :func:`~kivi.scorecard.reason_codes` matches points rather than categories, and its ``unseen_points`` exempts the points that ``woe_transform`` gave unseen groups.
 
 The functions that count, rank or fit, such as :func:`~kivi.metrics.roc_auc`, :func:`~kivi.calibration.calibration_table`, :func:`~kivi.strategy.cutoff_table` and :func:`~kivi.calibration.platt_fit`, raise an error for a missing score or probability instead, so decide how missing values are scored before passing them in. The functions that convert each value on its own, such as :func:`~kivi.scorecard.pd_to_score`, :func:`~kivi.calibration.platt_predict` and :func:`~kivi.strategy.expected_loss`, return NaN for a missing value, and :func:`~kivi.calibration.assign_grades` returns a missing grade. The staging functions of :mod:`kivi.lifetime` work value by value but raise for a missing value, because a missing PD or number of days past due must not decide a stage, and the functions of :mod:`kivi.monitoring` raise for a missing period.
 

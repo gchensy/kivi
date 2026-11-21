@@ -45,13 +45,13 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       The score that separates approval from decline. kivi approves the scores at or below the cut-off, because its scores rise with the risk; see :doc:`/user_guide/strategy`.
 
    Days past due (DPD)
-      The number of days for which a contractual payment has been overdue. IFRS 9 presumes a significant increase in credit risk when a payment is more than 30 days past due, and default no later than when it is 90 days past due; see :doc:`/user_guide/lifetime`.
+      The number of days for which a contractual payment has been overdue. IFRS 9 rebuttably presumes a significant increase in credit risk when a payment is more than 30 days past due, and default no later than when it is 90 days past due; see :doc:`/user_guide/lifetime`.
 
    DeLong test
       A test of whether two scores have the same AUC on the same sample. It uses the variances and the covariance of the two AUCs that DeLong, DeLong and Clarke-Pearson (1988) derived from the placement values; see :doc:`/user_guide/metrics`.
 
    Effective interest rate
-      The rate that discounts the contractual cash flows of a loan to its initial carrying amount. IFRS 9 discounts expected credit losses at this rate; see :doc:`/user_guide/lifetime`.
+      The rate that discounts the estimated future cash flows of a loan over its expected life to its gross carrying amount at initial recognition. IFRS 9 discounts expected credit losses at this rate; see :doc:`/user_guide/lifetime`.
 
    Event and non-event
       The two outcomes of a binary target: an event has target 1, such as a default or another bad outcome, and a non-event has target 0. The guides read the subscription of the bundled bank data as the event; see :doc:`/user_guide/woe_iv`.
@@ -147,13 +147,13 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       The share of the loans in a delinquency bucket at one month end that are in the next worse bucket at the next month end; see :doc:`/user_guide/vintage`.
 
    Significant increase in credit risk (SICR)
-      The IFRS 9 criterion that moves a loan from stage 1 to stage 2: its risk of default has risen significantly since it was granted. Each lender sets the test in its own policy, for example as relative and absolute increases of the PD; see :doc:`/user_guide/lifetime`.
+      The IFRS 9 criterion that moves a loan from stage 1 to stage 2: its risk of default has risen significantly since initial recognition. Each lender sets the test in its own policy, for example as relative and absolute increases of the PD; see :doc:`/user_guide/lifetime`.
 
    Smoothing
       The value that replaces an empty count before shares are computed, 0.5 by default, so that the WOE, the IV and the PSI of a group stay finite. Counts are reported as observed, and only the shares are smoothed; see :doc:`/user_guide/woe_iv`.
 
    Special codes
-      Values that stand for a state rather than a measurement, such as -1 for "never contacted", 999 for "no record" or the label "unknown" of a categorical variable. Passed in ``special``, they are left out of the fit of the edges and each gets a group of its own; see :ref:`special-values`.
+      Values that stand for a state rather than a measurement, such as -1 for "never contacted", 999 for "no record" or the label "unknown" of a categorical variable. Passed in ``special``, they are left out of the fit of the edges or of the grouping and each gets a group of its own; see :ref:`special-values`.
 
    Stage
       One of the three IFRS 9 buckets of a loan: stage 1 for loans without a significant increase in credit risk, with a 12-month ECL; stage 2 for loans with one, with a lifetime ECL; and stage 3 for credit-impaired loans, also with a lifetime ECL; see :doc:`/user_guide/lifetime`.

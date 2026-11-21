@@ -193,7 +193,7 @@ gini     0.375  0.045  0.286  0.464
 >>> print(f"development Gini = {gini(dev_pd, target):.3f}")
 development Gini = 0.432
 
-With 173 events among 1,521 customers, the interval of the Gini runs from 0.286 to 0.464. It contains the development Gini of 0.432, which is itself optimistic because the WOE values were fitted on the development sample, so the lower Gini of the monitoring sample is within the sampling noise. :doc:`metrics` also compares two scores on the same sample with the DeLong test.
+With 173 events among 1,521 customers, the interval of the Gini runs from 0.286 to 0.464. It contains the development Gini of 0.432, which is itself optimistic because the binning, the variables and the coefficients were all fitted on the development sample, so the lower Gini of the monitoring sample is within the sampling noise. :doc:`metrics` also compares two scores on the same sample with the DeLong test.
 
 Check calibration
 -----------------

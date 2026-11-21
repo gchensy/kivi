@@ -1,7 +1,7 @@
 User guide
 ==========
 
-The user guide follows the steps of a credit risk model in the order of a project: profile and bin the candidate variables, encode them with WOE, select the variables and fit the model, infer the outcomes of rejected applicants, scale the model to a scorecard, evaluate and calibrate it, set the cut-offs, save the binning for production, monitor the model period by period, follow the loans that it approves, and measure their expected credit loss under IFRS 9. :doc:`risk_workflow` runs the steps up to monitoring on the bundled data from start to finish.
+The user guide follows the steps of a credit risk model in the order of a project: profile and bin the candidate variables, encode them with WOE, select the variables and fit the model, infer the outcomes of rejected applicants, scale the model to a scorecard, evaluate and calibrate it, set the cut-offs, save the binning for production, monitor the model period by period, follow the loans that it approves, and measure their expected credit loss under IFRS 9. :doc:`risk_workflow` runs the steps from the profile to the stability report on the bundled data, leaving out reject inference.
 
 kivi keeps fitting and applying apart. Bin edges, category groupings, WOE tables, master scales and cut-offs are fitted on the development sample and then applied unchanged to every later sample, so that counts and rates stay comparable. The tables take the groups as they are, so category labels can be passed directly.
 
