@@ -15,7 +15,7 @@ import numpy.typing as npt
 import pandas as pd
 
 from ._counts import concat_groups, divergence, group_counts
-from ._validation import as_count_columns, as_series, as_weights, is_real
+from ._validation import as_count_columns, as_series, as_weights, is_real, shown
 
 __all__ = ["csi_table", "psi", "psi_table"]
 
@@ -192,7 +192,9 @@ def csi_table(
         Points of each group. A DataFrame holds the groups of one variable
         in a ``bin`` column, or in its index without one, and their points
         in a ``points`` column, such as ``table.loc[[variable]]`` of a
-        `kivi.scorecard.points_table` result. A Series or mapping gives the
+        `kivi.scorecard.points_table` result. The variable may be named in
+        the index or in a ``variable`` column, as after ``reset_index()``,
+        but only one variable may appear. A Series or mapping gives the
         points by group. A missing label gives the points of missing values.
     unseen_points : float, optional
         Points of observed groups that are missing from `points`, such as a
@@ -347,12 +349,16 @@ def _points_by_group(
             raise ValueError(
                 f"points must have a points column, got columns {points.columns.tolist()}"
             )
-        if points.index.name == "variable" and points.index.nunique() > 1:
-            shown = ", ".join(repr(variable) for variable in points.index.unique()[:5])
-            raise ValueError(
-                f"points must hold the groups of one variable, got {points.index.nunique()} "
-                f"variables: {shown}; select one with table.loc[[variable]]"
-            )
+        names = [points.index] if points.index.name == "variable" else []
+        if "variable" in points.columns:
+            names.append(pd.Index(points["variable"]))
+        for variables in names:
+            if variables.nunique() > 1:
+                examples = ", ".join(shown(variable) for variable in variables.unique()[:5])
+                raise ValueError(
+                    f"points must hold the groups of one variable, got {variables.nunique()} "
+                    f"variables: {examples}; select one with table.loc[[variable]]"
+                )
         labels = points["bin"] if "bin" in points.columns else points.index
         values = points["points"]
     elif isinstance(points, pd.Series):
