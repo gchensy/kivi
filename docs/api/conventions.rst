@@ -12,7 +12,9 @@ Arguments
 ---------
 
 * The data come first and the target follows them, as in ``woe_table(groups, target)``, ``roc_auc(score, target)``, ``stepwise(X, target)`` and ``fit_spec(frame, target)``. A function with several data arguments takes all of them before the target, as ``swap_set(current, new, target)`` does, and a predicted probability comes after the target, as in ``calibration_table(groups, target, probability)``. scikit-learn's metrics take the target first, so check the order when porting code from them.
-* A predicted probability of an event, such as a PD, is always called ``probability``, as in ``brier_score(probability, target)``, ``calibration_table(groups, target, probability)`` and ``expected_loss(probability, lgd, ead)``. What a ``score`` is depends on the module; see :ref:`conventions-scores`.
+* A predicted probability of an event, such as a PD, is always called ``probability``, as in ``brier_score(probability, target)``, ``calibration_table(groups, target, probability)`` and ``expected_loss(probability, lgd, ead)``. What a ``score`` is depends on the module; see :ref:`conventions-scores`. A second probability is named after its meaning, as ``origination_probability`` in :func:`~kivi.lifetime.significant_increase`.
+* An option with the same meaning has the same name in every module, such as ``bins``, ``special``, ``smoothing``, ``unseen`` and ``weights``. ``level`` is the confidence level of an interval, a number strictly between 0 and 1 that defaults to 0.95, as in :func:`~kivi.metrics.roc_auc_interval`.
+* A reference that could be read in two ways has one argument for each. The functions of :mod:`kivi.monitoring` take either ``reference_period``, a label of the period argument, or a reference sample in ``reference_score`` or ``reference_groups``, and raise unless exactly one is given.
 * The data, and the fitted results that a function applies, such as the edges of :func:`~kivi.binning.cut` or the table of :func:`~kivi.woe.woe_transform`, are positional arguments. Every option after them is keyword-only. The number of bins of :func:`~kivi.binning.bin_edges` is the one option that can also be passed by position:
 
 >>> from kivi.binning import bin_edges
@@ -52,11 +54,11 @@ Name: pd, dtype: float64
 Targets, scores and probabilities
 ---------------------------------
 
-* A target is 1 for an event, such as a default, and 0 for a non-event. Any other label, and a missing label, raises an error. :func:`~kivi.strategy.swap_set` is the exception: it reads a missing label as an outcome that is not known.
-* In :mod:`kivi.metrics` and :mod:`kivi.strategy`, a score rises with the event probability. Pass a PD as it is, and negate scorecard points, which fall as the risk rises. A cut-off of :mod:`kivi.strategy` approves the scores at or below it.
+* A target is 1 for an event, such as a default, and 0 for a non-event. Any other label, and a missing label, raises an error. :func:`~kivi.strategy.swap_set` and :func:`~kivi.monitoring.monitoring_table` are the exceptions: they read a missing label as an outcome that is not known, such as that of a declined applicant or of a loan whose outcome window has not ended.
+* In :mod:`kivi.metrics`, :mod:`kivi.monitoring` and :mod:`kivi.strategy`, a score rises with the event probability. Pass a PD as it is, and negate scorecard points, which fall as the risk rises. A cut-off of :mod:`kivi.strategy` approves the scores at or below it.
 * In :mod:`kivi.scorecard`, a ``score`` is scorecard points, which fall as the risk rises: :func:`~kivi.scorecard.score_to_pd` gives a lower PD for a higher score.
 * :func:`~kivi.calibration.platt_fit` accepts a score in either direction and fits a negative slope to one that falls as the risk rises. :func:`~kivi.calibration.isotonic_fit` assumes a rising score unless ``increasing=False``.
-* True and False count as 1 and 0 in targets, scores and probabilities. Weights, LGDs, exposures and losses reject them, and so do most numeric options, such as ``bins``, ``max_bins``, ``factor`` and the cut-offs:
+* True and False count as 1 and 0 in targets, scores and probabilities. Weights, LGDs, exposures and losses reject them, and so do most numeric options, such as ``bins``, ``max_bins``, ``factor`` and the cut-offs. Two inputs reject them because a boolean there is more likely a mistake: the ``reference_score`` of :func:`~kivi.monitoring.monitoring_table`, which would usually be a row mask, and the ``matrix`` of :func:`~kivi.lifetime.transition_pd`:
 
 >>> import numpy as np
 >>> from kivi.metrics import roc_auc
@@ -74,7 +76,7 @@ Groups and missing values
 The functions that count groups, such as :func:`~kivi.woe.woe_table`, :func:`~kivi.stability.psi_table` and :func:`~kivi.calibration.calibration_table`, take the labels as they are: the intervals of ``pandas.cut`` or :func:`kivi.binning.cut`, strings, numbers or categories.
 
 * Missing values form a group of their own.
-* Only observed groups appear. Unused categories are left out, and so are the groups whose weights sum to zero.
+* Only observed groups appear. Unused categories are left out, and so are the groups whose weights sum to zero. The period tables of :mod:`kivi.monitoring` are the exception: they keep a row for every category of a categorical period, so that the rows of all reports line up.
 * Categorical groups, including the intervals of ``pandas.cut``, follow the order of their categories, with the missing group last. Other labels follow the order in which they first appear.
 
 >>> from kivi.woe import woe_table
@@ -85,7 +87,9 @@ b            0      1
 a            2      0
 NaN          0      1
 
-The functions that count, rank or fit, such as :func:`~kivi.metrics.roc_auc`, :func:`~kivi.calibration.calibration_table`, :func:`~kivi.strategy.cutoff_table` and :func:`~kivi.calibration.platt_fit`, raise an error for a missing score or probability instead, so decide how missing values are scored before passing them in. The functions that convert each value on its own, such as :func:`~kivi.scorecard.pd_to_score`, :func:`~kivi.calibration.platt_predict` and :func:`~kivi.strategy.expected_loss`, return NaN for a missing value, and :func:`~kivi.calibration.assign_grades` returns a missing grade.
+Categories are matched to a fitted table or grouping by equality, and a category that it does not know raises an error unless ``unseen`` says how to treat it. :func:`~kivi.woe.woe_transform`, :func:`~kivi.binning.group_categories`, :func:`~kivi.stability.csi_table` and :func:`~kivi.scorecard.reason_codes` share this rule, the last two through ``unseen_points``.
+
+The functions that count, rank or fit, such as :func:`~kivi.metrics.roc_auc`, :func:`~kivi.calibration.calibration_table`, :func:`~kivi.strategy.cutoff_table` and :func:`~kivi.calibration.platt_fit`, raise an error for a missing score or probability instead, so decide how missing values are scored before passing them in. The functions that convert each value on its own, such as :func:`~kivi.scorecard.pd_to_score`, :func:`~kivi.calibration.platt_predict` and :func:`~kivi.strategy.expected_loss`, return NaN for a missing value, and :func:`~kivi.calibration.assign_grades` returns a missing grade. The staging functions of :mod:`kivi.lifetime` work value by value but raise for a missing value, because a missing PD or number of days past due must not decide a stage, and the functions of :mod:`kivi.monitoring` raise for a missing period.
 
 Sample weights
 --------------
@@ -95,7 +99,13 @@ Most functions that count observations or fit a model take ``weights``: one fini
 * Counts become sums of weights, and observations with zero weight are left out. Integer weights therefore give the same counts as repeating each row that many times.
 * Weighted quantiles use the inverted CDF, so every interior quantile edge is an observed value, while unweighted quantiles interpolate between observations. Weighted edges therefore agree with repeated rows only where no interpolation is needed, and weights of 1 do not give the same edges as no weights.
 * ``smoothing`` replaces an empty cell in units of weight and is not rescaled with the weights.
-* :func:`~kivi.selection.logistic_regression` and :func:`~kivi.selection.stepwise` read the weights as frequency weights, so their standard errors count the total weight as the number of observations.
+* :func:`~kivi.selection.logistic_regression`, :func:`~kivi.selection.stepwise`, :func:`~kivi.metrics.roc_auc_interval` and :func:`~kivi.metrics.delong_test` read the weights as frequency weights, so their standard errors count the total weight as the number of observations. Weights that correct for sampling, such as inverse sampling rates, make these standard errors too small.
+
+Periods and thresholds
+----------------------
+
+* Periods are ordered as their categories when they are categorical and sorted otherwise. Period 1 of a term structure or an expected credit loss is the first period after its starting point, such as the reporting date, and :func:`~kivi.lifetime.expected_credit_loss` discounts a default in period :math:`t` over :math:`t` periods.
+* A threshold is compared as the rule it implements is worded. A cut-off approves the scores at or below it. :func:`~kivi.lifetime.significant_increase` flags a PD increase only when it exceeds its thresholds, and :func:`~kivi.lifetime.assign_stages` moves a loan to stage 2 when it is more than ``stage_2_days`` past due and to stage 3 when it is at least ``stage_3_days`` past due, as IFRS 9 words its 30-day and 90-day presumptions.
 
 Errors and warnings
 -------------------

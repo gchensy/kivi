@@ -7,7 +7,7 @@
 **基于 pandas 的信用风险建模**
 
 覆盖评分卡项目全流程的工具包：<br>
-筛选并分箱变量，拟合并刻度模型，完成校准，衡量各截断点的代价，并监控模型通过的客群。
+筛选并分箱变量，拟合并刻度模型，完成校准，衡量各截断点的代价，监控模型，并为其通过的贷款计提损失准备。
 
 [![PyPI](https://img.shields.io/pypi/v/kivi?logo=pypi&logoColor=white&color=2f5bd3)](https://pypi.org/project/kivi/)
 [![Downloads](https://img.shields.io/pypi/dm/kivi?color=0b7a70)](https://pypi.org/project/kivi/)
@@ -32,11 +32,12 @@
 
 ## ✨ 特性
 
-- 🏦 **为风控团队打造。** 完整覆盖信用评分卡项目：单变量概况、分箱、变量筛选、拒绝推断、逻辑回归、分值刻度、模型评估、基于主标尺的校准、截断点策略与预期损失、部署和监控，以及对已放款贷款的账龄（vintage）与滚动率分析。
-- 📐 **一次拟合，处处复用。** 分箱边界、WOE 表、主标尺和截断点都在开发样本上拟合，之后原样用于后续样本。`bin_edges` 学习等频或等距边界，`chimerge_edges`、`tree_edges` 和 `monotonic_edges` 还会利用目标变量。边界两端延伸至无穷，之后的任何取值都能落入某个箱。
+- 🏦 **为风控团队打造。** 完整覆盖信用评分卡项目：单变量概况、分箱、变量筛选、拒绝推断、逻辑回归、分值刻度、模型评估、基于主标尺的校准、截断点策略与预期损失、部署与逐期监控，以及对已放款贷款的账龄（vintage）与滚动率分析和 IFRS 9 预期信用损失。
+- 📐 **一次拟合，处处复用。** 分箱边界、类别分组、WOE 表、主标尺和截断点都在开发样本上拟合，之后原样用于后续样本。`bin_edges` 学习等频或等距边界，`chimerge_edges`、`tree_edges` 和 `monotonic_edges` 还会利用目标变量，`chimerge_groups` 则合并事件率相近的类别。边界两端延伸至无穷，之后的任何取值都能落入某个箱。
 - 🔍 **结果透明。** 各类表格返回每箱、每个等级或每个截断点的原始计数、平滑后的占比和单项贡献，而不只是一个总数。
+- 📏 **看得见的不确定性。** `roc_auc_interval` 给出 AUC 和 Gini 的 DeLong 置信区间，`delong_test` 检验在同一样本上新评分的排序能力是否优于现行评分。
 - 💾 **生产环境可复现。** `fit_spec` 一次对整个数据框分箱，`BinningSpec` 把边界和 WOE 表保存为带版本号的 JSON，生产环境对新数据的分组与开发时完全一致。
-- 🧩 **不悄悄丢数据。** 缺失值、`-1` 这类特殊编码、只在一个样本中出现的类别，都会单独成组。
+- 🧩 **不悄悄丢数据。** 缺失值、`-1` 这类特殊编码、只在一个样本中出现的类别，都会单独成组；拟合好的分组或 WOE 表不认识的类别会报错，除非明确指定它的归属。
 - ⚖️ **全面支持样本权重。** 分箱、WOE、PSI、评估指标、校准、模型拟合和策略表都支持样本权重，整数权重相当于重复相应的行：计数、比率和系数都相同。只有分位数边界不同，因为加权分位数不做插值。
 - 🧊 **平滑口径清楚。** 空单元格先按 `smoothing`（默认 0.5）替换再归一化，结果中的计数始终是实际观测数。
 - 🐼 **只依赖 pandas 和 NumPy。** 核心不依赖 Spark 和数据库驱动，也不修改全局随机状态。
@@ -81,6 +82,16 @@
       <br><b>拒绝推断</b>：不同 <code>factor</code> 下拒绝申请人的推断坏账率和重新拟合的 PD。
     </td>
   </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <a href="https://gchensy.github.io/kivi/zh/user_guide/monitoring.html#a-monitoring-report"><img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/readme-monitoring.svg" alt="评分每月的样本量、已知结果、Gini 和 PSI"></a>
+      <br><b>模型监控</b>：评分每月的样本量、已知结果、Gini 和 PSI。
+    </td>
+    <td width="50%" valign="top">
+      <a href="https://gchensy.github.io/kivi/zh/user_guide/lifetime.html#term-structures-from-vintage-curves"><img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/readme-lifetime.svg" alt="各批次及合并后按账龄的累计 PD"></a>
+      <br><b>存续期 PD</b>：各批次的累计 PD，以及用于预期信用损失的合并期限结构。
+    </td>
+  </tr>
 </table>
 
 ## 🧭 工作流程
@@ -90,12 +101,13 @@
 | 步骤 | 模块 | 主要函数 |
 | --- | --- | --- |
 | 分析候选变量 | `kivi.univariate` | `profile_table` |
-| 分箱与编码 | `kivi.binning`、`kivi.woe` | `bin_edges`、`monotonic_edges`、`woe_table`、`woe_transform` |
+| 分箱与编码 | `kivi.binning`、`kivi.woe` | `bin_edges`、`monotonic_edges`、`chimerge_groups`、`woe_table`、`woe_transform` |
 | 筛选与拟合 | `kivi.selection`、`kivi.reject_inference` | `stepwise`、`logistic_regression`、`fuzzy_augmentation` |
-| 刻度与评估 | `kivi.scorecard`、`kivi.metrics` | `points_table`、`roc_auc`、`ks`、`gains_table` |
+| 刻度与评估 | `kivi.scorecard`、`kivi.metrics` | `points_table`、`roc_auc`、`roc_auc_interval`、`gains_table` |
 | 校准 | `kivi.calibration` | `master_scale`、`assign_grades`、`jeffreys_test` |
 | 决策 | `kivi.strategy` | `cutoff_table`、`swap_set`、`expected_loss_table` |
-| 部署与监控 | `kivi.spec`、`kivi.stability`、`kivi.vintage` | `fit_spec`、`psi_table`、`csi_table`、`vintage_table` |
+| 部署与监控 | `kivi.spec`、`kivi.monitoring`、`kivi.stability` | `fit_spec`、`monitoring_table`、`stability_table`、`csi_table` |
+| 跟踪贷款 | `kivi.vintage`、`kivi.lifetime` | `vintage_table`、`transition_pd`、`expected_credit_loss`、`assign_stages` |
 
 以分箱为例：拟合一次边界，用它对每个样本分箱，再计算指标。
 
@@ -147,7 +159,7 @@ bin
 IV = 0.019, PSI = 0.0024
 ```
 
-类别变量无需边界，直接传入：
+类别变量无需边界，可直接传入标签，也可先用 `category_groups` 或 `chimerge_groups` 分组：
 
 ```python
 jobs = woe_table(reference["job"], reference["target"])
@@ -164,6 +176,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | [`kivi.binning.chimerge_edges`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.chimerge_edges) | 用 ChiMerge 合并等频细分箱，直到相邻箱差异显著 |
 | [`kivi.binning.tree_edges`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.tree_edges) | 按熵或 Gini 的决策树切分，并限制每箱的最小占比 |
 | [`kivi.binning.monotonic_edges`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.monotonic_edges) | 合并等频细分箱，直到 WOE 单调 |
+| [`kivi.binning.category_groups`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.category_groups), [`kivi.binning.chimerge_groups`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.chimerge_groups), [`kivi.binning.group_categories`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.group_categories) | 类别变量的分组：合并稀有类别或事件率相近的类别，再把分组用于每个样本 |
 | [`kivi.woe.woe_table`](https://gchensy.github.io/kivi/zh/api/woe.html#kivi.woe.woe_table) | 每组的计数、占比、WOE 与 IV |
 | [`kivi.woe.woe_transform`](https://gchensy.github.io/kivi/zh/api/woe.html#kivi.woe.woe_transform) | 用开发样本的 WOE 替换每个分组，未见过的分组需明确处理方式 |
 | [`kivi.woe.woe`](https://gchensy.github.io/kivi/zh/api/woe.html#kivi.woe.woe), [`kivi.woe.iv`](https://gchensy.github.io/kivi/zh/api/woe.html#kivi.woe.iv), [`kivi.stability.psi`](https://gchensy.github.io/kivi/zh/api/stability.html#kivi.stability.psi) | 直接从已汇总的计数计算 WOE、IV 和 PSI |
@@ -174,6 +187,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | [`kivi.scorecard.points_table`](https://gchensy.github.io/kivi/zh/api/scorecard.html#kivi.scorecard.points_table), [`kivi.scorecard.woe_to_points`](https://gchensy.github.io/kivi/zh/api/scorecard.html#kivi.scorecard.woe_to_points), [`kivi.scorecard.reason_codes`](https://gchensy.github.io/kivi/zh/api/scorecard.html#kivi.scorecard.reason_codes) | 按 PDO 刻度计算每组分值、为新数据打分并给出原因码 |
 | [`kivi.metrics.roc_auc`](https://gchensy.github.io/kivi/zh/api/metrics.html#kivi.metrics.roc_auc), [`kivi.metrics.gini`](https://gchensy.github.io/kivi/zh/api/metrics.html#kivi.metrics.gini), [`kivi.metrics.ks`](https://gchensy.github.io/kivi/zh/api/metrics.html#kivi.metrics.ks), [`kivi.metrics.brier_score`](https://gchensy.github.io/kivi/zh/api/metrics.html#kivi.metrics.brier_score) | 分数或 PD 相对二分类目标的 AUC、Gini、KS 和 Brier 分数 |
 | [`kivi.metrics.gains_table`](https://gchensy.github.io/kivi/zh/api/metrics.html#kivi.metrics.gains_table) | 按分数段统计的增益与提升，含累计捕获率和 KS |
+| [`kivi.metrics.roc_table`](https://gchensy.github.io/kivi/zh/api/metrics.html#kivi.metrics.roc_table), [`kivi.metrics.roc_auc_interval`](https://gchensy.github.io/kivi/zh/api/metrics.html#kivi.metrics.roc_auc_interval), [`kivi.metrics.delong_test`](https://gchensy.github.io/kivi/zh/api/metrics.html#kivi.metrics.delong_test) | 每个阈值一行的 ROC 曲线表、AUC 与 Gini 的 DeLong 置信区间，以及两个评分的 DeLong 检验 |
 | [`kivi.calibration.master_scale`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.master_scale), [`kivi.calibration.fit_grade_pd`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.fit_grade_pd), [`kivi.calibration.assign_grades`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.assign_grades) | 由各等级的 PD 构建主标尺或按违约率拟合主标尺，并为每个 PD 分配等级 |
 | [`kivi.calibration.calibration_table`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.calibration_table), [`kivi.calibration.binomial_test`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.binomial_test), [`kivi.calibration.jeffreys_test`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.jeffreys_test), [`kivi.calibration.hosmer_lemeshow`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.hosmer_lemeshow) | 按评级比较事件率与预测 PD，并做二项、Jeffreys 和 Hosmer-Lemeshow 检验 |
 | [`kivi.calibration.prior_correction`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.prior_correction), [`kivi.calibration.corrected_intercept`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.corrected_intercept), [`kivi.calibration.herfindahl_index`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.herfindahl_index) | 对过采样样本校正 PD，并度量评级集中度 |
@@ -183,8 +197,11 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | [`kivi.spec.fit_spec`](https://gchensy.github.io/kivi/zh/api/spec.html#kivi.spec.fit_spec), [`kivi.spec.BinningSpec`](https://gchensy.github.io/kivi/zh/api/spec.html#kivi.spec.BinningSpec) | 对整个数据框分箱并做 WOE 编码，把分箱方案保存为带版本号的 JSON |
 | [`kivi.stability.psi_table`](https://gchensy.github.io/kivi/zh/api/stability.html#kivi.stability.psi_table) | 两个样本逐组的 PSI 贡献 |
 | [`kivi.stability.csi_table`](https://gchensy.github.io/kivi/zh/api/stability.html#kivi.stability.csi_table) | 特征稳定性指数（CSI）：各变量的分布变化让平均分移动了多少 |
+| [`kivi.monitoring.monitoring_table`](https://gchensy.github.io/kivi/zh/api/monitoring.html#kivi.monitoring.monitoring_table), [`kivi.monitoring.stability_table`](https://gchensy.github.io/kivi/zh/api/monitoring.html#kivi.monitoring.stability_table) | 每期一行：样本量、已知结果、AUC、Gini、KS 和评分的 PSI；以及各变量在每期的 PSI |
 | [`kivi.vintage.vintage_table`](https://gchensy.github.io/kivi/zh/api/vintage.html#kivi.vintage.vintage_table) | 各放款批次按账龄（月）的累计坏账率 |
 | [`kivi.vintage.transition_matrix`](https://gchensy.github.io/kivi/zh/api/vintage.html#kivi.vintage.transition_matrix), [`kivi.vintage.roll_rates`](https://gchensy.github.io/kivi/zh/api/vintage.html#kivi.vintage.roll_rates) | 逾期档位之间的迁移，以及每个档位向下一档的滚动率 |
+| [`kivi.lifetime.convert_pd`](https://gchensy.github.io/kivi/zh/api/lifetime.html#kivi.lifetime.convert_pd), [`kivi.lifetime.transition_pd`](https://gchensy.github.io/kivi/zh/api/lifetime.html#kivi.lifetime.transition_pd) | 在累计、边际和条件 PD 之间转换 PD 期限结构，并由转移矩阵推算期限结构 |
+| [`kivi.lifetime.expected_credit_loss`](https://gchensy.github.io/kivi/zh/api/lifetime.html#kivi.lifetime.expected_credit_loss), [`kivi.lifetime.significant_increase`](https://gchensy.github.io/kivi/zh/api/lifetime.html#kivi.lifetime.significant_increase), [`kivi.lifetime.assign_stages`](https://gchensy.github.io/kivi/zh/api/lifetime.html#kivi.lifetime.assign_stages), [`kivi.lifetime.stage_table`](https://gchensy.github.io/kivi/zh/api/lifetime.html#kivi.lifetime.stage_table) | IFRS 9：12 个月与整个存续期的预期信用损失、信用风险显著增加、第 1 至 3 阶段以及各阶段的损失准备 |
 | [`kivi.datasets.load_bank`](https://gchensy.github.io/kivi/zh/api/datasets.html#kivi.datasets.load_bank), [`kivi.datasets.make_loan_panel`](https://gchensy.github.io/kivi/zh/api/datasets.html#kivi.datasets.make_loan_panel), [`kivi.datasets.make_applications`](https://gchensy.github.io/kivi/zh/api/datasets.html#kivi.datasets.make_applications) | 随包的银行营销数据，以及按种子生成的合成贷款面板和贷款申请数据 |
 
 ## 📚 文档
@@ -204,8 +221,12 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | 信贷策略 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/strategy.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/strategy.html) |
 | 分箱方案 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/spec.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/spec.html) |
 | PSI | [阅读](https://gchensy.github.io/kivi/zh/user_guide/psi.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/psi.html) |
+| 模型监控 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/monitoring.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/monitoring.html) |
 | Vintage 与滚动率分析 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/vintage.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/vintage.html) |
+| 存续期 PD 与预期信用损失 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/lifetime.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/lifetime.html) |
 | 示例数据 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/datasets.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/datasets.html) |
+| 约定 | [阅读](https://gchensy.github.io/kivi/zh/api/conventions.html) | [Read](https://gchensy.github.io/kivi/en/api/conventions.html) |
+| 术语表 | [阅读](https://gchensy.github.io/kivi/zh/api/glossary.html) | [Read](https://gchensy.github.io/kivi/en/api/glossary.html) |
 | 从 0.2.x 迁移 | [阅读](https://gchensy.github.io/kivi/zh/release/migration.html) | [Read](https://gchensy.github.io/kivi/en/release/migration.html) |
 
 ## 🗺️ 路线图
@@ -223,7 +244,11 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 - ✅ 信贷策略：截断点表、交换集与预期损失
 - ✅ 拒绝推断，以及带权重的模型拟合
 - ✅ 主标尺与单变量概况表
-- 🔜 各主题指南采用统一的结构，每个函数都链接到其 API 条目
+- ✅ 各主题指南采用统一的结构，新增约定页和术语表
+- ✅ 类别分组、ROC 表与 AUC 的 DeLong 检验
+- ✅ 逐期的模型监控
+- ✅ 存续期 PD 期限结构、IFRS 9 预期信用损失与阶段划分
+- 🔜 在 CI 中检查类型标注、测试覆盖率，以及面向 1.0 的 API 审查
 
 ## 🤝 参与贡献
 
