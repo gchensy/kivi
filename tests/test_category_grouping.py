@@ -4,7 +4,14 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from kivi.binning import _pair_chi2, category_groups, chimerge_groups, group_categories
+from kivi.binning import (
+    _merge_categories,
+    _odds,
+    _pair_chi2,
+    category_groups,
+    chimerge_groups,
+    group_categories,
+)
 from kivi.datasets import Dataset
 from kivi.woe import woe_table, woe_transform
 
@@ -122,6 +129,20 @@ def test_weights_are_counted_and_integer_weights_repeat_rows():
     assert list(category_groups(["b", "a", "b"], min_share=0, weights=[0, 1, 1])) == ["a", "b"]
 
 
+def test_numeric_codes_never_match_booleans():
+    # True == 1, but a boolean is not a code, as in cut.
+    values = pd.Series([True, False, True, True])
+    with pytest.raises(ValueError, match="special must not match booleans, got 1, which equals"):
+        category_groups(values, min_share=0, special=[1])
+    with pytest.raises(ValueError, match="got 0.0, which equals the value False"):
+        chimerge_groups(values, [1, 0, 0, 1], special=[0.0])
+    assert category_groups(values, min_share=0, special=["x"]) == {
+        "x": "x",
+        True: True,
+        False: False,
+    }
+
+
 def test_labels_are_python_scalars_and_inputs_are_kept():
     values = np.array([3, 1, 3, 3, 2])
     groups = category_groups(values, min_share=0.3)
@@ -158,6 +179,8 @@ def test_labels_are_python_scalars_and_inputs_are_kept():
         ({"rare_label": ["x"]}, r"rare_label must be a string or a number, got \['x'\]"),
         ({"special": [None]}, "special must not contain missing values"),
         ({"special": [True]}, "special must not contain booleans, got True"),
+        ({"min_share": np.float64(2)}, r"min_share must be between 0 and 1, got 2.0$"),
+        ({"rare_label": np.array([1])}, r"rare_label must be a string or a number, got"),
         ({"weights": [1, 2]}, "weights must have one weight per value of values, got 2 for 10"),
         ({"weights": [-1] * 10}, "weights must be finite and non-negative"),
     ],
@@ -259,6 +282,97 @@ def test_groups_follow_the_smoothed_woe():
             assert table.index.tolist() == list(dict.fromkeys(groups.values()))
             assert table["woe"].is_monotonic_increasing
             assert len(table) <= 5 and table["total_share"].min() >= 0.05
+
+
+def test_ties_go_to_the_first_category_despite_rounding():
+    # x, y and z have proportional counts, so the same odds 1; their WOE differs in the
+    # last bit, which must not reorder them.
+    values, target = repeated([("x", 3, 3), ("y", 1, 1), ("z", 7, 7), ("w", 10, 2)])
+    groups = chimerge_groups(values, target, max_groups=4, alpha=None, min_group_share=0)
+    assert list(groups) == ["w", "x", "y", "z"]
+    # x-y and y-z both have a chi-square of 0, so the first pair merges.
+    groups = chimerge_groups(values, target, max_groups=3, alpha=None, min_group_share=0)
+    assert groups == {"w": "w", "x": "x, y", "y": "x, y", "z": "z"}
+    # The pairs (a, b) and (b, c) mirror each other: equal chi-square, unequal floats.
+    counts = np.array([[5, 2], [6, 6], [2, 5]])
+    statistic = _pair_chi2(counts)
+    assert statistic[0] == pytest.approx(statistic[1], rel=1e-12)
+    values, target = repeated([("a", 5, 2), ("b", 6, 6), ("c", 2, 5)])
+    groups = chimerge_groups(values, target, max_groups=2, alpha=None, min_group_share=0)
+    assert groups == {"a": "a, b", "b": "a, b", "c": "c"}
+    # A small group between two equally similar neighbours joins the one before it.
+    values, target = repeated([("a", 50, 20), ("b", 3, 3), ("c", 20, 50)])
+    groups = chimerge_groups(values, target, max_groups=3, alpha=None, min_group_share=0.1)
+    assert groups["b"] == "a, b"
+
+
+def _reference_merge(counts, max_groups, alpha, min_share, smoothing):
+    """The merging rule computed from scratch after every merge, to check the incremental one."""
+
+    def odds(rows):
+        adjusted = np.where(rows == 0, smoothing, rows)
+        return adjusted[:, 1] / adjusted[:, 0]
+
+    def first_min(values):
+        return int(np.flatnonzero(values <= values.min() * (1 + 1e-10))[0])
+
+    counts = counts.astype(float)
+    order = np.argsort(odds(counts), kind="stable")
+    counts, members = counts[order], [[row] for row in order]
+    while len(counts) > 1:
+        totals = counts.sum(axis=1)
+        statistic = _pair_chi2(counts)
+        small = totals / totals.sum() < min_share
+        if small.any():
+            group = int(np.flatnonzero(small)[first_min(totals[small])])
+            if group == 0:
+                pair = 0
+            elif group == len(counts) - 1:
+                pair = group - 1
+            else:
+                left, right = statistic[group - 1], statistic[group]
+                pair = group if right < left * (1 - 1e-10) else group - 1
+        else:
+            pair = first_min(statistic)
+            if len(counts) <= max_groups and (
+                alpha is None or math.erfc(math.sqrt(statistic[pair] / 2)) < alpha
+            ):
+                break
+        counts[pair] += counts[pair + 1]
+        counts = np.delete(counts, pair + 1, axis=0)
+        members[pair : pair + 2] = [members[pair] + members[pair + 1]]
+        order = np.argsort(odds(counts), kind="stable")
+        counts, members = counts[order], [members[row] for row in order]
+    return [sorted(group) for group in members]
+
+
+@pytest.mark.parametrize("seed", range(40))
+def test_incremental_merging_matches_a_full_recomputation(seed):
+    rng = np.random.default_rng(seed)
+    size = int(rng.integers(2, 40))
+    counts = rng.integers(0, 12, size=(size, 2)) * rng.integers(1, 4, size=(size, 1))
+    counts[counts.sum(axis=1) == 0] = [1, 0]
+    if seed % 3 == 0:
+        counts = counts * rng.uniform(0.5, 2.0, size=(size, 1))
+    kwargs = {
+        "max_groups": int(rng.integers(1, 8)),
+        "alpha": [None, 0.05, 0.5][seed % 3],
+        "min_share": [0, 0.02, 0.1][seed % 3 - 1],
+        "smoothing": [0.5, 2.0][seed % 2],
+    }
+    expected = _reference_merge(counts, **kwargs)
+    order = np.argsort(_odds(counts, kwargs["smoothing"]), kind="stable")
+    merged = _merge_categories(counts[order], *kwargs.values())
+    assert [sorted(int(order[row]) for row in group) for group in merged] == expected
+
+
+def test_long_groups_are_labelled_with_their_first_categories():
+    values, target = repeated([(name, 5, 5) for name in "abcdefg"])
+    groups = chimerge_groups(values, target, max_groups=1, min_group_share=0)
+    assert set(groups.values()) == {"a, b, c, d, ... (+3)"}
+    values, target = repeated([(name, 5, 5) for name in "abcde"])
+    groups = chimerge_groups(values, target, max_groups=1, min_group_share=0)
+    assert set(groups.values()) == {"a, b, c, d, e"}
 
 
 def test_group_labels_join_the_categories_in_woe_order():

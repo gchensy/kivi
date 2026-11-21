@@ -21,7 +21,7 @@ import numpy.typing as npt
 import pandas as pd
 
 from ._counts import divergence
-from ._validation import as_series, as_weights
+from ._validation import as_series, as_weights, first_value
 
 __all__ = [
     "bin_edges",
@@ -725,13 +725,17 @@ def category_groups(
         or not isinstance(min_count, Real)
         or not (math.isfinite(min_count) and min_count >= 0)
     ):
-        raise ValueError(f"min_count must be a finite, non-negative number, got {min_count!r}")
+        raise ValueError(
+            f"min_count must be a finite, non-negative number, got {first_value(min_count)!r}"
+        )
     if (
         isinstance(rare_label, (bool, np.bool_))
         or not isinstance(rare_label, (str, Real))
         or (isinstance(rare_label, Real) and math.isnan(rare_label))
     ):
-        raise ValueError(f"rare_label must be a string or a number, got {rare_label!r}")
+        raise ValueError(
+            f"rare_label must be a string or a number, got {first_value(rare_label)!r}"
+        )
     rare_label = _python(rare_label)
     labels, totals, codes = _category_counts(values, None, special, weights)
     rare = (totals / totals.sum() < min_share) | (totals < min_count)
@@ -858,23 +862,23 @@ def chimerge_groups(
     """
     _check_count(max_groups, "max_groups")
     if alpha is not None and not (isinstance(alpha, Real) and 0 < alpha < 1):
-        raise ValueError(f"alpha must be None or between 0 and 1, got {alpha!r}")
+        raise ValueError(f"alpha must be None or between 0 and 1, got {first_value(alpha)!r}")
     _check_share(min_group_share, "min_group_share", 0.5)
     if (
         isinstance(smoothing, bool)
         or not isinstance(smoothing, Real)
         or not (math.isfinite(smoothing) and smoothing > 0)
     ):
-        raise ValueError(f"smoothing must be finite and positive, got {smoothing!r}")
+        raise ValueError(f"smoothing must be finite and positive, got {first_value(smoothing)!r}")
     labels, counts, codes = _category_counts(values, target, special, weights)
-    order = np.argsort(_woe(counts, smoothing), kind="stable")
+    order = np.argsort(_odds(counts, smoothing), kind="stable")
     labels = [labels[position] for position in order]
     members = _merge_categories(counts[order], max_groups, alpha, min_group_share, smoothing)
     groups = {code: code for code in codes}
     taken = set(codes)
     for ranks in members:
         names = [labels[rank] for rank in sorted(ranks)]
-        label = names[0] if len(names) == 1 else ", ".join(str(name) for name in names)
+        label = _group_label(names)
         if label in taken:
             raise ValueError(
                 f"two groups would have the label {label!r}; rename the categories whose "
@@ -973,7 +977,9 @@ def group_categories(
         if pd.api.types.is_scalar(unseen) and not _is_missing(unseen):
             found = int(labels.get_indexer(_object_index([unseen]))[0])
         if found < 0:
-            raise ValueError(f"unseen must be 'raise' or one of the groups, got {unseen!r}")
+            raise ValueError(
+                f"unseen must be 'raise' or one of the groups, got {first_value(unseen)!r}"
+            )
     position, levels = pd.factorize(series, sort=False)
     levels = np.asarray(levels, dtype=object)
     key = _object_index(mapping).get_indexer(_object_index(levels))
@@ -1001,7 +1007,7 @@ def _check_count(value, name: str) -> None:
 
 def _check_share(value, name: str, upper: float) -> None:
     if isinstance(value, bool) or not isinstance(value, Real) or not 0 <= value <= upper:
-        raise ValueError(f"{name} must be between 0 and {upper:g}, got {value!r}")
+        raise ValueError(f"{name} must be between 0 and {upper:g}, got {first_value(value)!r}")
 
 
 def _python(value):
@@ -1036,7 +1042,8 @@ def _checked_groups(groups, argument: str) -> dict:
             if not pd.api.types.is_scalar(label) or _is_missing(label):
                 raise ValueError(
                     f"{argument} must map non-missing scalar categories to non-missing scalar "
-                    f"groups, got the {role} {label!r}; missing values always form their own group"
+                    f"groups, got the {role} {first_value(label)!r}; missing values always form "
+                    "their own group"
                 )
         checked[_python(category)] = _python(group)
     return checked
@@ -1076,7 +1083,15 @@ def _category_counts(
     fitted = position >= 0
     excluded = ["missing"]
     if special is not None:
-        is_special = codes.get_indexer(_object_index(levels)) >= 0
+        found = codes.get_indexer(_object_index(levels))
+        is_special = found >= 0
+        # True == 1, so a numeric code would match a boolean category, which cut never does.
+        flags = [i for i in np.flatnonzero(is_special) if isinstance(levels[i], (bool, np.bool_))]
+        if flags:
+            raise ValueError(
+                f"special must not match booleans, got {_python(codes[found[flags[0]]])!r}, "
+                f"which equals the value {_python(levels[flags[0]])!r}"
+            )
         fitted &= ~np.r_[is_special, False][position]
         excluded.append("special")
     if mass is not None:
@@ -1110,30 +1125,87 @@ def _category_counts(
 def _merge_categories(
     counts: np.ndarray, max_groups: int, alpha: float | None, min_share: float, smoothing: float
 ) -> list[list[int]]:
-    """Merge (non_event, event) counts sorted by WOE; return the rows of each final group."""
-    members = [[row] for row in range(len(counts))]
+    """Merge (non_event, event) counts sorted by odds; return the rows of each final group.
+
+    Each merge changes only the merged group, so only its odds and the statistics of its two
+    pairs are recomputed. The groups are sorted again, stably, only when the merged group
+    falls out of order, which smoothing can cause.
+    """
     counts = counts.astype(float)
+    members = [[row] for row in range(len(counts))]
+    odds = _odds(counts, smoothing)
+    statistic = _pair_chi2(counts)
+    totals = counts.sum(axis=1)
     while len(counts) > 1:
-        totals = counts.sum(axis=1)
-        statistic = _pair_chi2(counts)
         small = totals / totals.sum() < min_share
         if small.any():
-            group = int(np.argmin(np.where(small, totals, np.inf)))
-            if group == 0 or (group < len(counts) - 1 and statistic[group] < statistic[group - 1]):
-                pair = group
-            else:
+            candidates = np.flatnonzero(small)
+            group = int(candidates[_first_min(totals[candidates])])
+            if group == 0:
+                pair = 0
+            elif group == len(counts) - 1:
                 pair = group - 1
+            else:
+                left, right = statistic[group - 1], statistic[group]
+                pair = group if right < left - _TIE * left else group - 1
         else:
-            pair = int(np.argmin(statistic))
+            pair = _first_min(statistic)
             significant = alpha is None or math.erfc(math.sqrt(statistic[pair] / 2)) < alpha
             if len(counts) <= max_groups and significant:
                 break
         counts[pair] += counts[pair + 1]
         counts = np.delete(counts, pair + 1, axis=0)
-        members[pair : pair + 2] = [members[pair] + members[pair + 1]]
-        order = np.argsort(_woe(counts, smoothing), kind="stable")
-        counts, members = counts[order], [members[row] for row in order]
+        totals[pair] += totals[pair + 1]
+        totals = np.delete(totals, pair + 1)
+        members[pair].extend(members.pop(pair + 1))
+        odds = np.delete(odds, pair + 1)
+        odds[pair] = _odds(counts[pair : pair + 1], smoothing)[0]
+        last = len(counts) - 1
+        if (pair > 0 and odds[pair] < odds[pair - 1]) or (
+            pair < last and odds[pair] > odds[pair + 1]
+        ):
+            order = np.argsort(odds, kind="stable")
+            counts, totals, odds = counts[order], totals[order], odds[order]
+            members = [members[row] for row in order]
+            statistic = _pair_chi2(counts)
+        else:
+            statistic = np.delete(statistic, pair)
+            first, stop = max(pair - 1, 0), min(pair + 2, len(counts))
+            statistic[first : stop - 1] = _pair_chi2(counts[first:stop])
     return members
+
+
+# Relative difference below which two chi-square statistics or totals count as equal, so that
+# rounding never decides a tie: ties go to the first group, in the order of first appearance.
+_TIE = 1e-10
+# A merged group is labelled with at most this many categories.
+_LABEL_CATEGORIES = 5
+
+
+def _first_min(values: np.ndarray) -> int:
+    """Position of the first value within a relative `_TIE` of the smallest."""
+    smallest = values.min()
+    return int(np.flatnonzero(values <= smallest + _TIE * abs(smallest))[0])
+
+
+def _odds(counts: np.ndarray, smoothing: float) -> np.ndarray:
+    """Smoothed event to non-event ratio of each row, which orders the rows like their WOE.
+
+    One correctly rounded division per row gives proportional counts exactly the same
+    value, while their WOE can differ in the last bit.
+    """
+    adjusted = np.where(counts == 0, smoothing, counts.astype(float))
+    return adjusted[:, 1] / adjusted[:, 0]
+
+
+def _group_label(names: list) -> Hashable:
+    """Label of a group: its one category, or up to five of its categories joined by ", "."""
+    if len(names) == 1:
+        return names[0]
+    if len(names) <= _LABEL_CATEGORIES:
+        return ", ".join(str(name) for name in names)
+    shown = ", ".join(str(name) for name in names[: _LABEL_CATEGORIES - 1])
+    return f"{shown}, ... (+{len(names) - _LABEL_CATEGORIES + 1})"
 
 
 def _observed(
