@@ -8933,7 +8933,7 @@ msgid ""
 msgstr "每个变量对平均评分的影响是其 CSI，由 :func:`~kivi.stability.csi_table` 逐期计算。"
 
 msgid "Errors and warnings"
-msgstr "错误和警告"
+msgstr "错误与警告"
 
 msgid ""
 "An integer ``bins`` fits quantile edges on the reference scores. When many reference scores are "
