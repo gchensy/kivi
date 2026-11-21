@@ -441,3 +441,83 @@ def test_bank_categories_group_and_encode_the_later_sample(bank):
     assert_frame_equal(
         spec.select(["balance", "housing"]).tables["housing"], spec.tables["housing"]
     )
+
+
+def test_the_newest_format_version_is_a_class_constant():
+    assert BinningSpec.FORMAT_VERSION == 2
+    assert _fit().format_version == 1 and _chimerge().format_version == 2
+    data = _chimerge().to_dict()
+    data["format_version"] = BinningSpec.FORMAT_VERSION + 1
+    with pytest.raises(ValueError, match="format_version 3 is newer than 2"):
+        BinningSpec.from_dict(data)
+
+
+def test_an_unseen_group_receives_new_categories():
+    spec = _rare(unseen={"x": "raise", "c": {"group": "other"}})
+    assert spec.unseen["c"] == {"group": "other"}
+    sample = pd.DataFrame({"x": [1.0, 2.0, 3.0, 4.0], "c": ["new", "a", "other", None]})
+    groups = spec.cut(sample)["c"]
+    # Unmapped categories, including one named like the group, join the group; no new category.
+    assert groups.cat.categories.tolist() == ["a", "b", "other"]
+    assert groups.tolist()[:3] == ["other", "a", "other"] and pd.isna(groups.iloc[3])
+    table = spec.tables["c"]["woe"]
+    encoded = spec.woe_transform(sample)["c"]
+    np.testing.assert_allclose(
+        encoded, [table.iloc[2], table.iloc[0], table.iloc[2], table.iloc[3]]
+    )
+    # Without a missing group in development, missing values get the group's WOE too.
+    dropped = _rare(
+        unseen={"x": "raise", "c": {"group": "other"}}, weights=FRAME["c"].notna().astype(int)
+    )
+    assert not pd.isna(dropped.tables["c"].index).any()
+    missing = dropped.woe_transform(pd.DataFrame({"x": [1.0], "c": [None]}))["c"]
+    np.testing.assert_allclose(missing, [dropped.tables["c"]["woe"].iloc[2]])
+
+
+def test_the_unseen_group_follows_a_refit_and_round_trips():
+    spec = _rare(unseen={"x": "raise", "c": {"group": "other"}})
+    entry = spec.to_dict()["variables"][1]
+    assert entry["unseen"] == {"group": "other"}
+    loaded = BinningSpec.from_json(spec.to_json())
+    assert loaded == spec and loaded.unseen["c"] == {"group": "other"}
+    assert pickle.loads(pickle.dumps(spec)) == spec
+    copy_ = spec.unseen["c"]
+    copy_["group"] = "a"
+    assert spec.unseen["c"] == {"group": "other"}
+    # An interval group is encoded like any label.
+    interval = pd.Interval(0.0, 1.0)
+    groups = {"a": interval, "b": "b", "c": "b"}
+    table = woe_table(group_categories(FRAME["c"], groups), TARGET)
+    replaced = dataclasses.replace(
+        spec,
+        groups={"c": groups},
+        tables={**spec.tables, "c": table},
+        unseen={"x": "raise", "c": {"group": interval}},
+    )
+    assert BinningSpec.from_json(replaced.to_json()).unseen["c"] == {"group": interval}
+
+
+@pytest.mark.parametrize(
+    "unseen,message",
+    [
+        ({"c": {"group": "zzz"}}, "unseen of column 'c' names the group 'zzz', which its table"),
+        ({"x": {"group": 1.0}}, "unseen of column 'x' names a group, which only grouped"),
+        ({"c": {"group": None}}, "unseen of column 'c' must name a non-missing group"),
+        ({"c": {"name": "other"}}, "unseen of column 'c' must be 'raise' or a finite number"),
+        ({"c": {"group": [1]}}, "the group of unseen of column 'c' must be strings"),
+    ],
+)
+def test_invalid_unseen_groups(unseen, message):
+    with pytest.raises(ValueError, match=message):
+        _rare(unseen=unseen)
+
+
+def test_an_unseen_group_needs_a_grouped_column_in_the_file():
+    data = _rare(unseen={"x": "raise", "c": {"group": "other"}}).to_dict()
+    del data["variables"][1]["groups"]
+    data["variables"][1]["table"] = _fit().to_dict()["variables"][1]["table"]
+    with pytest.raises(ValueError, match="names a group, which only grouped categorical columns"):
+        BinningSpec.from_dict(data)
+    data["variables"][1]["unseen"] = {"group": {"bad": 1}}
+    with pytest.raises(ValueError, match="unseen of column 'c' has an invalid value"):
+        BinningSpec.from_dict(data)

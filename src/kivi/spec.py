@@ -14,7 +14,7 @@ import warnings
 from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from numbers import Integral, Real
-from typing import Any, Literal
+from typing import Any, ClassVar, Literal
 
 import numpy as np
 import numpy.typing as npt
@@ -81,7 +81,10 @@ class BinningSpec:
         values form a group labelled NaN.
     unseen : mapping
         ``"raise"`` or a finite WOE for each column, used for values whose
-        group is not in the column's table.
+        group is not in the column's table. A grouped column can instead
+        name one of its groups as ``{"group": label}``: such values then get
+        that group's WOE, and `cut` assigns the categories that its grouping
+        does not map to that group.
     smoothing : float, default 0.5
         Smoothing with which the tables were computed.
     kivi_version : str, optional
@@ -92,6 +95,12 @@ class BinningSpec:
         group, as returned by `kivi.binning.category_groups` or
         `kivi.binning.chimerge_groups`. Categorical columns without an entry
         keep their labels as groups. By default no column is grouped.
+
+    Attributes
+    ----------
+    FORMAT_VERSION : int
+        Newest version of the JSON format, which `from_json` reads and
+        `to_json` writes for a specification with grouped columns.
 
     Raises
     ------
@@ -107,8 +116,9 @@ class BinningSpec:
         a numeric column that is neither one of its special codes nor an
         interval of its edges, a group of a grouped column that its grouping
         lacks, or an unseen policy that is neither ``"raise"`` nor a finite
-        number. Also if `smoothing` is not finite and positive or
-        `kivi_version` is not a string.
+        number nor, for a grouped column, a group of its table. Also if
+        `smoothing` is not finite and positive or `kivi_version` is not a
+        string.
 
     See Also
     --------
@@ -152,10 +162,11 @@ class BinningSpec:
     edges: Mapping[str, npt.NDArray[np.float64]]
     special: Mapping[str, tuple]
     tables: Mapping[str, pd.DataFrame]
-    unseen: Mapping[str, float | Literal["raise"]]
+    unseen: Mapping[str, float | Literal["raise"] | Mapping[str, Any]]
     smoothing: float = 0.5
     kivi_version: str | None = None
     groups: Mapping[str, Mapping[Any, Any]] | None = None
+    FORMAT_VERSION: ClassVar[int] = _FORMAT_VERSION
 
     def __post_init__(self):
         """Validate the fields and replace them with read-only copies."""
@@ -184,6 +195,9 @@ class BinningSpec:
             name: _checked_unseen(value, f"unseen of column {name!r}")
             for name, value in _entries(self.unseen, names, "unseen").items()
         }
+        for name, policy in unseen.items():
+            if isinstance(policy, dict):
+                _check_unseen_group(policy["group"], name, name in groups, tables[name])
         _check_smoothing(self.smoothing)
         version = kivi.__version__ if self.kivi_version is None else self.kivi_version
         if not isinstance(version, str):
@@ -192,7 +206,7 @@ class BinningSpec:
         object.__setattr__(self, "edges", _Columns(edges, _copy_edges))
         object.__setattr__(self, "special", _Columns(special))
         object.__setattr__(self, "tables", _Columns(tables, _copy_table, "tables"))
-        object.__setattr__(self, "unseen", _Columns(unseen))
+        object.__setattr__(self, "unseen", _Columns(unseen, _copy_unseen))
         object.__setattr__(self, "smoothing", float(self.smoothing))
         object.__setattr__(self, "kivi_version", version)
         object.__setattr__(self, "groups", _Columns(groups, dict))
@@ -203,7 +217,8 @@ class BinningSpec:
 
         Version 2 adds the groupings of categorical columns to version 1. A
         specification without grouped columns is written as version 1, which
-        earlier versions of kivi read as well.
+        earlier versions of kivi read as well. `FORMAT_VERSION` is the newest
+        version.
 
         See Also
         --------
@@ -265,8 +280,9 @@ class BinningSpec:
 
         Numeric columns are assigned to their bins with `kivi.binning.cut`,
         using the fitted edges and special codes. Grouped categorical columns
-        are assigned to their groups as by `kivi.binning.group_categories`,
-        except that a category that the grouping does not map keeps its own
+        are assigned to their groups as by `kivi.binning.group_categories`.
+        A category that the grouping does not map joins the group that the
+        column's unseen policy names, if any, and otherwise keeps its own
         label, so that `kivi.stability.psi_table` shows it as a new group.
         Other categorical columns are returned unchanged, because their
         labels are their groups.
@@ -284,7 +300,8 @@ class BinningSpec:
             with the index of `frame`. Numeric columns are categorical, with
             the special codes followed by every interval of the edges.
             Grouped columns are categorical, with the groups in the order of
-            the grouping followed by the categories that it does not map.
+            the grouping followed by the categories that it does not map and
+            that no unseen group receives.
 
         Raises
         ------
@@ -293,9 +310,10 @@ class BinningSpec:
             specification or has it twice, a column fitted as numeric has
             values but not a numeric dtype, which could hide its special
             codes; convert such a column with ``pandas.to_numeric``. Also if
-            a grouped column has a category that its grouping does not map
-            but that is the label of one of its groups, so that its group
-            would be ambiguous. The message names the column.
+            a grouped column without an unseen group has a category that its
+            grouping does not map but that is the label of one of its groups,
+            so that its group would be ambiguous. The message names the
+            column.
 
         See Also
         --------
@@ -320,6 +338,12 @@ class BinningSpec:
             if not len(new):
                 continue
             labels = groups[name].categories
+            policy = self.unseen[name]
+            if isinstance(policy, dict):
+                into = labels.get_indexer(binning._object_index([policy["group"]]))[0]
+                codes = np.where(position >= 0, into, groups[name].codes)
+                groups[name] = pd.Categorical.from_codes(codes, categories=labels)
+                continue
             clash = labels.get_indexer(binning._object_index(new)) >= 0
             if clash.any():
                 raise ValueError(
@@ -340,7 +364,9 @@ class BinningSpec:
         its WOE by `kivi.woe.woe_transform`. A group that is not in a
         column's table, such as a new category, gets the column's unseen
         policy, which by default raises an error. So does a category that the
-        grouping of a grouped column does not map.
+        grouping of a grouped column does not map, even when it equals the
+        label of a group, for which `cut` raises an error. An unseen group
+        gives such values the WOE of that group.
 
         Parameters
         ----------
@@ -406,6 +432,8 @@ class BinningSpec:
         encoded = {}
         for name, kind in self.kinds.items():
             unseen = self.unseen[name]
+            if isinstance(unseen, dict):
+                unseen = float(_group_woe(self.tables[name], unseen["group"]))
             # Values that are not missing but fall into no group: -inf in a numeric column, and
             # a category that its grouping does not map in a grouped one.
             outside = np.zeros(len(frame), dtype=bool)
@@ -526,7 +554,10 @@ class BinningSpec:
                 entry["special"] = [_encode(code) for code in self.special[name]]
             if name in self.groups:
                 entry["groups"] = _encode_groups(self.groups[name])
-            entry["unseen"] = self.unseen[name]
+            policy = self.unseen[name]
+            entry["unseen"] = (
+                {"group": _encode(policy["group"])} if isinstance(policy, dict) else policy
+            )
             table = self.tables[name]
             bins = None
             if kind == "numeric":
@@ -633,7 +664,7 @@ class BinningSpec:
             else:
                 raise ValueError(f"kind of {where} must be one of {_KINDS}, got {kind!r}")
             kinds[name] = kind
-            unseen[name] = entry["unseen"]
+            unseen[name] = _decoded_unseen(entry["unseen"], f"unseen of {where}")
             tables[name] = _decode_table(entry["table"], where)
             if kind == "numeric":
                 tables[name].index = _numeric_labels(
@@ -807,7 +838,7 @@ def fit_spec(
     bins: int | Mapping[str, int | None | npt.ArrayLike] = 5,
     special: Mapping[str, npt.ArrayLike] | None = None,
     options: Mapping[str, Mapping[str, Any]] | None = None,
-    unseen: float | Literal["raise"] | Mapping[str, float | Literal["raise"]] = "raise",
+    unseen: float | Literal["raise"] | Mapping[str, Any] = "raise",
     smoothing: float = 0.5,
     weights: npt.ArrayLike | None = None,
 ) -> BinningSpec:
@@ -874,7 +905,10 @@ def fit_spec(
         is encoded: a new category, a special code or an interval without
         development observations, or missing values when development had
         none. By default such values raise an error. A dict maps columns to
-        a WOE or ``"raise"``, and the columns it leaves out raise.
+        a WOE or ``"raise"``, and the columns it leaves out raise. For a
+        grouped column, ``{"group": label}`` gives such values the WOE of
+        that group instead, and `BinningSpec.cut` assigns new categories to
+        it; the group must be in the fitted table.
     smoothing : float, default 0.5
         Positive replacement for a zero count when calculating the WOE, as in
         `kivi.woe.woe_table`. ``"monotonic"`` binning uses the same value, so
@@ -1512,12 +1546,46 @@ def _decode_groups(rows, where: str) -> dict:
     return grouping
 
 
-def _checked_unseen(value, argument: str) -> float | str:
+def _checked_unseen(value, argument: str) -> float | str | dict:
     if isinstance(value, str) and value == "raise":
         return value
+    if isinstance(value, Mapping) and set(value) == {"group"}:
+        group = _label(value["group"], f"the group of {argument}")
+        if _is_missing_label(group):
+            raise ValueError(f"{argument} must name a non-missing group")
+        return {"group": group}
     if isinstance(value, bool) or not isinstance(value, Real) or not math.isfinite(value):
-        raise ValueError(f"{argument} must be 'raise' or a finite number, got {value!r}")
+        raise ValueError(
+            f"{argument} must be 'raise' or a finite number, got {_shown(value)}; a grouped "
+            "column also takes {'group': label}"
+        )
     return float(value)
+
+
+def _check_unseen_group(group, name: str, grouped: bool, table: pd.DataFrame) -> None:
+    """Check that the unseen group of a column is one of the groups of its table."""
+    if not grouped:
+        raise ValueError(
+            f"unseen of column {name!r} names a group, which only grouped categorical columns take"
+        )
+    if table.index.get_indexer(binning._object_index([group]))[0] < 0:
+        raise ValueError(
+            f"unseen of column {name!r} names the group {_shown(group)}, which its table lacks"
+        )
+
+
+def _group_woe(table: pd.DataFrame, group) -> float:
+    return table["woe"].to_numpy()[table.index.get_indexer(binning._object_index([group]))[0]]
+
+
+def _copy_unseen(policy):
+    return dict(policy) if isinstance(policy, dict) else policy
+
+
+def _decoded_unseen(value, where: str):
+    if isinstance(value, Mapping) and set(value) == {"group"}:
+        return {"group": _decode(value["group"], where)}
+    return value
 
 
 def _checked_table(
