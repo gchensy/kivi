@@ -49,25 +49,30 @@ def monitoring_table(
         Binary labels, with 1 indicating the event, and missing values for
         outcomes that are not known yet, such as those of loans that have not
         reached the end of the outcome window. With None, every outcome is
-        unknown and the table only has the columns ``total`` and ``psi``.
+        unknown and the table only has the columns ``total`` and ``psi``. If
+        `score` and `target` are both pandas Series, they must have identical
+        indices; otherwise they are matched by position.
     period : array_like
         Period of each observation, such as the month of application, without
-        missing values. Periods are sorted, and categorical periods follow the
-        order of their categories.
-    reference : scalar or array_like
+        missing values, matched like `target`. Periods are sorted, and
+        categorical periods follow the order of their categories.
+    reference : scalar, tuple or array_like
         The sample that the distribution of each period is compared with:
         either the label of one period, such as the first month after the
         development sample, or the scores of a reference sample, such as the
-        development sample itself.
+        development sample itself, as a list, an array or a Series. A string
+        that names one period of datetime periods, such as ``"2024-01"`` for
+        monthly dates, selects that period.
     bins : int or array_like, default 10
         Number of quantile bands of the reference scores, or increasing band
         edges. An integer is the same as passing
-        ``kivi.binning.bin_edges(reference_score, bins=bins)``, so tied scores
-        can leave fewer bands than requested. Every period is compared on the
-        same bands.
+        ``kivi.binning.bin_edges(reference_score, bins=bins)``, with the
+        weights of the reference as ``weights``, so tied scores can leave
+        fewer bands than requested. Every period is compared on the same
+        bands.
     smoothing : float, default 0.5
         Positive replacement for a zero count when calculating the PSI, as in
-        `kivi.stability.psi_table`.
+        `kivi.stability.psi_table`, in units of weight with `weights`.
     weights : array_like, optional
         Non-negative weight of each observation, such as the inverse of its
         sampling rate, matched like `target`. Counts become sums of weights,
@@ -87,10 +92,11 @@ def monitoring_table(
     Raises
     ------
     ValueError
-        If `score` or `period` is empty or not one-dimensional, the inputs have
-        different lengths or are Series with different indices, `score` is
-        not real and numeric or has a missing or infinite value, `target` has
-        a value other than 0, 1 and missing, or `period` has a missing value.
+        If `score` or `period` is empty, an input is not one-dimensional, the
+        inputs have different lengths or are Series with different indices,
+        `score` is not real and numeric or has a missing or infinite value,
+        `target` has a value other than 0, 1 and missing, or `period` has a
+        missing value.
         Also if `reference` is neither a period of `period` with observations
         nor a non-empty sample of finite scores, `reference_weights` is given
         with a reference period, `bins` is neither a positive integer nor
@@ -129,7 +135,9 @@ def monitoring_table(
 
     Without a target the columns are ``total`` and ``psi``. Each row equals
     what the metric functions and ``psi_table(pandas.cut(reference_score,
-    edges), pandas.cut(period_score, edges))`` give for the period alone.
+    edges), pandas.cut(period_score, edges))`` give for the period alone,
+    with the weights of the two samples as ``reference_weights`` and
+    ``current_weights``.
     For a band :math:`i` with shares :math:`q_i` of the reference scores and
     :math:`p_i` of the period's scores, after smoothing,
 
@@ -199,15 +207,14 @@ def monitoring_table(
                 "reference_weights must not be given with a reference period, whose weights "
                 f"come from weights; got the period {reference!r}"
             )
-        if not totals[position] > 0:
-            raise ValueError(f"reference period {reference!r} has no observations")
+        _check_reference_period(reference, totals[position], mass)
         rows = code == position
         reference_values = values[rows]
         reference_mass = None if mass is None else mass[rows]
     # Called here, not in a helper, so that the warning for tied quantiles points at the caller.
     edges = _band_edges(reference_values, bins, reference_mass)
-    reference_band = _bands(reference_values, edges, "reference")
     band = _bands(values, edges, "score")
+    reference_band = _bands(reference_values, edges, "reference")
     psi = _period_psi(
         code, band, mass, reference_band, reference_mass, len(periods), len(edges) - 1, smoothing
     )
@@ -255,12 +262,14 @@ def stability_table(
         Period of each row of `groups`, without missing values. Periods are
         sorted, and categorical periods follow the order of their categories.
         A Series must have the index of `groups`.
-    reference : scalar or pandas.DataFrame
+    reference : scalar, tuple or pandas.DataFrame
         The sample that each period is compared with: either the label of one
-        period, or the groups of a reference sample, such as the development
-        sample, with every column of `groups`.
+        period, as for `monitoring_table`, or the groups of a reference
+        sample, such as the development sample, with every column of
+        `groups`. Other columns of a reference DataFrame are ignored.
     smoothing : float, default 0.5
-        Positive replacement for a zero count when calculating shares.
+        Positive replacement for a zero count when calculating shares, in
+        units of weight with `weights`.
     weights : array_like, optional
         Non-negative weight of each row of `groups`, matched like `period`.
         Counts become sums of weights, so integer weights give the same table
@@ -279,8 +288,9 @@ def stability_table(
     Raises
     ------
     ValueError
-        If `groups` is not a DataFrame, has no rows, no columns or repeated
-        column names, `period` does not have one value per row or has a
+        If `groups` is not a DataFrame, has no rows, no columns, repeated
+        column names or more than one level of column names, `period` is not
+        one-dimensional, does not have one value per row or has a
         missing value, or a Series argument has an index other than that of
         `groups`. Also if `reference` is neither a period of `period` with
         observations nor a non-empty DataFrame with every column of `groups`,
@@ -334,6 +344,10 @@ def stability_table(
         raise ValueError(f"groups must be a DataFrame, got {type(groups).__name__}")
     if not len(groups.columns):
         raise ValueError("groups must have at least one column")
+    if isinstance(groups.columns, pd.MultiIndex):
+        raise ValueError(
+            f"groups must have one level of column names, got {groups.columns.nlevels}"
+        )
     if groups.columns.has_duplicates:
         repeated = groups.columns[groups.columns.duplicated()][0]
         raise ValueError(f"groups must have unique column names, got {repeated!r} twice")
@@ -379,8 +393,7 @@ def stability_table(
                 "reference_weights must not be given with a reference period, whose weights "
                 f"come from weights; got the period {reference!r}"
             )
-        if not totals[position] > 0:
-            raise ValueError(f"reference period {reference!r} has no observations")
+        _check_reference_period(reference, totals[position], mass)
         reference_rows = code == position
         reference_mass = _subset(mass, reference_rows)
 
@@ -472,14 +485,27 @@ def _periods(period: pd.Series) -> tuple[np.ndarray, pd.Index, bool]:
 
 
 def _reference_period(reference, periods: pd.Index) -> int | None:
-    """Position of the reference period, or None if `reference` is a sample."""
-    if np.ndim(reference) != 0:
+    """Position of the reference period, or None if `reference` is a sample.
+
+    A scalar or a tuple is a period label; anything else is a sample.
+    """
+    if not (isinstance(reference, tuple) or np.ndim(reference) == 0):
         return None
+    if isinstance(reference, np.ndarray):
+        reference = reference.item()
     try:
         position = periods.get_loc(reference)
-    except (KeyError, TypeError, ValueError):
+    except (KeyError, TypeError, ValueError, pd.errors.InvalidIndexError):
         position = None
-    # A partial date string can match several periods of a DatetimeIndex.
+    if isinstance(position, slice):
+        # A date string selects the periods of a DatetimeIndex that it covers.
+        matched = range(len(periods))[position]
+        if len(matched) > 1:
+            raise ValueError(
+                f"reference must name one period of period, got {reference!r}, which "
+                f"matches {len(matched)} periods"
+            )
+        position = matched[0] if len(matched) else None
     if not isinstance(position, (int, np.integer)):
         shown = ", ".join(repr(label) for label in periods[:3].tolist())
         raise ValueError(
@@ -489,12 +515,24 @@ def _reference_period(reference, periods: pd.Index) -> int | None:
     return int(position)
 
 
+def _check_reference_period(reference, total: float, mass: np.ndarray | None) -> None:
+    if not total > 0:
+        detail = "" if mass is None else " with positive weight"
+        raise ValueError(f"reference period {reference!r} has no observations{detail}")
+
+
 def _reference_scores(reference, reference_weights) -> tuple[np.ndarray, np.ndarray | None]:
     """Finite scores and weights of an explicit reference sample."""
     raw_reference = reference
     reference = as_series(reference, "reference")
     if not len(reference):
         raise ValueError("reference must not be empty")
+    dtype = reference.dtype
+    if not pd.api.types.is_numeric_dtype(dtype) or pd.api.types.is_complex_dtype(dtype):
+        raise ValueError(
+            f"reference must be real and numeric scores or a period label, got dtype {dtype}; "
+            "pass a period label as a scalar, not in a list"
+        )
     values = _finite_scores(reference, "reference")
     mass = as_weights(reference_weights, raw_reference, "reference_weights", "reference")
     return values, mass
@@ -522,9 +560,15 @@ def _shared_levels(reference: pd.Series, current: pd.Series) -> tuple[np.ndarray
     """Group codes of the current and the reference values, from one factorization of both."""
     # pd.concat hashes interval categories, which warns on NumPy < 2.2, so samples binned with
     # the same edges are joined by their codes, as in kivi.stability.psi_table.
-    if isinstance(current.dtype, pd.CategoricalDtype) and current.dtype == reference.dtype:
+    categorical = [isinstance(values.dtype, pd.CategoricalDtype) for values in (reference, current)]
+    if all(categorical) and current.dtype == reference.dtype:
         codes = np.concatenate([reference.cat.codes, current.cat.codes])
         both = pd.Series(pd.Categorical.from_codes(codes, dtype=current.dtype))
+    elif any(categorical):
+        # Concatenating other categoricals also hashes their categories, so compare the labels
+        # as objects, by equality, as pd.concat does for categoricals of different categories.
+        labels = [values.astype(object).to_numpy() for values in (reference, current)]
+        both = pd.Series(np.concatenate(labels), dtype=object)
     else:
         both = pd.concat([reference, current], ignore_index=True)
     levels = _levels(both)

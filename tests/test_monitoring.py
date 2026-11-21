@@ -338,6 +338,80 @@ def test_monitoring_table_warns_when_ties_leave_fewer_bands():
     assert table["psi"].tolist() == [0.0]
 
 
+def test_monitoring_table_tuple_periods():
+    period = pd.Series([(2024, 1)] * 3 + [(2024, 2)] * 3)
+    score = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+    table = monitoring_table(score, None, period, reference=(2024, 1), bins=2)
+    assert table.index.tolist() == [(2024, 1), (2024, 2)]
+    # The tuple is a period label, not a sample of the scores 2024 and 1.
+    assert table["psi"].iloc[0] == 0.0
+    assert table["psi"].iloc[1] == pytest.approx(hand_psi([2, 1], [0, 3]))
+    groups = pd.DataFrame({"housing": ["own", "rent", "own", "rent", "rent", "rent"]})
+    stability = stability_table(groups, period, reference=(2024, 1))
+    assert stability["housing"].iloc[0] == 0.0
+    with pytest.raises(ValueError, match=r"got \(2024, 3\), which is not one of the periods"):
+        monitoring_table(score, None, period, reference=(2024, 3))
+
+
+def test_monitoring_table_date_string_selects_one_period():
+    dates = pd.to_datetime(["2024-01-01"] * 2 + ["2024-02-01"] * 2)
+    score = [0.1, 0.2, 0.3, 0.4]
+    by_string = monitoring_table(score, None, dates, reference="2024-01", bins=2)
+    by_date = monitoring_table(score, None, dates, reference=dates[0], bins=2)
+    pd.testing.assert_frame_equal(by_string, by_date)
+    with pytest.raises(
+        ValueError,
+        match="reference must name one period of period, got '2024', which matches 2 periods",
+    ):
+        monitoring_table(score, None, dates, reference="2024")
+
+
+def test_monitoring_table_zero_dimensional_array_is_a_label():
+    by_array = monitoring_table(SCORE, TARGET, PERIOD, reference=np.array("2024-01"), bins=2)
+    by_label = monitoring_table(SCORE, TARGET, PERIOD, reference="2024-01", bins=2)
+    pd.testing.assert_frame_equal(by_array, by_label)
+
+
+def test_monitoring_table_lists_three_periods_in_the_error():
+    message = "got 'e', which is not one of the periods 'a', 'b', 'c', ...$"
+    with pytest.raises(ValueError, match=message):
+        monitoring_table([0.1, 0.2, 0.3, 0.4], None, ["a", "b", "c", "d"], reference="e")
+
+
+def test_monitoring_table_weighted_reference_sample_with_integer_bins(applications):
+    rng = np.random.default_rng(10)
+    development = make_applications(n_applicants=800, rng=11)["incumbent_pd"]
+    development_weights = rng.uniform(0.2, 2.0, len(development))
+    score, target, month = (applications[c] for c in ("incumbent_pd", "outcome", "month"))
+    table = monitoring_table(
+        score,
+        target,
+        month,
+        reference=development,
+        bins=6,
+        reference_weights=development_weights,
+    )
+    edges = bin_edges(development, bins=6, weights=development_weights)
+    pd.testing.assert_frame_equal(
+        table,
+        monitoring_table(
+            score,
+            target,
+            month,
+            reference=development,
+            bins=edges,
+            reference_weights=development_weights,
+        ),
+    )
+    for label in table.index:
+        expected = psi_table(
+            pd.cut(development, edges),
+            pd.cut(score[month == label], edges),
+            reference_weights=development_weights,
+        )
+        assert table.loc[label, "psi"] == pytest.approx(expected["psi"].sum())
+
+
 def test_monitoring_table_does_not_mutate_inputs(applications):
     frame = applications.copy()
     reference = make_applications(n_applicants=300, rng=2)["incumbent_pd"]
@@ -380,7 +454,25 @@ def test_monitoring_table_does_not_mutate_inputs(applications):
         ({"reference": "2024-01", "bins": [0.5, 0.2]}, "bins must be a positive integer"),
         (
             {"reference": "2024-01", "bins": [0.15, 0.5, 1.0]},
-            r"reference has 1 value\(s\) outside the edges in bins, such as 0.1",
+            r"score has 1 value\(s\) outside the edges in bins, such as 0.1",
+        ),
+        (
+            {"reference": [0.0, 0.5], "bins": [0.05, 0.5, 1.0]},
+            r"reference has 1 value\(s\) outside the edges in bins, such as 0.0",
+        ),
+        (
+            {"reference": ["2024-01"]},
+            "reference must be real and numeric scores or a period label, got dtype .*; pass "
+            "a period label as a scalar, not in a list",
+        ),
+        ({"reference": np.array("2024-04")}, "got '2024-04', which is not one of the periods"),
+        ({"reference": {"2024-01"}}, "reference must be a period of period"),
+        (
+            {
+                "reference": pd.Series([0.1, 0.2], index=[1, 2]),
+                "reference_weights": pd.Series([1, 1]),
+            },
+            "reference_weights must have the same index as reference",
         ),
         (
             {"reference": "2024-01", "bins": [0.05, 0.5, 0.85]},
@@ -417,11 +509,14 @@ def test_monitoring_table_rejects_invalid_data():
     categorical = pd.Categorical(["a", "a"], categories=["a", "b"])
     with pytest.raises(ValueError, match="reference period 'b' has no observations"):
         monitoring_table([0.1, 0.2], None, categorical, reference="b")
-    with pytest.raises(ValueError, match="reference period 'b' has no observations"):
+    with pytest.raises(ValueError, match="reference period 'b' has no observations with positive"):
         monitoring_table([0.1, 0.2], None, ["a", "b"], reference="b", weights=[1, 0])
     dates = pd.to_datetime(["2024-01-01", "2024-01-15"])
     # A partial date matches both periods.
-    with pytest.raises(ValueError, match="reference must be a period of period"):
+    with pytest.raises(
+        ValueError,
+        match="reference must name one period of period, got '2024-01', which matches 2 periods",
+    ):
         monitoring_table([0.1, 0.2], None, dates, reference="2024-01")
     score = pd.Series([0.1, 0.2], index=[1, 2])
     with pytest.raises(ValueError, match="score and period must have identical indices"):
@@ -536,6 +631,51 @@ def test_stability_table_integer_weights_equal_repeated_rows(bank):
     pd.testing.assert_frame_equal(weighted, repeated, rtol=1e-12)
 
 
+def test_stability_table_weighted_rows_match_weighted_psi_table(bank):
+    rng = np.random.default_rng(14)
+    weights = pd.Series(rng.uniform(0.1, 3.0, len(bank)), index=bank.index)
+    development = bank.iloc[:1500]
+    development_weights = rng.uniform(0.5, 1.5, len(development))
+    for reference, reference_weights in [
+        (pd.Period("2024Q3", "Q"), None),
+        (development, development_weights),
+    ]:
+        table = stability_table(
+            bank[VARIABLES],
+            bank["quarter"],
+            reference=reference,
+            weights=weights,
+            reference_weights=reference_weights,
+        )
+        if reference_weights is None:
+            rows = bank["quarter"] == reference
+            reference, reference_weights = bank[rows], weights[rows]
+        for label, group in bank.groupby("quarter"):
+            for column in VARIABLES:
+                expected = psi_table(
+                    reference[column],
+                    group[column],
+                    reference_weights=reference_weights,
+                    current_weights=weights[group.index],
+                )
+                assert table.loc[label, column] == pytest.approx(expected["psi"].sum(), rel=1e-12)
+
+
+def test_stability_table_reference_with_other_interval_categories():
+    # Bands cut on other edges: pd.concat would hash the interval categories, which warns
+    # on NumPy < 2.2. Equal intervals still match.
+    current = pd.DataFrame({"age": pd.cut([25, 35, 45, 35], [-np.inf, 30, 40, np.inf])})
+    reference = pd.DataFrame({"age": pd.cut([25, 35, 25], [-np.inf, 30, np.inf])})
+    table = stability_table(current, ["a", "a", "b", "b"], reference=reference)
+    # (-inf, 30] twice and (30, inf] once in the reference; a has (-inf, 30] and (30, 40].
+    assert table.loc["a", "age"] == pytest.approx(hand_psi([2, 1, 0], [1, 0, 1]))
+    # b has (40, inf] and (30, 40].
+    assert table.loc["b", "age"] == pytest.approx(hand_psi([2, 1, 0, 0], [0, 0, 1, 1]))
+    reference = pd.DataFrame({"age": current["age"].iloc[:2].cat.remove_unused_categories()})
+    table = stability_table(current, ["a", "a", "b", "b"], reference=reference)
+    assert table.loc["a", "age"] == 0.0
+
+
 def test_stability_table_empty_categorical_period():
     groups = pd.DataFrame({"housing": ["own", "rent", "own", "own"]})
     period = pd.Categorical(["q1", "q1", "q3", "q3"], categories=["q1", "q2", "q3"], ordered=True)
@@ -558,6 +698,9 @@ def test_stability_table_rejects_invalid_arguments():
         stability_table(groups["housing"], period, reference="a")
     with pytest.raises(ValueError, match="groups must have at least one column"):
         stability_table(groups[[]], period, reference="a")
+    nested = pd.DataFrame({("x", "housing"): ["own", "rent"]})
+    with pytest.raises(ValueError, match="groups must have one level of column names, got 2"):
+        stability_table(nested, period, reference="a")
     with pytest.raises(ValueError, match="groups must have unique column names, got 'housing'"):
         stability_table(groups[["housing", "housing"]], period, reference="a")
     with pytest.raises(ValueError, match="groups must have at least one row"):
@@ -586,7 +729,7 @@ def test_stability_table_rejects_invalid_arguments():
         stability_table(groups, period, reference=groups, reference_weights=[1])
     with pytest.raises(ValueError, match="weights must have one weight per value of groups"):
         stability_table(groups, period, reference="a", weights=[1])
-    with pytest.raises(ValueError, match="reference period 'b' has no observations"):
+    with pytest.raises(ValueError, match="reference period 'b' has no observations with positive"):
         stability_table(groups, period, reference="b", weights=[1, 0])
     with pytest.raises(ValueError, match="period must not have missing values"):
         stability_table(groups, ["a", None], reference="a")
