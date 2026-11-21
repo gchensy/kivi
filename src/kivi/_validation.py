@@ -125,10 +125,16 @@ def scores_and_labels(
     return values, labels, mass
 
 
-def first_value(values: pd.Series):
-    """First value of ``values`` as a Python scalar, for error messages."""
-    value = values.iloc[0]
-    return value.item() if isinstance(value, np.generic) else value
+def first_value(values):
+    """First value of a Series or Index, or ``values`` itself, as a Python scalar.
+
+    For error messages, which show NumPy scalars as plain numbers this way.
+    """
+    if isinstance(values, pd.Series):
+        values = values.iloc[0]
+    elif isinstance(values, pd.Index):
+        values = values[0]
+    return values.item() if isinstance(values, np.generic) else values
 
 
 def like_input(template, values: np.ndarray) -> float | pd.Series | np.ndarray:

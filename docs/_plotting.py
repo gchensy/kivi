@@ -19,10 +19,21 @@ from cycler import cycler
 from matplotlib.ticker import FixedLocator, FuncFormatter, PercentFormatter
 
 from kivi.binning import bin_edges, chimerge_edges, monotonic_edges, tree_edges
-from kivi.calibration import calibration_table, prior_correction
-from kivi.datasets import Dataset, make_loan_panel
+from kivi.calibration import (
+    assign_grades,
+    calibration_table,
+    fit_grade_pd,
+    master_scale,
+    prior_correction,
+)
+from kivi.datasets import Dataset, load_bank, make_applications, make_loan_panel
 from kivi.metrics import gains_table
+from kivi.reject_inference import fuzzy_augmentation
+from kivi.selection import logistic_regression
+from kivi.spec import fit_spec
 from kivi.stability import psi_table
+from kivi.strategy import cutoff_table
+from kivi.univariate import profile_table
 from kivi.vintage import vintage_table
 from kivi.woe import woe_table, woe_transform
 
@@ -568,6 +579,128 @@ def vintage_curves(table: pd.DataFrame, title: str = ""):
     return fig
 
 
+def cutoff_curves(tables: dict[str, pd.DataFrame], marks: dict[str, tuple[str, pd.DataFrame]]):
+    """Bad rate of the approved book against the approval rate, one curve per score.
+
+    ``marks`` maps a curve to a label and the one-row ``cutoff_table`` of a
+    cut-off to highlight on it.
+    """
+    fig, ax = plt.subplots(figsize=(6.4, 4.2))
+    for (name, table), color in zip(tables.items(), [GRAY, BLUE], strict=False):
+        ax.plot(
+            table["approval_rate"],
+            table["approved_event_rate"],
+            color=color,
+            linewidth=2,
+            label=name,
+        )
+        if name in marks:
+            label, row = marks[name]
+            point = (row["approval_rate"].iloc[0], row["approved_event_rate"].iloc[0])
+            ax.scatter(*point, color=color, s=36, zorder=3)
+            ax.annotate(
+                label, point, xytext=(8, -14), textcoords="offset points", fontsize=8.5, color=color
+            )
+    for axis in (ax.xaxis, ax.yaxis):
+        axis.set_major_formatter(PercentFormatter(1, decimals=0))
+    ax.set_xlim(0, 1)
+    ax.set_ylim(bottom=0)
+    ax.set_xlabel("approval_rate")
+    ax.set_ylabel("approved_event_rate")
+    ax.grid(True, axis="both")
+    ax.legend(loc="upper left")
+    fig.tight_layout()
+    return fig
+
+
+def factor_sensitivity(results: pd.DataFrame, true_rate: float, known_pd: float):
+    """Inferred bad rate and refitted mean PD of the rejects for each ``factor``."""
+    fig, ax = plt.subplots(figsize=(6.4, 4.0))
+    for column, color, reference, label in (
+        ("inferred", AMBER, true_rate, 'results["known"]["inferred"]'),
+        ("reject_pd", BLUE, known_pd, 'results["known"]["reject_pd"]'),
+    ):
+        ax.plot(results.index, results[column], color=color, marker="o", linewidth=2, label=column)
+        ax.axhline(reference, color=color, linestyle="--", linewidth=1.2, label=label)
+    ax.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+    ax.set_xlabel("factor")
+    ax.set_xticks(results.index)
+    ax.grid(True, axis="both")
+    ax.legend(loc="upper left", fontsize=8.5)
+    fig.tight_layout()
+    return fig
+
+
+def grade_fit(counts: pd.DataFrame, fitted: pd.Series, grid: pd.Series):
+    """Observed default rate per grade against the PDs of ``fit_grade_pd``, on a log scale."""
+    fig, ax = plt.subplots(figsize=(6.4, 4.0))
+    x = np.arange(len(fitted))
+    ax.plot(x, grid, color=GRAY, linestyle="--", marker=".", linewidth=1.2, label="np.geomspace")
+    ax.plot(x, fitted, color=BLUE, marker="o", linewidth=2, label="fit_grade_pd")
+    observed = (counts["total"] > 0).to_numpy()
+    rate = (counts["event"] / counts["total"].where(counts["total"] > 0)).to_numpy()
+    ax.scatter(
+        x[observed],
+        rate[observed],
+        s=20 + 400 * counts["total"][observed] / counts["total"].sum(),
+        color=AMBER,
+        zorder=3,
+        label="event_rate",
+    )
+    for xi, total in zip(x[observed], counts["total"][observed], strict=True):
+        ax.annotate(
+            f"total {total:g}",
+            (xi, rate[xi]),
+            xytext=(8, -3),
+            textcoords="offset points",
+            fontsize=8.5,
+            color=MUTED,
+        )
+    ax.set_yscale("log")
+    ticks = [0.02, 0.05, 0.1, 0.2, 0.5]
+    ax.yaxis.set_major_locator(FixedLocator(ticks))
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:.0%}"))
+    ax.yaxis.set_minor_formatter(FuncFormatter(lambda value, _: ""))
+    ax.set_xticks(x, _labels(fitted.index))
+    ax.set_xlabel("grade")
+    ax.grid(True, axis="both")
+    ax.legend(loc="upper left")
+    fig.tight_layout()
+    return fig
+
+
+def missing_profile(profile: pd.DataFrame):
+    """Share of missing values and their lift for the columns that have any."""
+    shown = profile[profile["missing"] > 0].sort_values("missing_share")
+    fig, (left, right) = plt.subplots(1, 2, figsize=(8, 0.42 * len(shown) + 1.2), sharey=True)
+    y = np.arange(len(shown))
+    left.barh(y, shown["missing_share"], color=LIGHT_BLUE, height=0.6)
+    colors = [AMBER if lift > 1 else TEAL for lift in shown["missing_lift"]]
+    right.barh(y, shown["missing_lift"], color=colors, height=0.6)
+    right.axvline(1, color=GRAY, linestyle="--", linewidth=1)
+    for ax, column, text in (
+        (left, "missing_share", "{:.1%}"),
+        (right, "missing_lift", "{:.2f}"),
+    ):
+        for yi, value in zip(y, shown[column], strict=True):
+            ax.annotate(
+                text.format(value),
+                (value, yi),
+                xytext=(4, 0),
+                textcoords="offset points",
+                va="center",
+                fontsize=8.5,
+            )
+        ax.set_xlabel(column)
+        ax.margins(x=0.2)
+        ax.grid(axis="x")
+        ax.grid(axis="y", visible=False)
+    left.xaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+    left.set_yticks(y, shown.index)
+    fig.tight_layout()
+    return fig
+
+
 # Recipes for the documentation pages ---------------------------------------
 
 
@@ -640,21 +773,16 @@ def figure_woe_job():
     return woe_chart(table, "job")
 
 
-def screen_iv(reference: pd.DataFrame, bins: int = 5) -> pd.Series:
-    iv = {}
-    for column in reference.columns.drop("target"):
-        values = reference[column]
-        if pd.api.types.is_numeric_dtype(values):
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", UserWarning)  # tied columns, listed in the guide
-                values = pd.cut(values, bin_edges(values, bins=bins))
-        iv[column] = woe_table(values, reference["target"])["iv"].sum()
-    return pd.Series(iv)
-
-
 def figure_iv_ranking():
     _, reference, _ = _samples()
-    return iv_ranking(screen_iv(reference))
+    profile = profile_table(reference.drop(columns="target"), reference["target"])
+    return iv_ranking(profile["iv"])
+
+
+def figure_missing_profile():
+    development = load_bank().iloc[:3000]
+    candidates = development.drop(columns="target").replace("unknown", np.nan)
+    return missing_profile(profile_table(candidates, development["target"]))
 
 
 def figure_psi_shift():
@@ -719,7 +847,8 @@ def figure_gains():
     return gains_chart(gains_table(val_score, target, bins=edges))
 
 
-def figure_calibration():
+def _calibration_samples():
+    """The samples and PDs of the calibration guide."""
     _, development, monitoring = _samples()
     age_edges = np.array([-np.inf, 25, 35, 45, 55, 65, np.inf])
 
@@ -731,9 +860,26 @@ def figure_calibration():
     dev_groups = to_groups(development)
     tables = {c: woe_table(dev_groups[c], development["target"]) for c in dev_groups}
     coefficients = pd.Series({"poutcome": 0.899, "contact": 0.658, "housing": 0.691, "age": 0.714})
-    groups = to_groups(monitoring)
-    woe = pd.DataFrame({c: woe_transform(groups[c], tables[c]) for c in groups})
-    probability = 1 / (1 + np.exp(2.028 - woe @ coefficients))
+
+    def predict(frame):
+        groups = to_groups(frame)
+        woe = pd.DataFrame({c: woe_transform(groups[c], tables[c]) for c in groups})
+        return 1 / (1 + np.exp(2.028 - woe @ coefficients))
+
+    return development, monitoring, predict(development), predict(monitoring)
+
+
+def figure_grade_fit():
+    development, _, dev_prob, _ = _calibration_samples()
+    scale = master_scale(np.geomspace(0.02, 0.64, 6), labels=list("ABCDEF"))
+    counts = calibration_table(assign_grades(dev_prob, scale), development["target"], dev_prob)
+    counts = counts.reindex(scale.index, fill_value=0)
+    fitted = fit_grade_pd(counts["event"], counts["total"])
+    return grade_fit(counts, fitted, scale["probability"])
+
+
+def figure_calibration():
+    _, monitoring, _, probability = _calibration_samples()
     low = prior_correction(probability, sample_rate=0.116, population_rate=0.06)
     pd_edges = [0, 0.05, 0.08, 0.12, 0.2, 0.4, 1]
 
@@ -746,6 +892,81 @@ def figure_calibration():
             "probability": grade_table(probability),
             "population_rate=0.06": grade_table(low),
         }
+    )
+
+
+def _strategy_scores():
+    """The PDs of the current and the new scorecard of the strategy guide, with the target."""
+    development, applicants = load_bank().iloc[:3000], load_bank().iloc[3000:]
+
+    def to_groups(frame):
+        groups = frame[["poutcome", "contact", "housing", "loan", "marital"]].copy()
+        groups["age"] = pd.cut(frame["age"], [-np.inf, 25, 35, 45, 55, 65, np.inf])
+        return groups
+
+    dev_groups = to_groups(development)
+    tables = {c: woe_table(dev_groups[c], development["target"]) for c in dev_groups}
+
+    def to_woe(frame, columns):
+        groups = to_groups(frame)
+        return pd.DataFrame({c: woe_transform(groups[c], tables[c]) for c in columns})
+
+    def fit_pd(columns):
+        coef = logistic_regression(to_woe(development, columns), development["target"])["coef"]
+        log_odds = coef["intercept"] + to_woe(applicants, columns) @ coef[columns]
+        return 1 / (1 + np.exp(-log_odds))
+
+    four = ["poutcome", "contact", "housing", "age"]
+    return fit_pd(four), fit_pd([*four, "loan", "marital"]), applicants["target"]
+
+
+def figure_cutoff_curves():
+    current, new, target = _strategy_scores()
+    approved = int((current <= 0.1).sum())
+    new_cutoff = float(np.sort(new)[approved - 1])
+    grid = np.linspace(0.05, 1, 40)
+    tables = {
+        name: cutoff_table(score, target, cutoffs=np.unique(np.quantile(score, grid)))
+        for name, score in (("current", current), ("new", new))
+    }
+    marks = {
+        "current": ("current_cutoff=0.1", cutoff_table(current, target, cutoffs=[0.1])),
+        "new": (f"new_cutoff={new_cutoff:.3f}", cutoff_table(new, target, cutoffs=[new_cutoff])),
+    }
+    return cutoff_curves(tables, marks)
+
+
+def figure_reject_factor():
+    applications = make_applications(rng=0)
+    population = applications[~applications["policy_decline"]]
+    accepts = population[population["approved"]]
+    rejects = population[~population["approved"]]
+    features = ["age", "income", "debt_to_income", "inquiries", "housing", "employment"]
+    edges = {c: bin_edges(population[c], bins=5) for c in ["age", "income", "debt_to_income"]}
+    edges["inquiries"] = [-np.inf, 0, 1, 2, np.inf]
+    spec = fit_spec(accepts[features], accepts["target"], bins=edges)
+
+    def predict(model, frame):
+        coef = model["coef"]
+        log_odds = coef["intercept"] + spec.woe_transform(frame) @ coef.drop("intercept")
+        return 1 / (1 + np.exp(-log_odds))
+
+    model = logistic_regression(spec.woe_transform(accepts), accepts["target"])
+    reject_pd = predict(model, rejects)
+    results = {}
+    for factor in [1, 1.25, 1.5, 1.75, 2, 2.5]:
+        inferred = fuzzy_augmentation(reject_pd, factor=factor)
+        frame = pd.concat([accepts[features], rejects.loc[inferred.index, features]])
+        target = pd.concat([accepts["target"], inferred["target"]])
+        weights = pd.concat([pd.Series(1.0, index=accepts.index), inferred["weight"]])
+        refit = logistic_regression(spec.woe_transform(frame), target, weights=weights)
+        results[factor] = {
+            "inferred": np.average(inferred["target"], weights=inferred["weight"]),
+            "reject_pd": predict(refit, rejects).mean(),
+        }
+    known = logistic_regression(spec.woe_transform(population), population["target"])
+    return factor_sensitivity(
+        pd.DataFrame(results).T, rejects["target"].mean(), predict(known, rejects).mean()
     )
 
 
@@ -763,6 +984,8 @@ README_FIGURES = {
     "readme-psi.svg": figure_psi_monitor,
     "readme-gains.svg": figure_gains,
     "readme-vintage.svg": figure_vintage,
+    "readme-strategy.svg": figure_cutoff_curves,
+    "readme-reject.svg": figure_reject_factor,
 }
 
 

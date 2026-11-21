@@ -27,8 +27,12 @@ The functions below replace the 0.2.x classes. Dataset.bank_data() retains its i
      - ``kivi.selection``: ``vif``, ``stepwise``, ``correlation_filter`` and ``logistic_regression``, from 0.5.0
    * - ``PDToScore``, ``BaseScoreAndPDO``
      - ``kivi.scorecard``: ``pd_to_score``, ``score_to_pd``, ``score_scaling`` and ``points_table``, from 0.5.0
-   * - ``get_omega``, ``MasterScale``, ``BinomialTest``, ``herfindahl``
+   * - ``get_omega``, ``BinomialTest``, ``herfindahl``
      - ``kivi.calibration``: ``prior_correction``, ``calibration_table``, ``binomial_test`` and ``herfindahl_index``, from 0.5.0
+   * - ``MasterScale``, ``PDToRant``
+     - ``kivi.calibration``: ``master_scale``, ``fit_grade_pd`` and ``assign_grades``, from 0.7.0
+   * - ``FeatureEvaluate``
+     - ``kivi.univariate.profile_table``, from 0.7.0
    * - ``WOEBatch``, ``ManualBinsTool``
      - ``kivi.spec``: ``fit_spec`` and ``BinningSpec``, from 0.6.0
    * - ``CSI``
@@ -64,11 +68,6 @@ These modules are new implementations, so compare their output with the legacy c
 * ``BaseScoreAndPDO`` took bad:good odds, for example ``odds=1/50``. ``base_odds`` is good:bad, so pass ``base_odds=50``; passing ``1/50`` silently gives an offset of 712.9. The legacy ``PDToScore`` divided by ln 2 only in one of its branches; ``pd_to_score`` and ``score_to_pd`` are exact inverses.
 * ``get_omega`` becomes ``prior_correction`` for probabilities and ``corrected_intercept`` for the model intercept.
 
-Not yet ported
---------------
-
-Sample weights, variable selection, scorecards, model evaluation and calibration arrive in 0.5.0. CSI, vintage analysis and strategy tools are planned. Spark, SQL, AHP, model wrappers and application code remain in the historical revisions.
-
 Portfolio analysis and production binning
 -----------------------------------------
 
@@ -77,3 +76,24 @@ Version 0.6.0 replaces three more legacy classes. They are new implementations a
 * ``WOEBatch`` fitted the WOE of many columns at once, and ``ManualBinsTool`` merged bins by hand afterwards. ``fit_spec`` fits every column with the binning function chosen for it, and its ``BinningSpec`` saves the edges and WOE tables as versioned JSON. Nothing is re-binned automatically: to merge bins by hand, pass the merged edges for that column in ``bins``.
 * ``CSI`` matched the points to the bins by position and lost the missing group. ``csi_table`` matches the points to the groups by label, keeps the missing group, and raises for an observed group without points unless ``unseen_points`` gives them. Its contributions sum to the change of the variable's average points.
 * ``VintagePd`` built the vintage table from repayment schedules and observation dates. ``vintage_table`` takes a long panel with one row per loan and month on book and a bad flag that you define, for example ``status == "90+"``. Pass ``weights=amount`` for the amount-weighted rates of ``VintagePd``. Months that a cohort has not reached are NaN rather than 0.
+
+Master scales, variable profiles and strategy
+---------------------------------------------
+
+Version 0.7.0 replaces the legacy master scale and variable profile. Compare their output with the legacy code on a fixed reference sample before switching.
+
+* ``MasterScale.fit_grade_df`` and ``confirm_master_scale`` become ``fit_grade_pd`` and ``master_scale``. ``fit_grade_pd`` fits the logarithm of the default rate by least squares weighted with the number of observations of each grade, where the legacy fit gave every grade the same weight; the two agree when the grades are equally large. A grade without defaults enters the fit with half a default instead of a logarithm of zero. The bounds between grades are the geometric means of adjacent PDs; pass ``boundary="arithmetic"`` for the midpoints of the legacy scale.
+* ``PDToRant(pd, ranking)`` becomes ``assign_grades(probability, scale)``. The legacy function put a PD that lies exactly on a bound in the grade above it; ``assign_grades`` puts it in the grade below, as the intervals of ``pandas.cut`` are closed on the right. It returns an ordered categorical of the grade labels instead of grade numbers.
+* ``FeatureEvaluate(df, target_name).stats()`` becomes ``profile_table(frame.drop(columns=target_name), frame[target_name])``. The columns follow kivi's names, such as ``missing_share``, ``missing_event_rate`` and ``non_missing_lift``, and a target without events raises an error, where the legacy lifts were -9999. The signed Gini coefficient of the values replaces the AUC and KS of a univariate logistic fit. The table adds the IV of a quick binning, special codes, sample weights and the ``tied_bins`` column.
+* Strategy analysis, reject inference and weighted model fits have no 0.2.x counterpart. ``kivi.strategy`` replaces approval and bad-rate tables built by hand from score bands, ``kivi.reject_inference`` infers the outcomes of declined applicants, and ``logistic_regression`` and ``stepwise`` take ``weights`` to refit on them.
+
+Not ported
+----------
+
+Spark, SQL, AHP, model wrappers and application code are out of scope and remain in the historical revisions. These 0.2.x tools have no replacement either:
+
+* The charts of ``DefaultAnalysis``, ``plot_bin`` and ``Calibration.CalibrationCurve``. kivi returns tables, which any plotting library can draw.
+* The sampling helpers ``sampling`` and ``upsampling``, and the ratio and cross features of ``FeatureTools``. Use pandas.
+* The grading by the Beta distribution in ``BetaCalibration``, ``BetaDistribution`` and ``MasterScale.cal_quantile``, and ``model_score_by_weight``. ``master_scale`` and ``woe_to_points`` cover the same steps without them.
+* The repayment-schedule calculations of ``PortfolioAnalysis.Vintage``. Derive the delinquency status with pandas and pass the panel to ``vintage_table``.
+* The skewness, kurtosis, coefficient of variation, KS test, univariate logistic fit and chi-squared test of ``FeatureEvaluate``. Compute them with pandas or scipy where they are needed.

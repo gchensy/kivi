@@ -136,6 +136,12 @@ fuzzy 2        0.381      0.312  0.419
 
 A factor of 1.5 brings the inferred bad rate of the rejects to 28.6%, near their true 30.1%, and their mean PD under the refitted model to 25.1%, close to the known model's 25.2%. Even the known model predicts less than 30.1% for the rejects: it is fitted on all applicants and lacks the information that set the rejects apart. The Gini hardly moves. On these data, reject inference corrects how risky the model takes the rejects to be, not how it ranks applicants.
 
+.. plot::
+   :alt: Inferred bad rate and mean refitted PD of the rejects for factors from 1 to 2.5, with the true bad rate of the rejects and the known model's mean PD as dashed lines
+   :caption: The inferred bad rate and the mean refitted PD of the rejects rise with ``factor``. The dashed lines are the true bad rate of the rejects and the mean PD that the known model gives them; a factor of 1.5 meets the second.
+
+   kp.figure_reject_factor()
+
 Here the known outcomes say which factor fits. With real data, the factor is an assumption, best supported from outside the development sample: the bureau outcomes of rejects who borrowed elsewhere, a small sample of rejects approved on purpose, or business judgement. Report the results for a range of factors, as above.
 
 Parceling

@@ -10,7 +10,7 @@ import numpy.typing as npt
 import pandas as pd
 
 from . import _logit
-from ._counts import group_counts
+from ._counts import group_counts, group_rows
 from ._stats import betainc, chi2_sf
 from ._validation import as_series, as_weights, check_smoothing, like_input, scores_and_labels
 
@@ -632,7 +632,7 @@ def calibration_table(
     _check_unit_interval(probabilities, "probability")
     mass = as_weights(weights, raw_groups, of="groups")
     counts = group_counts(groups, target.to_numpy(dtype=np.intp), mass)
-    rows = _group_rows(groups, counts.index)
+    rows = group_rows(groups, counts.index)
     total = counts.to_numpy().sum(axis=1)
     event = counts.to_numpy()[:, 1]
     # Only observations of zero weight lie in a group that group_counts left out.
@@ -1431,22 +1431,6 @@ def _check_unit_interval(values: np.ndarray, name: str) -> None:
     outside = (values < 0) | (values > 1)
     if outside.any():
         raise ValueError(f"{name} must be between 0 and 1, got {_first(values, outside)}")
-
-
-def _group_rows(groups: pd.Series, levels: pd.Index) -> np.ndarray:
-    """Return the row of `levels`, from `group_counts`, of each observation, or -1 if absent."""
-    if isinstance(levels, pd.CategoricalIndex):
-        # Map category codes to rows instead of looking up the labels: that hashes
-        # interval categories, which warns on NumPy < 2.2. Code -1 is a missing value.
-        row_of_code = np.full(len(levels.categories) + 1, -1, dtype=np.intp)
-        row_of_code[levels.codes] = np.arange(len(levels))
-        return row_of_code[groups.cat.codes.to_numpy()]
-    rows = levels.get_indexer(groups)
-    missing = groups.isna().to_numpy(dtype=bool)
-    missing_row = np.flatnonzero(pd.isna(levels))
-    if missing.any():  # get_indexer does not match missing values on pandas 2.0
-        rows[missing] = missing_row[0] if len(missing_row) else -1
-    return rows
 
 
 def _grade_inputs(

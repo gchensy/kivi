@@ -1,9 +1,8 @@
 Risk modeling workflow
 ======================
 
-This example follows the steps of a scorecard project with kivi: screen the candidate variables, bin the shortlist, encode it with WOE and save the binning for production, select the variables and fit the model, scale it to a scorecard, evaluate and calibrate it, and prepare the stability report used in monitoring. The bundled data record a marketing response rather than a default, but the steps are the same for a credit default flag: use the bad flag as ``target``.
+This example follows the steps of a scorecard project with kivi: profile and screen the candidate variables, bin the shortlist, encode it with WOE and save the binning for production, select the variables and fit the model, scale it to a scorecard, evaluate it, calibrate it on a master scale, set a cut-off with its expected loss, and prepare the stability report used in monitoring. The bundled data record a marketing response rather than a default, but the steps are the same for a credit default flag: use the bad flag as ``target``.
 
->>> import warnings
 >>> import numpy as np
 >>> import pandas as pd
 >>> from kivi.binning import bin_edges
@@ -16,22 +15,15 @@ This example follows the steps of a scorecard project with kivi: screen the cand
 Screen variables by IV
 ----------------------
 
-Start with a quick, uniform binning of every candidate: five quantile bins for numeric variables and the raw labels for categorical ones. The IV of each variable gives a first ranking. ``bin_edges`` warns when tied values leave fewer bins than requested; the loop records those variables instead of printing the warnings.
+Start with a profile of every candidate. ``profile_table`` gives each one row with its missing values, its most frequent value and, with the target, the IV of a quick, uniform binning: five quantile bins for numeric variables and the raw labels for categorical ones; see :doc:`univariate`. The IV of each variable gives a first ranking, and ``tied_bins`` marks the numeric variables whose tied values leave fewer bins than requested:
 
->>> iv, tied = {}, []
->>> for column in development.columns.drop("target"):
-...     values = development[column]
-...     if pd.api.types.is_numeric_dtype(values):
-...         with warnings.catch_warnings(record=True) as caught:
-...             warnings.simplefilter("always")
-...             values = pd.cut(values, bin_edges(values, bins=5))
-...         if caught:
-...             tied.append(column)
-...     iv[column] = woe_table(values, development["target"])["iv"].sum()
->>> tied
+>>> from kivi.univariate import profile_table
+>>> profile = profile_table(development.drop(columns="target"), development["target"])
+>>> profile.index[profile["tied_bins"]].tolist()
 ['campaign', 'pdays', 'previous']
->>> iv = pd.Series(iv).sort_values(ascending=False)
+>>> iv = profile["iv"].sort_values(ascending=False)
 >>> iv.round(3).head(8)
+variable
 duration    1.594
 poutcome    0.423
 month       0.334
@@ -40,7 +32,7 @@ job         0.137
 housing     0.108
 balance     0.099
 loan        0.059
-dtype: float64
+Name: iv, dtype: float64
 
 .. plot::
    :alt: Information value of every variable in the bank data, sorted, with the 0.02, 0.1 and 0.3 reading bands
@@ -135,6 +127,8 @@ job        0.632  0.170   3.721    0.000
 
 No pair is correlated strongly enough to drop a variable, and ``stepwise`` leaves out ``age``. The model is fitted on the development sample only.
 
+The bank data record the outcome of every customer. A credit development sample usually holds only the applications that the previous policy approved, and a model fitted on them alone underestimates the risk of the applicants it used to decline. :doc:`reject_inference` infers their outcomes and refits the model with ``weights``.
+
 Scale to a scorecard
 --------------------
 
@@ -192,24 +186,69 @@ The riskiest band, about a fifth of the monitoring sample, holds 48% of its even
 Check calibration
 -----------------
 
-Group the monitoring sample into rating grades by PD and compare each grade's event rate with the mean PD of its customers; see :doc:`calibration`. The Jeffreys test asks whether a grade has more events than its PD predicts, so a small p-value flags a grade that underestimates risk:
+Rating grades give PDs from different models one meaning. ``master_scale`` builds a scale from the PD of each grade, here five grades in which each PD doubles the one before, and ``assign_grades`` gives every customer of the monitoring sample the grade of their PD; see :doc:`calibration`. Each grade is then compared with its PD. The Jeffreys test asks whether a grade has more events than its PD predicts, so a small p-value flags a grade that underestimates risk:
 
->>> from kivi.calibration import calibration_table, jeffreys_test
->>> grades = pd.cut(mon_pd, [0, 0.05, 0.1, 0.2, 0.4, 1], labels=list("ABCDE"), include_lowest=True)
->>> grade_table = calibration_table(grades, y_mon, mon_pd)
+>>> from kivi.calibration import assign_grades, calibration_table, jeffreys_test, master_scale
+>>> scale = master_scale(np.geomspace(0.025, 0.4, 5), labels=list("ABCDE"))
+>>> scale.round(4)
+        lower  probability   upper
+grade
+A      0.0000        0.025  0.0354
+B      0.0354        0.050  0.0707
+C      0.0707        0.100  0.1414
+D      0.1414        0.200  0.2828
+E      0.2828        0.400  1.0000
+>>> grades = assign_grades(mon_pd, scale)
+>>> grade_table = calibration_table(grades, y_mon, mon_pd).join(scale["probability"])
 >>> grade_table["jeffreys"] = jeffreys_test(
-...     grade_table["event"], grade_table["total"], grade_table["mean_probability"]
+...     grade_table["event"], grade_table["total"], grade_table["probability"]
 ... )
 >>> grade_table.round(3)
-     total  event  event_rate  mean_probability  jeffreys
+     total  event  event_rate  mean_probability  probability  jeffreys
 bin
-A      328     16       0.049             0.038     0.155
-B      520     43       0.083             0.074     0.219
-C      529     68       0.129             0.138     0.725
-D       98     18       0.184             0.275     0.981
-E       46     28       0.609             0.589     0.395
+A      139      6       0.043             0.030        0.025     0.093
+B      419     27       0.064             0.053        0.050     0.091
+C      589     56       0.095             0.101        0.100     0.649
+D      286     45       0.157             0.177        0.200     0.967
+E       88     39       0.443             0.467        0.400     0.204
 
-No grade is rejected at the 5% level. Grade D has fewer events than predicted, which this one-sided test does not flag.
+No grade is rejected at the 5% level, but grades A and B come close: their event rates of 4.3% and 6.4% exceed their PDs of 2.5% and 5%, and the monitoring of the next periods should watch them. Grade D has fewer events than its PD, which this one-sided test does not flag.
+
+Set a cut-off
+-------------
+
+The scorecard ranks the applicants, and a cut-off decides whom to approve. ``cutoff_table`` shows, for each candidate PD cut-off, the share of applicants it approves, the bad rate of the approved book and the share of the events it turns away; see :doc:`strategy`. The upper bounds of the grades as cut-offs approve the grades up to each one:
+
+>>> from kivi.strategy import cutoff_table, expected_loss_table
+>>> policies = cutoff_table(mon_pd, y_mon, cutoffs=scale["upper"])
+>>> columns = ["approval_rate", "approved_event_rate", "rejected_event_share"]
+>>> policies.set_index(scale.index)[columns].round(3)
+       approval_rate  approved_event_rate  rejected_event_share
+grade
+A              0.091                0.043                 0.965
+B              0.367                0.059                 0.809
+C              0.754                0.078                 0.486
+D              0.942                0.094                 0.225
+E              1.000                0.114                 0.000
+
+Approving the grades up to C, a PD of at most 14.1%, approves 75.4% of the applicants at a bad rate of 7.8% and turns away 48.6% of the events. Approving grade D as well approves 94.2% at a bad rate of 9.4%. Which row to choose is a business decision; the table shows its price.
+
+The expected loss of an exposure is its PD times its loss given default times its exposure at default. ``expected_loss_table`` adds it up for each grade. The bank data have no loan amounts, so the example takes the balance, floored at zero, as the exposure and one LGD of 45%:
+
+>>> exposure = monitoring["balance"].clip(lower=0)
+>>> by_grade = expected_loss_table(grades, mon_pd, 0.45, exposure)
+>>> by_grade[["exposure", "expected_loss", "expected_loss_rate"]].round(
+...     {"exposure": 0, "expected_loss": 0, "expected_loss_rate": 4}
+... )
+     exposure  expected_loss  expected_loss_rate
+bin
+A     28316.0          415.0              0.0147
+B    391913.0         9604.0              0.0245
+C    951396.0        46003.0              0.0484
+D    793187.0        66906.0              0.0844
+E    156797.0        32050.0              0.2044
+
+Grade E holds 6.8% of the exposure but 20.7% of the expected loss of 154,978, and grades D and E together hold 41% of the exposure and 64% of the expected loss.
 
 Report stability
 ----------------

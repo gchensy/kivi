@@ -18,10 +18,9 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._counts import group_counts
+from ._counts import group_counts, group_rows
 from ._validation import as_series, as_weights, first_value, like_input, scores_and_labels
-from .binning import bin_edges
-from .calibration import _group_rows
+from .binning import _fit_edges
 
 __all__ = ["cutoff_table", "swap_set", "expected_loss", "expected_loss_table"]
 
@@ -241,6 +240,7 @@ def swap_set(
     See Also
     --------
     cutoff_table : Approval and event rates over a range of cut-offs.
+    kivi.reject_inference.fuzzy_augmentation : Infer the outcomes of declined applicants.
 
     Notes
     -----
@@ -505,7 +505,7 @@ def expected_loss_table(
     )
     mass = as_weights(weights, raw_groups, of="groups")
     counts = group_counts(groups, np.zeros(len(groups), dtype=np.intp), mass)
-    rows = _group_rows(groups, counts.index)
+    rows = group_rows(groups, counts.index)
     # Only exposures of zero weight lie in a group that group_counts left out.
     kept = rows >= 0
     exposure = arrays["ead"] if mass is None else mass * arrays["ead"]
@@ -535,9 +535,16 @@ def _cutoff_values(values: np.ndarray, cutoffs, weights: np.ndarray | None) -> n
     if isinstance(cutoffs, Integral) and not isinstance(cutoffs, bool):
         if cutoffs < 1:
             raise ValueError(message.format(cutoffs))
-        # The same edges, and the same warning for tied quantiles, as bin_edges; the last
-        # edge, infinity, approves everyone.
-        return bin_edges(values, bins=int(cutoffs), weights=weights)[1:]
+        # The edges of bin_edges above the lowest; the last one, infinity, approves everyone.
+        # The warning for tied quantiles points at the caller of cutoff_table.
+        edges = _fit_edges(
+            values,
+            int(cutoffs),
+            weights=weights,
+            advice="pass fewer cutoffs or explicit cut-off values",
+            stacklevel=4,
+        )
+        return edges[1:]
     if np.ndim(cutoffs) != 1:
         raise ValueError(message.format(cutoffs))
     series = cutoffs if isinstance(cutoffs, pd.Series) else pd.Series(cutoffs)
@@ -573,19 +580,25 @@ def _is_real(dtype) -> bool:
     )
 
 
-def _real(values, name: str) -> np.ndarray:
-    """Float array of real numeric values, keeping the shape; missing values become NaN."""
+def _real(values, name: str, *, booleans: bool = False) -> np.ndarray:
+    """Float array of real numeric values, keeping the shape; missing values become NaN.
+
+    With ``booleans``, True and False count as 1 and 0, as probabilities do in
+    `kivi.metrics` and `kivi.calibration`. An empty sequence gives an empty array.
+    """
+    if np.ndim(values) == 1 and not len(values):
+        return np.empty(0)
     if not isinstance(values, pd.Series) and np.ndim(values) == 1:
         # pandas reads [0.1, None] and nullable arrays as numbers, where NumPy keeps objects.
         values = pd.Series(values)
     if isinstance(values, pd.Series):
         dtype = values.dtype
-        if _is_real(dtype):
+        if _is_real(dtype) or (booleans and pd.api.types.is_bool_dtype(dtype)):
             return values.to_numpy(dtype=float, na_value=np.nan)
     else:
         array = np.asarray(values)
         dtype = array.dtype
-        if _is_real(dtype):
+        if _is_real(dtype) or (booleans and pd.api.types.is_bool_dtype(dtype)):
             return array.astype(float)
     raise ValueError(f"{name} must be real and numeric, got dtype {dtype}")
 
@@ -643,7 +656,10 @@ def _loss_inputs(inputs: dict, length: int | None = None) -> tuple[dict, object]
     With ``length``, for a table, every input must broadcast to that length and must not have
     missing values.
     """
-    arrays = {name: _real(values, name) for name, values in inputs.items()}
+    # Booleans count as 0 and 1 in probabilities, as elsewhere in kivi, but not in LGDs or EADs.
+    arrays = {
+        name: _real(values, name, booleans=name == "probability") for name, values in inputs.items()
+    }
     if length is not None:
         for name, array in arrays.items():
             if array.ndim > 1 or (array.ndim == 1 and len(array) not in (1, length)):

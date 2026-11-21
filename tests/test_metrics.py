@@ -160,10 +160,15 @@ def test_gains_table_warns_when_ties_leave_fewer_bands():
     score = [0.01, 0.01, 0.01, 0.01, 0.2, 0.3, 0.5, 0.6, 0.8, 0.9]
     target = [0, 0, 0, 1, 0, 1, 0, 1, 1, 1]
     message = "tied edges leave 4 of the 5 requested bins"
-    with pytest.warns(UserWarning, match=message):
+    with pytest.warns(UserWarning, match=message) as caught:
         table = gains_table(score, target, bins=5)
-    with pytest.warns(UserWarning, match=message):
+    # gains_table has no special argument, and the warning points at this call.
+    assert str(caught[0].message).endswith("pass fewer bins or explicit edges")
+    assert caught[0].filename == __file__
+    with pytest.warns(UserWarning, match=message) as caught:
         edges = bin_edges(score, bins=5)
+    assert str(caught[0].message).endswith("consider passing it in special")
+    assert caught[0].filename == __file__
     pd.testing.assert_frame_equal(table, gains_table(score, target, bins=edges))
     np.testing.assert_allclose(table.index.right[::-1], [0.124, 0.38, 0.64, np.inf])
     np.testing.assert_array_equal(table["total"], [2, 2, 2, 4])
