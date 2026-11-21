@@ -32,7 +32,7 @@ jobs:
 
       - name: Test
         run: |
-          python -m pytest
+          python -m pytest --cov
           python -m sphinx -W -b doctest docs docs/_build/doctest
 
       - name: Build English and Chinese editions
