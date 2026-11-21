@@ -46,8 +46,8 @@ Stable and shifted samples
 Two samples from the same population give a PSI close to zero. When the population changes, the bins that moved stand out. Below, the current sample is replaced by single customers only, who are much younger than the reference.
 
 >>> from kivi.binning import bin_edges
->>> from kivi.datasets import Dataset
->>> data = Dataset.bank_data()
+>>> from kivi.datasets import load_bank
+>>> data = load_bank()
 >>> sample = data.iloc[:3000]
 >>> edges = bin_edges(sample["age"], bins=5)
 >>> before = pd.cut(sample["age"], edges)

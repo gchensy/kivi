@@ -120,8 +120,8 @@ Charting WOE
 
 A WOE chart is the usual way to review a variable with the business: the share of customers and the event rate of each group on top, the WOE below. Categorical variables read best when sorted by WOE.
 
->>> from kivi.datasets import Dataset
->>> data = Dataset.bank_data()
+>>> from kivi.datasets import load_bank
+>>> data = load_bank()
 >>> reference = data.iloc[:3000]
 >>> jobs = woe_table(reference["job"], reference["target"]).sort_values("woe")
 >>> jobs[["event", "non_event", "event_rate", "woe"]].round(3).iloc[[0, 1, -2, -1]]
