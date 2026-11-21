@@ -8,6 +8,38 @@ Changes merged since the last release.
 
 .. release-fragments::
 
+0.7.0 (2026-11-20)
+------------------
+
+New
+^^^
+
+* ``kivi.datasets.make_applications`` simulates seeded loan applications with numeric and categorical features, the PD of an incumbent scorecard, policy declines, the approval decision and a true default flag for every applicant, to try reject inference on.
+
+* ``kivi.calibration.master_scale`` builds a master scale from the PD of each grade, such as a geometric grid from ``numpy.geomspace``: one row per grade with its lower bound, PD and upper bound, covering 0 to 1. The bounds are the geometric means of adjacent PDs by default, or their arithmetic means with ``boundary="arithmetic"``, as in the 0.2 versions.
+* ``fit_grade_pd`` fits the PD of each grade to observed default rates, with the logarithm of the rate a straight line in the grade number, by least squares weighted with the number of observations. A grade without defaults enters the fit with ``smoothing`` defaults, and a grade without observations gets a PD from the line.
+* ``assign_grades`` gives each predicted PD the grade of a scale as an ordered categorical, which ``calibration_table`` counts directly, in the order of the scale. A PD on a bound goes to the lower grade, as with ``pandas.cut``.
+
+* The new module ``kivi.reject_inference`` infers outcomes for rejected applicants, so that a scorecard developed on approved applicants can be refitted on all of them. ``fuzzy_augmentation`` splits each reject into a bad and a good row weighted by its PD, ``parceling`` labels the rejects of each score band at the band's bad rate with a seeded generator, or returns the expected weights, and ``reweighting`` weights the approved applicants of each band by the inverse of its approval rate. A ``factor`` above 1 raises the inferred bad rate, and bands without approved applicants raise an error.
+
+* ``logistic_regression`` and ``stepwise`` take ``weights``, frequency weights like those of statsmodels' ``GLM(freq_weights=...)``. Integer weights give the same coefficients, standard errors and selection as repeating rows; weights that do not count observations, such as those of reject inference, make the standard errors and p-values too small.
+
+* The new module ``kivi.strategy`` supports the credit decisions that follow a scorecard. ``cutoff_table`` shows, for each candidate cut-off of a PD or of negated points, the approval rate, the bad rate of the approved book, the shares of bads and goods it rejects and, with ``loss``, the expected loss it approves. Scores at or below the cut-off are approved, so tied scores always get the same decision.
+* ``swap_set`` compares the decisions of a current and a new score at their cut-offs: the applicants both approve, the swap-ins and swap-outs, and those both decline, with event rates where outcomes are known. A missing target marks an unknown outcome, such as that of an applicant the current score declined.
+* ``expected_loss`` multiplies PD, LGD and EAD, and ``expected_loss_table`` adds up the exposure and the expected loss of each grade, with the expected loss rate and the exposure-weighted PD.
+
+* The new module ``kivi.univariate`` profiles the candidates of a model. ``profile_table`` summarizes every column of a data frame in one row: its kind, missing values, distinct and most frequent values and, for numeric columns, the range, quantiles, mean and standard deviation. With a target it adds the event rates and lifts of missing and non-missing rows, the IV of a quick binning and the Gini coefficient of numeric values. Tied quantiles are recorded in the ``tied_bins`` column instead of raising a warning for each column, and ``special`` codes and ``weights`` work as in ``fit_spec``.
+
+Changed
+^^^^^^^
+
+* The risk modeling workflow screens the candidates with ``profile_table``, calibrates the PD on a master scale with ``master_scale`` and ``assign_grades``, and sets a cut-off with ``cutoff_table`` and ``expected_loss_table``. The user guide has new charts for cut-off curves, reject inference, grade PDs and missing values, and the README shows the cut-off and reject inference charts.
+
+Fixed
+^^^^^
+
+* ``gains_table`` warned about tied scores by suggesting the ``special`` argument of ``bin_edges``, which ``gains_table`` does not take. It now suggests fewer bins or explicit edges, as ``cutoff_table`` does, and the warning points at the line that called it.
+
 0.6.0 (2026-11-20)
 ------------------
 

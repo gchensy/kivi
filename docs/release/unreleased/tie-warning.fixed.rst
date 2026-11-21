@@ -1,1 +1,0 @@
-* ``gains_table`` warned about tied scores by suggesting the ``special`` argument of ``bin_edges``, which ``gains_table`` does not take. It now suggests fewer bins or explicit edges, as ``cutoff_table`` does, and the warning points at the line that called it.

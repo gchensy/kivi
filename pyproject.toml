@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "kivi"
-version = "0.6.0"
+version = "0.7.0"
 description = "Credit risk modeling with pandas: binning, WOE, scorecards, calibration, strategy and monitoring"
 readme = "README.md"
 requires-python = ">=3.10"
