@@ -1,7 +1,7 @@
 Model performance
 =================
 
-:mod:`kivi.metrics` measures how well a score separates events from non-events. :func:`~kivi.metrics.roc_auc`, :func:`~kivi.metrics.gini` and :func:`~kivi.metrics.ks` summarize the ranking in one number, :func:`~kivi.metrics.gains_table` breaks it down by score band, and :func:`~kivi.metrics.brier_score` checks predicted probabilities against the outcomes.
+:mod:`kivi.metrics` measures how well a score separates events from non-events. :func:`~kivi.metrics.roc_auc`, :func:`~kivi.metrics.gini` and :func:`~kivi.metrics.ks` summarize the ranking in one number, and :func:`~kivi.metrics.roc_table` lists the points of the ROC curve behind them. :func:`~kivi.metrics.roc_auc_interval` gives the AUC a standard error and a confidence interval, and :func:`~kivi.metrics.delong_test` tests whether two scores of the same customers rank equally well. :func:`~kivi.metrics.gains_table` breaks the ranking down by score band, and :func:`~kivi.metrics.brier_score` checks predicted probabilities against the outcomes.
 
 Performance is measured once the model is scaled to a :doc:`scorecard`, and before its probabilities are checked in :doc:`calibration`.
 
@@ -25,6 +25,8 @@ Let :math:`F_1` and :math:`F_0` be the empirical distribution functions of the s
 
 The gap is taken in absolute value, as in the two-sample test. KS therefore says nothing about the direction of the score, and its largest gap can come from a range of scores where the ranking is reversed. Read it together with the Gini.
 
+Flagging every customer who scores at or above a threshold :math:`t` catches a share :math:`\mathrm{TPR}(t)` of the events, the true positive rate, and a share :math:`\mathrm{FPR}(t)` of the non-events, the false positive rate. The ROC curve joins the points :math:`(\mathrm{FPR}(t), \mathrm{TPR}(t))` from the highest threshold to the lowest. The AUC is the area under it, and the KS is the largest gap :math:`\lvert \mathrm{TPR}(t) - \mathrm{FPR}(t) \rvert` between the two rates. Tied scores move the curve diagonally, so the area counts a tied pair as one half, as the AUC does.
+
 A worked example
 ----------------
 
@@ -42,6 +44,23 @@ At a cut-off of 0.4, two thirds of the non-events but only one third of the even
 
 >>> round(ks(score, target), 4)
 0.3333
+
+The ROC table has one row for each of the five distinct scores, after a first row at infinity that flags nobody. At 0.4 it flags the tied event and non-event together, so the curve moves diagonally from (1/3, 2/3) to (2/3, 1):
+
+>>> from kivi.metrics import roc_table
+>>> roc_table(score, target)[
+...     ["cum_non_event", "cum_event", "false_positive_rate", "true_positive_rate"]
+... ].round(3)
+           cum_non_event  cum_event  false_positive_rate  true_positive_rate
+threshold
+inf                    0          0                0.000               0.000
+0.9                    0          1                0.000               0.333
+0.8                    1          1                0.333               0.333
+0.7                    1          2                0.333               0.667
+0.4                    2          3                0.667               1.000
+0.1                    3          3                1.000               1.000
+
+The trapezoids under the curve have the areas 1/9 from 0.9 to 0.8, 5/18 from 0.7 to 0.4 and 1/3 from 0.4 to 0.1, which add up to the AUC of 13/18. The largest gap between the two rates is the KS of 1/3.
 
 Score direction
 ---------------
@@ -108,6 +127,95 @@ Points that fall as the risk rises rank the customers in the opposite order. Pas
 .. note::
 
    No threshold makes a Gini or a KS good in general: the values that can be reached depend on the portfolio, the target definition and the data available. Compare a new score with the one it replaces on the same validation sample.
+
+ROC curve
+---------
+
+:func:`~kivi.metrics.roc_table` lists the points of the ROC curve, one row per distinct score from the highest to the lowest, after a first row at infinity. Each row counts the events and non-events that score at or above its threshold, in ``cum_event`` and ``cum_non_event``, and divides them by all events and all non-events to give ``true_positive_rate`` and ``false_positive_rate``. ``precision`` is the event rate among the customers it flags. On the validation sample the WOE score takes 79 distinct values:
+
+>>> from kivi.metrics import roc_table
+>>> roc = roc_table(val_score, y)
+>>> len(roc)
+80
+
+The trapezoids under the curve add up to the AUC, and the largest gap between the two rates is the KS:
+
+>>> fpr = roc["false_positive_rate"].to_numpy()
+>>> tpr = roc["true_positive_rate"].to_numpy()
+>>> round(float(np.sum(np.diff(fpr) * (tpr[1:] + tpr[:-1]) / 2)), 3)
+0.716
+>>> gap = roc["true_positive_rate"] - roc["false_positive_rate"]
+>>> print(f"{gap.max():.3f} = {ks(val_score, y):.3f}")
+0.321 = 0.321
+
+The threshold with the largest gap flags 104 of the 173 events, a true positive rate of 60%, but only 378 of the 1,348 non-events. About one in five of the customers it flags is an event, twice the event rate of the sample:
+
+>>> roc.loc[[gap.idxmax()], ["cum_event", "cum_non_event", "true_positive_rate", "precision"]].round(3)
+           cum_event  cum_non_event  true_positive_rate  precision
+threshold
+0.284263         104            378               0.601      0.216
+
+The rates are the ``cum_event_share`` and ``cum_non_event_share`` of a gains table with one band per distinct score, and scikit-learn's ``roc_curve(target, score, drop_intermediate=False)`` gives the same points.
+
+Confidence interval of the AUC
+------------------------------
+
+Another sample of customers would give another AUC. :func:`~kivi.metrics.roc_auc_interval` estimates the standard error of the AUC by the method of DeLong, DeLong and Clarke-Pearson (1988), which makes no assumption about the distribution of the scores. Each event gets a placement value, the share of non-events that score below it, and each non-event the share of events that score above it, with ties counted as one half. Both sets of placement values average to the AUC :math:`\hat\theta`. With :math:`n_1` events and :math:`n_0` non-events, as in the definitions above, the variance of the AUC is estimated by
+
+.. math::
+
+   \mathrm{SE}^2 = \frac{S_{10}}{n_1} + \frac{S_{01}}{n_0},
+
+where :math:`S_{10}` and :math:`S_{01}` are the sample variances of the placement values of the events and of the non-events. The interval at the confidence ``level`` is :math:`\hat\theta \pm z \, \mathrm{SE}`, with the normal quantile :math:`z`, which is 1.96 for the default level of 0.95, and it is cut off at 0 and 1. The Gini coefficient gets the same interval, rescaled to :math:`2\,\mathrm{AUC} - 1`.
+
+For the six customers of the worked example, the placement values of the events are 1/2, 2/3 and 1 and those of the non-events 1, 5/6 and 1/3. Their sample variances are 7/108 and 13/108, so :math:`\mathrm{SE}^2 = 5/81` and the standard error is 0.248:
+
+>>> from kivi.metrics import roc_auc_interval
+>>> roc_auc_interval(score, target).round(3)
+      estimate     se  lower  upper
+auc      0.722  0.248  0.235    1.0
+gini     0.444  0.497 -0.529    1.0
+
+On the validation sample, the AUC of 0.716 is known to about 0.04 either way:
+
+>>> roc_auc_interval(val_score, y).round(3)
+      estimate     se  lower  upper
+auc      0.716  0.022  0.673  0.759
+gini     0.431  0.044  0.346  0.517
+
+The development and validation samples hold different customers, so their AUCs can be treated as independent, with a difference whose standard error is :math:`\sqrt{\mathrm{SE}_1^2 + \mathrm{SE}_2^2}`. This is only a rough check, because the WOE values were fitted on the development sample, whose AUC is therefore optimistic. The difference between the two samples is well within the noise:
+
+>>> import math
+>>> dev, val = (roc_auc_interval(s, t).loc["auc"] for s, t in samples.values())
+>>> z = (val["estimate"] - dev["estimate"]) / math.hypot(dev["se"], val["se"])
+>>> print(f"z = {z:.2f}, p = {math.erfc(abs(z) / math.sqrt(2)):.2f}")
+z = 1.10, p = 0.27
+
+Comparing two scores
+--------------------
+
+A new score, such as a challenger to the model in use, is best compared with the current one on the same customers. Both AUCs then come from the same pairs of events and non-events, so they are correlated, and their difference is known more precisely than that of two independent samples. :func:`~kivi.metrics.delong_test` estimates its standard error from the differences between the placement values of the two scores, and tests whether the two AUCs are equal.
+
+The WOE score adds up the WOE values of its variables, so a new variable joins it by adding its WOE. The two new scores below add ``month`` or ``loan`` to the four variables of the current score:
+
+>>> from kivi.metrics import delong_test
+>>> def with_variable(column):
+...     table = woe_table(development[column], development["target"])
+...     return val_score + woe_transform(validation[column], table)
+>>> pd.DataFrame({
+...     column: delong_test(val_score, with_variable(column), y) for column in ["month", "loan"]
+... }).round(4)
+              month    loan
+current_auc  0.7157  0.7157
+new_auc      0.7403  0.7253
+difference   0.0246  0.0096
+se           0.0105  0.0064
+lower        0.0041 -0.0029
+upper        0.0451  0.0221
+z            2.3509  1.5015
+p_value      0.0187  0.1332
+
+``difference`` is ``new_auc`` minus ``current_auc``, ``lower`` and ``upper`` bound it at the confidence ``level``, and ``p_value`` is the two-sided p-value of ``z``. Adding ``month`` raises the AUC by 0.025, and the interval of the gain excludes 0. The gain of 0.010 from ``loan`` could be chance (p = 0.13), although its standard error of 0.006 is a third of that of either AUC on its own. For a one-sided test that the new score ranks better, halve ``p_value`` when ``z`` is positive.
 
 Gains table
 -----------
@@ -223,3 +331,25 @@ Without weights the sample has twice as many events per non-event as the populat
 [0.7073, 0.7073]
 
 Weights that differ within a class, such as the inverse sampling rates of a stratified sample, do change them.
+
+:func:`~kivi.metrics.roc_auc_interval` and :func:`~kivi.metrics.delong_test` read ``weights`` as frequency weights: an observation of weight :math:`w` counts as :math:`w` observations. Integer weights therefore give the same standard error as repeating rows, which suits data aggregated into counts. The weights above stand for the non-events left out of the sample, so they give a standard error as small as that of all customers, although the sample holds only half of the non-events:
+
+>>> pd.DataFrame({
+...     "sample": roc_auc_interval(sample_score, sample_y).loc["auc"],
+...     "weighted": roc_auc_interval(sample_score, sample_y, weights=weights).loc["auc"],
+...     "all": roc_auc_interval(val_score, y).loc["auc"],
+... }).T.round(4)
+          estimate      se   lower   upper
+sample      0.7073  0.0227  0.6627  0.7519
+weighted    0.7073  0.0218  0.6645  0.7501
+all         0.7157  0.0219  0.6728  0.7587
+
+A weight that is the same for every observation of a class leaves the AUC unchanged, so compute its interval without such weights.
+
+Limits
+------
+
+* The intervals and the test rest on a normal approximation, which is poor for an AUC close to 0 or 1 and for a class with few observations. The standard error is 0 whenever the placement values are constant within each class, as they are for a score that separates the classes perfectly, one that reverses them and a constant score, so the interval collapses to the estimate. Without weights, both functions need at least two events and two non-events, and with weights a total weight above 1 in each class.
+* :func:`~kivi.metrics.delong_test` needs both scores on the same observations. For the AUCs of different samples, combine the standard errors of the two intervals, as in the comparison of the development and validation samples above.
+* The standard errors measure the noise of sampling customers from one population. A shift of the population over time is a separate question, which :doc:`psi` answers.
+* kivi gives no p-value for the KS statistic and no confidence bands for the ROC curve or the gains table.
