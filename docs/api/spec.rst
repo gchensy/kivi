@@ -15,5 +15,5 @@ See :doc:`/user_guide/spec` for examples and the file format.
 .. autofunction:: fit_spec
 
 .. autoclass:: BinningSpec
-   :members: columns, cut, woe_transform, select, to_dict, from_dict, to_json, from_json
+   :members: columns, format_version, cut, woe_transform, select, to_dict, from_dict, to_json, from_json
    :member-order: bysource

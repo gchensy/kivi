@@ -71,6 +71,74 @@ Special codes must be numbers, and infinite values must be special codes, as in 
 
    :func:`~kivi.spec.fit_spec` never re-bins a column on its own. The legacy ``WOEBatch`` lowered the number of bins until the WOE was monotonic; here the method and its options decide, and a column that should be monotonic is fitted with ``"monotonic"``.
 
+.. _spec-category-groups:
+
+Grouping categorical columns
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A categorical column keeps its labels unless ``method`` names it with ``"rare"``, which pools rare categories with :func:`~kivi.binning.category_groups`, or ``"chimerge"``, which merges categories with similar event rates with :func:`~kivi.binning.chimerge_groups`; see :ref:`category-groups`. ``bins`` is then the ``max_groups`` of ``"chimerge"``, ``special`` holds labels such as ``"unknown"``, and ``options`` the other arguments of the grouping function, such as ``min_share`` or ``min_group_share``. A string ``method`` applies to the numeric columns only, so a categorical column is grouped only when a dict names it:
+
+>>> grouped = fit_spec(
+...     development,
+...     development["target"],
+...     columns=["job", "education", "poutcome"],
+...     method={"job": "chimerge", "education": "rare", "poutcome": "chimerge"},
+...     special={"job": ["unknown"]},
+...     options={"education": {"min_share": 0.1}, "poutcome": {"min_group_share": 0}},
+... )
+>>> grouped.groups["education"]
+{'primary': 'primary', 'secondary': 'secondary', 'tertiary': 'tertiary', 'unknown': 'other'}
+>>> grouped.tables["poutcome"][["total", "event_rate", "woe"]].round(3)
+                total  event_rate    woe
+bin
+unknown          2475       0.092 -0.257
+failure, other    442       0.154  0.326
+success            83       0.627  2.548
+
+``grouped.groups`` maps each grouped column to its dict from category to group, the result of the grouping function, and :meth:`~kivi.spec.BinningSpec.cut` and :meth:`~kivi.spec.BinningSpec.woe_transform` apply it. A category that the grouping does not map keeps its own label in ``cut``, so that :func:`~kivi.stability.psi_table` shows it as a new group, and gets the column's ``unseen`` policy in ``woe_transform``, which raises an error by default:
+
+>>> new_job = monitoring.head(2).assign(job="astronaut")
+>>> grouped.cut(new_job)["job"].tolist()
+['astronaut', 'astronaut']
+>>> grouped.woe_transform(new_job)
+Traceback (most recent call last):
+...
+ValueError: column 'job': 2 value(s) have categories that its grouping does not map, ...
+
+To change a grouping, edit the dict, measure the WOE of the new groups and replace both with ``dataclasses.replace``, which checks that every group of the table is a group of the grouping. Here the customers with an unknown education join those with a primary education:
+
+>>> from kivi.binning import group_categories
+>>> from kivi.woe import woe_table
+>>> moved = {**grouped.groups["education"], "unknown": "primary"}
+>>> table = woe_table(group_categories(development["education"], moved), development["target"])
+>>> edited = dataclasses.replace(
+...     grouped,
+...     groups={**grouped.groups, "education": moved},
+...     tables={**grouped.tables, "education": table},
+... )
+>>> edited.tables["education"]["total"]
+bin
+primary       573
+secondary    1512
+tertiary      915
+Name: total, dtype: int64
+
+To give new categories the WOE of one of the groups, for example the group of rare categories, name it in ``unseen`` as ``{"group": label}``. :meth:`~kivi.spec.BinningSpec.cut` then assigns them to that group, and :meth:`~kivi.spec.BinningSpec.woe_transform` gives them its WOE, which follows the group when the column is fitted again. Missing values get it as well when the development sample had none:
+
+>>> to_other = fit_spec(
+...     development,
+...     development["target"],
+...     columns=["education"],
+...     method={"education": "rare"},
+...     options={"education": {"min_share": 0.1}},
+...     unseen={"education": {"group": "other"}},
+... )
+>>> new_education = monitoring.head(2).assign(education=["doctorate", "primary"])
+>>> to_other.cut(new_education)["education"].tolist()
+['other', 'primary']
+>>> to_other.woe_transform(new_education)["education"].round(3).tolist()
+[-0.411, -0.348]
+
 Grouping and encoding a sample
 ------------------------------
 
@@ -167,13 +235,15 @@ The format
    * - ``format``
      - Always ``"kivi.BinningSpec"``.
    * - ``format_version``
-     - Version of the format, currently 1. A file with a newer version raises an error that asks for a newer kivi, instead of being read in part.
+     - Version of the format: 2 when a column is grouped, otherwise 1, which earlier versions of kivi read as well. ``BinningSpec.FORMAT_VERSION`` is the newest version. A file with a newer version raises an error that asks for a newer kivi, instead of being read in part.
    * - ``kivi_version``
      - Version of kivi that fitted the specification.
    * - ``smoothing``
      - Smoothing of the WOE tables.
    * - ``variables``
-     - One entry per column, in order, with ``name``, ``kind`` (``"numeric"`` or ``"categorical"``), ``unseen`` (``"raise"`` or a number) and ``table``, plus ``edges`` and ``special`` for numeric columns.
+     - One entry per column, in order, with ``name``, ``kind`` (``"numeric"`` or ``"categorical"``), ``unseen`` (``"raise"``, a number or, for a grouped column, ``{"group": label}``) and ``table``, plus ``edges`` and ``special`` for numeric columns and ``groups`` for grouped categorical columns.
+   * - ``groups``
+     - One entry per group, in order, with its label ``group`` and the list of its ``categories``.
    * - ``table``
      - One entry per group with its label ``bin`` and the columns of :func:`~kivi.woe.woe_table`. An interval of a numeric column is written with the two exact edges that bound it.
 
@@ -209,4 +279,4 @@ Interval(68.75, 125.7, closed='right')
 
 .. note::
 
-   Software outside kivi that reads the file should bin with ``edges``, match ``special`` codes before intervals as :func:`kivi.binning.cut` does, and find the row of each interval by its two edges. An interval without development observations has no row. Intervals are closed on the right, so ``-inf`` falls into no interval, and :meth:`~kivi.spec.BinningSpec.woe_transform` treats it as unseen.
+   Software outside kivi that reads the file should bin with ``edges``, match ``special`` codes before intervals as :func:`kivi.binning.cut` does, and find the row of each interval by its two edges. An interval without development observations has no row. Intervals are closed on the right, so ``-inf`` falls into no interval, and :meth:`~kivi.spec.BinningSpec.woe_transform` treats it as unseen. For a grouped column, look up the category of each value in ``groups`` and then the row of its group; a category that ``groups`` does not list is unseen.
