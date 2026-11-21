@@ -238,11 +238,17 @@ def test_tables_may_label_intervals_by_their_exact_edges():
         replaced.woe_transform(pd.DataFrame({"x": values})),
         spec.woe_transform(pd.DataFrame({"x": values})),
     )
-    # An exact and a rounded label of the same interval are the same group.
-    both = pd.concat([exact.iloc[:1], spec.tables["x"]])
+    # An exact and a rounded label of the same interval are the same group. Object indices
+    # keep pandas from hashing the intervals, which warns on NumPy < 2.2.
+    rounded = spec.tables["x"]
+    both = pd.DataFrame(
+        rounded.to_numpy()[[0, 0, 1]],
+        columns=rounded.columns,
+        index=pd.Index([exact.index[0], *rounded.index], dtype=object),
+    )
     with pytest.raises(ValueError, match="table of column 'x' must have one row per group"):
         dataclasses.replace(spec, tables={"x": both})
-    other = exact.rename(index={exact.index[0]: pd.Interval(-np.inf, 0.6)})
+    other = exact.set_axis(pd.Index([pd.Interval(-np.inf, 0.6), exact.index[1]], dtype=object))
     with pytest.raises(ValueError, match="neither special codes nor intervals of its edges"):
         dataclasses.replace(spec, tables={"x": other})
 
