@@ -6,3 +6,14 @@ repos:
       - id: ruff-check
         args: [--fix]
       - id: ruff-format
+  # mypy runs from the environment that runs pre-commit, as in CI: the mypy and pandas-stubs
+  # versions are pinned only in the `lint` extra, and NumPy's stubs come with the installed NumPy.
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: mypy
+        language: system
+        types: [python]
+        files: ^src/
+        pass_filenames: false
