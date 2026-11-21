@@ -1,1 +1,0 @@
-* ``kivi.metrics.roc_auc`` and ``kivi.metrics.gini`` could return a value just above 1 when fractional ``weights`` rounded the AUC past it. Both are now at most 1, as documented. Other values are unchanged.
