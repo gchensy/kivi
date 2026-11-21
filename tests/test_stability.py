@@ -379,3 +379,29 @@ def test_interval_groups_on_other_edges_keep_the_interval_dtype():
     assert psi_table(reference, current).index.dtype == pd.IntervalDtype("float64", "right")
     current = pd.cut(pd.Series([1.0, 3]), EDGES, right=False)
     assert psi_table(reference, current).index.dtype == object
+
+
+def test_categories_listed_in_another_order_are_matched_by_label():
+    # The dtypes are equal, but code 0 is "a" in the reference and "b" in the current sample.
+    reference = pd.Series(["a", "a", "b"], dtype=pd.CategoricalDtype(["a", "b"]))
+    current = pd.Series(["a", "a", "a", None], dtype=pd.CategoricalDtype(["b", "a"]))
+    table = psi_table(reference, current)
+    assert table.index.tolist()[:2] == ["a", "b"] and pd.isna(table.index[2])
+    np.testing.assert_equal(table["reference"].to_numpy(), [2, 1, 0])
+    np.testing.assert_equal(table["current"].to_numpy(), [3, 0, 1])
+    np.testing.assert_allclose(table, psi_table(reference, current.astype(object)))
+    csi = csi_table(reference, current, {"a": 10.0, "b": 20.0, np.nan: 0.0})
+    np.testing.assert_allclose(csi["csi"], [(3 / 4 - 2 / 3) * 10, (0 - 1 / 3) * 20, 0.0])
+
+
+def test_integer_interval_groups_with_missing_values_on_other_edges():
+    # pd.concat cast both to integer intervals, which cannot hold the missing value.
+    reference = pd.cut(pd.Series([1, 3, np.nan]), [0, 2, 4])
+    current = pd.cut(pd.Series([1, 3]), [0, 1, 4])
+    table = psi_table(reference, current)
+    labels = [pd.Interval(0, 2), pd.Interval(2, 4), np.nan, pd.Interval(0, 1), pd.Interval(1, 4)]
+    assert len(table) == len(labels)
+    for label, expected in zip(table.index, labels, strict=True):
+        assert (pd.isna(label) and pd.isna(expected)) or label == expected
+    np.testing.assert_equal(table["reference"].to_numpy(), [1, 1, 1, 0, 0])
+    np.testing.assert_equal(table["current"].to_numpy(), [0, 0, 0, 1, 1])

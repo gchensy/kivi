@@ -55,12 +55,18 @@ def concat_groups(first: pd.Series, second: pd.Series) -> pd.Series:
     dtype whose categories are intervals with an infinite endpoint, as
     ``pandas.cut`` makes them for edges from -inf to inf, warns on
     NumPy < 2.2. Categoricals of the same dtype are therefore joined by their
-    codes, and other interval categoricals are first converted to the dtype
-    that ``pd.concat`` would give them: intervals when both samples hold
-    intervals closed on the same side, otherwise objects.
+    codes, in the category order of ``first``, and other interval categoricals
+    are first converted to the dtype that ``pd.concat`` would give them:
+    intervals when both samples hold intervals closed on the same side,
+    otherwise objects.
     """
     if isinstance(first.dtype, pd.CategoricalDtype) and first.dtype == second.dtype:
-        codes = np.concatenate([first.cat.codes, second.cat.codes])
+        codes = second.cat.codes.to_numpy()
+        if not second.cat.categories.equals(first.cat.categories):
+            # Unordered dtypes are equal when they list the same categories in another order.
+            position = first.cat.categories.get_indexer(second.cat.categories)
+            codes = np.where(codes < 0, -1, position[codes])
+        codes = np.concatenate([first.cat.codes.to_numpy(), codes])
         return pd.Series(pd.Categorical.from_codes(codes, dtype=first.dtype))
     samples = [first, second]
     intervals = [_interval_dtype(values.dtype) for values in samples]
