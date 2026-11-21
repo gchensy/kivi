@@ -3,7 +3,8 @@
 Each case lists, for one public function, the arguments that describe the same
 rows. Any two of them given as pandas objects with different indices must
 raise, whichever they are and whatever the others are; arrays, and pandas
-objects sharing one index, are matched by position.
+objects sharing one index, are matched by position. The last tests cover how
+``kivi._validation.as_real`` reads the numbers that several modules share.
 """
 
 import inspect
@@ -14,6 +15,7 @@ import pandas as pd
 import pytest
 
 from kivi import (
+    _validation,
     binning,
     calibration,
     lifetime,
@@ -263,3 +265,60 @@ def _assert_same(result, expected):
         assert result == pytest.approx(expected)
     else:
         assert result == expected
+
+
+# --- as_real ------------------------------------------------------------------------------
+
+STRING_DTYPE = "(object|str)"  # pandas 3 reads a list of strings as dtype str
+
+
+@pytest.mark.parametrize(
+    "values, expected",
+    [
+        ([0.5, pd.NA], [0.5, np.nan]),
+        ([0.5, None, np.nan], [0.5, np.nan, np.nan]),
+        (np.array([1, pd.NA, 2.5], dtype=object), [1.0, np.nan, 2.5]),
+        (pd.Series([0.25, pd.NA], dtype=object), [0.25, np.nan]),
+        (pd.Series([0.25, None], dtype="Float64"), [0.25, np.nan]),
+        (pd.Series([None, None], dtype=object), [np.nan, np.nan]),
+        (np.array([np.float32(0.5), np.int64(3)], dtype=object), [0.5, 3.0]),
+    ],
+)
+def test_as_real_reads_numbers_and_missing_values_of_any_dtype(values, expected):
+    np.testing.assert_array_equal(_validation.as_real(values, "x"), expected)
+
+
+def test_as_real_keeps_the_shape_of_object_arrays():
+    values = np.array([[0.1, None], [pd.NA, 2]], dtype=object)
+    np.testing.assert_array_equal(_validation.as_real(values, "x"), [[0.1, np.nan], [np.nan, 2]])
+    assert _validation.as_real(np.array([], dtype=object), "x").shape == (0,)
+
+
+@pytest.mark.parametrize(
+    "values, message",
+    [
+        (["0.1", "0.2"], f"got dtype {STRING_DTYPE} with the value '0.1'$"),
+        ([0.5, pd.NA, "a"], "got dtype object with the value 'a'$"),
+        (np.array([0.5, b"a"], dtype=object), "got dtype object with the value b'a'$"),
+        (pd.Series(["a"], dtype="string"), "got dtype string with the value 'a'$"),
+        (np.array([[0.5, "b"]], dtype=object), "got dtype object with the value 'b'$"),
+        (np.array([[1, 2], [3]], dtype=object), r"got dtype object with the value \[1, 2\]$"),
+        ([1, True], "got dtype object with the value True$"),
+        ([True, False], "got dtype bool$"),
+        (np.array([1 + 2j]), "got dtype complex128$"),
+        (None, "got dtype object$"),
+        (pd.NA, "got dtype object$"),
+    ],
+)
+def test_as_real_shows_the_element_that_is_not_a_number(values, message):
+    with pytest.raises(ValueError, match=f"^x must be real and numeric, {message}"):
+        _validation.as_real(values, "x")
+
+
+def test_as_real_reads_booleans_only_when_asked():
+    for values in ([True, False], [True, None], np.array([1, False], dtype=object)):
+        result = _validation.as_real(values, "x", booleans=True)
+        np.testing.assert_array_equal(result, pd.Series(values, dtype=object).astype(float))
+    np.testing.assert_array_equal(
+        _validation.as_real([True, None], "x", booleans=True), [1, np.nan]
+    )

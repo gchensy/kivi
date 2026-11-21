@@ -101,6 +101,54 @@ def test_invalid_scaling(scale, message):
         score_to_pd(600, **{**SCALE, **scale})
 
 
+def test_scaling_returns_python_floats():
+    # A float32 pdo used to give float32 results, and pd_to_score of the base odds 599.99999.
+    factor, offset = score_scaling(pdo=np.float32(20), base_score=np.int64(600), base_odds=50)
+    assert type(factor) is float and type(offset) is float
+    assert (factor, offset) == score_scaling(**SCALE)
+    score = pd_to_score(1 / 51, pdo=np.float32(20), base_score=600, base_odds=np.float32(50))
+    assert score == pytest.approx(600, abs=1e-12)
+
+
+STRING_DTYPE = "(object|str)"  # pandas 3 reads a list of strings as dtype str
+
+
+@pytest.mark.parametrize(
+    "convert, values, message",
+    [
+        # score_to_pd of a date used to give 0.0, and pd_to_score of strings 550.52 and 527.12.
+        (score_to_pd, pd.Series(pd.to_datetime(["2020-01-01"])), "score.*got dtype datetime64"),
+        (score_to_pd, ["600"], f"score.*got dtype {STRING_DTYPE} with the value '600'$"),
+        (
+            pd_to_score,
+            ["0.1", "0.2"],
+            f"probability.*got dtype {STRING_DTYPE} with the value '0.1'$",
+        ),
+        (pd_to_score, np.array([0.1 + 0j]), "probability.*got dtype complex128$"),
+        (score_to_pd, np.array([600 + 1j]), "score.*got dtype complex128$"),
+        (
+            pd_to_score,
+            np.array([0.1, "a"], dtype=object),
+            "probability.*got dtype object with the value 'a'$",
+        ),
+    ],
+)
+def test_conversions_reject_values_that_are_not_real_numbers(convert, values, message):
+    name, rest = message.split(".*")
+    with pytest.raises(ValueError, match=f"^{name} must be real and numeric, {rest}"):
+        convert(values, **SCALE)
+
+
+def test_conversions_read_booleans_and_pd_na():
+    np.testing.assert_array_equal(
+        score_to_pd([True, False], **SCALE), score_to_pd([1.0, 0.0], **SCALE)
+    )
+    scores = pd_to_score([0.02, pd.NA], **SCALE)
+    assert scores[0] == pytest.approx(pd_to_score(0.02, **SCALE)) and np.isnan(scores[1])
+    probability = score_to_pd(pd.Series([600, pd.NA], dtype=object), **SCALE)
+    assert probability[0] == pytest.approx(1 / 51) and np.isnan(probability[1])
+
+
 def test_points_match_hand_calculation():
     table = points_table(TABLES, COEFFICIENTS, INTERCEPT, **SCALE)
     assert table.columns.tolist() == ["bin", "woe", "points"]
@@ -226,6 +274,79 @@ def test_woe_to_points_accepts_a_mapping_and_ignores_extra_columns():
     np.testing.assert_allclose(
         points.to_numpy(), [[281.6486, 263.7592], [265.4905, 275.3008]], atol=1e-4
     )
+
+
+def test_woe_to_points_does_not_align_a_mapping_of_series():
+    # The contact WOE at x used to be taken from the label x, -0.2, not from position 0.
+    housing = pd.Series([-0.4, 0.3], index=["x", "y"])
+    for index in (["y", "x"], ["y", "z"]):
+        contact = pd.Series([0.6, -0.2], index=index)
+        with pytest.raises(
+            ValueError,
+            match=r"woe\['housing'\] and woe\['contact'\] must have identical indices",
+        ):
+            woe_to_points(
+                {"housing": housing, "contact": contact}, COEFFICIENTS, INTERCEPT, **SCALE
+            )
+    contact = pd.Series([0.6, -0.2], index=["x", "y"])
+    points = woe_to_points(
+        {"housing": housing, "contact": contact}, COEFFICIENTS, INTERCEPT, **SCALE
+    )
+    assert points.index.tolist() == ["x", "y"]
+    expected = woe_to_points(
+        pd.DataFrame({"housing": [-0.4, 0.3], "contact": [0.6, -0.2]}),
+        COEFFICIENTS,
+        INTERCEPT,
+        **SCALE,
+    )
+    np.testing.assert_array_equal(points.to_numpy(), expected.to_numpy())
+    # Values that are not Series are matched by position, and so are the Series' rows.
+    mixed = woe_to_points(
+        {"housing": housing, "contact": [0.6, -0.2]}, COEFFICIENTS, INTERCEPT, **SCALE
+    )
+    pd.testing.assert_frame_equal(mixed, points)
+
+
+@pytest.mark.parametrize("function", ["points_table", "woe_to_points"])
+def test_coefficients_with_the_intercept_get_a_clear_message(function):
+    # The coef column of logistic_regression starts with the intercept; this used to say
+    # "tables has no entry for 1 variable(s): 'intercept'".
+    coefficients = pd.Series({"intercept": INTERCEPT, **COEFFICIENTS})
+    first = (
+        TABLES if function == "points_table" else pd.DataFrame({"housing": [0.3], "contact": [0.6]})
+    )
+    with pytest.raises(
+        ValueError,
+        match="^coefficients has an 'intercept' entry; drop it and pass it as intercept$",
+    ):
+        globals()[function](first, coefficients, INTERCEPT, **SCALE)
+
+
+def test_reason_codes_reject_a_repeated_column():
+    # The repeated column used to give reasons such as housing, housing, contact.
+    table = points_table(TABLES, COEFFICIENTS, INTERCEPT, **SCALE)
+    woe = pd.DataFrame({"housing": [0.3], "contact": [0.6]})
+    points = woe_to_points(woe, COEFFICIENTS, INTERCEPT, **SCALE)
+    with pytest.raises(
+        ValueError, match="^points must have one column per variable, got 'housing' twice$"
+    ):
+        reason_codes(pd.concat([points, points[["housing"]]], axis=1), table)
+
+
+@pytest.mark.parametrize("value", [np.nan, np.inf, -np.inf])
+def test_reason_codes_reject_non_finite_points_in_the_table(value):
+    # A NaN in a hand-edited table used to give None, housing, None.
+    table = points_table(TABLES, COEFFICIENTS, INTERCEPT, **SCALE)
+    table.iloc[1, table.columns.get_loc("points")] = value
+    points = woe_to_points(
+        pd.DataFrame({"housing": [0.3], "contact": [0.6]}), COEFFICIENTS, INTERCEPT, **SCALE
+    )
+    with pytest.raises(
+        ValueError, match=f"^table must have finite points, got {value!r} for 'housing'$"
+    ):
+        reason_codes(points, table)
+    # Only the variables of points are checked.
+    reason_codes(points[["contact"]], table)
 
 
 def test_reason_codes_rank_points_lost():
