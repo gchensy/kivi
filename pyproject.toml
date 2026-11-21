@@ -30,7 +30,7 @@ Changelog = "https://gchensy.github.io/kivi/en/release/index.html"
 Issues = "https://github.com/gchensy/kivi/issues"
 
 [project.optional-dependencies]
-test = ["pytest>=8"]
+test = ["pytest>=8", "pytest-cov>=6"]
 lint = ["ruff==0.17.6", "pre-commit>=3.5"]
 docs = ["sphinx>=7.2", "pydata-sphinx-theme>=0.15", "numpydoc>=1.7", "sphinx-design>=0.6", "sphinx-copybutton>=0.5", "matplotlib>=3.7"]
 
@@ -43,6 +43,16 @@ include = ["/src", "/tests", "/docs", "/README.md", "/README.zh-CN.md", "/LICENS
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 filterwarnings = ["error"]
+
+# Measured in CI with `python -m pytest --cov`; a plain `python -m pytest` does not measure coverage.
+[tool.coverage.run]
+source = ["kivi"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+# The total when coverage was introduced (99.12%), rounded down; raise it as tests are added.
+fail_under = 99
 
 [tool.ruff]
 line-length = 100
