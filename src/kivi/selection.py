@@ -10,7 +10,7 @@ import pandas as pd
 
 from . import _logit
 from ._logit import SeparationError
-from ._validation import as_series
+from ._validation import as_series, as_weights
 
 __all__ = ["SeparationError", "correlation_filter", "logistic_regression", "stepwise", "vif"]
 
@@ -189,7 +189,12 @@ def vif(X: pd.DataFrame | npt.ArrayLike) -> pd.Series:
     return pd.Series(result, index=frame.columns, name="vif")
 
 
-def logistic_regression(X: pd.DataFrame | npt.ArrayLike, target: npt.ArrayLike) -> pd.DataFrame:
+def logistic_regression(
+    X: pd.DataFrame | npt.ArrayLike,
+    target: npt.ArrayLike,
+    *,
+    weights: npt.ArrayLike | None = None,
+) -> pd.DataFrame:
     r"""Fit a logistic regression and test each coefficient.
 
     The model has an intercept and one coefficient per column of `X`. The
@@ -205,6 +210,12 @@ def logistic_regression(X: pd.DataFrame | npt.ArrayLike, target: npt.ArrayLike) 
         Binary labels, with 1 indicating the event. If `X` is a DataFrame and
         `target` a Series, they must have identical indices; otherwise they
         are matched by position.
+    weights : array_like, optional
+        Non-negative frequency weight of each row, matched like `target`: a
+        row with weight 2 counts as two identical observations, so integer
+        weights give the same estimates, standard errors and log-likelihood
+        as repeating rows. Rows with zero weight are left out of the fit.
+        See the Notes on weights that do not count observations.
 
     Returns
     -------
@@ -226,9 +237,13 @@ def logistic_regression(X: pd.DataFrame | npt.ArrayLike, target: npt.ArrayLike) 
         column that is not numeric, contains missing or infinite values, is
         constant or is a linear combination of the intercept and the columns
         before it, or so close to one that its coefficient cannot be
-        estimated; or if `target` is not one-dimensional, its index or length
+        estimated; if `target` is not one-dimensional, its index or length
         does not match `X`, or it does not contain both 0 and 1 or has
-        missing or other labels.
+        missing or other labels; or if `weights` is not numeric, does not
+        give each row one finite, non-negative weight, or leaves a class
+        without weight. With `weights`, only the checks for constant columns
+        and linear combinations are limited to the rows with positive
+        weight.
 
     Warns
     -----
@@ -259,6 +274,23 @@ def logistic_regression(X: pd.DataFrame | npt.ArrayLike, target: npt.ArrayLike) 
     With WOE-encoded variables, the coefficients are expected to be
     positive: see `stepwise`.
 
+    With `weights` :math:`w_i`, the estimates maximize the weighted
+    log-likelihood
+    :math:`\sum_i w_i [y_i \ln p_i + (1 - y_i) \ln(1 - p_i)]`, and the
+    standard errors come from the weighted Fisher information
+    :math:`\sum_i w_i p_i (1 - p_i) x_i x_i^\top`. These are frequency
+    weights, as in statsmodels' ``GLM(freq_weights=...)``: the total weight
+    counts as the number of independent observations, so multiplying every
+    weight by :math:`c` divides the variances by :math:`c`. Integer weights
+    that count repeated rows therefore give the standard errors of the
+    repeated rows. Weights that do not count observations do not: those of
+    `kivi.reject_inference.fuzzy_augmentation`, which split each rejected
+    applicant into a bad and a good row, and those of
+    `kivi.reject_inference.reweighting`, which let each accepted applicant
+    stand for several, make the standard errors too small and the p-values
+    too low. The inferred rows and the extra weight count as observations,
+    although they add no observed outcomes.
+
     References
     ----------
     .. [1] D. W. Hosmer, S. Lemeshow and R. X. Sturdivant, "Applied Logistic
@@ -278,10 +310,19 @@ def logistic_regression(X: pd.DataFrame | npt.ArrayLike, target: npt.ArrayLike) 
                  coef      se       z  p_value
     intercept -1.0986  1.1547 -0.9514   0.3414
     x          2.1972  1.6330  1.3455   0.1785
+
+    Integer weights count repeated rows, so the four distinct rows with
+    their counts give the same fit:
+
+    >>> distinct = pd.DataFrame({"x": [0, 0, 1, 1]})
+    >>> logistic_regression(distinct, [0, 1, 0, 1], weights=[3, 1, 1, 3]).round(4)
+                 coef      se       z  p_value
+    intercept -1.0986  1.1547 -0.9514   0.3414
+    x          2.1972  1.6330  1.3455   0.1785
     """
-    frame, values, labels = _model_inputs(X, target)
-    _check_independent(frame, values)
-    result = _fit(_with_intercept(values), labels, frame.columns)
+    frame, values, labels, mass = _model_inputs(X, target, weights)
+    _check_independent(frame, values, weighted=mass is not None)
+    result = _fit(_with_intercept(values), labels, frame.columns, mass)
     if not result.converged:
         _warn_not_converged(result, stacklevel=2)
     table = pd.DataFrame(
@@ -300,6 +341,7 @@ def stepwise(
     p_remove: float = 0.10,
     direction: Literal["forward", "backward", "both"] = "both",
     positive: bool = True,
+    weights: npt.ArrayLike | None = None,
 ) -> pd.Index:
     """Select variables for a logistic regression by their p-values.
 
@@ -334,6 +376,14 @@ def stepwise(
         enters only if all coefficients of the extended model are positive,
         and a variable whose coefficient is not positive is removed before
         any other, starting with the smallest z statistic.
+    weights : array_like, optional
+        Non-negative frequency weight of each row, as in
+        `logistic_regression`. Integer weights select the same variables as
+        repeating rows. The p-values depend on the scale of the weights as
+        they do on the sample size. The weights of reject inference make
+        them too low, so that more variables enter than the observed
+        outcomes support; select the variables on the accepted applicants
+        instead.
 
     Returns
     -------
@@ -347,7 +397,7 @@ def stepwise(
         If `direction` is ``"backward"`` and the model with every column
         separates the classes.
     ValueError
-        If `X` or `target` is invalid as described for
+        If `X`, `target` or `weights` is invalid as described for
         `logistic_regression`, in every direction; if `p_enter` or
         `p_remove` is not greater than 0 and at most 1, or `p_enter` exceeds
         `p_remove` when `direction` is ``"both"``; or if `direction` is not
@@ -416,9 +466,9 @@ def stepwise(
         )
     if not isinstance(positive, (bool, np.bool_)):
         raise ValueError(f"positive must be True or False, got {positive!r}")
-    frame, values, labels = _model_inputs(X, target)
+    frame, values, labels, mass = _model_inputs(X, target, weights)
     # Every subset of independent columns is independent, so candidate models have full rank.
-    _check_independent(frame, values)
+    _check_independent(frame, values, weighted=mass is not None)
     design = _with_intercept(values)
     selected = list(range(values.shape[1])) if direction == "backward" else []
     visited = {frozenset(selected)}
@@ -426,11 +476,11 @@ def stepwise(
     while True:
         if direction != "forward":
             fitted = _remove(
-                design, labels, frame.columns, selected, visited, p_remove, positive, fitted
+                design, labels, mass, frame.columns, selected, visited, p_remove, positive, fitted
             )
         if direction == "backward":
             break
-        entering = _enter(design, labels, selected, visited, p_enter, positive, fitted)
+        entering = _enter(design, labels, mass, selected, visited, p_enter, positive, fitted)
         if entering is None:
             break
         fitted = entering[1]
@@ -439,7 +489,7 @@ def stepwise(
     return frame.columns[np.sort(np.array(selected, dtype=np.intp))]
 
 
-def _remove(design, labels, columns, selected, visited, p_remove, positive, fitted):
+def _remove(design, labels, mass, columns, selected, visited, p_remove, positive, fitted):
     """Remove failing variables from `selected` in place and return the fit of the rest.
 
     `fitted` is the converged fit of `selected` when the last step added a variable.
@@ -447,7 +497,9 @@ def _remove(design, labels, columns, selected, visited, p_remove, positive, fitt
     start = None
     while True:
         if fitted is None:
-            fitted = _fit(design[:, _model_columns(selected)], labels, columns[selected], start)
+            fitted = _fit(
+                design[:, _model_columns(selected)], labels, columns[selected], mass, start
+            )
             if not fitted.converged:
                 _warn_not_converged(fitted, stacklevel=3)
         coef, z, p_value = fitted.coef[1:], fitted.z[1:], fitted.p_value[1:]
@@ -460,13 +512,15 @@ def _remove(design, labels, columns, selected, visited, p_remove, positive, fitt
         worst = int(np.argmin(np.where(failing, z if positive else np.abs(z), np.inf)))
         # Start the smaller model from the same mean linear predictor.
         start = np.delete(fitted.coef, worst + 1)
-        start[0] += fitted.coef[worst + 1] * design[:, selected[worst] + 1].mean()
+        start[0] += fitted.coef[worst + 1] * np.average(
+            design[:, selected[worst] + 1], weights=mass
+        )
         del selected[worst]
         visited.add(frozenset(selected))
         fitted = None
 
 
-def _enter(design, labels, selected, visited, p_enter, positive, fitted):
+def _enter(design, labels, mass, selected, visited, p_enter, positive, fitted):
     """Return the best candidate to add and its fit, or None."""
     start = None if fitted is None else np.r_[fitted.coef, 0.0]
     best, best_z = None, -np.inf
@@ -474,7 +528,9 @@ def _enter(design, labels, selected, visited, p_enter, positive, fitted):
         if candidate in selected or frozenset([*selected, candidate]) in visited:
             continue
         try:
-            trial = _warm_fit(design[:, _model_columns([*selected, candidate])], labels, start)
+            trial = _warm_fit(
+                design[:, _model_columns([*selected, candidate])], labels, mass, start
+            )
         except (_logit.SeparationError, _logit.SingularError):
             continue
         if not trial.converged or trial.p_value[-1] >= p_enter:
@@ -486,20 +542,20 @@ def _enter(design, labels, selected, visited, p_enter, positive, fitted):
     return best
 
 
-def _warm_fit(design, labels, start) -> _logit.LogitFit:
+def _warm_fit(design, labels, mass, start) -> _logit.LogitFit:
     """Fit from `start`, and from zero if the information becomes singular on the way."""
     try:
-        return _logit.fit(design, labels, start=start)
+        return _logit.fit(design, labels, weights=mass, start=start)
     except _logit.SingularError:
         if start is None:
             raise
-        return _logit.fit(design, labels)
+        return _logit.fit(design, labels, weights=mass)
 
 
-def _fit(design, labels, columns: pd.Index, start=None) -> _logit.LogitFit:
+def _fit(design, labels, columns: pd.Index, mass, start=None) -> _logit.LogitFit:
     """Fit a model on the intercept and `columns`, naming the column of a singular fit."""
     try:
-        return _warm_fit(design, labels, start)
+        return _warm_fit(design, labels, mass, start)
     except _logit.SingularError as error:
         label = "intercept" if error.column == 0 else columns[error.column - 1]
         raise ValueError(
@@ -558,11 +614,18 @@ def _as_frame(X: pd.DataFrame | npt.ArrayLike) -> tuple[pd.DataFrame, npt.NDArra
     return frame, values
 
 
-def _model_inputs(X, target) -> tuple[pd.DataFrame, np.ndarray, np.ndarray]:
-    """Validate a model's inputs like `woe_table` and return the frame, values and labels."""
-    if isinstance(X, pd.DataFrame) and isinstance(target, pd.Series):
-        if not X.index.equals(target.index):
-            raise ValueError("X and target must have identical indices")
+def _model_inputs(
+    X, target, weights=None
+) -> tuple[pd.DataFrame, np.ndarray, np.ndarray, np.ndarray | None]:
+    """Validate a model's inputs like `woe_table`.
+
+    Return the frame, and the values, labels and weights of the rows with
+    positive weight; the weights are None without `weights`.
+    """
+    for name, values in (("target", target), ("weights", weights)):
+        if isinstance(X, pd.DataFrame) and isinstance(values, pd.Series):
+            if not X.index.equals(values.index):
+                raise ValueError(f"X and {name} must have identical indices")
     frame, values = _as_frame(X)
     if "intercept" in frame.columns:
         raise ValueError("X must not have a column labelled 'intercept'")
@@ -573,7 +636,23 @@ def _model_inputs(X, target) -> tuple[pd.DataFrame, np.ndarray, np.ndarray]:
         )
     if not target.isin([0, 1]).all() or target.nunique() != 2:
         raise ValueError("target must contain both 0 and 1 and no missing labels")
-    return frame, values, target.to_numpy(dtype=float)
+    labels = target.to_numpy(dtype=float)
+    if weights is None:
+        return frame, values, labels, None
+    if np.ndim(weights) == 1 and len(weights) != len(frame):
+        raise ValueError(
+            f"weights must have one weight per row of X, got {len(weights)} for {len(frame)}"
+        )
+    mass = as_weights(weights, frame, of="X")
+    totals = np.bincount(labels.astype(np.intp), weights=mass, minlength=2)
+    if not (totals > 0).all():
+        raise ValueError(
+            "weights must give both target classes a positive total, got "
+            f"{float(totals[0])!r} for 0 and {float(totals[1])!r} for 1"
+        )
+    # Rows without weight must not enter the centring and scaling of the fit.
+    used = mass > 0
+    return frame, values[used], labels[used], mass[used]
 
 
 def _priority(priority: npt.ArrayLike | None, columns: pd.Index) -> npt.NDArray[np.float64]:
@@ -597,17 +676,22 @@ def _priority(priority: npt.ArrayLike | None, columns: pd.Index) -> npt.NDArray[
     return priority.to_numpy(dtype=float)
 
 
-def _check_not_constant(frame: pd.DataFrame, values: np.ndarray, reason: str) -> None:
+def _check_not_constant(
+    frame: pd.DataFrame, values: np.ndarray, reason: str, where: str = ""
+) -> None:
     constant = np.ptp(values, axis=0) == 0
     if constant.any():
-        raise ValueError(f"X column {frame.columns[np.argmax(constant)]!r} is constant; {reason}")
+        raise ValueError(
+            f"X column {frame.columns[np.argmax(constant)]!r} is constant{where}; {reason}"
+        )
 
 
-def _check_independent(frame: pd.DataFrame, values: np.ndarray) -> None:
-    _check_not_constant(frame, values, "it cannot be told apart from the intercept")
+def _check_independent(frame: pd.DataFrame, values: np.ndarray, *, weighted: bool) -> None:
+    where = " on the rows with positive weight" if weighted else ""
+    _check_not_constant(frame, values, "it cannot be told apart from the intercept", where)
     dependent = _logit.dependent_column(_with_intercept(values))
     if dependent is not None:
         raise ValueError(
             f"X column {frame.columns[dependent - 1]!r} is a linear combination of the "
-            "intercept and the columns before it"
+            f"intercept and the columns before it{where}"
         )

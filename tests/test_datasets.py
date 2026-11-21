@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from kivi.datasets import Dataset, load_bank, make_loan_panel
+from kivi.datasets import Dataset, load_bank, make_applications, make_loan_panel
 
 STATUSES = ["current", "1-29", "30-59", "60-89", "90+"]
 COLUMNS = ["loan_id", "cohort", "month", "month_on_book", "term", "amount", "balance", "status"]
@@ -197,3 +197,127 @@ def test_sizes_are_keyword_only():
 def test_sizes_must_be_positive_integers(name, value):
     with pytest.raises(ValueError, match=rf"{name} must be a positive integer, got {value!r}"):
         make_loan_panel(**{name: value})
+
+
+# --- make_applications --------------------------------------------------------------------
+
+
+@pytest.fixture(scope="module")
+def applications():
+    return make_applications(rng=0)
+
+
+def test_applications_columns_and_dtypes(applications):
+    assert applications.shape == (10000, 10)
+    assert applications.dtypes.astype(str).to_dict() == {
+        "age": "int64",
+        "income": "float64",
+        "debt_to_income": "float64",
+        "inquiries": "int64",
+        "housing": "category",
+        "employment": "category",
+        "incumbent_pd": "float64",
+        "policy_decline": "bool",
+        "approved": "bool",
+        "target": "int64",
+    }
+    assert applications["housing"].cat.categories.tolist() == ["own", "mortgage", "rent"]
+    assert applications["employment"].cat.categories.tolist() == [
+        "permanent",
+        "temporary",
+        "self_employed",
+    ]
+    assert not applications["housing"].cat.ordered
+    assert applications.index.equals(pd.RangeIndex(10000))
+    assert not applications.isna().any().any()
+
+
+def test_application_values_lie_in_their_ranges(applications):
+    assert applications["age"].between(18, 75).all()
+    assert (applications["income"] > 0).all()
+    assert (applications["income"] % 10 == 0).all()
+    assert applications["debt_to_income"].between(0, 1).all()
+    np.testing.assert_array_equal(
+        applications["debt_to_income"], applications["debt_to_income"].round(2)
+    )
+    assert (applications["inquiries"] >= 0).all()
+    assert applications["incumbent_pd"].between(0, 1).all()
+    assert applications["target"].isin([0, 1]).all()
+
+
+def test_approval_follows_the_cut_off_and_the_policy_rules(applications):
+    policy = (applications["debt_to_income"] > 0.6) | (applications["age"] < 21)
+    pd.testing.assert_series_equal(applications["policy_decline"], policy, check_names=False)
+    approved = (applications["incumbent_pd"] < 0.15) & ~policy
+    pd.testing.assert_series_equal(applications["approved"], approved, check_names=False)
+
+
+def test_rejected_applicants_are_riskier(applications):
+    approved = applications["approved"]
+    assert 0.6 < approved.mean() < 0.75
+    assert 0.05 < applications["policy_decline"].mean() < 0.1
+    accepted_rate = applications.loc[approved, "target"].mean()
+    rejected_rate = applications.loc[~approved, "target"].mean()
+    assert 0.07 < accepted_rate < 0.13
+    assert rejected_rate > 2.5 * accepted_rate
+    # The incumbent PD ranks the risk: its deciles have rising default rates on the whole.
+    deciles = pd.qcut(applications["incumbent_pd"], 10, labels=False)
+    rates = applications["target"].groupby(deciles).mean()
+    assert rates.iloc[-1] > 4 * rates.iloc[0]
+    assert np.corrcoef(rates.index, rates)[0, 1] > 0.9
+
+
+def test_rejects_are_riskier_than_accepts_with_the_same_features(applications):
+    # The incumbent sees a hidden risk factor, so within a band of the true drivers the
+    # rejected applicants default more often: the data are missing not at random.
+    eligible = applications[~applications["policy_decline"]]
+    band = pd.qcut(eligible["debt_to_income"], 4, labels=False)
+    rates = eligible.groupby([band, "approved"])["target"].mean().unstack()
+    assert (rates[False] > 1.5 * rates[True]).all()
+
+
+def test_features_drive_the_default_rate(applications):
+    rate = applications.groupby("housing", observed=True)["target"].mean()
+    assert rate["own"] < rate["mortgage"] < rate["rent"]
+    rate = applications.groupby("employment", observed=True)["target"].mean()
+    assert rate["permanent"] < rate["self_employed"] < rate["temporary"]
+    for column, sign in [("debt_to_income", 1), ("inquiries", 1), ("age", -1), ("income", -1)]:
+        assert sign * np.corrcoef(applications[column], applications["target"])[0, 1] > 0.05
+
+
+def test_applications_are_reproducible_and_leave_global_state_alone():
+    # Reads the legacy global state only to check that the generator does not touch it.
+    state = np.random.get_state()  # noqa: NPY002
+    first = make_applications(n_applicants=300, rng=3)
+    after = np.random.get_state()  # noqa: NPY002
+    assert all(np.array_equal(a, b) for a, b in zip(state, after, strict=True))
+    pd.testing.assert_frame_equal(first, make_applications(n_applicants=300, rng=3))
+    pd.testing.assert_frame_equal(
+        first, make_applications(n_applicants=300, rng=np.random.default_rng(3))
+    )
+    assert not first.equals(make_applications(n_applicants=300, rng=4))
+
+
+def test_applications_advance_a_generator():
+    generator = np.random.default_rng(5)
+    first = make_applications(n_applicants=50, rng=generator)
+    second = make_applications(n_applicants=50, rng=generator)
+    assert not first.equals(second)
+
+
+def test_smallest_applications():
+    applications = make_applications(n_applicants=1, rng=0)
+    assert applications.shape == (1, 10)
+    assert make_applications(n_applicants=np.int64(1), rng=0).equals(applications)
+
+
+def test_applications_size_is_keyword_only():
+    with pytest.raises(TypeError, match="positional argument"):
+        make_applications(20)
+
+
+@pytest.mark.parametrize("value", [0, -3, 2.5, True, "10", None])
+def test_n_applicants_must_be_a_positive_integer(value):
+    message = rf"n_applicants must be a positive integer, got {value!r}"
+    with pytest.raises(ValueError, match=message):
+        make_applications(n_applicants=value)
