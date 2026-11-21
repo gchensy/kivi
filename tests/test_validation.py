@@ -1,0 +1,265 @@
+"""Inputs that describe the same observations must have identical indices when they are pandas.
+
+Each case lists, for one public function, the arguments that describe the same
+rows. Any two of them given as pandas objects with different indices must
+raise, whichever they are and whatever the others are; arrays, and pandas
+objects sharing one index, are matched by position.
+"""
+
+import inspect
+import itertools
+
+import numpy as np
+import pandas as pd
+import pytest
+
+from kivi import (
+    binning,
+    calibration,
+    lifetime,
+    metrics,
+    monitoring,
+    selection,
+    spec,
+    strategy,
+    univariate,
+    vintage,
+    woe,
+)
+
+ROWS = 8
+SCORE = [0.1, 0.4, 0.35, 0.8, 0.2, 0.7, 0.55, 0.9]
+NEW = [0.2, 0.3, 0.6, 0.7, 0.1, 0.8, 0.4, 0.9]
+TARGET = [0, 0, 1, 1, 0, 1, 0, 1]
+WEIGHTS = [1.0, 2.0, 1.0, 1.0, 2.0, 1.0, 1.0, 2.0]
+GROUPS = ["a", "a", "b", "b", "a", "b", "a", "b"]
+VALUES = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
+PERIOD = ["p1"] * 4 + ["p2"] * 4
+FRAME = {"x": VALUES, "g": GROUPS}
+
+# Each case: the function, its arguments that describe the same rows, and its other options.
+# A dict stands for a DataFrame, or for the array of its values.
+CASES = {
+    "bin_edges": (binning.bin_edges, {"values": VALUES, "weights": WEIGHTS}, {"bins": 2}),
+    "chimerge_edges": (
+        binning.chimerge_edges,
+        {"values": VALUES, "target": TARGET, "weights": WEIGHTS},
+        {},
+    ),
+    "tree_edges": (
+        binning.tree_edges,
+        {"values": VALUES, "target": TARGET, "weights": WEIGHTS},
+        {},
+    ),
+    "monotonic_edges": (
+        binning.monotonic_edges,
+        {"values": VALUES, "target": TARGET, "weights": WEIGHTS},
+        {},
+    ),
+    "category_groups": (binning.category_groups, {"values": GROUPS, "weights": WEIGHTS}, {}),
+    "chimerge_groups": (
+        binning.chimerge_groups,
+        {"values": GROUPS, "target": TARGET, "weights": WEIGHTS},
+        {},
+    ),
+    "woe_table": (woe.woe_table, {"groups": GROUPS, "target": TARGET, "weights": WEIGHTS}, {}),
+    "roc_auc": (metrics.roc_auc, {"score": SCORE, "target": TARGET, "weights": WEIGHTS}, {}),
+    "gini": (metrics.gini, {"score": SCORE, "target": TARGET, "weights": WEIGHTS}, {}),
+    "ks": (metrics.ks, {"score": SCORE, "target": TARGET, "weights": WEIGHTS}, {}),
+    "roc_table": (metrics.roc_table, {"score": SCORE, "target": TARGET, "weights": WEIGHTS}, {}),
+    "roc_auc_interval": (
+        metrics.roc_auc_interval,
+        {"score": SCORE, "target": TARGET, "weights": WEIGHTS},
+        {},
+    ),
+    "delong_test": (
+        metrics.delong_test,
+        {"current": SCORE, "new": NEW, "target": TARGET, "weights": WEIGHTS},
+        {},
+    ),
+    "gains_table": (
+        metrics.gains_table,
+        {"score": SCORE, "target": TARGET, "weights": WEIGHTS},
+        {"bins": 2},
+    ),
+    "brier_score": (
+        metrics.brier_score,
+        {"probability": SCORE, "target": TARGET, "weights": WEIGHTS},
+        {},
+    ),
+    "calibration_table": (
+        calibration.calibration_table,
+        {"groups": GROUPS, "target": TARGET, "probability": SCORE, "weights": WEIGHTS},
+        {},
+    ),
+    "platt_fit": (
+        calibration.platt_fit,
+        {"score": SCORE, "target": TARGET, "weights": WEIGHTS},
+        {},
+    ),
+    "isotonic_fit": (
+        calibration.isotonic_fit,
+        {"score": SCORE, "target": TARGET, "weights": WEIGHTS},
+        {},
+    ),
+    "logistic_regression": (
+        selection.logistic_regression,
+        {"X": {"x": SCORE}, "target": TARGET, "weights": WEIGHTS},
+        {},
+    ),
+    "stepwise": (selection.stepwise, {"X": {"x": SCORE}, "target": TARGET, "weights": WEIGHTS}, {}),
+    "cutoff_table": (
+        strategy.cutoff_table,
+        {"score": SCORE, "target": TARGET, "loss": [10.0] * ROWS, "weights": WEIGHTS},
+        {"cutoffs": [0.5]},
+    ),
+    "swap_set": (
+        strategy.swap_set,
+        {"current": SCORE, "new": NEW, "target": TARGET, "weights": WEIGHTS},
+        {"current_cutoff": 0.5, "new_cutoff": 0.5},
+    ),
+    "expected_loss_table": (
+        strategy.expected_loss_table,
+        {
+            "groups": GROUPS,
+            "probability": SCORE,
+            "lgd": [0.45] * ROWS,
+            "ead": [100.0] * ROWS,
+            "weights": WEIGHTS,
+        },
+        {},
+    ),
+    "monitoring_table": (
+        monitoring.monitoring_table,
+        {"score": SCORE, "period": PERIOD, "target": TARGET, "weights": WEIGHTS},
+        {"reference_period": "p1", "bins": 2},
+    ),
+    "stability_table": (
+        monitoring.stability_table,
+        {"groups": {"g": GROUPS}, "period": PERIOD, "weights": WEIGHTS},
+        {"reference_period": "p1"},
+    ),
+    "stage_table": (
+        lifetime.stage_table,
+        {
+            "stage": [1, 2, 3, 1, 1, 2, 3, 1],
+            "exposure": [100.0] * ROWS,
+            "allowance": [1.0] * ROWS,
+            "weights": WEIGHTS,
+        },
+        {},
+    ),
+    "vintage_table": (
+        vintage.vintage_table,
+        {
+            "loan": [1, 1, 2, 2, 3, 3, 4, 4],
+            "cohort": ["c1"] * 4 + ["c2"] * 4,
+            "month_on_book": [1, 2] * 4,
+            "bad": [0, 0, 0, 1, 0, 0, 0, 0],
+            "weights": [1.0, 1.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0],
+        },
+        {},
+    ),
+    "transition_matrix": (
+        vintage.transition_matrix,
+        {"before": GROUPS, "after": ["a", "b", "b", "a", "a", "b", "b", "b"], "weights": WEIGHTS},
+        {},
+    ),
+    "roll_rates": (
+        vintage.roll_rates,
+        {"before": GROUPS, "after": ["a", "b", "b", "a", "a", "b", "b", "b"], "weights": WEIGHTS},
+        {"states": ["a", "b"]},
+    ),
+    "fit_spec": (spec.fit_spec, {"frame": FRAME, "target": TARGET, "weights": WEIGHTS}, {}),
+    "profile_table": (
+        univariate.profile_table,
+        {"frame": FRAME, "target": TARGET, "weights": WEIGHTS},
+        {},
+    ),
+}
+DEFAULT = pd.RangeIndex(ROWS)
+OTHER = pd.Index(range(100, 100 + ROWS))
+
+
+def _is_frame(case: str, name: str) -> bool:
+    """Whether the argument is always a DataFrame, which always has an index."""
+    return name == "frame" or (case == "stability_table" and name == "groups")
+
+
+def _call(case: str, indices: dict):
+    """Call the function of a case: pandas inputs on ``indices`` by name, arrays otherwise."""
+    function, inputs, options = CASES[case]
+    parameters = inspect.signature(function).parameters
+    positional, keywords = [], {}
+    for name, values in inputs.items():
+        index = indices.get(name, DEFAULT if _is_frame(case, name) else None)
+        if isinstance(values, dict):
+            frame = pd.DataFrame(values, index=DEFAULT if index is None else index)
+            argument = frame if index is not None else frame.to_numpy(dtype=float)
+        elif index is None:
+            argument = np.asarray(values)
+        else:
+            argument = pd.Series(values, index=index)
+        if parameters[name].kind is inspect.Parameter.POSITIONAL_OR_KEYWORD:
+            positional.append(argument)
+        else:
+            keywords[name] = argument
+    return function(*positional, **keywords, **options)
+
+
+def _pairs():
+    for case, (_, inputs, _) in CASES.items():
+        for first, second in itertools.permutations(inputs, 2):
+            yield pytest.param(case, first, second, id=f"{case}-{first}-{second}")
+
+
+@pytest.mark.parametrize("case,first,second", list(_pairs()))
+def test_two_pandas_inputs_with_other_indices_raise(case, first, second):
+    indices = {first: DEFAULT, second: OTHER}
+    # The message names the argument whose index differs, such as "target and weights must
+    # have identical indices" or "weights must have the same index as score".
+    message = rf"(?=.*\b{second}\b).*(identical indices|same index)"
+    with pytest.raises(ValueError, match=message):
+        _call(case, indices)
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_pandas_inputs_on_one_index_and_arrays_are_matched_by_position(case):
+    _, inputs, _ = CASES[case]
+    expected = _call(case, {})
+    for size in range(1, len(inputs) + 1):
+        for names in itertools.combinations(inputs, size):
+            # DataFrames always have an index, so they share the one of the other inputs.
+            indices = {name: OTHER for name in inputs if name in names or _is_frame(case, name)}
+            _assert_same(_call(case, indices), expected)
+
+
+def test_target_and_weights_series_on_other_indices_raise_with_an_array_score():
+    score = np.array([1.0, 2, 3, 4])
+    target = pd.Series([0, 1, 0, 1], index=[5, 6, 7, 8])
+    weights = pd.Series([1.0] * 4)
+    with pytest.raises(ValueError, match="^target and weights must have identical indices$"):
+        metrics.roc_auc(score, target, weights=weights)
+    assert metrics.roc_auc(score, target, weights=weights.set_axis(target.index)) == 0.75
+
+
+def _assert_same(result, expected):
+    if isinstance(result, pd.DataFrame):
+        # The variables of a model fitted on an array are numbered, not named.
+        drop = result.index.name is None
+        pd.testing.assert_frame_equal(
+            result.reset_index(drop=drop), expected.reset_index(drop=drop)
+        )
+    elif isinstance(result, pd.Index):
+        assert len(result) == len(expected)
+    elif isinstance(result, pd.Series | np.ndarray):
+        np.testing.assert_allclose(
+            np.asarray(result, dtype=float), np.asarray(expected, dtype=float)
+        )
+    elif isinstance(result, tuple):
+        for item, other in zip(result, expected, strict=True):
+            _assert_same(item, other)
+    elif isinstance(result, float):
+        assert result == pytest.approx(expected)
+    else:
+        assert result == expected

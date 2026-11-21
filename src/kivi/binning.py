@@ -1073,7 +1073,7 @@ def _category_counts(
     out together with their labels. Categories follow their first appearance,
     or the order of the categories of a categorical input.
     """
-    raw_values = values
+    raw_values, raw_target = values, target
     if target is not None and isinstance(values, pd.Series) and isinstance(target, pd.Series):
         if not values.index.equals(target.index):
             raise ValueError("values and target must have identical indices")
@@ -1087,7 +1087,7 @@ def _category_counts(
         if not target.isin([0, 1]).all():
             raise ValueError("target must contain only 0 and 1 and no missing labels")
     codes = _special_values(special)
-    mass = as_weights(weights, raw_values)
+    mass = as_weights(weights, raw_values, others={"target": raw_target})
     position, levels = pd.factorize(series, sort=isinstance(series.dtype, pd.CategoricalDtype))
     levels = np.asarray(levels, dtype=object)
     fitted = position >= 0
@@ -1332,7 +1332,7 @@ def _labeled(
     Rows whose value is missing, a special value or has zero weight are left
     out together with their labels and weights.
     """
-    raw_values = values
+    raw_values, raw_target = values, target
     if isinstance(values, pd.Series) and isinstance(target, pd.Series):
         if not values.index.equals(target.index):
             raise ValueError("values and target must have identical indices")
@@ -1343,7 +1343,7 @@ def _labeled(
         )
     if not target.isin([0, 1]).all():
         raise ValueError("target must contain only 0 and 1 and no missing labels")
-    mass = as_weights(weights, raw_values)
+    mass = as_weights(weights, raw_values, others={"target": raw_target})
     fitted = values.notna().to_numpy(dtype=bool, copy=True)
     if special is not None:
         special = _special_values(special)

@@ -142,18 +142,31 @@ def as_count_columns(first, second, names: tuple[str, str]) -> np.ndarray:
     return np.column_stack(columns)
 
 
-def as_weights(weights, values, name: str = "weights", of: str = "values") -> np.ndarray | None:
+def as_weights(
+    weights,
+    values,
+    name: str = "weights",
+    of: str = "values",
+    *,
+    others: Mapping[str, object] | None = None,
+) -> np.ndarray | None:
     """Return observation weights as a float array matched to ``values``, or None.
 
     ``values`` is the argument as the caller passed it, after it has been
-    validated. Two Series must have identical indices; otherwise the weights
-    are matched by position, as the target is in ``woe_table``.
+    validated. ``others`` maps the names of the other arguments that describe
+    the same observations, such as the target, to the arguments as passed. A
+    Series of weights must have the index of every Series among them;
+    otherwise the weights are matched by position, as the target is in
+    ``woe_table``.
     """
     if weights is None:
         return None
-    if isinstance(values, pd.Series) and isinstance(weights, pd.Series):
-        if not values.index.equals(weights.index):
+    if isinstance(weights, pd.Series):
+        if isinstance(values, pd.Series) and not values.index.equals(weights.index):
             raise ValueError(f"{name} must have the same index as {of}")
+        for other, data in (others or {}).items():
+            if isinstance(data, pd.Series) and not data.index.equals(weights.index):
+                raise ValueError(f"{other} and {name} must have identical indices")
     series = as_series(weights, name)
     dtype = series.dtype
     if not pd.api.types.is_numeric_dtype(dtype) or pd.api.types.is_bool_dtype(dtype):
@@ -188,7 +201,7 @@ def scores_and_labels(
     if isinstance(score, pd.Series) and isinstance(target, pd.Series):
         if not score.index.equals(target.index):
             raise ValueError(f"{name} and target must have identical indices")
-    raw_score = score
+    raw_score, raw_target = score, target
     score, target = as_series(score, name), as_series(target, "target")
     if len(score) != len(target):
         raise ValueError(
@@ -214,7 +227,7 @@ def scores_and_labels(
     labels = target.to_numpy(dtype=np.intp)
     if both_classes and labels.sum() in (0, len(labels)):
         raise ValueError(f"target must contain both 0 and 1, got only {labels[0]}")
-    mass = as_weights(weights, raw_score, of=name)
+    mass = as_weights(weights, raw_score, of=name, others={"target": raw_target})
     if both_classes and mass is not None:
         totals = np.bincount(labels, weights=mass, minlength=2)
         if not (totals > 0).all():

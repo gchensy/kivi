@@ -114,7 +114,7 @@ def woe_table(
     if isinstance(groups, pd.Series) and isinstance(target, pd.Series):
         if not groups.index.equals(target.index):
             raise ValueError("groups and target must have identical indices")
-    raw_groups = groups
+    raw_groups, raw_target = groups, target
     groups, target = as_series(groups, "groups"), as_series(target, "target")
     if len(groups) != len(target):
         raise ValueError(
@@ -122,7 +122,7 @@ def woe_table(
         )
     if not target.isin([0, 1]).all() or target.nunique() != 2:
         raise ValueError("target must contain both 0 and 1 and no missing labels")
-    mass = as_weights(weights, raw_groups, of="groups")
+    mass = as_weights(weights, raw_groups, of="groups", others={"target": raw_target})
     counts = group_counts(groups, target.to_numpy(dtype=np.intp), mass)
     totals = counts.to_numpy().sum(axis=0)
     if not (totals > 0).all():
