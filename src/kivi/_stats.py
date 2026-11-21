@@ -1,4 +1,4 @@
-"""Distribution functions for the calibration tests, using only NumPy and math.
+"""Distribution functions for the calibration tests and the metrics, using only NumPy and math.
 
 The regularized incomplete beta and gamma functions follow the series and
 continued fractions of Press et al., "Numerical Recipes", 3rd ed., sections
@@ -6,7 +6,9 @@ continued fractions of Press et al., "Numerical Recipes", 3rd ed., sections
 method. For large parameters the factor in front of the beta continued
 fraction is computed from Stirling's series around the mean, as in DiDonato
 and Morris (ACM TOMS 18, 1992), instead of from differences of log-gamma
-values, which lose about ``log10(a + b)`` digits.
+values, which lose about ``log10(a + b)`` digits. The normal quantile starts
+from the rational approximation of P. J. Acklam (2003), whose relative error
+is below 1.2e-9, and refines it with a step of Halley's method.
 """
 
 import math
@@ -171,6 +173,68 @@ def gammaincc(a: float, x: float) -> float:
             if abs(c * d - 1) < _EPS:
                 return h * math.exp(log_front)
     raise ArithmeticError("the incomplete gamma function did not converge")
+
+
+def normal_quantile(probability: float) -> float:
+    """Return the quantile of the standard normal distribution, for 0 < probability < 1."""
+    if not 0 < probability < 1:
+        raise ValueError(f"probability must be between 0 and 1, got {probability!r}")
+    if probability > 0.5:
+        # 1 - p is exact for p >= 0.5, and the lower tail keeps full relative accuracy.
+        return -normal_quantile(1 - probability)
+    if probability < _ACKLAM_LOW:
+        q = math.sqrt(-2 * math.log(probability))
+        x = _horner(_ACKLAM_C, q) / _horner(_ACKLAM_D, q)
+    else:
+        q = probability - 0.5
+        x = q * _horner(_ACKLAM_A, q * q) / _horner(_ACKLAM_B, q * q)
+    # Halley's method on the normal CDF, 0.5 erfc(-x / sqrt(2)), which is accurate for x <= 0.
+    error = 0.5 * math.erfc(-x / math.sqrt(2)) - probability
+    u = error * math.sqrt(2 * math.pi) * math.exp(x * x / 2)
+    return x - u / (1 + x * u / 2)
+
+
+# Coefficients from the highest power down; the denominators end with their constant 1.
+_ACKLAM_LOW = 0.02425
+_ACKLAM_A = (
+    -3.969683028665376e01,
+    2.209460984245205e02,
+    -2.759285104469687e02,
+    1.383577518672690e02,
+    -3.066479806614716e01,
+    2.506628277459239e00,
+)
+_ACKLAM_B = (
+    -5.447609879822406e01,
+    1.615858368580409e02,
+    -1.556989798598866e02,
+    6.680131188771972e01,
+    -1.328068155288572e01,
+    1.0,
+)
+_ACKLAM_C = (
+    -7.784894002430293e-03,
+    -3.223964580411365e-01,
+    -2.400758277161838e00,
+    -2.549732539343734e00,
+    4.374664141464968e00,
+    2.938163982698783e00,
+)
+_ACKLAM_D = (
+    7.784695709041462e-03,
+    3.224671290700398e-01,
+    2.445134137142996e00,
+    3.754408661907416e00,
+    1.0,
+)
+
+
+def _horner(coefficients: tuple[float, ...], x: float) -> float:
+    """Evaluate a polynomial whose coefficients run from the highest power down."""
+    result = 0.0
+    for coefficient in coefficients:
+        result = result * x + coefficient
+    return result
 
 
 def _guard(values: np.ndarray) -> np.ndarray:

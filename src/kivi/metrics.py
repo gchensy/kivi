@@ -7,16 +7,27 @@ predicted probability of default. Scorecard points run the other way, so
 negate them before passing them in.
 """
 
-from numbers import Integral
+import math
+from numbers import Integral, Real
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
+from ._stats import normal_quantile
 from ._validation import scores_and_labels
 from .binning import _fit_edges
 
-__all__ = ["roc_auc", "gini", "ks", "gains_table", "brier_score"]
+__all__ = [
+    "roc_auc",
+    "gini",
+    "ks",
+    "roc_table",
+    "roc_auc_interval",
+    "delong_test",
+    "gains_table",
+    "brier_score",
+]
 
 
 def roc_auc(
@@ -102,15 +113,7 @@ def roc_auc(
     0.7222
     """
     values, labels, mass = scores_and_labels(score, target, "score", weights=weights)
-    if mass is not None:
-        # Scaling by a power of two is exact and keeps the product of the class totals finite.
-        mass = np.ldexp(mass, -int(np.frexp(mass.max())[1]))
-    non_event, event = _distinct_counts(labels, values, mass).T
-    # U counts each (event, non-event) pair in which the event scores higher, a tie as one half;
-    # it equals R_1 - n_1 (n_1 + 1) / 2 without subtracting large rank sums.
-    below = np.cumsum(non_event) - non_event
-    u = np.sum(event * (below + 0.5 * non_event))
-    return float(u / (float(event.sum()) * float(non_event.sum())))
+    return _auc(values, labels, mass)
 
 
 def gini(
@@ -259,6 +262,410 @@ def ks(
     non_event, event = _distinct_counts(labels, values, mass).T
     gap = np.cumsum(event) / event.sum() - np.cumsum(non_event) / non_event.sum()
     return float(np.max(np.abs(gap)))
+
+
+def roc_table(
+    score: npt.ArrayLike, target: npt.ArrayLike, *, weights: npt.ArrayLike | None = None
+) -> pd.DataFrame:
+    r"""Tabulate the ROC curve of a score, with one row per distinct score.
+
+    Each row flags the observations that score at or above its threshold and
+    counts the events and non-events among them. Plotting
+    ``true_positive_rate`` against ``false_positive_rate`` gives the ROC
+    curve, from the highest threshold to the lowest.
+
+    The score comes first and the target second, as in `kivi.woe.woe_table`;
+    scikit-learn's metrics take the target first.
+
+    Parameters
+    ----------
+    score : array_like
+        Finite numeric scores that are higher for a higher event probability.
+        Negate scorecard points, which are higher for a lower risk.
+    target : array_like
+        Binary labels, with 1 indicating the event. Both classes must be
+        present. If `score` and `target` are both pandas Series, they must
+        have identical indices; otherwise they are matched by position.
+    weights : array_like, optional
+        Non-negative weight of each observation, such as the inverse of its
+        sampling rate, matched like `target`. The counts become sums of
+        weights, and a score whose observations all have zero weight has no
+        row, so integer weights give the same table as repeating rows.
+
+    Returns
+    -------
+    pandas.DataFrame
+        One row per threshold, in an index named ``threshold``: first
+        infinity, which flags no observation, then every distinct score from
+        the highest to the lowest, which flags them all. The columns are
+        described in the Notes.
+
+    Raises
+    ------
+    ValueError
+        If the inputs are empty or not one-dimensional, their indices or
+        lengths do not match, `target` has a label other than 0 and 1 or
+        lacks one of them, or `score` is not real and numeric or has a
+        missing or infinite value. Also if `weights` is not numeric, does
+        not give each observation one finite, non-negative weight, has an
+        index other than that of `score`, or leaves a class without weight.
+
+    See Also
+    --------
+    roc_auc : The area under the curve.
+    ks : The largest gap between the two rates.
+    gains_table : The same cumulative shares by score band.
+
+    Notes
+    -----
+    The columns are:
+
+    - ``cum_non_event`` and ``cum_event``: non-events and events that score
+      at or above the threshold, or the sums of their weights;
+    - ``false_positive_rate`` and ``true_positive_rate``: these counts as
+      shares of all non-events and of all events;
+    - ``precision``: ``cum_event`` divided by the sum of both counts, the
+      event rate among the flagged observations, which is NaN in the first
+      row.
+
+    Tied scores share a row, so the curve crosses a tie diagonally. The
+    trapezoids under the curve therefore add up to `roc_auc`, which counts a
+    tied pair as one half,
+
+    .. math::
+
+       \mathrm{AUC} = \sum_{k \ge 1} (\mathrm{FPR}_k - \mathrm{FPR}_{k-1})
+       \, \frac{\mathrm{TPR}_k + \mathrm{TPR}_{k-1}}{2},
+
+    and the largest gap between the two rates, :math:`\max_k \lvert
+    \mathrm{TPR}_k - \mathrm{FPR}_k \rvert`, is `ks`. The rows are those of
+    ``sklearn.metrics.roc_curve`` with ``drop_intermediate=False``.
+
+    Examples
+    --------
+    >>> from kivi.metrics import roc_table
+    >>> score = [0.1, 0.4, 0.4, 0.8, 0.7, 0.9]
+    >>> target = [0, 0, 1, 0, 1, 1]
+    >>> table = roc_table(score, target)
+    >>> table[["cum_non_event", "cum_event", "false_positive_rate", "true_positive_rate"]].round(3)
+               cum_non_event  cum_event  false_positive_rate  true_positive_rate
+    threshold
+    inf                    0          0                0.000               0.000
+    0.9                    0          1                0.000               0.333
+    0.8                    1          1                0.333               0.333
+    0.7                    1          2                0.333               0.667
+    0.4                    2          3                0.667               1.000
+    0.1                    3          3                1.000               1.000
+    >>> table["precision"].round(3).tolist()
+    [nan, 1.0, 0.5, 0.667, 0.6, 0.5]
+    """
+    values, labels, mass = scores_and_labels(score, target, "score", weights=weights)
+    if mass is not None:
+        # Repeated rows would leave out an observation of zero weight, and with it its score.
+        kept = mass > 0
+        values, labels, mass = values[kept], labels[kept], mass[kept]
+    distinct, counts, _ = _score_counts(values, labels, mass)
+    # Highest score first, after a row that flags no observation.
+    counts = np.concatenate([np.zeros((1, 2), dtype=counts.dtype), counts[::-1]])
+    cum_non_event, cum_event = np.cumsum(counts, axis=0).T
+    return pd.DataFrame(
+        {
+            "cum_non_event": cum_non_event,
+            "cum_event": cum_event,
+            "false_positive_rate": cum_non_event / cum_non_event[-1],
+            "true_positive_rate": cum_event / cum_event[-1],
+            "precision": _ratio(cum_event, cum_non_event + cum_event),
+        },
+        index=pd.Index(np.concatenate([[np.inf], distinct[::-1]]), name="threshold"),
+    )
+
+
+def roc_auc_interval(
+    score: npt.ArrayLike,
+    target: npt.ArrayLike,
+    *,
+    level: float = 0.95,
+    weights: npt.ArrayLike | None = None,
+) -> pd.DataFrame:
+    r"""Estimate the standard error and a confidence interval of the AUC.
+
+    The standard error is that of DeLong, DeLong and Clarke-Pearson [1]_,
+    which makes no assumption about the distribution of the scores. The
+    interval of the Gini coefficient follows from that of the AUC.
+
+    The score comes first and the target second, as in `kivi.woe.woe_table`;
+    scikit-learn's metrics take the target first.
+
+    Parameters
+    ----------
+    score : array_like
+        Finite numeric scores that are higher for a higher event probability.
+        Negate scorecard points, which are higher for a lower risk.
+    target : array_like
+        Binary labels, with 1 indicating the event. There must be at least
+        two events and two non-events. If `score` and `target` are both
+        pandas Series, they must have identical indices; otherwise they are
+        matched by position.
+    level : float, default 0.95
+        Confidence level of the interval, between 0 and 1.
+    weights : array_like, optional
+        Non-negative frequency weight of each observation, matched like
+        `target`. An observation of weight :math:`w` counts as :math:`w`
+        observations, so integer weights give the same result as repeating
+        rows, standard error included. The weights of each class must add up
+        to more than 1.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Two rows, ``auc`` and ``gini``, and the columns ``estimate``, ``se``
+        for the standard error, and ``lower`` and ``upper`` for the bounds of
+        the interval.
+
+    Raises
+    ------
+    ValueError
+        If the inputs are empty or not one-dimensional, their indices or
+        lengths do not match, `target` has a label other than 0 and 1 or
+        fewer than two of either, or `score` is not real and numeric or has a
+        missing or infinite value. Also if `level` is not a number between 0
+        and 1, or if `weights` is not numeric, does not give each
+        observation one finite, non-negative weight, has an index other than
+        that of `score`, or gives a class a total weight of 1 or less.
+
+    See Also
+    --------
+    roc_auc : The AUC alone.
+    delong_test : Compare the AUCs of two scores on the same observations.
+
+    Notes
+    -----
+    Let :math:`m` be the number of events and :math:`n` that of non-events.
+    The placement value :math:`V_{10,i}` of event :math:`i` is the share of
+    non-events that score below it, and the placement value :math:`V_{01,j}`
+    of non-event :math:`j` is the share of events that score above it, with
+    ties counted as one half. Both average to the AUC :math:`\hat\theta`, and
+    its variance is estimated by
+
+    .. math::
+
+       \widehat{\mathrm{Var}}(\hat\theta) = \frac{S_{10}}{m} + \frac{S_{01}}{n},
+       \qquad
+       S_{10} = \frac{1}{m - 1} \sum_{i=1}^{m} (V_{10,i} - \hat\theta)^2,
+
+    with :math:`S_{01}` defined in the same way over the non-events. The
+    placement values come from midranks, as in the algorithm of Sun and
+    Xu [2]_: the rank of an event among all scores minus its rank among the
+    events is the number of non-events below it, a tie counting as one
+    half. The computation thus takes :math:`O(N \log N)` time for :math:`N`
+    observations instead of comparing every pair.
+
+    The interval is :math:`\hat\theta \pm z \, \mathrm{SE}`, cut off at 0
+    and 1, where :math:`z` is the quantile of the standard normal
+    distribution at :math:`(1 + \mathrm{level}) / 2`. For the Gini
+    coefficient, :math:`2\,\mathrm{AUC} - 1`, the estimate and the bounds
+    are rescaled in the same way and the standard error doubles.
+
+    The normal approximation is poor when the AUC is close to 0 or 1 or a
+    class has few observations. A score that separates the two classes
+    perfectly has a standard error of 0.
+
+    With weights, :math:`m` and :math:`n` are the total weights of the two
+    classes, and each squared deviation counts with the weight of its
+    observation. Weights that stand for a population larger than the sample,
+    such as inverse sampling rates, therefore give too small a standard
+    error.
+
+    References
+    ----------
+    .. [1] E. R. DeLong, D. M. DeLong and D. L. Clarke-Pearson, "Comparing
+       the areas under two or more correlated receiver operating
+       characteristic curves: a nonparametric approach", Biometrics, 44(3),
+       pp. 837-845, 1988.
+    .. [2] X. Sun and W. Xu, "Fast implementation of DeLong's algorithm for
+       comparing the areas under correlated receiver operating
+       characteristic curves", IEEE Signal Processing Letters, 21(11),
+       pp. 1389-1393, 2014.
+
+    Examples
+    --------
+    Six observations leave a wide interval, whose upper bound is cut off at
+    1:
+
+    >>> from kivi.metrics import roc_auc_interval
+    >>> score = [0.1, 0.4, 0.4, 0.8, 0.7, 0.9]
+    >>> target = [0, 0, 1, 0, 1, 1]
+    >>> roc_auc_interval(score, target).round(4)
+          estimate      se   lower  upper
+    auc     0.7222  0.2485  0.2353    1.0
+    gini    0.4444  0.4969 -0.5295    1.0
+    """
+    values, labels, mass = scores_and_labels(score, target, "score", weights=weights)
+    _check_class_totals(labels, mass)
+    z = _critical_value(level)
+    auc = _auc(values, labels, mass)
+    se = math.sqrt(_delong_variance(_placements(values, labels, mass), labels, mass))
+    lower, upper = max(auc - z * se, 0.0), min(auc + z * se, 1.0)
+    return pd.DataFrame(
+        {
+            "estimate": [auc, 2 * auc - 1],
+            "se": [se, 2 * se],
+            "lower": [lower, 2 * lower - 1],
+            "upper": [upper, 2 * upper - 1],
+        },
+        index=["auc", "gini"],
+    )
+
+
+def delong_test(
+    current: npt.ArrayLike,
+    new: npt.ArrayLike,
+    target: npt.ArrayLike,
+    *,
+    level: float = 0.95,
+    weights: npt.ArrayLike | None = None,
+) -> pd.Series:
+    r"""Test whether two scores of the same observations have the same AUC.
+
+    DeLong's test [1]_ compares two scores of the same sample, such as a new
+    model and the model it would replace. Both scores rank the same pairs of
+    events and non-events, so their AUCs are correlated, and the standard
+    error of the difference takes that into account.
+
+    The scores come first and the target last, as in
+    `kivi.strategy.swap_set`; scikit-learn's metrics take the target first.
+
+    Parameters
+    ----------
+    current : array_like
+        Finite numeric scores of one model, such as the model in use, that
+        are higher for a higher event probability.
+    new : array_like
+        Finite numeric scores of the other model for the same observations,
+        in the same direction.
+    target : array_like
+        Binary labels, with 1 indicating the event. There must be at least
+        two events and two non-events. Any two of `current`, `new` and
+        `target` that are pandas Series must have identical indices;
+        otherwise they are matched by position.
+    level : float, default 0.95
+        Confidence level of the interval of the difference, between 0 and 1.
+    weights : array_like, optional
+        Non-negative frequency weight of each observation, matched like
+        `target`. An observation of weight :math:`w` counts as :math:`w`
+        observations, so integer weights give the same result as repeating
+        rows. The weights of each class must add up to more than 1.
+
+    Returns
+    -------
+    pandas.Series
+        ``current_auc`` and ``new_auc``, the AUCs of the two scores;
+        ``difference``, which is ``new_auc`` minus ``current_auc``; ``se``,
+        its standard error; ``lower`` and ``upper``, the bounds of its
+        interval at `level`, cut off at -1 and 1; ``z``, the difference
+        divided by its standard error; and ``p_value``, the two-sided
+        p-value of ``z``.
+
+    Raises
+    ------
+    ValueError
+        If the inputs are empty or not one-dimensional, their indices or
+        lengths do not match, `target` has a label other than 0 and 1 or
+        fewer than two of either, or `current` or `new` is not real and
+        numeric or has a missing or infinite value. Also if `level` is not
+        a number between 0 and 1, or if `weights` is not numeric, does not
+        give each observation one finite, non-negative weight, has an index
+        other than that of a Series among the scores, or gives a class a
+        total weight of 1 or less.
+
+    See Also
+    --------
+    roc_auc_interval : The standard error and interval of one AUC.
+    kivi.strategy.swap_set : The applicants that two scores decide
+        differently at their cut-offs.
+
+    Notes
+    -----
+    With the placement values of `roc_auc_interval` computed for each score,
+    let :math:`D_{10,i}` be the placement value of event :math:`i` under the
+    new score minus that under the current one, and :math:`D_{01,j}` the
+    same difference for non-event :math:`j`. They average to the difference
+    of the AUCs, and its variance is estimated by
+
+    .. math::
+
+       \widehat{\mathrm{Var}}(\hat\theta_{\mathrm{new}} -
+       \hat\theta_{\mathrm{current}}) = \frac{S^D_{10}}{m} +
+       \frac{S^D_{01}}{n},
+
+    where :math:`S^D_{10}` and :math:`S^D_{01}` are the sample variances of
+    :math:`D_{10,i}` over the :math:`m` events and of :math:`D_{01,j}` over
+    the :math:`n` non-events. This equals the variance of the contrast in
+    DeLong et al., which adds the two variances and subtracts twice the
+    covariance. Under the hypothesis of equal AUCs, :math:`z` is
+    approximately standard normal.
+
+    For a one-sided test that the new score ranks better, halve
+    ``p_value`` when ``z`` is positive. When the two scores order every pair
+    of an event and a non-event in the same way, the difference and its
+    standard error are both 0, and ``z`` and ``p_value`` are NaN.
+
+    Weights count as in `roc_auc_interval`, so inverse sampling rates give
+    too small a standard error.
+
+    References
+    ----------
+    .. [1] E. R. DeLong, D. M. DeLong and D. L. Clarke-Pearson, "Comparing
+       the areas under two or more correlated receiver operating
+       characteristic curves: a nonparametric approach", Biometrics, 44(3),
+       pp. 837-845, 1988.
+
+    Examples
+    --------
+    The new score separates the six observations perfectly:
+
+    >>> from kivi.metrics import delong_test
+    >>> current = [0.1, 0.4, 0.4, 0.8, 0.7, 0.9]
+    >>> new = [0.2, 0.3, 0.6, 0.5, 0.7, 0.9]
+    >>> target = [0, 0, 1, 0, 1, 1]
+    >>> delong_test(current, new, target).round(4)
+    current_auc    0.7222
+    new_auc        1.0000
+    difference     0.2778
+    se             0.2485
+    lower         -0.2092
+    upper          0.7647
+    z              1.1180
+    p_value        0.2636
+    dtype: float64
+    """
+    if isinstance(current, pd.Series) and isinstance(new, pd.Series):
+        if not current.index.equals(new.index):
+            raise ValueError("current and new must have identical indices")
+    current_values, labels, mass = scores_and_labels(current, target, "current", weights=weights)
+    new_values, _, _ = scores_and_labels(new, target, "new", weights=weights)
+    _check_class_totals(labels, mass)
+    z_level = _critical_value(level)
+    current_auc = _auc(current_values, labels, mass)
+    new_auc = _auc(new_values, labels, mass)
+    placement = _placements(new_values, labels, mass) - _placements(current_values, labels, mass)
+    se = math.sqrt(_delong_variance(placement, labels, mass))
+    difference = new_auc - current_auc
+    with np.errstate(divide="ignore", invalid="ignore"):
+        z = float(np.float64(difference) / se)
+    p_value = math.nan if math.isnan(z) else math.erfc(abs(z) / math.sqrt(2))
+    return pd.Series(
+        {
+            "current_auc": current_auc,
+            "new_auc": new_auc,
+            "difference": difference,
+            "se": se,
+            "lower": max(difference - z_level * se, -1.0),
+            "upper": min(difference + z_level * se, 1.0),
+            "z": z,
+            "p_value": p_value,
+        }
+    )
 
 
 def gains_table(
@@ -483,15 +890,95 @@ def brier_score(
     return float(np.average((values - labels) ** 2, weights=mass))
 
 
+def _auc(values: np.ndarray, labels: np.ndarray, weights: np.ndarray | None) -> float:
+    """AUC from validated scores, labels and weights, with ties counted as one half."""
+    if weights is not None:
+        # Scaling by a power of two is exact and keeps the product of the class totals finite.
+        weights = np.ldexp(weights, -int(np.frexp(weights.max())[1]))
+    non_event, event = _distinct_counts(labels, values, weights).T
+    # U counts each (event, non-event) pair in which the event scores higher, a tie as one half;
+    # it equals R_1 - n_1 (n_1 + 1) / 2 without subtracting large rank sums.
+    below = np.cumsum(non_event) - non_event
+    u = np.sum(event * (below + 0.5 * non_event))
+    return float(u / (float(event.sum()) * float(non_event.sum())))
+
+
+def _placements(
+    values: np.ndarray, labels: np.ndarray, weights: np.ndarray | None
+) -> npt.NDArray[np.float64]:
+    """Placement value of each observation, the structural components of DeLong et al.
+
+    For an event, the share of non-events that score below it; for a non-event, the share of
+    events that score above it; a tie counts as one half. With weights, the shares are shares of
+    weight, as they would be among repeated rows.
+    """
+    _, counts, position = _score_counts(values, labels, weights)
+    cum_non_event, cum_event = np.cumsum(counts, axis=0).T
+    non_event, event = counts.T
+    # Rank among all scores minus rank among the own class, both midranks (Sun and Xu, 2014).
+    event_placement = (cum_non_event - 0.5 * non_event) / cum_non_event[-1]
+    non_event_placement = (cum_event[-1] - cum_event + 0.5 * event) / cum_event[-1]
+    return np.where(labels == 1, event_placement[position], non_event_placement[position])
+
+
+def _delong_variance(
+    placement: np.ndarray, labels: np.ndarray, weights: np.ndarray | None
+) -> float:
+    """S10 / m + S01 / n from placement values, reading weights as frequency weights."""
+    variance = 0.0
+    for side in (0, 1):
+        in_class = labels == side
+        values = placement[in_class]
+        mass = np.ones(len(values)) if weights is None else weights[in_class]
+        total = mass.sum()
+        deviation = values - np.sum(mass * values) / total
+        # Dividing twice keeps a huge total weight from overflowing the product.
+        variance += np.sum(mass * deviation**2) / (total - 1) / total
+    return float(variance)
+
+
+def _check_class_totals(labels: np.ndarray, weights: np.ndarray | None) -> None:
+    """Require the sample sizes that a standard error needs: more than 1 in each class."""
+    totals = np.bincount(labels, weights=weights, minlength=2)
+    if weights is None:
+        if (totals < 2).any():
+            raise ValueError(
+                "target must contain at least two events and two non-events for a standard "
+                f"error, got {totals[1]} event(s) and {totals[0]} non-event(s)"
+            )
+    elif not (totals > 1).all():
+        raise ValueError(
+            "weights must give each target class a total above 1 for a standard error, got "
+            f"{float(totals[0])!r} for 0 and {float(totals[1])!r} for 1"
+        )
+
+
+def _critical_value(level) -> float:
+    """Return the normal quantile at (1 + level) / 2, for an interval at confidence `level`."""
+    if isinstance(level, bool) or not isinstance(level, Real) or not 0 < level < 1:
+        raise ValueError(f"level must be a number between 0 and 1, got {level!r}")
+    # (1 - level) / 2 keeps its precision when level is close to 1; 0.5 + level / 2 would not.
+    return -normal_quantile((1 - float(level)) / 2)
+
+
+def _score_counts(
+    values: np.ndarray, labels: np.ndarray, weights: np.ndarray | None
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Return the distinct scores, their (non_event, event) counts and each observation's position.
+
+    The distinct scores run from the lowest to the highest.
+    """
+    distinct, position = np.unique(values, return_inverse=True)
+    position = position.ravel()
+    counts = np.bincount(2 * position + labels, weights=weights, minlength=2 * len(distinct))
+    return distinct, counts.reshape(-1, 2), position
+
+
 def _distinct_counts(
     labels: np.ndarray, values: np.ndarray, weights: np.ndarray | None = None
 ) -> npt.NDArray[np.int64] | npt.NDArray[np.float64]:
     """(non_event, event) counts at each distinct score, from the lowest score to the highest."""
-    distinct, position = np.unique(values, return_inverse=True)
-    counts = np.bincount(
-        2 * position.ravel() + labels, weights=weights, minlength=2 * len(distinct)
-    )
-    return counts.reshape(-1, 2)
+    return _score_counts(values, labels, weights)[1]
 
 
 def _ratio(numerator: np.ndarray, denominator: np.ndarray) -> npt.NDArray[np.float64]:
