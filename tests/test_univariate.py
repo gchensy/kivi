@@ -155,6 +155,23 @@ def test_infinite_special_code_and_all_missing_column():
     assert empty["iv"] == 0 and empty["tied_bins"]
 
 
+def test_all_special_column_has_tied_bins_and_no_summary():
+    frame = pd.DataFrame({"code": [-1, -1, -1, -1]})
+    profile = profile_table(frame, [0, 1, 0, 1], special={"code": [-1]}).loc["code"]
+    assert (profile["count"], profile["special"], profile["distinct"]) == (4, 4, 1)
+    assert np.isnan(profile["mean"]) and np.isnan(profile["gini"])
+    assert profile["iv"] == 0 and profile["tied_bins"]
+
+
+def test_rows_without_weight_are_not_checked():
+    frame = pd.DataFrame({"x": [1.0, 2.0, np.inf, 3.0, 4.0]})
+    target = [0, 1, 0, 1, 0]
+    weighted = profile_table(frame, target, weights=[1, 1, 0, 1, 1])
+    kept = profile_table(frame.drop(index=2), [0, 1, 1, 0], weights=[1, 1, 1, 1])
+    pd.testing.assert_frame_equal(weighted.drop(columns=["count"]), kept.drop(columns=["count"]))
+    assert weighted.loc["x", "count"] == 4
+
+
 def test_kinds_follow_fit_spec():
     frame = pd.DataFrame(
         {
@@ -288,4 +305,10 @@ def test_invalid_profile_arguments(arguments, message):
 def test_profile_rejects_infinite_values_that_are_not_special():
     frame = pd.DataFrame({"x": [1.0, np.inf, 2.0]})
     with pytest.raises(ValueError, match="column 'x' has infinite values"):
+        profile_table(frame)
+
+
+def test_profile_rejects_complex_columns():
+    frame = pd.DataFrame({"z": np.array([1 + 1j, 2, 3])})
+    with pytest.raises(ValueError, match="column 'z' must be real, got dtype complex128"):
         profile_table(frame)

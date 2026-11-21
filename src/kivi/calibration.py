@@ -1069,8 +1069,13 @@ def master_scale(
         )
     index = _grade_labels(labels, len(values))
     if boundary == "geometric":
-        # Split the square root so that the product of two tiny PDs cannot underflow.
-        bounds = np.sqrt(values[:-1]) * np.sqrt(values[1:])
+        product = values[:-1] * values[1:]
+        # Split the square root only where the product of two tiny PDs would underflow.
+        bounds = np.where(
+            product >= np.finfo(float).tiny,
+            np.sqrt(product),
+            np.sqrt(values[:-1]) * np.sqrt(values[1:]),
+        )
     else:
         bounds = (values[:-1] + values[1:]) / 2
     return pd.DataFrame(
@@ -1205,7 +1210,8 @@ def assign_grades(probability: npt.ArrayLike, scale: pd.DataFrame) -> pd.Series 
     """Give each predicted PD the grade of a master scale.
 
     The grades are an ordered categorical of the labels of the scale, so
-    `calibration_table` and the tests take them directly.
+    `calibration_table` counts them directly, in the order of the scale,
+    for the tests of each grade.
 
     Parameters
     ----------
@@ -1246,9 +1252,9 @@ def assign_grades(probability: npt.ArrayLike, scale: pd.DataFrame) -> pd.Series 
     closed on the right, and a PD of 0 belongs to the first grade, as with
     ``include_lowest=True``. The result equals
     ``pandas.cut(probability, edges, labels=scale.index, include_lowest=True)``
-    for the edges ``[0, *scale["upper"]]``, except that the categories are
-    ordered. The 0.2 versions of kivi gave a PD on a bound the grade above
-    it instead.
+    for the edges ``[0, *scale["upper"]]``; the ``upper`` column, not the
+    PDs, decides the grade. The 0.2 versions of kivi gave a PD on a bound
+    the grade above it instead.
 
     Examples
     --------
@@ -1358,7 +1364,7 @@ def _scale_bounds(scale: pd.DataFrame) -> np.ndarray:
         raise ValueError(f"scale must have the columns 'lower' and 'upper', missing {absent[0]!r}")
     if scale.empty:
         raise ValueError("scale must have at least one grade")
-    if scale.index.hasnans or not scale.index.is_unique:
+    if isinstance(scale.index, pd.MultiIndex) or scale.index.hasnans or not scale.index.is_unique:
         raise ValueError("scale must be indexed by unique, non-missing grade labels")
     lower = _numeric_values(scale["lower"], "lower of scale")
     upper = _numeric_values(scale["upper"], "upper of scale")

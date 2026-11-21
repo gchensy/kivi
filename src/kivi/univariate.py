@@ -64,10 +64,11 @@ def profile_table(
         left out of the numeric summary and of the Gini coefficient, and
         each code forms its own group in the quick binning.
     weights : array_like, optional
-        Non-negative weight of each row, matched like `target`, such as the
-        inverse of its sampling rate. Counts become sums of weights and every
-        statistic is weighted, so integer weights give the same result as
-        repeating rows. Rows with zero weight count for nothing.
+        Non-negative frequency weight of each row, matched like `target`,
+        such as the inverse of its sampling rate. Counts become sums of
+        weights and every statistic is weighted, so integer weights give the
+        same result as repeating rows with unit weights. Rows with zero
+        weight count for nothing, so their values are not checked.
 
     Returns
     -------
@@ -115,9 +116,13 @@ def profile_table(
 
     The quantiles interpolate linearly, as ``numpy.quantile`` does; with
     `weights` they are weighted quantiles by the inverted CDF, as the edges
-    of `kivi.binning.bin_edges`, so they equal those of repeated rows with
-    unit weights. The standard deviation divides by the total weight minus
-    1, as it divides by the number of rows minus 1 without weights.
+    of `kivi.binning.bin_edges`. Weights, even unit weights, therefore
+    change the quantiles and, through the edges, ``iv`` and ``tied_bins``;
+    with integer weights every other column equals that of the repeated
+    rows without weights. The
+    standard deviation divides by the total weight minus 1, as it divides
+    by the number of rows minus 1 without weights, so it is NaN when the
+    weights of a column's values sum to 1 or less.
 
     With `target`, every column also gets
 
@@ -134,8 +139,9 @@ def profile_table(
       for each special code; categorical columns keep their labels. Missing
       values form a group of their own;
     * ``tied_bins``: True where the quick binning of a numeric column has
-      fewer bins than requested, because tied quantiles were merged. The
-      table records this instead of warning for every column, as
+      fewer bins than requested, because tied quantiles were merged or no
+      values are left to bin apart from missing values and special codes.
+      The table records this instead of warning for every column, as
       `kivi.binning.bin_edges` does; such an IV understates the column until
       it is binned with custom edges or special codes;
     * ``gini``: the Gini coefficient of the values of a numeric column as a
@@ -195,7 +201,11 @@ def profile_table(
     rows = []
     for name in names:
         if kinds[name] == "numeric":
-            _check_finite(frame[name], codes.get(name, ()), name)
+            if pd.api.types.is_complex_dtype(frame[name].dtype):
+                raise ValueError(f"column {name!r} must be real, got dtype {frame[name].dtype}")
+            # Rows without weight count for nothing, whatever value they hold.
+            used = frame[name] if mass is None else frame[name][mass > 0]
+            _check_finite(used, codes.get(name, ()), name)
         rows.append(
             _profile(frame[name], kinds[name], codes.get(name, ()), labels, weight, mass, bins)
         )

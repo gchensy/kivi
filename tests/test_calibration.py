@@ -885,6 +885,16 @@ def test_master_scale_of_tiny_pds_does_not_underflow():
     assert scale["upper"].iloc[0] == pytest.approx(2e-200, rel=1e-14)
 
 
+def test_geometric_bound_is_the_documented_square_root():
+    # A PD computed as sqrt(p1 * p2) lies on the bound, so it gets the lower grade.
+    rng = np.random.default_rng(5)
+    for _ in range(200):
+        low, high = np.sort(rng.uniform(1e-4, 0.5, 2))
+        scale = master_scale([low, high])
+        assert scale["upper"].iloc[0] == math.sqrt(low * high)
+        assert assign_grades([math.sqrt(low * high)], scale).tolist() == [1]
+
+
 @pytest.mark.parametrize(
     "probability, kwargs, message",
     [
@@ -1075,6 +1085,10 @@ def test_invalid_assign_grades_probability(probability, message):
         (SCALE.iloc[1:], "cover \\[0, 1\\], got grades from 0.02"),
         (SCALE.assign(lower=[0, 0.02, 0.07, 0.2828]), "each starting where the one before"),
         (SCALE.iloc[::-1].assign(lower=0.0, upper=1.0), "increasing grades"),
+        (
+            SCALE.set_axis(pd.MultiIndex.from_tuples([(1, "A"), (1, "B"), (2, "C"), (2, "D")])),
+            "unique, non-missing grade labels",
+        ),
     ],
 )
 def test_invalid_assign_grades_scale(scale, message):
