@@ -3,7 +3,7 @@ Reject inference
 
 A scorecard is developed on past applicants with a known outcome, and the outcome is known only for the applicants that the previous policy approved. The model learns from them and is then applied to every applicant, including the kind that used to be declined. Reject inference supplies outcomes for the rejected applicants so that the model can be refitted on all of them. :mod:`kivi.reject_inference` returns those outcomes as rows with weights, or returns weights for the approved applicants. The ``weights`` arguments of :func:`~kivi.selection.logistic_regression`, :func:`~kivi.woe.woe_table` and :func:`~kivi.spec.fit_spec` take either.
 
-Reject inference follows :doc:`variable selection <selection>`, whose model it refits on all applicants, and comes before the :doc:`scorecard`, which scales the refitted model.
+Reject inference follows :doc:`variable selection <selection>`, whose model it refits on all applicants, and comes before the :doc:`scorecard`, which scales the refitted model. :func:`~kivi.reject_inference.fuzzy_augmentation` and :func:`~kivi.reject_inference.parceling` return inferred rows, and :func:`~kivi.reject_inference.reweighting` returns weights for the approved applicants.
 
 Every method rests on an assumption about the rejected applicants that the approved ones cannot confirm. The examples therefore use synthetic applications whose outcomes are known for everyone, so that each method can be checked against the model the full outcomes would give. Real data never allow that check.
 

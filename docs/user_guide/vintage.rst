@@ -3,12 +3,12 @@ Vintage and roll-rate analysis
 
 Once a scorecard is in use, the loans it approves are monitored as they age. :mod:`kivi.vintage` covers the two standard views of a loan portfolio: vintage curves, which follow the bad rate of each origination cohort by month on book, and roll rates and transition matrices, which show how loans move between delinquency buckets from one month end to the next.
 
-Vintage analysis is the last step of the user guide. It complements the :doc:`population stability index <psi>`, which monitors the applicants, by following the loans themselves.
+Vintage analysis is the last step of the user guide. It complements the :doc:`population stability index <psi>`, which monitors the applicants, by following the loans themselves. :func:`~kivi.vintage.vintage_table` gives the vintage curves, and :func:`~kivi.vintage.transition_matrix` and :func:`~kivi.vintage.roll_rates` the movements between buckets.
 
 The loan panel
 --------------
 
-Both work on a loan panel in long format, with one row per loan and month on book. The examples use the synthetic panel of :func:`~kivi.datasets.make_loan_panel`: 5,000 instalment loans originated from January 2024 to December 2025 and observed at every month end up to January 2026.
+Vintage curves and roll rates both work on a loan panel in long format, with one row per loan and month on book. The examples use the synthetic panel of :func:`~kivi.datasets.make_loan_panel`: 5,000 instalment loans originated from January 2024 to December 2025 and observed at every month end up to January 2026.
 
 >>> import numpy as np
 >>> import pandas as pd

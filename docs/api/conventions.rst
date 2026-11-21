@@ -11,8 +11,8 @@ kivi has no top-level imports. Import each function from its module, as in ``fro
 Arguments
 ---------
 
-* The data come first and the target second, as in ``woe_table(groups, target)``, ``roc_auc(score, target)``, ``stepwise(X, target)`` and ``fit_spec(frame, target)``. scikit-learn's metrics take the target first, so check the order when porting code from them.
-* A predicted probability of an event, such as a PD, is always called ``probability``, as in ``brier_score(probability, target)``, ``calibration_table(groups, target, probability)`` and ``expected_loss(probability, lgd, ead)``. A ``score`` is any number that rises with the risk, and a PD is one of them.
+* The data come first and the target follows them, as in ``woe_table(groups, target)``, ``roc_auc(score, target)``, ``stepwise(X, target)`` and ``fit_spec(frame, target)``. A function with several data arguments takes all of them before the target, as ``swap_set(current, new, target)`` does, and a predicted probability comes after the target, as in ``calibration_table(groups, target, probability)``. scikit-learn's metrics take the target first, so check the order when porting code from them.
+* A predicted probability of an event, such as a PD, is always called ``probability``, as in ``brier_score(probability, target)``, ``calibration_table(groups, target, probability)`` and ``expected_loss(probability, lgd, ead)``. What a ``score`` is depends on the module; see :ref:`conventions-scores`.
 * The data, and the fitted results that a function applies, such as the edges of :func:`~kivi.binning.cut` or the table of :func:`~kivi.woe.woe_transform`, are positional arguments. Every option after them is keyword-only. The number of bins of :func:`~kivi.binning.bin_edges` is the one option that can also be passed by position:
 
 >>> from kivi.binning import bin_edges
@@ -29,7 +29,7 @@ Inputs and results
 ------------------
 
 * A one-dimensional input is array_like: a list, a NumPy array or a pandas Series. A function that works on several columns at once, such as :func:`~kivi.selection.stepwise` or :func:`~kivi.spec.fit_spec`, takes a DataFrame.
-* A result with one value per input value is shaped like the input. A Series gives a Series with the same index and name, other array_like input gives a NumPy array, and a single number gives a float:
+* A result with one value per input value is shaped like the input. A Series gives a Series with the same index and name, other array_like input gives a NumPy array, and a single number gives a float. :func:`~kivi.binning.cut` and :func:`~kivi.calibration.assign_grades` return groups, so for input other than a Series they return a ``pandas.Categorical``:
 
 >>> import pandas as pd
 >>> from kivi.calibration import prior_correction
@@ -43,16 +43,20 @@ Name: pd, dtype: float64
 >>> round(prior_correction(0.5, **rates), 4)
 0.02
 
-* Two Series that are passed together, such as the groups and the target, must have identical indices; they are not aligned. Any other combination of inputs is matched by position.
+* Series that describe the same observations, such as the data, the target, the probabilities and the weights, must have identical indices; they are not aligned. Any other combination of these inputs is matched by position. Inputs that describe other observations, such as the two samples of :func:`~kivi.stability.psi_table` or the rejected applicants of :func:`~kivi.reject_inference.parceling`, can have any index.
 * Tables are DataFrames. A table with one row per group is indexed by the group labels, in an index named ``bin``. A total is the sum of a column, such as ``woe_table(groups, target)["iv"].sum()``.
 * Functions do not modify their inputs. Random draws come from a local generator seeded by ``rng``, so they never change NumPy's global state, and the same seed gives the same result.
+
+.. _conventions-scores:
 
 Targets, scores and probabilities
 ---------------------------------
 
 * A target is 1 for an event, such as a default, and 0 for a non-event. Any other label, and a missing label, raises an error. :func:`~kivi.strategy.swap_set` is the exception: it reads a missing label as an outcome that is not known.
-* A score rises with the event probability. Pass a PD as it is, and negate scorecard points, which fall as the risk rises. A cut-off approves the scores at or below it.
-* True and False count as 1 and 0 in targets, scores and probabilities. Weights, LGDs, exposures, losses and numeric options such as ``bins`` reject them:
+* In :mod:`kivi.metrics` and :mod:`kivi.strategy`, a score rises with the event probability. Pass a PD as it is, and negate scorecard points, which fall as the risk rises. A cut-off of :mod:`kivi.strategy` approves the scores at or below it.
+* In :mod:`kivi.scorecard`, a ``score`` is scorecard points, which fall as the risk rises: :func:`~kivi.scorecard.score_to_pd` gives a lower PD for a higher score.
+* :func:`~kivi.calibration.platt_fit` accepts a score in either direction and fits a negative slope to one that falls as the risk rises. :func:`~kivi.calibration.isotonic_fit` assumes a rising score unless ``increasing=False``.
+* True and False count as 1 and 0 in targets, scores and probabilities. Weights, LGDs, exposures and losses reject them, and so do most numeric options, such as ``bins``, ``max_bins``, ``factor`` and the cut-offs:
 
 >>> import numpy as np
 >>> from kivi.metrics import roc_auc
@@ -81,7 +85,7 @@ b            0      1
 a            2      0
 NaN          0      1
 
-A missing score or probability raises an error instead, so decide how missing values are scored before passing them in.
+The functions that count, rank or fit, such as :func:`~kivi.metrics.roc_auc`, :func:`~kivi.calibration.calibration_table`, :func:`~kivi.strategy.cutoff_table` and :func:`~kivi.calibration.platt_fit`, raise an error for a missing score or probability instead, so decide how missing values are scored before passing them in. The functions that convert each value on its own, such as :func:`~kivi.scorecard.pd_to_score`, :func:`~kivi.calibration.platt_predict` and :func:`~kivi.strategy.expected_loss`, return NaN for a missing value, and :func:`~kivi.calibration.assign_grades` returns a missing grade.
 
 Sample weights
 --------------
@@ -96,7 +100,7 @@ Most functions that count observations or fit a model take ``weights``: one fini
 Errors and warnings
 -------------------
 
-* Invalid input raises ``ValueError``, and so does a model that cannot be fitted, such as one with separated classes, which raises :exc:`kivi.selection.SeparationError`. The message names the argument and shows the value that was received:
+* Invalid input raises ``ValueError``, and so does a model that cannot be fitted, such as one with separated classes, which raises :exc:`kivi.selection.SeparationError`. The message names the argument and, where a single value is at fault, shows the value that was received:
 
 >>> bin_edges([1, 2, 3], bins=0)
 Traceback (most recent call last):

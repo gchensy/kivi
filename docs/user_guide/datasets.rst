@@ -1,7 +1,7 @@
 Example data
 ============
 
-:mod:`kivi.datasets` provides three kinds of example data: real bank marketing data with one row per customer and a binary target, a synthetic panel of loans with one row per loan and month, and synthetic loan applications with one row per applicant and an approval decision.
+:mod:`kivi.datasets` provides three kinds of example data: real bank marketing data with one row per customer and a binary target, a synthetic panel of loans with one row per loan and month, and synthetic loan applications with one row per applicant and an approval decision. :func:`~kivi.datasets.load_bank`, :func:`~kivi.datasets.make_loan_panel` and :func:`~kivi.datasets.make_applications` return them.
 
 Bank marketing data
 -------------------

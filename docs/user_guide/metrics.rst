@@ -50,7 +50,7 @@ Every function expects a score that is higher for a higher event probability, su
 
 Every function takes the score first and the target second, as ``woe_table(groups, target)`` takes the groups first. scikit-learn's metrics take the target first, so check the order when porting code from them.
 
-As in :func:`~kivi.woe.woe_table`, the target is 1 for an event and 0 for a non-event. Two Series must share the same index; arrays and lists are matched by position. Scores must be finite, so decide how missing values are scored before evaluating the model.
+As in :func:`~kivi.woe.woe_table`, the target is 1 for an event and 0 for a non-event. Two Series must share the same index; arrays and lists are matched by position, as :doc:`/api/conventions` describes for every function. Scores must be finite, so decide how missing values are scored before evaluating the model.
 
 Evaluating a WOE score
 ----------------------

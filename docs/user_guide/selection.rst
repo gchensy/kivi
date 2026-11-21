@@ -3,7 +3,7 @@ Variable selection
 
 A scorecard is a logistic regression on a short list of WOE-encoded variables. :mod:`kivi.selection` covers the usual steps from the candidates to that list: drop one variable of each strongly correlated pair, check the rest for collinearity, select variables by their p-values and read the fitted model. Every function takes a DataFrame with one WOE-encoded column per variable, such as the output of :func:`~kivi.woe.woe_transform`, and the functions that fit a model also take the 0/1 target.
 
-Selection follows :doc:`woe_iv`, which encodes the candidates, and comes before :doc:`reject_inference` and the :doc:`scorecard`, which refit and scale the chosen model.
+Selection follows :doc:`woe_iv`, which encodes the candidates, and comes before :doc:`reject_inference` and the :doc:`scorecard`, which refit and scale the chosen model. :func:`~kivi.selection.correlation_filter` drops correlated variables, :func:`~kivi.selection.vif` measures collinearity, :func:`~kivi.selection.logistic_regression` fits the model and :func:`~kivi.selection.stepwise` selects its variables.
 
 Preparing the candidates
 ------------------------

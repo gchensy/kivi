@@ -3,7 +3,7 @@ Calibration
 
 A PD model is calibrated when its probabilities match the default rates that are later observed. Calibration is a separate question from ranking: a model can order applicants well and still predict default rates that are too low for the whole portfolio. :mod:`kivi.calibration` corrects probabilities for the sampling of the development data, builds a master scale, summarizes its grades and tests them, and maps a score to probabilities with Platt scaling or isotonic regression.
 
-Calibration follows :doc:`metrics`, which measures the ranking, and comes before the :doc:`credit strategy <strategy>`, which sets cut-offs on the calibrated PDs.
+Calibration follows :doc:`metrics`, which measures the ranking, and comes before the :doc:`credit strategy <strategy>`, which sets cut-offs on the calibrated PDs. :func:`~kivi.calibration.prior_correction` and :func:`~kivi.calibration.corrected_intercept` correct for the sampling; :func:`~kivi.calibration.master_scale`, :func:`~kivi.calibration.fit_grade_pd` and :func:`~kivi.calibration.assign_grades` build and apply a master scale; :func:`~kivi.calibration.calibration_table`, :func:`~kivi.calibration.binomial_test`, :func:`~kivi.calibration.jeffreys_test`, :func:`~kivi.calibration.hosmer_lemeshow` and :func:`~kivi.calibration.herfindahl_index` count and test the grades; and :func:`~kivi.calibration.platt_fit`, :func:`~kivi.calibration.platt_predict`, :func:`~kivi.calibration.isotonic_fit` and :func:`~kivi.calibration.isotonic_predict` recalibrate a score.
 
 Correcting for oversampling
 ---------------------------

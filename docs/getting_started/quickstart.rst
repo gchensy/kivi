@@ -36,7 +36,7 @@ The outer edges are infinite, so an age outside the reference range still falls 
 Weight of evidence
 ------------------
 
-``woe_table`` returns one row per bin, in the order of the intervals.
+:func:`~kivi.woe.woe_table` returns one row per bin, in the order of the intervals.
 
 >>> evidence = woe_table(before, reference["target"])
 >>> evidence[["event", "non_event", "woe", "iv"]].round(3)
@@ -78,7 +78,7 @@ IV = 0.137
 Population stability
 --------------------
 
-``psi_table`` compares the two samples bin by bin. It does not use the target.
+:func:`~kivi.stability.psi_table` compares the two samples bin by bin. It does not use the target.
 
 >>> stability = psi_table(before, after)
 >>> stability[["reference", "current", "psi"]].round(4)

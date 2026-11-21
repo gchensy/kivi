@@ -1,7 +1,7 @@
 Weight of evidence and information value
 ========================================
 
-:func:`~kivi.woe.woe_table` measures how each group separates a binary target. An event is target 1 and a non-event is target 0. Both target classes must be present. Group and target series must share the same index; arrays and lists are matched by position.
+:func:`~kivi.woe.woe_table` measures how each group separates a binary target. An event is target 1 and a non-event is target 0. Both target classes must be present. Group and target series must share the same index; arrays and lists are matched by position, as :doc:`/api/conventions` describes for every function.
 
 WOE and IV follow :doc:`binning`, which forms the groups, and come before :doc:`variable selection <selection>`, which fits a logistic regression on the WOE-encoded variables. :func:`~kivi.woe.woe_transform` encodes new data with the fitted WOE, and :func:`~kivi.woe.woe` and :func:`~kivi.woe.iv` compute the measures from counts that are already aggregated.
 
