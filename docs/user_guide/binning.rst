@@ -7,6 +7,8 @@ In credit scoring, binning is the classing step of scorecard development: a cont
 
 Binning follows the :doc:`univariate profile <univariate>`, which ranks the candidates by a quick binning, and comes before the :doc:`weight of evidence <woe_iv>`, which measures and encodes the groups. ``bin_edges`` chooses the edges from the values alone; :func:`~kivi.binning.chimerge_edges`, :func:`~kivi.binning.tree_edges` and :func:`~kivi.binning.monotonic_edges` also use the target, and :func:`~kivi.binning.cut` groups a sample, with a group of its own for each special code.
 
+Categorical variables are grouped in the same two steps: :func:`~kivi.binning.category_groups` pools rare categories, :func:`~kivi.binning.chimerge_groups` merges categories with similar event rates, and :func:`~kivi.binning.group_categories` applies the grouping to a sample.
+
 Quantile and uniform edges
 --------------------------
 
@@ -271,6 +273,120 @@ Intervals are closed on the right, so a value equal to an edge belongs to the lo
 
 Pass categorical labels directly to the metric functions. A missing label is a separate group. Only observed groups appear. Categorical groups, including the result of ``pandas.cut``, follow the order of their categories with missing values last; other labels follow the order in which they first appear. For WOE, group and target series must have identical indices; arrays and lists are matched by position. :doc:`/api/conventions` describes these rules for every function.
 
+.. _category-groups:
+
+Grouping categories
+-------------------
+
+A categorical variable needs no edges: each label is already a group. It may still need coarse classing. The WOE of a label held by a few dozen customers rests on a handful of events, and a scorecard with a group for each of many labels is hard to explain and to monitor. On the bank data, the WOE of four of the twelve jobs changes sign on the later sample:
+
+>>> job = reference["job"]
+>>> by_label = pd.DataFrame({
+...     "reference": woe_table(job, target)["woe"],
+...     "current": woe_table(current["job"], current["target"])["woe"],
+... })
+>>> by_label.sort_values("reference").round(3)
+               reference  current
+bin
+blue-collar       -0.564   -0.396
+services          -0.339   -0.129
+self-employed     -0.263    0.261
+entrepreneur      -0.235   -0.411
+unemployed        -0.233    0.025
+technician        -0.004   -0.232
+admin.             0.052    0.072
+housemaid          0.239   -0.198
+management         0.271   -0.026
+unknown            0.373    0.849
+retired            0.602    1.265
+student            0.955    0.395
+
+Grouping categories follows the same two steps as binning. :func:`~kivi.binning.category_groups` and :func:`~kivi.binning.chimerge_groups` fit a grouping on the reference sample and return it as a dict from category to group, which can be reviewed, edited and saved like an array of edges. :func:`~kivi.binning.group_categories` applies it to every sample, as :func:`~kivi.binning.cut` applies edges.
+
+Pooling rare categories
+^^^^^^^^^^^^^^^^^^^^^^^
+
+:func:`~kivi.binning.category_groups` pools the categories that hold less than ``min_share`` of the reference, 5% by default, or fewer than ``min_count`` customers, into one group labelled ``rare_label``, ``"other"`` by default. Every other category keeps a group of its own. Four jobs hold less than 3% of the reference customers:
+
+>>> from kivi.binning import category_groups, chimerge_groups, group_categories
+>>> rare = category_groups(job, min_share=0.03)
+>>> [category for category, group in rare.items() if group == "other"]
+['unemployed', 'student', 'housemaid', 'unknown']
+>>> pooled = woe_table(group_categories(job, rare), target)
+>>> pooled.loc["other", ["total", "event", "event_rate", "woe"]].round(3)
+total         239.000
+event          37.000
+event_rate      0.155
+woe             0.334
+Name: other, dtype: float64
+
+Pooling needs no target, so it also suits variables that are only monitored. It ignores the event rates, however: here students, who subscribe more than twice as often as the average customer, share a group with the unemployed, who subscribe less often.
+
+Merging categories by event rate
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+:func:`~kivi.binning.chimerge_groups` sorts the categories by their WOE, smoothed as in :func:`~kivi.woe.woe_table`, and merges neighbours in that order, so that every group joins categories with similar event rates. First, a group that holds less than ``min_group_share`` of the reference, 5% by default, is merged with the neighbour it is more similar to. Then, as in :ref:`ChiMerge <supervised-binning>`, the neighbours with the smallest chi-square statistic are merged while more than ``max_groups`` groups remain or while some pair does not differ significantly at level ``alpha``. Ties, between equal WOE or equal statistics, go to the category that appears first. A merged group is labelled with its categories in increasing order of their WOE, or, when it has more than five, with the first four and the number of the others, such as ``'a, b, c, d, ... (+3)'``:
+
+>>> groups = chimerge_groups(job, target)
+>>> groups["student"]
+'retired, student'
+>>> for group in dict.fromkeys(groups.values()):
+...     print(group)
+blue-collar, services, self-employed, entrepreneur, unemployed
+technician, admin., housemaid, management, unknown
+retired, student
+>>> by_group = woe_table(group_categories(job, groups), target)
+>>> by_group["woe"].round(3)
+bin
+blue-collar, services, self-employed, entrepreneur, unemployed   -0.420
+technician, admin., housemaid, management, unknown                0.144
+retired, student                                                  0.709
+Name: woe, dtype: float64
+
+The groups come in increasing order of WOE, so their WOE rises from the first to the last by construction. On the later sample the three groups keep that order, although the WOE of their categories does not:
+
+>>> woe_table(group_categories(current["job"], groups), current["target"])["woe"].round(3).tolist()
+[-0.22, -0.054, 1.09]
+
+Grouping lowers the information value on both samples. The IV of many small groups is biased upward, because each group adds a positive term even where its WOE is noise, so a lower IV with stable groups is often the better variable:
+
+>>> rows = {}
+>>> for name, grouping in {"labels": None, "category_groups": rare, "chimerge_groups": groups}.items():
+...     def grouped(sample):
+...         return sample["job"] if grouping is None else group_categories(sample["job"], grouping)
+...     rows[name] = {
+...         "groups": len(woe_table(grouped(reference), target)),
+...         "iv_reference": woe_table(grouped(reference), target)["iv"].sum(),
+...         "iv_current": woe_table(grouped(current), current["target"])["iv"].sum(),
+...     }
+>>> pd.DataFrame.from_dict(rows, orient="index").round(3)
+                 groups  iv_reference  iv_current
+labels               12         0.137       0.191
+category_groups       9         0.117       0.180
+chimerge_groups       3         0.118       0.141
+
+``min_group_share`` can also merge a small category that does differ. In the bank data, the 83 customers whose previous campaign succeeded, 2.8% of the reference, subscribe at a rate of 63%, yet with the default they share a group with the outcome ``other``. Pass ``min_group_share=0`` to rely on the chi-square test alone:
+
+>>> chimerge_groups(reference["poutcome"], target)["success"]
+'other, success'
+>>> chimerge_groups(reference["poutcome"], target, min_group_share=0)["success"]
+'success'
+
+Applying the groups
+^^^^^^^^^^^^^^^^^^^
+
+:func:`~kivi.binning.group_categories` replaces each value with its group and keeps missing values missing. The result is categorical, with the groups in the order of the dict, so :func:`~kivi.woe.woe_table`, :func:`~kivi.woe.woe_transform` and :func:`~kivi.stability.psi_table` take it as they take the result of :func:`~kivi.binning.cut`. A category that the grouping does not know, such as a job that appears only in production, raises an error instead of becoming a missing value. Pass ``unseen`` to give such categories one of the groups, for example the group of rare categories:
+
+>>> new = pd.Series(["student", "astronaut"])
+>>> group_categories(new, groups)
+Traceback (most recent call last):
+...
+ValueError: values have 1 category that groups does not map, such as 'astronaut'; ...
+>>> group_categories(new, rare, unseen="other").tolist()
+['other', 'other']
+
+The grouping is a plain dict, so a reviewer can move a category to another group or write a grouping by hand. Keep the categories of a group under one label: the label is what :func:`~kivi.woe.woe_table` reports and what :func:`~kivi.binning.group_categories` returns. :doc:`spec` groups the categorical columns of a whole data frame and saves the groupings with the edges.
+
 .. _special-values:
 
 Special values
@@ -335,10 +451,29 @@ IV = 0.352
 
 Fitted on the contacted customers alone, the WOE falls steadily: the more recent the previous contact, the more likely a customer is to subscribe. ``max_bins`` and the trend apply to the intervals only, so each special group comes on top of them with a WOE of its own. :func:`~kivi.binning.chimerge_edges` and :func:`~kivi.binning.tree_edges` take ``special`` in the same way, and ``min_bin_share`` counts only the values that are fitted.
 
+Special values in category groups
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+:func:`~kivi.binning.category_groups` and :func:`~kivi.binning.chimerge_groups` take ``special`` as well, for a label such as ``"unknown"`` that should never share a group. The codes are matched by equality, left out of the fit with their labels, and placed first in the grouping, each mapped to itself, so that :func:`~kivi.binning.group_categories` needs no ``special`` argument. A code that the reference lacks is still in the grouping, and its group has no row in :func:`~kivi.woe.woe_table`. ``max_groups``, ``min_share`` and ``min_group_share`` count only the other categories:
+
+>>> with_unknown = chimerge_groups(job, target, special=["unknown"])
+>>> by_unknown = woe_table(group_categories(job, with_unknown), target)
+>>> by_unknown["woe"].round(3)
+bin
+unknown                                                           0.373
+blue-collar, services, self-employed, entrepreneur, unemployed   -0.420
+technician, admin., housemaid, management                         0.140
+retired, student                                                  0.709
+Name: woe, dtype: float64
+
+The 25 customers with an unknown job now have a group of their own. A group this small has an unstable WOE, so give a special code its own group only when the business needs it.
+
 Missing values
 --------------
 
 Missing reference values are ignored when the edges are fitted, and ``pandas.cut`` leaves them missing. The metric functions then count them as a separate group.
+
+Missing categories are left out of a grouping in the same way, with their labels, and :func:`~kivi.binning.group_categories` keeps them missing, so they form a group of their own in :func:`~kivi.woe.woe_table` rather than joining a group of categories.
 
 Sample weights
 --------------
@@ -351,6 +486,15 @@ array([-inf,  2.5,  inf])
 array([-inf,   3.,  inf])
 
 Observations with zero weight are left out; the supervised methods leave out their labels too. :doc:`woe_iv` shows the same weights in :func:`~kivi.woe.woe_table`.
+
+:func:`~kivi.binning.category_groups` and :func:`~kivi.binning.chimerge_groups` take ``weights`` as well. Shares, counts and the chi-square statistic then use sums of weights, so integer weights give the same grouping as repeated rows. A category whose rows all have zero weight is left out of the grouping, and :func:`~kivi.binning.group_categories` treats it as unseen.
+
+Limits
+------
+
+:func:`~kivi.binning.chimerge_groups` merges one pair of groups at a time, so its time grows with the square of the number of categories: a few seconds for 20,000 categories. For a variable with that many labels, such as a postcode, pool the rarest ones with :func:`~kivi.binning.category_groups` first, group the pooled labels with ``chimerge_groups``, and combine the two dicts as ``{category: groups[pooled[category]] for category in pooled}``.
+
+A grouping is fitted on the categories of the reference sample only. It cannot tell where a new category belongs; :func:`~kivi.binning.group_categories` raises an error for it or sends it to the group named in ``unseen``, and the right group is a business decision.
 
 Errors and warnings
 -------------------
@@ -391,3 +535,10 @@ Invalid input
 * ``values`` and ``target`` are Series without identical indices, or have different lengths;
 * ``target`` contains a label other than 0 and 1, or a missing label;
 * the observed values, apart from special values, do not cover both classes.
+
+:func:`~kivi.binning.category_groups` and :func:`~kivi.binning.chimerge_groups` raise ``ValueError`` for the same problems with the values and the target and for an option outside its range. :func:`~kivi.binning.category_groups` also raises it when ``rare_label`` is the label of a category that is not rare, and :func:`~kivi.binning.chimerge_groups` when the label of a merged group would be the label of another group, which can only happen when labels contain ``", "``.
+
+Unseen categories
+^^^^^^^^^^^^^^^^^
+
+:func:`~kivi.binning.group_categories` raises ``ValueError`` for a category that its grouping does not map, and names a few of them. Map each new category in the grouping, or pass ``unseen`` with the group that new categories should join, as in :ref:`category-groups`. The string ``"raise"`` always raises, so it cannot be the label of that group.

@@ -1,10 +1,10 @@
 """Binning specifications for all columns of a data frame.
 
-``fit_spec`` bins every column of a development sample and measures the
-weight of evidence of each group. The resulting `BinningSpec` groups and
-encodes any other sample in the same way. It can be saved as JSON and loaded
-again, so that production scoring reproduces the development encoding
-exactly.
+``fit_spec`` bins every column of a development sample, optionally groups
+the categories of categorical columns, and measures the weight of evidence
+of each group. The resulting `BinningSpec` groups and encodes any other
+sample in the same way. It can be saved as JSON and loaded again, so that
+production scoring reproduces the development encoding exactly.
 """
 
 import inspect
@@ -28,7 +28,10 @@ from ._validation import as_series, as_weights
 __all__ = ["BinningSpec", "fit_spec"]
 
 _FORMAT = "kivi.BinningSpec"
-_FORMAT_VERSION = 1
+# The newest version that from_dict reads. to_dict writes version 2 only for a specification
+# with grouped categorical columns, so that every other specification stays readable by
+# earlier versions of kivi.
+_FORMAT_VERSION = 2
 _KINDS = ("numeric", "categorical")
 _FITTERS = {
     "quantile": binning.bin_edges,
@@ -37,8 +40,9 @@ _FITTERS = {
     "tree": binning.tree_edges,
     "monotonic": binning.monotonic_edges,
 }
+_GROUPERS = {"chimerge": binning.chimerge_groups, "rare": binning.category_groups}
 # Arguments that fit_spec passes itself and that options must therefore not contain.
-_SET_BY_FIT = {"bins", "max_bins", "method", "special", "weights", "smoothing"}
+_SET_BY_FIT = {"bins", "max_bins", "max_groups", "method", "special", "weights", "smoothing"}
 
 
 @dataclass(frozen=True, eq=False, repr=False)
@@ -46,18 +50,19 @@ class BinningSpec:
     """Binning and WOE encoding of every column, fitted on a development sample.
 
     For each column, a specification records whether it is numeric or
-    categorical, the edges and special codes of a numeric column, the WOE
-    table of its groups and the policy for groups that are not in the table.
-    `cut` groups any sample with the same edges, `woe_transform` encodes it
+    categorical, the edges and special codes of a numeric column, the
+    grouping of a grouped categorical column, the WOE table of its groups
+    and the policy for groups that are not in the table. `cut` groups any
+    sample with the same edges and groupings, `woe_transform` encodes it
     with the same WOE, and `to_json` and `from_json` save and load the
     specification without changing its groups or its encoding. Fit a
     specification with `fit_spec` rather than calling the constructor.
 
-    A specification is immutable. Its mappings are read-only, and ``edges``
-    and ``tables`` return a new copy of an array or a table on each access,
-    so changing the copy leaves the specification as it was. To change a
-    field, such as the unseen policy, use `dataclasses.replace`, which
-    validates the result again.
+    A specification is immutable. Its mappings are read-only, and ``edges``,
+    ``groups`` and ``tables`` return a new copy of an array, a dict or a
+    table on each access, so changing the copy leaves the specification as
+    it was. To change a field, such as the unseen policy, use
+    `dataclasses.replace`, which validates the result again.
 
     Parameters
     ----------
@@ -71,35 +76,49 @@ class BinningSpec:
         numbers, and each forms its own group, as in `kivi.binning.cut`.
     tables : mapping
         The `kivi.woe.woe_table` result of each column. The groups of a
-        numeric column are its special codes and the intervals of its edges.
-        Missing values form a group labelled NaN.
+        numeric column are its special codes and the intervals of its edges,
+        and those of a grouped column the groups of its grouping. Missing
+        values form a group labelled NaN.
     unseen : mapping
         ``"raise"`` or a finite WOE for each column, used for values whose
-        group is not in the column's table.
+        group is not in the column's table. A grouped column can instead
+        name one of its groups as ``{"group": label}``: such values then get
+        that group's WOE, and `cut` assigns the categories that its grouping
+        does not map to that group.
     smoothing : float, default 0.5
         Smoothing with which the tables were computed.
     kivi_version : str, optional
         Version of kivi that fitted the specification. By default, or if
         None, the installed version.
+    groups : mapping, optional
+        Grouping of each grouped categorical column: a dict from category to
+        group, as returned by `kivi.binning.category_groups` or
+        `kivi.binning.chimerge_groups`. Categorical columns without an entry
+        keep their labels as groups. By default no column is grouped.
 
     Attributes
     ----------
-    format_version : int
-        Version of the JSON format that `to_json` writes.
+    FORMAT_VERSION : int
+        Newest version of the JSON format, which `from_json` reads and
+        `to_json` writes for a specification with grouped columns.
 
     Raises
     ------
     ValueError
         If `kinds` is empty or has a name that is not a string or a kind
         other than the two above, if `edges` and `special` do not have one
-        entry per numeric column or `tables` and `unseen` one entry per
+        entry per numeric column, `groups` has an entry for a column that is
+        not categorical, or `tables` and `unseen` do not have one entry per
         column, or if an entry is invalid: edges that do not increase from
-        ``-inf`` to ``inf``, a missing or unsupported special code, a table
+        ``-inf`` to ``inf``, a missing or unsupported special code, a
+        grouping with a missing or unsupported category or group, a table
         without a finite ``woe`` column or with a repeated group, a group of
         a numeric column that is neither one of its special codes nor an
-        interval of its edges, or an unseen policy that is neither
-        ``"raise"`` nor a finite number. Also if `smoothing` is not finite
-        and positive or `kivi_version` is not a string.
+        interval of its edges, a group of a grouped column that its grouping
+        lacks, or an unseen policy that is neither ``"raise"`` nor a finite
+        number nor, for a grouped column, a group of its table. Also if
+        `smoothing` is not finite and positive or `kivi_version` is not a
+        string.
 
     See Also
     --------
@@ -113,7 +132,9 @@ class BinningSpec:
     or intervals, which the JSON format keeps apart. Within a column, labels
     that compare equal, such as ``True`` and ``1``, form one group, because
     `kivi.woe.woe_table` and `kivi.woe.woe_transform` match labels by
-    equality.
+    equality. The same holds for the categories and groups of a grouping,
+    which keeps the categories of each group together, in the order in
+    which the groups first appear.
 
     Two specifications are equal when `to_json` gives the same text for
     both, which includes `kivi_version`. The text is computed once and kept,
@@ -141,10 +162,11 @@ class BinningSpec:
     edges: Mapping[str, npt.NDArray[np.float64]]
     special: Mapping[str, tuple]
     tables: Mapping[str, pd.DataFrame]
-    unseen: Mapping[str, float | Literal["raise"]]
+    unseen: Mapping[str, float | Literal["raise"] | Mapping[str, Any]]
     smoothing: float = 0.5
     kivi_version: str | None = None
-    format_version: ClassVar[int] = _FORMAT_VERSION
+    groups: Mapping[str, Mapping[Any, Any]] | None = None
+    FORMAT_VERSION: ClassVar[int] = _FORMAT_VERSION
 
     def __post_init__(self):
         """Validate the fields and replace them with read-only copies."""
@@ -159,9 +181,13 @@ class BinningSpec:
             name: _checked_codes(value, f"special codes of column {name!r}")
             for name, value in _entries(self.special, numeric, "special", "numeric ").items()
         }
+        groups = _checked_groupings(self.groups, kinds)
         tables = {
             name: _checked_table(
-                value, name, (edges[name], special[name]) if name in edges else None
+                value,
+                name,
+                (edges[name], special[name]) if name in edges else None,
+                groups.get(name),
             )
             for name, value in _entries(self.tables, names, "tables").items()
         }
@@ -169,6 +195,9 @@ class BinningSpec:
             name: _checked_unseen(value, f"unseen of column {name!r}")
             for name, value in _entries(self.unseen, names, "unseen").items()
         }
+        for name, policy in unseen.items():
+            if isinstance(policy, dict):
+                _check_unseen_group(policy["group"], name, name in groups, tables[name])
         _check_smoothing(self.smoothing)
         version = kivi.__version__ if self.kivi_version is None else self.kivi_version
         if not isinstance(version, str):
@@ -177,9 +206,35 @@ class BinningSpec:
         object.__setattr__(self, "edges", _Columns(edges, _copy_edges))
         object.__setattr__(self, "special", _Columns(special))
         object.__setattr__(self, "tables", _Columns(tables, _copy_table, "tables"))
-        object.__setattr__(self, "unseen", _Columns(unseen))
+        object.__setattr__(self, "unseen", _Columns(unseen, _copy_unseen))
         object.__setattr__(self, "smoothing", float(self.smoothing))
         object.__setattr__(self, "kivi_version", version)
+        object.__setattr__(self, "groups", _Columns(groups, dict))
+
+    @property
+    def format_version(self) -> int:
+        """Version of the JSON format that `to_json` writes.
+
+        Version 2 adds the groupings of categorical columns to version 1. A
+        specification without grouped columns is written as version 1, which
+        earlier versions of kivi read as well. `FORMAT_VERSION` is the newest
+        version.
+
+        See Also
+        --------
+        to_json : Write the specification.
+
+        Examples
+        --------
+        >>> import pandas as pd
+        >>> from kivi.spec import fit_spec
+        >>> frame = pd.DataFrame({"housing": ["yes", "no", "yes", "no"]})
+        >>> fit_spec(frame, [1, 0, 0, 1]).format_version
+        1
+        >>> fit_spec(frame, [1, 0, 0, 1], method={"housing": "rare"}).format_version
+        2
+        """
+        return 2 if self.groups else 1
 
     def __repr__(self) -> str:
         """Name the columns, which is shorter than listing every field."""
@@ -224,8 +279,13 @@ class BinningSpec:
         """Group every column of a sample as in development.
 
         Numeric columns are assigned to their bins with `kivi.binning.cut`,
-        using the fitted edges and special codes. Categorical columns are
-        returned unchanged, because their labels are their groups.
+        using the fitted edges and special codes. Grouped categorical columns
+        are assigned to their groups as by `kivi.binning.group_categories`.
+        A category that the grouping does not map joins the group that the
+        column's unseen policy names, if any, and otherwise keeps its own
+        label, so that `kivi.stability.psi_table` shows it as a new group.
+        Other categorical columns are returned unchanged, because their
+        labels are their groups.
 
         Parameters
         ----------
@@ -239,20 +299,27 @@ class BinningSpec:
             The groups of each column of the specification, in its order,
             with the index of `frame`. Numeric columns are categorical, with
             the special codes followed by every interval of the edges.
+            Grouped columns are categorical, with the groups in the order of
+            the grouping followed by the categories that it does not map and
+            that no unseen group receives.
 
         Raises
         ------
         ValueError
             If `frame` is not a DataFrame, lacks a column of the
-            specification or has it twice, or a column fitted as numeric has
+            specification or has it twice, a column fitted as numeric has
             values but not a numeric dtype, which could hide its special
-            codes; convert such a column with ``pandas.to_numeric``. The
-            message names the column.
+            codes; convert such a column with ``pandas.to_numeric``. Also if
+            a grouped column without an unseen group has a category that its
+            grouping does not map but that is the label of one of its groups,
+            so that its group would be ambiguous. The message names the
+            column.
 
         See Also
         --------
         woe_transform : Encode the groups with the fitted WOE.
         kivi.binning.cut : Group one numeric column.
+        kivi.binning.group_categories : Group one categorical column.
 
         Examples
         --------
@@ -266,19 +333,28 @@ class BinningSpec:
         1   (38.0, inf]     yes
         """
         frame = self._sample(frame)
-        groups = {}
-        for name, kind in self.kinds.items():
-            values = frame[name]
-            if kind == "categorical":
-                groups[name] = values.array
+        groups, unmapped = self._grouping(frame)
+        for name, (new, position) in unmapped.items():
+            if not len(new):
                 continue
-            if not _is_numeric(values.dtype) and values.notna().any():
+            labels = groups[name].categories
+            policy = self.unseen[name]
+            if isinstance(policy, dict):
+                into = labels.get_indexer(binning._object_index([policy["group"]]))[0]
+                codes = np.where(position >= 0, into, groups[name].codes)
+                groups[name] = pd.Categorical.from_codes(codes, categories=labels)
+                continue
+            clash = labels.get_indexer(binning._object_index(new)) >= 0
+            if clash.any():
                 raise ValueError(
-                    f"column {name!r} was fitted as numeric but has dtype {values.dtype}; "
-                    "convert it with pandas.to_numeric so that its special codes are matched"
+                    f"column {name!r}: the category {_shown(new[clash][0])} is not in its "
+                    "grouping but is the label of one of its groups; add it to the grouping to "
+                    "choose its group"
                 )
-            codes = list(self.special[name]) or None
-            groups[name] = binning.cut(values, self.edges[name], special=codes).array
+            # An unmapped category keeps its own label, after the groups.
+            codes = np.where(position >= 0, len(labels) + position, groups[name].codes)
+            categories = labels.append(binning._object_index(new))
+            groups[name] = pd.Categorical.from_codes(codes, categories=categories)
         return pd.DataFrame(groups, index=frame.index)
 
     def woe_transform(self, frame: pd.DataFrame) -> pd.DataFrame:
@@ -287,7 +363,10 @@ class BinningSpec:
         The columns are grouped as by `cut`, and each group is replaced with
         its WOE by `kivi.woe.woe_transform`. A group that is not in a
         column's table, such as a new category, gets the column's unseen
-        policy, which by default raises an error.
+        policy, which by default raises an error. So does a category that the
+        grouping of a grouped column does not map, even when it equals the
+        label of a group, for which `cut` raises an error. An unseen group
+        gives such values the WOE of that group.
 
         Parameters
         ----------
@@ -307,7 +386,8 @@ class BinningSpec:
             If `frame` is not a DataFrame, lacks a column of the
             specification or has it twice, a column fitted as numeric has
             values but not a numeric dtype, or a column with the unseen policy
-            ``"raise"`` has values whose group is not in its table. The
+            ``"raise"`` has values whose group is not in its table or, for a
+            grouped column, whose category its grouping does not map. The
             message names the column.
 
         See Also
@@ -347,20 +427,31 @@ class BinningSpec:
         1 -1.7228   0.0000
         """
         frame = self._sample(frame)
-        groups = self.cut(frame)
+        groups, unmapped = self._grouping(frame)
+        groups = pd.DataFrame(groups, index=frame.index)
         encoded = {}
         for name, kind in self.kinds.items():
             unseen = self.unseen[name]
-            # Values that are not missing but fall into no group, which only -inf can do.
+            if isinstance(unseen, dict):
+                unseen = float(_group_woe(self.tables[name], unseen["group"]))
+            # Values that are not missing but fall into no group: -inf in a numeric column, and
+            # a category that its grouping does not map in a grouped one.
             outside = np.zeros(len(frame), dtype=bool)
             if kind == "numeric":
                 outside = groups[name].isna().to_numpy(dtype=bool) & frame[name].notna().to_numpy(
                     dtype=bool
                 )
+            elif name in unmapped:
+                outside = unmapped[name][1] >= 0
             if outside.any() and unseen == "raise":
                 example = frame[name][outside].iloc[0]
+                problem = (
+                    "fall outside the edges"
+                    if kind == "numeric"
+                    else "have categories that its grouping does not map"
+                )
                 raise ValueError(
-                    f"column {name!r}: {int(outside.sum())} value(s) fall outside the edges, "
+                    f"column {name!r}: {int(outside.sum())} value(s) {problem}, "
                     f"such as {_shown(example)}; give the column an unseen WOE"
                 )
             try:
@@ -378,7 +469,7 @@ class BinningSpec:
 
         Use it to keep only the variables of the final model before saving
         the specification for production. The selected columns keep their
-        edges, special codes, tables and unseen policies.
+        edges, special codes, groupings, tables and unseen policies.
 
         Parameters
         ----------
@@ -422,6 +513,7 @@ class BinningSpec:
             unseen={name: self.unseen[name] for name in names},
             smoothing=self.smoothing,
             kivi_version=self.kivi_version,
+            groups={name: self.groups[name] for name in names if name in self.groups},
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -460,7 +552,12 @@ class BinningSpec:
             if kind == "numeric":
                 entry["edges"] = [_encode(float(edge)) for edge in self.edges[name]]
                 entry["special"] = [_encode(code) for code in self.special[name]]
-            entry["unseen"] = self.unseen[name]
+            if name in self.groups:
+                entry["groups"] = _encode_groups(self.groups[name])
+            policy = self.unseen[name]
+            entry["unseen"] = (
+                {"group": _encode(policy["group"])} if isinstance(policy, dict) else policy
+            )
             table = self.tables[name]
             bins = None
             if kind == "numeric":
@@ -541,7 +638,7 @@ class BinningSpec:
             raise ValueError(f"variables must be a list, got {type(variables).__name__}")
         if not variables:
             raise ValueError("variables must have an entry for at least one column")
-        kinds, edges, special, tables, unseen = {}, {}, {}, {}, {}
+        kinds, edges, special, tables, unseen, groups = {}, {}, {}, {}, {}, {}
         for entry in variables:
             if not isinstance(entry, Mapping):
                 raise ValueError(f"each variable must be a mapping, got {type(entry).__name__}")
@@ -557,11 +654,17 @@ class BinningSpec:
                 edges[name] = _decode_list(entry["edges"], f"edges of {where}")
                 special[name] = tuple(_decode_list(entry["special"], f"special codes of {where}"))
             elif kind == "categorical":
-                _check_keys(entry, {"name", "kind", "unseen", "table"}, where)
+                # Version 2 adds the grouping of a categorical column.
+                keys = {"name", "kind", "unseen", "table"}
+                if version >= 2 and "groups" in entry:
+                    keys.add("groups")
+                _check_keys(entry, keys, where)
+                if "groups" in keys:
+                    groups[name] = _decode_groups(entry["groups"], where)
             else:
                 raise ValueError(f"kind of {where} must be one of {_KINDS}, got {kind!r}")
             kinds[name] = kind
-            unseen[name] = entry["unseen"]
+            unseen[name] = _decoded_unseen(entry["unseen"], f"unseen of {where}")
             tables[name] = _decode_table(entry["table"], where)
             if kind == "numeric":
                 tables[name].index = _numeric_labels(
@@ -575,6 +678,7 @@ class BinningSpec:
             unseen=unseen,
             smoothing=data["smoothing"],
             kivi_version=data["kivi_version"],
+            groups=groups,
         )
 
     def to_json(self, *, indent: int | None = None) -> str:
@@ -686,6 +790,33 @@ class BinningSpec:
             )
         return cls.from_dict(json.loads(text, parse_constant=_reject_constant))
 
+    def _grouping(self, frame: pd.DataFrame) -> tuple[dict, dict]:
+        """Group every column; for grouped columns, also return the categories they do not map.
+
+        Values whose category a grouping does not map are missing in the groups. The second
+        dict holds, for each grouped column, those categories in order of first appearance and
+        the position of each value among them, or -1.
+        """
+        groups, unmapped = {}, {}
+        for name, kind in self.kinds.items():
+            values = frame[name]
+            if name in self.groups:
+                codes, labels, new, position = _grouped(values, self.groups[name])
+                groups[name] = pd.Categorical.from_codes(codes, categories=labels)
+                unmapped[name] = (new, position)
+                continue
+            if kind == "categorical":
+                groups[name] = values.array
+                continue
+            if not _is_numeric(values.dtype) and values.notna().any():
+                raise ValueError(
+                    f"column {name!r} was fitted as numeric but has dtype {values.dtype}; "
+                    "convert it with pandas.to_numeric so that its special codes are matched"
+                )
+            codes = list(self.special[name]) or None
+            groups[name] = binning.cut(values, self.edges[name], special=codes).array
+        return groups, unmapped
+
     def _sample(self, frame: pd.DataFrame) -> pd.DataFrame:
         if not isinstance(frame, pd.DataFrame):
             raise ValueError(f"frame must be a pandas DataFrame, got {type(frame).__name__}")
@@ -707,17 +838,20 @@ def fit_spec(
     bins: int | Mapping[str, int | None | npt.ArrayLike] = 5,
     special: Mapping[str, npt.ArrayLike] | None = None,
     options: Mapping[str, Mapping[str, Any]] | None = None,
-    unseen: float | Literal["raise"] | Mapping[str, float | Literal["raise"]] = "raise",
+    unseen: float | Literal["raise"] | Mapping[str, Any] = "raise",
     smoothing: float = 0.5,
     weights: npt.ArrayLike | None = None,
 ) -> BinningSpec:
     """Fit the binning and WOE of every column of a development sample.
 
     Numeric columns are binned with the method chosen for them and grouped
-    with `kivi.binning.cut`; other columns keep their labels as groups. The
-    WOE of each group is then measured with `kivi.woe.woe_table`. Nothing is
-    re-binned automatically: the method, the number of bins and the options
-    of each column decide how coarse its bins are.
+    with `kivi.binning.cut`. Categorical columns that `method` names are
+    grouped with `kivi.binning.category_groups` or
+    `kivi.binning.chimerge_groups` and `kivi.binning.group_categories`; the
+    other categorical columns keep their labels as groups. The WOE of each
+    group is then measured with `kivi.woe.woe_table`. Nothing is re-binned
+    automatically: the method, the number of bins and the options of each
+    column decide how coarse its bins are.
 
     Parameters
     ----------
@@ -725,8 +859,8 @@ def fit_spec(
         Development sample with one column per variable. Columns with a
         numeric dtype other than bool are binned. Columns of any other dtype,
         such as object, string, category or bool, are categorical: each label
-        is a group. Convert integer codes to the category dtype to keep them
-        as labels.
+        is a group unless `method` groups the column. Convert integer codes
+        to the category dtype to keep them as labels.
     target : array_like
         Binary labels, with 1 indicating the event, one per row of `frame`.
         A Series must have the same index as `frame`; other inputs are
@@ -740,30 +874,41 @@ def fit_spec(
         ``"tree"`` or ``"monotonic"`` for `kivi.binning.chimerge_edges`,
         `kivi.binning.tree_edges` or `kivi.binning.monotonic_edges`. A dict
         maps columns to methods, and the numeric columns it leaves out use
-        ``"quantile"``.
+        ``"quantile"``. A dict can also group categorical columns, with
+        ``"rare"`` for `kivi.binning.category_groups` or ``"chimerge"`` for
+        `kivi.binning.chimerge_groups`; the categorical columns it leaves out
+        keep their labels.
     bins : int or dict, default 5
-        Number of bins, passed as ``bins`` to `kivi.binning.bin_edges` and as
-        ``max_bins`` to the supervised methods. A dict maps columns to a
-        number of bins or to edges, which must increase from ``-inf`` to
-        ``inf`` and are used as given. With ``"monotonic"``, None merges bins
-        only until the WOE is monotonic. The numeric columns that a dict
-        leaves out get 5 bins.
+        Number of bins, passed as ``bins`` to `kivi.binning.bin_edges`, as
+        ``max_bins`` to the supervised methods and as ``max_groups`` to
+        `kivi.binning.chimerge_groups`. A dict maps columns to a number of
+        bins or to edges, which must increase from ``-inf`` to ``inf`` and
+        are used as given. With ``"monotonic"``, None merges bins only until
+        the WOE is monotonic. The numeric and ``"chimerge"`` columns that a
+        dict leaves out get 5 bins. Columns grouped with ``"rare"`` take no
+        number of bins.
     special : dict, optional
-        Special codes of numeric columns, such as ``{"pdays": [-1]}``. The
-        codes must be numbers, possibly infinite. They are left out of the
-        fit, and each code forms its own group.
+        Special codes of numeric and grouped categorical columns, such as
+        ``{"pdays": [-1], "job": ["unknown"]}``. The codes of a numeric
+        column must be numbers, possibly infinite; those of a categorical
+        column are labels. They are left out of the fit, and each code forms
+        its own group.
     options : dict, optional
-        Further keyword arguments for the binning function of each column,
-        such as ``{"balance": {"alpha": None}}`` with ``"chimerge"``. The
-        special codes, the weights, the number of bins and, for
-        ``"monotonic"``, the smoothing are passed by `fit_spec` and cannot be
-        given here.
+        Further keyword arguments for the binning or grouping function of
+        each column, such as ``{"balance": {"alpha": None}}`` with
+        ``"chimerge"`` or ``{"job": {"min_share": 0.02}}`` with ``"rare"``.
+        The special codes, the weights, the number of bins and, for
+        ``"monotonic"`` and the grouping with ``"chimerge"``, the smoothing
+        are passed by `fit_spec` and cannot be given here.
     unseen : float, "raise" or dict, default "raise"
         WOE for values whose group is not in a column's table when a sample
         is encoded: a new category, a special code or an interval without
         development observations, or missing values when development had
         none. By default such values raise an error. A dict maps columns to
-        a WOE or ``"raise"``, and the columns it leaves out raise.
+        a WOE or ``"raise"``, and the columns it leaves out raise. For a
+        grouped column, ``{"group": label}`` gives such values the WOE of
+        that group instead, and `BinningSpec.cut` assigns new categories to
+        it; the group must be in the fitted table.
     smoothing : float, default 0.5
         Positive replacement for a zero count when calculating the WOE, as in
         `kivi.woe.woe_table`. ``"monotonic"`` binning uses the same value, so
@@ -776,8 +921,8 @@ def fit_spec(
     Returns
     -------
     BinningSpec
-        The kind, edges, special codes, WOE table and unseen policy of every
-        column.
+        The kind, edges, special codes, grouping, WOE table and unseen policy
+        of every column.
 
     Raises
     ------
@@ -786,12 +931,14 @@ def fit_spec(
         repeats a column or names one that `frame` lacks, a column name is
         not a string, the columns include the target, or `target` does not
         give each row a label 0 or 1 or lacks one of the two classes. If a
-        dict names a column that is not fitted, `method`, `bins`, `special`
-        or `options` names a categorical column, or a value is invalid, such
-        as a special code that is not a number. Also if `smoothing` or
-        `weights` are invalid, a numeric column has infinite values that are
-        not special codes, or the binning of a column fails; the message
-        then names the column.
+        dict names a column that is not fitted, `method` gives a categorical
+        column a method other than ``"chimerge"`` or ``"rare"``, `bins`,
+        `special` or `options` names a categorical column that `method` does
+        not group, or a value is invalid, such as a special code of a numeric
+        column that is not a number. Also if `smoothing` or `weights` are
+        invalid, a numeric column has infinite values that are not special
+        codes, or the binning or grouping of a column fails; the message then
+        names the column.
 
     Warns
     -----
@@ -799,14 +946,16 @@ def fit_spec(
         If tied quantiles leave a column with fewer bins than requested, as
         in `kivi.binning.bin_edges`, if a numeric column has no values to fit
         apart from missing, special and zero-weight values, so that its edges
-        are ``[-inf, inf]``, or if a column of dtype object holds only
-        numbers, which makes each distinct number a group. The message names
-        the column.
+        are ``[-inf, inf]``, if a grouped column has no such values, so that
+        its groups are its special codes, or if a column of dtype object
+        holds only numbers, which makes each distinct number a group. The
+        message names the column.
 
     See Also
     --------
     BinningSpec : Group, encode and save the fitted columns.
     kivi.binning.bin_edges : Fit the edges of one column.
+    kivi.binning.chimerge_groups : Group the categories of one column.
     kivi.woe.woe_table : The WOE table of one column.
 
     Notes
@@ -849,13 +998,26 @@ def fit_spec(
     numeric = [name for name in names if kinds[name] == "numeric"]
     if not isinstance(bins, Mapping) and np.ndim(bins) != 0:
         raise ValueError(f"bins must be an integer or a dict by column, got {bins!r}")
-    methods = _per_column(method, numeric, kinds, "method", "quantile", _checked_method)
-    counts = _per_column(bins, numeric, kinds, "bins", 5)
-    codes = _per_column({} if special is None else special, numeric, kinds, "special", ())
+    methods, grouped = _methods(method, numeric, kinds)
+    binned = [name for name in names if name in methods or name in grouped]
+    if isinstance(bins, Mapping):
+        rare = [name for name in bins if grouped.get(name) == "rare"]
+        if rare:
+            raise ValueError(
+                "bins names columns grouped with 'rare', which take min_share or min_count in "
+                f"options instead: {_shown_list(rare)}"
+            )
+    counts = _per_column(
+        bins, [name for name in binned if grouped.get(name) != "rare"], kinds, "bins", 5
+    )
+    codes = _per_column({} if special is None else special, binned, kinds, "special", ())
     codes = {
-        name: _checked_codes(value, f"special of column {name!r}") for name, value in codes.items()
+        name: (_checked_codes if name in methods else _checked_labels)(
+            value, f"special of column {name!r}"
+        )
+        for name, value in codes.items()
     }
-    extra = _per_column({} if options is None else options, numeric, kinds, "options", {})
+    extra = _per_column({} if options is None else options, binned, kinds, "options", {})
     policies = _per_column(unseen, names, kinds, "unseen", "raise", _checked_unseen)
     for name in names:
         if name in numeric:
@@ -870,12 +1032,23 @@ def fit_spec(
         edges[name] = _fit_edges(
             frame[name], labels, fitter, codes[name], smoothing, mass, name, methods[name]
         )
+    mappings = {}
+    for name, how in grouped.items():
+        function, arguments = _grouper(name, how, counts.get(name), extra[name])
+        mappings[name] = _fit_groups(
+            frame[name], labels, function, arguments, codes[name], smoothing, mass, name
+        )
     tables = {}
     for name in names:
         groups = frame[name]
         try:
             if name in edges:
                 groups = binning.cut(groups, edges[name], special=list(codes[name]) or None)
+            elif name in mappings:
+                # Only categories whose rows all have zero weight are unmapped; as missing
+                # values they add nothing to the counts.
+                position, categories = _grouped(groups, mappings[name])[:2]
+                groups = pd.Categorical.from_codes(position, categories=categories)
             tables[name] = _canonical_table(
                 woe.woe_table(groups, labels, smoothing=smoothing, weights=mass), "labels"
             )
@@ -888,6 +1061,7 @@ def fit_spec(
         tables=tables,
         unseen=policies,
         smoothing=smoothing,
+        groups=mappings,
     )
 
 
@@ -1019,8 +1193,8 @@ def _per_column(value, names, kinds, argument, default, check=None):
     categorical = [key for key in value if key not in names]
     if categorical:
         raise ValueError(
-            f"{argument} names categorical columns, which keep their labels: "
-            f"{_shown_list(categorical)}"
+            f"{argument} names categorical columns, which keep their labels unless method "
+            f"groups them: {_shown_list(categorical)}"
         )
     resolved = {}
     for name in names:
@@ -1053,9 +1227,17 @@ def _fitter(name: str, method: str, bins, extra):
     ):
         allowed = "a positive integer, None" if method == "monotonic" else "a positive integer"
         raise ValueError(f"bins of column {name!r} must be {allowed} or edges, got {bins!r}")
+    function = _FITTERS[method]
+    _check_options(name, function, extra)
+    if method in ("quantile", "uniform"):
+        return function, {"bins": bins, "method": method}
+    return function, {"max_bins": bins, **extra}
+
+
+def _check_options(name: str, function, extra) -> None:
+    """Check that the options of a column are keyword arguments of its function."""
     if not isinstance(extra, Mapping):
         raise ValueError(f"options of column {name!r} must be a dict, got {type(extra).__name__}")
-    function = _FITTERS[method]
     accepted = {
         parameter.name
         for parameter in inspect.signature(function).parameters.values()
@@ -1068,9 +1250,85 @@ def _fitter(name: str, method: str, bins, extra):
             f"options of column {name!r} must be arguments of {function.__name__} other than "
             f"those fit_spec sets ({accepts}), got {_shown_list(rejected)}"
         )
-    if method in ("quantile", "uniform"):
-        return function, {"bins": bins, "method": method}
-    return function, {"max_bins": bins, **extra}
+
+
+def _methods(method, numeric: list[str], kinds: dict) -> tuple[dict, dict]:
+    """Binning method of each numeric column and grouping method of each grouped column."""
+    if not isinstance(method, Mapping):
+        return _per_column(method, numeric, kinds, "method", "quantile", _checked_method), {}
+    unknown = [key for key in method if key not in kinds]
+    if unknown:
+        raise ValueError(f"method names columns that are not fitted: {_shown_list(unknown)}")
+    categorical = [key for key in method if kinds[key] == "categorical"]
+    wrong = [
+        key
+        for key in categorical
+        if not (isinstance(method[key], str) and method[key] in _GROUPERS)
+    ]
+    if wrong:
+        raise ValueError(
+            "method names categorical columns, which can only be grouped with 'chimerge' or "
+            f"'rare': {_shown_list(wrong)}"
+        )
+    binning_methods = {key: value for key, value in method.items() if key not in categorical}
+    methods = _per_column(binning_methods, numeric, kinds, "method", "quantile", _checked_method)
+    return methods, {name: method[name] for name in kinds if name in categorical}
+
+
+def _grouper(name: str, method: str, bins, extra):
+    """Return the grouping function of a categorical column and its keyword arguments."""
+    function = _GROUPERS[method]
+    if method == "chimerge" and (
+        isinstance(bins, bool) or not isinstance(bins, Integral) or bins < 1
+    ):
+        raise ValueError(
+            f"bins of column {name!r} must be a positive integer with 'chimerge', got {bins!r}"
+        )
+    _check_options(name, function, extra)
+    if method == "chimerge":
+        return function, {"max_groups": bins, **extra}
+    return function, dict(extra)
+
+
+def _fit_groups(values, labels, function, arguments, codes, smoothing, mass, name):
+    observed = values.notna().to_numpy(dtype=bool)
+    if codes:
+        observed = observed & ~values.isin(list(codes)).to_numpy(dtype=bool)
+    if mass is not None:
+        observed = observed & (mass > 0)
+    if not observed.any():
+        warnings.warn(
+            f"column {name!r} has no values to group apart from missing, special and "
+            "zero-weight values; its groups are its special codes",
+            UserWarning,
+            stacklevel=3,
+        )
+        return {code: code for code in codes}
+    arguments = {**arguments, "special": list(codes) or None, "weights": mass}
+    try:
+        if function is binning.chimerge_groups:
+            return function(values, labels, smoothing=smoothing, **arguments)
+        return function(values, **arguments)
+    except ValueError as error:
+        raise ValueError(f"column {name!r}: {error}") from error
+
+
+def _grouped(values: pd.Series, grouping: dict) -> tuple:
+    """Group codes of a grouped column, its groups, and the categories it does not map.
+
+    Returns the code of each value among the groups, which is -1 for missing values and
+    for categories that the grouping does not map; the groups as an object Index; those
+    categories in order of first appearance; and the position of each value among them, or -1.
+    """
+    group_of_key, labels = pd.factorize(binning._object_index(grouping.values()))
+    position, levels = pd.factorize(values, sort=False)
+    levels = np.asarray(levels, dtype=object)
+    key = binning._object_index(grouping).get_indexer(binning._object_index(levels))
+    unmapped = key < 0
+    new_position = np.full(len(levels) + 1, -1)
+    new_position[:-1][unmapped] = np.arange(int(unmapped.sum()))
+    codes = np.r_[np.r_[group_of_key, -1][key], -1][position]
+    return codes, labels, levels[unmapped], new_position[position]
 
 
 def _fit_edges(values, labels, fitter, codes, smoothing, mass, name, method):
@@ -1203,15 +1461,136 @@ def _checked_codes(value, argument: str) -> tuple:
     return tuple(codes)
 
 
-def _checked_unseen(value, argument: str) -> float | str:
+def _checked_labels(value, argument: str) -> tuple:
+    """Check the special codes of a categorical column: labels, not missing or boolean."""
+    if isinstance(value, str):
+        raise ValueError(f"{argument} must be a list of codes, got {value!r}")
+    codes = []
+    for code in pd.unique(as_series(value, argument)):
+        if isinstance(code, (bool, np.bool_)) or binning._is_missing(code):
+            raise ValueError(
+                f"{argument} must be non-missing labels other than booleans, got {_shown(code)}"
+            )
+        codes.append(_label(code, argument))
+    return tuple(codes)
+
+
+def _checked_groupings(groups, kinds: dict) -> dict:
+    """Check the groupings of a specification and return them in the order of its columns."""
+    groups = {} if groups is None else groups
+    if not isinstance(groups, Mapping):
+        raise ValueError(f"groups must be a mapping, got {type(groups).__name__}")
+    foreign = [name for name in groups if kinds.get(name) != "categorical"]
+    if foreign:
+        raise ValueError(
+            "groups must have entries for categorical columns only, but has an entry for "
+            f"{_shown_list(foreign)}"
+        )
+    return {name: _checked_grouping(groups[name], name) for name in kinds if name in groups}
+
+
+def _checked_grouping(grouping, name: str) -> dict:
+    """Return a grouping with Python labels, the categories of each group kept together."""
+    where = f"grouping of column {name!r}"
+    if not isinstance(grouping, Mapping):
+        raise ValueError(
+            f"{where} must be a mapping from category to group, got {type(grouping).__name__}"
+        )
+    members: dict = {}
+    for category, group in grouping.items():
+        category = _label(category, f"categories of the {where}")
+        group = _label(group, f"groups of the {where}")
+        if _is_missing_label(category) or _is_missing_label(group):
+            raise ValueError(
+                f"{where} must not have missing categories or groups; missing values always "
+                "form their own group"
+            )
+        members.setdefault(group, []).append(category)
+    return {category: group for group, categories in members.items() for category in categories}
+
+
+def _is_missing_label(label) -> bool:
+    return isinstance(label, float) and math.isnan(label)
+
+
+def _encode_groups(grouping: dict) -> list[dict[str, Any]]:
+    members: dict = {}
+    for category, group in grouping.items():
+        members.setdefault(group, []).append(category)
+    return [
+        {"group": _encode(group), "categories": [_encode(category) for category in categories]}
+        for group, categories in members.items()
+    ]
+
+
+def _decode_groups(rows, where: str) -> dict:
+    where = f"groups of {where}"
+    if not isinstance(rows, list):
+        raise ValueError(f"{where} must be a list, got {type(rows).__name__}")
+    grouping, groups, count = {}, {}, 0
+    for row in rows:
+        if not isinstance(row, Mapping) or set(row) != {"group", "categories"}:
+            raise ValueError(f"{where} must have a mapping of a group and its categories per group")
+        group = _decode(row["group"], where)
+        categories = row["categories"]
+        if not isinstance(categories, list) or not categories:
+            raise ValueError(f"{where} must list at least one category for each group")
+        if group in groups:
+            raise ValueError(f"{where} must not repeat a group, got {_encode(group)!r} twice")
+        groups[group] = None
+        for category in categories:
+            grouping[_decode(category, where)] = group
+            count += 1
+    if len(grouping) != count:
+        raise ValueError(f"{where} must not repeat a category")
+    return grouping
+
+
+def _checked_unseen(value, argument: str) -> float | str | dict:
     if isinstance(value, str) and value == "raise":
         return value
+    if isinstance(value, Mapping) and set(value) == {"group"}:
+        group = _label(value["group"], f"the group of {argument}")
+        if _is_missing_label(group):
+            raise ValueError(f"{argument} must name a non-missing group")
+        return {"group": group}
     if isinstance(value, bool) or not isinstance(value, Real) or not math.isfinite(value):
-        raise ValueError(f"{argument} must be 'raise' or a finite number, got {value!r}")
+        raise ValueError(
+            f"{argument} must be 'raise' or a finite number, got {_shown(value)}; a grouped "
+            "column also takes {'group': label}"
+        )
     return float(value)
 
 
-def _checked_table(table, name: str, numeric: tuple | None) -> pd.DataFrame:
+def _check_unseen_group(group, name: str, grouped: bool, table: pd.DataFrame) -> None:
+    """Check that the unseen group of a column is one of the groups of its table."""
+    if not grouped:
+        raise ValueError(
+            f"unseen of column {name!r} names a group, which only grouped categorical columns take"
+        )
+    if table.index.get_indexer(binning._object_index([group]))[0] < 0:
+        raise ValueError(
+            f"unseen of column {name!r} names the group {_shown(group)}, which its table lacks"
+        )
+
+
+def _group_woe(table: pd.DataFrame, group) -> float:
+    return table["woe"].to_numpy()[table.index.get_indexer(binning._object_index([group]))[0]]
+
+
+def _copy_unseen(policy):
+    return dict(policy) if isinstance(policy, dict) else policy
+
+
+def _decoded_unseen(value, where: str):
+    if isinstance(value, Mapping) and set(value) == {"group"}:
+        return {"group": _decode(value["group"], where)}
+    return value
+
+
+def _checked_table(
+    table, name: str, numeric: tuple | None, grouping: dict | None = None
+) -> pd.DataFrame:
     where = f"table of column {name!r}"
     if not isinstance(table, pd.DataFrame):
         raise ValueError(f"{where} must be a DataFrame, got {type(table).__name__}")
@@ -1241,6 +1620,12 @@ def _checked_table(table, name: str, numeric: tuple | None) -> pd.DataFrame:
                 f"{where} has groups that are neither special codes nor intervals of its "
                 f"edges: {_shown_list(foreign)}"
             )
+    if grouping is not None:
+        groups = binning._object_index(dict.fromkeys(grouping.values()))
+        observed = labels[~missing]
+        foreign = observed[groups.get_indexer(observed) < 0].tolist()
+        if foreign:
+            raise ValueError(f"{where} has groups that its grouping lacks: {_shown_list(foreign)}")
     return table
 
 

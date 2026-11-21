@@ -540,8 +540,8 @@ def test_interval_labels_round_trip(closed):
 
 def test_newer_format_version_is_rejected():
     data = _fit().to_dict()
-    data["format_version"] = 2
-    with pytest.raises(ValueError, match="format_version 2 is newer than 1, the newest that kivi"):
+    data["format_version"] = 3
+    with pytest.raises(ValueError, match="format_version 3 is newer than 2, the newest that kivi"):
         BinningSpec.from_dict(data)
     with pytest.raises(ValueError, match="upgrade kivi"):
         BinningSpec.from_json(json.dumps(data))
@@ -1065,6 +1065,7 @@ def test_mappings_compare_and_convert():
         "unseen",
         "smoothing",
         "kivi_version",
+        "groups",
     ]
     assert fields["kinds"] == spec.kinds and fields["tables"] == spec.tables
 
