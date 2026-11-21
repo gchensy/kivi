@@ -157,7 +157,8 @@ def convert_pd(
     for name, value in (("kind", kind), ("to", to)):
         if not (isinstance(value, str) and value in _KINDS):
             raise ValueError(
-                f"{name} must be 'cumulative', 'marginal' or 'conditional', got {_plain(value)!r}"
+                f"{name} must be 'cumulative', 'marginal' or 'conditional', got "
+                f"{first_value(value)!r}"
             )
     values = _curves(probability, "probability")
     _check_curves(values, kind)
@@ -286,7 +287,7 @@ def transition_pd(
             found = False
         if not found:
             raise ValueError(
-                f"default_state must be one of the states, got {_plain(default_state)!r}"
+                f"default_state must be one of the states, got {first_value(default_state)!r}"
             )
     _check_transition_rows(probabilities, states, default)
 
@@ -469,11 +470,11 @@ def expected_credit_loss(
     if horizon is None:
         horizon = periods
     elif isinstance(horizon, bool) or not isinstance(horizon, Integral) or horizon < 1:
-        raise ValueError(f"horizon must be a positive integer, got {_plain(horizon)!r}")
+        raise ValueError(f"horizon must be a positive integer, got {first_value(horizon)!r}")
     elif horizon > periods:
         raise ValueError(
             f"horizon must be at most the number of periods of probability, {periods}, "
-            f"got {_plain(horizon)}"
+            f"got {first_value(horizon)}"
         )
     index = _account_index(
         {"probability": probability, "lgd": lgd, "ead": ead, "rate": rate}, accounts, periods
@@ -610,14 +611,14 @@ def significant_increase(
         if not _is_number(relative) or not 1 < relative < math.inf:
             raise ValueError(
                 f"relative must be None or a ratio greater than 1, such as 2 for a PD that "
-                f"doubled, got {_plain(relative)!r}"
+                f"doubled, got {first_value(relative)!r}"
             )
         flag &= current > relative * origination
     if absolute is not None:
         if not _is_number(absolute) or not 0 < absolute < 1:
             raise ValueError(
                 f"absolute must be None or a number between 0 and 1, such as 0.01 for one "
-                f"percentage point, got {_plain(absolute)!r}"
+                f"percentage point, got {first_value(absolute)!r}"
             )
         flag &= current - origination > absolute
     if index is None:
@@ -732,11 +733,13 @@ def assign_stages(
         _same_length(increased, impaired, ("sicr", "defaulted"))
     for value, name in ((stage_2_days, "stage_2_days"), (stage_3_days, "stage_3_days")):
         if not _is_number(value) or not 0 <= value < math.inf:
-            raise ValueError(f"{name} must be a finite, non-negative number, got {_plain(value)!r}")
+            raise ValueError(
+                f"{name} must be a finite, non-negative number, got {first_value(value)!r}"
+            )
     if not stage_3_days > stage_2_days:
         raise ValueError(
-            f"stage_3_days must be greater than stage_2_days, got {_plain(stage_3_days)!r} and "
-            f"{_plain(stage_2_days)!r}"
+            f"stage_3_days must be greater than stage_2_days, got "
+            f"{first_value(stage_3_days)!r} and {first_value(stage_2_days)!r}"
         )
     if days is not None:
         increased = increased | (days > stage_2_days)
@@ -875,11 +878,6 @@ def stage_table(
 def _is_number(value) -> bool:
     """Whether a scalar is a real number other than a boolean or NaN."""
     return isinstance(value, Real) and not isinstance(value, bool) and not math.isnan(value)
-
-
-def _plain(value):
-    """Return a NumPy scalar as a Python scalar, so that messages read alike on NumPy 1 and 2."""
-    return value.item() if isinstance(value, np.generic) else value
 
 
 def _check_dtype(dtype, name: str, *, booleans: bool = False) -> None:
@@ -1024,7 +1022,8 @@ def _horizons(horizons) -> npt.NDArray[np.int64]:
         "horizons must be a positive integer or a sequence of increasing positive integers, "
         "got {!r}"
     )
-    error = ValueError(message.format(_plain(horizons)))
+    shown = first_value(horizons) if np.ndim(horizons) == 0 else horizons
+    error = ValueError(message.format(shown))
     if isinstance(horizons, Integral) and not isinstance(horizons, bool):
         if not 1 <= horizons < 2**63:
             raise error

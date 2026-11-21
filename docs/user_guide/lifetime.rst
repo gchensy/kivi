@@ -22,7 +22,7 @@ The expected credit loss (ECL) of an account adds up, over the periods :math:`t 
 
    \mathrm{ECL} = \sum_{t=1}^{H} m_t \, \mathrm{LGD}_t \, \mathrm{EAD}_t \, (1 + r)^{-t}.
 
-The 12-month ECL adds up the periods of the next 12 months, and the lifetime ECL every period up to maturity. ``expected_credit_loss`` uses these conventions:
+The 12-month ECL adds up the periods of the next 12 months, and the lifetime ECL every period up to maturity. :func:`~kivi.lifetime.expected_credit_loss` uses these conventions:
 
 - Period 1 starts at the reporting date and ends one period later, so with monthly periods the 12-month ECL has ``horizon=12``.
 - The marginal PDs are seen from the reporting date. They are not conditional on survival, and they add up to the cumulative PD.
@@ -75,7 +75,7 @@ The first year contributes 0.02 × 0.5 × 1,000 / 1.05 = 9.52, which is the 12-m
 Term structures from vintage curves
 -----------------------------------
 
-A vintage table holds the cumulative bad rate of each cohort by month on book: a cumulative PD term structure from origination. The examples use the synthetic loan panel of ``make_loan_panel``, which :doc:`datasets` describes, and the 90+ bad definition of :doc:`vintage`. The conditional PDs of each cohort follow from :func:`~kivi.vintage.vintage_table`:
+A vintage table holds the cumulative bad rate of each cohort by month on book: a cumulative PD term structure from origination. The examples use the synthetic loan panel of :func:`~kivi.datasets.make_loan_panel`, which :doc:`datasets` describes, and the 90+ bad definition of :doc:`vintage`. The conditional PDs of each cohort follow from :func:`~kivi.vintage.vintage_table` and :func:`~kivi.lifetime.convert_pd`:
 
 >>> import numpy as np
 >>> import pandas as pd
@@ -124,7 +124,7 @@ The pooled curve reaches the oldest month on book of the panel for every cohort.
 From the reporting date
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-``expected_credit_loss`` takes PDs seen from the reporting date, for a loan that has not defaulted by then. For a loan of a given age, convert the conditional PDs of the months on book after that age to marginal PDs. A loan at month on book 6 has these marginal PDs for the next 12 months:
+:func:`~kivi.lifetime.expected_credit_loss` takes PDs seen from the reporting date, for a loan that has not defaulted by then. For a loan of a given age, convert the conditional PDs of the months on book after that age to marginal PDs. A loan at month on book 6 has these marginal PDs for the next 12 months:
 
 >>> ahead = convert_pd(pooled.loc[7:18], kind="conditional", to="marginal")
 >>> ahead.round(4).head(3)
@@ -173,7 +173,7 @@ Because :math:`P^{a+b} = P^a P^b`, the PD at :math:`a + b` months is the PD at :
 
 The two agree in the first year and part in the second. The matrix mixes loans of every age, while the chance of missing an instalment depends on the month on book, and the vintage curve beyond month on book 18 rests on a few cohorts.
 
-``convert_pd`` gives the marginal PDs of each state, which add up to the PD at the last horizon:
+:func:`~kivi.lifetime.convert_pd` gives the marginal PDs of each state, which add up to the PD at the last horizon:
 
 >>> marginal = convert_pd(cumulative, kind="cumulative", to="marginal")
 >>> marginal.sum(axis=1).round(4)
@@ -217,7 +217,7 @@ The exposure at default of each month is the balance that the loan is expected t
 >>> growth = 1.01
 >>> ead = book[["balance"]].to_numpy() * (growth**remaining - growth**paid) / (growth**remaining - 1)
 
-With an LGD of 45% and the loans' effective interest rate of 1% a month, the 12-month and the lifetime ECL of each loan are:
+With an LGD of 45% and the loans' effective interest rate of 1% a month, :func:`~kivi.lifetime.expected_credit_loss` gives the 12-month and the lifetime ECL of each loan:
 
 >>> twelve_month = expected_credit_loss(account_pd, 0.45, ead, rate=0.01, horizon=12)
 >>> lifetime = expected_credit_loss(account_pd, 0.45, ead, rate=0.01)
@@ -323,14 +323,14 @@ The coverage ratio rises from stage to stage, here from 1% in stage 1 to 18% in 
 Missing values
 --------------
 
-``convert_pd`` treats a missing value as a period that is not observed, and never fills it. The marginal and conditional PDs of a period need the cumulative PDs at its end and at the end of the period before, and a cumulative PD needs every period before it. A curve that starts with missing values, as in a panel that starts after origination, gives marginal and conditional PDs from its second observed period on, but no cumulative PDs. Fill the periods that are not observed first, for example by pooling the cohorts as above or by extending the curve beyond its last month, before passing the PDs on.
+:func:`~kivi.lifetime.convert_pd` treats a missing value as a period that is not observed, and never fills it. The marginal and conditional PDs of a period need the cumulative PDs at its end and at the end of the period before, and a cumulative PD needs every period before it. A curve that starts with missing values, as in a panel that starts after origination, gives marginal and conditional PDs from its second observed period on, but no cumulative PDs. Fill the periods that are not observed first, for example by pooling the cohorts as above or by extending the curve beyond its last month, before passing the PDs on.
 
-The other functions reject missing values. ``expected_credit_loss`` needs a PD, an LGD and an EAD for every account and period, ``transition_pd`` a complete row for every state other than the default state, and the staging functions a value for every exposure.
+The other functions reject missing values. :func:`~kivi.lifetime.expected_credit_loss` needs a PD, an LGD and an EAD for every account and period, :func:`~kivi.lifetime.transition_pd` a complete row for every state other than the default state, and the staging functions a value for every exposure.
 
 Sample weights
 --------------
 
-``stage_table`` takes ``weights``, such as the inverse of a sampling rate. The counts, exposures and losses become sums of weights, so integer weights give the same table as repeated rows. The other functions work on single accounts or states and take no weights; to weight the loans of a vintage table by amount, pass ``weights`` to ``vintage_table``.
+:func:`~kivi.lifetime.stage_table` takes ``weights``, such as the inverse of a sampling rate. The counts, exposures and losses become sums of weights, so integer weights give the same table as repeated rows. The other functions work on single accounts or states and take no weights; to weight the loans of a vintage table by amount, pass ``weights`` to :func:`~kivi.vintage.vintage_table`.
 
 Limits
 ------
@@ -338,12 +338,12 @@ Limits
 - A transition matrix gives a term structure only as far as the movements are a time-homogeneous Markov chain: the same probabilities in every period, whatever the age of a loan or the time it has spent in its state.
 - IFRS 9 asks for an unbiased, probability-weighted amount that reflects forecasts of economic conditions. These functions compute the ECL of one set of PDs, LGDs and EADs: compute it for each economic scenario and weight the results with the probabilities of the scenarios.
 - Early repayment enters only through the EAD schedule and through the vintage curves, which count repaid loans as not bad.
-- ``assign_stages`` looks at one reporting date. Probation periods, during which an exposure that no longer meets a criterion stays in its stage, need the history of each exposure and are not applied, and neither are the rules for assets that are credit-impaired when they are purchased or originated.
+- :func:`~kivi.lifetime.assign_stages` looks at one reporting date. Probation periods, during which an exposure that no longer meets a criterion stays in its stage, need the history of each exposure and are not applied, and neither are the rules for assets that are credit-impaired when they are purchased or originated.
 
 Errors and warnings
 -------------------
 
-Published transition matrices are rounded, so their rows rarely add up to 1. ``transition_pd`` allows a rounding error of 1e-9 only, and asks to divide each row by its sum:
+Published transition matrices are rounded, so their rows rarely add up to 1. :func:`~kivi.lifetime.transition_pd` allows a rounding error of 1e-9 only, and asks to divide each row by its sum:
 
 >>> states = ["A", "B", "D"]
 >>> rounded = pd.DataFrame(
