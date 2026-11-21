@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Glossary &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=e03d16b7" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=a85d417d"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/glossary';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Univariate profile" href="univariate.html" />
+    <link rel="prev" title="Conventions" href="conventions.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.8.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 0.8.0">0.8.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/glossary.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/glossary.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Glossary</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="glossary">
+<h1>Glossary<a class="headerlink" href="#glossary" title="Link to this heading">#</a></h1>
+<p>The terms of credit risk modeling as the guides and the docstrings use them. Each entry links to the guide that explains the term with an example.</p>
+<dl class="simple glossary">
+<dt id="term-Absorbing-state">Absorbing state<a class="headerlink" href="#term-Absorbing-state" title="Link to this term">#</a></dt><dd><p>A state of a transition matrix that a loan never leaves once it has entered it, such as default. The powers of the matrix then accumulate the probability of having reached it; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Accepts-and-rejects">Accepts and rejects<a class="headerlink" href="#term-Accepts-and-rejects" title="Link to this term">#</a></dt><dd><p>The applicants that a previous policy approved and declined. The outcome is known only for the accepts, so a model developed on them alone may misjudge the rejects; see <a class="reference internal" href="../user_guide/reject_inference.html"><span class="doc">Reject inference</span></a>.</p>
+</dd>
+<dt id="term-Area-under-the-ROC-curve-AUC">Area under the ROC curve (AUC)<a class="headerlink" href="#term-Area-under-the-ROC-curve-AUC" title="Link to this term">#</a></dt><dd><p>The probability that a randomly chosen event scores higher than a randomly chosen non-event, with ties counted as one half. A score unrelated to the target has an AUC of about 0.5; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Binning">Binning<a class="headerlink" href="#term-Binning" title="Link to this term">#</a></dt><dd><p>Dividing the values of a numeric variable into intervals, the bins, whose edges are fitted on a reference sample and then applied to every other sample. Scorecard development calls it classing: fine classing forms many small bins, and coarse classing merges them into a few that are large enough to be stable. A categorical variable is binned by grouping its categories instead; see <a class="reference internal" href="../user_guide/binning.html"><span class="doc">Binning</span></a>.</p>
+</dd>
+<dt id="term-Binning-specification">Binning specification<a class="headerlink" href="#term-Binning-specification" title="Link to this term">#</a></dt><dd><p>The edges, category groupings, special codes and WOE tables of every column of a model, fitted together and saved as versioned JSON, so that production data are grouped and encoded exactly as the development sample; see <a class="reference internal" href="../user_guide/spec.html"><span class="doc">Binning specifications</span></a>.</p>
+</dd>
+<dt id="term-Category-grouping">Category grouping<a class="headerlink" href="#term-Category-grouping" title="Link to this term">#</a></dt><dd><p>A mapping from each category of a categorical variable to a group, fitted on a reference sample by pooling rare categories or by merging categories with similar event rates, and applied unchanged to every other sample; see <a class="reference internal" href="../user_guide/binning.html#category-groups"><span class="std std-ref">Grouping categories</span></a>.</p>
+</dd>
+<dt id="term-Characteristic-stability-index-CSI">Characteristic stability index (CSI)<a class="headerlink" href="#term-Characteristic-stability-index-CSI" title="Link to this term">#</a></dt><dd><p>The change of a variable’s average scorecard points from a reference sample to a current one: the change of each group’s share times the group’s points, summed over the groups. Over all the variables of a scorecard, the CSI values add up to the change of the average score; see <a class="reference internal" href="../user_guide/psi.html#characteristic-stability"><span class="std std-ref">Characteristic stability index</span></a>.</p>
+</dd>
+<dt id="term-Cohort">Cohort<a class="headerlink" href="#term-Cohort" title="Link to this term">#</a></dt><dd><p>The loans originated in the same period, usually a month, followed together as they age in a vintage table; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Conditional-PD">Conditional PD<a class="headerlink" href="#term-Conditional-PD" title="Link to this term">#</a></dt><dd><p>The probability of a default in a period given that there was none before it, also called the hazard rate; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Coverage-ratio">Coverage ratio<a class="headerlink" href="#term-Coverage-ratio" title="Link to this term">#</a></dt><dd><p>The loss allowance of a group of loans divided by their exposure; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Credit-impaired">Credit-impaired<a class="headerlink" href="#term-Credit-impaired" title="Link to this term">#</a></dt><dd><p>IFRS 9 calls a loan credit-impaired once events with a detrimental effect on its expected cash flows have occurred, such as significant financial difficulty of the borrower or a breach of contract like a default or a past-due event. Lenders usually align it with their definition of default, and such loans are in stage 3; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Cumulative-PD">Cumulative PD<a class="headerlink" href="#term-Cumulative-PD" title="Link to this term">#</a></dt><dd><p>The probability of a default in any of the periods from the first up to a given one, which never falls as the horizon grows; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Cut-off">Cut-off<a class="headerlink" href="#term-Cut-off" title="Link to this term">#</a></dt><dd><p>The score that separates approval from decline. kivi approves the scores at or below the cut-off, because its scores rise with the risk; see <a class="reference internal" href="../user_guide/strategy.html"><span class="doc">Credit strategy</span></a>.</p>
+</dd>
+<dt id="term-Days-past-due-DPD">Days past due (DPD)<a class="headerlink" href="#term-Days-past-due-DPD" title="Link to this term">#</a></dt><dd><p>The number of days for which a contractual payment has been overdue. IFRS 9 rebuttably presumes a significant increase in credit risk when a payment is more than 30 days past due, and default no later than when it is 90 days past due; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-DeLong-test">DeLong test<a class="headerlink" href="#term-DeLong-test" title="Link to this term">#</a></dt><dd><p>A test of whether two scores have the same AUC on the same sample. It uses the variances and the covariance of the two AUCs that DeLong, DeLong and Clarke-Pearson (1988) derived from the placement values; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Effective-interest-rate">Effective interest rate<a class="headerlink" href="#term-Effective-interest-rate" title="Link to this term">#</a></dt><dd><p>The rate that discounts the estimated future cash flows of a loan over its expected life to its gross carrying amount at initial recognition. IFRS 9 discounts expected credit losses at this rate; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Event-and-non-event">Event and non-event<a class="headerlink" href="#term-Event-and-non-event" title="Link to this term">#</a></dt><dd><p>The two outcomes of a binary target: an event has target 1, such as a default or another bad outcome, and a non-event has target 0. The guides read the subscription of the bundled bank data as the event; see <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">Weight of evidence and information value</span></a>.</p>
+</dd>
+<dt id="term-Event-rate">Event rate<a class="headerlink" href="#term-Event-rate" title="Link to this term">#</a></dt><dd><p>The share of events among the observations of a group, called the bad rate when the event is a default. It is computed from the raw counts, without smoothing; see <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">Weight of evidence and information value</span></a>.</p>
+</dd>
+<dt id="term-Ever-bad">Ever bad<a class="headerlink" href="#term-Ever-bad" title="Link to this term">#</a></dt><dd><p>A loan is ever bad by a month on book if it was bad at any month on book up to then, even if it has cured since. The cumulative bad rates of a vintage table count the loans that are ever bad; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Expected-credit-loss-ECL">Expected credit loss (ECL)<a class="headerlink" href="#term-Expected-credit-loss-ECL" title="Link to this term">#</a></dt><dd><p>Under IFRS 9, the present value of the credit losses of an exposure, weighted with the probabilities of default. The 12-month ECL counts the losses from defaults in the next 12 months, and the lifetime ECL those over the remaining life of the exposure; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Expected-loss-EL">Expected loss (EL)<a class="headerlink" href="#term-Expected-loss-EL" title="Link to this term">#</a></dt><dd><p>The loss that an exposure is expected to cause: its probability of default times its loss given default times its exposure at default; see <a class="reference internal" href="../user_guide/strategy.html"><span class="doc">Credit strategy</span></a>.</p>
+</dd>
+<dt id="term-Exposure-at-default-EAD">Exposure at default (EAD)<a class="headerlink" href="#term-Exposure-at-default-EAD" title="Link to this term">#</a></dt><dd><p>The amount owed when a borrower defaults, such as the outstanding balance of a loan; see <a class="reference internal" href="../user_guide/strategy.html"><span class="doc">Credit strategy</span></a>.</p>
+</dd>
+<dt id="term-Gains-table">Gains table<a class="headerlink" href="#term-Gains-table" title="Link to this term">#</a></dt><dd><p>A table of score bands from the riskiest to the safest, with the event rate and lift of each band and the cumulative shares of events and non-events; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Gini-coefficient">Gini coefficient<a class="headerlink" href="#term-Gini-coefficient" title="Link to this term">#</a></dt><dd><p>Twice the AUC minus 1: 0 for a score unrelated to the target and 1 for a score that ranks every event above every non-event. Scorecard development reports it more often than the AUC itself; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Grade">Grade<a class="headerlink" href="#term-Grade" title="Link to this term">#</a></dt><dd><p>One class of a rating system or master scale, with a PD of its own and bounds that decide which predicted PDs fall into it; see <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">Calibration</span></a>.</p>
+</dd>
+<dt id="term-Information-value-IV">Information value (IV)<a class="headerlink" href="#term-Information-value-IV" title="Link to this term">#</a></dt><dd><p>The sum of the differences between the event share and the non-event share of each group, each times the group’s WOE. It measures how strongly a grouped variable separates events from non-events on its own; see <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">Weight of evidence and information value</span></a>.</p>
+</dd>
+<dt id="term-Kolmogorov-Smirnov-statistic-KS">Kolmogorov-Smirnov statistic (KS)<a class="headerlink" href="#term-Kolmogorov-Smirnov-statistic-KS" title="Link to this term">#</a></dt><dd><p>The largest absolute gap between the distribution functions of the scores of events and of non-events; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Lift">Lift<a class="headerlink" href="#term-Lift" title="Link to this term">#</a></dt><dd><p>The event rate of a group divided by the event rate of the whole sample. A lift above 1 marks a group that is riskier than average; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Loss-allowance">Loss allowance<a class="headerlink" href="#term-Loss-allowance" title="Link to this term">#</a></dt><dd><p>The provision that IFRS 9 requires for the expected credit losses of a loan: the 12-month ECL in stage 1 and the lifetime ECL in stages 2 and 3; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Loss-given-default-LGD">Loss given default (LGD)<a class="headerlink" href="#term-Loss-given-default-LGD" title="Link to this term">#</a></dt><dd><p>The share of the exposure that is lost when a borrower defaults, after recoveries and collateral; see <a class="reference internal" href="../user_guide/strategy.html"><span class="doc">Credit strategy</span></a>.</p>
+</dd>
+<dt id="term-Marginal-PD">Marginal PD<a class="headerlink" href="#term-Marginal-PD" title="Link to this term">#</a></dt><dd><p>The probability, seen from the starting point, of a default in one given period. The marginal PDs of the periods up to a horizon add up to the cumulative PD; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Master-scale">Master scale<a class="headerlink" href="#term-Master-scale" title="Link to this term">#</a></dt><dd><p>A fixed set of grades that divides the PD range from 0 to 1, so that ratings from different models share one meaning; see <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">Calibration</span></a>.</p>
+</dd>
+<dt id="term-Monitoring-report">Monitoring report<a class="headerlink" href="#term-Monitoring-report" title="Link to this term">#</a></dt><dd><p>A table with one row per period that tracks a model in use: its population, the known outcomes, its discrimination and the stability of its score against a reference sample; see <a class="reference internal" href="../user_guide/monitoring.html"><span class="doc">Model monitoring</span></a>.</p>
+</dd>
+<dt id="term-Month-on-book">Month on book<a class="headerlink" href="#term-Month-on-book" title="Link to this term">#</a></dt><dd><p>The number of months since a loan was originated. A vintage table compares cohorts at the same month on book; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Outcome-window">Outcome window<a class="headerlink" href="#term-Outcome-window" title="Link to this term">#</a></dt><dd><p>The time after which the outcome of an observation is known, such as twelve months after a loan was granted. Until it has passed, the target is missing and the outcome counts as unknown; see <a class="reference internal" href="../user_guide/monitoring.html"><span class="doc">Model monitoring</span></a>.</p>
+</dd>
+<dt id="term-PD-term-structure">PD term structure<a class="headerlink" href="#term-PD-term-structure" title="Link to this term">#</a></dt><dd><p>The PD of each period after a starting point, such as the origination of a loan or the reporting date, given as cumulative, marginal or conditional PDs; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Placement-value">Placement value<a class="headerlink" href="#term-Placement-value" title="Link to this term">#</a></dt><dd><p>For an event, the share of non-events that score below it, and for a non-event, the share of events that score above it, with ties counted as one half. The average over either class is the AUC, and their variances give its DeLong standard error; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Points-to-double-the-odds-PDO">Points to double the odds (PDO)<a class="headerlink" href="#term-Points-to-double-the-odds-PDO" title="Link to this term">#</a></dt><dd><p>The number of scorecard points by which the score rises when the good:bad odds double. Together with a base score and the odds at that score, it sets the scale of a scorecard; see <a class="reference internal" href="../user_guide/scorecard.html"><span class="doc">Scorecard</span></a>.</p>
+</dd>
+<dt id="term-Population-stability-index-PSI">Population stability index (PSI)<a class="headerlink" href="#term-Population-stability-index-PSI" title="Link to this term">#</a></dt><dd><p>A measure of how much the distribution of a variable or a score has shifted between a reference sample and a current one, summed over the groups from the change of each group’s share; see <a class="reference internal" href="../user_guide/psi.html"><span class="doc">Population stability index</span></a>.</p>
+</dd>
+<dt id="term-Precision">Precision<a class="headerlink" href="#term-Precision" title="Link to this term">#</a></dt><dd><p>The share of events among the observations that a score flags at a threshold, that is, the event rate of the flagged observations; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Probability-of-default-PD">Probability of default (PD)<a class="headerlink" href="#term-Probability-of-default-PD" title="Link to this term">#</a></dt><dd><p>The probability that a borrower defaults within a given horizon, usually twelve months. kivi calls a predicted PD, or any other predicted event probability, <code class="docutils literal notranslate"><span class="pre">probability</span></code>; see <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">Calibration</span></a>.</p>
+</dd>
+<dt id="term-Reason-codes">Reason codes<a class="headerlink" href="#term-Reason-codes" title="Link to this term">#</a></dt><dd><p>The variables that lowered an applicant’s score most, compared with the best group of each variable, as given to a declined applicant; see <a class="reference internal" href="../user_guide/scorecard.html"><span class="doc">Scorecard</span></a>.</p>
+</dd>
+<dt id="term-Reference-sample">Reference sample<a class="headerlink" href="#term-Reference-sample" title="Link to this term">#</a></dt><dd><p>The sample that later samples are compared with, usually the development sample or a period right after it. Bin edges, score bands and groups are fitted on it; see <a class="reference internal" href="../user_guide/monitoring.html"><span class="doc">Model monitoring</span></a>.</p>
+</dd>
+<dt id="term-Reject-inference">Reject inference<a class="headerlink" href="#term-Reject-inference" title="Link to this term">#</a></dt><dd><p>Methods that supply outcomes for rejected applicants, as rows with weights or as weights for the accepts, so that a model can be refitted on all applicants; see <a class="reference internal" href="../user_guide/reject_inference.html"><span class="doc">Reject inference</span></a>.</p>
+</dd>
+<dt id="term-Reporting-date">Reporting date<a class="headerlink" href="#term-Reporting-date" title="Link to this term">#</a></dt><dd><p>The date at which a loss allowance is measured. Period 1 of an expected credit loss is the first period after it; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-ROC-curve">ROC curve<a class="headerlink" href="#term-ROC-curve" title="Link to this term">#</a></dt><dd><p>The true positive rate, the share of events flagged, against the false positive rate, the share of non-events flagged, as the threshold moves through the scores from the riskiest down. The area under it is the AUC, and its largest vertical distance from the diagonal is the KS; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Roll-rate">Roll rate<a class="headerlink" href="#term-Roll-rate" title="Link to this term">#</a></dt><dd><p>The share of the loans in a delinquency bucket at one month end that are in the next worse bucket at the next month end; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Significant-increase-in-credit-risk-SICR">Significant increase in credit risk (SICR)<a class="headerlink" href="#term-Significant-increase-in-credit-risk-SICR" title="Link to this term">#</a></dt><dd><p>The IFRS 9 criterion that moves a loan from stage 1 to stage 2: its risk of default has risen significantly since initial recognition. Each lender sets the test in its own policy, for example as relative and absolute increases of the PD; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Smoothing">Smoothing<a class="headerlink" href="#term-Smoothing" title="Link to this term">#</a></dt><dd><p>The value that replaces an empty count before shares are computed, 0.5 by default, so that the WOE, the IV and the PSI of a group stay finite. Counts are reported as observed, and only the shares are smoothed; see <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">Weight of evidence and information value</span></a>.</p>
+</dd>
+<dt id="term-Special-codes">Special codes<a class="headerlink" href="#term-Special-codes" title="Link to this term">#</a></dt><dd><p>Values that stand for a state rather than a measurement, such as -1 for “never contacted”, 999 for “no record” or the label “unknown” of a categorical variable. Passed in <code class="docutils literal notranslate"><span class="pre">special</span></code>, they are left out of the fit of the edges or of the grouping and each gets a group of its own; see <a class="reference internal" href="../user_guide/binning.html#special-values"><span class="std std-ref">Special values</span></a>.</p>
+</dd>
+<dt id="term-Stage">Stage<a class="headerlink" href="#term-Stage" title="Link to this term">#</a></dt><dd><p>One of the three IFRS 9 buckets of a loan: stage 1 for loans without a significant increase in credit risk, with a 12-month ECL; stage 2 for loans with one, with a lifetime ECL; and stage 3 for credit-impaired loans, also with a lifetime ECL; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Standard-error-and-confidence-interval">Standard error and confidence interval<a class="headerlink" href="#term-Standard-error-and-confidence-interval" title="Link to this term">#</a></dt><dd><p>The standard error measures how much an estimate, such as an AUC, would vary from sample to sample. A confidence interval at a level such as 95% is a range around the estimate that would cover the true value in that share of samples; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Swap-set">Swap set<a class="headerlink" href="#term-Swap-set" title="Link to this term">#</a></dt><dd><p>The four groups of applicants that two scores, each with its cut-off, approve or decline. The swap-outs are approved only by the current score and the swap-ins only by the new one; see <a class="reference internal" href="../user_guide/strategy.html"><span class="doc">Credit strategy</span></a>.</p>
+</dd>
+<dt id="term-Transition-matrix">Transition matrix<a class="headerlink" href="#term-Transition-matrix" title="Link to this term">#</a></dt><dd><p>A table that counts the loans or obligors that moved from each state to each other state between two dates, such as delinquency buckets or rating grades; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Unseen-category">Unseen category<a class="headerlink" href="#term-Unseen-category" title="Link to this term">#</a></dt><dd><p>A category of a later sample that did not occur in the reference sample, so that its grouping or WOE table has no row for it. kivi raises an error for such a category unless an <code class="docutils literal notranslate"><span class="pre">unseen</span></code> policy says how to treat it; see <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">Weight of evidence and information value</span></a>.</p>
+</dd>
+<dt id="term-Vintage-table">Vintage table<a class="headerlink" href="#term-Vintage-table" title="Link to this term">#</a></dt><dd><p>The cumulative ever-bad rate of each cohort by month on book; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Weight-of-evidence-WOE">Weight of evidence (WOE)<a class="headerlink" href="#term-Weight-of-evidence-WOE" title="Link to this term">#</a></dt><dd><p>The logarithm of a group’s share of all events over its share of all non-events. A positive WOE marks a group that is relatively more common among events; see <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">Weight of evidence and information value</span></a>.</p>
+</dd>
+</dl>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="conventions.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Conventions</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="univariate.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Univariate profile</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

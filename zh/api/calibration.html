@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>校准 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=e03d16b7" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=79c7be44"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/calibration';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="信贷策略" href="strategy.html" />
+    <link rel="prev" title="模型表现" href="metrics.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="0.8.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 0.8.0">0.8.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/calibration.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/calibration.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">约定</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API 参考</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">校准</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.calibration">
+<span id="calibration"></span><h1>校准<a class="headerlink" href="#module-kivi.calibration" title="链接到此标题。">#</a></h1>
+<p>检查并校正预测概率。 <a class="reference internal" href="#kivi.calibration.prior_correction" title="kivi.calibration.prior_correction"><code class="xref py py-func docutils literal notranslate"><span class="pre">prior_correction()</span></code></a> 和 <a class="reference internal" href="#kivi.calibration.corrected_intercept" title="kivi.calibration.corrected_intercept"><code class="xref py py-func docutils literal notranslate"><span class="pre">corrected_intercept()</span></code></a> 按开发数据的抽样方式校正概率， <a class="reference internal" href="#kivi.calibration.master_scale" title="kivi.calibration.master_scale"><code class="xref py py-func docutils literal notranslate"><span class="pre">master_scale()</span></code></a> 、 <a class="reference internal" href="#kivi.calibration.fit_grade_pd" title="kivi.calibration.fit_grade_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_grade_pd()</span></code></a> 和 <a class="reference internal" href="#kivi.calibration.assign_grades" title="kivi.calibration.assign_grades"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_grades()</span></code></a> 构建主标尺并分配等级， <a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_table()</span></code></a> 和各项检验统计并检验各等级， <a class="reference internal" href="#kivi.calibration.platt_fit" title="kivi.calibration.platt_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">platt_fit()</span></code></a> 和 <a class="reference internal" href="#kivi.calibration.isotonic_fit" title="kivi.calibration.isotonic_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">isotonic_fit()</span></code></a> 重新校准评分。</p>
+<p>基于内置数据的示例见 <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">校准</span></a> 。</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.calibration.prior_correction" title="kivi.calibration.prior_correction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prior_correction</span></code></a>(probability, *, ...)</p></td>
+<td><p>当开发样本的事件率与总体不同时，校正事件概率。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.calibration.corrected_intercept" title="kivi.calibration.corrected_intercept"><code class="xref py py-obj docutils literal notranslate"><span class="pre">corrected_intercept</span></code></a>(intercept, *, ...)</p></td>
+<td><p>当开发样本的事件率与总体不同时，校正逻辑回归的截距。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_table</span></code></a>(groups, target, probability, *)</p></td>
+<td><p>比较每组的预测事件率与实际观测事件率。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.calibration.binomial_test" title="kivi.calibration.binomial_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">binomial_test</span></code></a>(event, total, probability)</p></td>
+<td><p>检验每个等级的事件数是否多于其概率所预测的数量。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.calibration.jeffreys_test" title="kivi.calibration.jeffreys_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">jeffreys_test</span></code></a>(event, total, probability)</p></td>
+<td><p>基于 Jeffreys 先验，检验每个等级的概率是否与其事件率相符。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.calibration.hosmer_lemeshow" title="kivi.calibration.hosmer_lemeshow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hosmer_lemeshow</span></code></a>(event, total, probability, *)</p></td>
+<td><p>用 Hosmer-Lemeshow 统计量一次检验所有分组的校准情况。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.calibration.herfindahl_index" title="kivi.calibration.herfindahl_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">herfindahl_index</span></code></a>(counts, *[, normalize])</p></td>
+<td><p>衡量资产组合在各等级间的集中程度。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.calibration.master_scale" title="kivi.calibration.master_scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">master_scale</span></code></a>(probability, *[, boundary, labels])</p></td>
+<td><p>根据每个等级的 PD 构建主标尺。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.calibration.fit_grade_pd" title="kivi.calibration.fit_grade_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_grade_pd</span></code></a>(event, total, *[, smoothing])</p></td>
+<td><p>按观测违约率拟合每个等级的 PD，其对数与等级呈线性关系。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.calibration.assign_grades" title="kivi.calibration.assign_grades"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_grades</span></code></a>(probability, scale)</p></td>
+<td><p>为每个预测 PD 指定主标尺上的等级。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.calibration.platt_fit" title="kivi.calibration.platt_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">platt_fit</span></code></a>(score, target, *[, weights])</p></td>
+<td><p>拟合 Platt 缩放，即从评分到事件概率的逻辑曲线。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.calibration.platt_predict" title="kivi.calibration.platt_predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">platt_predict</span></code></a>(score, slope, intercept)</p></td>
+<td><p>用拟合好的 Platt 缩放把评分转换为事件概率。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.calibration.isotonic_fit" title="kivi.calibration.isotonic_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isotonic_fit</span></code></a>(score, target, *[, weights, ...])</p></td>
+<td><p>拟合保序校准，即从评分到事件概率的阶梯函数。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.calibration.isotonic_predict" title="kivi.calibration.isotonic_predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isotonic_predict</span></code></a>(score, edges, probabilities)</p></td>
+<td><p>按保序校准，给每个评分赋予其所在分段的概率。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.prior_correction">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">prior_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population_rate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.prior_correction" title="链接到此定义。">#</a></dt>
+<dd><p>当开发样本的事件率与总体不同时，校正事件概率。</p>
+<p>如果开发样本对事件做了过采样或欠采样，模型预测的是该样本上的概率。本函数按比例调整几率，使概率对应总体。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>模型给出的事件概率，取值在 0 与 1 之间。缺失值保持缺失。</p>
+</dd>
+<dt><strong>sample_rate</strong><span class="classifier">float</span></dt><dd><p>开发样本的事件率，严格介于 0 与 1 之间。</p>
+</dd>
+<dt><strong>population_rate</strong><span class="classifier">float</span></dt><dd><p>总体的事件率，严格介于 0 与 1 之间。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float、pandas.Series 或 numpy.ndarray</dt><dd><p>校正后的概率，形状与 <cite>probability</cite> 相同。输入为 Series 时返回 Series，索引和名称保持不变；输入为标量时返回 float。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>probability</cite> 含有 [0, 1] 以外的值，或者某个事件率不严格介于 0 与 1 之间。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.corrected_intercept" title="kivi.calibration.corrected_intercept"><code class="xref py py-obj docutils literal notranslate"><span class="pre">corrected_intercept</span></code></a></dt><dd><p>对逻辑回归截距做同样的校正。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_table</span></code></a></dt><dd><p>比较预测事件率与观测事件率。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>设样本事件率为 <span class="math notranslate nohighlight">\(\bar y\)</span> ，总体事件率为 <span class="math notranslate nohighlight">\(\tau\)</span> ，则每个概率的几率都乘以</p>
+<div class="math notranslate nohighlight">
+\[\omega = \frac{\tau / (1 - \tau)}{\bar y / (1 - \bar y)}, \qquad
+\tilde p = \frac{\omega p}{\omega p + 1 - p}.\]</div>
+<p>这是 King 和 Zeng <a class="reference internal" href="#r4b74edbba56e-1" id="id1">[1]</a> 提出的先验校正（prior correction）。它改变概率的水平，但不改变其排序。对逻辑回归而言，这等价于在截距上加上 <span class="math notranslate nohighlight">\(\ln \omega\)</span> 。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r4b74edbba56e-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>G. King and L. Zeng, &quot;Logistic Regression in Rare Events Data&quot;,
+Political Analysis, vol. 9, no. 2, pp. 137-163, 2001.</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">prior_correction</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prior_correction</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">],</span> <span class="n">sample_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">population_rate</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.02  , 0.0051, 0.0011])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.corrected_intercept">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">corrected_intercept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intercept</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population_rate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.corrected_intercept" title="链接到此定义。">#</a></dt>
+<dd><p>当开发样本的事件率与总体不同时，校正逻辑回归的截距。</p>
+<p>校正后的模型给出与 <cite>prior_correction</cite> 相同的概率：只有截距改变，系数和申请人的排序都保持不变。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>intercept</strong><span class="classifier">float</span></dt><dd><p>以事件为因变量的逻辑回归的截距。</p>
+</dd>
+<dt><strong>sample_rate</strong><span class="classifier">float</span></dt><dd><p>开发样本的事件率，严格介于 0 与 1 之间。</p>
+</dd>
+<dt><strong>population_rate</strong><span class="classifier">float</span></dt><dd><p>总体的事件率，严格介于 0 与 1 之间。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>适用于总体的截距，即 <code class="docutils literal notranslate"><span class="pre">intercept</span> <span class="pre">+</span> <span class="pre">ln(omega)</span></code> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>intercept</cite> 不是有限数值，或者某个事件率不严格介于 0 与 1 之间。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.prior_correction" title="kivi.calibration.prior_correction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prior_correction</span></code></a></dt><dd><p>对概率做同样的校正。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>King 和 Zeng <a class="reference internal" href="#rc67660983562-1" id="id3">[1]</a> 从截距中减去 <span class="math notranslate nohighlight">\(\ln\left[\frac{1 - \tau}{\tau} \cdot \frac{\bar y}{1 - \bar y}\right] = -\ln \omega\)</span> ；参见 <cite>prior_correction</cite> 。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rc67660983562-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">1</a><span class="fn-bracket">]</span></span>
+<p>G. King and L. Zeng, &quot;Logistic Regression in Rare Events Data&quot;,
+Political Analysis, vol. 9, no. 2, pp. 137-163, 2001.</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">corrected_intercept</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">corrected_intercept</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="n">sample_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="n">population_rate</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">-3.8918</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.calibration_table">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">calibration_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.calibration_table" title="链接到此定义。">#</a></dt>
+<dd><p>比较每组的预测事件率与实际观测事件率。</p>
+<p>分组通常是主标尺的等级（按固定边界切分概率得到），或者分数段。每一行都包含校准检验所需的输入。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>groups</strong><span class="classifier">array_like</span></dt><dd><p>等级或分组标签。缺失值独立成组。</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>二分类标签，1 表示事件。某个分组乃至整个样本都可以没有事件。</p>
+</dd>
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>预测的事件概率，取值在 0 与 1 之间。作为 Series 传入的输入，索引必须完全相同；否则按位置对应。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每个观测的非负权重，例如其抽样比例的倒数，对应方式与 <cite>target</cite> 相同。此时 <code class="docutils literal notranslate"><span class="pre">total</span></code> 和 <code class="docutils literal notranslate"><span class="pre">event</span></code> 为权重之和，事件率和平均概率都按权重计算，权重之和为零的组会被排除。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>每组一行，包括观测数 <code class="docutils literal notranslate"><span class="pre">total</span></code> 、事件数 <code class="docutils literal notranslate"><span class="pre">event</span></code> 、观测事件率 <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> 以及平均预测概率 <code class="docutils literal notranslate"><span class="pre">mean_probability</span></code> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果输入不是一维、为空，或者索引或长度不一致， <cite>target</cite> 含有 0 和 1 以外的标签，或者 <cite>probability</cite> 含有缺失值或 [0, 1] 以外的值。此外，如果 <cite>weights</cite> 不是数值、没有为每个观测给出一个有限非负且总和为正的权重，或者索引与 <cite>groups</cite> 不同。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.binomial_test" title="kivi.calibration.binomial_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">binomial_test</span></code></a></dt><dd><p>检验某个等级的事件数是否多于预测。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.jeffreys_test" title="kivi.calibration.jeffreys_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">jeffreys_test</span></code></a></dt><dd><p>二项检验的贝叶斯版本。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.hosmer_lemeshow" title="kivi.calibration.hosmer_lemeshow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hosmer_lemeshow</span></code></a></dt><dd><p>一次检验所有分组的校准情况。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.herfindahl_index" title="kivi.calibration.herfindahl_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">herfindahl_index</span></code></a></dt><dd><p>衡量各等级的集中程度。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>分组的计数方式与 <cite>kivi.woe.woe_table</cite> 相同。当 <cite>groups</cite> 为分类型（例如 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 的结果）时，各行按类别顺序排列，缺失值排在最后。否则按分组首次出现的次序排列。从未出现的类别不会列出。</p>
+<p>二项检验、Jeffreys 检验和 Hosmer-Lemeshow 检验需要整数的观测数和事件数，因此请在不加权的表上进行这些检验。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">calibration_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grades</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">probability</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">calibration_table</span><span class="p">(</span><span class="n">grades</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">probability</span><span class="p">)</span>
+<span class="go">     total  event  event_rate  mean_probability</span>
+<span class="go">bin</span>
+<span class="go">A        2      0    0.000000       0.15</span>
+<span class="go">B        3      2    0.666667       0.40</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.binomial_test">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">binomial_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.binomial_test" title="链接到此定义。">#</a></dt>
+<dd><p>检验每个等级的事件数是否多于其概率所预测的数量。</p>
+<p>单侧精确二项检验假定各事件相互独立。p 值较小，说明该概率低估了这个等级的事件率。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event</strong><span class="classifier">array_like</span></dt><dd><p>每个等级的事件数。</p>
+</dd>
+<dt><strong>total</strong><span class="classifier">array_like</span></dt><dd><p>每个等级的观测数，为正整数。</p>
+</dd>
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>每个等级的预测事件概率，取值在 0 与 1 之间，例如 <cite>calibration_table</cite> 的 <code class="docutils literal notranslate"><span class="pre">mean_probability</span></code> 列。三个输入会一起广播；作为 Series 传入的输入，索引必须完全相同。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float、pandas.Series 或 numpy.ndarray</dt><dd><p>单侧 p 值：有 Series 输入时返回 Series，索引与 Series 输入相同；输入为标量时返回 float；其他情况返回数组。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果输入无法广播或 Series 的索引不一致、 <cite>total</cite> 不是正整数、 <cite>event</cite> 不是介于 0 与 <cite>total</cite> 之间的整数，或者 <cite>probability</cite> 超出 [0, 1]。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.jeffreys_test" title="kivi.calibration.jeffreys_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">jeffreys_test</span></code></a></dt><dd><p>本检验的贝叶斯版本。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_table</span></code></a></dt><dd><p>每个等级的计数和预测概率。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>在原假设下， <span class="math notranslate nohighlight">\(N\)</span> 个观测中的事件数 <span class="math notranslate nohighlight">\(D\)</span> 服从概率为 <span class="math notranslate nohighlight">\(p\)</span> 的二项分布。p 值为</p>
+<div class="math notranslate nohighlight">
+\[P(D \ge d) = \sum_{k=d}^{N} \binom{N}{k} p^k (1 - p)^{N - k}
+= I_p(d, N - d + 1),\]</div>
+<p>其中 <span class="math notranslate nohighlight">\(I\)</span> 为正则化不完全贝塔函数；当 <span class="math notranslate nohighlight">\(d = 0\)</span> 时 p 值为 1。违约之间存在相关性时（例如经济下行期），该检验的拒绝频率会高于名义水平 <a class="reference internal" href="#rb734fd528b30-1" id="id5">[1]</a> 。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rb734fd528b30-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">1</a><span class="fn-bracket">]</span></span>
+<p>Basel Committee on Banking Supervision, &quot;Studies on the
+Validation of Internal Rating Systems&quot;, Working Paper No. 14, 2005.</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">binomial_test</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">binomial_test</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span> <span class="mf">0.02</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([1.    , 0.7649, 0.0493])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.jeffreys_test">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">jeffreys_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.jeffreys_test" title="链接到此定义。">#</a></dt>
+<dd><p>基于 Jeffreys 先验，检验每个等级的概率是否与其事件率相符。</p>
+<p>p 值是真实事件率不超过预测概率的后验概率。p 值较小，说明该概率低估了这个等级的事件率。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event</strong><span class="classifier">array_like</span></dt><dd><p>每个等级的事件数。</p>
+</dd>
+<dt><strong>total</strong><span class="classifier">array_like</span></dt><dd><p>每个等级的观测数，为正整数。</p>
+</dd>
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>每个等级的预测事件概率，取值在 0 与 1 之间，例如 <cite>calibration_table</cite> 的 <code class="docutils literal notranslate"><span class="pre">mean_probability</span></code> 列。三个输入会一起广播；作为 Series 传入的输入，索引必须完全相同。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float、pandas.Series 或 numpy.ndarray</dt><dd><p>单侧 p 值：有 Series 输入时返回 Series，索引与 Series 输入相同；输入为标量时返回 float；其他情况返回数组。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果输入无法广播或 Series 的索引不一致、 <cite>total</cite> 不是正整数、 <cite>event</cite> 不是介于 0 与 <cite>total</cite> 之间的整数，或者 <cite>probability</cite> 超出 [0, 1]。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.binomial_test" title="kivi.calibration.binomial_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">binomial_test</span></code></a></dt><dd><p>本检验的频率学派版本。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_table</span></code></a></dt><dd><p>每个等级的计数和预测概率。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>取 Jeffreys 先验 Beta(1/2, 1/2)，在 <span class="math notranslate nohighlight">\(N\)</span> 个观测中出现 <span class="math notranslate nohighlight">\(d\)</span> 个事件后，事件率的后验分布为 <span class="math notranslate nohighlight">\(\mathrm{Beta}(d + 1/2, N - d + 1/2)\)</span> ，p 值就是该分布在预测概率 <span class="math notranslate nohighlight">\(p\)</span> 处的分布函数值：</p>
+<div class="math notranslate nohighlight">
+\[I_p\left(d + \tfrac12, N - d + \tfrac12\right).\]</div>
+<p>这是欧洲央行在 PD 模型验证中要求使用的检验 <a class="reference internal" href="#r73613bff641b-1" id="id7">[1]</a> 。与二项检验不同，没有事件的等级其 p 值仍小于 1。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r73613bff641b-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">1</a><span class="fn-bracket">]</span></span>
+<p>European Central Bank, &quot;Instructions for reporting the
+validation results of internal models: IRB Pillar I models for
+credit risk&quot;, 2019.</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">jeffreys_test</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">jeffreys_test</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span> <span class="mf">0.02</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.9956, 0.6701, 0.032 ])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.hosmer_lemeshow">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">hosmer_lemeshow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ddof</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.hosmer_lemeshow" title="链接到此定义。">#</a></dt>
+<dd><p>用 Hosmer-Lemeshow 统计量一次检验所有分组的校准情况。</p>
+<p>该统计量把各组观测事件数与预测事件数之差的平方累加起来。p 值较小，说明概率与观测到的事件率不符。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event</strong><span class="classifier">array_like</span></dt><dd><p>每组的事件数。</p>
+</dd>
+<dt><strong>total</strong><span class="classifier">array_like</span></dt><dd><p>每组的观测数，为正整数。</p>
+</dd>
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>每组的平均预测事件概率，严格介于 0 与 1 之间，例如 <cite>calibration_table</cite> 的 <code class="docutils literal notranslate"><span class="pre">mean_probability</span></code> 列。作为 Series 传入的输入，索引必须完全相同。</p>
+</dd>
+<dt><strong>ddof</strong><span class="classifier">int，默认 2</span></dt><dd><p>卡方分布的自由度等于分组数减去 <cite>ddof</cite> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>statistic</strong><span class="classifier">float</span></dt><dd><p>Hosmer-Lemeshow 统计量。</p>
+</dd>
+<dt><strong>pvalue</strong><span class="classifier">float</span></dt><dd><p>该统计量在卡方分布下的上尾概率。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果输入不是一维、长度或 Series 索引不一致、 <cite>total</cite> 不是正整数、 <cite>event</cite> 不是介于 0 与 <cite>total</cite> 之间的整数、 <cite>probability</cite> 不严格介于 0 与 1 之间，或者 <cite>ddof</cite> 为负数或使自由度不足 1。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_table</span></code></a></dt><dd><p>每组的计数和预测概率。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.binomial_test" title="kivi.calibration.binomial_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">binomial_test</span></code></a></dt><dd><p>逐个检验每个等级。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>对 <span class="math notranslate nohighlight">\(g\)</span> 个分组，设第 <span class="math notranslate nohighlight">\(k\)</span> 组有 <span class="math notranslate nohighlight">\(n_k\)</span> 个观测、 <span class="math notranslate nohighlight">\(d_k\)</span> 个事件，平均预测概率为 <span class="math notranslate nohighlight">\(\bar p_k\)</span> ，则</p>
+<div class="math notranslate nohighlight">
+\[H = \sum_{k=1}^{g} \frac{(d_k - n_k \bar p_k)^2}{n_k \bar p_k (1 - \bar p_k)},\]</div>
+<p>并与自由度为 <span class="math notranslate nohighlight">\(g - \mathrm{ddof}\)</span> 的卡方分布比较。Hosmer 和 Lemeshow <a class="reference internal" href="#rde8a0df3097b-1" id="id9">[1]</a> 将拟合模型所用样本的概率排序后分成约十个大小相近的组，此时自由度为 <span class="math notranslate nohighlight">\(g - 2\)</span> 。如果概率不是在被检验的样本上拟合的（例如验证样本），请使用 <code class="docutils literal notranslate"><span class="pre">ddof=0</span></code> <a class="reference internal" href="#rde8a0df3097b-2" id="id10">[2]</a> 。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rde8a0df3097b-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">1</a><span class="fn-bracket">]</span></span>
+<p>D. W. Hosmer and S. Lemeshow, &quot;Goodness of fit tests for the
+multiple logistic regression model&quot;, Communications in Statistics -
+Theory and Methods, vol. 9, no. 10, pp. 1043-1069, 1980.</p>
+</div>
+<div class="citation" id="rde8a0df3097b-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">2</a><span class="fn-bracket">]</span></span>
+<p>D. W. Hosmer, S. Lemeshow and R. X. Sturdivant, &quot;Applied
+Logistic Regression&quot;, 3rd ed., Wiley, 2013.</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">hosmer_lemeshow</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">statistic</span><span class="p">,</span> <span class="n">pvalue</span> <span class="o">=</span> <span class="n">hosmer_lemeshow</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">15</span><span class="p">],</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"statistic = </span><span class="si">{</span><span class="n">statistic</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, pvalue = </span><span class="si">{</span><span class="n">pvalue</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">statistic = 1.196, pvalue = 0.274</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.herfindahl_index">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">herfindahl_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">counts</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.herfindahl_index" title="链接到此定义。">#</a></dt>
+<dd><p>衡量资产组合在各等级间的集中程度。</p>
+<p>赫芬达尔-赫希曼指数（HHI）是各等级占比的平方和。所有观测都在同一等级时为 1； <span class="math notranslate nohighlight">\(k\)</span> 个等级人数相同时为 <span class="math notranslate nohighlight">\(1/k\)</span> 。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>counts</strong><span class="classifier">array_like</span></dt><dd><p>每个等级的观测数或敞口，例如 <cite>calibration_table</cite> 的 <code class="docutils literal notranslate"><span class="pre">total</span></code> 列。</p>
+</dd>
+<dt><strong>normalize</strong><span class="classifier">bool，默认 False</span></dt><dd><p>重新缩放指数，使各等级人数相同时为 0，全部集中在一个等级时为 1。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>指数值。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>counts</cite> 不是一维、含有负值或非有限值、总和为零，或者 <cite>normalize</cite> 不是布尔值，或在少于两个等级时设置了 <cite>normalize</cite> 。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_table</span></code></a></dt><dd><p>每个等级的观测数。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>对 <span class="math notranslate nohighlight">\(k\)</span> 个等级，设各等级占比为 <span class="math notranslate nohighlight">\(s_i = c_i / \sum_j c_j\)</span> ，则</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{HHI} = \sum_{i=1}^{k} s_i^2, \qquad
+\mathrm{HHI}^* = \frac{\mathrm{HHI} - 1/k}{1 - 1/k}.\]</div>
+<p>如果观测集中在少数几个等级，评级标尺对风险的区分能力就较差。空等级也计入 <span class="math notranslate nohighlight">\(k\)</span> 。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">herfindahl_index</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">herfindahl_index</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
+<span class="go">0.38</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">herfindahl_index</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">],</span><span class="w"> </span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.07</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.master_scale">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">master_scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'geometric'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.master_scale" title="链接到此定义。">#</a></dt>
+<dd><p>根据每个等级的 PD 构建主标尺。</p>
+<p>主标尺把从 0 到 1 的 PD 范围划分为若干等级，每个等级有一个 PD。相邻等级之间的界限位于两者的 PD 之间，因此 <cite>assign_grades</cite> 能为每个预测 PD 指定其等级。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>每个等级的 PD，从风险最低的等级起严格递增，且严格介于 0 和 1 之间。 <code class="docutils literal notranslate"><span class="pre">numpy.geomspace(first,</span> <span class="pre">last,</span> <span class="pre">grades)</span></code> 给出几何网格， <cite>fit_grade_pd</cite> 则按观测违约率拟合这些 PD。</p>
+</dd>
+<dt><strong>boundary</strong><span class="classifier">{&quot;geometric&quot;, &quot;arithmetic&quot;}，默认 &quot;geometric&quot;</span></dt><dd><p>相邻两个等级之间的界限：取两者 PD 的几何平均数，即对数尺度上的中点，或取其算术平均数。</p>
+</dd>
+<dt><strong>labels</strong><span class="classifier">array_like，可选</span></dt><dd><p>每个等级唯一的标签，例如 <code class="docutils literal notranslate"><span class="pre">list(&quot;ABCDEFG&quot;)</span></code> 。默认从 1 开始为等级编号。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>每个等级一行，以其标签为索引（索引名为 <code class="docutils literal notranslate"><span class="pre">grade</span></code> ），包含 <code class="docutils literal notranslate"><span class="pre">lower</span></code> 、 <code class="docutils literal notranslate"><span class="pre">probability</span></code> 和 <code class="docutils literal notranslate"><span class="pre">upper</span></code> 三列。第一个等级从 0 开始，最后一个等级在 1 结束，每个等级在下一个等级开始处结束。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>probability</cite> 为空、不是一维、不是实数数值、含有缺失值、不严格递增或不严格介于 0 和 1 之间， <cite>boundary</cite> 无法识别，或 <cite>labels</cite> 没有为每个等级给出一个唯一且非缺失的标签。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.fit_grade_pd" title="kivi.calibration.fit_grade_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_grade_pd</span></code></a></dt><dd><p>按观测违约率拟合每个等级的 PD。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.assign_grades" title="kivi.calibration.assign_grades"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_grades</span></code></a></dt><dd><p>为每个预测 PD 指定标尺上的等级。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_table</span></code></a></dt><dd><p>比较各等级与其观测违约率。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>设各等级的 PD 为 <span class="math notranslate nohighlight">\(p_1 &lt; \dots &lt; p_K\)</span> ，等级 <span class="math notranslate nohighlight">\(k\)</span> 与 <span class="math notranslate nohighlight">\(k + 1\)</span> 之间的界限为</p>
+<div class="math notranslate nohighlight">
+\[b_k = \sqrt{p_k \, p_{k+1}} \quad \text{(geometric)}, \qquad
+b_k = \frac{p_k + p_{k+1}}{2} \quad \text{(arithmetic)},\]</div>
+<p>等级 <span class="math notranslate nohighlight">\(k\)</span> 包含 <span class="math notranslate nohighlight">\((b_{k-1}, b_k]\)</span> 中的 PD，其中 <span class="math notranslate nohighlight">\(b_0 = 0\)</span> ， <span class="math notranslate nohighlight">\(b_K = 1\)</span> 。主标尺的 PD 通常逐级按固定倍数增长，因此在对数尺度上等距分布。几何界限正是该尺度上的中点：PD 归入按比值更接近的那个等级。kivi 0.2 版本使用的算术平均数总是高于几何平均数，因此每个等级向上一个等级延伸得比向下一个等级更远。若 PD 逐级翻倍，PD 为 <span class="math notranslate nohighlight">\(p\)</span> 的等级将包含直到 <span class="math notranslate nohighlight">\(1.5 p\)</span> 的 PD，而不是 <span class="math notranslate nohighlight">\(\sqrt 2 p \approx 1.41 p\)</span> ，其观测违约率往往高于其 PD。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">master_scale</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">master_scale</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.16</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">labels</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="s2">"ABCDE"</span><span class="p">))</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">        lower  probability   upper</span>
+<span class="go">grade</span>
+<span class="go">A      0.0000         0.01  0.0141</span>
+<span class="go">B      0.0141         0.02  0.0283</span>
+<span class="go">C      0.0283         0.04  0.0566</span>
+<span class="go">D      0.0566         0.08  0.1131</span>
+<span class="go">E      0.1131         0.16  1.0000</span>
+</pre></div>
+</div>
+<p>相邻 PD 的算术平均数给出更高的界限：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">master_scale</span><span class="p">([</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">],</span> <span class="n">boundary</span><span class="o">=</span><span class="s2">"arithmetic"</span><span class="p">)</span>
+<span class="go">       lower  probability  upper</span>
+<span class="go">grade</span>
+<span class="go">1      0.000         0.01  0.015</span>
+<span class="go">2      0.015         0.02  0.030</span>
+<span class="go">3      0.030         0.04  1.000</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.fit_grade_pd">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">fit_grade_pd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.fit_grade_pd" title="链接到此定义。">#</a></dt>
+<dd><p>按观测违约率拟合每个等级的 PD，其对数与等级呈线性关系。</p>
+<p>把违约率的对数拟合为等级编号的直线，因此拟合的 PD 逐级按固定倍数增长。把结果传给 <cite>master_scale</cite> 即可得到各等级的界限。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event</strong><span class="classifier">array_like</span></dt><dd><p>每个等级的违约数，从风险最低的等级排到风险最高的等级。也接受加权计数，例如加权 <cite>calibration_table</cite> 中的计数。</p>
+</dd>
+<dt><strong>total</strong><span class="classifier">array_like</span></dt><dd><p>每个等级的观测数。没有观测的等级不参与拟合，但仍会得到拟合的 PD，因此对数据未覆盖的每个标尺等级都传入 0。Series 输入必须具有相同的索引。</p>
+</dd>
+<dt><strong>smoothing</strong><span class="classifier">float，默认 0.5</span></dt><dd><p>替换零计数（其对数无定义）的违约数，与 <cite>kivi.woe.woe_table</cite> 替换空单元格的方式相同。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series 或 numpy.ndarray</dt><dd><p>每个等级拟合的 PD，严格递增且小于 1：有 Series 输入时返回 Series，索引与 Series 输入相同；否则返回数组。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果输入不是一维、长度或 Series 索引不同、不是有限的非负数，或 <cite>event</cite> 超过 <cite>total</cite> ；如果有观测的等级少于两个，或 <cite>smoothing</cite> 不是有限的正数。此外，如果拟合的 PD 不随等级上升或达到 1，也会抛出。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.master_scale" title="kivi.calibration.master_scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">master_scale</span></code></a></dt><dd><p>用拟合的 PD 构建标尺。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_table</span></code></a></dt><dd><p>统计每个等级的观测数和违约数。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>设等级 <span class="math notranslate nohighlight">\(k = 1, \dots, K\)</span> 的 <span class="math notranslate nohighlight">\(n_k\)</span> 个观测中有 <span class="math notranslate nohighlight">\(d_k\)</span> 次违约，截距 <span class="math notranslate nohighlight">\(a\)</span> 和斜率 <span class="math notranslate nohighlight">\(b\)</span> 使如下加权平方和最小</p>
+<div class="math notranslate nohighlight">
+\[\sum_{k : n_k &gt; 0} n_k \left(\ln \frac{d_k}{n_k} - a - b k\right)^2,\]</div>
+<p>其中 <span class="math notranslate nohighlight">\(d_k\)</span> 为 0 时用 <cite>smoothing</cite> 代替。等级 <span class="math notranslate nohighlight">\(k\)</span> 的拟合 PD 为 <span class="math notranslate nohighlight">\(e^{a + b k}\)</span> ，相邻 PD 之比恒为 <span class="math notranslate nohighlight">\(e^b\)</span> 。这种权重让每个观测具有相同的影响，因此整数计数的权重与重复的观测相同；kivi 0.2 版本用普通最小二乘拟合这条直线，让每个等级具有相同的影响。</p>
+<p>拟合会外推到观测到的等级之外，因此标尺两端的等级可能得到没有任何观测支持的 PD。违约率为零只说明该等级安全，而不说明有多安全：用平滑后的违约率 <span class="math notranslate nohighlight">\(0.5 / n_k\)</span> 代替它。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_grade_pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">event</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">30</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">total</span> <span class="o">=</span> <span class="p">[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">200</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fit_grade_pd</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">total</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.0015, 0.0049, 0.0155, 0.0494, 0.1572])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.assign_grades">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">assign_grades</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.assign_grades" title="链接到此定义。">#</a></dt>
+<dd><p>为每个预测 PD 指定主标尺上的等级。</p>
+<p>等级是标尺标签的有序分类变量，因此 <cite>calibration_table</cite> 可以直接按标尺的顺序统计各等级，供逐个等级的检验使用。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>一维的预测 PD，介于 0 和 1 之间。缺失值保持缺失。</p>
+</dd>
+<dt><strong>scale</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>主标尺，即 <cite>master_scale</cite> 的返回值：每个等级一行，以唯一的标签为索引，包含 <code class="docutils literal notranslate"><span class="pre">lower</span></code> 和 <code class="docutils literal notranslate"><span class="pre">upper</span></code> 两列。第一个等级必须从 0 开始，每个等级从上一个等级结束处开始，最后一个等级必须在 1 结束。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series 或 pandas.Categorical</dt><dd><p>每个 PD 的等级，为有序分类变量，其类别是标尺的标签，从风险最低到最高排列。输入为 Series 时返回 Series，索引和名称保持不变。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>probability</cite> 不是一维、不是实数数值或有取值超出 [0, 1]，或者 <cite>scale</cite> 不是这样的 DataFrame：具有唯一且非缺失的标签，其 <code class="docutils literal notranslate"><span class="pre">lower</span></code> 和 <code class="docutils literal notranslate"><span class="pre">upper</span></code> 列用递增且首尾相接的等级覆盖 [0, 1]。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.master_scale" title="kivi.calibration.master_scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">master_scale</span></code></a></dt><dd><p>构建标尺。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_table</span></code></a></dt><dd><p>比较每个等级的观测违约率与预测违约率。</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">pandas.cut</span></code></dt><dd><p>按边界把取值分配到各区间。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>等级 <span class="math notranslate nohighlight">\(k\)</span> 包含高于其 <code class="docutils literal notranslate"><span class="pre">lower</span></code> 界限、直到并包括其 <code class="docutils literal notranslate"><span class="pre">upper</span></code> 界限的 PD，因为 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 的区间是左开右闭的；PD 为 0 时属于第一个等级，与 <code class="docutils literal notranslate"><span class="pre">include_lowest=True</span></code> 相同。结果等于以 <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">*scale[&quot;upper&quot;]]</span></code> 为边界的 <code class="docutils literal notranslate"><span class="pre">pandas.cut(probability,</span> <span class="pre">edges,</span> <span class="pre">labels=scale.index,</span> <span class="pre">include_lowest=True)</span></code> ；决定等级的是 <code class="docutils literal notranslate"><span class="pre">upper</span></code> 列，而不是各等级的 PD。kivi 0.2 版本则把恰好落在界限上的 PD 归入上面的等级。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">assign_grades</span><span class="p">,</span> <span class="n">master_scale</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale</span> <span class="o">=</span> <span class="n">master_scale</span><span class="p">([</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">,</span> <span class="mf">0.16</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale</span>
+<span class="go">       lower  probability  upper</span>
+<span class="go">grade</span>
+<span class="go">1       0.00         0.01   0.02</span>
+<span class="go">2       0.02         0.04   0.08</span>
+<span class="go">3       0.08         0.16   1.00</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">assign_grades</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]),</span> <span class="n">scale</span><span class="p">)</span>
+<span class="go">0      1</span>
+<span class="go">1      1</span>
+<span class="go">2      2</span>
+<span class="go">3    NaN</span>
+<span class="go">4      3</span>
+<span class="go">dtype: category</span>
+<span class="go">Categories (3, int64): [1 &lt; 2 &lt; 3]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.platt_fit">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">platt_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.platt_fit" title="链接到此定义。">#</a></dt>
+<dd><p>拟合 Platt 缩放，即从评分到事件概率的逻辑曲线。</p>
+<p>斜率和截距只需在开发样本或校准样本上拟合一次，再由 <cite>platt_predict</cite> 应用到任何样本的评分上。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>score</strong><span class="classifier">array_like</span></dt><dd><p>有限的数值评分，例如模型的对数几率、PD 或评分卡分值。方向无关紧要：风险越高评分越低时，斜率为负。</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>二分类标签，1 表示事件。两个类别都必须出现。如果 <cite>score</cite> 和 <cite>target</cite> 都是 pandas Series，二者的索引必须完全相同；否则按位置对应。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每个观测的非负频数权重，对应方式与 <cite>target</cite> 相同：权重为 2 的观测计为两次。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>slope</strong><span class="classifier">float</span></dt><dd><p>评分在事件对数几率中的系数。</p>
+</dd>
+<dt><strong>intercept</strong><span class="classifier">float</span></dt><dd><p>评分为 0 时事件的对数几率。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>kivi.selection.SeparationError</dt><dd><p>如果评分把两类完全分开，以致使似然最大的斜率为无穷大。该异常属于 ValueError。</p>
+</dd>
+<dt>ValueError</dt><dd><p>如果输入为空或不是一维的，索引或长度不一致，<cite>target</cite> 含有 0 和 1 以外的标签或缺少其中之一，<cite>score</cite> 不是实数数值、含有缺失值或无穷值或者没有变化，或者 <cite>weights</cite> 无效或使某一类没有权重。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">警告<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>RuntimeWarning</dt><dd><p>如果拟合未能收敛。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.platt_predict" title="kivi.calibration.platt_predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">platt_predict</span></code></a></dt><dd><p>把斜率和截距应用到评分上。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.isotonic_fit" title="kivi.calibration.isotonic_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isotonic_fit</span></code></a></dt><dd><p>只假定事件率随评分上升的校准。</p>
+</dd>
+<dt><a class="reference internal" href="selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.selection.logistic_regression</span></code></a></dt><dd><p>同类拟合，并给出标准误。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>评分为 <span class="math notranslate nohighlight">\(s\)</span> 时的事件概率建模为</p>
+<div class="math notranslate nohighlight">
+\[p(s) = \frac{1}{1 + \exp(-(a s + b))},\]</div>
+<p>其中斜率 <span class="math notranslate nohighlight">\(a\)</span> 和截距 <span class="math notranslate nohighlight">\(b\)</span> 使对数似然最大，与 <cite>kivi.selection.logistic_regression</cite> 一样用迭代重加权最小二乘法拟合。在最大值处，拟合概率的均值等于样本的事件率（按 <cite>weights</cite> 加权）。</p>
+<p>当评分是某个模型的对数几率时，这就是 Cox 的逻辑再校准 <a class="reference internal" href="#rd112ce059dd4-2" id="id13">[2]</a> ：斜率为 1、截距为 0 说明模型在该样本上是校准的；斜率小于 1 则说明其概率过于极端，例如过拟合之后。</p>
+<p>Platt <a class="reference internal" href="#rd112ce059dd4-1" id="id14">[1]</a> 以及沿用其做法的 scikit-learn <code class="docutils literal notranslate"><span class="pre">CalibratedClassifierCV</span></code> ，在有 <span class="math notranslate nohighlight">\(n_1\)</span> 个事件和 <span class="math notranslate nohighlight">\(n_0\)</span> 个非事件时，把标签 1 和 0 替换为 <span class="math notranslate nohighlight">\((n_1 + 1) / (n_1 + 2)\)</span> 和 <span class="math notranslate nohighlight">\(1 / (n_0 + 2)\)</span> 。这只在小样本中有影响，在评分把两类完全分开时还能让斜率保持有限。这里直接使用原始标签，因此完全分开两类的评分会引发错误；这种评分可以改用 <cite>isotonic_fit</cite> 处理。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rd112ce059dd4-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">1</a><span class="fn-bracket">]</span></span>
+<p>J. C. Platt, &quot;Probabilistic outputs for support vector machines
+and comparisons to regularized likelihood methods&quot;, in Advances in
+Large Margin Classifiers, MIT Press, pp. 61-74, 1999.</p>
+</div>
+<div class="citation" id="rd112ce059dd4-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id13">2</a><span class="fn-bracket">]</span></span>
+<p>D. R. Cox, &quot;Two further applications of a model for binary
+regression&quot;, Biometrika, 45(3-4), pp. 562-565, 1958.</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">platt_fit</span><span class="p">,</span> <span class="n">platt_predict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span> <span class="o">=</span> <span class="n">platt_fit</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"slope = </span><span class="si">{</span><span class="n">slope</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, intercept = </span><span class="si">{</span><span class="n">intercept</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">slope = 0.8824, intercept = -0.1250</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">platt_predict</span><span class="p">([</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.2675, 0.4688, 0.6808])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.platt_predict">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">platt_predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intercept</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.platt_predict" title="链接到此定义。">#</a></dt>
+<dd><p>用拟合好的 Platt 缩放把评分转换为事件概率。</p>
+<p>概率沿着由 <cite>platt_fit</cite> 得到的斜率和截距所确定的逻辑曲线，因此开发样本、验证样本和新申请人都使用同一个校准。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>score</strong><span class="classifier">array_like</span></dt><dd><p>与拟合时尺度相同的数值评分。缺失值对应的概率也为缺失。</p>
+</dd>
+<dt><strong>slope</strong><span class="classifier">float</span></dt><dd><p>评分的系数，即 <cite>platt_fit</cite> 的返回值。</p>
+</dd>
+<dt><strong>intercept</strong><span class="classifier">float</span></dt><dd><p>截距，即 <cite>platt_fit</cite> 的返回值。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float、pandas.Series 或 numpy.ndarray</dt><dd><p>事件概率，形状与 <cite>score</cite> 相同。输入为 Series 时返回 Series，索引和名称保持不变；输入为标量时返回 float。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>score</cite> 不是实数数值，或者 <cite>slope</cite> 或 <cite>intercept</cite> 不是有限数。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.platt_fit" title="kivi.calibration.platt_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">platt_fit</span></code></a></dt><dd><p>拟合斜率和截距。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.isotonic_predict" title="kivi.calibration.isotonic_predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isotonic_predict</span></code></a></dt><dd><p>应用保序校准。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>对斜率 <span class="math notranslate nohighlight">\(a\)</span> 、截距 <span class="math notranslate nohighlight">\(b\)</span> 和评分 <span class="math notranslate nohighlight">\(s\)</span> ，概率为 <span class="math notranslate nohighlight">\(1 / (1 + \exp(-(a s + b)))\)</span> ，对极端评分也不会溢出。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">platt_predict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">platt_predict</span><span class="p">([</span><span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],</span> <span class="mf">1.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.0293, 0.3775, 0.9241])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.isotonic_fit">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">isotonic_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">increasing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.isotonic_fit" title="链接到此定义。">#</a></dt>
+<dd><p>拟合保序校准，即从评分到事件概率的阶梯函数。</p>
+<p>把评分范围划分为若干分段，各段的事件率随评分上升，因此这种校准只假定评分越高风险越高。分段只需拟合一次，再用 <cite>isotonic_predict</cite> 应用到任何样本的评分上。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>score</strong><span class="classifier">array_like</span></dt><dd><p>有限的数值评分，例如 PD 或模型的对数几率。</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>二分类标签，1 表示事件。两个类别都必须出现。如果 <cite>score</cite> 和 <cite>target</cite> 都是 pandas Series，二者的索引必须完全相同；否则按位置对应。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每个观测的非负频数权重，对应方式与 <cite>target</cite> 相同：权重为 2 的观测计为两次。权重之和为零的评分会被忽略。</p>
+</dd>
+<dt><strong>increasing</strong><span class="classifier">bool，默认 True</span></dt><dd><p>概率是否随评分上升，PD 就是如此。评分卡分值越高表示风险越低，因此对其传入 False。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>edges</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>从 <code class="docutils literal notranslate"><span class="pre">-inf</span></code> 到 <code class="docutils literal notranslate"><span class="pre">inf</span></code> 递增的分段边界，与 <cite>kivi.binning.bin_edges</cite> 的结果形式相同。各分段与 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 一样为右闭区间，每个内部边界是其下方分段中的最高评分。</p>
+</dd>
+<dt><strong>probabilities</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>每个分段的事件率，个数比 <cite>edges</cite> 少一个。事件率严格递增；若 <code class="docutils literal notranslate"><span class="pre">increasing=False</span></code> ，则严格递减。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果输入为空或不是一维的，索引或长度不一致，<cite>target</cite> 含有 0 和 1 以外的标签或缺少其中之一，<cite>score</cite> 不是实数数值或含有缺失值、无穷值，<cite>weights</cite> 无效或使某一类没有权重，或者 <cite>increasing</cite> 不是布尔值。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.isotonic_predict" title="kivi.calibration.isotonic_predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isotonic_predict</span></code></a></dt><dd><p>把分段应用到评分上。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.platt_fit" title="kivi.calibration.platt_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">platt_fit</span></code></a></dt><dd><p>用逻辑曲线进行的校准。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_table</span></code></a></dt><dd><p>将分段与另一个样本的实际结果进行比较。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>在所有随评分上升的概率 <span class="math notranslate nohighlight">\(p_i\)</span> 中，保序回归使 <span class="math notranslate nohighlight">\(\sum_i w_i (y_i - p_i)^2\)</span> 最小，同一个解也使二项似然最大 <a class="reference internal" href="#r79aaa79b7808-1" id="id17">[1]</a> 。相邻违序合并算法（pool-adjacent-violators）可以求出这个解：每个不同的评分起初各成一段，取其事件率；只要较低一段的事件率不低于其上方一段，就把这两段合并。每段的概率就是合并后的事件率。相同的评分总在同一段中；由于事件率相等的相邻分段也会合并，任意两个相邻分段的概率都不相同。</p>
+<p>两端边界为无穷，因此低于或高于拟合范围的评分分别取最低或最高分段的概率。落在两个分段的观测评分之间的评分属于上方的分段，因为它在该段的区间内；若 <code class="docutils literal notranslate"><span class="pre">increasing=False</span></code> ，这就是风险较低的分段。scikit-learn 的 <code class="docutils literal notranslate"><span class="pre">IsotonicRegression</span></code> 则在分段之间线性插值；在拟合样本的每个评分上，两者给出的概率相同 <a class="reference internal" href="#r79aaa79b7808-2" id="id18">[2]</a> 。</p>
+<p>没有事件的分段概率为 0，只有事件的分段概率为 1；把两类完全分开的评分只会得到这两个分段。在不允许概率为 0 的场合（例如调用 <cite>kivi.scorecard.pd_to_score</cite> 之前），请为概率设定下限。按 <cite>edges</cite> 切分评分后，这些分段也可以作为 <cite>calibration_table</cite> 的等级。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r79aaa79b7808-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id17">1</a><span class="fn-bracket">]</span></span>
+<p>M. Ayer, H. D. Brunk, G. M. Ewing, W. T. Reid and E. Silverman,
+&quot;An empirical distribution function for sampling with incomplete
+information&quot;, The Annals of Mathematical Statistics, 26(4),
+pp. 641-647, 1955.</p>
+</div>
+<div class="citation" id="r79aaa79b7808-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id18">2</a><span class="fn-bracket">]</span></span>
+<p>B. Zadrozny and C. Elkan, &quot;Transforming classifier scores into
+accurate multiclass probability estimates&quot;, Proceedings of the 8th
+ACM SIGKDD Conference, pp. 694-699, 2002.</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">isotonic_fit</span><span class="p">,</span> <span class="n">isotonic_predict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span><span class="p">,</span> <span class="n">probabilities</span> <span class="o">=</span> <span class="n">isotonic_fit</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span>
+<span class="go">array([-inf,  0.1,  0.4,  0.6,  inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">probabilities</span>
+<span class="go">array([0.        , 0.33333333, 0.5       , 1.        ])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">isotonic_predict</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">],</span> <span class="n">edges</span><span class="p">,</span> <span class="n">probabilities</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.    , 0.3333, 0.5   , 1.    ])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.isotonic_predict">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">isotonic_predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probabilities</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.isotonic_predict" title="链接到此定义。">#</a></dt>
+<dd><p>按保序校准，给每个评分赋予其所在分段的概率。</p>
+<p>分段由 <cite>isotonic_fit</cite> 在开发样本或校准样本上得到，因此之后的每个样本都使用同一个阶梯函数。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>score</strong><span class="classifier">array_like</span></dt><dd><p>与拟合时尺度相同的数值评分。缺失值对应的概率也为缺失。</p>
+</dd>
+<dt><strong>edges</strong><span class="classifier">array_like</span></dt><dd><p>从 <code class="docutils literal notranslate"><span class="pre">-inf</span></code> 到 <code class="docutils literal notranslate"><span class="pre">inf</span></code> 递增的分段边界，即 <cite>isotonic_fit</cite> 的返回值。</p>
+</dd>
+<dt><strong>probabilities</strong><span class="classifier">array_like</span></dt><dd><p>每个分段的概率，介于 0 和 1 之间，个数比 <cite>edges</cite> 少一个。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float、pandas.Series 或 numpy.ndarray</dt><dd><p>事件概率，形状与 <cite>score</cite> 相同。输入为 Series 时返回 Series，索引和名称保持不变；输入为标量时返回 float。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>score</cite> 不是实数数值， <cite>edges</cite> 不是从 <code class="docutils literal notranslate"><span class="pre">-inf</span></code> 到 <code class="docutils literal notranslate"><span class="pre">inf</span></code> 递增，或者 <cite>probabilities</cite> 没有为每个分段给出一个介于 0 和 1 之间的值。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.isotonic_fit" title="kivi.calibration.isotonic_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isotonic_fit</span></code></a></dt><dd><p>拟合分段及其概率。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.platt_predict" title="kivi.calibration.platt_predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">platt_predict</span></code></a></dt><dd><p>应用 Platt 缩放。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>与 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 一样，各分段为右闭区间：等于某个内部边界的评分取该边界下方分段的概率。由于两端边界为无穷，每个非缺失的评分都会落入某个分段。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">isotonic_predict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">),</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">isotonic_predict</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">],</span> <span class="n">edges</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">])</span>
+<span class="go">array([0.05, 0.05, 0.2 , 0.6 ])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="metrics.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">模型表现</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="strategy.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">信贷策略</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.prior_correction"><code class="docutils literal notranslate"><span class="pre">prior_correction()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.corrected_intercept"><code class="docutils literal notranslate"><span class="pre">corrected_intercept()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.calibration_table"><code class="docutils literal notranslate"><span class="pre">calibration_table()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.binomial_test"><code class="docutils literal notranslate"><span class="pre">binomial_test()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.jeffreys_test"><code class="docutils literal notranslate"><span class="pre">jeffreys_test()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.hosmer_lemeshow"><code class="docutils literal notranslate"><span class="pre">hosmer_lemeshow()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.herfindahl_index"><code class="docutils literal notranslate"><span class="pre">herfindahl_index()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.master_scale"><code class="docutils literal notranslate"><span class="pre">master_scale()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.fit_grade_pd"><code class="docutils literal notranslate"><span class="pre">fit_grade_pd()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.assign_grades"><code class="docutils literal notranslate"><span class="pre">assign_grades()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.platt_fit"><code class="docutils literal notranslate"><span class="pre">platt_fit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.platt_predict"><code class="docutils literal notranslate"><span class="pre">platt_predict()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.isotonic_fit"><code class="docutils literal notranslate"><span class="pre">isotonic_fit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.isotonic_predict"><code class="docutils literal notranslate"><span class="pre">isotonic_predict()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,202 @@
+/* kivi documentation styles, layered on pydata-sphinx-theme. */
+
+html {
+  --pst-font-family-base: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    "Noto Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC",
+    "Source Han Sans SC", sans-serif;
+  --pst-font-family-heading: var(--pst-font-family-base);
+  --kivi-radius: 10px;
+}
+
+html[data-theme="light"] {
+  --pst-color-primary: #2f5bd3;
+  --pst-color-primary-text: #fff;
+  --pst-color-primary-highlight: #2449b0;
+  --pst-color-primary-bg: #e3e9fb;
+  --sd-color-primary-bg: #e3e9fb;
+  --pst-color-secondary: #0b7a70;
+  --pst-color-secondary-text: #fff;
+  --pst-color-secondary-highlight: #08635b;
+  --pst-color-secondary-bg: #d3efeb;
+  --sd-color-secondary-bg: #d3efeb;
+  --kivi-hero-glow: rgba(47, 91, 211, 0.08);
+}
+
+html[data-theme="dark"] {
+  --pst-color-primary: #8aa8ff;
+  --pst-color-primary-text: #14181e;
+  --pst-color-primary-highlight: #a9c0ff;
+  --pst-color-primary-bg: #1d2a4f;
+  --sd-color-primary-bg: #1d2a4f;
+  --pst-color-secondary: #4fd1c5;
+  --pst-color-secondary-text: #14181e;
+  --pst-color-secondary-highlight: #7fe0d7;
+  --pst-color-secondary-bg: #0f3a36;
+  --sd-color-secondary-bg: #0f3a36;
+  --kivi-hero-glow: rgba(138, 168, 255, 0.08);
+}
+
+/* Chinese text reads better with more leading. */
+html[lang^="zh"] .bd-article {
+  line-height: 1.8;
+}
+
+/* Navbar: logo, version badge, language switch. */
+.navbar-brand img {
+  height: 1.75rem;
+}
+
+.navbar-brand .title {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.kivi-version {
+  align-self: center;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--pst-color-border);
+  border-radius: 999px;
+  color: var(--pst-color-text-muted);
+  font-family: var(--pst-font-family-monospace);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.kivi-language-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+/* Code blocks and tables. */
+div.highlight,
+.bd-content div[class*="highlight-"] pre {
+  border-radius: var(--kivi-radius);
+}
+
+.bd-content table.table {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Cards from sphinx-design. */
+.bd-content .sd-card {
+  border-radius: var(--kivi-radius);
+  border-color: var(--pst-color-border);
+  box-shadow: none;
+}
+
+.bd-content .sd-card.sd-card-hover:hover {
+  border-color: var(--pst-color-primary);
+  transform: translateY(-2px);
+}
+
+.bd-content .sd-card .sd-card-title {
+  font-weight: 600;
+}
+
+.bd-content .sd-card .sd-card-text:last-child {
+  margin-bottom: 0;
+}
+
+/* Home page. */
+.bd-article-container:has(.kivi-home) {
+  max-width: 70rem;
+}
+
+.kivi-home > h1 {
+  margin-top: 1.5rem;
+  font-size: clamp(2.2rem, 3vw + 1.2rem, 3.4rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  max-width: 22ch;
+}
+
+.kivi-home > h1 .headerlink {
+  display: none;
+}
+
+.kivi-home > h2 {
+  margin-top: 3rem;
+  font-size: 1.6rem;
+}
+
+.kivi-lead {
+  max-width: 44rem;
+  margin-bottom: 1.5rem;
+  color: var(--pst-color-text-muted);
+  font-size: 1.2rem;
+}
+
+.kivi-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.kivi-actions p {
+  margin: 0;
+}
+
+.kivi-actions .sd-btn {
+  padding: 0.55rem 1.25rem;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.kivi-home > div.highlight-bash {
+  max-width: 44rem;
+}
+
+.kivi-showcase div.highlight {
+  background: radial-gradient(circle at top right, var(--kivi-hero-glow), transparent 60%),
+    var(--pst-color-surface);
+}
+
+/* Numbered workflow steps. */
+.kivi-steps {
+  counter-reset: kivi-step;
+}
+
+.kivi-steps .sd-card-title::before {
+  counter-increment: kivi-step;
+  content: counter(kivi-step);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  margin-right: 0.6rem;
+  border-radius: 50%;
+  background: var(--pst-color-primary-bg);
+  color: var(--pst-color-primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* API reference: separate the entries a little more. */
+.bd-content dl.py.function,
+.bd-content dl.py.method {
+  margin-bottom: 2.5rem;
+}
+
+/* Charts drawn at build time by docs/_plotting.py. */
+.bd-content figure.align-default img {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--pst-color-border);
+  border-radius: var(--kivi-radius);
+  background: #fff;
+}
+
+html[data-theme="dark"] .bd-content figure.align-default img {
+  filter: brightness(0.92);
+}
+
+.bd-content figure.align-default figcaption {
+  margin-top: 0.5rem;
+  color: var(--pst-color-text-muted);
+  font-size: 0.9rem;
+}

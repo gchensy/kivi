@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>风控建模流程 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=e03d16b7" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=79c7be44"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/risk_workflow';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="单变量概况" href="univariate.html" />
+    <link rel="prev" title="用户指南" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="0.8.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 0.8.0">0.8.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/risk_workflow.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/risk_workflow.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">风控建模流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">用户指南</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">风控建模流程</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="risk-modeling-workflow">
+<h1>风控建模流程<a class="headerlink" href="#risk-modeling-workflow" title="链接到此标题。">#</a></h1>
+<p>本示例用 kivi 走一遍评分卡项目的各个步骤：分析并筛选候选变量，对入选变量分箱，用 WOE 编码并保存分箱供生产环境使用，筛选变量并拟合模型，刻度为评分卡，评估模型，基于主标尺校准模型，设定截断点并计算预期损失，并准备监控所需的稳定性报告。随包数据记录的是营销响应而非违约，但对信用违约标记来说步骤完全相同：把坏样本标记作为 <code class="docutils literal notranslate"><span class="pre">target</span></code> 即可。</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">bin_edges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.stability</span><span class="w"> </span><span class="kn">import</span> <span class="n">psi_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_table</span><span class="p">,</span> <span class="n">woe_transform</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">bank_data</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">development</span><span class="p">,</span> <span class="n">monitoring</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">3000</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">3000</span><span class="p">:]</span>
+</pre></div>
+</div>
+<section id="screen-variables-by-iv">
+<h2>按 IV 筛选变量<a class="headerlink" href="#screen-variables-by-iv" title="链接到此标题。">#</a></h2>
+<p>先为每个候选变量做概况分析。 <a class="reference internal" href="../api/univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> 为每个变量给出一行，包括缺失值、最常见的取值，以及在给定目标变量时按统一方式快速分箱得到的 IV：数值变量分为五个等频箱，类别变量直接使用原始标签；见 <a class="reference internal" href="univariate.html"><span class="doc">单变量概况</span></a> 。各变量的 IV 给出初步排序， <code class="docutils literal notranslate"><span class="pre">tied_bins</span></code> 标出取值并列导致箱数少于要求的数值变量：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.univariate</span><span class="w"> </span><span class="kn">import</span> <span class="n">profile_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span> <span class="o">=</span> <span class="n">profile_table</span><span class="p">(</span><span class="n">development</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"target"</span><span class="p">),</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">profile</span><span class="p">[</span><span class="s2">"tied_bins"</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">['campaign', 'pdays', 'previous']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">iv</span> <span class="o">=</span> <span class="n">profile</span><span class="p">[</span><span class="s2">"iv"</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">iv</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+<span class="go">variable</span>
+<span class="go">duration    1.594</span>
+<span class="go">poutcome    0.423</span>
+<span class="go">month       0.334</span>
+<span class="go">contact     0.215</span>
+<span class="go">job         0.137</span>
+<span class="go">housing     0.108</span>
+<span class="go">balance     0.099</span>
+<span class="go">loan        0.059</span>
+<span class="go">Name: iv, dtype: float64</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="银行数据中各变量的信息值排序，含 0.02、0.1 和 0.3 的解读区间" class="plot-directive" src="../_images/risk_workflow-1.svg" />
+<figcaption>
+<p><span class="caption-text">快速分箱下各候选变量的 IV。虚线标出 0.02、0.1 和 0.3 三个区间；<code class="docutils literal notranslate"><span class="pre">duration</span></code> 的柱子在图的右边缘被截断。</span><a class="headerlink" href="#id1" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+<p>在确定入选名单之前，请审慎地解读这个排序：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">duration</span></code> 是最后一次通话的时长。它只有在通话结束后才知道，而那时结果基本已经确定，因此它 1.59 的 IV 是信息泄漏而非有效信号。数据集的说明建议在构建实际可用的模型时排除它。在信用风险中，也要警惕在决策之后才填写的字段，例如催收状态。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">month</span></code> 描述的是营销活动开展的时间，而不是客户本身，因此同样排除。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pdays</span></code> 和 <code class="docutils literal notranslate"><span class="pre">previous</span></code> 的 IV 为零，只是因为大量重复值使它们被压缩进一个等频箱。自定义边界或 <code class="docutils literal notranslate"><span class="pre">special</span></code> 参数都可以挽回 <code class="docutils literal notranslate"><span class="pre">pdays</span></code> ，见 <a class="reference internal" href="binning.html#custom-edges"><span class="std std-ref">自定义边界</span></a> 和 <a class="reference internal" href="binning.html#special-values"><span class="std std-ref">特殊值</span></a> 。</p></li>
+</ul>
+</section>
+<section id="bin-the-shortlist">
+<h2>对入选变量分箱<a class="headerlink" href="#bin-the-shortlist" title="链接到此标题。">#</a></h2>
+<p>每个入选变量都使用可以解释的边界：余额采用合并后 WOE 单调的分箱，<code class="docutils literal notranslate"><span class="pre">pdays</span> <span class="pre">==</span> <span class="pre">-1</span></code> 编码单独成箱，年龄采用政策分段，类别变量使用原始标签。 <code class="docutils literal notranslate"><span class="pre">job</span></code> 的十二个标签也可以先按 <a class="reference internal" href="binning.html#category-groups"><span class="std std-ref">类别分组</span></a> 分组，本例保留原样。把分箱逻辑集中在一处，确保开发数据和监控数据的分组完全一致。</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fine</span> <span class="o">=</span> <span class="n">bin_edges</span><span class="p">(</span><span class="n">development</span><span class="p">[</span><span class="s2">"balance"</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">numeric_edges</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s2">"balance"</span><span class="p">:</span> <span class="n">fine</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">10</span><span class="p">]],</span>
+<span class="gp">... </span>    <span class="s2">"pdays"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="s2">"age"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]),</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">categorical</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"poutcome"</span><span class="p">,</span> <span class="s2">"contact"</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">,</span> <span class="s2">"job"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">to_groups</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">groups</span> <span class="o">=</span> <span class="p">{</span><span class="n">column</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">frame</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">edges</span><span class="p">)</span> <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">edges</span> <span class="ow">in</span> <span class="n">numeric_edges</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+<span class="gp">... </span>    <span class="n">groups</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">column</span><span class="p">:</span> <span class="n">frame</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">categorical</span><span class="p">})</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev_groups</span> <span class="o">=</span> <span class="n">to_groups</span><span class="p">(</span><span class="n">development</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span> <span class="o">=</span> <span class="p">{</span><span class="n">column</span><span class="p">:</span> <span class="n">woe_table</span><span class="p">(</span><span class="n">dev_groups</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">dev_groups</span><span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">tables</span></code> 为每个变量保存一个 <a class="reference internal" href="../api/woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_table()</span></code></a> 结果。继续之前，请逐一以 WOE 图的形式复核（见 <a class="reference internal" href="woe_iv.html"><span class="doc">证据权重与信息值</span></a>）。<code class="docutils literal notranslate"><span class="pre">pdays</span></code> 和 <code class="docutils literal notranslate"><span class="pre">poutcome</span></code> 都描述上一轮营销，同时保留之前请先检查二者的相关性。</p>
+</section>
+<section id="encode-with-woe">
+<h2>WOE 编码<a class="headerlink" href="#encode-with-woe" title="链接到此标题。">#</a></h2>
+<p>基于 WOE 值的逻辑回归是经典的评分卡模型。用 <a class="reference internal" href="../api/woe.html#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_transform()</span></code></a> 把每个分组替换为开发样本表中对应的 WOE：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">to_woe</span><span class="p">(</span><span class="n">groups</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>        <span class="n">column</span><span class="p">:</span> <span class="n">woe_transform</span><span class="p">(</span><span class="n">groups</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">tables</span><span class="p">[</span><span class="n">column</span><span class="p">])</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">groups</span>
+<span class="gp">... </span>    <span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_dev</span> <span class="o">=</span> <span class="n">to_woe</span><span class="p">(</span><span class="n">dev_groups</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_dev</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">   balance  pdays    age  poutcome  contact  housing    job</span>
+<span class="go">0    0.373 -0.257 -0.032    -0.257    0.241    0.333 -0.233</span>
+<span class="go">1    0.373 -0.092 -0.032     0.214    0.241   -0.327 -0.339</span>
+<span class="go">2    0.373 -0.092 -0.032     0.214    0.241   -0.327  0.271</span>
+</pre></div>
+</div>
+<p>对开发样本中从未出现的分组（例如新类别）， <code class="docutils literal notranslate"><span class="pre">woe_transform</span></code> 会引发错误。对新数据评分之前，请先约定处理方式，例如用 <code class="docutils literal notranslate"><span class="pre">unseen=0.0</span></code> 取中性的 WOE。</p>
+</section>
+<section id="save-the-binning">
+<h2>保存分箱<a class="headerlink" href="#save-the-binning" title="链接到此标题。">#</a></h2>
+<p>生产系统对新申请的分组和编码必须与开发样本完全一致。 <a class="reference internal" href="../api/spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a> 一次拟合每列的边界和 WOE 表，得到的 <a class="reference internal" href="../api/spec.html#kivi.spec.BinningSpec" title="kivi.spec.BinningSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">BinningSpec</span></code></a> 把它们保存为带版本号的 JSON；参见 <a class="reference internal" href="spec.html"><span class="doc">分箱方案</span></a> 。把入选变量的边界作为 <code class="docutils literal notranslate"><span class="pre">bins</span></code> 传入，即可复现上面的编码：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">BinningSpec</span><span class="p">,</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">development</span><span class="p">,</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">columns</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">dev_groups</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">numeric_edges</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">development</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">X_dev</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">restored</span> <span class="o">=</span> <span class="n">BinningSpec</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">to_json</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">restored</span> <span class="o">==</span> <span class="n">spec</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>把 JSON 与模型一起保存。打分服务用 <code class="docutils literal notranslate"><span class="pre">BinningSpec.from_json</span></code> 加载后，用 <code class="docutils literal notranslate"><span class="pre">restored.woe_transform(frame)</span></code> 对新数据编码，无需开发项目的代码。</p>
+</section>
+<section id="select-variables-and-fit-the-model">
+<h2>筛选变量并拟合模型<a class="headerlink" href="#select-variables-and-fit-the-model" title="链接到此标题。">#</a></h2>
+<p>高度相关的变量携带相同的信息，还会让系数不稳定。 <a class="reference internal" href="../api/selection.html#kivi.selection.correlation_filter" title="kivi.selection.correlation_filter"><code class="xref py py-func docutils literal notranslate"><span class="pre">correlation_filter()</span></code></a> 在每对相关系数超过 0.7 的变量中保留 IV 较高的一个，随后 <a class="reference internal" href="../api/selection.html#kivi.selection.stepwise" title="kivi.selection.stepwise"><code class="xref py py-func docutils literal notranslate"><span class="pre">stepwise()</span></code></a> 按逻辑回归的 p 值筛选变量。以 WOE 作为输入时，所有系数都应为正， <code class="docutils literal notranslate"><span class="pre">stepwise</span></code> 会拒绝会使某个系数变为负的变量；详见 <a class="reference internal" href="selection.html"><span class="doc">变量筛选</span></a> 。</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">correlation_filter</span><span class="p">,</span> <span class="n">logistic_regression</span><span class="p">,</span> <span class="n">stepwise</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">iv_dev</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="n">column</span><span class="p">:</span> <span class="n">table</span><span class="p">[</span><span class="s2">"iv"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">tables</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kept</span> <span class="o">=</span> <span class="n">correlation_filter</span><span class="p">(</span><span class="n">X_dev</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">iv_dev</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_dev</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">kept</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">selected</span> <span class="o">=</span> <span class="n">stepwise</span><span class="p">(</span><span class="n">X_dev</span><span class="p">[</span><span class="n">kept</span><span class="p">],</span> <span class="n">target</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">selected</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">['balance', 'pdays', 'poutcome', 'contact', 'housing', 'job']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">logistic_regression</span><span class="p">(</span><span class="n">X_dev</span><span class="p">[</span><span class="n">selected</span><span class="p">],</span> <span class="n">target</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">            coef     se       z  p_value</span>
+<span class="go">intercept -2.028  0.062 -32.694    0.000</span>
+<span class="go">balance    0.776  0.183   4.245    0.000</span>
+<span class="go">pdays      0.346  0.122   2.834    0.005</span>
+<span class="go">poutcome   0.671  0.112   5.985    0.000</span>
+<span class="go">contact    0.580  0.153   3.793    0.000</span>
+<span class="go">housing    0.597  0.190   3.138    0.002</span>
+<span class="go">job        0.632  0.170   3.721    0.000</span>
+</pre></div>
+</div>
+<p>没有哪对变量的相关性高到需要剔除， <code class="docutils literal notranslate"><span class="pre">stepwise</span></code> 去掉了 <code class="docutils literal notranslate"><span class="pre">age</span></code> 。模型只用开发样本拟合。</p>
+<p>银行数据记录了每位客户的结果。信贷开发样本通常只包含原有策略批准的申请，仅用这些申请拟合的模型会低估原先被拒申请人的风险。 <a class="reference internal" href="reject_inference.html"><span class="doc">拒绝推断</span></a> 推断这些申请人的结果，并通过 <code class="docutils literal notranslate"><span class="pre">weights</span></code> 重新拟合模型。</p>
+</section>
+<section id="scale-to-a-scorecard">
+<h2>刻度为评分卡<a class="headerlink" href="#scale-to-a-scorecard" title="链接到此标题。">#</a></h2>
+<p><a class="reference internal" href="../api/scorecard.html#kivi.scorecard.points_table" title="kivi.scorecard.points_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">points_table()</span></code></a> 把 WOE 表和系数转换为每组的分值。这里每增加 20 分，好坏比翻一倍；600 分对应 50 的好坏比；详见 <a class="reference internal" href="scorecard.html"><span class="doc">评分卡</span></a> 。WOE 越高风险越大，分值也就越低：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">points_table</span><span class="p">,</span> <span class="n">woe_to_points</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">pdo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_score</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">base_odds</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coefficients</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="s2">"coef"</span><span class="p">]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">"intercept"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">intercept</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"intercept"</span><span class="p">,</span> <span class="s2">"coef"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span> <span class="o">=</span> <span class="n">points_table</span><span class="p">({</span><span class="n">column</span><span class="p">:</span> <span class="n">tables</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">selected</span><span class="p">},</span> <span class="n">coefficients</span><span class="p">,</span> <span class="n">intercept</span><span class="p">,</span> <span class="o">**</span><span class="n">scale</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"poutcome"</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">({</span><span class="s2">"woe"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">"points"</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+<span class="go">              bin    woe  points</span>
+<span class="go">variable</span>
+<span class="go">poutcome  unknown -0.257    95.9</span>
+<span class="go">poutcome  failure  0.214    86.8</span>
+<span class="go">poutcome    other  0.592    79.5</span>
+<span class="go">poutcome  success  2.548    41.6</span>
+</pre></div>
+</div>
+<p>用开发样本的表给监控样本打分：每个客户的分数是其各项分值之和。</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mon_groups</span> <span class="o">=</span> <span class="n">to_groups</span><span class="p">(</span><span class="n">monitoring</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mon_points</span> <span class="o">=</span> <span class="n">woe_to_points</span><span class="p">(</span><span class="n">to_woe</span><span class="p">(</span><span class="n">mon_groups</span><span class="p">)[</span><span class="n">selected</span><span class="p">],</span> <span class="n">coefficients</span><span class="p">,</span> <span class="n">intercept</span><span class="p">,</span> <span class="o">**</span><span class="n">scale</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mon_score</span> <span class="o">=</span> <span class="n">mon_points</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mon_points</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">score</span><span class="o">=</span><span class="n">mon_score</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">      balance  pdays  poutcome  contact  housing   job  score</span>
+<span class="go">3000     91.0   93.5      95.9     87.5     85.2  90.0  543.1</span>
+<span class="go">3001    102.6   93.5      95.9    106.3     96.6  86.0  580.9</span>
+<span class="go">3002     82.6   93.5      95.9     86.9     96.6  97.1  552.6</span>
+</pre></div>
+</div>
+</section>
+<section id="evaluate-the-model">
+<h2>评估模型<a class="headerlink" href="#evaluate-the-model" title="链接到此标题。">#</a></h2>
+<p>分数越高风险越低，而 <a class="reference internal" href="metrics.html"><span class="doc">模型表现</span></a> 中的指标要求分数随事件概率升高。因此请传入每个分数对应的概率。增益表使用在开发样本分数上拟合的分段，使两个样本按同样的方式切分：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">gains_table</span><span class="p">,</span> <span class="n">gini</span><span class="p">,</span> <span class="n">ks</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">score_to_pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev_score</span> <span class="o">=</span> <span class="n">woe_to_points</span><span class="p">(</span><span class="n">X_dev</span><span class="p">[</span><span class="n">selected</span><span class="p">],</span> <span class="n">coefficients</span><span class="p">,</span> <span class="n">intercept</span><span class="p">,</span> <span class="o">**</span><span class="n">scale</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev_pd</span><span class="p">,</span> <span class="n">mon_pd</span> <span class="o">=</span> <span class="n">score_to_pd</span><span class="p">(</span><span class="n">dev_score</span><span class="p">,</span> <span class="o">**</span><span class="n">scale</span><span class="p">),</span> <span class="n">score_to_pd</span><span class="p">(</span><span class="n">mon_score</span><span class="p">,</span> <span class="o">**</span><span class="n">scale</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_mon</span> <span class="o">=</span> <span class="n">monitoring</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Gini = </span><span class="si">{</span><span class="n">gini</span><span class="p">(</span><span class="n">mon_pd</span><span class="p">,</span><span class="w"> </span><span class="n">y_mon</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, KS = </span><span class="si">{</span><span class="n">ks</span><span class="p">(</span><span class="n">mon_pd</span><span class="p">,</span><span class="w"> </span><span class="n">y_mon</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">Gini = 0.375, KS = 0.285</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd_edges</span> <span class="o">=</span> <span class="n">bin_edges</span><span class="p">(</span><span class="n">dev_pd</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gains</span> <span class="o">=</span> <span class="n">gains_table</span><span class="p">(</span><span class="n">mon_pd</span><span class="p">,</span> <span class="n">y_mon</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">pd_edges</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gains</span><span class="p">[[</span><span class="s2">"total"</span><span class="p">,</span> <span class="s2">"event_rate"</span><span class="p">,</span> <span class="s2">"lift"</span><span class="p">,</span> <span class="s2">"cum_event_share"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                total  event_rate   lift  cum_event_share</span>
+<span class="go">bin</span>
+<span class="go">(0.144, inf]      356       0.233  2.050            0.480</span>
+<span class="go">(0.102, 0.144]    250       0.104  0.914            0.630</span>
+<span class="go">(0.076, 0.102]    296       0.095  0.832            0.792</span>
+<span class="go">(0.05, 0.076]     291       0.069  0.604            0.908</span>
+<span class="go">(-inf, 0.05]      328       0.049  0.429            1.000</span>
+</pre></div>
+</div>
+<p>风险最高的分段约占监控样本的五分之一，却包含了 48% 的事件，事件率约为平均水平的两倍。</p>
+<p>这种规模的监控样本对 Gini 的测量存在一定的不确定性。 <a class="reference internal" href="../api/metrics.html#kivi.metrics.roc_auc_interval" title="kivi.metrics.roc_auc_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc_interval()</span></code></a> 给出 AUC 和 Gini 的 DeLong 标准误及 95% 区间：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_auc_interval</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">roc_auc_interval</span><span class="p">(</span><span class="n">mon_pd</span><span class="p">,</span> <span class="n">y_mon</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">      estimate     se  lower  upper</span>
+<span class="go">auc      0.687  0.023  0.643  0.732</span>
+<span class="go">gini     0.375  0.045  0.286  0.464</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"development Gini = </span><span class="si">{</span><span class="n">gini</span><span class="p">(</span><span class="n">dev_pd</span><span class="p">,</span><span class="w"> </span><span class="n">target</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">development Gini = 0.432</span>
+</pre></div>
+</div>
+<p>在 1,521 名客户中有 173 个事件，Gini 的区间从 0.286 到 0.464。它包含开发样本的 Gini 0.432，而后者本身偏乐观，因为分箱、变量和系数都是在开发样本上拟合的，所以监控样本的 Gini 较低仍在抽样误差范围内。 <a class="reference internal" href="metrics.html"><span class="doc">模型表现</span></a> 还用 DeLong 检验比较同一样本上的两个评分。</p>
+</section>
+<section id="check-calibration">
+<h2>检查校准<a class="headerlink" href="#check-calibration" title="链接到此标题。">#</a></h2>
+<p>评级让不同模型的 PD 具有统一的含义。 <a class="reference internal" href="../api/calibration.html#kivi.calibration.master_scale" title="kivi.calibration.master_scale"><code class="xref py py-func docutils literal notranslate"><span class="pre">master_scale()</span></code></a> 由每个等级的 PD 构建标尺，这里共五个等级，每个等级的 PD 是前一个的两倍； <a class="reference internal" href="../api/calibration.html#kivi.calibration.assign_grades" title="kivi.calibration.assign_grades"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_grades()</span></code></a> 为监控样本中的每位客户分配其 PD 所属的等级；见 <a class="reference internal" href="calibration.html"><span class="doc">校准</span></a> 。然后把每个等级与其 PD 比较。Jeffreys 检验考察一个等级的事件数是否多于其 PD 的预测，因此较小的 p 值提示该等级低估了风险：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">assign_grades</span><span class="p">,</span> <span class="n">calibration_table</span><span class="p">,</span> <span class="n">jeffreys_test</span><span class="p">,</span> <span class="n">master_scale</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale</span> <span class="o">=</span> <span class="n">master_scale</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">0.025</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">labels</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="s2">"ABCDE"</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">        lower  probability   upper</span>
+<span class="go">grade</span>
+<span class="go">A      0.0000        0.025  0.0354</span>
+<span class="go">B      0.0354        0.050  0.0707</span>
+<span class="go">C      0.0707        0.100  0.1414</span>
+<span class="go">D      0.1414        0.200  0.2828</span>
+<span class="go">E      0.2828        0.400  1.0000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grades</span> <span class="o">=</span> <span class="n">assign_grades</span><span class="p">(</span><span class="n">mon_pd</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grade_table</span> <span class="o">=</span> <span class="n">calibration_table</span><span class="p">(</span><span class="n">grades</span><span class="p">,</span> <span class="n">y_mon</span><span class="p">,</span> <span class="n">mon_pd</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">scale</span><span class="p">[</span><span class="s2">"probability"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grade_table</span><span class="p">[</span><span class="s2">"jeffreys"</span><span class="p">]</span> <span class="o">=</span> <span class="n">jeffreys_test</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">grade_table</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span> <span class="n">grade_table</span><span class="p">[</span><span class="s2">"total"</span><span class="p">],</span> <span class="n">grade_table</span><span class="p">[</span><span class="s2">"probability"</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grade_table</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">     total  event  event_rate  mean_probability  probability  jeffreys</span>
+<span class="go">bin</span>
+<span class="go">A      139      6       0.043             0.030        0.025     0.093</span>
+<span class="go">B      419     27       0.064             0.053        0.050     0.091</span>
+<span class="go">C      589     56       0.095             0.101        0.100     0.649</span>
+<span class="go">D      286     45       0.157             0.177        0.200     0.967</span>
+<span class="go">E       88     39       0.443             0.467        0.400     0.204</span>
+</pre></div>
+</div>
+<p>在 5% 的水平下没有等级被拒绝，但等级 A 和 B 已接近拒绝：它们 4.3% 和 6.4% 的事件率高于各自 2.5% 和 5% 的 PD，后续各期的监控应重点关注。等级 D 的事件少于其 PD 的预测，这种单侧检验不会标出这种情况。</p>
+</section>
+<section id="set-a-cut-off">
+<h2>设定截断点<a class="headerlink" href="#set-a-cut-off" title="链接到此标题。">#</a></h2>
+<p>评分卡为申请人排序，截断点决定批准谁。 <a class="reference internal" href="../api/strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_table()</span></code></a> 对每个候选的 PD 截断点给出它批准的申请人占比、通过客群的坏账率以及它拒绝的事件占比；见 <a class="reference internal" href="strategy.html"><span class="doc">信贷策略</span></a> 。以各等级的上界作为截断点，就是批准截至该等级的所有等级：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.strategy</span><span class="w"> </span><span class="kn">import</span> <span class="n">cutoff_table</span><span class="p">,</span> <span class="n">expected_loss_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">policies</span> <span class="o">=</span> <span class="n">cutoff_table</span><span class="p">(</span><span class="n">mon_pd</span><span class="p">,</span> <span class="n">y_mon</span><span class="p">,</span> <span class="n">cutoffs</span><span class="o">=</span><span class="n">scale</span><span class="p">[</span><span class="s2">"upper"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"approval_rate"</span><span class="p">,</span> <span class="s2">"approved_event_rate"</span><span class="p">,</span> <span class="s2">"rejected_event_share"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">policies</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">scale</span><span class="o">.</span><span class="n">index</span><span class="p">)[</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">       approval_rate  approved_event_rate  rejected_event_share</span>
+<span class="go">grade</span>
+<span class="go">A              0.091                0.043                 0.965</span>
+<span class="go">B              0.367                0.059                 0.809</span>
+<span class="go">C              0.754                0.078                 0.486</span>
+<span class="go">D              0.942                0.094                 0.225</span>
+<span class="go">E              1.000                0.114                 0.000</span>
+</pre></div>
+</div>
+<p>批准等级 A 到 C，即 PD 不超过 14.1%，会以 7.8% 的坏账率批准 75.4% 的申请人，并拒绝 48.6% 的事件。若再批准等级 D，则以 9.4% 的坏账率批准 94.2% 的申请人。选择哪一行是业务决策；这张表给出了每种选择的代价。</p>
+<p>一笔敞口的预期损失等于其 PD 乘以违约损失率，再乘以违约风险敞口。 <a class="reference internal" href="../api/strategy.html#kivi.strategy.expected_loss_table" title="kivi.strategy.expected_loss_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_loss_table()</span></code></a> 按等级汇总预期损失。银行数据没有贷款金额，因此示例把余额（负值记为零）作为敞口，并对所有客户使用 45% 的违约损失率：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">exposure</span> <span class="o">=</span> <span class="n">monitoring</span><span class="p">[</span><span class="s2">"balance"</span><span class="p">]</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">by_grade</span> <span class="o">=</span> <span class="n">expected_loss_table</span><span class="p">(</span><span class="n">grades</span><span class="p">,</span> <span class="n">mon_pd</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="n">exposure</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">by_grade</span><span class="p">[[</span><span class="s2">"exposure"</span><span class="p">,</span> <span class="s2">"expected_loss"</span><span class="p">,</span> <span class="s2">"expected_loss_rate"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">"exposure"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"expected_loss"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"expected_loss_rate"</span><span class="p">:</span> <span class="mi">4</span><span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">     exposure  expected_loss  expected_loss_rate</span>
+<span class="go">bin</span>
+<span class="go">A     28316.0          415.0              0.0147</span>
+<span class="go">B    391913.0         9604.0              0.0245</span>
+<span class="go">C    951396.0        46003.0              0.0484</span>
+<span class="go">D    793187.0        66906.0              0.0844</span>
+<span class="go">E    156797.0        32050.0              0.2044</span>
+</pre></div>
+</div>
+<p>等级 E 只占敞口的 6.8%，却占 154,978 预期损失的 20.7%；等级 D 和 E 合计占敞口的 41%、预期损失的 64%。</p>
+</section>
+<section id="report-stability">
+<h2>稳定性报告<a class="headerlink" href="#report-stability" title="链接到此标题。">#</a></h2>
+<p>把监控样本中的每个变量与其开发样本分布比较。status 列采用 <a class="reference internal" href="psi.html"><span class="doc">群体稳定性指标</span></a> 中的 PSI 经验口径。</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">report</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"iv"</span><span class="p">:</span> <span class="p">{</span><span class="n">column</span><span class="p">:</span> <span class="n">tables</span><span class="p">[</span><span class="n">column</span><span class="p">][</span><span class="s2">"iv"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">dev_groups</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="s2">"psi"</span><span class="p">:</span> <span class="p">{</span><span class="n">column</span><span class="p">:</span> <span class="n">psi_table</span><span class="p">(</span><span class="n">dev_groups</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">mon_groups</span><span class="p">[</span><span class="n">column</span><span class="p">])[</span><span class="s2">"psi"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="gp">... </span>            <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">dev_groups</span><span class="p">},</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">report</span><span class="p">[</span><span class="s2">"psi"</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">],</span>
+<span class="gp">... </span>                          <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="s2">"stable"</span><span class="p">,</span> <span class="s2">"watch"</span><span class="p">,</span> <span class="s2">"shift"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.stability</span><span class="w"> </span><span class="kn">import</span> <span class="n">csi_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report</span><span class="p">[</span><span class="s2">"csi"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="n">column</span><span class="p">:</span> <span class="n">csi_table</span><span class="p">(</span><span class="n">dev_groups</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">mon_groups</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">card</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">column</span><span class="p">]])[</span><span class="s2">"csi"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">selected</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"iv"</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">             iv    psi  status    csi</span>
+<span class="go">poutcome  0.423  0.003  stable -0.343</span>
+<span class="go">pdays     0.360  0.005  stable -0.072</span>
+<span class="go">contact   0.215  0.008  stable  0.310</span>
+<span class="go">job       0.137  0.005  stable  0.176</span>
+<span class="go">balance   0.115  0.000  stable -0.141</span>
+<span class="go">housing   0.108  0.000  stable -0.033</span>
+<span class="go">age       0.061  0.005  stable    NaN</span>
+</pre></div>
+</div>
+<p>这里所有变量都是稳定的，监控数据与开发数据来自同一客群时理应如此。 <code class="docutils literal notranslate"><span class="pre">csi</span></code> 列用各组的分值对其占比变化加权，因此等于该变量平均分值的变化； <code class="docutils literal notranslate"><span class="pre">age</span></code> 不在评分卡中，所以没有 CSI。对评分卡的所有变量求和，CSI 等于平均分的变化：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">shift</span> <span class="o">=</span> <span class="n">mon_score</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">-</span> <span class="n">dev_score</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"sum of csi = </span><span class="si">{</span><span class="n">report</span><span class="p">[</span><span class="s1">'csi'</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, score shift = </span><span class="si">{</span><span class="n">shift</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">sum of csi = -0.102, score shift = -0.102</span>
+</pre></div>
+</div>
+<p>分数本身也按同样的方式监控，使用在开发样本分数上拟合的分段：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">score_edges</span> <span class="o">=</span> <span class="n">bin_edges</span><span class="p">(</span><span class="n">dev_score</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score_psi</span> <span class="o">=</span> <span class="n">psi_table</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">dev_score</span><span class="p">,</span> <span class="n">score_edges</span><span class="p">),</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">mon_score</span><span class="p">,</span> <span class="n">score_edges</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"score PSI = </span><span class="si">{</span><span class="n">score_psi</span><span class="p">[</span><span class="s1">'psi'</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">score PSI = 0.0029</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="psi.html"><span class="doc">群体稳定性指标</span></a> 展示了分布偏移的样子。在生产环境中， <a class="reference internal" href="../api/monitoring.html#kivi.monitoring.monitoring_table" title="kivi.monitoring.monitoring_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">monitoring_table()</span></code></a> 对每一期重复计算这一 PSI，并给出已知结果和 Gini， <a class="reference internal" href="../api/monitoring.html#kivi.monitoring.stability_table" title="kivi.monitoring.stability_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">stability_table()</span></code></a> 给出每个变量的 PSI；见 <a class="reference internal" href="monitoring.html"><span class="doc">模型监控</span></a> 。已批准的贷款入账后， <a class="reference internal" href="vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 跟踪其逾期情况， <a class="reference internal" href="lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 再把它转换为 PD 期限结构和 IFRS 9 损失准备。</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">用户指南</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="univariate.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">单变量概况</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#screen-variables-by-iv">按 IV 筛选变量</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bin-the-shortlist">对入选变量分箱</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#encode-with-woe">WOE 编码</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#save-the-binning">保存分箱</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#select-variables-and-fit-the-model">筛选变量并拟合模型</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scale-to-a-scorecard">刻度为评分卡</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluate-the-model">评估模型</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#check-calibration">检查校准</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#set-a-cut-off">设定截断点</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#report-stability">稳定性报告</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

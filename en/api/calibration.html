@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Calibration &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=e03d16b7" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=a85d417d"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/calibration';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Credit strategy" href="strategy.html" />
+    <link rel="prev" title="Model performance" href="metrics.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.8.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 0.8.0">0.8.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/calibration.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/calibration.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Calibration</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.calibration">
+<span id="calibration"></span><h1>Calibration<a class="headerlink" href="#module-kivi.calibration" title="Link to this heading">#</a></h1>
+<p>Check and correct predicted probabilities. <a class="reference internal" href="#kivi.calibration.prior_correction" title="kivi.calibration.prior_correction"><code class="xref py py-func docutils literal notranslate"><span class="pre">prior_correction()</span></code></a> and <a class="reference internal" href="#kivi.calibration.corrected_intercept" title="kivi.calibration.corrected_intercept"><code class="xref py py-func docutils literal notranslate"><span class="pre">corrected_intercept()</span></code></a> correct them for the sampling of the development data, <a class="reference internal" href="#kivi.calibration.master_scale" title="kivi.calibration.master_scale"><code class="xref py py-func docutils literal notranslate"><span class="pre">master_scale()</span></code></a>, <a class="reference internal" href="#kivi.calibration.fit_grade_pd" title="kivi.calibration.fit_grade_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_grade_pd()</span></code></a> and <a class="reference internal" href="#kivi.calibration.assign_grades" title="kivi.calibration.assign_grades"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_grades()</span></code></a> build a master scale and assign its grades, <a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_table()</span></code></a> and the tests count and test the grades, and <a class="reference internal" href="#kivi.calibration.platt_fit" title="kivi.calibration.platt_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">platt_fit()</span></code></a> and <a class="reference internal" href="#kivi.calibration.isotonic_fit" title="kivi.calibration.isotonic_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">isotonic_fit()</span></code></a> recalibrate a score.</p>
+<p>See <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">Calibration</span></a> for examples on the bundled data.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.calibration.prior_correction" title="kivi.calibration.prior_correction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prior_correction</span></code></a>(probability, *, ...)</p></td>
+<td><p>Correct event probabilities for a development sample with another event rate.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.calibration.corrected_intercept" title="kivi.calibration.corrected_intercept"><code class="xref py py-obj docutils literal notranslate"><span class="pre">corrected_intercept</span></code></a>(intercept, *, ...)</p></td>
+<td><p>Correct a logistic intercept for a development sample with another event rate.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_table</span></code></a>(groups, target, probability, *)</p></td>
+<td><p>Compare the predicted and observed event rates of each group.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.calibration.binomial_test" title="kivi.calibration.binomial_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">binomial_test</span></code></a>(event, total, probability)</p></td>
+<td><p>Test whether each grade has more events than its probability predicts.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.calibration.jeffreys_test" title="kivi.calibration.jeffreys_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">jeffreys_test</span></code></a>(event, total, probability)</p></td>
+<td><p>Test each grade's probability against its event rate with the Jeffreys prior.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.calibration.hosmer_lemeshow" title="kivi.calibration.hosmer_lemeshow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hosmer_lemeshow</span></code></a>(event, total, probability, *)</p></td>
+<td><p>Test the calibration of all groups at once with the Hosmer-Lemeshow statistic.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.calibration.herfindahl_index" title="kivi.calibration.herfindahl_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">herfindahl_index</span></code></a>(counts, *[, normalize])</p></td>
+<td><p>Measure how concentrated a portfolio is across grades.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.calibration.master_scale" title="kivi.calibration.master_scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">master_scale</span></code></a>(probability, *[, boundary, labels])</p></td>
+<td><p>Build a master scale from the PD of each grade.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.calibration.fit_grade_pd" title="kivi.calibration.fit_grade_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_grade_pd</span></code></a>(event, total, *[, smoothing])</p></td>
+<td><p>Fit the PD of each grade to observed default rates, log-linear in the grade.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.calibration.assign_grades" title="kivi.calibration.assign_grades"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_grades</span></code></a>(probability, scale)</p></td>
+<td><p>Give each predicted PD the grade of a master scale.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.calibration.platt_fit" title="kivi.calibration.platt_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">platt_fit</span></code></a>(score, target, *[, weights])</p></td>
+<td><p>Fit Platt scaling, a logistic curve from a score to event probabilities.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.calibration.platt_predict" title="kivi.calibration.platt_predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">platt_predict</span></code></a>(score, slope, intercept)</p></td>
+<td><p>Turn scores into event probabilities with a fitted Platt scaling.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.calibration.isotonic_fit" title="kivi.calibration.isotonic_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isotonic_fit</span></code></a>(score, target, *[, weights, ...])</p></td>
+<td><p>Fit an isotonic calibration, a step function from a score to event probabilities.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.calibration.isotonic_predict" title="kivi.calibration.isotonic_predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isotonic_predict</span></code></a>(score, edges, probabilities)</p></td>
+<td><p>Give each score the probability of its band from an isotonic calibration.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.prior_correction">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">prior_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population_rate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.prior_correction" title="Link to this definition">#</a></dt>
+<dd><p>Correct event probabilities for a development sample with another event rate.</p>
+<p>A model developed on a sample that over- or undersamples events
+predicts probabilities for that sample. The correction rescales the odds
+so the probabilities refer to the population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>Event probabilities from the model, between 0 and 1. Missing values
+stay missing.</p>
+</dd>
+<dt><strong>sample_rate</strong><span class="classifier">float</span></dt><dd><p>Event rate of the development sample, strictly between 0 and 1.</p>
+</dd>
+<dt><strong>population_rate</strong><span class="classifier">float</span></dt><dd><p>Event rate of the population, strictly between 0 and 1.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float, pandas.Series or numpy.ndarray</dt><dd><p>Corrected probabilities with the shape of <cite>probability</cite>. A Series input
+gives a Series with the same index and name, and a scalar gives a
+float.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>probability</cite> has values outside [0, 1], or a rate is not strictly
+between 0 and 1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.corrected_intercept" title="kivi.calibration.corrected_intercept"><code class="xref py py-obj docutils literal notranslate"><span class="pre">corrected_intercept</span></code></a></dt><dd><p>Apply the same correction to a logistic intercept.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_table</span></code></a></dt><dd><p>Compare predicted and observed event rates.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>With sample event rate <span class="math notranslate nohighlight">\(\bar y\)</span> and population event rate
+<span class="math notranslate nohighlight">\(\tau\)</span>, the odds of every probability are multiplied by</p>
+<div class="math notranslate nohighlight">
+\[\omega = \frac{\tau / (1 - \tau)}{\bar y / (1 - \bar y)}, \qquad
+\tilde p = \frac{\omega p}{\omega p + 1 - p}.\]</div>
+<p>This is the prior correction of King and Zeng <a class="reference internal" href="#r4b74edbba56e-1" id="id1">[1]</a>. It changes the
+level of the probabilities but not their order. For a logistic
+regression it equals adding <span class="math notranslate nohighlight">\(\ln \omega\)</span> to the intercept.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r4b74edbba56e-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>G. King and L. Zeng, “Logistic Regression in Rare Events Data”,
+Political Analysis, vol. 9, no. 2, pp. 137-163, 2001.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">prior_correction</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prior_correction</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">],</span> <span class="n">sample_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">population_rate</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.02  , 0.0051, 0.0011])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.corrected_intercept">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">corrected_intercept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intercept</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population_rate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.corrected_intercept" title="Link to this definition">#</a></dt>
+<dd><p>Correct a logistic intercept for a development sample with another event rate.</p>
+<p>The corrected model gives the probabilities of <cite>prior_correction</cite>: only
+the intercept changes, so the coefficients and the order of applicants
+stay as they are.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>intercept</strong><span class="classifier">float</span></dt><dd><p>Intercept of a logistic regression of the event.</p>
+</dd>
+<dt><strong>sample_rate</strong><span class="classifier">float</span></dt><dd><p>Event rate of the development sample, strictly between 0 and 1.</p>
+</dd>
+<dt><strong>population_rate</strong><span class="classifier">float</span></dt><dd><p>Event rate of the population, strictly between 0 and 1.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>The intercept for the population, <code class="docutils literal notranslate"><span class="pre">intercept</span> <span class="pre">+</span> <span class="pre">ln(omega)</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>intercept</cite> is not a finite number, or a rate is not strictly
+between 0 and 1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.prior_correction" title="kivi.calibration.prior_correction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prior_correction</span></code></a></dt><dd><p>Apply the correction to probabilities.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>King and Zeng <a class="reference internal" href="#rc67660983562-1" id="id3">[1]</a> subtract
+<span class="math notranslate nohighlight">\(\ln\left[\frac{1 - \tau}{\tau} \cdot \frac{\bar y}{1 - \bar y}\right]
+= -\ln \omega\)</span> from the intercept; see <cite>prior_correction</cite>.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rc67660983562-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">1</a><span class="fn-bracket">]</span></span>
+<p>G. King and L. Zeng, “Logistic Regression in Rare Events Data”,
+Political Analysis, vol. 9, no. 2, pp. 137-163, 2001.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">corrected_intercept</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">corrected_intercept</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="n">sample_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="n">population_rate</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">-3.8918</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.calibration_table">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">calibration_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.calibration_table" title="Link to this definition">#</a></dt>
+<dd><p>Compare the predicted and observed event rates of each group.</p>
+<p>The groups are typically the grades of a master scale, formed by cutting
+the probabilities at fixed edges, or score bands. Each row has the
+inputs of the calibration tests.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>groups</strong><span class="classifier">array_like</span></dt><dd><p>Grade or group labels. Missing values form a group.</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>Binary labels, with 1 indicating the event. A group, or the whole
+sample, may have no events.</p>
+</dd>
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>Predicted event probabilities between 0 and 1. Series inputs must
+have identical indices; otherwise the inputs are matched by
+position.</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like, optional</span></dt><dd><p>Non-negative weight of each observation, such as the inverse of its
+sampling rate, matched like <cite>target</cite>. <code class="docutils literal notranslate"><span class="pre">total</span></code> and <code class="docutils literal notranslate"><span class="pre">event</span></code> are
+then sums of weights, the rate and the mean probability are
+weighted, and groups whose weights sum to zero are left out.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>One row per group with the number of observations <code class="docutils literal notranslate"><span class="pre">total</span></code>, the
+number of events <code class="docutils literal notranslate"><span class="pre">event</span></code>, the observed <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> and the
+mean predicted probability <code class="docutils literal notranslate"><span class="pre">mean_probability</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the inputs are not one-dimensional, are empty, or their indices
+or lengths do not match, <cite>target</cite> has labels other than 0 and 1, or
+<cite>probability</cite> has missing values or values outside [0, 1]. Also if
+<cite>weights</cite> is not numeric, does not give each observation one finite,
+non-negative weight with a positive total, or has an index other
+than that of <cite>groups</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.binomial_test" title="kivi.calibration.binomial_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">binomial_test</span></code></a></dt><dd><p>Test whether a grade has more events than predicted.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.jeffreys_test" title="kivi.calibration.jeffreys_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">jeffreys_test</span></code></a></dt><dd><p>The Bayesian counterpart of the binomial test.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.hosmer_lemeshow" title="kivi.calibration.hosmer_lemeshow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hosmer_lemeshow</span></code></a></dt><dd><p>Test the calibration of all groups at once.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.herfindahl_index" title="kivi.calibration.herfindahl_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">herfindahl_index</span></code></a></dt><dd><p>Measure how concentrated the grades are.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Groups are counted as in <cite>kivi.woe.woe_table</cite>. Rows follow the order of
+the categories when <cite>groups</cite> is categorical, such as the result of
+<code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code>, with missing values last. Otherwise they follow the order
+in which the groups first appear. Categories that are never observed are
+omitted.</p>
+<p>The binomial, Jeffreys and Hosmer-Lemeshow tests need whole numbers of
+observations and events, so run them on an unweighted table.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">calibration_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grades</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">probability</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">calibration_table</span><span class="p">(</span><span class="n">grades</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">probability</span><span class="p">)</span>
+<span class="go">     total  event  event_rate  mean_probability</span>
+<span class="go">bin</span>
+<span class="go">A        2      0    0.000000       0.15</span>
+<span class="go">B        3      2    0.666667       0.40</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.binomial_test">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">binomial_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.binomial_test" title="Link to this definition">#</a></dt>
+<dd><p>Test whether each grade has more events than its probability predicts.</p>
+<p>The one-sided exact binomial test assumes independent events. A small
+p-value means that the probability underestimates the event rate of
+the grade.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event</strong><span class="classifier">array_like</span></dt><dd><p>Number of events in each grade.</p>
+</dd>
+<dt><strong>total</strong><span class="classifier">array_like</span></dt><dd><p>Number of observations in each grade, a positive whole number.</p>
+</dd>
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>Predicted event probability of each grade, between 0 and 1, such as
+the <code class="docutils literal notranslate"><span class="pre">mean_probability</span></code> column of <cite>calibration_table</cite>. The three inputs
+are broadcast together; Series inputs must have identical indices.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float, pandas.Series or numpy.ndarray</dt><dd><p>One-sided p-values: a Series with the index of the Series inputs, a
+float for scalar inputs and an array otherwise.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the inputs cannot be broadcast or their Series indices differ,
+<cite>total</cite> is not a positive whole number, <cite>event</cite> is not a whole number
+between 0 and <cite>total</cite>, or <cite>probability</cite> is outside [0, 1].</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.jeffreys_test" title="kivi.calibration.jeffreys_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">jeffreys_test</span></code></a></dt><dd><p>The Bayesian counterpart of this test.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_table</span></code></a></dt><dd><p>The counts and predicted probabilities of each grade.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Under the null hypothesis the number of events <span class="math notranslate nohighlight">\(D\)</span> among <span class="math notranslate nohighlight">\(N\)</span>
+observations follows a binomial distribution with probability
+<span class="math notranslate nohighlight">\(p\)</span>. The p-value is</p>
+<div class="math notranslate nohighlight">
+\[P(D \ge d) = \sum_{k=d}^{N} \binom{N}{k} p^k (1 - p)^{N - k}
+= I_p(d, N - d + 1),\]</div>
+<p>with the regularized incomplete beta function <span class="math notranslate nohighlight">\(I\)</span>, and 1 when
+<span class="math notranslate nohighlight">\(d = 0\)</span>. Correlated defaults, as in an economic downturn, make
+the test reject more often than its nominal level <a class="reference internal" href="#rb734fd528b30-1" id="id5">[1]</a>.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rb734fd528b30-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">1</a><span class="fn-bracket">]</span></span>
+<p>Basel Committee on Banking Supervision, “Studies on the
+Validation of Internal Rating Systems”, Working Paper No. 14, 2005.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">binomial_test</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">binomial_test</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span> <span class="mf">0.02</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([1.    , 0.7649, 0.0493])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.jeffreys_test">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">jeffreys_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.jeffreys_test" title="Link to this definition">#</a></dt>
+<dd><p>Test each grade’s probability against its event rate with the Jeffreys prior.</p>
+<p>The p-value is the posterior probability that the true event rate is at
+most the predicted probability. A small p-value means that the
+probability underestimates the event rate of the grade.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event</strong><span class="classifier">array_like</span></dt><dd><p>Number of events in each grade.</p>
+</dd>
+<dt><strong>total</strong><span class="classifier">array_like</span></dt><dd><p>Number of observations in each grade, a positive whole number.</p>
+</dd>
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>Predicted event probability of each grade, between 0 and 1, such as
+the <code class="docutils literal notranslate"><span class="pre">mean_probability</span></code> column of <cite>calibration_table</cite>. The three inputs
+are broadcast together; Series inputs must have identical indices.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float, pandas.Series or numpy.ndarray</dt><dd><p>One-sided p-values: a Series with the index of the Series inputs, a
+float for scalar inputs and an array otherwise.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the inputs cannot be broadcast or their Series indices differ,
+<cite>total</cite> is not a positive whole number, <cite>event</cite> is not a whole number
+between 0 and <cite>total</cite>, or <cite>probability</cite> is outside [0, 1].</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.binomial_test" title="kivi.calibration.binomial_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">binomial_test</span></code></a></dt><dd><p>The frequentist counterpart of this test.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_table</span></code></a></dt><dd><p>The counts and predicted probabilities of each grade.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>With the Jeffreys prior Beta(1/2, 1/2), the posterior of the event rate
+after <span class="math notranslate nohighlight">\(d\)</span> events among <span class="math notranslate nohighlight">\(N\)</span> observations is
+<span class="math notranslate nohighlight">\(\mathrm{Beta}(d + 1/2, N - d + 1/2)\)</span>, and the p-value is its
+distribution function at the predicted probability <span class="math notranslate nohighlight">\(p\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[I_p\left(d + \tfrac12, N - d + \tfrac12\right).\]</div>
+<p>This is the test that the European Central Bank asks for in the
+validation of PD models <a class="reference internal" href="#r73613bff641b-1" id="id7">[1]</a>. Unlike the binomial test, a grade without
+events still has a p-value below 1.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r73613bff641b-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">1</a><span class="fn-bracket">]</span></span>
+<p>European Central Bank, “Instructions for reporting the
+validation results of internal models: IRB Pillar I models for
+credit risk”, 2019.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">jeffreys_test</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">jeffreys_test</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span> <span class="mf">0.02</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.9956, 0.6701, 0.032 ])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.hosmer_lemeshow">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">hosmer_lemeshow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ddof</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.hosmer_lemeshow" title="Link to this definition">#</a></dt>
+<dd><p>Test the calibration of all groups at once with the Hosmer-Lemeshow statistic.</p>
+<p>The statistic adds up the squared differences between observed and
+predicted events of each group. A small p-value means that the
+probabilities do not match the observed event rates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event</strong><span class="classifier">array_like</span></dt><dd><p>Number of events in each group.</p>
+</dd>
+<dt><strong>total</strong><span class="classifier">array_like</span></dt><dd><p>Number of observations in each group, a positive whole number.</p>
+</dd>
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>Mean predicted event probability of each group, strictly between 0
+and 1, such as the <code class="docutils literal notranslate"><span class="pre">mean_probability</span></code> column of <cite>calibration_table</cite>.
+Series inputs must have identical indices.</p>
+</dd>
+<dt><strong>ddof</strong><span class="classifier">int, default 2</span></dt><dd><p>The chi-square distribution has as many degrees of freedom as there
+are groups, minus <cite>ddof</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>statistic</strong><span class="classifier">float</span></dt><dd><p>The Hosmer-Lemeshow statistic.</p>
+</dd>
+<dt><strong>pvalue</strong><span class="classifier">float</span></dt><dd><p>Its upper tail probability under the chi-square distribution.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the inputs are not one-dimensional, have different lengths or
+Series indices, <cite>total</cite> is not a positive whole number, <cite>event</cite> is
+not a whole number between 0 and <cite>total</cite>, <cite>probability</cite> is not strictly
+between 0 and 1, or <cite>ddof</cite> is negative or leaves no degree of
+freedom.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_table</span></code></a></dt><dd><p>The counts and predicted probabilities of each group.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.binomial_test" title="kivi.calibration.binomial_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">binomial_test</span></code></a></dt><dd><p>Test each grade on its own.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>For <span class="math notranslate nohighlight">\(g\)</span> groups with <span class="math notranslate nohighlight">\(d_k\)</span> events among <span class="math notranslate nohighlight">\(n_k\)</span>
+observations and mean predicted probability <span class="math notranslate nohighlight">\(\bar p_k\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[H = \sum_{k=1}^{g} \frac{(d_k - n_k \bar p_k)^2}{n_k \bar p_k (1 - \bar p_k)},\]</div>
+<p>compared with a chi-square distribution with <span class="math notranslate nohighlight">\(g - \mathrm{ddof}\)</span>
+degrees of freedom. Hosmer and Lemeshow <a class="reference internal" href="#rde8a0df3097b-1" id="id9">[1]</a> form about ten groups of
+similar size from the sorted probabilities of the sample the model was
+fitted on, which gives <span class="math notranslate nohighlight">\(g - 2\)</span>. For probabilities that were not
+fitted on the tested sample, such as a validation sample, use
+<code class="docutils literal notranslate"><span class="pre">ddof=0</span></code> <a class="reference internal" href="#rde8a0df3097b-2" id="id10">[2]</a>.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rde8a0df3097b-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">1</a><span class="fn-bracket">]</span></span>
+<p>D. W. Hosmer and S. Lemeshow, “Goodness of fit tests for the
+multiple logistic regression model”, Communications in Statistics -
+Theory and Methods, vol. 9, no. 10, pp. 1043-1069, 1980.</p>
+</div>
+<div class="citation" id="rde8a0df3097b-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">2</a><span class="fn-bracket">]</span></span>
+<p>D. W. Hosmer, S. Lemeshow and R. X. Sturdivant, “Applied
+Logistic Regression”, 3rd ed., Wiley, 2013.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">hosmer_lemeshow</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">statistic</span><span class="p">,</span> <span class="n">pvalue</span> <span class="o">=</span> <span class="n">hosmer_lemeshow</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">15</span><span class="p">],</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"statistic = </span><span class="si">{</span><span class="n">statistic</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, pvalue = </span><span class="si">{</span><span class="n">pvalue</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">statistic = 1.196, pvalue = 0.274</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.herfindahl_index">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">herfindahl_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">counts</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.herfindahl_index" title="Link to this definition">#</a></dt>
+<dd><p>Measure how concentrated a portfolio is across grades.</p>
+<p>The Herfindahl-Hirschman index is the sum of the squared shares of the
+grades. It is 1 when every observation is in one grade and <span class="math notranslate nohighlight">\(1/k\)</span>
+when <span class="math notranslate nohighlight">\(k\)</span> grades are equally full.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>counts</strong><span class="classifier">array_like</span></dt><dd><p>Number of observations, or exposure, in each grade, such as the
+<code class="docutils literal notranslate"><span class="pre">total</span></code> column of <cite>calibration_table</cite>.</p>
+</dd>
+<dt><strong>normalize</strong><span class="classifier">bool, default False</span></dt><dd><p>Rescale the index to run from 0 for equally full grades to 1 for a
+single full grade.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>The index.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>counts</cite> is not one-dimensional, has negative or non-finite
+values or sums to zero, or <cite>normalize</cite> is not a boolean or is set
+with fewer than two grades.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_table</span></code></a></dt><dd><p>The number of observations in each grade.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>For grade shares <span class="math notranslate nohighlight">\(s_i = c_i / \sum_j c_j\)</span> of <span class="math notranslate nohighlight">\(k\)</span> grades,</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{HHI} = \sum_{i=1}^{k} s_i^2, \qquad
+\mathrm{HHI}^* = \frac{\mathrm{HHI} - 1/k}{1 - 1/k}.\]</div>
+<p>A rating scale whose observations crowd into a few grades
+differentiates risk poorly. Empty grades count towards <span class="math notranslate nohighlight">\(k\)</span>.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">herfindahl_index</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">herfindahl_index</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
+<span class="go">0.38</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">herfindahl_index</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">],</span><span class="w"> </span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.07</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.master_scale">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">master_scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'geometric'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.master_scale" title="Link to this definition">#</a></dt>
+<dd><p>Build a master scale from the PD of each grade.</p>
+<p>A master scale divides the PD range from 0 to 1 into grades, each with
+one PD. The bounds between adjacent grades lie between their PDs, so
+that <cite>assign_grades</cite> can give every predicted PD its grade.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>PD of each grade, strictly increasing from the grade with the lowest
+risk and strictly between 0 and 1. <code class="docutils literal notranslate"><span class="pre">numpy.geomspace(first,</span> <span class="pre">last,</span>
+<span class="pre">grades)</span></code> gives a geometric grid, and <cite>fit_grade_pd</cite> fits the PDs to
+observed default rates.</p>
+</dd>
+<dt><strong>boundary</strong><span class="classifier">{“geometric”, “arithmetic”}, default “geometric”</span></dt><dd><p>Bound between two adjacent grades: the geometric mean of their PDs,
+the midpoint on a logarithmic scale, or their arithmetic mean.</p>
+</dd>
+<dt><strong>labels</strong><span class="classifier">array_like, optional</span></dt><dd><p>Unique label of each grade, such as <code class="docutils literal notranslate"><span class="pre">list(&quot;ABCDEFG&quot;)</span></code>. By default
+the grades are numbered from 1.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>One row per grade, indexed by its label in an index named
+<code class="docutils literal notranslate"><span class="pre">grade</span></code>, with the columns <code class="docutils literal notranslate"><span class="pre">lower</span></code>, <code class="docutils literal notranslate"><span class="pre">probability</span></code> and
+<code class="docutils literal notranslate"><span class="pre">upper</span></code>. The first grade starts at 0, the last one ends at 1, and
+each grade ends where the next one starts.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>probability</cite> is empty, not one-dimensional or not real and
+numeric, has a missing value, is not strictly increasing or is not
+strictly between 0 and 1, <cite>boundary</cite> is not recognized, or <cite>labels</cite>
+does not give one unique, non-missing label per grade.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.fit_grade_pd" title="kivi.calibration.fit_grade_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_grade_pd</span></code></a></dt><dd><p>Fit the PD of each grade to observed default rates.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.assign_grades" title="kivi.calibration.assign_grades"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_grades</span></code></a></dt><dd><p>Give each predicted PD the grade of the scale.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_table</span></code></a></dt><dd><p>Compare the grades with their observed default rates.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>For the PDs <span class="math notranslate nohighlight">\(p_1 &lt; \dots &lt; p_K\)</span> of the grades, the bound between
+grades <span class="math notranslate nohighlight">\(k\)</span> and <span class="math notranslate nohighlight">\(k + 1\)</span> is</p>
+<div class="math notranslate nohighlight">
+\[b_k = \sqrt{p_k \, p_{k+1}} \quad \text{(geometric)}, \qquad
+b_k = \frac{p_k + p_{k+1}}{2} \quad \text{(arithmetic)},\]</div>
+<p>and grade <span class="math notranslate nohighlight">\(k\)</span> holds the PDs in <span class="math notranslate nohighlight">\((b_{k-1}, b_k]\)</span>, with
+<span class="math notranslate nohighlight">\(b_0 = 0\)</span> and <span class="math notranslate nohighlight">\(b_K = 1\)</span>. PDs of a master scale usually grow
+by a constant factor from grade to grade, so they are evenly spaced on a
+logarithmic scale. The geometric bound is the midpoint on that scale: a
+PD goes to the grade whose PD is nearer by ratio. The arithmetic mean,
+which the 0.2 versions of kivi used, always lies above the geometric
+one, so each grade reaches further towards the grade above it than
+towards the grade below. With PDs that double from grade to grade, a
+grade with PD <span class="math notranslate nohighlight">\(p\)</span> then holds the PDs up to <span class="math notranslate nohighlight">\(1.5 p\)</span> instead
+of <span class="math notranslate nohighlight">\(\sqrt 2 p \approx 1.41 p\)</span>, and its observed default rate tends
+to exceed its PD.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">master_scale</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">master_scale</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.16</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">labels</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="s2">"ABCDE"</span><span class="p">))</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">        lower  probability   upper</span>
+<span class="go">grade</span>
+<span class="go">A      0.0000         0.01  0.0141</span>
+<span class="go">B      0.0141         0.02  0.0283</span>
+<span class="go">C      0.0283         0.04  0.0566</span>
+<span class="go">D      0.0566         0.08  0.1131</span>
+<span class="go">E      0.1131         0.16  1.0000</span>
+</pre></div>
+</div>
+<p>The arithmetic mean of adjacent PDs gives higher bounds:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">master_scale</span><span class="p">([</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">],</span> <span class="n">boundary</span><span class="o">=</span><span class="s2">"arithmetic"</span><span class="p">)</span>
+<span class="go">       lower  probability  upper</span>
+<span class="go">grade</span>
+<span class="go">1      0.000         0.01  0.015</span>
+<span class="go">2      0.015         0.02  0.030</span>
+<span class="go">3      0.030         0.04  1.000</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.fit_grade_pd">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">fit_grade_pd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.fit_grade_pd" title="Link to this definition">#</a></dt>
+<dd><p>Fit the PD of each grade to observed default rates, log-linear in the grade.</p>
+<p>The logarithm of the default rate is fitted as a straight line in the
+grade number, so the fitted PDs grow by a constant factor from grade to
+grade. Pass the result to <cite>master_scale</cite> for the bounds of the grades.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event</strong><span class="classifier">array_like</span></dt><dd><p>Number of defaults in each grade, ordered from the grade with the
+lowest risk to the grade with the highest. Weighted counts, such as
+those of a weighted <cite>calibration_table</cite>, are accepted.</p>
+</dd>
+<dt><strong>total</strong><span class="classifier">array_like</span></dt><dd><p>Number of observations in each grade. A grade without observations
+is left out of the fit but still gets a fitted PD, so pass a 0 for
+every grade of the scale that the data do not cover. Series inputs
+must have identical indices.</p>
+</dd>
+<dt><strong>smoothing</strong><span class="classifier">float, default 0.5</span></dt><dd><p>Number of defaults that replaces a count of zero, whose logarithm
+is undefined, as <cite>kivi.woe.woe_table</cite> replaces an empty cell.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series or numpy.ndarray</dt><dd><p>Fitted PD of each grade, strictly increasing and below 1: a Series
+with the index of the Series inputs, an array otherwise.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the inputs are not one-dimensional, have different lengths or
+Series indices, are not finite and non-negative, or <cite>event</cite> exceeds
+<cite>total</cite>; if fewer than two grades have observations or <cite>smoothing</cite>
+is not finite and positive. Also if the fitted PDs do not rise with
+the grade or reach 1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.master_scale" title="kivi.calibration.master_scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">master_scale</span></code></a></dt><dd><p>Build the scale from the fitted PDs.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_table</span></code></a></dt><dd><p>Count the observations and defaults of each grade.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>With <span class="math notranslate nohighlight">\(d_k\)</span> defaults among <span class="math notranslate nohighlight">\(n_k\)</span> observations in grade
+<span class="math notranslate nohighlight">\(k = 1, \dots, K\)</span>, the intercept <span class="math notranslate nohighlight">\(a\)</span> and the slope
+<span class="math notranslate nohighlight">\(b\)</span> minimize the weighted sum of squares</p>
+<div class="math notranslate nohighlight">
+\[\sum_{k : n_k &gt; 0} n_k \left(\ln \frac{d_k}{n_k} - a - b k\right)^2,\]</div>
+<p>where <span class="math notranslate nohighlight">\(d_k\)</span> is replaced by <cite>smoothing</cite> when it is 0. The fitted
+PD of grade <span class="math notranslate nohighlight">\(k\)</span> is <span class="math notranslate nohighlight">\(e^{a + b k}\)</span>, and consecutive PDs have
+the constant ratio <span class="math notranslate nohighlight">\(e^b\)</span>. The weights give each observation the
+same influence, so integer counts weigh like repeated observations;
+the 0.2 versions of kivi fitted the line by ordinary least squares,
+giving each grade the same influence instead.</p>
+<p>The fit extrapolates beyond the observed grades, so grades at the
+edges of the scale can get PDs no observation supports. A default rate
+of zero says only that the grade is safe, not how safe: the smoothed
+rate <span class="math notranslate nohighlight">\(0.5 / n_k\)</span> stands in for it.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_grade_pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">event</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">30</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">total</span> <span class="o">=</span> <span class="p">[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">200</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fit_grade_pd</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">total</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.0015, 0.0049, 0.0155, 0.0494, 0.1572])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.assign_grades">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">assign_grades</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.assign_grades" title="Link to this definition">#</a></dt>
+<dd><p>Give each predicted PD the grade of a master scale.</p>
+<p>The grades are an ordered categorical of the labels of the scale, so
+<cite>calibration_table</cite> counts them directly, in the order of the scale,
+for the tests of each grade.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>One-dimensional predicted PDs between 0 and 1. Missing values stay
+missing.</p>
+</dd>
+<dt><strong>scale</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Master scale, as returned by <cite>master_scale</cite>: one row per grade,
+indexed by unique labels, with the columns <code class="docutils literal notranslate"><span class="pre">lower</span></code> and <code class="docutils literal notranslate"><span class="pre">upper</span></code>.
+The first grade must start at 0, each grade where the one before it
+ends, and the last one must end at 1.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series or pandas.Categorical</dt><dd><p>Grade of each PD, an ordered categorical whose categories are the
+labels of the scale from the lowest risk to the highest. A Series
+input gives a Series with the same index and name.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>probability</cite> is not one-dimensional, is not real and numeric,
+or has values outside [0, 1], or <cite>scale</cite> is not a DataFrame with
+unique, non-missing labels and <code class="docutils literal notranslate"><span class="pre">lower</span></code> and <code class="docutils literal notranslate"><span class="pre">upper</span></code> columns that
+cover [0, 1] with increasing, adjacent grades.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.master_scale" title="kivi.calibration.master_scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">master_scale</span></code></a></dt><dd><p>Build the scale.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_table</span></code></a></dt><dd><p>Compare the observed and predicted default rates of each grade.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">pandas.cut</span></code></dt><dd><p>Assign values to intervals given by their edges.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Grade <span class="math notranslate nohighlight">\(k\)</span> holds the PDs above its <code class="docutils literal notranslate"><span class="pre">lower</span></code> bound up to and
+including its <code class="docutils literal notranslate"><span class="pre">upper</span></code> bound, as the intervals of <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> are
+closed on the right, and a PD of 0 belongs to the first grade, as with
+<code class="docutils literal notranslate"><span class="pre">include_lowest=True</span></code>. The result equals
+<code class="docutils literal notranslate"><span class="pre">pandas.cut(probability,</span> <span class="pre">edges,</span> <span class="pre">labels=scale.index,</span> <span class="pre">include_lowest=True)</span></code>
+for the edges <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">*scale[&quot;upper&quot;]]</span></code>; the <code class="docutils literal notranslate"><span class="pre">upper</span></code> column, not the
+PDs, decides the grade. The 0.2 versions of kivi gave a PD on a bound
+the grade above it instead.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">assign_grades</span><span class="p">,</span> <span class="n">master_scale</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale</span> <span class="o">=</span> <span class="n">master_scale</span><span class="p">([</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">,</span> <span class="mf">0.16</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale</span>
+<span class="go">       lower  probability  upper</span>
+<span class="go">grade</span>
+<span class="go">1       0.00         0.01   0.02</span>
+<span class="go">2       0.02         0.04   0.08</span>
+<span class="go">3       0.08         0.16   1.00</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">assign_grades</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]),</span> <span class="n">scale</span><span class="p">)</span>
+<span class="go">0      1</span>
+<span class="go">1      1</span>
+<span class="go">2      2</span>
+<span class="go">3    NaN</span>
+<span class="go">4      3</span>
+<span class="go">dtype: category</span>
+<span class="go">Categories (3, int64): [1 &lt; 2 &lt; 3]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.platt_fit">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">platt_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.platt_fit" title="Link to this definition">#</a></dt>
+<dd><p>Fit Platt scaling, a logistic curve from a score to event probabilities.</p>
+<p>The slope and intercept are fitted once, on a development or calibration
+sample, and <cite>platt_predict</cite> applies them to the scores of any sample.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>score</strong><span class="classifier">array_like</span></dt><dd><p>Finite numeric scores, such as the log odds of a model, a PD or
+scorecard points. The direction does not matter: a score that falls
+as the risk rises gets a negative slope.</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>Binary labels, with 1 indicating the event. Both classes must be
+present. If <cite>score</cite> and <cite>target</cite> are both pandas Series, they must
+have identical indices; otherwise they are matched by position.</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like, optional</span></dt><dd><p>Non-negative frequency weight of each observation, matched like
+<cite>target</cite>: a weight of 2 counts an observation twice.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>slope</strong><span class="classifier">float</span></dt><dd><p>Coefficient of the score in the log odds of the event.</p>
+</dd>
+<dt><strong>intercept</strong><span class="classifier">float</span></dt><dd><p>Log odds of the event at a score of 0.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>kivi.selection.SeparationError</dt><dd><p>If the score separates the classes, so that the slope that
+maximizes the likelihood is infinite. It is a ValueError.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If the inputs are empty or not one-dimensional, their indices or
+lengths do not match, <cite>target</cite> has a label other than 0 and 1 or
+lacks one of them, <cite>score</cite> is not real and numeric, has a missing or
+infinite value or does not vary, or <cite>weights</cite> is invalid or leaves a
+class without weight.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Warns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>RuntimeWarning</dt><dd><p>If the fit does not converge.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.platt_predict" title="kivi.calibration.platt_predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">platt_predict</span></code></a></dt><dd><p>Apply the slope and intercept to scores.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.isotonic_fit" title="kivi.calibration.isotonic_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isotonic_fit</span></code></a></dt><dd><p>A calibration that only assumes that the rate rises.</p>
+</dd>
+<dt><a class="reference internal" href="selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.selection.logistic_regression</span></code></a></dt><dd><p>The same kind of fit with standard errors.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The event probability at score <span class="math notranslate nohighlight">\(s\)</span> is modelled as</p>
+<div class="math notranslate nohighlight">
+\[p(s) = \frac{1}{1 + \exp(-(a s + b))},\]</div>
+<p>and the slope <span class="math notranslate nohighlight">\(a\)</span> and the intercept <span class="math notranslate nohighlight">\(b\)</span> maximize the
+log-likelihood, fitted by iteratively reweighted least squares as in
+<cite>kivi.selection.logistic_regression</cite>. At the maximum, the mean fitted
+probability equals the event rate of the sample, weighted with
+<cite>weights</cite>.</p>
+<p>When the score is the log odds of a model, this is the logistic
+recalibration of Cox <a class="reference internal" href="#rd112ce059dd4-2" id="id13">[2]</a>: a slope of 1 and an intercept of 0 mean that
+the model is calibrated on the sample, and a slope below 1 that its
+probabilities are too extreme, as after overfitting.</p>
+<p>Platt <a class="reference internal" href="#rd112ce059dd4-1" id="id14">[1]</a>, and scikit-learn’s <code class="docutils literal notranslate"><span class="pre">CalibratedClassifierCV</span></code> after him,
+replace the labels 1 and 0 with <span class="math notranslate nohighlight">\((n_1 + 1) / (n_1 + 2)\)</span> and
+<span class="math notranslate nohighlight">\(1 / (n_0 + 2)\)</span> for <span class="math notranslate nohighlight">\(n_1\)</span> events and <span class="math notranslate nohighlight">\(n_0\)</span>
+non-events. This matters only in small samples, where it also keeps the
+slope finite when the score separates the classes. Here the labels are
+used as they are, so a separating score raises an error instead;
+<cite>isotonic_fit</cite> handles such a score.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rd112ce059dd4-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">1</a><span class="fn-bracket">]</span></span>
+<p>J. C. Platt, “Probabilistic outputs for support vector machines
+and comparisons to regularized likelihood methods”, in Advances in
+Large Margin Classifiers, MIT Press, pp. 61-74, 1999.</p>
+</div>
+<div class="citation" id="rd112ce059dd4-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id13">2</a><span class="fn-bracket">]</span></span>
+<p>D. R. Cox, “Two further applications of a model for binary
+regression”, Biometrika, 45(3-4), pp. 562-565, 1958.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">platt_fit</span><span class="p">,</span> <span class="n">platt_predict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span> <span class="o">=</span> <span class="n">platt_fit</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"slope = </span><span class="si">{</span><span class="n">slope</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, intercept = </span><span class="si">{</span><span class="n">intercept</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">slope = 0.8824, intercept = -0.1250</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">platt_predict</span><span class="p">([</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.2675, 0.4688, 0.6808])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.platt_predict">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">platt_predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intercept</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.platt_predict" title="Link to this definition">#</a></dt>
+<dd><p>Turn scores into event probabilities with a fitted Platt scaling.</p>
+<p>The probabilities follow the logistic curve with the slope and
+intercept from <cite>platt_fit</cite>, so the same calibration applies to the
+development sample, a validation sample and new applicants.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>score</strong><span class="classifier">array_like</span></dt><dd><p>Numeric scores on the scale of the fit. Missing values give missing
+probabilities.</p>
+</dd>
+<dt><strong>slope</strong><span class="classifier">float</span></dt><dd><p>Coefficient of the score, as returned by <cite>platt_fit</cite>.</p>
+</dd>
+<dt><strong>intercept</strong><span class="classifier">float</span></dt><dd><p>Intercept, as returned by <cite>platt_fit</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float, pandas.Series or numpy.ndarray</dt><dd><p>Event probabilities with the shape of <cite>score</cite>. A Series input gives
+a Series with the same index and name, and a scalar gives a float.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>score</cite> is not real and numeric, or <cite>slope</cite> or <cite>intercept</cite> is not
+a finite number.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.platt_fit" title="kivi.calibration.platt_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">platt_fit</span></code></a></dt><dd><p>Fit the slope and intercept.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.isotonic_predict" title="kivi.calibration.isotonic_predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isotonic_predict</span></code></a></dt><dd><p>Apply an isotonic calibration.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The probability is <span class="math notranslate nohighlight">\(1 / (1 + \exp(-(a s + b)))\)</span> for slope
+<span class="math notranslate nohighlight">\(a\)</span>, intercept <span class="math notranslate nohighlight">\(b\)</span> and score <span class="math notranslate nohighlight">\(s\)</span>, computed without
+overflow for extreme scores.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">platt_predict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">platt_predict</span><span class="p">([</span><span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],</span> <span class="mf">1.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.0293, 0.3775, 0.9241])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.isotonic_fit">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">isotonic_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">increasing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.isotonic_fit" title="Link to this definition">#</a></dt>
+<dd><p>Fit an isotonic calibration, a step function from a score to event probabilities.</p>
+<p>The score range is split into bands whose event rates rise with the
+score, so the calibration assumes only that a higher score means a
+higher risk. Fit the bands once and apply them to the scores of any
+sample with <cite>isotonic_predict</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>score</strong><span class="classifier">array_like</span></dt><dd><p>Finite numeric scores, such as a PD or the log odds of a model.</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>Binary labels, with 1 indicating the event. Both classes must be
+present. If <cite>score</cite> and <cite>target</cite> are both pandas Series, they must
+have identical indices; otherwise they are matched by position.</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like, optional</span></dt><dd><p>Non-negative frequency weight of each observation, matched like
+<cite>target</cite>: a weight of 2 counts an observation twice. Scores whose
+weights sum to zero are ignored.</p>
+</dd>
+<dt><strong>increasing</strong><span class="classifier">bool, default True</span></dt><dd><p>Whether the probability rises with the score, as for a PD. Pass
+False for scorecard points, which are higher for a lower risk.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>edges</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>Increasing band edges from <code class="docutils literal notranslate"><span class="pre">-inf</span></code> to <code class="docutils literal notranslate"><span class="pre">inf</span></code>, like those of
+<cite>kivi.binning.bin_edges</cite>. The bands are closed on the right, as in
+<code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code>, and each interior edge is the highest score of the
+band below it.</p>
+</dd>
+<dt><strong>probabilities</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>Event rate of each band, one fewer than <cite>edges</cite>. The rates are
+strictly increasing, or strictly decreasing with
+<code class="docutils literal notranslate"><span class="pre">increasing=False</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the inputs are empty or not one-dimensional, their indices or
+lengths do not match, <cite>target</cite> has a label other than 0 and 1 or
+lacks one of them, <cite>score</cite> is not real and numeric or has a missing
+or infinite value, <cite>weights</cite> is invalid or leaves a class without
+weight, or <cite>increasing</cite> is not a boolean.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.isotonic_predict" title="kivi.calibration.isotonic_predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isotonic_predict</span></code></a></dt><dd><p>Apply the bands to scores.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.platt_fit" title="kivi.calibration.platt_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">platt_fit</span></code></a></dt><dd><p>A calibration by a logistic curve.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_table</span></code></a></dt><dd><p>Compare the bands with the outcomes of another sample.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Among all probabilities <span class="math notranslate nohighlight">\(p_i\)</span> that rise with the score, isotonic
+regression minimizes <span class="math notranslate nohighlight">\(\sum_i w_i (y_i - p_i)^2\)</span>, and the same
+solution maximizes the binomial likelihood <a class="reference internal" href="#r79aaa79b7808-1" id="id17">[1]</a>. The
+pool-adjacent-violators algorithm finds it: each distinct score starts
+as a band with its event rate, and adjacent bands are merged while the
+lower one has a rate at least as high as the one above it. The
+probability of a band is then its pooled event rate. Tied scores always
+share a band, and since bands with equal rates are merged too, no two
+adjacent bands have the same probability.</p>
+<p>The outer edges are infinite, so a score below or above the fitted
+range gets the probability of the lowest or highest band. A score
+between the observed scores of two bands falls into the upper one,
+whose interval it belongs to; with <code class="docutils literal notranslate"><span class="pre">increasing=False</span></code>, that is the
+band with the lower risk. scikit-learn’s <code class="docutils literal notranslate"><span class="pre">IsotonicRegression</span></code>
+interpolates linearly between the bands instead; both give the same
+probability at every score of the fitted sample <a class="reference internal" href="#r79aaa79b7808-2" id="id18">[2]</a>.</p>
+<p>A band without events has probability 0 and a band with only events
+has probability 1; a score that separates the classes gives just these
+two bands. Floor the probabilities where 0 is not allowed, for example
+before <cite>kivi.scorecard.pd_to_score</cite>. The bands can also serve as the
+grades of <cite>calibration_table</cite>, by cutting the scores at <cite>edges</cite>.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r79aaa79b7808-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id17">1</a><span class="fn-bracket">]</span></span>
+<p>M. Ayer, H. D. Brunk, G. M. Ewing, W. T. Reid and E. Silverman,
+“An empirical distribution function for sampling with incomplete
+information”, The Annals of Mathematical Statistics, 26(4),
+pp. 641-647, 1955.</p>
+</div>
+<div class="citation" id="r79aaa79b7808-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id18">2</a><span class="fn-bracket">]</span></span>
+<p>B. Zadrozny and C. Elkan, “Transforming classifier scores into
+accurate multiclass probability estimates”, Proceedings of the 8th
+ACM SIGKDD Conference, pp. 694-699, 2002.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">isotonic_fit</span><span class="p">,</span> <span class="n">isotonic_predict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span><span class="p">,</span> <span class="n">probabilities</span> <span class="o">=</span> <span class="n">isotonic_fit</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span>
+<span class="go">array([-inf,  0.1,  0.4,  0.6,  inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">probabilities</span>
+<span class="go">array([0.        , 0.33333333, 0.5       , 1.        ])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">isotonic_predict</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">],</span> <span class="n">edges</span><span class="p">,</span> <span class="n">probabilities</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.    , 0.3333, 0.5   , 1.    ])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.calibration.isotonic_predict">
+<span class="sig-prename descclassname"><span class="pre">kivi.calibration.</span></span><span class="sig-name descname"><span class="pre">isotonic_predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probabilities</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.calibration.isotonic_predict" title="Link to this definition">#</a></dt>
+<dd><p>Give each score the probability of its band from an isotonic calibration.</p>
+<p>The bands come from <cite>isotonic_fit</cite> on a development or calibration
+sample, so the same step function applies to every later sample.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>score</strong><span class="classifier">array_like</span></dt><dd><p>Numeric scores on the scale of the fit. Missing values give missing
+probabilities.</p>
+</dd>
+<dt><strong>edges</strong><span class="classifier">array_like</span></dt><dd><p>Increasing band edges from <code class="docutils literal notranslate"><span class="pre">-inf</span></code> to <code class="docutils literal notranslate"><span class="pre">inf</span></code>, as returned by
+<cite>isotonic_fit</cite>.</p>
+</dd>
+<dt><strong>probabilities</strong><span class="classifier">array_like</span></dt><dd><p>Probability of each band, between 0 and 1, one fewer than <cite>edges</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float, pandas.Series or numpy.ndarray</dt><dd><p>Event probabilities with the shape of <cite>score</cite>. A Series input gives
+a Series with the same index and name, and a scalar gives a float.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>score</cite> is not real and numeric, <cite>edges</cite> is not increasing from
+<code class="docutils literal notranslate"><span class="pre">-inf</span></code> to <code class="docutils literal notranslate"><span class="pre">inf</span></code>, or <cite>probabilities</cite> does not give one value
+between 0 and 1 for each band.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.calibration.isotonic_fit" title="kivi.calibration.isotonic_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isotonic_fit</span></code></a></dt><dd><p>Fit the bands and their probabilities.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.calibration.platt_predict" title="kivi.calibration.platt_predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">platt_predict</span></code></a></dt><dd><p>Apply a Platt scaling.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The bands are closed on the right, as in <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code>: a score equal
+to an interior edge gets the probability of the band below the edge.
+Since the outer edges are infinite, every score that is not missing
+falls into a band.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">isotonic_predict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">),</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">isotonic_predict</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">],</span> <span class="n">edges</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">])</span>
+<span class="go">array([0.05, 0.05, 0.2 , 0.6 ])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="metrics.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Model performance</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="strategy.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Credit strategy</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.prior_correction"><code class="docutils literal notranslate"><span class="pre">prior_correction()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.corrected_intercept"><code class="docutils literal notranslate"><span class="pre">corrected_intercept()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.calibration_table"><code class="docutils literal notranslate"><span class="pre">calibration_table()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.binomial_test"><code class="docutils literal notranslate"><span class="pre">binomial_test()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.jeffreys_test"><code class="docutils literal notranslate"><span class="pre">jeffreys_test()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.hosmer_lemeshow"><code class="docutils literal notranslate"><span class="pre">hosmer_lemeshow()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.herfindahl_index"><code class="docutils literal notranslate"><span class="pre">herfindahl_index()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.master_scale"><code class="docutils literal notranslate"><span class="pre">master_scale()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.fit_grade_pd"><code class="docutils literal notranslate"><span class="pre">fit_grade_pd()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.assign_grades"><code class="docutils literal notranslate"><span class="pre">assign_grades()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.platt_fit"><code class="docutils literal notranslate"><span class="pre">platt_fit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.platt_predict"><code class="docutils literal notranslate"><span class="pre">platt_predict()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.isotonic_fit"><code class="docutils literal notranslate"><span class="pre">isotonic_fit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.calibration.isotonic_predict"><code class="docutils literal notranslate"><span class="pre">isotonic_predict()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

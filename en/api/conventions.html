@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Conventions &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=e03d16b7" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=a85d417d"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/conventions';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Glossary" href="glossary.html" />
+    <link rel="prev" title="API reference" href="../api.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.8.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 0.8.0">0.8.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/conventions.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/conventions.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Conventions</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="conventions">
+<h1>Conventions<a class="headerlink" href="#conventions" title="Link to this heading">#</a></h1>
+<p>Every public function of kivi follows the rules on this page. The module pages and the guides take them for granted, and the docstrings mention only where a function departs from them or adds to them.</p>
+<section id="imports">
+<h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
+<p>kivi has no top-level imports. Import each function from its module, as in <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">kivi.woe</span> <span class="pre">import</span> <span class="pre">woe_table</span></code>; each module has its own page in this reference.</p>
+</section>
+<section id="arguments">
+<h2>Arguments<a class="headerlink" href="#arguments" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The data come first and the target follows them, as in <code class="docutils literal notranslate"><span class="pre">woe_table(groups,</span> <span class="pre">target)</span></code>, <code class="docutils literal notranslate"><span class="pre">roc_auc(score,</span> <span class="pre">target)</span></code>, <code class="docutils literal notranslate"><span class="pre">stepwise(X,</span> <span class="pre">target)</span></code> and <code class="docutils literal notranslate"><span class="pre">fit_spec(frame,</span> <span class="pre">target)</span></code>. A function with several data arguments takes all of them before the target, as <code class="docutils literal notranslate"><span class="pre">swap_set(current,</span> <span class="pre">new,</span> <span class="pre">target)</span></code> does, and a predicted probability comes after the target, as in <code class="docutils literal notranslate"><span class="pre">calibration_table(groups,</span> <span class="pre">target,</span> <span class="pre">probability)</span></code>. scikit-learn’s metrics take the target first, so check the order when porting code from them.</p></li>
+<li><p>A predicted probability of an event, such as a PD, is always called <code class="docutils literal notranslate"><span class="pre">probability</span></code>, as in <code class="docutils literal notranslate"><span class="pre">brier_score(probability,</span> <span class="pre">target)</span></code>, <code class="docutils literal notranslate"><span class="pre">calibration_table(groups,</span> <span class="pre">target,</span> <span class="pre">probability)</span></code> and <code class="docutils literal notranslate"><span class="pre">expected_loss(probability,</span> <span class="pre">lgd,</span> <span class="pre">ead)</span></code>. What a <code class="docutils literal notranslate"><span class="pre">score</span></code> is depends on the module; see <a class="reference internal" href="#conventions-scores"><span class="std std-ref">Targets, scores and probabilities</span></a>. A second probability is named after its meaning, as <code class="docutils literal notranslate"><span class="pre">origination_probability</span></code> in <a class="reference internal" href="lifetime.html#kivi.lifetime.significant_increase" title="kivi.lifetime.significant_increase"><code class="xref py py-func docutils literal notranslate"><span class="pre">significant_increase()</span></code></a>.</p></li>
+<li><p>An option with the same meaning has the same name in every module, such as <code class="docutils literal notranslate"><span class="pre">bins</span></code>, <code class="docutils literal notranslate"><span class="pre">special</span></code>, <code class="docutils literal notranslate"><span class="pre">smoothing</span></code>, <code class="docutils literal notranslate"><span class="pre">unseen</span></code> and <code class="docutils literal notranslate"><span class="pre">weights</span></code>. <code class="docutils literal notranslate"><span class="pre">level</span></code> is the confidence level of an interval, a number strictly between 0 and 1 that defaults to 0.95, as in <a class="reference internal" href="metrics.html#kivi.metrics.roc_auc_interval" title="kivi.metrics.roc_auc_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc_interval()</span></code></a>.</p></li>
+<li><p>A reference that could be read in two ways has one argument for each. The functions of <a class="reference internal" href="monitoring.html#module-kivi.monitoring" title="kivi.monitoring"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.monitoring</span></code></a> take either <code class="docutils literal notranslate"><span class="pre">reference_period</span></code>, a label of the period argument, or a reference sample in <code class="docutils literal notranslate"><span class="pre">reference_score</span></code> or <code class="docutils literal notranslate"><span class="pre">reference_groups</span></code>, and raise unless exactly one is given.</p></li>
+<li><p>The data, and the fitted results that a function applies, such as the edges of <a class="reference internal" href="binning.html#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-func docutils literal notranslate"><span class="pre">cut()</span></code></a> or the table of <a class="reference internal" href="woe.html#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_transform()</span></code></a>, are positional arguments. Every option after them is keyword-only. The number of bins of <a class="reference internal" href="binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a> is the one option that can also be passed by position:</p></li>
+</ul>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">bin_edges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bin_edges</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">array([-inf,  2.5,  inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bin_edges</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="mi">2</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"uniform"</span><span class="p">)</span>
+<span class="go">array([-inf,  2.5,  inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bin_edges</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"uniform"</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="w">    </span><span class="o">...</span>
+<span class="gr">TypeError</span>: <span class="n">bin_edges() takes from 1 to 2 positional arguments but 3 were given</span>
+</pre></div>
+</div>
+</section>
+<section id="inputs-and-results">
+<h2>Inputs and results<a class="headerlink" href="#inputs-and-results" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>A one-dimensional input is array_like: a list, a NumPy array or a pandas Series. A function that works on several columns at once, such as <a class="reference internal" href="selection.html#kivi.selection.stepwise" title="kivi.selection.stepwise"><code class="xref py py-func docutils literal notranslate"><span class="pre">stepwise()</span></code></a> or <a class="reference internal" href="spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a>, takes a DataFrame.</p></li>
+<li><p>A result with one value per input value is shaped like the input. A Series gives a Series with the same index and name, other array_like input gives a NumPy array, and a single number gives a float. <a class="reference internal" href="binning.html#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-func docutils literal notranslate"><span class="pre">cut()</span></code></a> and <a class="reference internal" href="calibration.html#kivi.calibration.assign_grades" title="kivi.calibration.assign_grades"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_grades()</span></code></a> return groups, so for input other than a Series they return a <code class="docutils literal notranslate"><span class="pre">pandas.Categorical</span></code>:</p></li>
+</ul>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">prior_correction</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rates</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">sample_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">population_rate</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prior_correction</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="o">**</span><span class="n">rates</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.02  , 0.0051])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prior_correction</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">"pd"</span><span class="p">),</span> <span class="o">**</span><span class="n">rates</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">a    0.0200</span>
+<span class="go">b    0.0051</span>
+<span class="go">Name: pd, dtype: float64</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">prior_correction</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">**</span><span class="n">rates</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
+<span class="go">0.02</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Series that describe the same observations, such as the data, the target, the probabilities and the weights, must have identical indices; they are not aligned. Any other combination of these inputs is matched by position. Inputs that describe other observations, such as the two samples of <a class="reference internal" href="stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi_table()</span></code></a> or the rejected applicants of <a class="reference internal" href="reject_inference.html#kivi.reject_inference.parceling" title="kivi.reject_inference.parceling"><code class="xref py py-func docutils literal notranslate"><span class="pre">parceling()</span></code></a>, can have any index.</p></li>
+<li><p>Tables are DataFrames. A table with one row per group is indexed by the group labels, in an index named <code class="docutils literal notranslate"><span class="pre">bin</span></code>. A total is the sum of a column, such as <code class="docutils literal notranslate"><span class="pre">woe_table(groups,</span> <span class="pre">target)[&quot;iv&quot;].sum()</span></code>.</p></li>
+<li><p>Functions do not modify their inputs. Random draws come from a local generator seeded by <code class="docutils literal notranslate"><span class="pre">rng</span></code>, so they never change NumPy’s global state, and the same seed gives the same result.</p></li>
+</ul>
+</section>
+<section id="targets-scores-and-probabilities">
+<span id="conventions-scores"></span><h2>Targets, scores and probabilities<a class="headerlink" href="#targets-scores-and-probabilities" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>A target is 1 for an event, such as a default, and 0 for a non-event. Any other label, and a missing label, raises an error. <a class="reference internal" href="strategy.html#kivi.strategy.swap_set" title="kivi.strategy.swap_set"><code class="xref py py-func docutils literal notranslate"><span class="pre">swap_set()</span></code></a> and <a class="reference internal" href="monitoring.html#kivi.monitoring.monitoring_table" title="kivi.monitoring.monitoring_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">monitoring_table()</span></code></a> are the exceptions: they read a missing label as an outcome that is not known, such as that of a declined applicant or of a loan whose outcome window has not ended.</p></li>
+<li><p>In <a class="reference internal" href="metrics.html#module-kivi.metrics" title="kivi.metrics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.metrics</span></code></a>, <a class="reference internal" href="monitoring.html#module-kivi.monitoring" title="kivi.monitoring"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.monitoring</span></code></a> and <a class="reference internal" href="strategy.html#module-kivi.strategy" title="kivi.strategy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.strategy</span></code></a>, a score rises with the event probability. Pass a PD as it is, and negate scorecard points, which fall as the risk rises. A cut-off of <a class="reference internal" href="strategy.html#module-kivi.strategy" title="kivi.strategy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.strategy</span></code></a> approves the scores at or below it.</p></li>
+<li><p>In <a class="reference internal" href="scorecard.html#module-kivi.scorecard" title="kivi.scorecard"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.scorecard</span></code></a>, a <code class="docutils literal notranslate"><span class="pre">score</span></code> is scorecard points, which fall as the risk rises: <a class="reference internal" href="scorecard.html#kivi.scorecard.score_to_pd" title="kivi.scorecard.score_to_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">score_to_pd()</span></code></a> gives a lower PD for a higher score.</p></li>
+<li><p><a class="reference internal" href="calibration.html#kivi.calibration.platt_fit" title="kivi.calibration.platt_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">platt_fit()</span></code></a> accepts a score in either direction and fits a negative slope to one that falls as the risk rises. <a class="reference internal" href="calibration.html#kivi.calibration.isotonic_fit" title="kivi.calibration.isotonic_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">isotonic_fit()</span></code></a> assumes a rising score unless <code class="docutils literal notranslate"><span class="pre">increasing=False</span></code>.</p></li>
+<li><p>True and False count as 1 and 0 in targets, scores and probabilities. Weights, LGDs, exposures and losses reject them, and so do most numeric options, such as <code class="docutils literal notranslate"><span class="pre">bins</span></code>, <code class="docutils literal notranslate"><span class="pre">max_bins</span></code>, <code class="docutils literal notranslate"><span class="pre">factor</span></code> and the cut-offs. Two inputs reject them because a boolean there is more likely a mistake: the <code class="docutils literal notranslate"><span class="pre">reference_score</span></code> of <a class="reference internal" href="monitoring.html#kivi.monitoring.monitoring_table" title="kivi.monitoring.monitoring_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">monitoring_table()</span></code></a>, which would usually be a row mask, and the <code class="docutils literal notranslate"><span class="pre">matrix</span></code> of <a class="reference internal" href="lifetime.html#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_pd()</span></code></a>:</p></li>
+</ul>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_auc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">roc_auc</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
+<span class="go">1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.strategy</span><span class="w"> </span><span class="kn">import</span> <span class="n">expected_loss</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expected_loss</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]),</span> <span class="mf">100.0</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="w">    </span><span class="o">...</span>
+<span class="gr">ValueError</span>: <span class="n">lgd must be real and numeric, got dtype bool</span>
+</pre></div>
+</div>
+</section>
+<section id="groups-and-missing-values">
+<h2>Groups and missing values<a class="headerlink" href="#groups-and-missing-values" title="Link to this heading">#</a></h2>
+<p>The functions that count groups, such as <a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_table()</span></code></a>, <a class="reference internal" href="stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi_table()</span></code></a> and <a class="reference internal" href="calibration.html#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_table()</span></code></a>, take the labels as they are: the intervals of <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> or <a class="reference internal" href="binning.html#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.binning.cut()</span></code></a>, strings, numbers or categories.</p>
+<ul class="simple">
+<li><p>Missing values form a group of their own.</p></li>
+<li><p>Only observed groups appear. Unused categories are left out, and so are the groups whose weights sum to zero. The period tables of <a class="reference internal" href="monitoring.html#module-kivi.monitoring" title="kivi.monitoring"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.monitoring</span></code></a> are the exception: they keep a row for every category of a categorical period, so that the rows of all reports line up.</p></li>
+<li><p>Categorical groups, including the intervals of <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code>, follow the order of their categories, with the missing group last. Other labels follow the order in which they first appear.</p></li>
+</ul>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">woe_table</span><span class="p">([</span><span class="s2">"b"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])[[</span><span class="s2">"non_event"</span><span class="p">,</span> <span class="s2">"event"</span><span class="p">]]</span>
+<span class="go">     non_event  event</span>
+<span class="go">bin</span>
+<span class="go">b            0      1</span>
+<span class="go">a            2      0</span>
+<span class="go">NaN          0      1</span>
+</pre></div>
+</div>
+<p>Categories are matched to a fitted table or grouping by equality, and a category that it does not know raises an error unless <code class="docutils literal notranslate"><span class="pre">unseen</span></code> says how to treat it. <a class="reference internal" href="woe.html#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_transform()</span></code></a>, <a class="reference internal" href="binning.html#kivi.binning.group_categories" title="kivi.binning.group_categories"><code class="xref py py-func docutils literal notranslate"><span class="pre">group_categories()</span></code></a> and <a class="reference internal" href="stability.html#kivi.stability.csi_table" title="kivi.stability.csi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">csi_table()</span></code></a> share this rule, the last through <code class="docutils literal notranslate"><span class="pre">unseen_points</span></code>. <a class="reference internal" href="scorecard.html#kivi.scorecard.reason_codes" title="kivi.scorecard.reason_codes"><code class="xref py py-func docutils literal notranslate"><span class="pre">reason_codes()</span></code></a> matches points rather than categories, and its <code class="docutils literal notranslate"><span class="pre">unseen_points</span></code> exempts the points that <code class="docutils literal notranslate"><span class="pre">woe_transform</span></code> gave unseen groups.</p>
+<p>The functions that count, rank or fit, such as <a class="reference internal" href="metrics.html#kivi.metrics.roc_auc" title="kivi.metrics.roc_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc()</span></code></a>, <a class="reference internal" href="calibration.html#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_table()</span></code></a>, <a class="reference internal" href="strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_table()</span></code></a> and <a class="reference internal" href="calibration.html#kivi.calibration.platt_fit" title="kivi.calibration.platt_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">platt_fit()</span></code></a>, raise an error for a missing score or probability instead, so decide how missing values are scored before passing them in. The functions that convert each value on its own, such as <a class="reference internal" href="scorecard.html#kivi.scorecard.pd_to_score" title="kivi.scorecard.pd_to_score"><code class="xref py py-func docutils literal notranslate"><span class="pre">pd_to_score()</span></code></a>, <a class="reference internal" href="calibration.html#kivi.calibration.platt_predict" title="kivi.calibration.platt_predict"><code class="xref py py-func docutils literal notranslate"><span class="pre">platt_predict()</span></code></a> and <a class="reference internal" href="strategy.html#kivi.strategy.expected_loss" title="kivi.strategy.expected_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_loss()</span></code></a>, return NaN for a missing value, and <a class="reference internal" href="calibration.html#kivi.calibration.assign_grades" title="kivi.calibration.assign_grades"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_grades()</span></code></a> returns a missing grade. The staging functions of <a class="reference internal" href="lifetime.html#module-kivi.lifetime" title="kivi.lifetime"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.lifetime</span></code></a> work value by value but raise for a missing value, because a missing PD or number of days past due must not decide a stage, and the functions of <a class="reference internal" href="monitoring.html#module-kivi.monitoring" title="kivi.monitoring"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.monitoring</span></code></a> raise for a missing period.</p>
+</section>
+<section id="sample-weights">
+<h2>Sample weights<a class="headerlink" href="#sample-weights" title="Link to this heading">#</a></h2>
+<p>Most functions that count observations or fit a model take <code class="docutils literal notranslate"><span class="pre">weights</span></code>: one finite, non-negative number per observation, matched to the data like the target. <a class="reference internal" href="stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi_table()</span></code></a> and <a class="reference internal" href="stability.html#kivi.stability.csi_table" title="kivi.stability.csi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">csi_table()</span></code></a> take one set for each sample, <code class="docutils literal notranslate"><span class="pre">reference_weights</span></code> and <code class="docutils literal notranslate"><span class="pre">current_weights</span></code>.</p>
+<ul class="simple">
+<li><p>Counts become sums of weights, and observations with zero weight are left out. Integer weights therefore give the same counts as repeating each row that many times.</p></li>
+<li><p>Weighted quantiles use the inverted CDF, so every interior quantile edge is an observed value, while unweighted quantiles interpolate between observations. Weighted edges therefore agree with repeated rows only where no interpolation is needed, and weights of 1 do not give the same edges as no weights.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smoothing</span></code> replaces an empty cell in units of weight and is not rescaled with the weights.</p></li>
+<li><p><a class="reference internal" href="selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">logistic_regression()</span></code></a>, <a class="reference internal" href="selection.html#kivi.selection.stepwise" title="kivi.selection.stepwise"><code class="xref py py-func docutils literal notranslate"><span class="pre">stepwise()</span></code></a>, <a class="reference internal" href="metrics.html#kivi.metrics.roc_auc_interval" title="kivi.metrics.roc_auc_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc_interval()</span></code></a> and <a class="reference internal" href="metrics.html#kivi.metrics.delong_test" title="kivi.metrics.delong_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">delong_test()</span></code></a> read the weights as frequency weights, so their standard errors count the total weight as the number of observations. Weights that correct for sampling, such as inverse sampling rates, make these standard errors too small.</p></li>
+</ul>
+</section>
+<section id="periods-and-thresholds">
+<h2>Periods and thresholds<a class="headerlink" href="#periods-and-thresholds" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Periods are ordered as their categories when they are categorical and sorted otherwise. Period 1 of a term structure or an expected credit loss is the first period after its starting point, such as the reporting date, and <a class="reference internal" href="lifetime.html#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_credit_loss()</span></code></a> discounts a default in period <span class="math notranslate nohighlight">\(t\)</span> over <span class="math notranslate nohighlight">\(t\)</span> periods.</p></li>
+<li><p>A threshold is compared as the rule it implements is worded. A cut-off approves the scores at or below it. <a class="reference internal" href="lifetime.html#kivi.lifetime.significant_increase" title="kivi.lifetime.significant_increase"><code class="xref py py-func docutils literal notranslate"><span class="pre">significant_increase()</span></code></a> flags a PD increase only when it exceeds its thresholds, and <a class="reference internal" href="lifetime.html#kivi.lifetime.assign_stages" title="kivi.lifetime.assign_stages"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_stages()</span></code></a> moves a loan to stage 2 when it is more than <code class="docutils literal notranslate"><span class="pre">stage_2_days</span></code> past due and to stage 3 when it is at least <code class="docutils literal notranslate"><span class="pre">stage_3_days</span></code> past due, as IFRS 9 words its 30-day and 90-day presumptions.</p></li>
+</ul>
+</section>
+<section id="errors-and-warnings">
+<h2>Errors and warnings<a class="headerlink" href="#errors-and-warnings" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Invalid input raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>, and so does a model that cannot be fitted, such as one with separated classes, which raises <a class="reference internal" href="selection.html#kivi.selection.SeparationError" title="kivi.selection.SeparationError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">kivi.selection.SeparationError</span></code></a>. The message names the argument and, where a single value is at fault, shows the value that was received:</p></li>
+</ul>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bin_edges</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="w">    </span><span class="o">...</span>
+<span class="gr">ValueError</span>: <span class="n">bins must be a positive integer, got 0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">roc_auc</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="w">    </span><span class="o">...</span>
+<span class="gr">ValueError</span>: <span class="n">target must contain only 0 and 1, got 2</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>A <code class="docutils literal notranslate"><span class="pre">UserWarning</span></code> means that the result differs from the request, for example fewer bins than requested because of tied values, and says what to change. <a class="reference internal" href="univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.univariate.profile_table()</span></code></a> records such ties in a column instead, so that profiling many columns raises no warnings.</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">RuntimeWarning</span></code> means that a fit stopped before it converged.</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> announces a change of the public API one minor version before it takes effect.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../api.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">API reference</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="glossary.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Glossary</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#arguments">Arguments</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inputs-and-results">Inputs and results</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#targets-scores-and-probabilities">Targets, scores and probabilities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#groups-and-missing-values">Groups and missing values</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-weights">Sample weights</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#periods-and-thresholds">Periods and thresholds</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#errors-and-warnings">Errors and warnings</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

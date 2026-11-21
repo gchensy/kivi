@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Univariate profile &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=e03d16b7" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=a85d417d"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/univariate';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Binning" href="binning.html" />
+    <link rel="prev" title="Risk modeling workflow" href="risk_workflow.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.8.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 0.8.0">0.8.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/univariate.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/univariate.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">Risk modeling workflow</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Univariate profile</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="univariate-profile">
+<h1>Univariate profile<a class="headerlink" href="#univariate-profile" title="Link to this heading">#</a></h1>
+<p>Before any variable is binned with care, look at all of them at once: how complete each one is, how its values are distributed, and how strongly it separates events from non-events on its own. <a class="reference internal" href="../api/univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.univariate.profile_table()</span></code></a> summarizes every column of a data frame in one row, so the whole list of candidates fits in one table.</p>
+<p>The profile is the first step of a model. The candidates that pass its screening are binned with care next, as <a class="reference internal" href="binning.html"><span class="doc">Binning</span></a> describes, and <a class="reference internal" href="risk_workflow.html"><span class="doc">Risk modeling workflow</span></a> follows them through the remaining steps.</p>
+<section id="profiling-the-candidates">
+<h2>Profiling the candidates<a class="headerlink" href="#profiling-the-candidates" title="Link to this heading">#</a></h2>
+<p>The bundled bank data code missing values of its categorical variables with the label <code class="docutils literal notranslate"><span class="pre">unknown</span></code>. Turn them into missing values first, so that the profile counts them:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bank</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.univariate</span><span class="w"> </span><span class="kn">import</span> <span class="n">profile_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">load_bank</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">development</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">3000</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">candidates</span> <span class="o">=</span> <span class="n">development</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"target"</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"unknown"</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span> <span class="o">=</span> <span class="n">profile_table</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span><span class="p">[[</span><span class="s2">"kind"</span><span class="p">,</span> <span class="s2">"count"</span><span class="p">,</span> <span class="s2">"missing_share"</span><span class="p">,</span> <span class="s2">"distinct"</span><span class="p">,</span> <span class="s2">"top"</span><span class="p">,</span> <span class="s2">"top_share"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                  kind  count  missing_share  distinct         top  top_share</span>
+<span class="go">variable</span>
+<span class="go">age            numeric   3000          0.000        64          34      0.053</span>
+<span class="go">job        categorical   2975          0.008        11  management      0.220</span>
+<span class="go">marital    categorical   3000          0.000         3     married      0.613</span>
+<span class="go">education  categorical   2875          0.042         3   secondary      0.526</span>
+<span class="go">default    categorical   3000          0.000         2          no      0.984</span>
+<span class="go">balance        numeric   3000          0.000      1808           0      0.077</span>
+<span class="go">housing    categorical   3000          0.000         2         yes      0.567</span>
+<span class="go">loan       categorical   3000          0.000         2          no      0.844</span>
+<span class="go">contact    categorical   2137          0.288         2    cellular      0.916</span>
+<span class="go">day            numeric   3000          0.000        31          20      0.053</span>
+<span class="go">month      categorical   3000          0.000        12         may      0.307</span>
+<span class="go">duration       numeric   3000          0.000       764         121      0.007</span>
+<span class="go">campaign       numeric   3000          0.000        29           1      0.385</span>
+<span class="go">pdays          numeric   3000          0.000       246          -1      0.825</span>
+<span class="go">previous       numeric   3000          0.000        18           0      0.825</span>
+<span class="go">poutcome   categorical    525          0.825         3     failure      0.613</span>
+</pre></div>
+</div>
+<p>Every column gets one row, indexed by its name:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kind</span></code> is <code class="docutils literal notranslate"><span class="pre">numeric</span></code> for numeric dtypes other than bool and <code class="docutils literal notranslate"><span class="pre">categorical</span></code> for all others, as in <a class="reference internal" href="../api/spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">count</span></code> and <code class="docutils literal notranslate"><span class="pre">missing</span></code> count the rows with and without a value, and <code class="docutils literal notranslate"><span class="pre">missing_share</span></code> is the share of rows without one. <code class="docutils literal notranslate"><span class="pre">poutcome</span></code> is missing for 82.5% of the customers, those who were not in the previous campaign.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">distinct</span></code> is the number of different values.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">top</span></code> is the most frequent value and <code class="docutils literal notranslate"><span class="pre">top_share</span></code> its share of the rows with a value. A share close to 1 marks an almost constant variable: 98.4% of the customers have no <code class="docutils literal notranslate"><span class="pre">default</span></code>.</p></li>
+</ul>
+</section>
+<section id="distribution-of-numeric-variables">
+<h2>Distribution of numeric variables<a class="headerlink" href="#distribution-of-numeric-variables" title="Link to this heading">#</a></h2>
+<p>Numeric columns also get the mean, the sample standard deviation, the smallest value, the 1%, 50% and 99% quantiles and the largest value. Categorical columns get NaN:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">numeric</span> <span class="o">=</span> <span class="n">profile</span><span class="p">[</span><span class="s2">"kind"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"numeric"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">numeric</span><span class="p">,</span> <span class="p">[</span><span class="s2">"min"</span><span class="p">,</span> <span class="s2">"q01"</span><span class="p">,</span> <span class="s2">"q50"</span><span class="p">,</span> <span class="s2">"q99"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">]]</span>
+<span class="go">             min    q01    q50       q99      max</span>
+<span class="go">variable</span>
+<span class="go">age         19.0   23.0   39.0     71.01     86.0</span>
+<span class="go">balance  -2082.0 -701.0  461.5  13343.52  42045.0</span>
+<span class="go">day          1.0    2.0   16.0     31.00     31.0</span>
+<span class="go">duration     4.0   11.0  185.0   1259.16   3025.0</span>
+<span class="go">campaign     1.0    1.0    2.0     15.00     50.0</span>
+<span class="go">pdays       -1.0   -1.0   -1.0    370.01    871.0</span>
+<span class="go">previous     0.0    0.0    0.0      8.00     20.0</span>
+</pre></div>
+</div>
+<p>The 1% and 99% quantiles show the range of the bulk of the values. The largest <code class="docutils literal notranslate"><span class="pre">balance</span></code> is three times its 99% quantile, so a few customers have far larger balances than the rest. The median of <code class="docutils literal notranslate"><span class="pre">pdays</span></code> is -1, the code for a customer who was never contacted before.</p>
+</section>
+<section id="screening-by-iv">
+<h2>Screening by IV<a class="headerlink" href="#screening-by-iv" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">iv</span></code> column is the information value of a quick binning: <code class="docutils literal notranslate"><span class="pre">bins</span></code> quantile bins from <a class="reference internal" href="../api/binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a> for numeric columns, with a group for each special code, and the labels for categorical ones. Missing values form a group of their own. The <code class="docutils literal notranslate"><span class="pre">gini</span></code> column is the Gini coefficient of the values of a numeric column used as a score: positive when events have higher values, negative when they have lower ones.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ranking</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"iv"</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ranking</span><span class="p">[[</span><span class="s2">"kind"</span><span class="p">,</span> <span class="s2">"iv"</span><span class="p">,</span> <span class="s2">"tied_bins"</span><span class="p">,</span> <span class="s2">"gini"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                  kind     iv  tied_bins   gini</span>
+<span class="go">variable</span>
+<span class="go">duration       numeric  1.594      False  0.627</span>
+<span class="go">poutcome   categorical  0.423      False    NaN</span>
+<span class="go">month      categorical  0.334      False    NaN</span>
+<span class="go">contact    categorical  0.215      False    NaN</span>
+<span class="go">job        categorical  0.137      False    NaN</span>
+<span class="go">housing    categorical  0.108      False    NaN</span>
+<span class="go">balance        numeric  0.099      False  0.183</span>
+<span class="go">loan       categorical  0.059      False    NaN</span>
+<span class="go">education  categorical  0.050      False    NaN</span>
+<span class="go">marital    categorical  0.049      False    NaN</span>
+<span class="go">campaign       numeric  0.031       True -0.093</span>
+<span class="go">age            numeric  0.019      False  0.009</span>
+<span class="go">day            numeric  0.011      False -0.048</span>
+<span class="go">default    categorical  0.000      False    NaN</span>
+<span class="go">pdays          numeric  0.000       True  0.175</span>
+<span class="go">previous       numeric  0.000       True  0.199</span>
+</pre></div>
+</div>
+<p>These are the IVs of the screening step of <a class="reference internal" href="risk_workflow.html"><span class="doc">Risk modeling workflow</span></a>, which bins every candidate in the same way. <code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> warns about tied quantiles; <a class="reference internal" href="../api/univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> records them in <code class="docutils literal notranslate"><span class="pre">tied_bins</span></code> instead, so profiling many columns raises no warnings. Most values of <code class="docutils literal notranslate"><span class="pre">pdays</span></code> and <code class="docutils literal notranslate"><span class="pre">previous</span></code> are -1 and 0, so their tied quantiles merge into a single bin, and their IV of 0 understates them until they are binned with care: <code class="docutils literal notranslate"><span class="pre">pdays</span></code> with its special code, as below, and <code class="docutils literal notranslate"><span class="pre">previous</span></code> with custom edges.</p>
+<p>The quick binning gives a first ranking, not a final one. Five quantile bins can miss a pattern that other edges would show, and a categorical variable with many rare labels gets an inflated IV until its categories are grouped as in <a class="reference internal" href="binning.html#category-groups"><span class="std std-ref">Grouping categories</span></a>. Read the ranking critically, as the workflow does, and bin the shortlist with care in <a class="reference internal" href="binning.html"><span class="doc">Binning</span></a>.</p>
+</section>
+<section id="special-values">
+<h2>Special values<a class="headerlink" href="#special-values" title="Link to this heading">#</a></h2>
+<p>A special code such as <code class="docutils literal notranslate"><span class="pre">pdays</span> <span class="pre">==</span> <span class="pre">-1</span></code> is a value, not a number on the scale of the others. Pass it in <code class="docutils literal notranslate"><span class="pre">special</span></code>, by column as in <a class="reference internal" href="../api/spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a>. The code still counts as a value in <code class="docutils literal notranslate"><span class="pre">count</span></code>, <code class="docutils literal notranslate"><span class="pre">distinct</span></code> and <code class="docutils literal notranslate"><span class="pre">top</span></code>, but <code class="docutils literal notranslate"><span class="pre">special</span></code> and <code class="docutils literal notranslate"><span class="pre">special_share</span></code> count it separately, and the numeric summary, the Gini coefficient and the quick binning leave it out:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">coded</span> <span class="o">=</span> <span class="n">profile_table</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">special</span><span class="o">=</span><span class="p">{</span><span class="s2">"pdays"</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coded</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="s2">"pdays"</span><span class="p">],</span> <span class="p">[</span><span class="s2">"special_share"</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">,</span> <span class="s2">"q50"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">,</span> <span class="s2">"gini"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">          special_share  min    q50    max   gini</span>
+<span class="go">variable</span>
+<span class="go">pdays             0.825  1.0  188.0  871.0 -0.332</span>
+</pre></div>
+</div>
+<p>Among the customers contacted before, half were contacted more than 188 days earlier.</p>
+<p>Left out of the quick binning, the code gets a group of its own, and the other values fill the five quantile bins. The IV of <code class="docutils literal notranslate"><span class="pre">pdays</span></code> rises from 0 to 0.355, the third highest of all the candidates:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">coded</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="s2">"pdays"</span><span class="p">],</span> <span class="p">[</span><span class="s2">"iv"</span><span class="p">,</span> <span class="s2">"tied_bins"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">             iv  tied_bins</span>
+<span class="go">variable</span>
+<span class="go">pdays     0.355      False</span>
+</pre></div>
+</div>
+<p>The Gini coefficient of <code class="docutils literal notranslate"><span class="pre">pdays</span></code> was 0.175 when the code -1 counted as the lowest value; among the customers contacted before, a more recent contact goes with more responses, so the sign turns.</p>
+</section>
+<section id="missing-values">
+<h2>Missing values<a class="headerlink" href="#missing-values" title="Link to this heading">#</a></h2>
+<p>With a target, every column also gets the event rate of all rows, <code class="docutils literal notranslate"><span class="pre">event_rate</span></code>, and the event rates of the rows without and with a value, <code class="docutils literal notranslate"><span class="pre">missing_event_rate</span></code> and <code class="docutils literal notranslate"><span class="pre">non_missing_event_rate</span></code>. The lifts divide them by <code class="docutils literal notranslate"><span class="pre">event_rate</span></code>, so a lift above 1 marks rows riskier than average:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">missing</span> <span class="o">=</span> <span class="n">profile</span><span class="p">[</span><span class="s2">"missing"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">missing</span><span class="p">,</span> <span class="p">[</span><span class="s2">"missing_share"</span><span class="p">,</span> <span class="s2">"missing_event_rate"</span><span class="p">,</span> <span class="s2">"missing_lift"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">           missing_share  missing_event_rate  missing_lift</span>
+<span class="go">variable</span>
+<span class="go">job                0.008               0.160         1.379</span>
+<span class="go">education          0.042               0.080         0.690</span>
+<span class="go">contact            0.288               0.050         0.430</span>
+<span class="go">poutcome           0.825               0.092         0.794</span>
+</pre></div>
+</div>
+<p>Customers whose contact type is missing responded at 5.0%, less than half the rate of 11.6% of all customers. A missing value that carries information like this is worth its own group in the binning, which <a class="reference internal" href="../api/woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_table()</span></code></a> gives it.</p>
+<figure class="align-default" id="id1">
+<img alt="Share of missing values and their lift for job, education, contact and poutcome" class="plot-directive" src="../_images/univariate-1.svg" />
+<figcaption>
+<p><span class="caption-text">Share of missing values and their lift for the four columns with missing values. The missing values of <code class="docutils literal notranslate"><span class="pre">job</span></code> respond more often than average, those of the other columns less often.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="sample-weights">
+<h2>Sample weights<a class="headerlink" href="#sample-weights" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> takes <code class="docutils literal notranslate"><span class="pre">weights</span></code>, for example the inverse of the sampling rate of each row. Counts become sums of weights and every statistic is weighted, so integer weights give the same table as repeating rows with unit weights. The quantiles are then weighted quantiles by the inverted CDF, as the edges of <a class="reference internal" href="../api/binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a>, while the unweighted quantiles interpolate. Weights therefore change the quantiles and, through the edges of the quick binning, <code class="docutils literal notranslate"><span class="pre">iv</span></code> and <code class="docutils literal notranslate"><span class="pre">tied_bins</span></code>, even when they are all 1; every other column equals that of the repeated rows without weights. Without <code class="docutils literal notranslate"><span class="pre">target</span></code>, the table has only the columns that describe the variables.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="risk_workflow.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Risk modeling workflow</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="binning.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Binning</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#profiling-the-candidates">Profiling the candidates</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#distribution-of-numeric-variables">Distribution of numeric variables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#screening-by-iv">Screening by IV</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#special-values">Special values</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-values">Missing values</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-weights">Sample weights</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

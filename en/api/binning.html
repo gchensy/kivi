@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Binning &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=e03d16b7" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=a85d417d"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/binning';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Weight of evidence and information value" href="woe.html" />
+    <link rel="prev" title="Univariate profile" href="univariate.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.8.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 0.8.0">0.8.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/binning.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/binning.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Binning</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.binning">
+<span id="binning"></span><h1>Binning<a class="headerlink" href="#module-kivi.binning" title="Link to this heading">#</a></h1>
+<p>Fit bin edges on a reference sample and group every sample with the same edges. <a class="reference internal" href="#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a> fits quantile or uniform edges from the values alone; <a class="reference internal" href="#kivi.binning.chimerge_edges" title="kivi.binning.chimerge_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">chimerge_edges()</span></code></a>, <a class="reference internal" href="#kivi.binning.tree_edges" title="kivi.binning.tree_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">tree_edges()</span></code></a> and <a class="reference internal" href="#kivi.binning.monotonic_edges" title="kivi.binning.monotonic_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">monotonic_edges()</span></code></a> also use a binary target. <a class="reference internal" href="#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-func docutils literal notranslate"><span class="pre">cut()</span></code></a> groups a sample and gives each special code a group of its own.</p>
+<p>For categorical variables, <a class="reference internal" href="#kivi.binning.category_groups" title="kivi.binning.category_groups"><code class="xref py py-func docutils literal notranslate"><span class="pre">category_groups()</span></code></a> pools rare categories and <a class="reference internal" href="#kivi.binning.chimerge_groups" title="kivi.binning.chimerge_groups"><code class="xref py py-func docutils literal notranslate"><span class="pre">chimerge_groups()</span></code></a> merges categories with similar event rates; <a class="reference internal" href="#kivi.binning.group_categories" title="kivi.binning.group_categories"><code class="xref py py-func docutils literal notranslate"><span class="pre">group_categories()</span></code></a> applies the resulting dict to a sample.</p>
+<p>See <a class="reference internal" href="../user_guide/binning.html"><span class="doc">Binning</span></a> for examples and how to choose the edges.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bin_edges</span></code></a>(values[, bins, method, special, ...])</p></td>
+<td><p>Fit numeric bin edges on a reference sample.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cut</span></code></a>(values, edges, *[, special])</p></td>
+<td><p>Assign values to bins, with a separate group for each special value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.binning.chimerge_edges" title="kivi.binning.chimerge_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chimerge_edges</span></code></a>(values, target, *[, ...])</p></td>
+<td><p>Fit edges by merging adjacent quantile bins with ChiMerge.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.binning.tree_edges" title="kivi.binning.tree_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tree_edges</span></code></a>(values, target, *[, max_bins, ...])</p></td>
+<td><p>Fit edges with the splits of a decision tree on one variable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.binning.monotonic_edges" title="kivi.binning.monotonic_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">monotonic_edges</span></code></a>(values, target, *[, ...])</p></td>
+<td><p>Fit edges by merging adjacent quantile bins until the WOE is monotonic.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.binning.category_groups" title="kivi.binning.category_groups"><code class="xref py py-obj docutils literal notranslate"><span class="pre">category_groups</span></code></a>(values, *[, min_share, ...])</p></td>
+<td><p>Fit a grouping that pools the rare categories of a reference sample.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.binning.chimerge_groups" title="kivi.binning.chimerge_groups"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chimerge_groups</span></code></a>(values, target, *[, ...])</p></td>
+<td><p>Fit a grouping that merges categories with similar event rates by ChiMerge.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.binning.group_categories" title="kivi.binning.group_categories"><code class="xref py py-obj docutils literal notranslate"><span class="pre">group_categories</span></code></a>(values, groups, *[, unseen])</p></td>
+<td><p>Assign category labels to the groups of a fitted grouping.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.binning.bin_edges">
+<span class="sig-prename descclassname"><span class="pre">kivi.binning.</span></span><span class="sig-name descname"><span class="pre">bin_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'quantile'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">special</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.binning.bin_edges" title="Link to this definition">#</a></dt>
+<dd><p>Fit numeric bin edges on a reference sample.</p>
+<p>The edges are fitted once and then applied with <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> to the
+reference and to every sample compared with it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>values</strong><span class="classifier">array_like</span></dt><dd><p>One-dimensional numeric reference values, such as a list, a NumPy
+array or a pandas Series. Missing values are omitted.</p>
+</dd>
+<dt><strong>bins</strong><span class="classifier">int, default 5</span></dt><dd><p>Requested number of bins. Tied quantiles can reduce this number.</p>
+</dd>
+<dt><strong>method</strong><span class="classifier">{“quantile”, “uniform”}, default “quantile”</span></dt><dd><p>Use sample quantiles or equally spaced edges.</p>
+</dd>
+<dt><strong>special</strong><span class="classifier">array_like, optional</span></dt><dd><p>Special values, such as codes for “not applicable”, that are omitted
+when the edges are fitted. Pass the same values to <cite>cut</cite> so that each
+one forms its own group.</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like, optional</span></dt><dd><p>Non-negative weight of each value, for example the inverse of its
+sampling rate. Values with zero weight are left out. With weights,
+quantile edges are weighted quantiles by the inverted CDF, so every
+interior edge is an observed value.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>Increasing edges with infinite endpoints, suitable for pandas.cut.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>bins</cite> is not a positive integer, <cite>method</cite> is not recognized,
+<cite>values</cite> is not one-dimensional or not numeric, <cite>special</cite> is not
+one-dimensional or contains a missing value or a boolean, or the
+reference has no observations or contains an infinite value apart from
+special values.
+Also if <cite>weights</cite> is not numeric, does not give each value one finite,
+non-negative weight with a positive total, or has an index other than
+that of <cite>values</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Warns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>UserWarning</dt><dd><p>If tied edges leave fewer bins than requested, for example when a
+single value accounts for a large share of the reference.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cut</span></code></a></dt><dd><p>Assign values to bins, with a separate group for each special value.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">pandas.cut</span></code></dt><dd><p>Assign values to the bins defined by the edges.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.quantile</span></code></dt><dd><p>Compute the quantile edges.</p>
+</dd>
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code></a></dt><dd><p>Weight of evidence of the resulting groups.</p>
+</dd>
+<dt><a class="reference internal" href="stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.stability.psi_table</span></code></a></dt><dd><p>Stability of the resulting groups.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Quantile edges are the sample quantiles at equally spaced probabilities,
+computed with the default linear interpolation of <code class="docutils literal notranslate"><span class="pre">numpy.quantile</span></code>.
+Uniform edges divide the range from the smallest to the largest value
+into equal widths.</p>
+<p>Repeated edges are merged, and the outer edges are replaced with
+infinities, so every finite value falls into exactly one interval. The
+intervals of <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> are closed on the right.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">bin_edges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">values</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">90</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">bin_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span>
+<span class="go">array([-inf,  30.,  60.,  inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">200</span><span class="p">]),</span> <span class="n">edges</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[0, 1, 2]</span>
+</pre></div>
+</div>
+<p>A special value is left out of the fit:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bin_edges</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">special</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="go">array([-inf,  25.,  inf])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.binning.cut">
+<span class="sig-prename descclassname"><span class="pre">kivi.binning.</span></span><span class="sig-name descname"><span class="pre">cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">special</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.binning.cut" title="Link to this definition">#</a></dt>
+<dd><p>Assign values to bins, with a separate group for each special value.</p>
+<p>Without <cite>special</cite> the result is the same as <code class="docutils literal notranslate"><span class="pre">pandas.cut(values,</span> <span class="pre">edges)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>values</strong><span class="classifier">array_like</span></dt><dd><p>One-dimensional numeric values to assign. Missing values stay missing.</p>
+</dd>
+<dt><strong>edges</strong><span class="classifier">array_like</span></dt><dd><p>Increasing bin edges, usually from <cite>bin_edges</cite>.</p>
+</dd>
+<dt><strong>special</strong><span class="classifier">array_like, optional</span></dt><dd><p>Special values that each form their own group instead of falling into
+an interval. Use the values passed to <cite>bin_edges</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series or pandas.Categorical</dt><dd><p>Categorical groups whose categories are the special values, in the
+order given, followed by the intervals. A Series input gives a Series
+with the same index and name.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>values</cite> is not one-dimensional or is not numeric apart from special
+values, <cite>edges</cite> does not increase, or <cite>special</cite> is not one-dimensional
+or contains a missing value or a boolean.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bin_edges</span></code></a></dt><dd><p>Fit the edges on a reference sample.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">pandas.cut</span></code></dt><dd><p>Assign values to intervals only.</p>
+</dd>
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code></a></dt><dd><p>Weight of evidence of the resulting groups.</p>
+</dd>
+<dt><a class="reference internal" href="stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.stability.psi_table</span></code></a></dt><dd><p>Stability of the resulting groups.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>A special value is matched by equality, so <code class="docutils literal notranslate"><span class="pre">-1</span></code> and <code class="docutils literal notranslate"><span class="pre">-1.0</span></code> are the
+same code. Values that are not numbers, such as strings read from a
+file, are also matched after conversion with <code class="docutils literal notranslate"><span class="pre">pandas.to_numeric</span></code>, so
+the string <code class="docutils literal notranslate"><span class="pre">&quot;-1&quot;</span></code> falls into the group of the code <code class="docutils literal notranslate"><span class="pre">-1</span></code>. Values
+outside the edges become missing, as with <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code>; the infinite
+outer edges of <cite>bin_edges</cite> avoid this.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">cut</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">values</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cut</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">),</span> <span class="mi">25</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">)],</span> <span class="n">special</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="go">0          -1</span>
+<span class="go">1    (-inf, 25.0]</span>
+<span class="go">2     (25.0, inf]</span>
+<span class="go">3             NaN</span>
+<span class="go">4          -1</span>
+<span class="go">dtype: category</span>
+<span class="go">Categories (3, object): [-1, (-inf, 25.0], (25.0, inf]]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.binning.chimerge_edges">
+<span class="sig-prename descclassname"><span class="pre">kivi.binning.</span></span><span class="sig-name descname"><span class="pre">chimerge_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">special</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.binning.chimerge_edges" title="Link to this definition">#</a></dt>
+<dd><p>Fit edges by merging adjacent quantile bins with ChiMerge.</p>
+<p>The values are first cut into <code class="docutils literal notranslate"><span class="pre">initial_bins</span></code> quantile bins, or into one
+bin per distinct value if there are no more distinct values than that.
+The adjacent pair with the smallest chi-square statistic, the pair whose
+event rates are most alike, is then merged, and merging is repeated while
+more than <code class="docutils literal notranslate"><span class="pre">max_bins</span></code> bins remain or while some adjacent pair is not
+significantly different at level <code class="docutils literal notranslate"><span class="pre">alpha</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>values</strong><span class="classifier">array_like</span></dt><dd><p>One-dimensional numeric values, such as a list, a NumPy array or a
+pandas Series. Missing values and their labels are omitted.</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>Binary labels, with 1 indicating the event. If <cite>values</cite> and <cite>target</cite>
+are both pandas Series, they must have identical indices; otherwise
+they are matched by position.</p>
+</dd>
+<dt><strong>max_bins</strong><span class="classifier">int, default 5</span></dt><dd><p>Maximum number of bins.</p>
+</dd>
+<dt><strong>alpha</strong><span class="classifier">float or None, default 0.05</span></dt><dd><p>Significance level of the chi-square test with one degree of freedom.
+Adjacent bins are merged until every pair differs at this level. Pass
+None to merge down to <code class="docutils literal notranslate"><span class="pre">max_bins</span></code> only.</p>
+</dd>
+<dt><strong>initial_bins</strong><span class="classifier">int, default 20</span></dt><dd><p>Number of quantile bins to start from. Tied quantiles can reduce it.</p>
+</dd>
+<dt><strong>special</strong><span class="classifier">array_like, optional</span></dt><dd><p>Special values, such as codes for “not applicable”, that are omitted
+with their labels when the edges are fitted. Pass the same values to
+<cite>cut</cite> so that each one forms its own group.</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like, optional</span></dt><dd><p>Non-negative weight of each observation, for example the inverse of
+its sampling rate, matched like <cite>target</cite>. Observations with zero
+weight are left out, and the counts in each bin are sums of weights.
+The initial quantile bins then use weighted quantiles by the inverted
+CDF, so unit weights can give other edges than no weights when there
+are more distinct values than <cite>initial_bins</cite>.
+The chi-square test treats the weighted counts as counts, so scale
+the weights to sum to the sample size when the p-values matter.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>Increasing edges with infinite endpoints, suitable for pandas.cut.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>max_bins</cite> or <cite>initial_bins</cite> is not a positive integer, <cite>alpha</cite> is
+neither None nor between 0 and 1, <cite>values</cite> and <cite>target</cite> are not
+one-dimensional or their indices or lengths do not match, <cite>special</cite> is
+not one-dimensional or contains a missing value or a boolean, <cite>values</cite>
+is not numeric or has no finite observations apart from missing and
+special values, or <cite>target</cite> has labels other than 0 and 1 or lacks one
+of them in the rows that are fitted.
+Also if <cite>weights</cite> is not numeric, does not give each value one finite,
+non-negative weight with a positive total, or has an index other than
+that of <cite>values</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.binning.tree_edges" title="kivi.binning.tree_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tree_edges</span></code></a></dt><dd><p>Split the values recursively instead of merging.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.monotonic_edges" title="kivi.binning.monotonic_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">monotonic_edges</span></code></a></dt><dd><p>Merge until the WOE is monotonic.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cut</span></code></a></dt><dd><p>Assign values to bins, with a separate group for each special value.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>For an adjacent pair of bins with observed counts <span class="math notranslate nohighlight">\(O_{ij}\)</span> (bin
+<span class="math notranslate nohighlight">\(i\)</span>, class <span class="math notranslate nohighlight">\(j\)</span>) and expected counts
+<span class="math notranslate nohighlight">\(E_{ij} = R_i C_j / N\)</span> under equal event rates,</p>
+<div class="math notranslate nohighlight">
+\[\chi^2 = \sum_{i=1}^{2} \sum_{j=0}^{1} \frac{(O_{ij} - E_{ij})^2}{E_{ij}}\]</div>
+<p>where cells with <span class="math notranslate nohighlight">\(E_{ij} = 0\)</span> contribute nothing. A pair stays
+separate when the p-value of <span class="math notranslate nohighlight">\(\chi^2\)</span> is below <code class="docutils literal notranslate"><span class="pre">alpha</span></code>.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">chimerge_edges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">values</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chimerge_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="go">array([-inf,   4.,  inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chimerge_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">max_bins</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="go">array([-inf,   4.,   9.,  inf])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.binning.tree_edges">
+<span class="sig-prename descclassname"><span class="pre">kivi.binning.</span></span><span class="sig-name descname"><span class="pre">tree_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_bin_share</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'entropy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">special</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.binning.tree_edges" title="Link to this definition">#</a></dt>
+<dd><p>Fit edges with the splits of a decision tree on one variable.</p>
+<p>The tree grows best first: of all current bins, the one whose best split
+most reduces the total impurity is split next, until there are
+<code class="docutils literal notranslate"><span class="pre">max_bins</span></code> bins or no split reduces the impurity while leaving at
+least <code class="docutils literal notranslate"><span class="pre">min_bin_share</span></code> of the observations on each side.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>values</strong><span class="classifier">array_like</span></dt><dd><p>One-dimensional numeric values, such as a list, a NumPy array or a
+pandas Series. Missing values and their labels are omitted.</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>Binary labels, with 1 indicating the event. If <cite>values</cite> and <cite>target</cite>
+are both pandas Series, they must have identical indices; otherwise
+they are matched by position.</p>
+</dd>
+<dt><strong>max_bins</strong><span class="classifier">int, default 5</span></dt><dd><p>Maximum number of bins, the leaves of the tree.</p>
+</dd>
+<dt><strong>min_bin_share</strong><span class="classifier">float, default 0.05</span></dt><dd><p>Minimum share of the fitted values in every bin, from 0 to 0.5, or of
+their total weight when <cite>weights</cite> is given. Missing and special values
+do not count towards it.</p>
+</dd>
+<dt><strong>criterion</strong><span class="classifier">{“entropy”, “gini”}, default “entropy”</span></dt><dd><p>Impurity measure: entropy for information gain, or the Gini index.</p>
+</dd>
+<dt><strong>special</strong><span class="classifier">array_like, optional</span></dt><dd><p>Special values, such as codes for “not applicable”, that are omitted
+with their labels when the edges are fitted. Pass the same values to
+<cite>cut</cite> so that each one forms its own group.</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like, optional</span></dt><dd><p>Non-negative weight of each observation, for example the inverse of
+its sampling rate, matched like <cite>target</cite>. Observations with zero
+weight are left out, and the counts in each bin are sums of weights.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>Increasing edges with infinite endpoints, suitable for pandas.cut.
+Every interior edge is an observed value, the largest one in the bin
+to its left.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>max_bins</cite> is not a positive integer, <cite>min_bin_share</cite> is not between
+0 and 0.5, <cite>criterion</cite> is not recognized, <cite>values</cite> and <cite>target</cite> are not
+one-dimensional or their indices or lengths do not match, <cite>special</cite> is
+not one-dimensional or contains a missing value or a boolean, <cite>values</cite>
+is not numeric or has no finite observations apart from missing and
+special values, or <cite>target</cite> has labels other than 0 and 1 or lacks one
+of them in the rows that are fitted.
+Also if <cite>weights</cite> is not numeric, does not give each value one finite,
+non-negative weight with a positive total, or has an index other than
+that of <cite>values</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.binning.chimerge_edges" title="kivi.binning.chimerge_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chimerge_edges</span></code></a></dt><dd><p>Merge fine bins instead of splitting.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.monotonic_edges" title="kivi.binning.monotonic_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">monotonic_edges</span></code></a></dt><dd><p>Merge until the WOE is monotonic.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cut</span></code></a></dt><dd><p>Assign values to bins, with a separate group for each special value.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>For a bin with <span class="math notranslate nohighlight">\(n\)</span> observations (their total weight, with
+<cite>weights</cite>) and event rate <span class="math notranslate nohighlight">\(p\)</span>, the
+impurity is <span class="math notranslate nohighlight">\(H(p) = -p \ln p - (1 - p) \ln(1 - p)\)</span> (entropy) or
+<span class="math notranslate nohighlight">\(G(p) = 2p(1 - p)\)</span> (Gini). A split into <span class="math notranslate nohighlight">\(n_L\)</span> and
+<span class="math notranslate nohighlight">\(n_R\)</span> observations reduces the total impurity by
+<span class="math notranslate nohighlight">\(n H(p) - n_L H(p_L) - n_R H(p_R)\)</span>, and the largest reduction over
+all bins and cut points is chosen.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">tree_edges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">values</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tree_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">max_bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">array([-inf,   4.,  inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tree_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">max_bins</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([-inf,   4.,   8.,   9.,  inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tree_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">max_bins</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">min_bin_share</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="go">array([-inf,   4.,   6.,   9.,  inf])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.binning.monotonic_edges">
+<span class="sig-prename descclassname"><span class="pre">kivi.binning.</span></span><span class="sig-name descname"><span class="pre">monotonic_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">special</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.binning.monotonic_edges" title="Link to this definition">#</a></dt>
+<dd><p>Fit edges by merging adjacent quantile bins until the WOE is monotonic.</p>
+<p>The values are first cut into <code class="docutils literal notranslate"><span class="pre">initial_bins</span></code> quantile bins, or into one
+bin per distinct value if there are no more distinct values than that.
+While two adjacent bins break the trend, the first such pair is merged and
+the WOE is recomputed (pool adjacent violators), so the WOE of the final
+bins is strictly increasing or strictly decreasing. While more than <code class="docutils literal notranslate"><span class="pre">max_bins</span></code>
+bins remain, the adjacent pair with the smallest chi-square statistic is
+merged as in <a class="reference internal" href="#kivi.binning.chimerge_edges" title="kivi.binning.chimerge_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">chimerge_edges()</span></code></a>, and the trend is checked again.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>values</strong><span class="classifier">array_like</span></dt><dd><p>One-dimensional numeric values, such as a list, a NumPy array or a
+pandas Series. Missing values and their labels are omitted.</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>Binary labels, with 1 indicating the event. If <cite>values</cite> and <cite>target</cite>
+are both pandas Series, they must have identical indices; otherwise
+they are matched by position.</p>
+</dd>
+<dt><strong>max_bins</strong><span class="classifier">int or None, default 5</span></dt><dd><p>Maximum number of bins. Pass None to stop as soon as the WOE is
+monotonic.</p>
+</dd>
+<dt><strong>direction</strong><span class="classifier">{“auto”, “increasing”, “decreasing”}, default “auto”</span></dt><dd><p>Trend of the WOE as the values grow. <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> fits both directions
+and keeps the one with the larger information value, preferring
+<code class="docutils literal notranslate"><span class="pre">&quot;increasing&quot;</span></code> on a tie.</p>
+</dd>
+<dt><strong>initial_bins</strong><span class="classifier">int, default 20</span></dt><dd><p>Number of quantile bins to start from. Tied quantiles can reduce it.</p>
+</dd>
+<dt><strong>smoothing</strong><span class="classifier">float, default 0.5</span></dt><dd><p>Positive replacement for a zero count when calculating the WOE, as in
+<a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.woe.woe_table()</span></code></a>. Use the same value there to see the same
+trend.</p>
+</dd>
+<dt><strong>special</strong><span class="classifier">array_like, optional</span></dt><dd><p>Special values, such as codes for “not applicable”, that are omitted
+with their labels when the edges are fitted. Pass the same values to
+<cite>cut</cite> so that each one forms its own group. The trend applies to the
+intervals only; a special group can have any WOE.</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like, optional</span></dt><dd><p>Non-negative weight of each observation, for example the inverse of
+its sampling rate, matched like <cite>target</cite>. Observations with zero
+weight are left out, and the counts in each bin are sums of weights.
+The initial quantile bins then use weighted quantiles by the inverted
+CDF, so unit weights can give other edges than no weights when there
+are more distinct values than <cite>initial_bins</cite>. <cite>smoothing</cite> is then in
+units of weight.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>Increasing edges with infinite endpoints, suitable for pandas.cut.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>max_bins</cite> is neither None nor a positive integer, <cite>initial_bins</cite> is
+not a positive integer, <cite>direction</cite> is not recognized, <cite>smoothing</cite> is
+not finite and positive, <cite>values</cite> and <cite>target</cite> are not one-dimensional
+or their indices or lengths do not match, <cite>special</cite> is not
+one-dimensional or contains a missing value or a boolean, <cite>values</cite> is
+not numeric or has no finite observations apart from missing and
+special values, or <cite>target</cite> has labels other than 0 and 1 or lacks one
+of them in the rows that are fitted.
+Also if <cite>weights</cite> is not numeric, does not give each value one finite,
+non-negative weight with a positive total, or has an index other than
+that of <cite>values</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.binning.chimerge_edges" title="kivi.binning.chimerge_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chimerge_edges</span></code></a></dt><dd><p>Merge fine bins by a chi-square test.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.tree_edges" title="kivi.binning.tree_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tree_edges</span></code></a></dt><dd><p>Split the values recursively.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cut</span></code></a></dt><dd><p>Assign values to bins, with a separate group for each special value.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">monotonic_edges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">values</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">monotonic_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span>
+<span class="go">array([-inf,   4.,   6.,  inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">woe_table</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">edges</span><span class="p">),</span> <span class="n">target</span><span class="p">)[</span><span class="s2">"woe"</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[-2.159, -0.08, 1.529]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">monotonic_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">"decreasing"</span><span class="p">)</span>
+<span class="go">array([-inf,  inf])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.binning.category_groups">
+<span class="sig-prename descclassname"><span class="pre">kivi.binning.</span></span><span class="sig-name descname"><span class="pre">category_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_share</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rare_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'other'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">special</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.binning.category_groups" title="Link to this definition">#</a></dt>
+<dd><p>Fit a grouping that pools the rare categories of a reference sample.</p>
+<p>A category is rare when it makes up less than <code class="docutils literal notranslate"><span class="pre">min_share</span></code> of the fitted
+values or has fewer than <code class="docutils literal notranslate"><span class="pre">min_count</span></code> of them. The rare categories form
+one group labelled <code class="docutils literal notranslate"><span class="pre">rare_label</span></code>, and every other category is a group of
+its own. Apply the grouping with <cite>group_categories</cite> to the reference and
+to every sample compared with it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>values</strong><span class="classifier">array_like</span></dt><dd><p>One-dimensional category labels of the reference sample, such as a
+list, a NumPy array or a pandas Series of strings. Missing values are
+omitted.</p>
+</dd>
+<dt><strong>min_share</strong><span class="classifier">float, default 0.05</span></dt><dd><p>Share of the fitted values, from 0 to 1, below which a category is
+rare. With <cite>weights</cite>, the share of their total weight.</p>
+</dd>
+<dt><strong>min_count</strong><span class="classifier">float, default 0</span></dt><dd><p>Number of fitted values, or their total weight with <cite>weights</cite>, below
+which a category is rare. The default leaves the decision to
+<cite>min_share</cite>.</p>
+</dd>
+<dt><strong>rare_label</strong><span class="classifier">str, int or float, default “other”</span></dt><dd><p>Label of the group of rare categories. It must differ from the
+categories that are not rare and from the special codes.</p>
+</dd>
+<dt><strong>special</strong><span class="classifier">array_like, optional</span></dt><dd><p>Special codes, such as <code class="docutils literal notranslate"><span class="pre">&quot;unknown&quot;</span></code>, that are omitted when the
+grouping is fitted. Each one is a group of its own, however rare.</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like, optional</span></dt><dd><p>Non-negative weight of each value, for example the inverse of its
+sampling rate. Values with zero weight are left out, and the counts
+of the categories are sums of weights.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>dict</dt><dd><p>The group of each category: first the special codes in the order
+given, then the categories that are not rare, each mapped to itself,
+then the rare categories, mapped to <cite>rare_label</cite>. Categories follow
+the order in which they first appear, or the order of the categories
+of a categorical input.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>values</cite> is not one-dimensional or has no values apart from
+missing, special and zero-weight values, <cite>min_share</cite> is not between 0
+and 1, <cite>min_count</cite> is not a finite, non-negative number, <cite>rare_label</cite>
+is neither a string nor a number or is the label of a category that
+is not rare or of a special code, or <cite>special</cite> is not
+one-dimensional or contains a missing value or a boolean.
+Also if <cite>weights</cite> is not numeric, does not give each value one finite,
+non-negative weight with a positive total, or has an index other than
+that of <cite>values</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.binning.chimerge_groups" title="kivi.binning.chimerge_groups"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chimerge_groups</span></code></a></dt><dd><p>Merge categories with similar event rates.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.group_categories" title="kivi.binning.group_categories"><code class="xref py py-obj docutils literal notranslate"><span class="pre">group_categories</span></code></a></dt><dd><p>Assign values to the fitted groups.</p>
+</dd>
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code></a></dt><dd><p>Weight of evidence of the resulting groups.</p>
+</dd>
+<dt><a class="reference internal" href="stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.stability.psi_table</span></code></a></dt><dd><p>Stability of the resulting groups.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Rare categories are pooled whatever their event rates, so a rare
+category with a high event rate can share a group with one with a low
+rate. <cite>chimerge_groups</cite> uses the target to avoid this. The group of rare
+categories can itself hold less than <cite>min_share</cite> of the values.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">category_groups</span><span class="p">,</span> <span class="n">group_categories</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">values</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"d"</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">groups</span> <span class="o">=</span> <span class="n">category_groups</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">min_share</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">groups</span>
+<span class="go">{'a': 'a', 'b': 'b', 'c': 'other', 'd': 'other'}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">group_categories</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">groups</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">['a', 'a', 'a', 'a', 'b', 'b', 'b', 'other', 'other', nan]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.binning.chimerge_groups">
+<span class="sig-prename descclassname"><span class="pre">kivi.binning.</span></span><span class="sig-name descname"><span class="pre">chimerge_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_group_share</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">special</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.binning.chimerge_groups" title="Link to this definition">#</a></dt>
+<dd><p>Fit a grouping that merges categories with similar event rates by ChiMerge.</p>
+<p>The categories are sorted by their WOE, with zero counts smoothed as in
+<a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.woe.woe_table()</span></code></a>, and neighbours in that order are merged.
+First, while some group holds less than <code class="docutils literal notranslate"><span class="pre">min_group_share</span></code> of the
+fitted values, the smallest one is merged with the neighbour whose
+chi-square statistic with it is smaller. Then, as in <cite>chimerge_edges</cite>,
+the adjacent pair with the smallest chi-square statistic is merged while
+more than <code class="docutils literal notranslate"><span class="pre">max_groups</span></code> groups remain or while some adjacent pair is not
+significantly different at level <code class="docutils literal notranslate"><span class="pre">alpha</span></code>. The groups are sorted by WOE
+again after every merge, so the WOE of the final groups increases from
+the first to the last.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>values</strong><span class="classifier">array_like</span></dt><dd><p>One-dimensional category labels, such as a list, a NumPy array or a
+pandas Series of strings. Missing values and their labels are omitted.</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>Binary labels, with 1 indicating the event. If <cite>values</cite> and <cite>target</cite>
+are both pandas Series, they must have identical indices; otherwise
+they are matched by position.</p>
+</dd>
+<dt><strong>max_groups</strong><span class="classifier">int, default 5</span></dt><dd><p>Maximum number of groups, not counting the special codes.</p>
+</dd>
+<dt><strong>alpha</strong><span class="classifier">float or None, default 0.05</span></dt><dd><p>Significance level of the chi-square test with one degree of freedom.
+Adjacent groups are merged until every pair differs at this level.
+Pass None to merge down to <code class="docutils literal notranslate"><span class="pre">max_groups</span></code> only.</p>
+</dd>
+<dt><strong>min_group_share</strong><span class="classifier">float, default 0.05</span></dt><dd><p>Minimum share of the fitted values in every group, from 0 to 0.5, or
+of their total weight when <cite>weights</cite> is given. Missing and special
+values do not count towards it.</p>
+</dd>
+<dt><strong>smoothing</strong><span class="classifier">float, default 0.5</span></dt><dd><p>Positive replacement for a zero count when calculating the WOE that
+orders the groups, as in <a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.woe.woe_table()</span></code></a>. Use the same
+value there to see the same order.</p>
+</dd>
+<dt><strong>special</strong><span class="classifier">array_like, optional</span></dt><dd><p>Special codes, such as <code class="docutils literal notranslate"><span class="pre">&quot;unknown&quot;</span></code>, that are omitted with their
+labels when the grouping is fitted. Each one is a group of its own.</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like, optional</span></dt><dd><p>Non-negative weight of each observation, for example the inverse of
+its sampling rate, matched like <cite>target</cite>. Observations with zero
+weight are left out, and the counts of each group are sums of
+weights. The chi-square test treats the weighted counts as counts, so
+scale the weights to sum to the sample size when the p-values matter.
+<cite>smoothing</cite> is then in units of weight.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>dict</dt><dd><p>The group of each category: first the special codes in the order
+given, each mapped to itself, then the categories of each group, in
+increasing order of the group’s WOE. A group of one category keeps
+its label; a merged group is labelled with the labels of its
+categories, in increasing order of their own WOE, joined by <code class="docutils literal notranslate"><span class="pre">&quot;,</span> <span class="pre">&quot;</span></code>.
+A group of more than five categories shows the first four, followed
+by <code class="docutils literal notranslate"><span class="pre">&quot;,</span> <span class="pre">...</span> <span class="pre">(+n)&quot;</span></code> with the number <code class="docutils literal notranslate"><span class="pre">n</span></code> of the others.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>max_groups</cite> is not a positive integer, <cite>alpha</cite> is neither None
+nor between 0 and 1, <cite>min_group_share</cite> is not between 0 and 0.5,
+<cite>smoothing</cite> is not finite and positive, <cite>values</cite> and <cite>target</cite> are not
+one-dimensional or their indices or lengths do not match, <cite>special</cite>
+is not one-dimensional or contains a missing value or a boolean,
+<cite>values</cite> has no values apart from missing, special and zero-weight
+values, <cite>target</cite> has labels other than 0 and 1 or lacks one of them
+in the rows that are fitted, or the label of a merged group would be
+the label of another group.
+Also if <cite>weights</cite> is not numeric, does not give each value one finite,
+non-negative weight with a positive total, or has an index other than
+that of <cite>values</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.binning.category_groups" title="kivi.binning.category_groups"><code class="xref py py-obj docutils literal notranslate"><span class="pre">category_groups</span></code></a></dt><dd><p>Pool rare categories without a target.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.chimerge_edges" title="kivi.binning.chimerge_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chimerge_edges</span></code></a></dt><dd><p>Merge the bins of a numeric variable in the same way.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.group_categories" title="kivi.binning.group_categories"><code class="xref py py-obj docutils literal notranslate"><span class="pre">group_categories</span></code></a></dt><dd><p>Assign values to the fitted groups.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The chi-square statistic of two adjacent groups is the one described in
+<cite>chimerge_edges</cite>. Sorting by WOE puts categories with similar event rates
+next to each other, so that each merge joins the categories most alike.
+A category that is not merged is a group of its own, so with
+<code class="docutils literal notranslate"><span class="pre">min_group_share=0</span></code> and <code class="docutils literal notranslate"><span class="pre">alpha=None</span></code> a variable with at most
+<code class="docutils literal notranslate"><span class="pre">max_groups</span></code> categories keeps all of them.</p>
+<p>Ties go to the category that appears first, or that comes first among
+the categories of a categorical input: categories with the same
+smoothed WOE keep that order, and of two pairs, or of two small groups,
+whose statistics or totals agree to a relative 1e-10, the first one is
+merged. Each merge takes time in proportion to the number of groups, so
+the fit takes time in proportion to the square of the number of
+categories, a few seconds for 20,000 of them.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">chimerge_groups</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">values</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"a"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"b"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"c"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"d"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chimerge_groups</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">max_groups</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="go">{'c': 'c, a', 'a': 'c, a', 'b': 'b, d', 'd': 'b, d'}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.binning.group_categories">
+<span class="sig-prename descclassname"><span class="pre">kivi.binning.</span></span><span class="sig-name descname"><span class="pre">group_categories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">unseen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'raise'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.binning.group_categories" title="Link to this definition">#</a></dt>
+<dd><p>Assign category labels to the groups of a fitted grouping.</p>
+<p>Each value is replaced with its group in <cite>groups</cite>, the dict returned by
+<cite>category_groups</cite> or <cite>chimerge_groups</cite>, or one written or edited by
+hand. Missing values stay missing, so <a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.woe.woe_table()</span></code></a> counts
+them as a group of their own.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>values</strong><span class="classifier">array_like</span></dt><dd><p>One-dimensional category labels to assign.</p>
+</dd>
+<dt><strong>groups</strong><span class="classifier">mapping</span></dt><dd><p>Group of each category, as a dict from category to group. Neither a
+category nor a group can be missing.</p>
+</dd>
+<dt><strong>unseen</strong><span class="classifier">default “raise”</span></dt><dd><p>Group of the values whose category is not in <cite>groups</cite>, such as a new
+category: one of the groups in <cite>groups</cite>, for example the group of
+rare categories. By default such values raise an error, so that they
+never become missing values.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series or pandas.Categorical</dt><dd><p>Categorical groups whose categories are the groups in the order in
+which they first appear in <cite>groups</cite>. A Series input gives a Series
+with the same index and name.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>values</cite> is not one-dimensional, <cite>groups</cite> is not a mapping or has
+a missing or non-scalar category or group, <cite>unseen</cite> is neither
+<code class="docutils literal notranslate"><span class="pre">&quot;raise&quot;</span></code> nor one of the groups, or <cite>unseen</cite> is <code class="docutils literal notranslate"><span class="pre">&quot;raise&quot;</span></code> and some
+values are categories that <cite>groups</cite> does not map.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.binning.category_groups" title="kivi.binning.category_groups"><code class="xref py py-obj docutils literal notranslate"><span class="pre">category_groups</span></code></a></dt><dd><p>Pool rare categories.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.chimerge_groups" title="kivi.binning.chimerge_groups"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chimerge_groups</span></code></a></dt><dd><p>Merge categories with similar event rates.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cut</span></code></a></dt><dd><p>Assign numeric values to bins.</p>
+</dd>
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_transform</span></code></a></dt><dd><p>Replace each group with its WOE.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Categories are matched by equality, as in <a class="reference internal" href="woe.html#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.woe.woe_transform()</span></code></a>,
+so <code class="docutils literal notranslate"><span class="pre">1</span></code> and <code class="docutils literal notranslate"><span class="pre">1.0</span></code> are the same category but <code class="docutils literal notranslate"><span class="pre">&quot;1&quot;</span></code> is another. The
+string <code class="docutils literal notranslate"><span class="pre">&quot;raise&quot;</span></code> always raises, so it cannot name the group of unseen
+categories.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">group_categories</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">groups</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"a"</span><span class="p">:</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">:</span> <span class="s2">"b, c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">:</span> <span class="s2">"b, c"</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">group_categories</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"c"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">]),</span> <span class="n">groups</span><span class="p">)</span>
+<span class="go">0    b, c</span>
+<span class="go">1       a</span>
+<span class="go">2     NaN</span>
+<span class="go">3    b, c</span>
+<span class="go">dtype: category</span>
+<span class="go">Categories (2, object): ['a', 'b, c']</span>
+</pre></div>
+</div>
+<p>A category that the grouping does not know raises an error unless
+<cite>unseen</cite> names a group for it:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">group_categories</span><span class="p">([</span><span class="s2">"d"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">],</span> <span class="n">groups</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">values have 1 category that groups does not map, such as 'd'; ...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">group_categories</span><span class="p">([</span><span class="s2">"d"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">],</span> <span class="n">groups</span><span class="p">,</span> <span class="n">unseen</span><span class="o">=</span><span class="s2">"b, c"</span><span class="p">)</span>
+<span class="go">['b, c', 'a']</span>
+<span class="go">Categories (2, object): ['a', 'b, c']</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="univariate.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Univariate profile</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="woe.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Weight of evidence and information value</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.binning.bin_edges"><code class="docutils literal notranslate"><span class="pre">bin_edges()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.binning.cut"><code class="docutils literal notranslate"><span class="pre">cut()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.binning.chimerge_edges"><code class="docutils literal notranslate"><span class="pre">chimerge_edges()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.binning.tree_edges"><code class="docutils literal notranslate"><span class="pre">tree_edges()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.binning.monotonic_edges"><code class="docutils literal notranslate"><span class="pre">monotonic_edges()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.binning.category_groups"><code class="docutils literal notranslate"><span class="pre">category_groups()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.binning.chimerge_groups"><code class="docutils literal notranslate"><span class="pre">chimerge_groups()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.binning.group_categories"><code class="docutils literal notranslate"><span class="pre">group_categories()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

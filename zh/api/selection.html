@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>变量筛选 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=e03d16b7" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=79c7be44"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/selection';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="拒绝推断" href="reject_inference.html" />
+    <link rel="prev" title="证据权重与信息值" href="woe.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="0.8.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 0.8.0">0.8.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/selection.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/selection.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">约定</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">证据权重与信息值</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API 参考</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">变量筛选</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.selection">
+<span id="variable-selection"></span><h1>变量筛选<a class="headerlink" href="#module-kivi.selection" title="链接到此标题。">#</a></h1>
+<p>为评分卡筛选变量，并在 WOE 编码的列上拟合逻辑回归。 <a class="reference internal" href="#kivi.selection.correlation_filter" title="kivi.selection.correlation_filter"><code class="xref py py-func docutils literal notranslate"><span class="pre">correlation_filter()</span></code></a> 和 <a class="reference internal" href="#kivi.selection.vif" title="kivi.selection.vif"><code class="xref py py-func docutils literal notranslate"><span class="pre">vif()</span></code></a> 检查候选变量的共线性， <a class="reference internal" href="#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">logistic_regression()</span></code></a> 和 <a class="reference internal" href="#kivi.selection.stepwise" title="kivi.selection.stepwise"><code class="xref py py-func docutils literal notranslate"><span class="pre">stepwise()</span></code></a> 拟合并筛选模型。</p>
+<p>基于内置数据的变量筛选见 <a class="reference internal" href="../user_guide/selection.html"><span class="doc">变量筛选</span></a> 。</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.selection.correlation_filter" title="kivi.selection.correlation_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correlation_filter</span></code></a>(X, *[, threshold, priority])</p></td>
+<td><p>对每一对强相关的变量，剔除其中一个。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.selection.vif" title="kivi.selection.vif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vif</span></code></a>(X)</p></td>
+<td><p>计算每个变量的方差膨胀因子。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logistic_regression</span></code></a>(X, target, *[, weights])</p></td>
+<td><p>拟合逻辑回归并检验每个系数。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.selection.stepwise" title="kivi.selection.stepwise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stepwise</span></code></a>(X, target, *[, p_enter, p_remove, ...])</p></td>
+<td><p>按 p 值为逻辑回归筛选变量。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.selection.SeparationError" title="kivi.selection.SeparationError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SeparationError</span></code></a></p></td>
+<td><p>两类被完全分开，因此逻辑回归没有估计值。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.selection.correlation_filter">
+<span class="sig-prename descclassname"><span class="pre">kivi.selection.</span></span><span class="sig-name descname"><span class="pre">correlation_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.selection.correlation_filter" title="链接到此定义。">#</a></dt>
+<dd><p>对每一对强相关的变量，剔除其中一个。</p>
+<p>按 <cite>priority</cite> 从高到低依次考察各变量。若某变量与已保留的某个变量的 Pearson 相关系数绝对值超过 <cite>threshold</cite> ，则将其剔除，否则保留。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>X</strong><span class="classifier">pandas.DataFrame 或 array_like</span></dt><dd><p>二维数值，每个变量一列，例如 <cite>kivi.woe.woe_transform</cite> 输出的 WOE 值。</p>
+</dd>
+<dt><strong>threshold</strong><span class="classifier">float，默认 0.7</span></dt><dd><p>两个保留变量之间允许的最大相关系数绝对值，取值在 0 到 1 之间。</p>
+</dd>
+<dt><strong>priority</strong><span class="classifier">array_like，可选</span></dt><dd><p>每列一个数值，例如该变量的信息值；两个相关变量中保留优先级较高的一个。pandas Series 按标签与列对应，其他输入按位置对应。优先级相同时，以及省略 <cite>priority</cite> 时，按列的顺序处理，因此靠前的列被保留。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Index</dt><dd><p>保留列的标签，按 <cite>X</cite> 中的顺序排列。当 <cite>X</cite> 不是 DataFrame 时为列的位置。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>X</cite> 不是二维、少于 2 行或没有列、列标签重复，或者某列不是数值、含有缺失值或无穷值、或为常数；如果 <cite>threshold</cite> 不在 0 到 1 之间；或者 <cite>priority</cite> 没有为每一列给出一个数值。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.selection.vif" title="kivi.selection.vif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vif</span></code></a></dt><dd><p>衡量每个变量能被其他变量解释的程度。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.selection.stepwise" title="kivi.selection.stepwise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stepwise</span></code></a></dt><dd><p>按逻辑回归中的显著性筛选变量。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>变量只会因为与某个保留变量相关而被剔除。若 <code class="docutils literal notranslate"><span class="pre">a</span></code> 与 <code class="docutils literal notranslate"><span class="pre">b</span></code> 相关、 <code class="docutils literal notranslate"><span class="pre">b</span></code> 与 <code class="docutils literal notranslate"><span class="pre">c</span></code> 相关，但 <code class="docutils literal notranslate"><span class="pre">a</span></code> 与 <code class="docutils literal notranslate"><span class="pre">c</span></code> 不相关，且优先级从 <code class="docutils literal notranslate"><span class="pre">a</span></code> 到 <code class="docutils literal notranslate"><span class="pre">c</span></code> 递减，则 <code class="docutils literal notranslate"><span class="pre">b</span></code> 被剔除而 <code class="docutils literal notranslate"><span class="pre">c</span></code> 被保留。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">correlation_filter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"a"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"b"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"c"</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">     a     b     c</span>
+<span class="go">a  1.0  0.90  0.00</span>
+<span class="go">b  0.9  1.00  0.24</span>
+<span class="go">c  0.0  0.24  1.00</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">correlation_filter</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">['a', 'c']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">iv</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="s2">"a"</span><span class="p">:</span> <span class="mf">0.12</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">:</span> <span class="mf">0.31</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">correlation_filter</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">iv</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">['b', 'c']</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.selection.vif">
+<span class="sig-prename descclassname"><span class="pre">kivi.selection.</span></span><span class="sig-name descname"><span class="pre">vif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.selection.vif" title="链接到此定义。">#</a></dt>
+<dd><p>计算每个变量的方差膨胀因子。</p>
+<p>变量的 VIF 衡量在线性回归中其他变量对它的解释程度。与其他变量不相关的变量 VIF 为 1；变量越接近其他变量的线性组合，VIF 越大，且没有上限。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>X</strong><span class="classifier">pandas.DataFrame 或 array_like</span></dt><dd><p>二维数值，每个变量一列，例如 <cite>kivi.woe.woe_transform</cite> 输出的 WOE 值。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series</dt><dd><p>每列的 VIF，以 <cite>X</cite> 的列标签为索引（当 <cite>X</cite> 不是 DataFrame 时为列的位置），名称为 <code class="docutils literal notranslate"><span class="pre">vif</span></code> 。某列是其他列的线性组合时，其 VIF 为无穷大。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>X</cite> 不是二维、少于 2 行或没有列、列标签重复，或者某列不是数值、含有缺失值或无穷值、或为常数。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.selection.correlation_filter" title="kivi.selection.correlation_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correlation_filter</span></code></a></dt><dd><p>对每一对强相关的变量，剔除其中一个。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logistic_regression</span></code></a></dt><dd><p>拟合评分卡模型。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>对第 <span class="math notranslate nohighlight">\(j\)</span> 列，记 <span class="math notranslate nohighlight">\(R_j^2\)</span> 为第 <span class="math notranslate nohighlight">\(j\)</span> 列对截距项和其他各列做最小二乘回归的决定系数，则</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{VIF}_j = \frac{1}{1 - R_j^2}.\]</div>
+<p>VIF 的平方根是共线性使该变量系数的标准误放大的倍数。两列的相关系数为 <span class="math notranslate nohighlight">\(r\)</span> 时，二者的 VIF 都是 <span class="math notranslate nohighlight">\(1 / (1 - r^2)\)</span> 。</p>
+<p class="rubric">示例</p>
+<p>相关系数为 0.9 的两列，VIF 都是 <span class="math notranslate nohighlight">\(1 / (1 - 0.9^2) = 5.263\)</span> ：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">vif</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"a"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">],</span> <span class="s2">"b"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">X</span><span class="p">[</span><span class="s1">'a'</span><span class="p">]</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="s1">'b'</span><span class="p">])</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.90</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vif</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">a    5.263</span>
+<span class="go">b    5.263</span>
+<span class="go">Name: vif, dtype: float64</span>
+</pre></div>
+</div>
+<p>加入二者之和后，每一列都是其他列的线性组合：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vif</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">X</span><span class="p">[</span><span class="s2">"a"</span><span class="p">]</span> <span class="o">+</span> <span class="n">X</span><span class="p">[</span><span class="s2">"b"</span><span class="p">]))</span>
+<span class="go">a        inf</span>
+<span class="go">b        inf</span>
+<span class="go">total    inf</span>
+<span class="go">Name: vif, dtype: float64</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.selection.logistic_regression">
+<span class="sig-prename descclassname"><span class="pre">kivi.selection.</span></span><span class="sig-name descname"><span class="pre">logistic_regression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.selection.logistic_regression" title="链接到此定义。">#</a></dt>
+<dd><p>拟合逻辑回归并检验每个系数。</p>
+<p>模型包含截距项，并为 <cite>X</cite> 的每一列估计一个系数。系数为最大似然估计，并用 Wald 检验逐一检验其是否为零。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>X</strong><span class="classifier">pandas.DataFrame 或 array_like</span></dt><dd><p>二维数值，每个变量一列，例如 <cite>kivi.woe.woe_transform</cite> 输出的 WOE 值。</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>二分类标签，1 表示事件。如果 <cite>X</cite> 是 DataFrame 且 <cite>target</cite> 是 Series，二者的索引必须完全相同；否则按位置对应。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每一行的非负频数权重，对应方式与 <cite>target</cite> 相同：权重为 2 的行计为两个相同的观测，因此整数权重与重复行得到相同的估计值、标准误和对数似然。权重为零的行不参与拟合。关于不表示观测个数的权重见“说明”。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>截距项一行（标签为 <code class="docutils literal notranslate"><span class="pre">intercept</span></code> ）， <cite>X</cite> 的每一列各一行，包含系数、标准误、Wald z 统计量及其双侧 p 值。索引的名称与 <cite>X</cite> 的列名相同。 <code class="docutils literal notranslate"><span class="pre">attrs[&quot;log_likelihood&quot;]</span></code> 保存最大化后的对数似然， <code class="docutils literal notranslate"><span class="pre">attrs[&quot;converged&quot;]</span></code> 表示拟合是否收敛。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>SeparationError</dt><dd><p>如果各列把两类完全分开，以致估计值不存在。</p>
+</dd>
+<dt>ValueError</dt><dd><p>如果 <cite>X</cite> 不是二维、少于 2 行或没有列、列标签重复、有标签为 <code class="docutils literal notranslate"><span class="pre">intercept</span></code> 的列，或者某列不是数值、含有缺失值或无穷值、为常数、是截距项与前面各列的线性组合或与之过于接近以致无法估计其系数；如果 <cite>target</cite> 不是一维、索引或长度与 <cite>X</cite> 不一致，或者没有同时包含 0 和 1 或含有缺失值及其他标签；或者 <cite>weights</cite> 不是数值、没有给每一行一个有限的非负权重，或者使某一类别没有权重。给定 <cite>weights</cite> 时，只有常数列和线性组合的检查仅针对权重为正的行。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">警告<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>RuntimeWarning</dt><dd><p>如果拟合因分离以外的原因未能收敛。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.selection.stepwise" title="kivi.selection.stepwise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stepwise</span></code></a></dt><dd><p>按 p 值筛选模型的列。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.selection.vif" title="kivi.selection.vif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vif</span></code></a></dt><dd><p>检查各列的共线性。</p>
+</dd>
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_transform</span></code></a></dt><dd><p>用 WOE 对分组编码。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>模型为</p>
+<div class="math notranslate nohighlight">
+\[\ln \frac{P(y = 1)}{P(y = 0)} = \beta_0 + \sum_j \beta_j x_j.\]</div>
+<p>估计值在中心化并标准化后的列上用牛顿-拉弗森法（也称迭代重加权最小二乘法）求得，因此列的偏移量或单位不会影响其精度。标准误是 Fisher 信息矩阵之逆的对角线元素的平方根， <span class="math notranslate nohighlight">\(z = \hat\beta / \mathrm{se}\)</span> ，p 值为 <span class="math notranslate nohighlight">\(P(|Z| &gt; |z|)\)</span> ，其中 <span class="math notranslate nohighlight">\(Z\)</span> 服从标准正态分布。</p>
+<p>对 WOE 编码的变量，系数应为正，参见 <cite>stepwise</cite> 。</p>
+<p>给定权重 <cite>weights</cite> <span class="math notranslate nohighlight">\(w_i\)</span> 时，估计值最大化加权对数似然 <span class="math notranslate nohighlight">\(\sum_i w_i [y_i \ln p_i + (1 - y_i) \ln(1 - p_i)]\)</span> ，标准误来自加权的 Fisher 信息 <span class="math notranslate nohighlight">\(\sum_i w_i p_i (1 - p_i) x_i x_i^\top\)</span> 。这是频数权重，与 statsmodels 的 <code class="docutils literal notranslate"><span class="pre">GLM(freq_weights=...)</span></code> 相同：总权重被当作独立观测的个数，因此把每个权重乘以 <span class="math notranslate nohighlight">\(c\)</span> 会使方差除以 <span class="math notranslate nohighlight">\(c\)</span> 。表示重复行数的整数权重因而给出重复行的标准误。不表示观测个数的权重则不然： <cite>kivi.reject_inference.fuzzy_augmentation</cite> 把每个拒绝申请人拆成一行坏样本和一行好样本时的权重，以及 <cite>kivi.reject_inference.reweighting</cite> 让每个获批申请人代表多个申请人时的权重，都会使标准误偏小、p 值偏低。推断出的行和额外的权重被计为观测，尽管它们没有增加任何观测到的结果。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r238aee73b2df-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>D. W. Hosmer, S. Lemeshow and R. X. Sturdivant, &quot;Applied Logistic
+Regression&quot;, 3rd ed., Wiley, 2013.</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<p>只有一个二值变量时，系数就是对数优势比：事件的优势在 <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">=</span> <span class="pre">0</span></code> 时为 1:3，在 <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">=</span> <span class="pre">1</span></code> 时为 3:1，因此系数为 <span class="math notranslate nohighlight">\(\ln 9\)</span> ，截距为 <span class="math notranslate nohighlight">\(\ln(1/3)\)</span> 。</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">logistic_regression</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"x"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">logistic_regression</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">             coef      se       z  p_value</span>
+<span class="go">intercept -1.0986  1.1547 -0.9514   0.3414</span>
+<span class="go">x          2.1972  1.6330  1.3455   0.1785</span>
+</pre></div>
+</div>
+<p>整数权重表示重复的行数，因此四个不同的行加上各自的次数会得到相同的拟合结果：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">distinct</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"x"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">logistic_regression</span><span class="p">(</span><span class="n">distinct</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">             coef      se       z  p_value</span>
+<span class="go">intercept -1.0986  1.1547 -0.9514   0.3414</span>
+<span class="go">x          2.1972  1.6330  1.3455   0.1785</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.selection.stepwise">
+<span class="sig-prename descclassname"><span class="pre">kivi.selection.</span></span><span class="sig-name descname"><span class="pre">stepwise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_enter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'both'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.selection.stepwise" title="链接到此定义。">#</a></dt>
+<dd><p>按 p 值为逻辑回归筛选变量。</p>
+<p>向前选择从只含截距的模型开始，每次加入 p 值最小的变量，直到最小的 p 值不再低于 <cite>p_enter</cite> 。向后剔除从包含全部变量的模型开始，每次移除 p 值最大的变量，直到最大的 p 值不再高于 <cite>p_remove</cite> 。双向逐步选择像向前选择一样加入变量，但每加入一个变量后，都会移除不再满足 <cite>p_remove</cite> 的变量。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>X</strong><span class="classifier">pandas.DataFrame 或 array_like</span></dt><dd><p>二维数值，每个候选变量一列，例如 <cite>kivi.woe.woe_transform</cite> 输出的 WOE 值。</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>二分类标签，1 表示事件。如果 <cite>X</cite> 是 DataFrame 且 <cite>target</cite> 是 Series，二者的索引必须完全相同；否则按位置对应。</p>
+</dd>
+<dt><strong>p_enter</strong><span class="classifier">float，默认 0.05</span></dt><dd><p>只有当变量在扩展后模型中的 p 值低于该水平时才会入选；该水平大于 0 且不超过 1。</p>
+</dd>
+<dt><strong>p_remove</strong><span class="classifier">float，默认 0.10</span></dt><dd><p>变量的 p 值高于该水平时被移除；该水平大于 0 且不超过 1，双向选择时不得低于 <cite>p_enter</cite> 。</p>
+</dd>
+<dt><strong>direction</strong><span class="classifier">{&quot;both&quot;, &quot;forward&quot;, &quot;backward&quot;}，默认 &quot;both&quot;</span></dt><dd><p>既加入也移除变量、只加入变量，还是只移除变量。</p>
+</dd>
+<dt><strong>positive</strong><span class="classifier">bool，默认 True</span></dt><dd><p>使所选模型的每个系数都为正。只有扩展后模型的所有系数都为正时变量才会入选；系数不为正的变量优先于其他变量被移除，z 统计量最小的最先移除。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每一行的非负频数权重，与 <cite>logistic_regression</cite> 相同。整数权重与重复行选出相同的变量。p 值取决于权重的尺度，正如取决于样本量。拒绝推断的权重会使 p 值偏低，从而选入超出观测结果所能支持的变量；应改为在获批申请人上选择变量。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Index</dt><dd><p>入选列的标签，按 <cite>X</cite> 中的顺序排列。当 <cite>X</cite> 不是 DataFrame 时为列的位置。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>SeparationError</dt><dd><p>如果 <cite>direction</cite> 为 <code class="docutils literal notranslate"><span class="pre">&quot;backward&quot;</span></code> ，且包含全部列的模型把两类完全分开。</p>
+</dd>
+<dt>ValueError</dt><dd><p>如果 <cite>X</cite> 、 <cite>target</cite> 或 <cite>weights</cite> 不符合 <cite>logistic_regression</cite> 中所述的要求（任何方向都会检查）；如果 <cite>p_enter</cite> 或 <cite>p_remove</cite> 不是大于 0 且不超过 1 的数，或 <cite>direction</cite> 为 <code class="docutils literal notranslate"><span class="pre">&quot;both&quot;</span></code> 时 <cite>p_enter</cite> 超过 <cite>p_remove</cite> ；或者 <cite>direction</cite> 不是三个选项之一，或 <cite>positive</cite> 不是布尔值。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">警告<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>RuntimeWarning</dt><dd><p>如果所选变量的模型因分离以外的原因未能收敛。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logistic_regression</span></code></a></dt><dd><p>拟合所选模型并查看其系数。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.selection.correlation_filter" title="kivi.selection.correlation_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correlation_filter</span></code></a></dt><dd><p>先剔除强相关的变量。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>p 值即 <cite>logistic_regression</cite> 报告的 Wald 检验 p 值。每个候选变量都在由已选变量和该候选变量组成的模型中检验，因此每一步都要为每个候选变量重新拟合一个模型。如果这个模型会使两类完全分开、无法收敛或在数值上奇异，候选变量就不会入选。双向选择时，如果加入某个变量会重现之前选过的变量组合，该变量不能入选，这保证了筛选过程一定会终止。</p>
+<p>kivi 将分组的 WOE 定义为其事件占比与非事件占比之比的对数，因此 WOE 越高，事件率越高。所以在 <cite>target</cite> 对单个 WOE 编码变量的逻辑回归中，系数为正；没有单元格需要平滑时，系数恰好为 1。在多变量模型中，负系数表示该变量的作用被其他变量反转（通常源于共线性），会使其各箱的评分卡分数与事件率相矛盾。 <code class="docutils literal notranslate"><span class="pre">positive=True</span></code> 会排除这样的模型。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r44bd75d8258f-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>D. W. Hosmer, S. Lemeshow and R. X. Sturdivant, &quot;Applied Logistic
+Regression&quot;, 3rd ed., Wiley, 2013.</p>
+</div>
+<div class="citation" id="r44bd75d8258f-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>N. Siddiqi, &quot;Credit Risk Scorecards: Developing and Implementing
+Intelligent Credit Scoring&quot;, Wiley, 2006.</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">stepwise</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_table</span><span class="p">,</span> <span class="n">woe_transform</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">bank_data</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"poutcome"</span><span class="p">,</span> <span class="s2">"contact"</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">,</span> <span class="s2">"loan"</span><span class="p">,</span> <span class="s2">"marital"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="n">column</span><span class="p">:</span> <span class="n">woe_transform</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">woe_table</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]))</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stepwise</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">['poutcome', 'contact', 'housing', 'loan', 'marital']</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="kivi.selection.SeparationError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">kivi.selection.</span></span><span class="sig-name descname"><span class="pre">SeparationError</span></span><a class="headerlink" href="#kivi.selection.SeparationError" title="链接到此定义。">#</a></dt>
+<dd><p>两类被完全分开，因此逻辑回归没有估计值。</p>
+<p>变量的某个组合能无误地预测目标变量：对所有观测都成立（完全分离），或对边界以外的所有观测成立（准完全分离）。此时似然随系数增大而不断增大，因此最大似然估计不存在。</p>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logistic_regression</span></code></a></dt><dd><p>会抛出此错误。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.selection.stepwise" title="kivi.selection.stepwise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stepwise</span></code></a></dt><dd><p>不选入会把两类完全分开的候选变量。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeparationError</span><span class="p">,</span> <span class="n">logistic_regression</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"x"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">logistic_regression</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">... </span><span class="k">except</span> <span class="n">SeparationError</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">"x separates the classes"</span><span class="p">)</span>
+<span class="go">x separates the classes</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="woe.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">证据权重与信息值</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="reject_inference.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">拒绝推断</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.selection.correlation_filter"><code class="docutils literal notranslate"><span class="pre">correlation_filter()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.selection.vif"><code class="docutils literal notranslate"><span class="pre">vif()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.selection.logistic_regression"><code class="docutils literal notranslate"><span class="pre">logistic_regression()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.selection.stepwise"><code class="docutils literal notranslate"><span class="pre">stepwise()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.selection.SeparationError"><code class="docutils literal notranslate"><span class="pre">SeparationError</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

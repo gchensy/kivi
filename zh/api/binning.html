@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>分箱 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=e03d16b7" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=79c7be44"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/binning';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="证据权重与信息值" href="woe.html" />
+    <link rel="prev" title="单变量概况" href="univariate.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="0.8.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 0.8.0">0.8.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/binning.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/binning.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">约定</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API 参考</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">分箱</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.binning">
+<span id="binning"></span><h1>分箱<a class="headerlink" href="#module-kivi.binning" title="链接到此标题。">#</a></h1>
+<p>在基准样本上拟合分箱边界，并用同一组边界对每个样本分组。 <a class="reference internal" href="#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a> 只根据取值拟合等频或等距边界； <a class="reference internal" href="#kivi.binning.chimerge_edges" title="kivi.binning.chimerge_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">chimerge_edges()</span></code></a> 、 <a class="reference internal" href="#kivi.binning.tree_edges" title="kivi.binning.tree_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">tree_edges()</span></code></a> 和 <a class="reference internal" href="#kivi.binning.monotonic_edges" title="kivi.binning.monotonic_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">monotonic_edges()</span></code></a> 还会用到二元目标变量。 <a class="reference internal" href="#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-func docutils literal notranslate"><span class="pre">cut()</span></code></a> 对样本分组，并让每个特殊值单独成组。</p>
+<p>对类别变量， <a class="reference internal" href="#kivi.binning.category_groups" title="kivi.binning.category_groups"><code class="xref py py-func docutils literal notranslate"><span class="pre">category_groups()</span></code></a> 归并稀有类别， <a class="reference internal" href="#kivi.binning.chimerge_groups" title="kivi.binning.chimerge_groups"><code class="xref py py-func docutils literal notranslate"><span class="pre">chimerge_groups()</span></code></a> 合并事件率相近的类别； <a class="reference internal" href="#kivi.binning.group_categories" title="kivi.binning.group_categories"><code class="xref py py-func docutils literal notranslate"><span class="pre">group_categories()</span></code></a> 把得到的 dict 应用到样本上。</p>
+<p>示例以及如何选择边界，见 <a class="reference internal" href="../user_guide/binning.html"><span class="doc">分箱</span></a> 。</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bin_edges</span></code></a>(values[, bins, method, special, ...])</p></td>
+<td><p>在基准样本上拟合数值变量的分箱边界。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cut</span></code></a>(values, edges, *[, special])</p></td>
+<td><p>将取值分配到各箱，每个特殊值单独成组。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.binning.chimerge_edges" title="kivi.binning.chimerge_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chimerge_edges</span></code></a>(values, target, *[, ...])</p></td>
+<td><p>用 ChiMerge（卡方分箱）合并相邻的等频箱，拟合分箱边界。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.binning.tree_edges" title="kivi.binning.tree_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tree_edges</span></code></a>(values, target, *[, max_bins, ...])</p></td>
+<td><p>用单变量决策树的切分点拟合分箱边界。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.binning.monotonic_edges" title="kivi.binning.monotonic_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">monotonic_edges</span></code></a>(values, target, *[, ...])</p></td>
+<td><p>合并相邻的等频箱，直到 WOE 单调，以此拟合分箱边界。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.binning.category_groups" title="kivi.binning.category_groups"><code class="xref py py-obj docutils literal notranslate"><span class="pre">category_groups</span></code></a>(values, *[, min_share, ...])</p></td>
+<td><p>在基准样本上拟合类别分组，把稀有类别归为一组。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.binning.chimerge_groups" title="kivi.binning.chimerge_groups"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chimerge_groups</span></code></a>(values, target, *[, ...])</p></td>
+<td><p>用 ChiMerge（卡方分箱）合并事件率相近的类别，拟合类别分组。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.binning.group_categories" title="kivi.binning.group_categories"><code class="xref py py-obj docutils literal notranslate"><span class="pre">group_categories</span></code></a>(values, groups, *[, unseen])</p></td>
+<td><p>按已拟合的分组映射，把类别标签分配到各组。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.binning.bin_edges">
+<span class="sig-prename descclassname"><span class="pre">kivi.binning.</span></span><span class="sig-name descname"><span class="pre">bin_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'quantile'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">special</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.binning.bin_edges" title="链接到此定义。">#</a></dt>
+<dd><p>在基准样本上拟合数值变量的分箱边界。</p>
+<p>边界只拟合一次，然后用 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 应用到基准样本以及每个与之比较的样本上。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>values</strong><span class="classifier">array_like</span></dt><dd><p>一维数值型基准取值，可以是列表、NumPy 数组或 pandas Series。拟合时忽略缺失值。</p>
+</dd>
+<dt><strong>bins</strong><span class="classifier">int，默认 5</span></dt><dd><p>期望箱数。分位点重合时实际箱数可能减少。</p>
+</dd>
+<dt><strong>method</strong><span class="classifier">{&quot;quantile&quot;, &quot;uniform&quot;}，默认 &quot;quantile&quot;</span></dt><dd><p>使用样本分位数或等距边界。</p>
+</dd>
+<dt><strong>special</strong><span class="classifier">array_like，可选</span></dt><dd><p>特殊值，例如表示“不适用”的编码，拟合边界时会被排除。请把同样的值传给 <cite>cut</cite> ，使每个特殊值单独成组。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每个取值的非负权重，例如其抽样比例的倒数。权重为零的取值会被排除。使用权重时，等频边界取逆累积分布（inverted CDF）意义下的加权分位数，因此每个内部边界都是实际观测到的取值。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>严格递增的边界数组，两端为负无穷和正无穷，可直接传给 pandas.cut。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>bins</cite> 不是正整数、 <cite>method</cite> 无法识别、 <cite>values</cite> 不是一维或不是数值、 <cite>special</cite> 不是一维或含有缺失值或布尔值，或者除特殊值外基准样本没有观测值或含有无穷值。此外，如果 <cite>weights</cite> 不是数值、没有为每个取值给出一个有限非负的权重、权重总和不为正，或其索引与 <cite>values</cite> 不同。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">警告<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>UserWarning</dt><dd><p>如果边界重合导致实际箱数少于期望箱数，例如某个取值在基准样本中占比很大。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cut</span></code></a></dt><dd><p>将取值分配到各箱，每个特殊值单独成组。</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">pandas.cut</span></code></dt><dd><p>按边界把取值分配到各箱。</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.quantile</span></code></dt><dd><p>计算分位数边界。</p>
+</dd>
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code></a></dt><dd><p>计算所得分组的证据权重。</p>
+</dd>
+<dt><a class="reference internal" href="stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.stability.psi_table</span></code></a></dt><dd><p>计算所得分组的稳定性。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>分位数边界是在等间距概率处取的样本分位数，使用 <code class="docutils literal notranslate"><span class="pre">numpy.quantile</span></code> 默认的线性插值计算。等距边界把从最小值到最大值的区间等分。</p>
+<p>重复的边界会被合并，最外侧的两个边界替换为无穷，因此每个有限值都恰好落入一个区间。 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 的区间为左开右闭。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">bin_edges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">values</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">90</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">bin_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span>
+<span class="go">array([-inf,  30.,  60.,  inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">200</span><span class="p">]),</span> <span class="n">edges</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[0, 1, 2]</span>
+</pre></div>
+</div>
+<p>特殊值不参与拟合：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bin_edges</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">special</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="go">array([-inf,  25.,  inf])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.binning.cut">
+<span class="sig-prename descclassname"><span class="pre">kivi.binning.</span></span><span class="sig-name descname"><span class="pre">cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">special</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.binning.cut" title="链接到此定义。">#</a></dt>
+<dd><p>将取值分配到各箱，每个特殊值单独成组。</p>
+<p>不传 <cite>special</cite> 时，结果与 <code class="docutils literal notranslate"><span class="pre">pandas.cut(values,</span> <span class="pre">edges)</span></code> 相同。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>values</strong><span class="classifier">array_like</span></dt><dd><p>待分箱的一维数值。缺失值保持缺失。</p>
+</dd>
+<dt><strong>edges</strong><span class="classifier">array_like</span></dt><dd><p>递增的分箱边界，通常来自 <cite>bin_edges</cite> 。</p>
+</dd>
+<dt><strong>special</strong><span class="classifier">array_like，可选</span></dt><dd><p>每个特殊值单独成组，不落入任何区间。请使用传给 <cite>bin_edges</cite> 的同一组值。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series 或 pandas.Categorical</dt><dd><p>分类型的分组结果，类别依次为按给定顺序排列的特殊值和各区间。输入为 Series 时返回 Series，索引和名称保持不变。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>values</cite> 不是一维或除特殊值外不是数值、 <cite>edges</cite> 不是递增的，或者 <cite>special</cite> 不是一维或含有缺失值或布尔值。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bin_edges</span></code></a></dt><dd><p>在基准样本上拟合边界。</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">pandas.cut</span></code></dt><dd><p>只把取值分配到区间。</p>
+</dd>
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code></a></dt><dd><p>计算所得分组的证据权重。</p>
+</dd>
+<dt><a class="reference internal" href="stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.stability.psi_table</span></code></a></dt><dd><p>计算所得分组的稳定性。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>特殊值按相等关系匹配，因此 <code class="docutils literal notranslate"><span class="pre">-1</span></code> 和 <code class="docutils literal notranslate"><span class="pre">-1.0</span></code> 视为同一个编码。不是数字的值（例如从文件读入的字符串）还会在经 <code class="docutils literal notranslate"><span class="pre">pandas.to_numeric</span></code> 转换后再匹配一次，因此字符串 <code class="docutils literal notranslate"><span class="pre">&quot;-1&quot;</span></code> 会落入编码 <code class="docutils literal notranslate"><span class="pre">-1</span></code> 的分组。与 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 一样，超出边界的值会变为缺失； <cite>bin_edges</cite> 两端的无穷边界可以避免这种情况。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">cut</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">values</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cut</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">),</span> <span class="mi">25</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">)],</span> <span class="n">special</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="go">0          -1</span>
+<span class="go">1    (-inf, 25.0]</span>
+<span class="go">2     (25.0, inf]</span>
+<span class="go">3             NaN</span>
+<span class="go">4          -1</span>
+<span class="go">dtype: category</span>
+<span class="go">Categories (3, object): [-1, (-inf, 25.0], (25.0, inf]]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.binning.chimerge_edges">
+<span class="sig-prename descclassname"><span class="pre">kivi.binning.</span></span><span class="sig-name descname"><span class="pre">chimerge_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">special</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.binning.chimerge_edges" title="链接到此定义。">#</a></dt>
+<dd><p>用 ChiMerge（卡方分箱）合并相邻的等频箱，拟合分箱边界。</p>
+<p>先将数值切成 <code class="docutils literal notranslate"><span class="pre">initial_bins</span></code> 个等频箱；若不同取值的个数不超过该数，则每个取值单独成一箱。随后合并卡方统计量最小、即事件率最接近的一对相邻箱。只要箱数仍多于 <code class="docutils literal notranslate"><span class="pre">max_bins</span></code>，或仍有相邻两箱在显著性水平 <code class="docutils literal notranslate"><span class="pre">alpha</span></code> 下差异不显著，就继续合并。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>values</strong><span class="classifier">array_like</span></dt><dd><p>一维数值，可以是列表、NumPy 数组或 pandas Series。缺失值及其标签会被忽略。</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>二分类标签，1 表示事件。如果 <cite>values</cite> 和 <cite>target</cite> 都是 pandas Series，二者的索引必须完全相同；否则按位置对应。</p>
+</dd>
+<dt><strong>max_bins</strong><span class="classifier">int，默认 5</span></dt><dd><p>最大箱数。</p>
+</dd>
+<dt><strong>alpha</strong><span class="classifier">float 或 None，默认 0.05</span></dt><dd><p>自由度为 1 的卡方检验的显著性水平。相邻箱会一直合并，直到每一对在该水平下都差异显著。传入 None 时只合并到 <code class="docutils literal notranslate"><span class="pre">max_bins</span></code> 个箱。</p>
+</dd>
+<dt><strong>initial_bins</strong><span class="classifier">int，默认 20</span></dt><dd><p>起始的等频箱数。分位点重合时实际箱数可能减少。</p>
+</dd>
+<dt><strong>special</strong><span class="classifier">array_like，可选</span></dt><dd><p>特殊值，例如表示“不适用”的编码；拟合边界时，这些值连同其标签一起被排除。请把同样的值传给 <cite>cut</cite> ，使每个特殊值单独成组。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每个观测的非负权重，例如其抽样比例的倒数，对应方式与 <cite>target</cite> 相同。权重为零的观测会被排除，每箱的计数为权重之和。此时初始的等频细分箱也使用逆累积分布意义下的加权分位数，因此当不同取值的个数多于 <cite>initial_bins</cite> 时，权重全为 1 与不传权重得到的边界可能不同。卡方检验把加权计数当作计数处理，因此在需要参考 p 值时，请把权重缩放到总和等于样本量。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>严格递增的边界数组，两端为负无穷和正无穷，可直接传给 pandas.cut。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p><cite>max_bins</cite> 或 <cite>initial_bins</cite> 不是正整数，<cite>alpha</cite> 既不是 None 也不在 0 与 1 之间，<cite>values</cite> 与 <cite>target</cite> 不是一维、索引或长度不一致，<cite>special</cite> 不是一维或含有缺失值或布尔值，<cite>values</cite> 不是数值或除缺失值和特殊值外没有有限观测值，或者 <cite>target</cite> 含有 0 和 1 以外的标签、在参与拟合的行中缺少其中一类，都会引发此异常。此外，如果 <cite>weights</cite> 不是数值、没有为每个取值给出一个有限非负的权重、权重总和不为正，或其索引与 <cite>values</cite> 不同。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.binning.tree_edges" title="kivi.binning.tree_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tree_edges</span></code></a></dt><dd><p>递归切分数值，而不是合并。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.monotonic_edges" title="kivi.binning.monotonic_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">monotonic_edges</span></code></a></dt><dd><p>合并到 WOE 单调为止。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cut</span></code></a></dt><dd><p>将取值分配到各箱，每个特殊值单独成组。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>对相邻的两个箱，记观测计数为 <span class="math notranslate nohighlight">\(O_{ij}\)</span> （箱 <span class="math notranslate nohighlight">\(i\)</span>，类别 <span class="math notranslate nohighlight">\(j\)</span>），事件率相同假设下的期望计数为 <span class="math notranslate nohighlight">\(E_{ij} = R_i C_j / N\)</span>，则</p>
+<div class="math notranslate nohighlight">
+\[\chi^2 = \sum_{i=1}^{2} \sum_{j=0}^{1} \frac{(O_{ij} - E_{ij})^2}{E_{ij}}\]</div>
+<p>其中 <span class="math notranslate nohighlight">\(E_{ij} = 0\)</span> 的单元格不计入。当 <span class="math notranslate nohighlight">\(\chi^2\)</span> 的 p 值小于 <code class="docutils literal notranslate"><span class="pre">alpha</span></code> 时，这两个箱保持分开。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">chimerge_edges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">values</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chimerge_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="go">array([-inf,   4.,  inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chimerge_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">max_bins</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="go">array([-inf,   4.,   9.,  inf])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.binning.tree_edges">
+<span class="sig-prename descclassname"><span class="pre">kivi.binning.</span></span><span class="sig-name descname"><span class="pre">tree_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_bin_share</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'entropy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">special</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.binning.tree_edges" title="链接到此定义。">#</a></dt>
+<dd><p>用单变量决策树的切分点拟合分箱边界。</p>
+<p>决策树按最优优先的顺序生长：在当前所有箱中，最优切分能让总不纯度下降最多的箱先被切分，直到箱数达到 <code class="docutils literal notranslate"><span class="pre">max_bins</span></code>，或者在两侧都保留至少 <code class="docutils literal notranslate"><span class="pre">min_bin_share</span></code> 观测的前提下，已没有能降低不纯度的切分。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>values</strong><span class="classifier">array_like</span></dt><dd><p>一维数值，可以是列表、NumPy 数组或 pandas Series。缺失值及其标签会被忽略。</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>二分类标签，1 表示事件。如果 <cite>values</cite> 和 <cite>target</cite> 都是 pandas Series，二者的索引必须完全相同；否则按位置对应。</p>
+</dd>
+<dt><strong>max_bins</strong><span class="classifier">int，默认 5</span></dt><dd><p>最大箱数，即决策树的叶节点数。</p>
+</dd>
+<dt><strong>min_bin_share</strong><span class="classifier">float，默认 0.05</span></dt><dd><p>每个箱至少包含的拟合取值占比，取值范围为 0 到 0.5；传入 <cite>weights</cite> 时按权重总和计算。缺失值和特殊值不计入。</p>
+</dd>
+<dt><strong>criterion</strong><span class="classifier">{&quot;entropy&quot;, &quot;gini&quot;}，默认 &quot;entropy&quot;</span></dt><dd><p>不纯度指标：熵（即信息增益）或基尼指数。</p>
+</dd>
+<dt><strong>special</strong><span class="classifier">array_like，可选</span></dt><dd><p>特殊值，例如表示“不适用”的编码；拟合边界时，这些值连同其标签一起被排除。请把同样的值传给 <cite>cut</cite> ，使每个特殊值单独成组。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每个观测的非负权重，例如其抽样比例的倒数，对应方式与 <cite>target</cite> 相同。权重为零的观测会被排除，每箱的计数为权重之和。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>严格递增的边界数组，两端为负无穷和正无穷，可直接传给 pandas.cut。每个内部边界都是一个观测值，即其左侧箱中的最大值。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p><cite>max_bins</cite> 不是正整数，<cite>min_bin_share</cite> 不在 0 与 0.5 之间，<cite>criterion</cite> 无法识别，<cite>values</cite> 与 <cite>target</cite> 不是一维、索引或长度不一致，<cite>special</cite> 不是一维或含有缺失值或布尔值，<cite>values</cite> 不是数值或除缺失值和特殊值外没有有限观测值，或者 <cite>target</cite> 含有 0 和 1 以外的标签、在参与拟合的行中缺少其中一类，都会引发此异常。此外，如果 <cite>weights</cite> 不是数值、没有为每个取值给出一个有限非负的权重、权重总和不为正，或其索引与 <cite>values</cite> 不同。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.binning.chimerge_edges" title="kivi.binning.chimerge_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chimerge_edges</span></code></a></dt><dd><p>合并细分箱，而不是切分。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.monotonic_edges" title="kivi.binning.monotonic_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">monotonic_edges</span></code></a></dt><dd><p>合并到 WOE 单调为止。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cut</span></code></a></dt><dd><p>将取值分配到各箱，每个特殊值单独成组。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>对含 <span class="math notranslate nohighlight">\(n\)</span> 个观测（传入 <cite>weights</cite> 时为其权重总和）、事件率为 <span class="math notranslate nohighlight">\(p\)</span> 的箱，不纯度为 <span class="math notranslate nohighlight">\(H(p) = -p \ln p - (1 - p) \ln(1 - p)\)</span> （熵）或 <span class="math notranslate nohighlight">\(G(p) = 2p(1 - p)\)</span> （基尼指数）。把它切成 <span class="math notranslate nohighlight">\(n_L\)</span> 和 <span class="math notranslate nohighlight">\(n_R\)</span> 个观测的两部分，总不纯度下降 <span class="math notranslate nohighlight">\(n H(p) - n_L H(p_L) - n_R H(p_R)\)</span>；在所有箱和切分点中选择下降最多的一个。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">tree_edges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">values</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tree_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">max_bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">array([-inf,   4.,  inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tree_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">max_bins</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([-inf,   4.,   8.,   9.,  inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tree_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">max_bins</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">min_bin_share</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="go">array([-inf,   4.,   6.,   9.,  inf])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.binning.monotonic_edges">
+<span class="sig-prename descclassname"><span class="pre">kivi.binning.</span></span><span class="sig-name descname"><span class="pre">monotonic_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">special</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.binning.monotonic_edges" title="链接到此定义。">#</a></dt>
+<dd><p>合并相邻的等频箱，直到 WOE 单调，以此拟合分箱边界。</p>
+<p>先将数值切成 <code class="docutils literal notranslate"><span class="pre">initial_bins</span></code> 个等频箱；若不同取值的个数不超过该数，则每个取值单独成一箱。只要有相邻两箱违背趋势，就合并第一对这样的箱并重新计算 WOE（合并相邻违序者，pool adjacent violators），因此最终各箱的 WOE 严格递增或严格递减。若箱数仍多于 <code class="docutils literal notranslate"><span class="pre">max_bins</span></code>，则像 <a class="reference internal" href="#kivi.binning.chimerge_edges" title="kivi.binning.chimerge_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">chimerge_edges()</span></code></a> 一样合并卡方统计量最小的相邻两箱，再重新检查趋势。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>values</strong><span class="classifier">array_like</span></dt><dd><p>一维数值，可以是列表、NumPy 数组或 pandas Series。缺失值及其标签会被忽略。</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>二分类标签，1 表示事件。如果 <cite>values</cite> 和 <cite>target</cite> 都是 pandas Series，二者的索引必须完全相同；否则按位置对应。</p>
+</dd>
+<dt><strong>max_bins</strong><span class="classifier">int 或 None，默认 5</span></dt><dd><p>最大箱数。传入 None 时，WOE 一旦单调即停止合并。</p>
+</dd>
+<dt><strong>direction</strong><span class="classifier">{&quot;auto&quot;, &quot;increasing&quot;, &quot;decreasing&quot;}，默认 &quot;auto&quot;</span></dt><dd><p>随数值增大时 WOE 的趋势。<code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> 会两个方向都拟合，保留信息值较大的一个；两者相等时取 <code class="docutils literal notranslate"><span class="pre">&quot;increasing&quot;</span></code>。</p>
+</dd>
+<dt><strong>initial_bins</strong><span class="classifier">int，默认 20</span></dt><dd><p>起始的等频箱数。分位点重合时实际箱数可能减少。</p>
+</dd>
+<dt><strong>smoothing</strong><span class="classifier">float，默认 0.5</span></dt><dd><p>计算 WOE 时用这个正数替代零计数，含义与 <a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.woe.woe_table()</span></code></a> 相同。在那里使用同一取值，才能看到同样的趋势。</p>
+</dd>
+<dt><strong>special</strong><span class="classifier">array_like，可选</span></dt><dd><p>特殊值，例如表示“不适用”的编码；拟合边界时，这些值连同其标签一起被排除。请把同样的值传给 <cite>cut</cite> ，使每个特殊值单独成组。单调趋势只约束各区间，特殊值组的 WOE 不受限制。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每个观测的非负权重，例如其抽样比例的倒数，对应方式与 <cite>target</cite> 相同。权重为零的观测会被排除，每箱的计数为权重之和。此时初始的等频细分箱也使用逆累积分布意义下的加权分位数，因此当不同取值的个数多于 <cite>initial_bins</cite> 时，权重全为 1 与不传权重得到的边界可能不同。此时 <cite>smoothing</cite> 以权重为单位。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>严格递增的边界数组，两端为负无穷和正无穷，可直接传给 pandas.cut。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p><cite>max_bins</cite> 既不是 None 也不是正整数，<cite>initial_bins</cite> 不是正整数，<cite>direction</cite> 无法识别，<cite>smoothing</cite> 不是有限正数，<cite>values</cite> 与 <cite>target</cite> 不是一维、索引或长度不一致，<cite>special</cite> 不是一维或含有缺失值或布尔值，<cite>values</cite> 不是数值或除缺失值和特殊值外没有有限观测值，或者 <cite>target</cite> 含有 0 和 1 以外的标签、在参与拟合的行中缺少其中一类，都会引发此异常。此外，如果 <cite>weights</cite> 不是数值、没有为每个取值给出一个有限非负的权重、权重总和不为正，或其索引与 <cite>values</cite> 不同。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.binning.chimerge_edges" title="kivi.binning.chimerge_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chimerge_edges</span></code></a></dt><dd><p>按卡方检验合并细分箱。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.tree_edges" title="kivi.binning.tree_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tree_edges</span></code></a></dt><dd><p>递归切分数值。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cut</span></code></a></dt><dd><p>将取值分配到各箱，每个特殊值单独成组。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">monotonic_edges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">values</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">monotonic_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span>
+<span class="go">array([-inf,   4.,   6.,  inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">woe_table</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">edges</span><span class="p">),</span> <span class="n">target</span><span class="p">)[</span><span class="s2">"woe"</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[-2.159, -0.08, 1.529]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">monotonic_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">"decreasing"</span><span class="p">)</span>
+<span class="go">array([-inf,  inf])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.binning.category_groups">
+<span class="sig-prename descclassname"><span class="pre">kivi.binning.</span></span><span class="sig-name descname"><span class="pre">category_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_share</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rare_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'other'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">special</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.binning.category_groups" title="链接到此定义。">#</a></dt>
+<dd><p>在基准样本上拟合类别分组，把稀有类别归为一组。</p>
+<p>某个类别在拟合取值中的占比低于 <code class="docutils literal notranslate"><span class="pre">min_share</span></code> ，或个数少于 <code class="docutils literal notranslate"><span class="pre">min_count</span></code> 时，即为稀有类别。稀有类别合为一组，标签为 <code class="docutils literal notranslate"><span class="pre">rare_label</span></code> ；其他类别各自单独成组。请用 <cite>group_categories</cite> 把分组映射应用到基准样本和与之比较的每个样本上。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>values</strong><span class="classifier">array_like</span></dt><dd><p>基准样本的一维类别标签，可以是字符串组成的列表、NumPy 数组或 pandas Series。拟合时忽略缺失值。</p>
+</dd>
+<dt><strong>min_share</strong><span class="classifier">float，默认 0.05</span></dt><dd><p>类别在拟合取值中的占比低于该值（取值范围为 0 到 1）即为稀有类别。传入 <cite>weights</cite> 时按权重总和中的占比计算。</p>
+</dd>
+<dt><strong>min_count</strong><span class="classifier">float，默认 0</span></dt><dd><p>类别的拟合取值个数（传入 <cite>weights</cite> 时为其权重总和）低于该值即为稀有类别。默认值把判断交给 <cite>min_share</cite> 。</p>
+</dd>
+<dt><strong>rare_label</strong><span class="classifier">str、int 或 float，默认 &quot;other&quot;</span></dt><dd><p>稀有类别所在组的标签。它不能与非稀有类别或特殊值相同。</p>
+</dd>
+<dt><strong>special</strong><span class="classifier">array_like，可选</span></dt><dd><p>特殊值，例如 <code class="docutils literal notranslate"><span class="pre">&quot;unknown&quot;</span></code> ，拟合分组映射时会被排除。无论多么稀有，每个特殊值都单独成组。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每个取值的非负权重，例如其抽样比例的倒数。权重为零的取值会被排除，各类别的计数为权重之和。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>dict</dt><dd><p>每个类别所属的组：先是按给定顺序排列的特殊值，再是各自映射到自身的非稀有类别，最后是映射到 <cite>rare_label</cite> 的稀有类别。类别按首次出现的次序排列；输入为分类型时按其类别顺序排列。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>values</cite> 不是一维或除缺失值、特殊值和零权重取值外没有其他取值， <cite>min_share</cite> 不在 0 与 1 之间， <cite>min_count</cite> 不是有限非负数， <cite>rare_label</cite> 既不是字符串也不是数值，或者是某个非稀有类别或特殊值的标签，或者 <cite>special</cite> 不是一维或含有缺失值或布尔值。此外，如果 <cite>weights</cite> 不是数值、没有为每个取值给出一个有限非负的权重、权重总和不为正，或其索引与 <cite>values</cite> 不同。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.binning.chimerge_groups" title="kivi.binning.chimerge_groups"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chimerge_groups</span></code></a></dt><dd><p>合并事件率相近的类别。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.group_categories" title="kivi.binning.group_categories"><code class="xref py py-obj docutils literal notranslate"><span class="pre">group_categories</span></code></a></dt><dd><p>把取值分配到拟合的各组。</p>
+</dd>
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code></a></dt><dd><p>计算所得分组的证据权重。</p>
+</dd>
+<dt><a class="reference internal" href="stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.stability.psi_table</span></code></a></dt><dd><p>计算所得分组的稳定性。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>稀有类别不论事件率高低都会合为一组，因此事件率高的稀有类别可能与事件率低的类别同组。 <cite>chimerge_groups</cite> 利用目标变量避免这一点。稀有类别组本身的占比也可能低于 <cite>min_share</cite> 。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">category_groups</span><span class="p">,</span> <span class="n">group_categories</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">values</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"d"</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">groups</span> <span class="o">=</span> <span class="n">category_groups</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">min_share</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">groups</span>
+<span class="go">{'a': 'a', 'b': 'b', 'c': 'other', 'd': 'other'}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">group_categories</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">groups</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">['a', 'a', 'a', 'a', 'b', 'b', 'b', 'other', 'other', nan]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.binning.chimerge_groups">
+<span class="sig-prename descclassname"><span class="pre">kivi.binning.</span></span><span class="sig-name descname"><span class="pre">chimerge_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_group_share</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">special</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.binning.chimerge_groups" title="链接到此定义。">#</a></dt>
+<dd><p>用 ChiMerge（卡方分箱）合并事件率相近的类别，拟合类别分组。</p>
+<p>先按 WOE 对类别排序（零计数按 <a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.woe.woe_table()</span></code></a> 的方式平滑），再合并该顺序下相邻的类别。首先，只要有组的占比低于拟合取值的 <code class="docutils literal notranslate"><span class="pre">min_group_share</span></code> ，就把其中最小的组与卡方统计量较小的那个相邻组合并。然后像 <cite>chimerge_edges</cite> 一样，只要组数仍多于 <code class="docutils literal notranslate"><span class="pre">max_groups</span></code> ，或仍有相邻两组在显著性水平 <code class="docutils literal notranslate"><span class="pre">alpha</span></code> 下差异不显著，就合并卡方统计量最小的一对相邻组。每次合并后都重新按 WOE 排序，因此最终各组的 WOE 从第一组到最后一组递增。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>values</strong><span class="classifier">array_like</span></dt><dd><p>一维类别标签，可以是字符串组成的列表、NumPy 数组或 pandas Series。缺失值及其标签会被忽略。</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>二分类标签，1 表示事件。如果 <cite>values</cite> 和 <cite>target</cite> 都是 pandas Series，二者的索引必须完全相同；否则按位置对应。</p>
+</dd>
+<dt><strong>max_groups</strong><span class="classifier">int，默认 5</span></dt><dd><p>最大组数，不计特殊值。</p>
+</dd>
+<dt><strong>alpha</strong><span class="classifier">float 或 None，默认 0.05</span></dt><dd><p>自由度为 1 的卡方检验的显著性水平。相邻组会一直合并，直到每一对在该水平下都差异显著。传入 None 时只合并到 <code class="docutils literal notranslate"><span class="pre">max_groups</span></code> 个组。</p>
+</dd>
+<dt><strong>min_group_share</strong><span class="classifier">float，默认 0.05</span></dt><dd><p>每个组至少包含的拟合取值占比，取值范围为 0 到 0.5；传入 <cite>weights</cite> 时按权重总和计算。缺失值和特殊值不计入。</p>
+</dd>
+<dt><strong>smoothing</strong><span class="classifier">float，默认 0.5</span></dt><dd><p>计算用于排序各组的 WOE 时，用这个正数替代零计数，含义与 <a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.woe.woe_table()</span></code></a> 相同。在那里使用同一取值，才能看到同样的顺序。</p>
+</dd>
+<dt><strong>special</strong><span class="classifier">array_like，可选</span></dt><dd><p>特殊值，例如 <code class="docutils literal notranslate"><span class="pre">&quot;unknown&quot;</span></code> ；拟合分组映射时，这些值连同其标签一起被排除。每个特殊值单独成组。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每个观测的非负权重，例如其抽样比例的倒数，对应方式与 <cite>target</cite> 相同。权重为零的观测会被排除，每组的计数为权重之和。卡方检验把加权计数当作计数处理，因此在需要参考 p 值时，请把权重缩放到总和等于样本量。此时 <cite>smoothing</cite> 以权重为单位。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>dict</dt><dd><p>每个类别所属的组：先是按给定顺序排列、各自映射到自身的特殊值，再按组的 WOE 从小到大依次列出各组的类别。只含一个类别的组沿用该类别的标签；合并后的组以其各类别的标签为标签，这些标签按类别自身的 WOE 从小到大排列，并用 <code class="docutils literal notranslate"><span class="pre">&quot;,</span> <span class="pre">&quot;</span></code> 连接。超过五个类别的组只列出前四个，后接 <code class="docutils literal notranslate"><span class="pre">&quot;,</span> <span class="pre">...</span> <span class="pre">(+n)&quot;</span></code> ，其中 <code class="docutils literal notranslate"><span class="pre">n</span></code> 为其余类别的个数。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>max_groups</cite> 不是正整数， <cite>alpha</cite> 既不是 None 也不在 0 与 1 之间， <cite>min_group_share</cite> 不在 0 与 0.5 之间， <cite>smoothing</cite> 不是有限正数， <cite>values</cite> 与 <cite>target</cite> 不是一维、索引或长度不一致， <cite>special</cite> 不是一维或含有缺失值或布尔值， <cite>values</cite> 除缺失值、特殊值和零权重取值外没有其他取值， <cite>target</cite> 含有 0 和 1 以外的标签、在参与拟合的行中缺少其中一类，或者合并后某组的标签会与另一组的标签相同。此外，如果 <cite>weights</cite> 不是数值、没有为每个取值给出一个有限非负的权重、权重总和不为正，或其索引与 <cite>values</cite> 不同。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.binning.category_groups" title="kivi.binning.category_groups"><code class="xref py py-obj docutils literal notranslate"><span class="pre">category_groups</span></code></a></dt><dd><p>不使用目标变量，归并稀有类别。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.chimerge_edges" title="kivi.binning.chimerge_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chimerge_edges</span></code></a></dt><dd><p>用同样的方法合并数值变量的箱。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.group_categories" title="kivi.binning.group_categories"><code class="xref py py-obj docutils literal notranslate"><span class="pre">group_categories</span></code></a></dt><dd><p>把取值分配到拟合的各组。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>相邻两组的卡方统计量与 <cite>chimerge_edges</cite> 中说明的相同。按 WOE 排序会让事件率相近的类别彼此相邻，因此每次合并的都是最相似的类别。未被合并的类别单独成组，因此在 <code class="docutils literal notranslate"><span class="pre">min_group_share=0</span></code> 且 <code class="docutils literal notranslate"><span class="pre">alpha=None</span></code> 时，类别数不超过 <code class="docutils literal notranslate"><span class="pre">max_groups</span></code> 的变量会保留全部类别。</p>
+<p>并列时取先出现的类别；输入为分类型时取类别顺序在前的类别：平滑后 WOE 相同的类别保持这一顺序；两对相邻组或两个小组的统计量或总量在相对 1e-10 以内相等时，合并前面的那一个。每次合并所需的时间与组数成正比，因此拟合所需的时间与类别数的平方成正比，2 万个类别需要几秒钟。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">chimerge_groups</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">values</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"a"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"b"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"c"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"d"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chimerge_groups</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">max_groups</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="go">{'c': 'c, a', 'a': 'c, a', 'b': 'b, d', 'd': 'b, d'}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.binning.group_categories">
+<span class="sig-prename descclassname"><span class="pre">kivi.binning.</span></span><span class="sig-name descname"><span class="pre">group_categories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">unseen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'raise'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.binning.group_categories" title="链接到此定义。">#</a></dt>
+<dd><p>按已拟合的分组映射，把类别标签分配到各组。</p>
+<p>每个取值都被替换为它在 <cite>groups</cite> 中所属的组； <cite>groups</cite> 是 <cite>category_groups</cite> 或 <cite>chimerge_groups</cite> 返回的 dict，也可以手工编写或修改。缺失值保持缺失，因此 <a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.woe.woe_table()</span></code></a> 把它们单独计为一组。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>values</strong><span class="classifier">array_like</span></dt><dd><p>待分配的一维类别标签。</p>
+</dd>
+<dt><strong>groups</strong><span class="classifier">mapping</span></dt><dd><p>每个类别所属的组，即从类别到组的 dict。类别和组都不能是缺失值。</p>
+</dd>
+<dt><strong>unseen</strong><span class="classifier">默认 &quot;raise&quot;</span></dt><dd><p>类别不在 <cite>groups</cite> 中的取值（例如新类别）所归入的组，必须是 <cite>groups</cite> 中的某个组，例如稀有类别组。默认情况下这样的取值会引发错误，因此它们绝不会变成缺失值。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series 或 pandas.Categorical</dt><dd><p>分类型的分组结果，类别为各组，按其在 <cite>groups</cite> 中首次出现的次序排列。输入为 Series 时返回 Series，索引和名称保持不变。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>values</cite> 不是一维， <cite>groups</cite> 不是映射或含有缺失或非标量的类别或组， <cite>unseen</cite> 既不是 <code class="docutils literal notranslate"><span class="pre">&quot;raise&quot;</span></code> 也不是其中某个组，或者 <cite>unseen</cite> 为 <code class="docutils literal notranslate"><span class="pre">&quot;raise&quot;</span></code> 而部分取值的类别不在 <cite>groups</cite> 中。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.binning.category_groups" title="kivi.binning.category_groups"><code class="xref py py-obj docutils literal notranslate"><span class="pre">category_groups</span></code></a></dt><dd><p>归并稀有类别。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.chimerge_groups" title="kivi.binning.chimerge_groups"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chimerge_groups</span></code></a></dt><dd><p>合并事件率相近的类别。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cut</span></code></a></dt><dd><p>把数值分配到各箱。</p>
+</dd>
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_transform</span></code></a></dt><dd><p>将每个分组替换为其 WOE。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>类别按相等关系匹配，与 <a class="reference internal" href="woe.html#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.woe.woe_transform()</span></code></a> 相同，因此 <code class="docutils literal notranslate"><span class="pre">1</span></code> 和 <code class="docutils literal notranslate"><span class="pre">1.0</span></code> 是同一个类别，而 <code class="docutils literal notranslate"><span class="pre">&quot;1&quot;</span></code> 是另一个类别。字符串 <code class="docutils literal notranslate"><span class="pre">&quot;raise&quot;</span></code> 总是表示引发错误，因此不能用作未见类别所归入的组名。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">group_categories</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">groups</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"a"</span><span class="p">:</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">:</span> <span class="s2">"b, c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">:</span> <span class="s2">"b, c"</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">group_categories</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"c"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">]),</span> <span class="n">groups</span><span class="p">)</span>
+<span class="go">0    b, c</span>
+<span class="go">1       a</span>
+<span class="go">2     NaN</span>
+<span class="go">3    b, c</span>
+<span class="go">dtype: category</span>
+<span class="go">Categories (2, object): ['a', 'b, c']</span>
+</pre></div>
+</div>
+<p>分组映射中没有的类别会引发错误，除非 <cite>unseen</cite> 为它指定了一个组：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">group_categories</span><span class="p">([</span><span class="s2">"d"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">],</span> <span class="n">groups</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">values have 1 category that groups does not map, such as 'd'; ...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">group_categories</span><span class="p">([</span><span class="s2">"d"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">],</span> <span class="n">groups</span><span class="p">,</span> <span class="n">unseen</span><span class="o">=</span><span class="s2">"b, c"</span><span class="p">)</span>
+<span class="go">['b, c', 'a']</span>
+<span class="go">Categories (2, object): ['a', 'b, c']</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="univariate.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">单变量概况</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="woe.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">证据权重与信息值</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.binning.bin_edges"><code class="docutils literal notranslate"><span class="pre">bin_edges()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.binning.cut"><code class="docutils literal notranslate"><span class="pre">cut()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.binning.chimerge_edges"><code class="docutils literal notranslate"><span class="pre">chimerge_edges()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.binning.tree_edges"><code class="docutils literal notranslate"><span class="pre">tree_edges()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.binning.monotonic_edges"><code class="docutils literal notranslate"><span class="pre">monotonic_edges()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.binning.category_groups"><code class="docutils literal notranslate"><span class="pre">category_groups()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.binning.chimerge_groups"><code class="docutils literal notranslate"><span class="pre">chimerge_groups()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.binning.group_categories"><code class="docutils literal notranslate"><span class="pre">group_categories()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

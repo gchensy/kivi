@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Variable selection &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=e03d16b7" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=a85d417d"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/selection';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Reject inference" href="reject_inference.html" />
+    <link rel="prev" title="Weight of evidence and information value" href="woe.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.8.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 0.8.0">0.8.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/selection.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/selection.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Variable selection</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.selection">
+<span id="variable-selection"></span><h1>Variable selection<a class="headerlink" href="#module-kivi.selection" title="Link to this heading">#</a></h1>
+<p>Select the variables of a scorecard and fit its logistic regression on WOE-encoded columns. <a class="reference internal" href="#kivi.selection.correlation_filter" title="kivi.selection.correlation_filter"><code class="xref py py-func docutils literal notranslate"><span class="pre">correlation_filter()</span></code></a> and <a class="reference internal" href="#kivi.selection.vif" title="kivi.selection.vif"><code class="xref py py-func docutils literal notranslate"><span class="pre">vif()</span></code></a> check the candidates for collinearity, and <a class="reference internal" href="#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">logistic_regression()</span></code></a> and <a class="reference internal" href="#kivi.selection.stepwise" title="kivi.selection.stepwise"><code class="xref py py-func docutils literal notranslate"><span class="pre">stepwise()</span></code></a> fit and select the model.</p>
+<p>See <a class="reference internal" href="../user_guide/selection.html"><span class="doc">Variable selection</span></a> for a selection on the bundled data.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.selection.correlation_filter" title="kivi.selection.correlation_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correlation_filter</span></code></a>(X, *[, threshold, priority])</p></td>
+<td><p>Drop one variable of each strongly correlated pair.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.selection.vif" title="kivi.selection.vif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vif</span></code></a>(X)</p></td>
+<td><p>Compute the variance inflation factor of each variable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logistic_regression</span></code></a>(X, target, *[, weights])</p></td>
+<td><p>Fit a logistic regression and test each coefficient.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.selection.stepwise" title="kivi.selection.stepwise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stepwise</span></code></a>(X, target, *[, p_enter, p_remove, ...])</p></td>
+<td><p>Select variables for a logistic regression by their p-values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.selection.SeparationError" title="kivi.selection.SeparationError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SeparationError</span></code></a></p></td>
+<td><p>The classes are separated, so the logistic regression has no estimates.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.selection.correlation_filter">
+<span class="sig-prename descclassname"><span class="pre">kivi.selection.</span></span><span class="sig-name descname"><span class="pre">correlation_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.selection.correlation_filter" title="Link to this definition">#</a></dt>
+<dd><p>Drop one variable of each strongly correlated pair.</p>
+<p>Variables are visited from the highest <cite>priority</cite> to the lowest. A
+variable is kept unless its absolute Pearson correlation with a variable
+that is already kept exceeds <cite>threshold</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>X</strong><span class="classifier">pandas.DataFrame or array_like</span></dt><dd><p>Two-dimensional numeric values with one column per variable, such as
+WOE values from <cite>kivi.woe.woe_transform</cite>.</p>
+</dd>
+<dt><strong>threshold</strong><span class="classifier">float, default 0.7</span></dt><dd><p>Largest absolute correlation allowed between two kept variables,
+between 0 and 1.</p>
+</dd>
+<dt><strong>priority</strong><span class="classifier">array_like, optional</span></dt><dd><p>One number per column, such as its information value; of two
+correlated variables, the one with the higher priority is kept. A
+pandas Series is matched to the columns by label, other inputs by
+position. Ties, and every column when <cite>priority</cite> is omitted, follow
+the column order, so earlier columns are kept.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Index</dt><dd><p>Labels of the kept columns, in the order of <cite>X</cite>. Column positions
+when <cite>X</cite> is not a DataFrame.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>X</cite> is not two-dimensional, has fewer than 2 rows or no columns,
+repeats a column label, or has a column that is not numeric, contains
+missing or infinite values or is constant; if <cite>threshold</cite> is not between 0 and
+1; or if <cite>priority</cite> does not give one number for every column.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.selection.vif" title="kivi.selection.vif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vif</span></code></a></dt><dd><p>Measure how well the other variables explain each variable.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.selection.stepwise" title="kivi.selection.stepwise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stepwise</span></code></a></dt><dd><p>Select variables by their significance in a logistic regression.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>A variable is dropped only because of a variable that is kept. When
+<code class="docutils literal notranslate"><span class="pre">a</span></code> is correlated with <code class="docutils literal notranslate"><span class="pre">b</span></code> and <code class="docutils literal notranslate"><span class="pre">b</span></code> with <code class="docutils literal notranslate"><span class="pre">c</span></code>, but <code class="docutils literal notranslate"><span class="pre">a</span></code> not with
+<code class="docutils literal notranslate"><span class="pre">c</span></code>, and the priorities decrease from <code class="docutils literal notranslate"><span class="pre">a</span></code> to <code class="docutils literal notranslate"><span class="pre">c</span></code>, then <code class="docutils literal notranslate"><span class="pre">b</span></code> is
+dropped and <code class="docutils literal notranslate"><span class="pre">c</span></code> is kept.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">correlation_filter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"a"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"b"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"c"</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">     a     b     c</span>
+<span class="go">a  1.0  0.90  0.00</span>
+<span class="go">b  0.9  1.00  0.24</span>
+<span class="go">c  0.0  0.24  1.00</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">correlation_filter</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">['a', 'c']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">iv</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="s2">"a"</span><span class="p">:</span> <span class="mf">0.12</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">:</span> <span class="mf">0.31</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">correlation_filter</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">iv</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">['b', 'c']</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.selection.vif">
+<span class="sig-prename descclassname"><span class="pre">kivi.selection.</span></span><span class="sig-name descname"><span class="pre">vif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.selection.vif" title="Link to this definition">#</a></dt>
+<dd><p>Compute the variance inflation factor of each variable.</p>
+<p>The VIF of a variable measures how well the other variables explain it
+in a linear regression. It is 1 for a variable that is uncorrelated with
+the others and grows without bound as the variable approaches a linear
+combination of them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>X</strong><span class="classifier">pandas.DataFrame or array_like</span></dt><dd><p>Two-dimensional numeric values with one column per variable, such as
+WOE values from <cite>kivi.woe.woe_transform</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series</dt><dd><p>VIF of each column, indexed by the column labels of <cite>X</cite> (positions
+when <cite>X</cite> is not a DataFrame) and named <code class="docutils literal notranslate"><span class="pre">vif</span></code>. It is infinite for a
+column that is a linear combination of the others.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>X</cite> is not two-dimensional, has fewer than 2 rows or no columns,
+repeats a column label, or has a column that is not numeric, contains
+missing or infinite values or is constant.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.selection.correlation_filter" title="kivi.selection.correlation_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correlation_filter</span></code></a></dt><dd><p>Drop one variable of each strongly correlated pair.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logistic_regression</span></code></a></dt><dd><p>Fit the scorecard model.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>For column <span class="math notranslate nohighlight">\(j\)</span>, let <span class="math notranslate nohighlight">\(R_j^2\)</span> be the coefficient of
+determination of the least-squares regression of column <span class="math notranslate nohighlight">\(j\)</span> on an
+intercept and the other columns. Then</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{VIF}_j = \frac{1}{1 - R_j^2}.\]</div>
+<p>The square root of the VIF is the factor by which collinearity inflates
+the standard error of the variable’s coefficient. With two columns of
+correlation <span class="math notranslate nohighlight">\(r\)</span>, both have a VIF of <span class="math notranslate nohighlight">\(1 / (1 - r^2)\)</span>.</p>
+<p class="rubric">Examples</p>
+<p>Two columns with a correlation of 0.9 both have a VIF of
+<span class="math notranslate nohighlight">\(1 / (1 - 0.9^2) = 5.263\)</span>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">vif</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"a"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">],</span> <span class="s2">"b"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">X</span><span class="p">[</span><span class="s1">'a'</span><span class="p">]</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="s1">'b'</span><span class="p">])</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.90</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vif</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">a    5.263</span>
+<span class="go">b    5.263</span>
+<span class="go">Name: vif, dtype: float64</span>
+</pre></div>
+</div>
+<p>Adding their sum makes every column a linear combination of the others:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vif</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">X</span><span class="p">[</span><span class="s2">"a"</span><span class="p">]</span> <span class="o">+</span> <span class="n">X</span><span class="p">[</span><span class="s2">"b"</span><span class="p">]))</span>
+<span class="go">a        inf</span>
+<span class="go">b        inf</span>
+<span class="go">total    inf</span>
+<span class="go">Name: vif, dtype: float64</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.selection.logistic_regression">
+<span class="sig-prename descclassname"><span class="pre">kivi.selection.</span></span><span class="sig-name descname"><span class="pre">logistic_regression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.selection.logistic_regression" title="Link to this definition">#</a></dt>
+<dd><p>Fit a logistic regression and test each coefficient.</p>
+<p>The model has an intercept and one coefficient per column of <cite>X</cite>. The
+coefficients are maximum likelihood estimates, and each is tested
+against zero with a Wald test.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>X</strong><span class="classifier">pandas.DataFrame or array_like</span></dt><dd><p>Two-dimensional numeric values with one column per variable, such as
+WOE values from <cite>kivi.woe.woe_transform</cite>.</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>Binary labels, with 1 indicating the event. If <cite>X</cite> is a DataFrame and
+<cite>target</cite> a Series, they must have identical indices; otherwise they
+are matched by position.</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like, optional</span></dt><dd><p>Non-negative frequency weight of each row, matched like <cite>target</cite>: a
+row with weight 2 counts as two identical observations, so integer
+weights give the same estimates, standard errors and log-likelihood
+as repeating rows. Rows with zero weight are left out of the fit.
+See the Notes on weights that do not count observations.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>One row for the intercept, labelled <code class="docutils literal notranslate"><span class="pre">intercept</span></code>, and one for each
+column of <cite>X</cite>, with the coefficient, its standard error, the Wald z
+statistic and its two-sided p-value. The index has the name of the
+columns of <cite>X</cite>. <code class="docutils literal notranslate"><span class="pre">attrs[&quot;log_likelihood&quot;]</span></code> holds the maximized
+log-likelihood and <code class="docutils literal notranslate"><span class="pre">attrs[&quot;converged&quot;]</span></code> whether the fit converged.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>SeparationError</dt><dd><p>If the columns separate the classes, so that the estimates do not
+exist.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <cite>X</cite> is not two-dimensional, has fewer than 2 rows or no columns,
+repeats a column label, has a column labelled <code class="docutils literal notranslate"><span class="pre">intercept</span></code>, or has a
+column that is not numeric, contains missing or infinite values, is
+constant or is a linear combination of the intercept and the columns
+before it, or so close to one that its coefficient cannot be
+estimated; if <cite>target</cite> is not one-dimensional, its index or length
+does not match <cite>X</cite>, or it does not contain both 0 and 1 or has
+missing or other labels; or if <cite>weights</cite> is not numeric, does not
+give each row one finite, non-negative weight, or leaves a class
+without weight. With <cite>weights</cite>, only the checks for constant columns
+and linear combinations are limited to the rows with positive
+weight.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Warns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>RuntimeWarning</dt><dd><p>If the fit does not converge for a reason other than separation.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.selection.stepwise" title="kivi.selection.stepwise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stepwise</span></code></a></dt><dd><p>Select the columns of the model by their p-values.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.selection.vif" title="kivi.selection.vif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vif</span></code></a></dt><dd><p>Check the columns for collinearity.</p>
+</dd>
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_transform</span></code></a></dt><dd><p>Encode groups with their WOE.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The model is</p>
+<div class="math notranslate nohighlight">
+\[\ln \frac{P(y = 1)}{P(y = 0)} = \beta_0 + \sum_j \beta_j x_j.\]</div>
+<p>The estimates are found by Newton-Raphson, also known as iteratively
+reweighted least squares, on centred and scaled columns, so that an
+offset or the unit of a column does not affect their accuracy. The
+standard errors are the square roots of the diagonal of the inverse
+Fisher information, <span class="math notranslate nohighlight">\(z = \hat\beta / \mathrm{se}\)</span>, and the p-value
+is <span class="math notranslate nohighlight">\(P(|Z| &gt; |z|)\)</span> for a standard normal <span class="math notranslate nohighlight">\(Z\)</span>.</p>
+<p>With WOE-encoded variables, the coefficients are expected to be
+positive: see <cite>stepwise</cite>.</p>
+<p>With <cite>weights</cite> <span class="math notranslate nohighlight">\(w_i\)</span>, the estimates maximize the weighted
+log-likelihood
+<span class="math notranslate nohighlight">\(\sum_i w_i [y_i \ln p_i + (1 - y_i) \ln(1 - p_i)]\)</span>, and the
+standard errors come from the weighted Fisher information
+<span class="math notranslate nohighlight">\(\sum_i w_i p_i (1 - p_i) x_i x_i^\top\)</span>. These are frequency
+weights, as in statsmodels’ <code class="docutils literal notranslate"><span class="pre">GLM(freq_weights=...)</span></code>: the total weight
+counts as the number of independent observations, so multiplying every
+weight by <span class="math notranslate nohighlight">\(c\)</span> divides the variances by <span class="math notranslate nohighlight">\(c\)</span>. Integer weights
+that count repeated rows therefore give the standard errors of the
+repeated rows. Weights that do not count observations do not: those of
+<cite>kivi.reject_inference.fuzzy_augmentation</cite>, which split each rejected
+applicant into a bad and a good row, and those of
+<cite>kivi.reject_inference.reweighting</cite>, which let each accepted applicant
+stand for several, make the standard errors too small and the p-values
+too low. The inferred rows and the extra weight count as observations,
+although they add no observed outcomes.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r238aee73b2df-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>D. W. Hosmer, S. Lemeshow and R. X. Sturdivant, “Applied Logistic
+Regression”, 3rd ed., Wiley, 2013.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<p>With a single binary variable, the coefficient is the log odds ratio:
+the odds of the event are 1:3 at <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">=</span> <span class="pre">0</span></code> and 3:1 at <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">=</span> <span class="pre">1</span></code>, so the
+coefficient is <span class="math notranslate nohighlight">\(\ln 9\)</span> and the intercept <span class="math notranslate nohighlight">\(\ln(1/3)\)</span>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">logistic_regression</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"x"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">logistic_regression</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">             coef      se       z  p_value</span>
+<span class="go">intercept -1.0986  1.1547 -0.9514   0.3414</span>
+<span class="go">x          2.1972  1.6330  1.3455   0.1785</span>
+</pre></div>
+</div>
+<p>Integer weights count repeated rows, so the four distinct rows with
+their counts give the same fit:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">distinct</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"x"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">logistic_regression</span><span class="p">(</span><span class="n">distinct</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">             coef      se       z  p_value</span>
+<span class="go">intercept -1.0986  1.1547 -0.9514   0.3414</span>
+<span class="go">x          2.1972  1.6330  1.3455   0.1785</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.selection.stepwise">
+<span class="sig-prename descclassname"><span class="pre">kivi.selection.</span></span><span class="sig-name descname"><span class="pre">stepwise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_enter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'both'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.selection.stepwise" title="Link to this definition">#</a></dt>
+<dd><p>Select variables for a logistic regression by their p-values.</p>
+<p>Forward selection starts from the intercept and adds, one at a time, the
+variable with the smallest p-value while that p-value is below
+<cite>p_enter</cite>. Backward elimination starts from all variables and removes,
+one at a time, the variable with the largest p-value while that p-value
+is above <cite>p_remove</cite>. Selection in both directions adds variables like
+forward selection, but after each addition removes the variables that
+no longer meet <cite>p_remove</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>X</strong><span class="classifier">pandas.DataFrame or array_like</span></dt><dd><p>Two-dimensional numeric values with one column per candidate
+variable, such as WOE values from <cite>kivi.woe.woe_transform</cite>.</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>Binary labels, with 1 indicating the event. If <cite>X</cite> is a DataFrame and
+<cite>target</cite> a Series, they must have identical indices; otherwise they
+are matched by position.</p>
+</dd>
+<dt><strong>p_enter</strong><span class="classifier">float, default 0.05</span></dt><dd><p>A variable enters only if its p-value in the extended model is below
+this level, which is greater than 0 and at most 1.</p>
+</dd>
+<dt><strong>p_remove</strong><span class="classifier">float, default 0.10</span></dt><dd><p>A variable is removed if its p-value is above this level, which is
+greater than 0 and at most 1 and, in both directions, not below
+<cite>p_enter</cite>.</p>
+</dd>
+<dt><strong>direction</strong><span class="classifier">{“both”, “forward”, “backward”}, default “both”</span></dt><dd><p>Whether variables are added and removed, only added, or only removed.</p>
+</dd>
+<dt><strong>positive</strong><span class="classifier">bool, default True</span></dt><dd><p>Keep every coefficient of the selected model positive. A variable
+enters only if all coefficients of the extended model are positive,
+and a variable whose coefficient is not positive is removed before
+any other, starting with the smallest z statistic.</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like, optional</span></dt><dd><p>Non-negative frequency weight of each row, as in
+<cite>logistic_regression</cite>. Integer weights select the same variables as
+repeating rows. The p-values depend on the scale of the weights as
+they do on the sample size. The weights of reject inference make
+them too low, so that more variables enter than the observed
+outcomes support; select the variables on the accepted applicants
+instead.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Index</dt><dd><p>Labels of the selected columns, in the order of <cite>X</cite>. Column positions
+when <cite>X</cite> is not a DataFrame.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>SeparationError</dt><dd><p>If <cite>direction</cite> is <code class="docutils literal notranslate"><span class="pre">&quot;backward&quot;</span></code> and the model with every column
+separates the classes.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <cite>X</cite>, <cite>target</cite> or <cite>weights</cite> is invalid as described for
+<cite>logistic_regression</cite>, in every direction; if <cite>p_enter</cite> or
+<cite>p_remove</cite> is not greater than 0 and at most 1, or <cite>p_enter</cite> exceeds
+<cite>p_remove</cite> when <cite>direction</cite> is <code class="docutils literal notranslate"><span class="pre">&quot;both&quot;</span></code>; or if <cite>direction</cite> is not
+one of the three options or <cite>positive</cite> is not a boolean.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Warns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>RuntimeWarning</dt><dd><p>If the model of the selected variables does not converge for a
+reason other than separation.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logistic_regression</span></code></a></dt><dd><p>Fit the selected model and read its coefficients.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.selection.correlation_filter" title="kivi.selection.correlation_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correlation_filter</span></code></a></dt><dd><p>Drop strongly correlated variables first.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The p-values are those of the Wald tests reported by
+<cite>logistic_regression</cite>. Each candidate is tested in the model made of
+the selected variables and the candidate, so every step refits one
+model per candidate. A candidate does not enter if that model would
+separate the classes, does not converge or is numerically singular. In
+both directions, a variable cannot enter if that would recreate a set of
+variables that was selected before, which guarantees that the selection
+stops.</p>
+<p>kivi defines the WOE of a group as the log of its share of events over
+its share of non-events, so a higher WOE means a higher event rate. In a
+logistic regression of <cite>target</cite> on a single WOE-encoded variable, the
+coefficient is therefore positive; it is exactly 1 when no cell needed
+smoothing. A negative coefficient in a model with several variables
+means that the variable’s effect is reversed by the others, usually
+because of collinearity, and makes the scorecard points of its bins
+contradict their event rates. <code class="docutils literal notranslate"><span class="pre">positive=True</span></code> rules out such models.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r44bd75d8258f-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>D. W. Hosmer, S. Lemeshow and R. X. Sturdivant, “Applied Logistic
+Regression”, 3rd ed., Wiley, 2013.</p>
+</div>
+<div class="citation" id="r44bd75d8258f-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>N. Siddiqi, “Credit Risk Scorecards: Developing and Implementing
+Intelligent Credit Scoring”, Wiley, 2006.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">stepwise</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_table</span><span class="p">,</span> <span class="n">woe_transform</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">bank_data</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"poutcome"</span><span class="p">,</span> <span class="s2">"contact"</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">,</span> <span class="s2">"loan"</span><span class="p">,</span> <span class="s2">"marital"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="n">column</span><span class="p">:</span> <span class="n">woe_transform</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">woe_table</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]))</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stepwise</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">['poutcome', 'contact', 'housing', 'loan', 'marital']</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="kivi.selection.SeparationError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">kivi.selection.</span></span><span class="sig-name descname"><span class="pre">SeparationError</span></span><a class="headerlink" href="#kivi.selection.SeparationError" title="Link to this definition">#</a></dt>
+<dd><p>The classes are separated, so the logistic regression has no estimates.</p>
+<p>A combination of the variables predicts the target without error, for
+every observation (complete separation) or for every observation off a
+boundary (quasi-complete separation). The likelihood then keeps growing
+as the coefficients grow, so the maximum likelihood estimates do not
+exist.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logistic_regression</span></code></a></dt><dd><p>Raises this error.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.selection.stepwise" title="kivi.selection.stepwise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stepwise</span></code></a></dt><dd><p>Leaves out candidates that separate the classes.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeparationError</span><span class="p">,</span> <span class="n">logistic_regression</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"x"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">logistic_regression</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">... </span><span class="k">except</span> <span class="n">SeparationError</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">"x separates the classes"</span><span class="p">)</span>
+<span class="go">x separates the classes</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="woe.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Weight of evidence and information value</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="reject_inference.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Reject inference</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.selection.correlation_filter"><code class="docutils literal notranslate"><span class="pre">correlation_filter()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.selection.vif"><code class="docutils literal notranslate"><span class="pre">vif()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.selection.logistic_regression"><code class="docutils literal notranslate"><span class="pre">logistic_regression()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.selection.stepwise"><code class="docutils literal notranslate"><span class="pre">stepwise()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.selection.SeparationError"><code class="docutils literal notranslate"><span class="pre">SeparationError</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

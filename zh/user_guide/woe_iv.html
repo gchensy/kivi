@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>证据权重与信息值 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=e03d16b7" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=79c7be44"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/woe_iv';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="变量筛选" href="selection.html" />
+    <link rel="prev" title="分箱" href="binning.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="0.8.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 0.8.0">0.8.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/woe_iv.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/woe_iv.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">风控建模流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">用户指南</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">证据权重与信息值</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="weight-of-evidence-and-information-value">
+<h1>证据权重与信息值<a class="headerlink" href="#weight-of-evidence-and-information-value" title="链接到此标题。">#</a></h1>
+<p><a class="reference internal" href="../api/woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_table()</span></code></a> 衡量每组对二分类目标的区分能力。标签 1 表示事件，0 表示非事件。数据须同时包含两类标签。分组与标签序列的索引必须相同；数组和列表按位置对应， <a class="reference internal" href="../api/conventions.html"><span class="doc">约定</span></a> 说明了所有函数共同遵守的这一规则。</p>
+<p>WOE 和 IV 位于 <a class="reference internal" href="binning.html"><span class="doc">分箱</span></a> 之后（后者形成分组），位于 <a class="reference internal" href="selection.html"><span class="doc">变量筛选</span></a> 之前（后者在 WOE 编码的变量上拟合逻辑回归）。 <a class="reference internal" href="../api/woe.html#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_transform()</span></code></a> 用拟合的 WOE 对新数据编码， <a class="reference internal" href="../api/woe.html#kivi.woe.woe" title="kivi.woe.woe"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe()</span></code></a> 和 <a class="reference internal" href="../api/woe.html#kivi.woe.iv" title="kivi.woe.iv"><code class="xref py py-func docutils literal notranslate"><span class="pre">iv()</span></code></a> 根据已经汇总的计数计算这些指标。</p>
+<section id="definitions">
+<h2>定义<a class="headerlink" href="#definitions" title="链接到此标题。">#</a></h2>
+<p>对第 <span class="math notranslate nohighlight">\(i\)</span> 组，令 <span class="math notranslate nohighlight">\(E_i\)</span> 和 <span class="math notranslate nohighlight">\(N_i\)</span> 分别为其事件数和非事件数。它在全部事件和全部非事件中的占比为</p>
+<div class="math notranslate nohighlight">
+\[p_i = \frac{E_i}{\sum_j E_j}, \qquad q_i = \frac{N_i}{\sum_j N_j}.\]</div>
+<p>该组的证据权重和信息值贡献为</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{WOE}_i = \ln \frac{p_i}{q_i}, \qquad
+\mathrm{IV}_i = (p_i - q_i)\,\mathrm{WOE}_i, \qquad
+\mathrm{IV} = \sum_i \mathrm{IV}_i.\]</div>
+<p>WOE 为正表示该组在事件中相对更常见。每组的 IV 贡献都大于或等于零，因为 <span class="math notranslate nohighlight">\(p_i - q_i\)</span> 与 <span class="math notranslate nohighlight">\(\ln(p_i / q_i)\)</span> 的符号始终相同。</p>
+</section>
+<section id="a-worked-example">
+<h2>计算示例<a class="headerlink" href="#a-worked-example" title="链接到此标题。">#</a></h2>
+<p>组 <code class="docutils literal notranslate"><span class="pre">a</span></code> 中三分之二是事件，组 <code class="docutils literal notranslate"><span class="pre">b</span></code> 中三分之二是非事件，因此两组的 WOE 互为相反数，等于 <span class="math notranslate nohighlight">\(\pm\ln 2\)</span>。</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">groups</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">woe_table</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>前几列描述每组本身：计数、占全部观测的比例和事件率。</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span><span class="p">[[</span><span class="s2">"non_event"</span><span class="p">,</span> <span class="s2">"event"</span><span class="p">,</span> <span class="s2">"total"</span><span class="p">,</span> <span class="s2">"total_share"</span><span class="p">,</span> <span class="s2">"event_rate"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">     non_event  event  total  total_share  event_rate</span>
+<span class="go">bin</span>
+<span class="go">a            1      2      3          0.5      0.6667</span>
+<span class="go">b            2      1      3          0.5      0.3333</span>
+</pre></div>
+</div>
+<p>其余各列比较两个类别：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span><span class="p">[[</span><span class="s2">"non_event_share"</span><span class="p">,</span> <span class="s2">"event_share"</span><span class="p">,</span> <span class="s2">"woe"</span><span class="p">,</span> <span class="s2">"iv"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">     non_event_share  event_share     woe     iv</span>
+<span class="go">bin</span>
+<span class="go">a             0.3333       0.6667  0.6931  0.231</span>
+<span class="go">b             0.6667       0.3333 -0.6931  0.231</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'iv'</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.4621</span>
+</pre></div>
+</div>
+<p>如果计数已经汇总（例如来自数据库查询），可以把每组的事件数和非事件数传给 <a class="reference internal" href="../api/woe.html#kivi.woe.woe" title="kivi.woe.woe"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe()</span></code></a> 和 <a class="reference internal" href="../api/woe.html#kivi.woe.iv" title="kivi.woe.iv"><code class="xref py py-func docutils literal notranslate"><span class="pre">iv()</span></code></a> ，得到相同的结果：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">iv</span><span class="p">,</span> <span class="n">woe</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">woe</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([ 0.6931, -0.6931])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">iv</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]),</span> <span class="mi">4</span><span class="p">)</span>
+<span class="go">0.4621</span>
+</pre></div>
+</div>
+</section>
+<section id="smoothing-empty-cells">
+<h2>空单元格的平滑<a class="headerlink" href="#smoothing-empty-cells" title="链接到此标题。">#</a></h2>
+<p>没有事件或没有非事件的组，其 WOE 会是无穷。计算占比前，每个零计数都会被替换为 <code class="docutils literal notranslate"><span class="pre">smoothing</span></code> 参数值 <span class="math notranslate nohighlight">\(s\)</span>：</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\tilde E_i = \begin{cases} E_i &amp; E_i &gt; 0 \\ s &amp; E_i = 0 \end{cases}, \qquad
+p_i = \frac{\tilde E_i}{\sum_j \tilde E_j},\end{split}\]</div>
+<p>非事件同理。平滑默认用 0.5 替换零频数，再按列分别归一化。结果表中的计数始终是实际观测数。</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">groups</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"non_event"</span><span class="p">,</span> <span class="s2">"event"</span><span class="p">,</span> <span class="s2">"non_event_share"</span><span class="p">,</span> <span class="s2">"event_share"</span><span class="p">,</span> <span class="s2">"woe"</span><span class="p">,</span> <span class="s2">"iv"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">woe_table</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">target</span><span class="p">)[</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">     non_event  event  non_event_share  event_share    woe     iv</span>
+<span class="go">bin</span>
+<span class="go">a            1      1            0.286          0.4  0.336  0.038</span>
+<span class="go">b            2      0            0.571          0.2 -1.050  0.390</span>
+<span class="go">c            0      1            0.143          0.4  1.030  0.265</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>修改平滑参数可能显著改变稀疏分箱的结果。在依赖这些箱的 WOE 之前，请合并小箱，或比较多个平滑取值的结果。</p>
+</div>
+</section>
+<section id="reading-the-result">
+<h2>解读结果<a class="headerlink" href="#reading-the-result" title="链接到此标题。">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>列</p></th>
+<th class="head"><p>含义</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">non_event</span></code>, <code class="docutils literal notranslate"><span class="pre">event</span></code>, <code class="docutils literal notranslate"><span class="pre">total</span></code></p></td>
+<td><p>每组的实际观测数。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">non_event_share</span></code>, <code class="docutils literal notranslate"><span class="pre">event_share</span></code></p></td>
+<td><p>平滑后的 <span class="math notranslate nohighlight">\(q_i\)</span> 和 <span class="math notranslate nohighlight">\(p_i\)</span>；每列之和为 1。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">total_share</span></code></p></td>
+<td><p>该组占全部观测的比例，不做平滑。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">event_rate</span></code></p></td>
+<td><p>该组事件数除以该组总数，不做平滑。当目标为违约时，即为坏账率。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">woe</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(\ln(p_i / q_i)\)</span>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">iv</span></code></p></td>
+<td><p>该组的 IV 贡献。对该列求和得到变量的 IV。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>解读总值前先检查每一箱的贡献。只有少量事件的箱也可能有很大的 WOE，但它代表的客户可能很少。</p>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>一种广泛使用的经验口径是：IV 低于 0.02 视为无预测力，0.02 到 0.1 为弱，0.1 到 0.3 为中等，高于 0.3 为强。这些区间只是参考起点，而非检验标准；IV 过高往往意味着目标信息泄漏到了该变量中。</p>
+</div>
+</section>
+<section id="charting-woe">
+<h2>绘制 WOE 图<a class="headerlink" href="#charting-woe" title="链接到此标题。">#</a></h2>
+<p>WOE 图是与业务方一起评审变量的常用方式：上图为每组的客户占比和事件率，下图为 WOE。类别变量按 WOE 排序后最易阅读。</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">bank_data</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">3000</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">jobs</span> <span class="o">=</span> <span class="n">woe_table</span><span class="p">(</span><span class="n">reference</span><span class="p">[</span><span class="s2">"job"</span><span class="p">],</span> <span class="n">reference</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"woe"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">jobs</span><span class="p">[[</span><span class="s2">"event"</span><span class="p">,</span> <span class="s2">"non_event"</span><span class="p">,</span> <span class="s2">"event_rate"</span><span class="p">,</span> <span class="s2">"woe"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+<span class="go">             event  non_event  event_rate    woe</span>
+<span class="go">bin</span>
+<span class="go">blue-collar     43        576       0.069 -0.564</span>
+<span class="go">services        23        246       0.086 -0.339</span>
+<span class="go">retired         29        121       0.193  0.602</span>
+<span class="go">student         15         44       0.254  0.955</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="每种职业的客户占比、认购率和 WOE" class="plot-directive" src="../_images/woe_iv-1.svg" />
+<figcaption>
+<p><span class="caption-text">按职业的 WOE。学生和退休客户的认购率远高于蓝领工人，但学生只占样本的 2%，其 WOE 依赖的客户很少。</span><a class="headerlink" href="#id1" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">绘图代码</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">本文档用下面这个 matplotlib 函数绘制 WOE 图，它接收 <a class="reference internal" href="../api/woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_table()</span></code></a> 的结果。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">woe_chart</span><span class="p">(</span><span class="n">table</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Population share and event rate per bin (top) and WOE per bin (bottom)."""</span>
+    <span class="n">share</span><span class="p">,</span> <span class="n">event_rate</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s2">"total_share"</span><span class="p">],</span> <span class="n">table</span><span class="p">[</span><span class="s2">"event_rate"</span><span class="p">]</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">))</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="n">bottom</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">"height_ratios"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">]}</span>
+    <span class="p">)</span>
+    <span class="n">top</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">share</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">LIGHT_BLUE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"total_share"</span><span class="p">)</span>
+    <span class="n">top</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">PercentFormatter</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">top</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"total_share"</span><span class="p">)</span>
+    <span class="n">rate</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
+    <span class="n">rate</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">event_rate</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">AMBER</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"event_rate"</span><span class="p">)</span>
+    <span class="n">rate</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">PercentFormatter</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">rate</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">event_rate</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">))</span>
+    <span class="n">rate</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"event_rate"</span><span class="p">)</span>
+    <span class="n">rate</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">rate</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">"right"</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">handles</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">rate</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">top</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+        <span class="n">handles</span><span class="p">,</span>
+        <span class="p">[</span><span class="s2">"total_share"</span><span class="p">,</span> <span class="s2">"event_rate"</span><span class="p">],</span>
+        <span class="n">loc</span><span class="o">=</span><span class="s2">"lower right"</span><span class="p">,</span>
+        <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.01</span><span class="p">),</span>
+        <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">borderaxespad</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">title</span><span class="p">:</span>
+        <span class="n">top</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">BLUE</span> <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">TEAL</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">table</span><span class="p">[</span><span class="s2">"woe"</span><span class="p">]]</span>
+    <span class="n">bottom</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">table</span><span class="p">[</span><span class="s2">"woe"</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+    <span class="n">bottom</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">GRAY</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">_bar_values</span><span class="p">(</span><span class="n">bottom</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">table</span><span class="p">[</span><span class="s2">"woe"</span><span class="p">])</span>
+    <span class="n">bottom</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"woe"</span><span class="p">)</span>
+    <span class="n">_ticks</span><span class="p">(</span><span class="n">bottom</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">_labels</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">fig</span>
+</pre></div>
+</div>
+</div>
+</details><p>要同时比较多个变量，可以按 IV 排序，见 <a class="reference internal" href="risk_workflow.html"><span class="doc">风控建模流程</span></a>。</p>
+</section>
+<section id="encoding-new-data">
+<h2>对新数据编码<a class="headerlink" href="#encoding-new-data" title="链接到此标题。">#</a></h2>
+<p>评分卡模型以 WOE 值作为输入。 <a class="reference internal" href="../api/woe.html#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_transform()</span></code></a> 用开发样本表中的 WOE 替换每个分组，因此验证样本和之后的生产数据都会使用完全相同的编码。请用在开发样本上拟合的边界为每个样本分组：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">bin_edges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_transform</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">bin_edges</span><span class="p">(</span><span class="n">reference</span><span class="p">[</span><span class="s2">"age"</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">age_table</span> <span class="o">=</span> <span class="n">woe_table</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">reference</span><span class="p">[</span><span class="s2">"age"</span><span class="p">],</span> <span class="n">edges</span><span class="p">),</span> <span class="n">reference</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">current</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">3000</span><span class="p">:]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">encoded</span> <span class="o">=</span> <span class="n">woe_transform</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">current</span><span class="p">[</span><span class="s2">"age"</span><span class="p">],</span> <span class="n">edges</span><span class="p">),</span> <span class="n">age_table</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"age"</span><span class="p">:</span> <span class="n">current</span><span class="p">[</span><span class="s2">"age"</span><span class="p">],</span> <span class="s2">"woe"</span><span class="p">:</span> <span class="n">encoded</span><span class="p">})</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">      age    woe</span>
+<span class="go">3000   45 -0.050</span>
+<span class="go">3001   43 -0.050</span>
+<span class="go">3002   27  0.114</span>
+<span class="go">3003   33 -0.125</span>
+</pre></div>
+</div>
+<p>结果保留分组的索引。如果开发样本中有缺失值，缺失值会取缺失组的 WOE。</p>
+<p>不在表中的分组（例如只在后来的数据中出现的类别）默认会引发错误，因此映射问题不会被忽略：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">new_jobs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"student"</span><span class="p">,</span> <span class="s2">"gig worker"</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">woe_transform</span><span class="p">(</span><span class="n">new_jobs</span><span class="p">,</span> <span class="n">jobs</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="w">    </span><span class="o">...</span>
+<span class="gr">ValueError</span>: <span class="n">2 group(s) are not in table, such as 'gig worker', nan; pass unseen to give them a WOE</span>
+</pre></div>
+</div>
+<p>也可以传入 <code class="docutils literal notranslate"><span class="pre">unseen</span></code> 为这类分组指定 WOE。WOE 为 0 是中性的选择：它代表整个开发样本的事件率。</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">woe_transform</span><span class="p">(</span><span class="n">new_jobs</span><span class="p">,</span> <span class="n">jobs</span><span class="p">,</span> <span class="n">unseen</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[0.955, 0.0, 0.0]</span>
+</pre></div>
+</div>
+</section>
+<section id="sample-weights">
+<h2>样本权重<a class="headerlink" href="#sample-weights" title="链接到此标题。">#</a></h2>
+<p>开发样本常常是分层抽样得到的：保留全部坏账户，但只保留一部分好账户。把每个观测抽样比例的倒数作为 <code class="docutils literal notranslate"><span class="pre">weights</span></code> 传入，计数就能反映总体。下面的样本保留了全部认购客户和每四个其他客户中的一个，因此每个未认购客户代表四个客户。</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sample</span> <span class="o">=</span> <span class="n">data</span><span class="p">[(</span><span class="n">data</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"event_rate"</span><span class="p">,</span> <span class="s2">"woe"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s2">"full"</span><span class="p">:</span> <span class="n">woe_table</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"housing"</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])[</span><span class="n">columns</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"sample"</span><span class="p">:</span> <span class="n">woe_table</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">"housing"</span><span class="p">],</span> <span class="n">sample</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])[</span><span class="n">columns</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"weighted"</span><span class="p">:</span> <span class="n">woe_table</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">"housing"</span><span class="p">],</span> <span class="n">sample</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)[</span><span class="n">columns</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">          full            sample          weighted</span>
+<span class="go">    event_rate    woe event_rate    woe event_rate    woe</span>
+<span class="go">bin</span>
+<span class="go">no       0.153  0.330      0.431  0.365      0.159  0.365</span>
+<span class="go">yes      0.086 -0.326      0.270 -0.349      0.085 -0.349</span>
+</pre></div>
+</div>
+<p>不加权的样本高估了事件率，加权后事件率回到总体水平。WOE 不变，因为它比较的是事件与非事件各自内部的占比，而同一目标类别的权重会使其所有计数按相同比例缩放。前提是没有任何组在某一目标类别中为空： <code class="docutils literal notranslate"><span class="pre">smoothing</span></code> 以权重为单位替换空单元格，因此当权重总和不等于观测数时，请按相同比例缩放 <code class="docutils literal notranslate"><span class="pre">smoothing</span></code> 。加权结果中的计数为权重之和，权重之和为零的组会被排除， <a class="reference internal" href="../api/woe.html#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_transform()</span></code></a> 会把它们视为未见过的分组。</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="binning.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">分箱</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="selection.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">变量筛选</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definitions">定义</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-worked-example">计算示例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#smoothing-empty-cells">空单元格的平滑</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-the-result">解读结果</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#charting-woe">绘制 WOE 图</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#encoding-new-data">对新数据编码</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-weights">样本权重</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

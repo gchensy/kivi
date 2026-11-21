@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Model performance &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=e03d16b7" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=a85d417d"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/metrics';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Calibration" href="calibration.html" />
+    <link rel="prev" title="Scorecard" href="scorecard.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.8.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 0.8.0">0.8.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/metrics.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/metrics.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">Risk modeling workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Model performance</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="model-performance">
+<h1>Model performance<a class="headerlink" href="#model-performance" title="Link to this heading">#</a></h1>
+<p><a class="reference internal" href="../api/metrics.html#module-kivi.metrics" title="kivi.metrics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.metrics</span></code></a> measures how well a score separates events from non-events. <a class="reference internal" href="../api/metrics.html#kivi.metrics.roc_auc" title="kivi.metrics.roc_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc()</span></code></a>, <a class="reference internal" href="../api/metrics.html#kivi.metrics.gini" title="kivi.metrics.gini"><code class="xref py py-func docutils literal notranslate"><span class="pre">gini()</span></code></a> and <a class="reference internal" href="../api/metrics.html#kivi.metrics.ks" title="kivi.metrics.ks"><code class="xref py py-func docutils literal notranslate"><span class="pre">ks()</span></code></a> summarize the ranking in one number, and <a class="reference internal" href="../api/metrics.html#kivi.metrics.roc_table" title="kivi.metrics.roc_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_table()</span></code></a> lists the points of the ROC curve behind them. <a class="reference internal" href="../api/metrics.html#kivi.metrics.roc_auc_interval" title="kivi.metrics.roc_auc_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc_interval()</span></code></a> gives the AUC a standard error and a confidence interval, and <a class="reference internal" href="../api/metrics.html#kivi.metrics.delong_test" title="kivi.metrics.delong_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">delong_test()</span></code></a> tests whether two scores of the same customers rank equally well. <a class="reference internal" href="../api/metrics.html#kivi.metrics.gains_table" title="kivi.metrics.gains_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">gains_table()</span></code></a> breaks the ranking down by score band, and <a class="reference internal" href="../api/metrics.html#kivi.metrics.brier_score" title="kivi.metrics.brier_score"><code class="xref py py-func docutils literal notranslate"><span class="pre">brier_score()</span></code></a> checks predicted probabilities against the outcomes.</p>
+<p>Performance is measured once the model is scaled to a <a class="reference internal" href="scorecard.html"><span class="doc">Scorecard</span></a>, and before its probabilities are checked in <a class="reference internal" href="calibration.html"><span class="doc">Calibration</span></a>.</p>
+<section id="definitions">
+<h2>Definitions<a class="headerlink" href="#definitions" title="Link to this heading">#</a></h2>
+<p>For <span class="math notranslate nohighlight">\(n_1\)</span> events and <span class="math notranslate nohighlight">\(n_0\)</span> non-events, let <span class="math notranslate nohighlight">\(R_1\)</span> be the sum of the ranks of the events among all scores, where tied scores share their average rank. The area under the ROC curve and the Gini coefficient are</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{AUC} = \frac{R_1 - n_1 (n_1 + 1) / 2}{n_1 n_0}, \qquad
+\mathrm{Gini} = 2\,\mathrm{AUC} - 1.\]</div>
+<p>The AUC is the probability that a randomly chosen event scores higher than a randomly chosen non-event, with ties counted as one half. A score unrelated to the target gives an AUC of about 0.5 and a Gini of about 0.</p>
+<p>Let <span class="math notranslate nohighlight">\(F_1\)</span> and <span class="math notranslate nohighlight">\(F_0\)</span> be the empirical distribution functions of the scores of events and of non-events. The Kolmogorov-Smirnov statistic is their largest gap:</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{KS} = \max_t \, \lvert F_1(t) - F_0(t) \rvert.\]</div>
+<p>The gap is taken in absolute value, as in the two-sample test. KS therefore says nothing about the direction of the score, and its largest gap can come from a range of scores where the ranking is reversed. Read it together with the Gini.</p>
+<p>Flagging every customer who scores at or above a threshold <span class="math notranslate nohighlight">\(t\)</span> catches a share <span class="math notranslate nohighlight">\(\mathrm{TPR}(t)\)</span> of the events, the true positive rate, and a share <span class="math notranslate nohighlight">\(\mathrm{FPR}(t)\)</span> of the non-events, the false positive rate. The ROC curve joins the points <span class="math notranslate nohighlight">\((\mathrm{FPR}(t), \mathrm{TPR}(t))\)</span> from the highest threshold to the lowest. The AUC is the area under it, and the KS is the largest gap <span class="math notranslate nohighlight">\(\lvert \mathrm{TPR}(t) - \mathrm{FPR}(t) \rvert\)</span> between the two rates. Tied scores move the curve diagonally, so the area counts a tied pair as one half, as the AUC does.</p>
+</section>
+<section id="a-worked-example">
+<h2>A worked example<a class="headerlink" href="#a-worked-example" title="Link to this heading">#</a></h2>
+<p>Three of these six customers are events. Of the nine pairs of an event and a non-event, six are ordered correctly, two are not, and one is tied at 0.4, so the AUC is <span class="math notranslate nohighlight">\((6 + 0.5) / 9\)</span>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">gini</span><span class="p">,</span> <span class="n">ks</span><span class="p">,</span> <span class="n">roc_auc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">roc_auc</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
+<span class="go">0.7222</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">gini</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
+<span class="go">0.4444</span>
+</pre></div>
+</div>
+<p>At a cut-off of 0.4, two thirds of the non-events but only one third of the events score at or below it. No cut-off separates the two classes further, so the KS is one third:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">ks</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
+<span class="go">0.3333</span>
+</pre></div>
+</div>
+<p>The ROC table has one row for each of the five distinct scores, after a first row at infinity that flags nobody. At 0.4 it flags the tied event and non-event together, so the curve moves diagonally from (1/3, 2/3) to (2/3, 1):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">roc_table</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">)[</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"cum_non_event"</span><span class="p">,</span> <span class="s2">"cum_event"</span><span class="p">,</span> <span class="s2">"false_positive_rate"</span><span class="p">,</span> <span class="s2">"true_positive_rate"</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">           cum_non_event  cum_event  false_positive_rate  true_positive_rate</span>
+<span class="go">threshold</span>
+<span class="go">inf                    0          0                0.000               0.000</span>
+<span class="go">0.9                    0          1                0.000               0.333</span>
+<span class="go">0.8                    1          1                0.333               0.333</span>
+<span class="go">0.7                    1          2                0.333               0.667</span>
+<span class="go">0.4                    2          3                0.667               1.000</span>
+<span class="go">0.1                    3          3                1.000               1.000</span>
+</pre></div>
+</div>
+<p>The trapezoids under the curve have the areas 1/9 from 0.9 to 0.8, 5/18 from 0.7 to 0.4 and 1/3 from 0.4 to 0.1, which add up to the AUC of 13/18. The largest gap between the two rates is the KS of 1/3.</p>
+</section>
+<section id="score-direction">
+<h2>Score direction<a class="headerlink" href="#score-direction" title="Link to this heading">#</a></h2>
+<p>Every function expects a score that is higher for a higher event probability, such as a predicted probability of default (PD). Scorecard points run the other way, because more points mean a lower risk, so negate them before passing them in: <code class="docutils literal notranslate"><span class="pre">roc_auc(-points,</span> <span class="pre">target)</span></code>.</p>
+<p>Every function takes the score first and the target second, as <code class="docutils literal notranslate"><span class="pre">woe_table(groups,</span> <span class="pre">target)</span></code> takes the groups first. scikit-learn’s metrics take the target first, so check the order when porting code from them.</p>
+<p>As in <a class="reference internal" href="../api/woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_table()</span></code></a>, the target is 1 for an event and 0 for a non-event. Two Series must share the same index; arrays and lists are matched by position, as <a class="reference internal" href="../api/conventions.html"><span class="doc">Conventions</span></a> describes for every function. Scores must be finite, so decide how missing values are scored before evaluating the model.</p>
+</section>
+<section id="evaluating-a-woe-score">
+<h2>Evaluating a WOE score<a class="headerlink" href="#evaluating-a-woe-score" title="Link to this heading">#</a></h2>
+<p>The bank data give a more realistic example. The score below adds up the WOE values of four variables, fitted on the development sample. A higher WOE means a higher event rate, so the sum already runs in the direction the metrics expect. A scorecard would weight the variables with a logistic regression; the metrics treat any score in the same way.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_table</span><span class="p">,</span> <span class="n">woe_transform</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">bank_data</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">development</span><span class="p">,</span> <span class="n">validation</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">3000</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">3000</span><span class="p">:]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">to_groups</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>        <span class="s2">"poutcome"</span><span class="p">:</span> <span class="n">frame</span><span class="p">[</span><span class="s2">"poutcome"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"contact"</span><span class="p">:</span> <span class="n">frame</span><span class="p">[</span><span class="s2">"contact"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"housing"</span><span class="p">:</span> <span class="n">frame</span><span class="p">[</span><span class="s2">"housing"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"age"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">frame</span><span class="p">[</span><span class="s2">"age"</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev_groups</span> <span class="o">=</span> <span class="n">to_groups</span><span class="p">(</span><span class="n">development</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span> <span class="o">=</span> <span class="p">{</span><span class="n">column</span><span class="p">:</span> <span class="n">woe_table</span><span class="p">(</span><span class="n">dev_groups</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">dev_groups</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">woe_score</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">groups</span> <span class="o">=</span> <span class="n">to_groups</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>        <span class="n">column</span><span class="p">:</span> <span class="n">woe_transform</span><span class="p">(</span><span class="n">groups</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">tables</span><span class="p">[</span><span class="n">column</span><span class="p">])</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">groups</span>
+<span class="gp">... </span>    <span class="p">})</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev_score</span><span class="p">,</span> <span class="n">val_score</span> <span class="o">=</span> <span class="n">woe_score</span><span class="p">(</span><span class="n">development</span><span class="p">),</span> <span class="n">woe_score</span><span class="p">(</span><span class="n">validation</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Measure the score on both samples. The validation rows played no part in fitting the WOE values, so they show how the score holds up on new customers:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">samples</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s2">"development"</span><span class="p">:</span> <span class="p">(</span><span class="n">dev_score</span><span class="p">,</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="s2">"validation"</span><span class="p">:</span> <span class="p">(</span><span class="n">val_score</span><span class="p">,</span> <span class="n">validation</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]),</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="n">name</span><span class="p">:</span> <span class="p">{</span><span class="s2">"auc"</span><span class="p">:</span> <span class="n">roc_auc</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="s2">"gini"</span><span class="p">:</span> <span class="n">gini</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="s2">"ks"</span><span class="p">:</span> <span class="n">ks</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">y</span><span class="p">)}</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">samples</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+<span class="gp">... </span><span class="p">})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">      development  validation</span>
+<span class="go">auc         0.686       0.716</span>
+<span class="go">gini        0.372       0.431</span>
+<span class="go">ks          0.265       0.321</span>
+</pre></div>
+</div>
+<p>A clear drop from development to validation would point to overfitting. Here the validation values are even slightly higher, which is within the sampling noise of 173 validation events.</p>
+<p>Points that fall as the risk rises rank the customers in the opposite order. Passed as they are, they give an AUC below 0.5 and a negative Gini; negated, they give the values above. KS is the same in both directions, so it cannot reveal a reversed score:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">points</span> <span class="o">=</span> <span class="mi">600</span> <span class="o">-</span> <span class="mi">50</span> <span class="o">*</span> <span class="n">val_score</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">validation</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">roc_auc</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">roc_auc</span><span class="p">(</span><span class="o">-</span><span class="n">points</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="mi">3</span><span class="p">)]</span>
+<span class="go">[0.284, 0.716]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">ks</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">ks</span><span class="p">(</span><span class="o">-</span><span class="n">points</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="mi">3</span><span class="p">)]</span>
+<span class="go">[0.321, 0.321]</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>No threshold makes a Gini or a KS good in general: the values that can be reached depend on the portfolio, the target definition and the data available. Compare a new score with the one it replaces on the same validation sample.</p>
+</div>
+</section>
+<section id="roc-curve">
+<h2>ROC curve<a class="headerlink" href="#roc-curve" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/metrics.html#kivi.metrics.roc_table" title="kivi.metrics.roc_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_table()</span></code></a> lists the points of the ROC curve, one row per distinct score from the highest to the lowest, after a first row at infinity. Each row counts the events and non-events that score at or above its threshold, in <code class="docutils literal notranslate"><span class="pre">cum_event</span></code> and <code class="docutils literal notranslate"><span class="pre">cum_non_event</span></code>, and divides them by all events and all non-events to give <code class="docutils literal notranslate"><span class="pre">true_positive_rate</span></code> and <code class="docutils literal notranslate"><span class="pre">false_positive_rate</span></code>. <code class="docutils literal notranslate"><span class="pre">precision</span></code> is the event rate among the customers it flags. On the validation sample the WOE score takes 79 distinct values:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">roc</span> <span class="o">=</span> <span class="n">roc_table</span><span class="p">(</span><span class="n">val_score</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">roc</span><span class="p">)</span>
+<span class="go">80</span>
+</pre></div>
+</div>
+<p>The trapezoids under the curve add up to the AUC, and the largest gap between the two rates is the KS:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fpr</span> <span class="o">=</span> <span class="n">roc</span><span class="p">[</span><span class="s2">"false_positive_rate"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tpr</span> <span class="o">=</span> <span class="n">roc</span><span class="p">[</span><span class="s2">"true_positive_rate"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">fpr</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">tpr</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">tpr</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)),</span> <span class="mi">3</span><span class="p">)</span>
+<span class="go">0.716</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gap</span> <span class="o">=</span> <span class="n">roc</span><span class="p">[</span><span class="s2">"true_positive_rate"</span><span class="p">]</span> <span class="o">-</span> <span class="n">roc</span><span class="p">[</span><span class="s2">"false_positive_rate"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">gap</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">ks</span><span class="p">(</span><span class="n">val_score</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.321 = 0.321</span>
+</pre></div>
+</div>
+<p>The threshold with the largest gap flags 104 of the 173 events, a true positive rate of 60%, but only 378 of the 1,348 non-events. About one in five of the customers it flags is an event, twice the event rate of the sample:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">roc</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">gap</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()],</span> <span class="p">[</span><span class="s2">"cum_event"</span><span class="p">,</span> <span class="s2">"cum_non_event"</span><span class="p">,</span> <span class="s2">"true_positive_rate"</span><span class="p">,</span> <span class="s2">"precision"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">           cum_event  cum_non_event  true_positive_rate  precision</span>
+<span class="go">threshold</span>
+<span class="go">0.284263         104            378               0.601      0.216</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="ROC curve of the validation score, true positive rate against false positive rate, with the diagonal and the KS marked as a vertical segment" class="plot-directive" src="../_images/metrics-1.svg" />
+<figcaption>
+<p><span class="caption-text">ROC curve of the WOE score on the validation sample. The vertical segment at the threshold with the largest gap between the two rates is the KS; the dashed diagonal is a random ordering.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The rates are the <code class="docutils literal notranslate"><span class="pre">cum_event_share</span></code> and <code class="docutils literal notranslate"><span class="pre">cum_non_event_share</span></code> of a gains table with one band per distinct score, and scikit-learn’s <code class="docutils literal notranslate"><span class="pre">roc_curve(target,</span> <span class="pre">score,</span> <span class="pre">drop_intermediate=False)</span></code> gives the same points.</p>
+</section>
+<section id="confidence-interval-of-the-auc">
+<h2>Confidence interval of the AUC<a class="headerlink" href="#confidence-interval-of-the-auc" title="Link to this heading">#</a></h2>
+<p>Another sample of customers would give another AUC. <a class="reference internal" href="../api/metrics.html#kivi.metrics.roc_auc_interval" title="kivi.metrics.roc_auc_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc_interval()</span></code></a> estimates the standard error of the AUC by the method of DeLong, DeLong and Clarke-Pearson (1988), which makes no assumption about the distribution of the scores. Each event gets a placement value, the share of non-events that score below it, and each non-event the share of events that score above it, with ties counted as one half. Both sets of placement values average to the AUC <span class="math notranslate nohighlight">\(\hat\theta\)</span>. With <span class="math notranslate nohighlight">\(n_1\)</span> events and <span class="math notranslate nohighlight">\(n_0\)</span> non-events, as in the definitions above, the variance of the AUC is estimated by</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{SE}^2 = \frac{S_{10}}{n_1} + \frac{S_{01}}{n_0},\]</div>
+<p>where <span class="math notranslate nohighlight">\(S_{10}\)</span> and <span class="math notranslate nohighlight">\(S_{01}\)</span> are the sample variances of the placement values of the events and of the non-events. The interval at the confidence <code class="docutils literal notranslate"><span class="pre">level</span></code> is <span class="math notranslate nohighlight">\(\hat\theta \pm z \, \mathrm{SE}\)</span>, with the normal quantile <span class="math notranslate nohighlight">\(z\)</span>, which is 1.96 for the default level of 0.95, and it is cut off at 0 and 1. The Gini coefficient gets the same interval, rescaled to <span class="math notranslate nohighlight">\(2\,\mathrm{AUC} - 1\)</span>.</p>
+<p>For the six customers of the worked example, the placement values of the events are 1/2, 2/3 and 1 and those of the non-events 1, 5/6 and 1/3. Their sample variances are 7/108 and 13/108, so <span class="math notranslate nohighlight">\(\mathrm{SE}^2 = 5/81\)</span> and the standard error is 0.248:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_auc_interval</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">roc_auc_interval</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">      estimate     se  lower  upper</span>
+<span class="go">auc      0.722  0.248  0.235    1.0</span>
+<span class="go">gini     0.444  0.497 -0.529    1.0</span>
+</pre></div>
+</div>
+<p>On the validation sample, the AUC of 0.716 is known to about 0.04 either way:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">roc_auc_interval</span><span class="p">(</span><span class="n">val_score</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">      estimate     se  lower  upper</span>
+<span class="go">auc      0.716  0.022  0.673  0.759</span>
+<span class="go">gini     0.431  0.044  0.346  0.517</span>
+</pre></div>
+</div>
+<p>The development and validation samples hold different customers, so their AUCs can be treated as independent, with a difference whose standard error is <span class="math notranslate nohighlight">\(\sqrt{\mathrm{SE}_1^2 + \mathrm{SE}_2^2}\)</span>. This is only a rough check, because the WOE values were fitted on the development sample, whose AUC is therefore optimistic. The difference between the two samples is well within the noise:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="p">(</span><span class="n">roc_auc_interval</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"auc"</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">samples</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="s2">"estimate"</span><span class="p">]</span> <span class="o">-</span> <span class="n">dev</span><span class="p">[</span><span class="s2">"estimate"</span><span class="p">])</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">dev</span><span class="p">[</span><span class="s2">"se"</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="s2">"se"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"z = </span><span class="si">{</span><span class="n">z</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, p = </span><span class="si">{</span><span class="n">math</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">z = 1.10, p = 0.27</span>
+</pre></div>
+</div>
+</section>
+<section id="comparing-two-scores">
+<h2>Comparing two scores<a class="headerlink" href="#comparing-two-scores" title="Link to this heading">#</a></h2>
+<p>A new score, such as a challenger to the model in use, is best compared with the current one on the same customers. Both AUCs then come from the same pairs of events and non-events, so they are correlated, and their difference is known more precisely than that of two independent samples. <a class="reference internal" href="../api/metrics.html#kivi.metrics.delong_test" title="kivi.metrics.delong_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">delong_test()</span></code></a> estimates its standard error from the differences between the placement values of the two scores, and tests whether the two AUCs are equal.</p>
+<p>The WOE score adds up the WOE values of its variables, so a new variable joins it by adding its WOE. The two new scores below add <code class="docutils literal notranslate"><span class="pre">month</span></code> or <code class="docutils literal notranslate"><span class="pre">loan</span></code> to the four variables of the current score:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">delong_test</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">with_variable</span><span class="p">(</span><span class="n">column</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">table</span> <span class="o">=</span> <span class="n">woe_table</span><span class="p">(</span><span class="n">development</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">val_score</span> <span class="o">+</span> <span class="n">woe_transform</span><span class="p">(</span><span class="n">validation</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">table</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="n">column</span><span class="p">:</span> <span class="n">delong_test</span><span class="p">(</span><span class="n">val_score</span><span class="p">,</span> <span class="n">with_variable</span><span class="p">(</span><span class="n">column</span><span class="p">),</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"month"</span><span class="p">,</span> <span class="s2">"loan"</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">              month    loan</span>
+<span class="go">current_auc  0.7157  0.7157</span>
+<span class="go">new_auc      0.7403  0.7253</span>
+<span class="go">difference   0.0246  0.0096</span>
+<span class="go">se           0.0105  0.0064</span>
+<span class="go">lower        0.0041 -0.0029</span>
+<span class="go">upper        0.0451  0.0221</span>
+<span class="go">z            2.3509  1.5015</span>
+<span class="go">p_value      0.0187  0.1332</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id3">
+<img alt="ROC curves of the current WOE score and of the scores with month or loan added, on the validation sample, with each AUC in the legend" class="plot-directive" src="../_images/metrics-2.svg" />
+<figcaption>
+<p><span class="caption-text">ROC curves of the current score and of the scores with <code class="docutils literal notranslate"><span class="pre">month</span></code> or <code class="docutils literal notranslate"><span class="pre">loan</span></code> added, on the validation sample. <code class="docutils literal notranslate"><span class="pre">month</span></code> lifts the curve at false positive rates between about 5% and 45%; the curve with <code class="docutils literal notranslate"><span class="pre">loan</span></code> stays close to the current one.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p><code class="docutils literal notranslate"><span class="pre">difference</span></code> is <code class="docutils literal notranslate"><span class="pre">new_auc</span></code> minus <code class="docutils literal notranslate"><span class="pre">current_auc</span></code>, <code class="docutils literal notranslate"><span class="pre">lower</span></code> and <code class="docutils literal notranslate"><span class="pre">upper</span></code> bound it at the confidence <code class="docutils literal notranslate"><span class="pre">level</span></code>, and <code class="docutils literal notranslate"><span class="pre">p_value</span></code> is the two-sided p-value of <code class="docutils literal notranslate"><span class="pre">z</span></code>. Adding <code class="docutils literal notranslate"><span class="pre">month</span></code> raises the AUC by 0.025, and the interval of the gain excludes 0. The gain of 0.010 from <code class="docutils literal notranslate"><span class="pre">loan</span></code> could be chance (p = 0.13), although its standard error of 0.006 is a third of that of either AUC on its own. For a one-sided test that the new score ranks better, halve <code class="docutils literal notranslate"><span class="pre">p_value</span></code> when <code class="docutils literal notranslate"><span class="pre">z</span></code> is positive.</p>
+</section>
+<section id="gains-table">
+<h2>Gains table<a class="headerlink" href="#gains-table" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/metrics.html#kivi.metrics.gains_table" title="kivi.metrics.gains_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">gains_table()</span></code></a> sorts the sample into score bands, from the highest scores to the lowest. Each row shows the event rate of its band and the share of all events found by reviewing that band and every band above it. The default <code class="docutils literal notranslate"><span class="pre">bins=10</span></code> cuts the sample at the edges of <code class="docutils literal notranslate"><span class="pre">bin_edges(score,</span> <span class="pre">bins=10)</span></code>, and tied scores always share a band.</p>
+<p>In monitoring, fix the bands on the development sample so that every later sample is cut at the same scores. Fit the edges with <a class="reference internal" href="../api/binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a> and round them to readable cut-offs:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">bin_edges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">gains_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">bin_edges</span><span class="p">(</span><span class="n">dev_score</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span>
+<span class="go">array([ -inf, -1.46, -0.38,  0.15,  0.32,   inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gains</span> <span class="o">=</span> <span class="n">gains_table</span><span class="p">(</span><span class="n">val_score</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">edges</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gains</span><span class="p">[[</span><span class="s2">"total"</span><span class="p">,</span> <span class="s2">"event"</span><span class="p">,</span> <span class="s2">"event_rate"</span><span class="p">,</span> <span class="s2">"lift"</span><span class="p">,</span> <span class="s2">"cum_event_share"</span><span class="p">,</span> <span class="s2">"ks"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                total  event  event_rate   lift  cum_event_share     ks</span>
+<span class="go">bin</span>
+<span class="go">(0.32, inf]       264     72       0.273  2.398            0.416  0.274</span>
+<span class="go">(0.15, 0.32]      344     39       0.113  0.997            0.642  0.273</span>
+<span class="go">(-0.38, 0.15]     344     34       0.099  0.869            0.838  0.239</span>
+<span class="go">(-1.46, -0.38]    241     15       0.062  0.547            0.925  0.159</span>
+<span class="go">(-inf, -1.46]     328     13       0.040  0.348            1.000  0.000</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id5">
+<img alt="Event rate and lift of each score band, and the cumulative share of events against the cumulative share of customers" class="plot-directive" src="../_images/metrics-3.svg" />
+<figcaption>
+<p><span class="caption-text">Left: the event rate falls from the top score band to the bottom one; the dashed line is the event rate of the whole sample. Right: the gains curve rises well above the diagonal of a random ordering.</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The top band holds 17% of the validation customers (264 of 1,521) but 42% of the events, so its event rate is 2.4 times that of the whole sample. The table checks the gap between the two classes only at the four interior cut-offs, so its largest <code class="docutils literal notranslate"><span class="pre">ks</span></code> stays below the KS over all scores:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">gains</span><span class="p">[</span><span class="s1">'ks'</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> &lt; </span><span class="si">{</span><span class="n">ks</span><span class="p">(</span><span class="n">val_score</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.274 &lt; 0.321</span>
+</pre></div>
+</div>
+<p>Every band is reported, including a band that no customer falls into, so two samples cut on the same edges give tables with the same rows. Their <code class="docutils literal notranslate"><span class="pre">total</span></code> columns then give the PSI of the score bands, here far below 0.1, the usual upper bound of a small shift (see <a class="reference internal" href="psi.html"><span class="doc">Population stability index</span></a>):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.stability</span><span class="w"> </span><span class="kn">import</span> <span class="n">psi</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev_gains</span> <span class="o">=</span> <span class="n">gains_table</span><span class="p">(</span><span class="n">dev_score</span><span class="p">,</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">edges</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">psi</span><span class="p">(</span><span class="n">dev_gains</span><span class="p">[</span><span class="s2">"total"</span><span class="p">],</span> <span class="n">gains</span><span class="p">[</span><span class="s2">"total"</span><span class="p">]),</span> <span class="mi">4</span><span class="p">)</span>
+<span class="go">0.0025</span>
+</pre></div>
+</div>
+</section>
+<section id="reading-the-result">
+<h2>Reading the result<a class="headerlink" href="#reading-the-result" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">non_event</span></code>, <code class="docutils literal notranslate"><span class="pre">event</span></code>, <code class="docutils literal notranslate"><span class="pre">total</span></code></p></td>
+<td><p>Non-events, events and all observations in the band, as in <a class="reference internal" href="../api/woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_table()</span></code></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">event_rate</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event</span></code> divided by <code class="docutils literal notranslate"><span class="pre">total</span></code>; NaN for an empty band.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lift</span></code></p></td>
+<td><p>The event rate of the band divided by the event rate of the whole sample.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cum_non_event_share</span></code>, <code class="docutils literal notranslate"><span class="pre">cum_event_share</span></code></p></td>
+<td><p>Shares of all non-events and of all events in this band and the bands above it.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cum_total_share</span></code></p></td>
+<td><p>Share of all observations in this band and the bands above it. Plotting <code class="docutils literal notranslate"><span class="pre">cum_event_share</span></code> against <code class="docutils literal notranslate"><span class="pre">cum_total_share</span></code> gives the gains chart.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ks</span></code></p></td>
+<td><p>The absolute gap between <code class="docutils literal notranslate"><span class="pre">cum_event_share</span></code> and <code class="docutils literal notranslate"><span class="pre">cum_non_event_share</span></code> at the lower edge of the band. Like <a class="reference internal" href="../api/metrics.html#kivi.metrics.ks" title="kivi.metrics.ks"><code class="xref py py-func docutils literal notranslate"><span class="pre">ks()</span></code></a>, it can come from a band where the score runs the wrong way, with <code class="docutils literal notranslate"><span class="pre">cum_non_event_share</span></code> above <code class="docutils literal notranslate"><span class="pre">cum_event_share</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cum_lift</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cum_event_share</span></code> divided by <code class="docutils literal notranslate"><span class="pre">cum_total_share</span></code>: the lift of reviewing this band and every band above it.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="brier-score">
+<h2>Brier score<a class="headerlink" href="#brier-score" title="Link to this heading">#</a></h2>
+<p>The ranking measures ignore the probability scale: any increasing transformation of the score gives the same AUC, Gini and KS. When a model predicts probabilities, for example a PD used for pricing or provisions, also compare them with the observed outcomes. <a class="reference internal" href="../api/metrics.html#kivi.metrics.brier_score" title="kivi.metrics.brier_score"><code class="xref py py-func docutils literal notranslate"><span class="pre">brier_score()</span></code></a> is the mean squared difference between the probability <span class="math notranslate nohighlight">\(p_i\)</span> and the outcome <span class="math notranslate nohighlight">\(y_i\)</span>, so a lower value is better:</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{BS} = \frac{1}{n} \sum_{i=1}^{n} (p_i - y_i)^2.\]</div>
+<p>The example below predicts the probability of each validation customer by the development event rate of the customer’s <code class="docutils literal notranslate"><span class="pre">poutcome</span></code> group, and compares it with predicting the development event rate for everyone:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">brier_score</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rates</span> <span class="o">=</span> <span class="n">development</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"poutcome"</span><span class="p">)[</span><span class="s2">"target"</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">by_group</span> <span class="o">=</span> <span class="n">validation</span><span class="p">[</span><span class="s2">"poutcome"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">rates</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">overall</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">validation</span><span class="p">),</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">brier_score</span><span class="p">(</span><span class="n">by_group</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="mi">4</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">brier_score</span><span class="p">(</span><span class="n">overall</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="mi">4</span><span class="p">)]</span>
+<span class="go">[0.0907, 0.1008]</span>
+</pre></div>
+</div>
+<p>The group rates lower the Brier score by about 10% compared with the constant forecast. Unlike the ranking measures, the Brier score needs no events in the sample, so it can also be computed for a period without any.</p>
+</section>
+<section id="sample-weights">
+<h2>Sample weights<a class="headerlink" href="#sample-weights" title="Link to this heading">#</a></h2>
+<p>Validation samples often keep every event but only some of the non-events. Every function of <a class="reference internal" href="../api/metrics.html#module-kivi.metrics" title="kivi.metrics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.metrics</span></code></a> takes <code class="docutils literal notranslate"><span class="pre">weights</span></code>, one non-negative weight per observation matched like the target, and then counts sums of weights instead of observations. Integer weights give the same result as repeating rows, for <a class="reference internal" href="../api/metrics.html#kivi.metrics.gains_table" title="kivi.metrics.gains_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">gains_table()</span></code></a> on fixed edges: with an integer <code class="docutils literal notranslate"><span class="pre">bins</span></code>, the weighted quantiles of <a class="reference internal" href="../api/binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a> use the inverted CDF and can give other edges than the repeated rows. To weight a sample back to the population, give each observation the inverse of its sampling rate. Below, every event of the validation sample is kept but only every second non-event:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">non_events_so_far</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kept</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">non_events_so_far</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sample_score</span><span class="p">,</span> <span class="n">sample_y</span> <span class="o">=</span> <span class="n">val_score</span><span class="p">[</span><span class="n">kept</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">kept</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sample_y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"all"</span><span class="p">:</span> <span class="n">gains_table</span><span class="p">(</span><span class="n">val_score</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">edges</span><span class="p">)[</span><span class="s2">"event_rate"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"sample"</span><span class="p">:</span> <span class="n">gains_table</span><span class="p">(</span><span class="n">sample_score</span><span class="p">,</span> <span class="n">sample_y</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">edges</span><span class="p">)[</span><span class="s2">"event_rate"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"weighted"</span><span class="p">:</span> <span class="n">gains_table</span><span class="p">(</span><span class="n">sample_score</span><span class="p">,</span> <span class="n">sample_y</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)[</span>
+<span class="gp">... </span>        <span class="s2">"event_rate"</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                  all  sample  weighted</span>
+<span class="go">bin</span>
+<span class="go">(0.32, inf]     0.273   0.409     0.257</span>
+<span class="go">(0.15, 0.32]    0.113   0.203     0.113</span>
+<span class="go">(-0.38, 0.15]   0.099   0.185     0.102</span>
+<span class="go">(-1.46, -0.38]  0.062   0.125     0.067</span>
+<span class="go">(-inf, -1.46]   0.040   0.074     0.039</span>
+</pre></div>
+</div>
+<p>Without weights the sample has twice as many events per non-event as the population, and every band’s event rate is inflated. The weights restore rates close to those of all customers. The ranking measures do not change, because a weight that is the same for every observation of a class cancels out of the AUC, the Gini and the KS:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">roc_auc</span><span class="p">(</span><span class="n">sample_score</span><span class="p">,</span> <span class="n">sample_y</span><span class="p">),</span> <span class="mi">4</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">roc_auc</span><span class="p">(</span><span class="n">sample_score</span><span class="p">,</span> <span class="n">sample_y</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">),</span> <span class="mi">4</span><span class="p">)]</span>
+<span class="go">[0.7073, 0.7073]</span>
+</pre></div>
+</div>
+<p>Weights that differ within a class, such as the inverse sampling rates of a stratified sample, do change them.</p>
+<p><a class="reference internal" href="../api/metrics.html#kivi.metrics.roc_auc_interval" title="kivi.metrics.roc_auc_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc_interval()</span></code></a> and <a class="reference internal" href="../api/metrics.html#kivi.metrics.delong_test" title="kivi.metrics.delong_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">delong_test()</span></code></a> read <code class="docutils literal notranslate"><span class="pre">weights</span></code> as frequency weights: an observation of weight <span class="math notranslate nohighlight">\(w\)</span> counts as <span class="math notranslate nohighlight">\(w\)</span> observations. Integer weights therefore give the same standard error as repeating rows, which suits data aggregated into counts. The weights above stand for the non-events left out of the sample, so they give a standard error as small as that of all customers, although the sample holds only half of the non-events:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"sample"</span><span class="p">:</span> <span class="n">roc_auc_interval</span><span class="p">(</span><span class="n">sample_score</span><span class="p">,</span> <span class="n">sample_y</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"auc"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"weighted"</span><span class="p">:</span> <span class="n">roc_auc_interval</span><span class="p">(</span><span class="n">sample_score</span><span class="p">,</span> <span class="n">sample_y</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"auc"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"all"</span><span class="p">:</span> <span class="n">roc_auc_interval</span><span class="p">(</span><span class="n">val_score</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"auc"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">          estimate      se   lower   upper</span>
+<span class="go">sample      0.7073  0.0227  0.6627  0.7519</span>
+<span class="go">weighted    0.7073  0.0218  0.6645  0.7501</span>
+<span class="go">all         0.7157  0.0219  0.6728  0.7587</span>
+</pre></div>
+</div>
+<p>A weight that is the same for every observation of a class leaves the AUC unchanged, so compute its interval without such weights.</p>
+</section>
+<section id="limits">
+<h2>Limits<a class="headerlink" href="#limits" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The intervals and the test rest on a normal approximation, which is poor for an AUC close to 0 or 1 and for a class with few observations. The standard error is 0 whenever the placement values are constant within each class, as they are for a score that separates the classes perfectly, one that reverses them and a constant score, so the interval collapses to the estimate. Without weights, both functions need at least two events and two non-events, and with weights a total weight above 1 in each class.</p></li>
+<li><p><a class="reference internal" href="../api/metrics.html#kivi.metrics.delong_test" title="kivi.metrics.delong_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">delong_test()</span></code></a> needs both scores on the same observations. For the AUCs of different samples, combine the standard errors of the two intervals, as in the comparison of the development and validation samples above.</p></li>
+<li><p>The standard errors measure the noise of sampling customers from one population. A shift of the population over time is a separate question, which <a class="reference internal" href="psi.html"><span class="doc">Population stability index</span></a> answers.</p></li>
+<li><p>kivi gives no p-value for the KS statistic and no confidence bands for the ROC curve or the gains table.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="scorecard.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Scorecard</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="calibration.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Calibration</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definitions">Definitions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-worked-example">A worked example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#score-direction">Score direction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluating-a-woe-score">Evaluating a WOE score</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#roc-curve">ROC curve</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#confidence-interval-of-the-auc">Confidence interval of the AUC</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparing-two-scores">Comparing two scores</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gains-table">Gains table</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-the-result">Reading the result</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#brier-score">Brier score</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-weights">Sample weights</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limits">Limits</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

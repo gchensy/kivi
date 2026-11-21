@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>示例数据 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=e03d16b7" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=79c7be44"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/datasets';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="版本说明" href="../release/index.html" />
+    <link rel="prev" title="存续期 PD 与预期信用损失" href="lifetime.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="0.8.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 0.8.0">0.8.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/datasets.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/datasets.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">约定</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API 参考</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">示例数据</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.datasets">
+<span id="example-data"></span><h1>示例数据<a class="headerlink" href="#module-kivi.datasets" title="链接到此标题。">#</a></h1>
+<p>各篇指南使用的示例数据： <a class="reference internal" href="#kivi.datasets.load_bank" title="kivi.datasets.load_bank"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_bank()</span></code></a> 提供的银行营销数据，以及 <a class="reference internal" href="#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_loan_panel()</span></code></a> 和 <a class="reference internal" href="#kivi.datasets.make_applications" title="kivi.datasets.make_applications"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_applications()</span></code></a> 生成的合成贷款面板和合成贷款申请。</p>
+<p>各列含义以及合成数据的模拟方式见 <a class="reference internal" href="../user_guide/datasets.html"><span class="doc">示例数据</span></a> 。</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.datasets.load_bank" title="kivi.datasets.load_bank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_bank</span></code></a>()</p></td>
+<td><p>读取 UCI Bank Marketing 的 4,521 条营销记录。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_loan_panel</span></code></a>(*[, n_loans, n_months, rng])</p></td>
+<td><p>生成分期贷款的合成月度面板数据。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.datasets.make_applications" title="kivi.datasets.make_applications"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_applications</span></code></a>(*[, n_applicants, rng])</p></td>
+<td><p>生成带审批决策的合成贷款申请数据。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.datasets.Dataset.bank_data" title="kivi.datasets.Dataset.bank_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Dataset.bank_data</span></code></a>()</p></td>
+<td><p>读取 UCI Bank Marketing 的 4,521 条营销记录。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.datasets.load_bank">
+<span class="sig-prename descclassname"><span class="pre">kivi.datasets.</span></span><span class="sig-name descname"><span class="pre">load_bank</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kivi.datasets.load_bank" title="链接到此定义。">#</a></dt>
+<dd><p>读取 UCI Bank Marketing 的 4,521 条营销记录。</p>
+<p>原始数据中的响应列 <code class="docutils literal notranslate"><span class="pre">y</span></code> 以二分类的 <code class="docutils literal notranslate"><span class="pre">target</span></code> 列返回。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回值<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>返回 16 个特征和整数标签 target。1 表示客户认购了定期存款。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code></a></dt><dd><p>将某个特征与 <code class="docutils literal notranslate"><span class="pre">target</span></code> 关联起来。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_loan_panel</span></code></a></dt><dd><p>贷款资产组合的合成月度历史。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>Bank Marketing 由 S. Moro、P. Rita 和 P. Cortez 于 2014 年发布，按 CC BY 4.0 授权。随包 CSV 由旧版工作簿转换而来。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rd093f8221f97-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>S. Moro, P. Rita and P. Cortez, &quot;Bank Marketing&quot;, UCI Machine
+Learning Repository, 2014. <a class="reference external" href="https://doi.org/10.24432/C5K306">https://doi.org/10.24432/C5K306</a></p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bank</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">load_bank</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(4521, 17)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<span class="go">{0: 4000, 1: 521}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.datasets.make_loan_panel">
+<span class="sig-prename descclassname"><span class="pre">kivi.datasets.</span></span><span class="sig-name descname"><span class="pre">make_loan_panel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_loans</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_months</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.datasets.make_loan_panel" title="链接到此定义。">#</a></dt>
+<dd><p>生成分期贷款的合成月度面板数据。</p>
+<p>贷款在 <cite>n_months</cite> 个月内陆续发放，并在每个账龄月的月末观测一次，直到最后一个放款月的下一个月。借款人漏缴期款时逾期向前滚动，还清欠款后回到正常；逾期达到 90 天的贷款会一直停留在该状态。数据是模拟生成的，并非取自真实的资产组合。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>n_loans</strong><span class="classifier">int，默认 5000</span></dt><dd><p>贷款笔数，每笔贷款随机分配到一个放款月。</p>
+</dd>
+<dt><strong>n_months</strong><span class="classifier">int，默认 24</span></dt><dd><p>放款月份数，从 2024 年 1 月开始。最早的批次观测 <cite>n_months</cite> 个账龄月，最晚的批次只观测一个。</p>
+</dd>
+<dt><strong>rng</strong><span class="classifier">{None, int, numpy.random.Generator}，可选</span></dt><dd><p>传给 <cite>numpy.random.default_rng</cite> 的种子或生成器。不使用 NumPy 的全局随机状态，因此同一个种子总是返回同样的面板数据。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>每笔贷款的每个账龄月一行，先按贷款、再按账龄排序。各列含义见“说明”。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>n_loans</cite> 或 <cite>n_months</cite> 不是正整数。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="vintage.html#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.vintage.vintage_table</span></code></a></dt><dd><p>按批次和账龄统计的累计坏账率。</p>
+</dd>
+<dt><a class="reference internal" href="vintage.html#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.vintage.transition_matrix</span></code></a></dt><dd><p>贷款在逾期档位之间的迁移。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.datasets.load_bank" title="kivi.datasets.load_bank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_bank</span></code></a></dt><dd><p>带二分类目标的真实数据。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>各列为：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">loan_id</span></code> ：整数标识，随放款月份递增；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cohort</span></code> ：放款月份，为月度 <code class="docutils literal notranslate"><span class="pre">pandas.Period</span></code> ；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">month</span></code> ：观测所在月份，即 <code class="docutils literal notranslate"><span class="pre">cohort</span> <span class="pre">+</span> <span class="pre">month_on_book</span></code> ；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">month_on_book</span></code> ：放款后经过的月数（账龄），从 1 开始；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">term</span></code> ：合同约定的月供期数，为 12、24 或 36；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">amount</span></code> ：放款金额；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">balance</span></code> ：月末的剩余本金；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">status</span></code> ：月末的逾期天数，为有序分类变量，类别依次为 <code class="docutils literal notranslate"><span class="pre">current</span></code> 、 <code class="docutils literal notranslate"><span class="pre">1-29</span></code> 、 <code class="docutils literal notranslate"><span class="pre">30-59</span></code> 、 <code class="docutils literal notranslate"><span class="pre">60-89</span></code> 和 <code class="docutils literal notranslate"><span class="pre">90+</span></code> 。</p></li>
+</ul>
+<p>每笔贷款按月等额本息还款，月利率为 1%。其状态记录自最早一期未还期款到期以来的月数：一个月为 <code class="docutils literal notranslate"><span class="pre">1-29</span></code> ，两个月为 <code class="docutils literal notranslate"><span class="pre">30-59</span></code> ，三个月为 <code class="docutils literal notranslate"><span class="pre">60-89</span></code> ，四个月及以上为 <code class="docutils literal notranslate"><span class="pre">90+</span></code> 。在期限内，这就是逾期未还的期数；期限结束后仍有欠款的贷款会继续滚动。</p>
+<p>每个月，正常贷款漏缴当期期款的概率在放款后前六个月逐渐上升，之后下降，并乘以该贷款和所在批次各自的风险系数，因此不同批次的质量不同。逾期贷款要么还清全部欠款、回到正常，要么只还一期、保持原状态，要么完全不还、滚动到下一个逾期档位；逾期天数越长，回到正常的概率越低，滚动的概率越高。 <code class="docutils literal notranslate"><span class="pre">90+</span></code> 的贷款不再还款，因此余额保持不变。贷款还清最后一期后离开面板；贷款不会被核销。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_loan_panel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span> <span class="o">=</span> <span class="n">make_loan_panel</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(59295, 8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">   loan_id   cohort    month  month_on_book  term   amount   balance   status</span>
+<span class="go">0        1  2024-01  2024-02              1    24  18300.0  17621.56  current</span>
+<span class="go">1        1  2024-01  2024-03              2    24  18300.0  16936.33  current</span>
+<span class="go">2        1  2024-01  2024-04              3    24  18300.0  16244.25  current</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="go">status</span>
+<span class="go">current    55246</span>
+<span class="go">1-29        1490</span>
+<span class="go">30-59        506</span>
+<span class="go">60-89        320</span>
+<span class="go">90+         1733</span>
+<span class="go">Name: count, dtype: int64</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.datasets.make_applications">
+<span class="sig-prename descclassname"><span class="pre">kivi.datasets.</span></span><span class="sig-name descname"><span class="pre">make_applications</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_applicants</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.datasets.make_applications" title="链接到此定义。">#</a></dt>
+<dd><p>生成带审批决策的合成贷款申请数据。</p>
+<p>每个申请人都有若干数值型和类别型特征、现行评分卡给出的 PD 以及真实的违约标记。现行评分卡的 PD 和两条政策规则决定谁获批，因此数据带有拒绝推断所要纠正的样本选择。数据是模拟的，并非取自真实的资产组合。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>n_applicants</strong><span class="classifier">int，默认 10000</span></dt><dd><p>申请笔数。</p>
+</dd>
+<dt><strong>rng</strong><span class="classifier">{None, int, numpy.random.Generator}，可选</span></dt><dd><p>传给 <cite>numpy.random.default_rng</cite> 的种子或生成器。不使用 NumPy 的全局随机状态，因此同一个种子总是返回同样的申请数据。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>每笔申请一行，各列含义见“说明”。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>n_applicants</cite> 不是正整数。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="reject_inference.html#kivi.reject_inference.fuzzy_augmentation" title="kivi.reject_inference.fuzzy_augmentation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.reject_inference.fuzzy_augmentation</span></code></a></dt><dd><p>推断拒绝申请人的结果。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_loan_panel</span></code></a></dt><dd><p>贷款资产组合的合成月度历史。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.datasets.load_bank" title="kivi.datasets.load_bank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_bank</span></code></a></dt><dd><p>带二分类目标的真实数据。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>各列为：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">age</span></code> ：年龄（岁），从 18 到 75；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">income</span></code> ：月收入，取整到十位；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">debt_to_income</span></code> ：每月还债额与收入之比，保留两位小数；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inquiries</span></code> ：近六个月的征信查询次数；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">housing</span></code> ：分类变量，类别为 <code class="docutils literal notranslate"><span class="pre">own</span></code> 、 <code class="docutils literal notranslate"><span class="pre">mortgage</span></code> 和 <code class="docutils literal notranslate"><span class="pre">rent</span></code> ；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">employment</span></code> ：分类变量，类别为 <code class="docutils literal notranslate"><span class="pre">permanent</span></code> 、 <code class="docutils literal notranslate"><span class="pre">temporary</span></code> 和 <code class="docutils literal notranslate"><span class="pre">self_employed</span></code> ；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">incumbent_pd</span></code> ：决定该申请的评分卡给出的 PD，保留四位小数；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">policy_decline</span></code> ：若某条政策规则拒绝了该申请（无论其 PD 如何）则为 True，规则为负债收入比高于 0.6 或年龄低于 21 岁；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">approved</span></code> ：若 <code class="docutils literal notranslate"><span class="pre">incumbent_pd</span></code> 低于 0.15 且没有政策规则拒绝该申请，则为 True；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">target</span></code> ：申请人违约为 1，否则为 0。</p></li>
+</ul>
+<p>违约概率随负债收入比和征信查询次数上升，随年龄和收入下降，租房者以及临时雇佣和自雇的申请人违约概率更高。一个不在任何列中的隐藏风险因子也会提高违约概率，征信查询次数也随该因子增加。</p>
+<p>现行评分卡对各特征的权重不同，不使用 <code class="docutils literal notranslate"><span class="pre">housing</span></code> ，并且像手握征信报告的审批人员一样，能看到隐藏风险因子的一部分。因此，在特征相同时，拒绝申请人比获批申请人风险更高，只用获批申请人拟合的模型会低估他们的违约率。</p>
+<p>实际中只有获批申请人的结果是已知的。这里也给出了拒绝申请人的 <code class="docutils literal notranslate"><span class="pre">target</span></code> ，但只用于评估拒绝推断：不能用它拟合模型，否则拒绝推断就失去了意义。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_applications</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(10000, 10)</span>
+</pre></div>
+</div>
+<p>拒绝申请人的违约频率是获批申请人的三倍，这只有合成数据才能展示：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">by_decision</span> <span class="o">=</span> <span class="n">applications</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">"policy_decline"</span><span class="p">,</span> <span class="s2">"approved"</span><span class="p">])[</span><span class="s2">"target"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">by_decision</span><span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s2">"size"</span><span class="p">,</span> <span class="s2">"mean"</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                         size   mean</span>
+<span class="go">policy_decline approved</span>
+<span class="go">False          False     2467  0.301</span>
+<span class="go">               True      6770  0.097</span>
+<span class="go">True           False      763  0.274</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.datasets.Dataset.bank_data">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">Dataset.</span></span><span class="sig-name descname"><span class="pre">bank_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kivi.datasets.Dataset.bank_data" title="链接到此定义。">#</a></dt>
+<dd><p>读取 UCI Bank Marketing 的 4,521 条营销记录。</p>
+<p>与 <cite>load_bank</cite> 相同，新代码应改用 <cite>load_bank</cite> 。保留此方法是为了兼容已有代码，调用时不会发出警告。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回值<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>返回 16 个特征和整数标签 target。1 表示客户认购了定期存款。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.datasets.load_bank" title="kivi.datasets.load_bank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_bank</span></code></a></dt><dd><p>相同的数据。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">load_bank</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Dataset</span><span class="o">.</span><span class="n">bank_data</span><span class="p">()</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">load_bank</span><span class="p">())</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="lifetime.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">存续期 PD 与预期信用损失</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../release/index.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">版本说明</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.datasets.load_bank"><code class="docutils literal notranslate"><span class="pre">load_bank()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.datasets.make_loan_panel"><code class="docutils literal notranslate"><span class="pre">make_loan_panel()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.datasets.make_applications"><code class="docutils literal notranslate"><span class="pre">make_applications()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.datasets.Dataset.bank_data"><code class="docutils literal notranslate"><span class="pre">Dataset.bank_data()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

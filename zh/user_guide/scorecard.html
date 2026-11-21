@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>评分卡 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=e03d16b7" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=79c7be44"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/scorecard';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="模型表现" href="metrics.html" />
+    <link rel="prev" title="拒绝推断" href="reject_inference.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="0.8.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 0.8.0">0.8.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/scorecard.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/scorecard.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">风控建模流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">用户指南</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">评分卡</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="scorecard">
+<h1>评分卡<a class="headerlink" href="#scorecard" title="链接到此标题。">#</a></h1>
+<p>评分卡把基于 WOE 的逻辑回归转换为分值。每个申请人在每个变量上获得其所属分组的分值，这些分值相加得到一个代表好结果几率的分数。kivi 把系数和截距当作普通数值接收，因此模型可以来自任何库。</p>
+<p>评分卡位于 <a class="reference internal" href="selection.html"><span class="doc">变量筛选</span></a> 和 <a class="reference internal" href="reject_inference.html"><span class="doc">拒绝推断</span></a> 之后（它们给出系数），位于 <a class="reference internal" href="metrics.html"><span class="doc">模型表现</span></a> 之前（后者评估评分）。 <a class="reference internal" href="../api/scorecard.html#kivi.scorecard.score_scaling" title="kivi.scorecard.score_scaling"><code class="xref py py-func docutils literal notranslate"><span class="pre">score_scaling()</span></code></a> 、 <a class="reference internal" href="../api/scorecard.html#kivi.scorecard.pd_to_score" title="kivi.scorecard.pd_to_score"><code class="xref py py-func docutils literal notranslate"><span class="pre">pd_to_score()</span></code></a> 和 <a class="reference internal" href="../api/scorecard.html#kivi.scorecard.score_to_pd" title="kivi.scorecard.score_to_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">score_to_pd()</span></code></a> 设定刻度， <a class="reference internal" href="../api/scorecard.html#kivi.scorecard.points_table" title="kivi.scorecard.points_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">points_table()</span></code></a> 和 <a class="reference internal" href="../api/scorecard.html#kivi.scorecard.woe_to_points" title="kivi.scorecard.woe_to_points"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_to_points()</span></code></a> 给出分值， <a class="reference internal" href="../api/scorecard.html#kivi.scorecard.reason_codes" title="kivi.scorecard.reason_codes"><code class="xref py py-func docutils literal notranslate"><span class="pre">reason_codes()</span></code></a> 解释评分。</p>
+<section id="scaling">
+<h2>刻度<a class="headerlink" href="#scaling" title="链接到此标题。">#</a></h2>
+<p>分数与好坏比 <span class="math notranslate nohighlight">\(o = (1 - \mathrm{PD}) / \mathrm{PD}\)</span> 的对数呈线性关系。刻度由三个数决定：基准分数、基准分数对应的几率，以及几率翻倍所需增加的分数（PDO）：</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\mathrm{score} = \mathrm{offset} + \mathrm{factor} \cdot \ln o,\\\mathrm{factor} = \frac{\mathrm{pdo}}{\ln 2}, \qquad
+\mathrm{offset} = \mathrm{base\_score} - \mathrm{factor} \cdot \ln \mathrm{base\_odds}.\end{aligned}\end{align} \]</div>
+<p><a class="reference internal" href="../api/scorecard.html#module-kivi.scorecard" title="kivi.scorecard"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.scorecard</span></code></a> 的每个函数都以关键字参数接收这三个数，因此可以把它们放在同一个字典里：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">pd_to_score</span><span class="p">,</span> <span class="n">score_scaling</span><span class="p">,</span> <span class="n">score_to_pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">pdo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_score</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">base_odds</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">factor</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">score_scaling</span><span class="p">(</span><span class="o">**</span><span class="n">scale</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"factor = </span><span class="si">{</span><span class="n">factor</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, offset = </span><span class="si">{</span><span class="n">offset</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">factor = 28.85, offset = 487.12</span>
+</pre></div>
+</div>
+<p>在这一刻度下，几率 50:1（即 PD 为 1/51）对应 600 分，几率 100:1 则多 20 分。 <a class="reference internal" href="../api/scorecard.html#kivi.scorecard.score_to_pd" title="kivi.scorecard.score_to_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">score_to_pd()</span></code></a> 进行反向转换：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pd_to_score</span><span class="p">([</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">101</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span> <span class="o">**</span><span class="n">scale</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">array([600. , 620. , 550.5])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score_to_pd</span><span class="p">([</span><span class="mi">560</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">640</span><span class="p">],</span> <span class="o">**</span><span class="n">scale</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.0741, 0.0196, 0.005 ])</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>kivi 的 WOE 为 <span class="math notranslate nohighlight">\(\ln(p_i / q_i)\)</span> ，即事件占比与非事件占比之比的对数，并以坏结果作为事件（参见 <a class="reference internal" href="woe_iv.html"><span class="doc">证据权重与信息值</span></a> ）。因此 WOE 越高表示风险越高，以坏标记为因变量、以 WOE 为自变量的逻辑回归系数为正，WOE 越高得到的分值越低。有些教材的 WOE 定义方向相反；此时系数和 WOE 值都会变号，而分值保持不变。</p>
+</div>
+</section>
+<section id="points-for-each-group">
+<h2>每个分组的分值<a class="headerlink" href="#points-for-each-group" title="链接到此标题。">#</a></h2>
+<p>下面的示例在随包附带的银行数据上构建一张小型评分卡。这份数据记录的是营销响应而非违约，因此与 <a class="reference internal" href="risk_workflow.html"><span class="doc">风控建模流程</span></a> 一样，把 target 为 1 视为坏结果。先对开发样本分组，并拟合每个变量的 WOE：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_table</span><span class="p">,</span> <span class="n">woe_transform</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">bank_data</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">development</span><span class="p">,</span> <span class="n">monitoring</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">3000</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">3000</span><span class="p">:]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">age_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">to_groups</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">groups</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[[</span><span class="s2">"poutcome"</span><span class="p">,</span> <span class="s2">"contact"</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">groups</span><span class="p">[</span><span class="s2">"age"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">frame</span><span class="p">[</span><span class="s2">"age"</span><span class="p">],</span> <span class="n">age_edges</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">groups</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev_groups</span> <span class="o">=</span> <span class="n">to_groups</span><span class="p">(</span><span class="n">development</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span> <span class="o">=</span> <span class="p">{</span><span class="n">column</span><span class="p">:</span> <span class="n">woe_table</span><span class="p">(</span><span class="n">dev_groups</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">target</span><span class="p">)</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">dev_groups</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>在开发样本上以 <code class="docutils literal notranslate"><span class="pre">target</span></code> 为因变量、以四个 WOE 列为自变量做逻辑回归，得到下面的系数和截距（保留三位小数）。 <a class="reference internal" href="../api/scorecard.html#kivi.scorecard.points_table" title="kivi.scorecard.points_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">points_table()</span></code></a> 把它们转换为分值：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">points_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coefficients</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"poutcome"</span><span class="p">:</span> <span class="mf">0.899</span><span class="p">,</span> <span class="s2">"contact"</span><span class="p">:</span> <span class="mf">0.658</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">:</span> <span class="mf">0.691</span><span class="p">,</span> <span class="s2">"age"</span><span class="p">:</span> <span class="mf">0.714</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">intercept</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.028</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">points_table</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">,</span> <span class="n">intercept</span><span class="p">,</span> <span class="o">**</span><span class="n">scale</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="o">.</span><span class="n">round</span><span class="p">({</span><span class="s2">"woe"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">"points"</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+<span class="go">                   bin     woe  points</span>
+<span class="go">variable</span>
+<span class="go">poutcome       unknown -0.2571   143.1</span>
+<span class="go">poutcome       failure  0.2135   130.9</span>
+<span class="go">poutcome         other  0.5917   121.1</span>
+<span class="go">poutcome       success  2.5481    70.3</span>
+<span class="go">contact       cellular  0.2409   131.8</span>
+<span class="go">contact        unknown -0.9172   153.8</span>
+<span class="go">contact      telephone  0.2063   132.5</span>
+<span class="go">housing             no  0.3329   129.8</span>
+<span class="go">housing            yes -0.3273   142.9</span>
+<span class="go">age       (-inf, 25.0]  0.7941   120.0</span>
+<span class="go">age       (25.0, 35.0] -0.0324   137.1</span>
+<span class="go">age       (35.0, 45.0] -0.1664   139.8</span>
+<span class="go">age       (45.0, 55.0] -0.0001   136.4</span>
+<span class="go">age       (55.0, 65.0]  0.0384   135.6</span>
+<span class="go">age        (65.0, inf]  1.1146   113.4</span>
+</pre></div>
+</div>
+<p>共有 <span class="math notranslate nohighlight">\(m\)</span> 个变量时，变量 <span class="math notranslate nohighlight">\(j\)</span> 的第 <span class="math notranslate nohighlight">\(i\)</span> 组得到</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{points}_{ij} = \frac{\mathrm{offset} - \mathrm{factor} \cdot \beta_0}{m}
+- \mathrm{factor} \cdot \beta_j \, \mathrm{WOE}_{ij}.\]</div>
+<p>截距 <span class="math notranslate nohighlight">\(\beta_0\)</span> 和偏移量平均分摊到各个变量，因此上面四个变量各自承担 <span class="math notranslate nohighlight">\(487.12 + 28.85 \times 2.028 = 545.64\)</span> 分的四分之一。在同一变量内，两个分组的分值只在 WOE 项上有差别。WOE 为零的分组，其事件率与整个样本相同，恰好得到该变量分摊的份额。</p>
+<div class="admonition tip">
+<p class="admonition-title">小技巧</p>
+<p>负的系数会使变量的方向反转，让风险更高的分组得到更多分值。这通常说明变量之间存在相关性；在对模型做刻度转换之前，请检查系数的符号。</p>
+</div>
+</section>
+<section id="scoring-applicants">
+<h2>为申请人评分<a class="headerlink" href="#scoring-applicants" title="链接到此标题。">#</a></h2>
+<p>按 <a class="reference internal" href="woe_iv.html"><span class="doc">证据权重与信息值</span></a> 中的方法，用开发样本的 WOE 表对新申请人编码，再用 <a class="reference internal" href="../api/scorecard.html#kivi.scorecard.woe_to_points" title="kivi.scorecard.woe_to_points"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_to_points()</span></code></a> 给出每个变量的分值。每行之和即为分数：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_to_points</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mon_groups</span> <span class="o">=</span> <span class="n">to_groups</span><span class="p">(</span><span class="n">monitoring</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">woe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="n">column</span><span class="p">:</span> <span class="n">woe_transform</span><span class="p">(</span><span class="n">mon_groups</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">tables</span><span class="p">[</span><span class="n">column</span><span class="p">])</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">mon_groups</span><span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">points</span> <span class="o">=</span> <span class="n">woe_to_points</span><span class="p">(</span><span class="n">woe</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">,</span> <span class="n">intercept</span><span class="p">,</span> <span class="o">**</span><span class="n">scale</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">points</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">score</span><span class="o">=</span><span class="n">points</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">      poutcome  contact  housing    age  score</span>
+<span class="go">3000     143.1    132.5    129.8  139.8  545.2</span>
+<span class="go">3001     143.1    153.8    142.9  139.8  579.7</span>
+<span class="go">3002     143.1    131.8    142.9  137.1  554.9</span>
+</pre></div>
+</div>
+<p>分数就是模型对数几率经刻度转换后的结果，因此等于 <a class="reference internal" href="../api/scorecard.html#kivi.scorecard.pd_to_score" title="kivi.scorecard.pd_to_score"><code class="xref py py-func docutils literal notranslate"><span class="pre">pd_to_score()</span></code></a> 对模型概率给出的分数：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">probability</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">intercept</span> <span class="o">+</span> <span class="n">woe</span> <span class="o">@</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">coefficients</span><span class="p">))))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">points</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">pd_to_score</span><span class="p">(</span><span class="n">probability</span><span class="p">,</span> <span class="o">**</span><span class="n">scale</span><span class="p">)))</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>上线的评分卡通常把分值取整。请用 <code class="docutils literal notranslate"><span class="pre">table.round()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">points.round()</span></code> 以同样的方式对分值表和申请人分值取整： <code class="docutils literal notranslate"><span class="pre">woe_to_points</span></code> 的每个分值与 <a class="reference internal" href="../api/scorecard.html#kivi.scorecard.points_table" title="kivi.scorecard.points_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">points_table()</span></code></a> 的计算方式完全一致，因此取整后的结果也相同。取整后的总分与精确分数之差，每个变量最多半分。</p>
+</section>
+<section id="reason-codes">
+<h2>原因码<a class="headerlink" href="#reason-codes" title="链接到此标题。">#</a></h2>
+<p>被拒绝的申请人会被告知哪些变量让分数降低最多。 <a class="reference internal" href="../api/scorecard.html#kivi.scorecard.reason_codes" title="kivi.scorecard.reason_codes"><code class="xref py py-func docutils literal notranslate"><span class="pre">reason_codes()</span></code></a> 把每个变量的分值匹配到分值表中的某个分组，与该变量最佳分组的分值比较，并按差距从大到小列出变量：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">reason_codes</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reason_codes</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">table</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">     reason_1 reason_2 reason_3</span>
+<span class="go">3000  contact  housing     None</span>
+<span class="go">3001     None     None     None</span>
+<span class="go">3002  contact      age     None</span>
+</pre></div>
+</div>
+<p>申请人 3000 通过固定电话联系，比 contact 的最佳分组少 21.3 分；没有住房贷款，比 housing 的最佳分组少 13.2 分。申请人 3001 在每个变量上都处于最佳分组，因此没有变量拉低其分数。</p>
+<p>刻度不会改变原因的顺序，因为每个差距都等于 <span class="math notranslate nohighlight">\(\mathrm{factor} \cdot \beta_j\)</span> 乘以 WOE 之差。在 <code class="docutils literal notranslate"><span class="pre">atol</span></code> 范围内无法匹配分值表中任何分组的分值（例如用其他截距算出的分值）会引发错误，而不会对照错误的分组给出原因。</p>
+<p>开发样本中没有观测的分组（例如新类别）里的申请人，在分值表中没有自己的分组。其 WOE 来自 <a class="reference internal" href="../api/woe.html#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_transform()</span></code></a> 中的 <code class="docutils literal notranslate"><span class="pre">unseen</span></code> ，这是为该分组选定的取值，而不是关于申请人的证据，因此默认情况下这些分值同样会引发错误。把它们的分值作为 <code class="docutils literal notranslate"><span class="pre">unseen_points</span></code> 传入，即可视为没有造成损失：此时该变量不会成为这些申请人的原因。 <code class="docutils literal notranslate"><span class="pre">unseen_points</span></code> 是分值而不是 WOE：对包含 <code class="docutils literal notranslate"><span class="pre">unseen</span></code> 所给 WOE 的单行数据调用 <a class="reference internal" href="../api/scorecard.html#kivi.scorecard.woe_to_points" title="kivi.scorecard.woe_to_points"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_to_points()</span></code></a> 即可得到；WOE 为 0 时得到基础分值，每个变量都相同。下例中，第一个申请人的住房状况在开发样本中从未出现：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">new</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rented"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">],</span> <span class="s2">"contact"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"telephone"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_woe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"housing"</span><span class="p">:</span> <span class="n">woe_transform</span><span class="p">(</span><span class="n">new</span><span class="p">[</span><span class="s2">"housing"</span><span class="p">],</span> <span class="n">tables</span><span class="p">[</span><span class="s2">"housing"</span><span class="p">],</span> <span class="n">unseen</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s2">"contact"</span><span class="p">:</span> <span class="n">woe_transform</span><span class="p">(</span><span class="n">new</span><span class="p">[</span><span class="s2">"contact"</span><span class="p">],</span> <span class="n">tables</span><span class="p">[</span><span class="s2">"contact"</span><span class="p">]),</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">two</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"housing"</span><span class="p">:</span> <span class="n">coefficients</span><span class="p">[</span><span class="s2">"housing"</span><span class="p">],</span> <span class="s2">"contact"</span><span class="p">:</span> <span class="n">coefficients</span><span class="p">[</span><span class="s2">"contact"</span><span class="p">]}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_table</span> <span class="o">=</span> <span class="n">points_table</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="n">two</span><span class="p">,</span> <span class="n">intercept</span><span class="p">,</span> <span class="o">**</span><span class="n">scale</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_points</span> <span class="o">=</span> <span class="n">woe_to_points</span><span class="p">(</span><span class="n">new_woe</span><span class="p">,</span> <span class="n">two</span><span class="p">,</span> <span class="n">intercept</span><span class="p">,</span> <span class="o">**</span><span class="n">scale</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zero</span> <span class="o">=</span> <span class="n">woe_to_points</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span> <span class="s2">"contact"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]}),</span> <span class="n">two</span><span class="p">,</span> <span class="n">intercept</span><span class="p">,</span> <span class="o">**</span><span class="n">scale</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zero</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">   housing  contact</span>
+<span class="go">0   272.82   272.82</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reason_codes</span><span class="p">(</span><span class="n">new_points</span><span class="p">,</span> <span class="n">new_table</span><span class="p">,</span> <span class="n">unseen_points</span><span class="o">=</span><span class="n">zero</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">  reason_1 reason_2 reason_3</span>
+<span class="go">0  contact     None     None</span>
+<span class="go">1  housing     None     None</span>
+</pre></div>
+</div>
+<p>第一个申请人的 housing 分值就是 WOE 为 0 时的分值，因此只有电话联系方式（telephone）是原因。第二个申请人没有住房贷款，属于较不利的住房分组，并且处于最佳的联系方式分组 <code class="docutils literal notranslate"><span class="pre">unknown</span></code> 。只有接近 <code class="docutils literal notranslate"><span class="pre">unseen_points</span></code> 的分值才会豁免：来自其他模型的分值，或舍入比 <code class="docutils literal notranslate"><span class="pre">atol</span></code> 允许的更粗的 WOE，仍会引发错误。</p>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>如果开发样本对坏结果做了过采样或欠采样，模型的截距只适用于该样本。在构建分值表之前，请用 <a class="reference internal" href="../api/calibration.html#kivi.calibration.corrected_intercept" title="kivi.calibration.corrected_intercept"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.calibration.corrected_intercept()</span></code></a> 校正截距；参见 <a class="reference internal" href="calibration.html"><span class="doc">校准</span></a> 。</p>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="reject_inference.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">拒绝推断</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="metrics.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">模型表现</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scaling">刻度</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#points-for-each-group">每个分组的分值</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scoring-applicants">为申请人评分</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reason-codes">原因码</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

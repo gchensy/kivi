@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>编写文档 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=e03d16b7" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=79c7be44"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'development/documentation';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="发布到 PyPI" href="releasing.html" />
+    <link rel="prev" title="开发" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="0.8.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 0.8.0">0.8.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/development/documentation.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/development/documentation.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">编写文档</a></li>
+<li class="toctree-l1"><a class="reference internal" href="releasing.html">发布到 PyPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy_review.html">旧版评审</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">开发</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">编写文档</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="writing-documentation">
+<h1>编写文档<a class="headerlink" href="#writing-documentation" title="链接到此标题。">#</a></h1>
+<p>英文版和简体中文版由同一套页面和 docstring 构建。本页说明文档的组织方式和写法；每个拉取请求都要运行的检查见 <a class="reference internal" href="index.html"><span class="doc">开发</span></a> 。</p>
+<section id="kinds-of-pages">
+<h2>页面类型<a class="headerlink" href="#kinds-of-pages" title="链接到此标题。">#</a></h2>
+<p>除首页和各部分的目录页外，每个页面都属于下列五种类型之一，类型决定了页面的内容。</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 30.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>类型</p></th>
+<th class="head"><p>页面</p></th>
+<th class="head"><p>内容</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>教程</p></td>
+<td><p>快速开始部分的各个页面，以及 <a class="reference internal" href="../user_guide/risk_workflow.html"><span class="doc">风控建模流程</span></a></p></td>
+<td><p>安装说明，以及用随包数据从头到尾完成的示例。细节链接到对应的主题指南，不在教程里重复。</p></td>
+</tr>
+<tr class="row-odd"><td><p>主题指南</p></td>
+<td><p>用户指南的其余页面</p></td>
+<td><p>风控模型中的一个步骤：它衡量什么、一个示例，以及如何解读结果。 <a class="reference internal" href="../user_guide/datasets.html"><span class="doc">示例数据</span></a> 以同样的方式介绍示例数据。</p></td>
+</tr>
+<tr class="row-even"><td><p>参考</p></td>
+<td><p>API 参考的各个页面</p></td>
+<td><p><a class="reference internal" href="../api/conventions.html"><span class="doc">约定</span></a> ，即所有函数共同遵守的规则； <a class="reference internal" href="../api/glossary.html"><span class="doc">术语表</span></a> ，即各篇指南所用的术语；以及每个公共模块一页，由模块的 docstring 生成。</p></td>
+</tr>
+<tr class="row-odd"><td><p>版本说明</p></td>
+<td><p><a class="reference internal" href="../release/index.html"><span class="doc">版本说明</span></a> 和 <a class="reference internal" href="../release/migration.html"><span class="doc">从 0.2.x 迁移</span></a></p></td>
+<td><p>每个版本的变化，以及如何把使用 0.2.x 类的代码迁移到替代接口。已发布版本的说明不再修改；当某个版本改变了迁移指南所描述的内容时，迁移指南随之修订。</p></td>
+</tr>
+<tr class="row-even"><td><p>贡献者指南</p></td>
+<td><p>本节的各个页面</p></td>
+<td><p>如何参与 kivi 的开发。 <a class="reference internal" href="legacy_review.html"><span class="doc">旧版评审</span></a> 记录重写之前对 0.2.x 代码的评审。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="where-pages-live">
+<h2>页面位置<a class="headerlink" href="#where-pages-live" title="链接到此标题。">#</a></h2>
+<ul class="simple">
+<li><p>公共模块 <code class="docutils literal notranslate"><span class="pre">kivi.&lt;module&gt;</span></code> 有一个 API 页面 <code class="docutils literal notranslate"><span class="pre">docs/api/&lt;module&gt;.rst</span></code> ，通常还有一个主题指南 <code class="docutils literal notranslate"><span class="pre">docs/user_guide/&lt;topic&gt;.rst</span></code> 。API 参考和用户指南的 toctree 按项目顺序列出各页，并以通配符结尾，所以新页面无需修改它们就会出现在末尾。集成时再把它移到应有的位置，详见下文“入口页面”。</p></li>
+<li><p>约定和术语表分别是 <code class="docutils literal notranslate"><span class="pre">docs/api/conventions.rst</span></code> 和 <code class="docutils literal notranslate"><span class="pre">docs/api/glossary.rst</span></code> 。它们排在 API 参考的最前面，用户指南目录页链接到这两页。</p></li>
+<li><p>页面名是 URL 的一部分，语言切换也会把每个页面链接到另一种语言中同名的页面。需要调整时改页面标题，不要重命名或删除页面。</p></li>
+<li><p>同一个模块的 API 页面和主题指南使用同一个标题。它的卡片和 README 中的行使用这个标题或其简称，例如 WOE 与 IV。</p></li>
+</ul>
+</section>
+<section id="topic-guides">
+<h2>主题指南<a class="headerlink" href="#topic-guides" title="链接到此标题。">#</a></h2>
+<p>主题指南按分析的顺序组织，读者找到所需内容即可停下。各节按下表的顺序排列，表中以行内代码给出的是各节的固定标题：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>节</p></th>
+<th class="head"><p>内容</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>开篇，不加标题</p></td>
+<td><p>这一步回答什么问题，在风控模型中处于什么位置，并按用户指南的顺序链接到前后步骤的指南。本页涉及的公共函数，每个都链接到其 API 条目。开篇不含示例。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Definition</span></code> （定义）</p></td>
+<td><p>指标及其公式（放在 math 块中），位于所有示例之前。定义多个指标时标题用 <code class="docutils literal notranslate"><span class="pre">Definitions</span></code> ；如果页面上的每个工具都在各自的小节中定义，则省略本节。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">worked</span> <span class="pre">example</span></code> （计算示例）</p></td>
+<td><p>读者可以手工验算的几个数值，紧接在定义之后。</p></td>
+</tr>
+<tr class="row-odd"><td><p>正文各节</p></td>
+<td><p>这一步的每个任务、工具或问题各占一节，按项目的顺序排列，并给出基于内置数据的示例以及如何解读其结果。正文小节的标题用名词短语，例如 <code class="docutils literal notranslate"><span class="pre">Gains</span> <span class="pre">table</span></code> ，或动名词短语，例如 <code class="docutils literal notranslate"><span class="pre">Choosing</span> <span class="pre">a</span> <span class="pre">cut-off</span></code> ；祈使句式的标题留给教程的步骤。正文小节可以再分子节。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Reading</span> <span class="pre">the</span> <span class="pre">result</span></code> （解读结果）</p></td>
+<td><p>页面主要结果各列的表格、指标的方向、常用阈值以及下一步要检查什么。它位于打印该结果的正文小节之后、介绍其他工具的正文小节之前。如果页面上的每个工具各自返回一张表，则由各正文小节分别说明自己的表。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Special</span> <span class="pre">values</span></code> （特殊值）</p></td>
+<td><p>如何把表示“不适用”的 <code class="docutils literal notranslate"><span class="pre">-1</span></code> 等编码传入 <code class="docutils literal notranslate"><span class="pre">special</span></code> ，以及它们最终落入哪个分组。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Missing</span> <span class="pre">values</span></code> （缺失值）</p></td>
+<td><p>缺失值如何计数、分组或被拒绝。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">weights</span></code> （样本权重）</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">weights</span></code> 改变什么、不改变什么，以及加权结果在哪些地方与重复行的结果不同。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Limits</span></code> （局限）</p></td>
+<td><p>方法无法说明什么，以及 kivi 没有实现什么。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Errors</span> <span class="pre">and</span> <span class="pre">warnings</span></code> （错误与警告）</p></td>
+<td><p>读者可能遇到的错误和警告，以及解决方法。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>不适用的小节可以省略，但其余小节要保持顺序和标题不变，让各篇指南读起来一致。一两句话就能说明的变体可以留在它所属的正文小节中，只属于某个任务的错误也可以在该任务处展示；需要示例的变体或错误才单独成节。</p>
+<p>小节锚点也是 URL 的一部分，README 会链接其中一些锚点。README 链接到的小节不要改标题；小节移动时要保留它的标签。</p>
+</section>
+<section id="examples">
+<h2>示例<a class="headerlink" href="#examples" title="链接到此标题。">#</a></h2>
+<ul class="simple">
+<li><p>示例都是 doctest，由 <code class="docutils literal notranslate"><span class="pre">build</span></code> 检查运行。输出必须真实：改动影响了打印出的表格时，重新运行代码并粘贴新的输出，不要手工修改数字。</p></li>
+<li><p>示例使用 <a class="reference internal" href="../user_guide/datasets.html"><span class="doc">示例数据</span></a> 中介绍的数据，或者少量读者能手工验算的数值。随机数据由固定种子的生成器产生。</p></li>
+<li><p>每个函数都从其所在模块导入，例如 <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">kivi.woe</span> <span class="pre">import</span> <span class="pre">woe_table</span></code> 。</p></li>
+<li><p>示例不能产生警告：doctest 或 docs/_plotting.py 中的图表函数一旦发出警告，构建就会失败。如果示例要演示某个警告，请用 <code class="docutils literal notranslate"><span class="pre">warnings.catch_warnings(record=True)</span></code> 捕获它并打印警告信息。</p></li>
+<li><p>同一页面的所有示例共享一个命名空间，因此后面的小节可以使用前面小节定义的名称。移动小节时，请检查每个名称在使用之前仍有定义。</p></li>
+</ul>
+</section>
+<section id="charts">
+<h2>图表<a class="headerlink" href="#charts" title="链接到此标题。">#</a></h2>
+<p>图表在构建文档时绘制。 <code class="docutils literal notranslate"><span class="pre">plot</span></code> 指令调用 <code class="docutils literal notranslate"><span class="pre">docs/_plotting.py</span></code> 中的 <code class="docutils literal notranslate"><span class="pre">figure_*</span></code> 函数，该函数重新计算图表上方示例的结果，所以两者要一起修改。图中的文字只使用 kivi 的列名、参数名和数据值，这样一张图可以同时用于两种语言。图注和替代文本会被翻译。</p>
+<p>新增模块的拉取请求在描述中说明其页面需要的图表。这些图表在集成该页面时，与入口页面一起加入 <code class="docutils literal notranslate"><span class="pre">docs/_plotting.py</span></code> 。</p>
+</section>
+<section id="names-and-links">
+<h2>名称与链接<a class="headerlink" href="#names-and-links" title="链接到此标题。">#</a></h2>
+<ul class="simple">
+<li><p>参数名和列名写成行内代码，例如 <code class="docutils literal notranslate"><span class="pre">special</span></code> 或 <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> 。</p></li>
+<li><p>在主题指南和教程中，kivi 的函数、类或模块在每一节第一次出现时链接到其 API 条目。使用 <code class="docutils literal notranslate"><span class="pre">:func:</span></code> 、 <code class="docutils literal notranslate"><span class="pre">:class:</span></code> 、 <code class="docutils literal notranslate"><span class="pre">:exc:</span></code> 、 <code class="docutils literal notranslate"><span class="pre">:meth:</span></code> 和 <code class="docutils literal notranslate"><span class="pre">:mod:</span></code> 角色及完整名称，并在前面加波浪号，例如 <code class="docutils literal notranslate"><span class="pre">:func:`~kivi.woe.woe_table`</span></code> ，这样只显示名称。需要用模块区分两个函数时保留模块名，例如与 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 并列时写 <code class="docutils literal notranslate"><span class="pre">:func:`kivi.binning.cut`</span></code> 。同一节中后续出现的名称仍写成行内代码。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">woe</span></code> 、 <code class="docutils literal notranslate"><span class="pre">iv</span></code> 、 <code class="docutils literal notranslate"><span class="pre">psi</span></code> 、 <code class="docutils literal notranslate"><span class="pre">ks</span></code> 和 <code class="docutils literal notranslate"><span class="pre">gini</span></code> 既是函数名，也是列名。只有表示函数时才加链接。</p></li>
+<li><p>示例中的名称是代码，不加链接。</p></li>
+<li><p>链接到其他页面用 <code class="docutils literal notranslate"><span class="pre">:doc:</span></code> 角色，链接到其他页面的某个小节用 <code class="docutils literal notranslate"><span class="pre">:ref:</span></code> 角色。只有当某个链接指向一个小节时，才给它加标签。</p></li>
+</ul>
+</section>
+<section id="api-reference">
+<h2>API 参考<a class="headerlink" href="#api-reference" title="链接到此标题。">#</a></h2>
+<ul>
+<li><p><a class="reference internal" href="../api.html"><span class="doc">API 参考</span></a> 先列出约定和术语表，再按用户指南的顺序列出各模块页面，最后以通配符收录尚未集成的页面。 <code class="docutils literal notranslate"><span class="pre">api/datasets</span></code> 通过通配符排在最后，从而保证通配符总能匹配到页面。</p></li>
+<li><p>模块页面依次包括：标题、 <code class="docutils literal notranslate"><span class="pre">module</span></code> 指令（为 <code class="docutils literal notranslate"><span class="pre">:mod:</span></code> 链接提供目标）以及简介。简介用一两句话说明模块的用途并链接其主要函数，再用一句话链接到对应的主题指南。之后是各条目。例如：</p>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="gh">Binning</span>
+<span class="gh">=======</span>
+
+<span class="p">..</span> <span class="ow">module</span><span class="p">::</span> kivi.binning
+
+Fit bin edges on a reference sample and group every sample with the same edges.
+<span class="na">:func:</span><span class="nv">`~kivi.binning.bin_edges`</span> fits them from the values alone, ...
+
+See <span class="na">:doc:</span><span class="nv">`/user_guide/binning`</span> for examples and how to choose the edges.
+
+<span class="p">..</span> <span class="ow">autosummary</span><span class="p">::</span>
+
+   bin_edges
+   cut
+
+<span class="p">..</span> <span class="ow">autofunction</span><span class="p">::</span> bin_edges
+
+<span class="p">..</span> <span class="ow">autofunction</span><span class="p">::</span> cut
+</pre></div>
+</div>
+</li>
+<li><p>模块的 API 页面要记录模块 <code class="docutils literal notranslate"><span class="pre">__all__</span></code> 中的每个名称：先列在 <code class="docutils literal notranslate"><span class="pre">autosummary</span></code> 表中，再按同样的顺序各自给出 <code class="docutils literal notranslate"><span class="pre">autofunction</span></code> 、 <code class="docutils literal notranslate"><span class="pre">autoclass</span></code> 、 <code class="docutils literal notranslate"><span class="pre">autoexception</span></code> 或 <code class="docutils literal notranslate"><span class="pre">automethod</span></code> 条目。某个名称没有这样的条目时， <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/build.py</span></code> 会停止。</p></li>
+<li><p>docstring 遵循 numpydoc 约定，并启用全部校验项，因此缺少某个小节（例如 See Also 或 Examples）会导致构建失败。docstring 的段落和页面一样需要翻译。</p></li>
+<li><p><a class="reference internal" href="../api/conventions.html"><span class="doc">约定</span></a> 收录所有模块共同遵守的规则，例如参数顺序和 <code class="docutils literal notranslate"><span class="pre">weights</span></code> 的含义。指南或 docstring 只说明本模块自己的规则，共同规则则链接到约定页面。 <a class="reference internal" href="../api/glossary.html"><span class="doc">术语表</span></a> 对每个术语只定义一次，并链接到使用它的指南。</p></li>
+</ul>
+</section>
+<section id="translations">
+<h2>翻译<a class="headerlink" href="#translations" title="链接到此标题。">#</a></h2>
+<p>中文版由 <code class="docutils literal notranslate"><span class="pre">docs/locale/zh_CN/LC_MESSAGES/kivi.po</span></code> 生成。英文页面和公共 docstring 中的每个段落都对应该文件中的一个条目。如果有条目缺失、标记为 fuzzy 或已不再使用，<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/build.py</span></code> 会停止构建。</p>
+<p>修改英文内容后：</p>
+<ol class="arabic simple">
+<li><p>运行 <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/build.py</span> <span class="pre">--update-po</span></code>。新字符串以空译文加入，已修改的字符串保留旧译文并标记为 fuzzy。</p></li>
+<li><p>翻译空条目，复核 fuzzy 条目并删除其 <code class="docutils literal notranslate"><span class="pre">#,</span> <span class="pre">fuzzy</span></code> 行。</p></li>
+<li><p>再次运行 <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/build.py</span></code>。</p></li>
+</ol>
+<p>翻译时，行内代码、链接等行内标记的两侧要留空格或使用中文标点，否则标记无法识别。每个术语沿用翻译目录中已有的译法，让中文版保持统一的用词。</p>
+<p>只替换标记的修改（例如把行内代码换成链接）不会使译文失效。请在第 1 步之前，把同样的修改应用到 <code class="docutils literal notranslate"><span class="pre">kivi.po</span></code> 的源字符串及其译文上，这样条目就不会变为 fuzzy。</p>
+</section>
+<section id="entry-points">
+<h2>入口页面<a class="headerlink" href="#entry-points" title="链接到此标题。">#</a></h2>
+<p>有些页面描述整个库： <code class="docutils literal notranslate"><span class="pre">README.md</span></code> 和 <code class="docutils literal notranslate"><span class="pre">README.zh-CN.md</span></code> 、首页、用户指南目录页以及 <a class="reference internal" href="../user_guide/risk_workflow.html"><span class="doc">风控建模流程</span></a> 。新增模块的拉取请求不修改它们。它们在一批这样的拉取请求合并之后统一更新，而且这次更新要按库的现状重写，而不只是追加内容：</p>
+<ul class="simple">
+<li><p>首页的标题、简介和步骤；</p></li>
+<li><p>首页和用户指南目录页上的卡片，以及用户指南的页面顺序；</p></li>
+<li><p>API 参考的页面顺序；</p></li>
+<li><p>新页面前后相邻的指南开篇中指向上一步和下一步的链接；</p></li>
+<li><p>新模块需要加入 <a class="reference internal" href="../api/glossary.html"><span class="doc">术语表</span></a> 的术语和 <a class="reference internal" href="../api/conventions.html"><span class="doc">约定</span></a> 的规则；</p></li>
+<li><p>两份 README 中的表格和路线图；</p></li>
+<li><p><a class="reference internal" href="../release/migration.html"><span class="doc">从 0.2.x 迁移</span></a> 中关于尚未迁移功能的所有表述。</p></li>
+</ul>
+<p>新增模块的拉取请求要在描述中列出它所需的术语和约定，就像列出它的图表一样。</p>
+<p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/build.py</span></code> 会列出 README 的 API 表格中遗漏的每个公共函数，以及每个在用户指南目录页上没有卡片、或在 README 中没有链接的用户指南页面。在这个列表清空之前， <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/build.py</span> <span class="pre">--release</span></code> 拒绝运行。</p>
+</section>
+<section id="publishing-the-documentation">
+<h2>发布文档<a class="headerlink" href="#publishing-the-documentation" title="链接到此标题。">#</a></h2>
+<p>GitHub Actions 上的 <code class="docutils literal notranslate"><span class="pre">Documentation</span></code> 工作流会对每个拉取请求运行测试并构建两种语言的文档。在 master 分支上，它还会把 docs/_build/html 发布到 gh-pages 分支，通过 <a class="reference external" href="https://gchensy.github.io/kivi/">https://gchensy.github.io/kivi/</a> 访问。</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">开发</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="releasing.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">发布到 PyPI</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kinds-of-pages">页面类型</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-pages-live">页面位置</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#topic-guides">主题指南</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">示例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#charts">图表</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#names-and-links">名称与链接</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-reference">API 参考</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#translations">翻译</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#entry-points">入口页面</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#publishing-the-documentation">发布文档</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

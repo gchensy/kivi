@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Vintage and roll-rate analysis &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=e03d16b7" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=a85d417d"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/vintage';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Lifetime PD and expected credit loss" href="lifetime.html" />
+    <link rel="prev" title="Model monitoring" href="monitoring.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.8.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 0.8.0">0.8.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/vintage.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/vintage.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">Risk modeling workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Vintage and roll-rate analysis</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="vintage-and-roll-rate-analysis">
+<h1>Vintage and roll-rate analysis<a class="headerlink" href="#vintage-and-roll-rate-analysis" title="Link to this heading">#</a></h1>
+<p>Once a scorecard is in use, the loans it approves are monitored as they age. <a class="reference internal" href="../api/vintage.html#module-kivi.vintage" title="kivi.vintage"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.vintage</span></code></a> covers the two standard views of a loan portfolio: vintage curves, which follow the bad rate of each origination cohort by month on book, and roll rates and transition matrices, which show how loans move between delinquency buckets from one month end to the next.</p>
+<p>Vintage analysis complements <a class="reference internal" href="monitoring.html"><span class="doc">Model monitoring</span></a> and the <a class="reference internal" href="psi.html"><span class="doc">population stability index</span></a>, which monitor the applicants, by following the loans themselves. Its curves and matrices then give the PD term structures of <a class="reference internal" href="lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>, the last step of the user guide. <a class="reference internal" href="../api/vintage.html#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">vintage_table()</span></code></a> gives the vintage curves, and <a class="reference internal" href="../api/vintage.html#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_matrix()</span></code></a> and <a class="reference internal" href="../api/vintage.html#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-func docutils literal notranslate"><span class="pre">roll_rates()</span></code></a> the movements between buckets.</p>
+<section id="the-loan-panel">
+<h2>The loan panel<a class="headerlink" href="#the-loan-panel" title="Link to this heading">#</a></h2>
+<p>Vintage curves and roll rates both work on a loan panel in long format, with one row per loan and month on book. The examples use the synthetic panel of <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_loan_panel()</span></code></a>: 5,000 instalment loans originated from January 2024 to December 2025 and observed at every month end up to January 2026.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_loan_panel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span> <span class="o">=</span> <span class="n">make_loan_panel</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">   loan_id   cohort    month  month_on_book  term   amount   balance   status</span>
+<span class="go">0        1  2024-01  2024-02              1    24  18300.0  17621.56  current</span>
+<span class="go">1        1  2024-01  2024-03              2    24  18300.0  16936.33  current</span>
+<span class="go">2        1  2024-01  2024-04              3    24  18300.0  16244.25  current</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span><span class="o">.</span><span class="n">cat</span><span class="o">.</span><span class="n">categories</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">['current', '1-29', '30-59', '60-89', '90+']</span>
+</pre></div>
+</div>
+<p>The status is an ordered categorical of days past due, so a comparison such as <code class="docutils literal notranslate"><span class="pre">panel[&quot;status&quot;]</span> <span class="pre">&gt;=</span> <span class="pre">&quot;60-89&quot;</span></code> follows the order of the buckets. <a class="reference internal" href="datasets.html"><span class="doc">Example data</span></a> describes how the panel is simulated.</p>
+</section>
+<section id="vintage-curves">
+<h2>Vintage curves<a class="headerlink" href="#vintage-curves" title="Link to this heading">#</a></h2>
+<p>A loan is <em>ever bad</em> by month on book <span class="math notranslate nohighlight">\(k\)</span> if it was bad at any month on book up to <span class="math notranslate nohighlight">\(k\)</span>. A vintage table holds, for each cohort and month on book, the share of the cohort’s loans that are ever bad by then. <a class="reference internal" href="../api/vintage.html#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">vintage_table()</span></code></a> takes the loan, the cohort, the month on book and whether the loan is bad on each row, so the bad definition is a condition on the status. Here a loan is bad once it is 90 days past due:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">vintage_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ever_90</span> <span class="o">=</span> <span class="n">vintage_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"cohort"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"month_on_book"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"90+"</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ever_90</span><span class="p">[[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">24</span><span class="p">]]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[::</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">month_on_book     6      12     18     24</span>
+<span class="go">cohort</span>
+<span class="go">2024-01        0.000  0.068  0.094  0.094</span>
+<span class="go">2024-04        0.020  0.034  0.084    NaN</span>
+<span class="go">2024-07        0.005  0.051  0.081    NaN</span>
+<span class="go">2024-10        0.010  0.025    NaN    NaN</span>
+<span class="go">2025-01        0.005  0.034    NaN    NaN</span>
+<span class="go">2025-04        0.010    NaN    NaN    NaN</span>
+<span class="go">2025-07        0.005    NaN    NaN    NaN</span>
+<span class="go">2025-10          NaN    NaN    NaN    NaN</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="Cumulative 90+ bad rate by month on book for one cohort in each quarter" class="plot-directive" src="../_images/vintage-1.svg" />
+<figcaption>
+<p><span class="caption-text">Vintage curves of the cohorts in the table: each curve stops at the cohort’s latest month on book.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Each row follows one cohort and never decreases from left to right, because a loan that was bad stays counted as bad even if it cures later. The entries a cohort has not reached are NaN, not 0: the 2025-04 cohort is observed up to month on book 9, so its bad rate at month 12 is not known yet. Reading down a column compares the cohorts at the same age, which separates the quality of new lending from the seasoning of the portfolio. The latest value of each cohort mixes the two, because older cohorts have had more time to go bad.</p>
+<p>Every cohort here has about 200 loans, so one bad loan moves its rate by half a percentage point. Compare small differences only after averaging several cohorts.</p>
+<section id="bad-definitions-and-amounts">
+<h3>Bad definitions and amounts<a class="headerlink" href="#bad-definitions-and-amounts" title="Link to this heading">#</a></h3>
+<p>An earlier bad definition gives an earlier signal. On the ordered status, <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">&quot;60-89&quot;</span></code> counts the loans that reached 60 days past due or worse:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ever_60</span> <span class="o">=</span> <span class="n">vintage_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"cohort"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"month_on_book"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="s2">"60-89"</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"ever_60"</span><span class="p">:</span> <span class="n">ever_60</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="s2">"ever_90"</span><span class="p">:</span> <span class="n">ever_90</span><span class="p">[</span><span class="mi">6</span><span class="p">]})</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">         ever_60  ever_90</span>
+<span class="go">cohort</span>
+<span class="go">2024-01    0.021    0.000</span>
+<span class="go">2024-02    0.029    0.020</span>
+<span class="go">2024-03    0.025    0.015</span>
+<span class="go">2024-04    0.030    0.020</span>
+</pre></div>
+</div>
+<p>To weight each loan by the amount lent, pass <code class="docutils literal notranslate"><span class="pre">weights</span></code>. The table then reports the share of the cohort’s amount lent that went to loans that turned bad:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">by_amount</span> <span class="o">=</span> <span class="n">vintage_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">[</span><span class="s2">"cohort"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">[</span><span class="s2">"month_on_book"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"90+"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">weights</span><span class="o">=</span><span class="n">panel</span><span class="p">[</span><span class="s2">"amount"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">by_amount</span><span class="p">[[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">24</span><span class="p">]]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[::</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">month_on_book     6      12     18     24</span>
+<span class="go">cohort</span>
+<span class="go">2024-01        0.000  0.068  0.094  0.094</span>
+<span class="go">2024-04        0.026  0.035  0.091    NaN</span>
+<span class="go">2024-07        0.009  0.058  0.080    NaN</span>
+<span class="go">2024-10        0.010  0.018    NaN    NaN</span>
+<span class="go">2025-01        0.003  0.030    NaN    NaN</span>
+<span class="go">2025-04        0.018    NaN    NaN    NaN</span>
+<span class="go">2025-07        0.007    NaN    NaN    NaN</span>
+<span class="go">2025-10          NaN    NaN    NaN    NaN</span>
+</pre></div>
+</div>
+<p>The weight must be the same on every row of a loan, so pass the amount lent rather than the outstanding balance.</p>
+</section>
+</section>
+<section id="roll-rates">
+<h2>Roll rates<a class="headerlink" href="#roll-rates" title="Link to this heading">#</a></h2>
+<p>A roll rate is the share of the loans in a delinquency bucket at one month end that are in the next worse bucket at the next month end. To pair each row with the row of the same loan one month on book later, merge the panel with itself shifted by one month. The last row of a loan has no partner, because the loan was repaid or the panel ends, and drops out. Unlike shifting the rows within each loan, the merge pairs the right months however the rows are sorted and wherever a month is missing:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">roll_rates</span><span class="p">,</span> <span class="n">transition_matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">later</span> <span class="o">=</span> <span class="n">panel</span><span class="p">[[</span><span class="s2">"loan_id"</span><span class="p">,</span> <span class="s2">"month_on_book"</span><span class="p">,</span> <span class="s2">"status"</span><span class="p">]]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">month_on_book</span><span class="o">=</span><span class="n">panel</span><span class="p">[</span><span class="s2">"month_on_book"</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pairs</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">later</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">,</span> <span class="s2">"month_on_book"</span><span class="p">],</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"_next"</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">before</span><span class="p">,</span> <span class="n">after</span> <span class="o">=</span> <span class="n">pairs</span><span class="p">[</span><span class="s2">"status"</span><span class="p">],</span> <span class="n">pairs</span><span class="p">[</span><span class="s2">"status_next"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">roll_rates</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">before</span>
+<span class="go">current    0.023</span>
+<span class="go">1-29       0.295</span>
+<span class="go">30-59      0.553</span>
+<span class="go">60-89      0.712</span>
+<span class="go">Name: roll_rate, dtype: float64</span>
+</pre></div>
+</div>
+<p>Both columns are ordered categoricals, so <a class="reference internal" href="../api/vintage.html#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-func docutils literal notranslate"><span class="pre">roll_rates()</span></code></a> takes the order of the states, from the best to the worst, from their categories. For plain labels, pass <code class="docutils literal notranslate"><span class="pre">states</span></code>: sorted, <code class="docutils literal notranslate"><span class="pre">&quot;current&quot;</span></code> would come after <code class="docutils literal notranslate"><span class="pre">&quot;90+&quot;</span></code>. Each month about 2.3% of the current loans miss an instalment, and the share that rolls on rises with the days past due: seven in ten of the loans at 60 to 89 days are 90 days past due a month later.</p>
+<p>A loan falls at most one bucket further behind per month, so the only way from current to 90+ in four months is to roll every month. If the movements follow a Markov chain, the product of the roll rates is the share of current loans that are 90+ four months later:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">roll_rates</span><span class="p">(</span><span class="n">before</span><span class="p">,</span><span class="w"> </span><span class="n">after</span><span class="p">)</span><span class="o">.</span><span class="n">prod</span><span class="p">()</span><span class="si">:</span><span class="s2">.5f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.00264</span>
+</pre></div>
+</div>
+<p>Balance roll rates weight each loan by its balance at the first month end, as loss forecasts do:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">roll_rates</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">pairs</span><span class="p">[</span><span class="s2">"balance"</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">before</span>
+<span class="go">current    0.023</span>
+<span class="go">1-29       0.292</span>
+<span class="go">30-59      0.555</span>
+<span class="go">60-89      0.732</span>
+<span class="go">Name: roll_rate, dtype: float64</span>
+</pre></div>
+</div>
+</section>
+<section id="transition-matrices">
+<h2>Transition matrices<a class="headerlink" href="#transition-matrices" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/vintage.html#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_matrix()</span></code></a> shows all the movements, not only the roll to the next bucket. Row <code class="docutils literal notranslate"><span class="pre">i</span></code>, column <code class="docutils literal notranslate"><span class="pre">j</span></code> counts the loans that moved from state <code class="docutils literal notranslate"><span class="pre">i</span></code> to state <code class="docutils literal notranslate"><span class="pre">j</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">transition_matrix</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">)</span>
+<span class="go">after    current  1-29  30-59  60-89   90+</span>
+<span class="go">before</span>
+<span class="go">current    49436  1150      0      0     0</span>
+<span class="go">1-29         716   277    415      0     0</span>
+<span class="go">30-59        126     0     91    268     0</span>
+<span class="go">60-89         31     0      0     52   205</span>
+<span class="go">90+            0     0      0      0  1528</span>
+</pre></div>
+</div>
+<p>With <code class="docutils literal notranslate"><span class="pre">normalize=True</span></code>, each row holds the shares of its loans and sums to 1:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">monthly</span> <span class="o">=</span> <span class="n">transition_matrix</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">monthly</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">after    current   1-29  30-59  60-89    90+</span>
+<span class="go">before</span>
+<span class="go">current    0.977  0.023  0.000  0.000  0.000</span>
+<span class="go">1-29       0.509  0.197  0.295  0.000  0.000</span>
+<span class="go">30-59      0.260  0.000  0.188  0.553  0.000</span>
+<span class="go">60-89      0.108  0.000  0.000  0.181  0.712</span>
+<span class="go">90+        0.000  0.000  0.000  0.000  1.000</span>
+</pre></div>
+</div>
+<p>The diagonal holds the loans that stayed in their bucket, the <code class="docutils literal notranslate"><span class="pre">current</span></code> column the cures and the entries just right of the diagonal the roll rates. A loan that reaches 90+ stays there in this data, so the last row is all 90+.</p>
+<section id="migration-between-two-dates">
+<h3>Migration between two dates<a class="headerlink" href="#migration-between-two-dates" title="Link to this heading">#</a></h3>
+<p>The same function compares any two observations of the same entities, such as the rating grades of obligors at two annual reviews or the delinquency buckets of a portfolio at two month ends. Here are the loans on book at the end of both June and December 2025:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">june</span> <span class="o">=</span> <span class="n">panel</span><span class="p">[</span><span class="n">panel</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"2025-06"</span><span class="p">]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"loan_id"</span><span class="p">)[</span><span class="s2">"status"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">december</span> <span class="o">=</span> <span class="n">panel</span><span class="p">[</span><span class="n">panel</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"2025-12"</span><span class="p">]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"loan_id"</span><span class="p">)[</span><span class="s2">"status"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">both</span> <span class="o">=</span> <span class="n">june</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">december</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">six_months</span> <span class="o">=</span> <span class="n">transition_matrix</span><span class="p">(</span><span class="n">june</span><span class="p">[</span><span class="n">both</span><span class="p">],</span> <span class="n">december</span><span class="p">[</span><span class="n">both</span><span class="p">],</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">six_months</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">after    current   1-29  30-59  60-89    90+</span>
+<span class="go">before</span>
+<span class="go">current    0.953  0.019  0.011  0.006  0.011</span>
+<span class="go">1-29       0.775  0.034  0.000  0.000  0.191</span>
+<span class="go">30-59      0.211  0.000  0.000  0.000  0.789</span>
+<span class="go">60-89      0.150  0.000  0.000  0.000  0.850</span>
+<span class="go">90+        0.000  0.000  0.000  0.000  1.000</span>
+</pre></div>
+</div>
+<p>Only the loans on book at both month ends are compared. The 226 loans repaid in between, almost all of them current in June, drop out, so the <code class="docutils literal notranslate"><span class="pre">current</span></code> row describes the loans that stayed on book. Missing values raise an error instead of being counted, so first decide what to do with the entities observed only once: drop them, as here, or give them a state of their own, such as <code class="docutils literal notranslate"><span class="pre">&quot;closed&quot;</span></code>, to keep them in the shares.</p>
+<p>If the monthly movements followed a time-homogeneous Markov chain, the sixth power of the monthly matrix would give the six-month matrix. Comparing the shares that end in 90+ shows how far that holds:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">projected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_power</span><span class="p">(</span><span class="n">monthly</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="mi">6</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"projected"</span><span class="p">:</span> <span class="n">projected</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s2">"observed"</span><span class="p">:</span> <span class="n">six_months</span><span class="p">[</span><span class="s2">"90+"</span><span class="p">]})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">         projected  observed</span>
+<span class="go">before</span>
+<span class="go">current      0.011     0.011</span>
+<span class="go">1-29         0.218     0.191</span>
+<span class="go">30-59        0.592     0.789</span>
+<span class="go">60-89        0.869     0.850</span>
+<span class="go">90+          1.000     1.000</span>
+</pre></div>
+</div>
+<p>The projection is of the right size but not exact: loans differ in risk, and the chance of missing an instalment depends on the month on book, so the movements are not a time-homogeneous Markov chain. Few loans are 30 to 89 days past due in June, so those rows are also uncertain.</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="monitoring.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Model monitoring</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="lifetime.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Lifetime PD and expected credit loss</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-loan-panel">The loan panel</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vintage-curves">Vintage curves</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bad-definitions-and-amounts">Bad definitions and amounts</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#roll-rates">Roll rates</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transition-matrices">Transition matrices</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#migration-between-two-dates">Migration between two dates</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

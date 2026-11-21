@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Vintage 与滚动率分析 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=e03d16b7" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=79c7be44"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/vintage';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="存续期 PD 与预期信用损失" href="lifetime.html" />
+    <link rel="prev" title="模型监控" href="monitoring.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="0.8.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 0.8.0">0.8.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/vintage.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/vintage.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">约定</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API 参考</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Vintage 与滚动率分析</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.vintage">
+<span id="vintage-and-roll-rate-analysis"></span><h1>Vintage 与滚动率分析<a class="headerlink" href="#module-kivi.vintage" title="链接到此标题。">#</a></h1>
+<p>随着贷款账龄增长分析贷款面板。 <a class="reference internal" href="#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">vintage_table()</span></code></a> 按账龄给出每个放款批次的累计坏账率， <a class="reference internal" href="#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_matrix()</span></code></a> 和 <a class="reference internal" href="#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-func docutils literal notranslate"><span class="pre">roll_rates()</span></code></a> 展示贷款在逾期档位或等级之间的迁移。</p>
+<p>基于合成贷款面板的示例见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vintage_table</span></code></a>(loan, cohort, month_on_book, ...)</p></td>
+<td><p>按账龄列出每个批次的累计坏账率。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_matrix</span></code></a>(before, after, *[, ...])</p></td>
+<td><p>统计对象在两个状态之间的迁移次数。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roll_rates</span></code></a>(before, after, *[, states, weights])</p></td>
+<td><p>计算每个状态中滚动到下一状态的对象所占的比例。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.vintage.vintage_table">
+<span class="sig-prename descclassname"><span class="pre">kivi.vintage.</span></span><span class="sig-name descname"><span class="pre">vintage_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cohort</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">month_on_book</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bad</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.vintage.vintage_table" title="链接到此定义。">#</a></dt>
+<dd><p>按账龄列出每个批次的累计坏账率。</p>
+<p>Vintage 表（账龄表）跟踪每个贷款批次（通常是同一个月发放的贷款）随账龄增长的表现。某个批次在某个账龄上的取值，是该批次贷款中在该账龄或更早时已变坏的比例，因此每一行都不会递减。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>loan</strong><span class="classifier">array_like</span></dt><dd><p>面板中每一行所属贷款的标识。每笔贷款在每个账龄最多有一行，各行无需排序。</p>
+</dd>
+<dt><strong>cohort</strong><span class="classifier">array_like</span></dt><dd><p>每一行的批次，例如放款月份。同一笔贷款的每一行批次必须相同。批次会被排序；分类型批次按其类别顺序排列。</p>
+</dd>
+<dt><strong>month_on_book</strong><span class="classifier">array_like</span></dt><dd><p>每一行距放款的整月数。</p>
+</dd>
+<dt><strong>bad</strong><span class="classifier">array_like</span></dt><dd><p>该贷款在该账龄时是否为坏，取布尔值或 0 和 1。坏的定义以状态上的条件传入，例如 <code class="docutils literal notranslate"><span class="pre">status</span> <span class="pre">==</span> <span class="pre">&quot;90+&quot;</span></code> ；对于有序分类变量，也可以写成 <code class="docutils literal notranslate"><span class="pre">status</span> <span class="pre">&gt;=</span> <span class="pre">&quot;60-89&quot;</span></code> 。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每笔贷款的非负权重，例如放款金额，在该贷款的每一行重复给出。此时表中报告的是批次权重中属于坏贷款的比例，权重之和为零的批次会被排除。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>累计坏账率：每个批次一行，面板中每个不同的账龄一列。在批次被观测的账龄范围（从其各行中最小的账龄到最大的账龄）之外，取值为 NaN。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果输入为空、不是一维的或长度不同，或者是索引不同的 Series。此外，如果 <cite>loan</cite> 或 <cite>cohort</cite> 含有缺失值，某笔贷款属于多个批次或在同一账龄有多行， <cite>month_on_book</cite> 含有非整数的值， <cite>bad</cite> 含有 0 和 1 以外的值，或 <cite>weights</cite> 无效或在同一贷款的各行之间不一致，也会抛出此异常。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_matrix</span></code></a></dt><dd><p>从一个月到另一个月在各状态之间的迁移。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roll_rates</span></code></a></dt><dd><p>每个逾期档位滚动到下一档位的比例。</p>
+</dd>
+<dt><a class="reference internal" href="datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.datasets.make_loan_panel</span></code></a></dt><dd><p>可用于试用此函数的合成贷款面板。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>设 <span class="math notranslate nohighlight">\(L_c\)</span> 为批次 <span class="math notranslate nohighlight">\(c\)</span> 的贷款， <span class="math notranslate nohighlight">\(\tau_i\)</span> 为贷款 <span class="math notranslate nohighlight">\(i\)</span> 首次为坏的账龄（从未变坏时为无穷大）， <span class="math notranslate nohighlight">\(w_i\)</span> 为其权重（不传 <cite>weights</cite> 时为 1）。账龄 <span class="math notranslate nohighlight">\(k\)</span> 处的取值为</p>
+<div class="math notranslate nohighlight">
+\[V_{c,k} = \frac{\sum_{i \in L_c} w_i \, [\tau_i \le k]}
+               {\sum_{i \in L_c} w_i}.\]</div>
+<p>分母包括批次中的每一笔贷款，也包括提前离开面板的贷款（例如已经还清）；这类贷款只有在离开前变坏过才算作坏。贷款一旦变坏，即使之后回到正常，也一直算作坏。</p>
+<p>批次的观测范围从其各行中最小的账龄到最大的账龄，范围之外的取值为 NaN 而不是 0。之后的账龄缺失，是因为该批次的账龄还太短，看不出其贷款是否会变坏；之前的账龄缺失，是因为面板在该批次发放之后才开始。只在面板开始之前变坏过的贷款不会被计入，因此应尽量让面板从放款时开始。在相同账龄上比较各批次，就是在相同的“年龄”上比较它们，从而把新增放款质量的变化与资产组合的账龄成熟效应区分开。</p>
+<p>有两种情况需要注意。如果某个批次的所有贷款都在面板结束前离开（例如全部已经还清），该批次的最后一个取值已是最终结果，但其之后的账龄仍为 NaN；要补齐这些取值，可以在贷款离开后的每个月末保留一行，状态设为不算坏的值，例如 <code class="docutils literal notranslate"><span class="pre">&quot;closed&quot;</span></code> 。另外，跨越多个放款月的批次（例如按季度划分的批次）混合了不同账龄的贷款：在其最大的几个账龄上，最年轻的贷款虽然还没有被观测到这么久，却计入了分母，使这些取值偏低。按月划分批次可以避免这一问题。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">vintage_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loan</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cohort</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"2024-01"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"2024-02"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">month_on_book</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">status</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span>
+<span class="gp">... </span>          <span class="s2">"90+"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bad</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span> <span class="o">==</span> <span class="s2">"90+"</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">status</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vintage_table</span><span class="p">(</span><span class="n">loan</span><span class="p">,</span> <span class="n">cohort</span><span class="p">,</span> <span class="n">month_on_book</span><span class="p">,</span> <span class="n">bad</span><span class="p">)</span>
+<span class="go">month_on_book    1    2    3</span>
+<span class="go">cohort</span>
+<span class="go">2024-01        0.0  0.5  0.5</span>
+<span class="go">2024-02        0.5  0.5  NaN</span>
+</pre></div>
+</div>
+<p>贷款 1 在账龄 2 之后回到正常，但仍算作坏；2024-02 批次尚未达到账龄 3。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.vintage.transition_matrix">
+<span class="sig-prename descclassname"><span class="pre">kivi.vintage.</span></span><span class="sig-name descname"><span class="pre">transition_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">before</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">after</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.vintage.transition_matrix" title="链接到此定义。">#</a></dt>
+<dd><p>统计对象在两个状态之间的迁移次数。</p>
+<p>每个对象（例如一笔贷款或一位债务人）先后各在一个状态上被观测，例如相邻两个月末的逾期档位，或两次年度复评时的评级。第 <span class="math notranslate nohighlight">\(i\)</span> 行、第 <span class="math notranslate nohighlight">\(j\)</span> 列统计从状态 <span class="math notranslate nohighlight">\(i\)</span> 迁移到状态 <span class="math notranslate nohighlight">\(j\)</span> 的对象数。设置 <cite>normalize</cite> 后，每一行给出之后各状态所占的比例，即评级体系的转移矩阵。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>before, after</strong><span class="classifier">array_like</span></dt><dd><p>每个对象在第一次和第二次观测时的状态。如果二者都是 Series，索引必须完全相同；否则按位置对应。二者都不能含有缺失值：请删除没有被观测两次的对象，或给已离开的对象一个单独的状态，例如 <code class="docutils literal notranslate"><span class="pre">&quot;closed&quot;</span></code> 。</p>
+</dd>
+<dt><strong>states</strong><span class="classifier">array_like，可选</span></dt><dd><p>按顺序排列的全部状态；对于逾期档位和评级，从最好到最差排列。没有对象的状态仍会占一行一列。默认取分类型输入的类别（此时两个输入的类别必须相同），否则取排序后的不同取值。排序会把 <code class="docutils literal notranslate"><span class="pre">&quot;current&quot;</span></code> 这样的标签排在 <code class="docutils literal notranslate"><span class="pre">&quot;90+&quot;</span></code> 之后，因此对于逾期档位，请传入 <cite>states</cite> 或使用有序分类变量。</p>
+</dd>
+<dt><strong>normalize</strong><span class="classifier">bool，默认 False</span></dt><dd><p>如果为 True，每一行除以该行合计，使其给出该状态的对象迁移到各状态的比例。此时没有对象的行为 NaN。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每个对象的非负权重，例如第一次观测时的余额，对应方式与 <cite>after</cite> 相同。此时计数为权重之和。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>之前的每个状态一行，之后的每个状态一列，按 <cite>states</cite> 的顺序排列。不传 <cite>weights</cite> 且不设置 <cite>normalize</cite> 时，取值为整数计数。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果输入为空、不是一维的、长度不同或是索引不同的 Series，含有缺失值或不属于 <cite>states</cite> 的值，或 <cite>weights</cite> 无效。此外，如果 <cite>states</cite> 不是一维的或有重复值，或者未给出 <cite>states</cite> 而 <cite>before</cite> 和 <cite>after</cite> 是类别不同的分类变量，也会抛出此异常。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roll_rates</span></code></a></dt><dd><p>每个状态中迁移到下一个更差状态的比例。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vintage_table</span></code></a></dt><dd><p>按批次和账龄统计的累计坏账率。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>设有 <span class="math notranslate nohighlight">\(n_{ij}\)</span> 个对象从状态 <span class="math notranslate nohighlight">\(i\)</span> 迁移到状态 <span class="math notranslate nohighlight">\(j\)</span> ，则归一化后的取值</p>
+<div class="math notranslate nohighlight">
+\[p_{ij} = \frac{n_{ij}}{\sum_k n_{ik}}\]</div>
+<p>估计了从 <span class="math notranslate nohighlight">\(i\)</span> 迁移到 <span class="math notranslate nohighlight">\(j\)</span> 的概率。如果迁移服从时齐马尔可夫链，归一化矩阵的 <span class="math notranslate nohighlight">\(h\)</span> 次幂给出 <span class="math notranslate nohighlight">\(h\)</span> 期内的迁移概率。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">transition_matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">before</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">after</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transition_matrix</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">,</span> <span class="s2">"D"</span><span class="p">])</span>
+<span class="go">after   A  B  C  D</span>
+<span class="go">before</span>
+<span class="go">A       2  1  0  0</span>
+<span class="go">B       0  1  1  0</span>
+<span class="go">C       0  0  1  0</span>
+<span class="go">D       0  0  0  0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transition_matrix</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">after       A      B    C</span>
+<span class="go">before</span>
+<span class="go">A       0.667  0.333  0.0</span>
+<span class="go">B       0.000  0.500  0.5</span>
+<span class="go">C       0.000  0.000  1.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.vintage.roll_rates">
+<span class="sig-prename descclassname"><span class="pre">kivi.vintage.</span></span><span class="sig-name descname"><span class="pre">roll_rates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">before</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">after</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.vintage.roll_rates" title="链接到此定义。">#</a></dt>
+<dd><p>计算每个状态中滚动到下一状态的对象所占的比例。</p>
+<p>滚动率概括了两个月末之间逾期状态的变化：逾期 <code class="docutils literal notranslate"><span class="pre">30-59</span></code> 天的滚动率，是逾期 30 到 59 天的贷款中一个月后逾期 60 到 89 天的比例。状态必须从最好到最差排列，这样下一个状态就是更差的一档。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>before, after</strong><span class="classifier">array_like</span></dt><dd><p>每个对象在第一次和第二次观测时的状态，与 <cite>transition_matrix</cite> 相同。二者都不能含有缺失值。</p>
+</dd>
+<dt><strong>states</strong><span class="classifier">array_like，可选</span></dt><dd><p>从最好到最差排列的全部状态。除非 <cite>before</cite> 和 <cite>after</cite> 是类别相同的有序分类变量（此时使用其类别顺序），否则必须传入。对大多数标签来说，排序得到的顺序是错误的，例如 <code class="docutils literal notranslate"><span class="pre">&quot;current&quot;</span></code> 会排在 <code class="docutils literal notranslate"><span class="pre">&quot;90+&quot;</span></code> 之后。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每个对象的非负权重，例如第一次观测时的余额，对应方式与 <cite>after</cite> 相同。此时滚动率是权重的比例，即余额滚动率。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series</dt><dd><p>除最差状态（没有下一个状态）外每个状态的滚动率，以状态为索引。没有对象的状态，其滚动率为 NaN。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>与 <cite>transition_matrix</cite> 在相同的情况下抛出；此外，如果未给出 <cite>states</cite> 而 <cite>before</cite> 和 <cite>after</cite> 不是有序分类变量，也会抛出。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_matrix</span></code></a></dt><dd><p>所有状态两两之间的迁移。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vintage_table</span></code></a></dt><dd><p>按批次和账龄统计的累计坏账率。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>设有 <span class="math notranslate nohighlight">\(n_{ij}\)</span> 个对象从状态 <span class="math notranslate nohighlight">\(i\)</span> 迁移到状态 <span class="math notranslate nohighlight">\(j\)</span> ，则状态 <span class="math notranslate nohighlight">\(i\)</span> 的滚动率为</p>
+<div class="math notranslate nohighlight">
+\[r_i = \frac{n_{i,i+1}}{\sum_k n_{ik}}.\]</div>
+<p>状态改善、保持不变或恶化超过一档的对象只计入分母。从一个月末到下一个月末，贷款最多再恶化一个逾期档位，因此如果迁移服从马尔可夫链，各滚动率的乘积估计了正常贷款在经过与滚动次数相同的月数后处于最差档位的比例。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">roll_rates</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="s2">"30"</span><span class="p">,</span> <span class="s2">"60"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">before</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"current"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"30"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"60"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"90+"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">after</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"30"</span><span class="p">,</span>
+<span class="gp">... </span>         <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"30"</span><span class="p">,</span> <span class="s2">"60"</span><span class="p">,</span> <span class="s2">"60"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">roll_rates</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="n">states</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">before</span>
+<span class="go">current    0.250</span>
+<span class="go">30         0.333</span>
+<span class="go">60         0.500</span>
+<span class="go">Name: roll_rate, dtype: float64</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="monitoring.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">模型监控</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="lifetime.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">存续期 PD 与预期信用损失</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.vintage.vintage_table"><code class="docutils literal notranslate"><span class="pre">vintage_table()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.vintage.transition_matrix"><code class="docutils literal notranslate"><span class="pre">transition_matrix()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.vintage.roll_rates"><code class="docutils literal notranslate"><span class="pre">roll_rates()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

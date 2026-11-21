@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Lifetime PD and expected credit loss &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=e03d16b7" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=a85d417d"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/lifetime';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Example data" href="datasets.html" />
+    <link rel="prev" title="Vintage and roll-rate analysis" href="vintage.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.8.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 0.8.0">0.8.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/lifetime.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/lifetime.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Lifetime PD and expected credit loss</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.lifetime">
+<span id="lifetime-pd-and-expected-credit-loss"></span><h1>Lifetime PD and expected credit loss<a class="headerlink" href="#module-kivi.lifetime" title="Link to this heading">#</a></h1>
+<p>Turn PD term structures into the expected credit loss and the stages of IFRS 9. <a class="reference internal" href="#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert_pd()</span></code></a> converts a term structure between cumulative, marginal and conditional PDs, <a class="reference internal" href="#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_pd()</span></code></a> projects one from a transition matrix, <a class="reference internal" href="#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_credit_loss()</span></code></a> gives the 12-month and the lifetime expected credit loss of each account, and <a class="reference internal" href="#kivi.lifetime.significant_increase" title="kivi.lifetime.significant_increase"><code class="xref py py-func docutils literal notranslate"><span class="pre">significant_increase()</span></code></a>, <a class="reference internal" href="#kivi.lifetime.assign_stages" title="kivi.lifetime.assign_stages"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_stages()</span></code></a> and <a class="reference internal" href="#kivi.lifetime.stage_table" title="kivi.lifetime.stage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">stage_table()</span></code></a> allocate the stages and sum the loss allowance of each stage.</p>
+<p>See <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a> for examples on the bundled data.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_pd</span></code></a>(probability, *, kind, to)</p></td>
+<td><p>Convert a PD term structure between cumulative, marginal and conditional PDs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_pd</span></code></a>(matrix, *, horizons[, ...])</p></td>
+<td><p>Project the cumulative PD of each state from a transition matrix.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expected_credit_loss</span></code></a>(probability, lgd, ead, ...)</p></td>
+<td><p>Compute the 12-month or lifetime expected credit loss of each account.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.lifetime.significant_increase" title="kivi.lifetime.significant_increase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">significant_increase</span></code></a>(probability, ...)</p></td>
+<td><p>Flag a significant increase in credit risk since initial recognition.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.lifetime.assign_stages" title="kivi.lifetime.assign_stages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_stages</span></code></a>(significant_increase, *[, ...])</p></td>
+<td><p>Allocate exposures to the three stages of IFRS 9.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.lifetime.stage_table" title="kivi.lifetime.stage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stage_table</span></code></a>(stage, exposure, allowance, *[, ...])</p></td>
+<td><p>Summarize the exposure and the expected credit loss of each stage.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.lifetime.convert_pd">
+<span class="sig-prename descclassname"><span class="pre">kivi.lifetime.</span></span><span class="sig-name descname"><span class="pre">convert_pd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.lifetime.convert_pd" title="Link to this definition">#</a></dt>
+<dd><p>Convert a PD term structure between cumulative, marginal and conditional PDs.</p>
+<p>A term structure gives the probability of default in each period after
+a starting point, such as the origination of a loan. The cumulative PD
+of period <span class="math notranslate nohighlight">\(k\)</span> is the probability of a default in periods 1 to
+<span class="math notranslate nohighlight">\(k\)</span>, the marginal PD the probability of a default in period
+<span class="math notranslate nohighlight">\(k\)</span>, and the conditional PD, or hazard rate, the probability of a
+default in period <span class="math notranslate nohighlight">\(k\)</span> given that there was none before.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like or pandas.DataFrame</span></dt><dd><p>PDs from 0 to 1, as one curve, one-dimensional, or one curve per
+row, two-dimensional, such as the cumulative bad rates of
+<cite>kivi.vintage.vintage_table</cite> with one row per cohort and one column
+per month on book. The periods are the positions along the curve:
+the first is period 1. Missing values mark the periods that are not
+observed, such as the months on book that a cohort has not reached.
+Booleans count as 0 and 1.</p>
+</dd>
+<dt><strong>kind</strong><span class="classifier">{“cumulative”, “marginal”, “conditional”}</span></dt><dd><p>Kind of the PDs in <cite>probability</cite>.</p>
+</dd>
+<dt><strong>to</strong><span class="classifier">{“cumulative”, “marginal”, “conditional”}</span></dt><dd><p>Kind of the PDs to return.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame, pandas.Series or numpy.ndarray</dt><dd><p>PDs of kind <cite>to</cite> in the shape of <cite>probability</cite>, with its index,
+columns and name. Missing values stay missing, and so do the PDs
+that depend on them, as described in the Notes.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>kind</cite> or <cite>to</cite> is not one of the three kinds, <cite>probability</cite> is
+not real and numeric, is not one- or two-dimensional, has no period
+or has a value outside [0, 1]. Also if cumulative PDs decrease along
+a curve or the marginal PDs of a curve add up to more than 1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_pd</span></code></a></dt><dd><p>Cumulative PDs from a transition matrix.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expected_credit_loss</span></code></a></dt><dd><p>Expected credit loss from marginal PDs.</p>
+</dd>
+<dt><a class="reference internal" href="vintage.html#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.vintage.vintage_table</span></code></a></dt><dd><p>Cumulative bad rates by cohort and month on book.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>With the cumulative PDs <span class="math notranslate nohighlight">\(C_k\)</span>, the marginal PDs <span class="math notranslate nohighlight">\(m_k\)</span> and
+the conditional PDs <span class="math notranslate nohighlight">\(h_k\)</span> of periods <span class="math notranslate nohighlight">\(k = 1, 2, \ldots\)</span>, and
+<span class="math notranslate nohighlight">\(C_0 = 0\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[m_k = C_k - C_{k-1}, \qquad
+h_k = \frac{C_k - C_{k-1}}{1 - C_{k-1}}, \qquad
+C_k = \sum_{j \le k} m_j = 1 - \prod_{j \le k} (1 - h_j).\]</div>
+<p>The conversions are inverses of each other, up to rounding. The labels
+of the periods are not used: the columns of a vintage table that start
+at month on book 1 give monthly PDs, and columns of quarterly snapshots
+give the PDs of the quarters between them.</p>
+<p>Missing values are not filled. The marginal and the conditional PD of a
+period need the cumulative PDs at its end and at the end of the period
+before, and the cumulative PD of a period needs the marginal or
+conditional PDs of every period up to it. The months on book that a
+cohort has not reached therefore stay missing in every kind, also after
+a round trip. Missing values at the start of a curve, which
+<cite>kivi.vintage.vintage_table</cite> gives when the panel starts after
+origination, leave the marginal and conditional PDs known from the
+second observed period on, but converting those back cannot restore the
+cumulative PDs, because the cumulative PD before the panel starts is not
+known.</p>
+<p>Once the cumulative PD of a curve reaches 1, no exposure is left to
+default, and the conditional PDs of the later periods, 0 / 0, are 0, so
+that the conversions stay inverses.</p>
+<p>The cumulative bad rates of <cite>kivi.vintage.vintage_table</cite> count every
+loan of a cohort, also the loans that were repaid early and can no
+longer default. Its marginal PDs therefore already allow for early
+repayment, and its conditional PDs are conditional on no default, not
+on the loan still being on book.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cumulative</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">convert_pd</span><span class="p">(</span><span class="n">cumulative</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"cumulative"</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="s2">"marginal"</span><span class="p">)</span>
+<span class="go">array([0.02, 0.03, 0.03])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conditional</span> <span class="o">=</span> <span class="n">convert_pd</span><span class="p">(</span><span class="n">cumulative</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"cumulative"</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="s2">"conditional"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conditional</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.02  , 0.0306, 0.0316])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">convert_pd</span><span class="p">(</span><span class="n">conditional</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"conditional"</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="s2">"cumulative"</span><span class="p">)</span>
+<span class="go">array([0.02, 0.05, 0.08])</span>
+</pre></div>
+</div>
+<p>A vintage table has one curve per cohort, and the months on book that
+a cohort has not reached stay missing:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">vintage_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loan</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cohort</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"2024-01"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"2024-02"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">month_on_book</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bad</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">vintage_table</span><span class="p">(</span><span class="n">loan</span><span class="p">,</span> <span class="n">cohort</span><span class="p">,</span> <span class="n">month_on_book</span><span class="p">,</span> <span class="n">bad</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">convert_pd</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"cumulative"</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="s2">"conditional"</span><span class="p">)</span>
+<span class="go">month_on_book    1    2    3</span>
+<span class="go">cohort</span>
+<span class="go">2024-01        0.0  0.5  0.0</span>
+<span class="go">2024-02        0.5  0.0  NaN</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.lifetime.transition_pd">
+<span class="sig-prename descclassname"><span class="pre">kivi.lifetime.</span></span><span class="sig-name descname"><span class="pre">transition_pd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.lifetime.transition_pd" title="Link to this definition">#</a></dt>
+<dd><p>Project the cumulative PD of each state from a transition matrix.</p>
+<p>Row <span class="math notranslate nohighlight">\(i\)</span> of a transition matrix holds the probabilities of moving
+from state <span class="math notranslate nohighlight">\(i\)</span>, such as a rating grade or a delinquency bucket, to
+each state over one period. If the movements follow a time-homogeneous
+Markov chain, the <span class="math notranslate nohighlight">\(h\)</span>-th power of the matrix holds the
+probabilities over <span class="math notranslate nohighlight">\(h\)</span> periods, and its default column the
+cumulative PD of each starting state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>matrix</strong><span class="classifier">array_like or pandas.DataFrame</span></dt><dd><p>Square matrix of the probabilities of moving between the states over
+one period, such as a year or a month, for example the result of
+<cite>kivi.vintage.transition_matrix</cite> with <code class="docutils literal notranslate"><span class="pre">normalize=True</span></code>. Each row
+holds probabilities from 0 to 1 that add up to 1, except that the
+row of the default state is not used. The states of a DataFrame are
+its index, which must equal its columns; the states of an array are
+the positions 0, 1, and so on.</p>
+</dd>
+<dt><strong>horizons</strong><span class="classifier">int or array_like</span></dt><dd><p>Numbers of periods after which to report the cumulative PD: a
+positive integer <span class="math notranslate nohighlight">\(n\)</span> for every horizon from 1 to <span class="math notranslate nohighlight">\(n\)</span>,
+or increasing positive integers, such as <code class="docutils literal notranslate"><span class="pre">[12,</span> <span class="pre">24,</span> <span class="pre">36]</span></code>.</p>
+</dd>
+<dt><strong>default_state</strong><span class="classifier">optional</span></dt><dd><p>Label of the default state. By default the last state, the worst
+one when the states are ordered from the best to the worst, as for
+<cite>kivi.vintage.transition_matrix</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>Cumulative PD with one row per starting state, indexed by <code class="docutils literal notranslate"><span class="pre">state</span></code>
+or, for states with several levels, by the levels of the index of
+<cite>matrix</cite>, and one column per horizon, labelled <code class="docutils literal notranslate"><span class="pre">horizon</span></code>. The row
+of the default state is 1.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>matrix</cite> is not a square, two-dimensional matrix of real numbers,
+a DataFrame’s index and columns differ or have duplicates,
+<cite>default_state</cite> is not one of the states, or a row of another state
+has a missing value or a value outside [0, 1] or does not add up to
+1. Also if <cite>horizons</cite> is not a positive integer or a sequence of
+increasing positive integers.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="vintage.html#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.vintage.transition_matrix</span></code></a></dt><dd><p>Transition matrix of observed movements.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_pd</span></code></a></dt><dd><p>Marginal and conditional PDs from the cumulative PDs.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expected_credit_loss</span></code></a></dt><dd><p>Expected credit loss from marginal PDs.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The default state is made absorbing: its row is replaced by one that
+stays in default with probability 1. Exposures that cure from default in
+the data therefore still count as defaulted, as in the ever-bad rates of
+<cite>kivi.vintage.vintage_table</cite>. With this matrix <span class="math notranslate nohighlight">\(P\)</span> and the default
+state <span class="math notranslate nohighlight">\(d\)</span>, the cumulative PD of state <span class="math notranslate nohighlight">\(i\)</span> at horizon
+<span class="math notranslate nohighlight">\(h\)</span> is</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{PD}_i(h) = (P^h)_{id}.\]</div>
+<p>It never decreases with the horizon and never exceeds 1. Because
+<span class="math notranslate nohighlight">\(P^{a+b} = P^a P^b\)</span>, the PD at <span class="math notranslate nohighlight">\(a + b\)</span> periods is the PD at
+<span class="math notranslate nohighlight">\(b\)</span> periods of the states reached after <span class="math notranslate nohighlight">\(a\)</span> periods,
+weighted by the probabilities of reaching them.</p>
+<p>The projection assumes that the probabilities of moving between states
+are the same in every period and do not depend on how long an exposure
+has been in its state or on book. A matrix estimated over one year gives
+annual PDs, and a monthly one monthly PDs. Rows must add up to 1 within
+1e-9; divide a published matrix that was rounded by its row sums first.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">transition_pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"D"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mf">0.90</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.00</span><span class="p">,</span> <span class="mf">0.00</span><span class="p">,</span> <span class="mf">1.00</span><span class="p">]],</span>
+<span class="gp">... </span>    <span class="n">index</span><span class="o">=</span><span class="n">states</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">columns</span><span class="o">=</span><span class="n">states</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transition_pd</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">horizons</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">horizon     1      2        3</span>
+<span class="go">state</span>
+<span class="go">A        0.02  0.054  0.09596</span>
+<span class="go">B        0.20  0.342  0.44480</span>
+<span class="go">D        1.00  1.000  1.00000</span>
+</pre></div>
+</div>
+<p>After two periods, state A has defaulted with probability
+0.90 × 0.02 + 0.08 × 0.20 + 0.02 = 0.054.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.lifetime.expected_credit_loss">
+<span class="sig-prename descclassname"><span class="pre">kivi.lifetime.</span></span><span class="sig-name descname"><span class="pre">expected_credit_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lgd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ead</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.lifetime.expected_credit_loss" title="Link to this definition">#</a></dt>
+<dd><p>Compute the 12-month or lifetime expected credit loss of each account.</p>
+<p>The expected credit loss of IFRS 9 adds up, over the periods after the
+reporting date, the probability of a default in each period times the
+loss given default and the exposure at default in that period,
+discounted to the reporting date at the effective interest rate. Pass
+the number of periods in 12 months as <cite>horizon</cite> for the 12-month
+expected credit loss of stage 1, and leave it out for the lifetime
+expected credit loss of stages 2 and 3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like or pandas.DataFrame</span></dt><dd><p>Marginal PDs with one row per account and one column per period
+after the reporting date: column <span class="math notranslate nohighlight">\(t\)</span> holds the probability,
+seen at the reporting date, that the account defaults in period
+<span class="math notranslate nohighlight">\(t\)</span>. Each row adds up to at most 1. <cite>convert_pd</cite> gives the
+marginal PDs of a cumulative or conditional term structure. Booleans
+count as 0 and 1.</p>
+</dd>
+<dt><strong>lgd</strong><span class="classifier">float, array_like or pandas.DataFrame</span></dt><dd><p>Loss given default as a share of the exposure at default, from 0 to
+1: one value for all accounts and periods, a one-dimensional
+array_like with one value per account, or a two-dimensional schedule
+with one value per account and period. A two-dimensional array may
+also have one row for all accounts or one column for all periods.</p>
+</dd>
+<dt><strong>ead</strong><span class="classifier">float, array_like or pandas.DataFrame</span></dt><dd><p>Exposure at default, finite and non-negative, in the same forms as
+<cite>lgd</cite>: one value, one value per account, such as the balance at the
+reporting date, or a schedule, such as the balance expected in each
+period. Give the periods after the maturity of an account an
+exposure of 0. Series and DataFrames with one row per account must
+have identical indices, and DataFrames with one column per period
+identical columns. A single row or column is broadcast, so with one
+account or one period only the labels of <cite>probability</cite> are used.</p>
+</dd>
+<dt><strong>rate</strong><span class="classifier">float or array_like</span></dt><dd><p>Effective interest rate per period at which the losses are
+discounted, greater than -1, as one value or one value per account.
+For monthly periods and an annual rate <span class="math notranslate nohighlight">\(r\)</span>, pass
+<span class="math notranslate nohighlight">\((1 + r)^{1/12} - 1\)</span>. Pass 0 to leave the losses undiscounted.</p>
+</dd>
+<dt><strong>horizon</strong><span class="classifier">int, optional</span></dt><dd><p>Number of periods to add up, starting from period 1: 12 for monthly
+periods, or 1 for annual ones, gives the 12-month expected credit
+loss. By default all the periods of <cite>probability</cite>, which give the
+lifetime expected credit loss.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series or numpy.ndarray</dt><dd><p>Expected credit loss of each account, in the units of <cite>ead</cite>. If
+<cite>probability</cite> is a DataFrame, or another input with one row per
+account of several is a pandas object, a Series named
+<code class="docutils literal notranslate"><span class="pre">expected_credit_loss</span></code> with its index; otherwise an array.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>probability</cite> is not two-dimensional with at least one account
+and one period, an input is not real and numeric or does not have
+one of the shapes described, or pandas inputs have different indices
+or columns. Also if <cite>probability</cite> or <cite>lgd</cite> has a value outside
+[0, 1], a row of <cite>probability</cite> adds up to more than 1, <cite>ead</cite> has a
+negative or infinite value, <cite>rate</cite> is infinite, not greater than -1
+or makes a discount factor overflow, or <cite>horizon</cite> is not a positive
+integer up to the number of periods.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_pd</span></code></a></dt><dd><p>Marginal PDs from cumulative or conditional ones.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_pd</span></code></a></dt><dd><p>Cumulative PDs from a transition matrix.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.assign_stages" title="kivi.lifetime.assign_stages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_stages</span></code></a></dt><dd><p>Stage of each account, which decides the horizon.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.stage_table" title="kivi.lifetime.stage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stage_table</span></code></a></dt><dd><p>Exposure and expected credit loss by stage.</p>
+</dd>
+<dt><a class="reference internal" href="strategy.html#kivi.strategy.expected_loss" title="kivi.strategy.expected_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.strategy.expected_loss</span></code></a></dt><dd><p>Expected loss over a single horizon.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>For an account with the marginal PD <span class="math notranslate nohighlight">\(m_t\)</span>, the loss given default
+<span class="math notranslate nohighlight">\(\mathrm{LGD}_t\)</span> and the exposure at default
+<span class="math notranslate nohighlight">\(\mathrm{EAD}_t\)</span> of period <span class="math notranslate nohighlight">\(t\)</span>, and the effective interest
+rate <span class="math notranslate nohighlight">\(r\)</span> per period,</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{ECL} = \sum_{t=1}^{H} m_t \, \mathrm{LGD}_t \,
+               \mathrm{EAD}_t \, (1 + r)^{-t},\]</div>
+<p>where <span class="math notranslate nohighlight">\(H\)</span> is <cite>horizon</cite> or the number of periods. The conventions
+are:</p>
+<ul class="simple">
+<li><p>Period 1 starts at the reporting date and ends one period later;
+period <span class="math notranslate nohighlight">\(t\)</span> ends <span class="math notranslate nohighlight">\(t\)</span> periods after the reporting date.</p></li>
+<li><p>A default in period <span class="math notranslate nohighlight">\(t\)</span> is taken to occur at the end of the
+period, so its loss is discounted over <span class="math notranslate nohighlight">\(t\)</span> periods.</p></li>
+<li><p>The marginal PDs are not conditional on survival: they are seen from
+the reporting date and add up to the cumulative PD. For an account
+that has not defaulted by the reporting date, convert the conditional
+PDs of its term structure from its age at the reporting date on, with
+<code class="docutils literal notranslate"><span class="pre">kind=&quot;conditional&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">to=&quot;marginal&quot;</span></code>.</p></li>
+<li><p>The columns must cover the remaining life of the longest account.
+An account that matures within the horizon has an exposure of 0 after
+maturity, so its 12-month and lifetime expected credit losses are
+equal.</p></li>
+</ul>
+<p>An exposure already in default at the reporting date has defaulted at
+that date, not at the end of a period. Give it a marginal PD of 1 in
+period 1 and a rate of 0, so that its expected credit loss is its LGD
+times its EAD: the LGD of a defaulted exposure usually discounts the
+recoveries already.</p>
+<p>A missing PD, LGD or EAD in a period that is added up, or a missing
+rate, gives the account a missing expected credit loss, as in
+<cite>kivi.strategy.expected_loss</cite>. Missing values in the periods after
+<cite>horizon</cite> are not used.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">expected_credit_loss</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">marginal</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">schedule</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">1000.0</span><span class="p">,</span> <span class="mf">700.0</span><span class="p">,</span> <span class="mf">400.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">500.0</span><span class="p">,</span> <span class="mf">250.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expected_credit_loss</span><span class="p">(</span><span class="n">marginal</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">schedule</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">array([24.23, 32.88])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expected_credit_loss</span><span class="p">(</span><span class="n">marginal</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">schedule</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">array([ 9.52, 23.81])</span>
+</pre></div>
+</div>
+<p>The first account loses 0.02 × 0.5 × 1000 / 1.05 = 9.52 in period 1,
+0.03 × 0.5 × 700 / 1.05² = 9.52 in period 2 and 0.03 × 0.5 × 400 /
+1.05³ = 5.18 in period 3.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.lifetime.significant_increase">
+<span class="sig-prename descclassname"><span class="pre">kivi.lifetime.</span></span><span class="sig-name descname"><span class="pre">significant_increase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origination_probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">absolute</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.lifetime.significant_increase" title="Link to this definition">#</a></dt>
+<dd><p>Flag a significant increase in credit risk since initial recognition.</p>
+<p>IFRS 9 moves an exposure to stage 2 when its credit risk has increased
+significantly since initial recognition. A common quantitative test
+compares the PD at the reporting date with the PD expected at
+origination, as a ratio, a difference or both. The thresholds are the
+policy of the reporting entity, not values set by the standard, so they
+have no defaults.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>PD of each exposure at the reporting date, from 0 to 1.</p>
+</dd>
+<dt><strong>origination_probability</strong><span class="classifier">array_like</span></dt><dd><p>PD of each exposure expected at initial recognition for the same
+period, from 0 to 1. If both inputs are Series, they must have
+identical indices; otherwise they are matched by position.</p>
+</dd>
+<dt><strong>relative</strong><span class="classifier">float or None</span></dt><dd><p>The increase is significant if <cite>probability</cite> is more than
+<cite>relative</cite> times <cite>origination_probability</cite>, so 2 flags the PDs that
+more than doubled. It must be greater than 1. None leaves out this
+test.</p>
+</dd>
+<dt><strong>absolute</strong><span class="classifier">float or None</span></dt><dd><p>The increase is significant if <cite>probability</cite> exceeds
+<cite>origination_probability</cite> by more than <cite>absolute</cite>, in units of PD,
+so 0.01 flags the PDs that rose by more than one percentage point.
+It must be between 0 and 1. None leaves out this test.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series or numpy.ndarray</dt><dd><p>Booleans that are True for a significant increase. If an input is a
+Series, a Series named <code class="docutils literal notranslate"><span class="pre">significant_increase</span></code> with its index;
+otherwise an array.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the inputs are empty, not one-dimensional, of different lengths,
+Series with different indices, not real and numeric, or have a
+missing value or a value outside [0, 1]. Also if <cite>relative</cite> is not
+None or a number greater than 1, <cite>absolute</cite> is not None or a number
+between 0 and 1, or both are None.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.lifetime.assign_stages" title="kivi.lifetime.assign_stages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_stages</span></code></a></dt><dd><p>Stages from the flags and the days past due.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_pd</span></code></a></dt><dd><p>Cumulative PDs over the remaining life from a term structure.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_pd</span></code></a></dt><dd><p>Cumulative PDs from a transition matrix.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>With the PD <span class="math notranslate nohighlight">\(p\)</span> at the reporting date and the PD <span class="math notranslate nohighlight">\(p_0\)</span>
+expected at origination, the tests are</p>
+<div class="math notranslate nohighlight">
+\[p &gt; \mathrm{relative} \cdot p_0 \qquad \text{and} \qquad
+p - p_0 &gt; \mathrm{absolute}.\]</div>
+<p>With both thresholds, an increase is significant only if it passes both
+tests, so that the absolute threshold keeps small changes of low PDs
+from counting. For a rule under which either test suffices, combine two
+calls with <code class="docutils literal notranslate"><span class="pre">|</span></code>, each with one threshold. Qualitative criteria, such as
+a watch list or forbearance, combine with the flags in the same way.</p>
+<p>IFRS 9 assesses the change in the risk of a default over the expected
+life of the exposure, and allows the risk over the next 12 months where
+it gives a reasonable approximation. Compare PDs of the same horizon:
+for a lifetime PD, the PD over the same remaining life that was
+expected at origination.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">significant_increase</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">probability</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.004</span><span class="p">,</span> <span class="mf">0.012</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.09</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">origination_probability</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.010</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">significant_increase</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">probability</span><span class="p">,</span> <span class="n">origination_probability</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">None</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">array([ True, False,  True, False])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">significant_increase</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">probability</span><span class="p">,</span> <span class="n">origination_probability</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">absolute</span><span class="o">=</span><span class="mf">0.01</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">array([False, False,  True, False])</span>
+</pre></div>
+</div>
+<p>The first PD quadrupled but rose by only 0.3 percentage points, and the
+last one rose by 4 points without doubling.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.lifetime.assign_stages">
+<span class="sig-prename descclassname"><span class="pre">kivi.lifetime.</span></span><span class="sig-name descname"><span class="pre">assign_stages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">significant_increase</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">days_past_due</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaulted</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage_2_days</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage_3_days</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.lifetime.assign_stages" title="Link to this definition">#</a></dt>
+<dd><p>Allocate exposures to the three stages of IFRS 9.</p>
+<p>Stage 1 holds the exposures whose credit risk has not increased
+significantly since initial recognition, stage 2 those whose credit risk
+has, and stage 3 the credit-impaired exposures. The days past due act as
+backstops: an exposure more than <cite>stage_2_days</cite> past due is at least in
+stage 2, and one at least <cite>stage_3_days</cite> past due, or flagged as
+defaulted, is in stage 3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>significant_increase</strong><span class="classifier">array_like</span></dt><dd><p>Whether the credit risk of each exposure has increased significantly
+since initial recognition, as booleans or 0 and 1, such as the
+result of the function <cite>significant_increase</cite>, possibly combined
+with qualitative criteria.</p>
+</dd>
+<dt><strong>days_past_due</strong><span class="classifier">array_like, optional</span></dt><dd><p>Days past due of each exposure at the reporting date, finite and
+non-negative. Without it, the backstops do not apply.</p>
+</dd>
+<dt><strong>defaulted</strong><span class="classifier">array_like, optional</span></dt><dd><p>Whether each exposure is credit-impaired, usually because it is in
+default under the entity’s definition of default, as booleans or 0
+and 1. These exposures are in stage 3.</p>
+</dd>
+<dt><strong>stage_2_days</strong><span class="classifier">float, default 30</span></dt><dd><p>Exposures more than this many days past due are at least in stage 2.
+The default follows the rebuttable presumption of IFRS 9, paragraph
+5.5.11, that credit risk has increased significantly when contractual
+payments are more than 30 days past due.</p>
+</dd>
+<dt><strong>stage_3_days</strong><span class="classifier">float, default 90</span></dt><dd><p>Exposures this many days past due or more are in stage 3. The default
+follows the rebuttable presumption of IFRS 9, paragraph B5.5.37, that
+default occurs no later than when a financial asset is 90 days past
+due. It must be greater than <cite>stage_2_days</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series or numpy.ndarray</dt><dd><p>Stage of each exposure, 1, 2 or 3, as integers. If an input is a
+Series, a Series named <code class="docutils literal notranslate"><span class="pre">stage</span></code> with its index; otherwise an array.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the inputs are empty, not one-dimensional, of different lengths
+or Series with different indices, <cite>significant_increase</cite> or
+<cite>defaulted</cite> has a value other than 0 and 1, or <cite>days_past_due</cite> is not
+real and numeric or
+has a missing, negative or infinite value. Also if <cite>stage_2_days</cite> or
+<cite>stage_3_days</cite> is not a finite, non-negative number, or
+<cite>stage_3_days</cite> is not greater than <cite>stage_2_days</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.lifetime.significant_increase" title="kivi.lifetime.significant_increase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">significant_increase</span></code></a></dt><dd><p>Quantitative test of a significant increase.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.stage_table" title="kivi.lifetime.stage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stage_table</span></code></a></dt><dd><p>Exposure and expected credit loss by stage.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expected_credit_loss</span></code></a></dt><dd><p>12-month and lifetime expected credit losses.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The stage of an exposure is 3 if it is defaulted or at least
+<cite>stage_3_days</cite> past due, otherwise 2 if <cite>significant_increase</cite> is true
+or it is more than <cite>stage_2_days</cite> past due, and otherwise 1. With the
+defaults, an exposure exactly 30 days past due therefore stays in stage
+1, and one exactly 90 days past due is in stage 3, as the wording of the
+two presumptions says.</p>
+<p>IFRS 9 defines credit-impaired exposures by events that hurt their
+expected cash flows, such as a default or the significant financial
+difficulty of the borrower. In practice, entities usually align them
+with their definition of default. The thresholds, the definition of
+default and the treatment of cures are the policy of the reporting
+entity. Probation periods, during which an exposure that no longer meets
+a criterion stays in its stage, need the history of each exposure and
+are not applied.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">assign_stages</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">increase</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">days_past_due</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">defaulted</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">assign_stages</span><span class="p">(</span><span class="n">increase</span><span class="p">,</span> <span class="n">days_past_due</span><span class="o">=</span><span class="n">days_past_due</span><span class="p">,</span> <span class="n">defaulted</span><span class="o">=</span><span class="n">defaulted</span><span class="p">)</span>
+<span class="go">array([1, 2, 2, 3, 3])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.lifetime.stage_table">
+<span class="sig-prename descclassname"><span class="pre">kivi.lifetime.</span></span><span class="sig-name descname"><span class="pre">stage_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exposure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allowance</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.lifetime.stage_table" title="Link to this definition">#</a></dt>
+<dd><p>Summarize the exposure and the expected credit loss of each stage.</p>
+<p>Each row adds up the exposures and the loss allowances of one stage and
+gives their ratio, the coverage ratio that banks report by stage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>stage</strong><span class="classifier">array_like</span></dt><dd><p>Stage of each exposure, 1, 2 or 3, such as the result of
+<cite>assign_stages</cite>.</p>
+</dd>
+<dt><strong>exposure</strong><span class="classifier">array_like</span></dt><dd><p>Exposure of each account at the reporting date, such as its gross
+carrying amount, finite and non-negative.</p>
+</dd>
+<dt><strong>allowance</strong><span class="classifier">array_like</span></dt><dd><p>Loss allowance of each account, finite and non-negative: its 12-month
+expected credit loss in stage 1 and its lifetime expected credit loss
+in stages 2 and 3. Series inputs must have identical indices;
+otherwise the inputs are matched by position.</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like, optional</span></dt><dd><p>Non-negative weight of each exposure, such as the inverse of its
+sampling rate, matched like <cite>exposure</cite>. Counts, exposures and
+allowances become sums of weights, so integer weights give the same
+table as repeating rows.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>One row for each of the stages 1, 2 and 3, indexed by <code class="docutils literal notranslate"><span class="pre">stage</span></code>,
+also for a stage without exposures, with the columns described in
+the Notes.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the inputs are empty, not one-dimensional, of different lengths
+or Series with different indices, or not real and numeric. Also if
+<cite>stage</cite> has a value other than 1, 2 and 3, <cite>exposure</cite> or <cite>allowance</cite>
+has a missing, negative or infinite value, or <cite>weights</cite> is not numeric
+or does not give each exposure one finite, non-negative weight with
+a positive total.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.lifetime.assign_stages" title="kivi.lifetime.assign_stages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_stages</span></code></a></dt><dd><p>Stage of each exposure.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expected_credit_loss</span></code></a></dt><dd><p>12-month and lifetime expected credit losses.</p>
+</dd>
+<dt><a class="reference internal" href="strategy.html#kivi.strategy.expected_loss_table" title="kivi.strategy.expected_loss_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.strategy.expected_loss_table</span></code></a></dt><dd><p>Exposure and expected loss by grade.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>For the exposures <span class="math notranslate nohighlight">\(i\)</span> of a stage, with weights <span class="math notranslate nohighlight">\(w_i\)</span>, 1
+without <cite>weights</cite>, the columns are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">total</span></code>: the number of exposures, <span class="math notranslate nohighlight">\(\sum_i w_i\)</span>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exposure</span></code>: <span class="math notranslate nohighlight">\(\sum_i w_i E_i\)</span>, with the exposures <span class="math notranslate nohighlight">\(E_i\)</span>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exposure_share</span></code>: the stage’s share of the exposure of all stages,
+NaN for every stage when the total exposure is 0;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">expected_credit_loss</span></code>: <span class="math notranslate nohighlight">\(\sum_i w_i L_i\)</span>, with the loss
+allowances <span class="math notranslate nohighlight">\(L_i\)</span>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coverage</span></code>: <code class="docutils literal notranslate"><span class="pre">expected_credit_loss</span></code> divided by <code class="docutils literal notranslate"><span class="pre">exposure</span></code>, NaN
+for a stage without exposure.</p></li>
+</ul>
+<p>The portfolio’s exposure and loss allowance are the sums of the
+<code class="docutils literal notranslate"><span class="pre">exposure</span></code> and <code class="docutils literal notranslate"><span class="pre">expected_credit_loss</span></code> columns, and its coverage
+ratio is the second sum divided by the first.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">stage_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stage</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exposure</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1000.0</span><span class="p">,</span> <span class="mf">2000.0</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="mf">800.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">allowance</span> <span class="o">=</span> <span class="p">[</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">40.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stage_table</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="n">exposure</span><span class="p">,</span> <span class="n">allowance</span><span class="p">)</span>
+<span class="go">       total  exposure  exposure_share  expected_credit_loss  coverage</span>
+<span class="go">stage</span>
+<span class="go">1          3    4000.0            0.80                  16.0     0.004</span>
+<span class="go">2          1     800.0            0.16                  40.0     0.050</span>
+<span class="go">3          1     200.0            0.04                  90.0     0.450</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="vintage.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Vintage and roll-rate analysis</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="datasets.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Example data</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.lifetime.convert_pd"><code class="docutils literal notranslate"><span class="pre">convert_pd()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.lifetime.transition_pd"><code class="docutils literal notranslate"><span class="pre">transition_pd()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.lifetime.expected_credit_loss"><code class="docutils literal notranslate"><span class="pre">expected_credit_loss()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.lifetime.significant_increase"><code class="docutils literal notranslate"><span class="pre">significant_increase()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.lifetime.assign_stages"><code class="docutils literal notranslate"><span class="pre">assign_stages()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.lifetime.stage_table"><code class="docutils literal notranslate"><span class="pre">stage_table()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

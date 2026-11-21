@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>基于 pandas 的信用风险建模 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="_static/kivi.css?v=e03d16b7" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="_static/documentation_options.js?v=79c7be44"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=fd10adb8"></script>
+    <script src="_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="搜索" href="search.html" />
+    <link rel="next" title="快速开始" href="getting_started/index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="0.8.0" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="#">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 0.8.0">0.8.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../en/index.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../en/index.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="kivi-home" id="credit-risk-modeling-with-pandas">
+<h1>基于 pandas 的信用风险建模<a class="headerlink" href="#credit-risk-modeling-with-pandas" title="链接到此标题。">#</a></h1>
+<div class="kivi-lead docutils container">
+<p>kivi 是面向信用风险与金融建模的 pandas 工具包。它分析候选变量、为其分箱并对类别分组，衡量每一箱对违约等二分类结果的区分能力，筛选变量并拟合逻辑回归评分卡，推断被拒申请人的结果，把模型刻度为分值，评估模型并基于主标尺进行校准，衡量各截断点的代价与预期损失。模型上线后，它逐期监控评分，跟踪已批准贷款的表现，并计量其 IFRS 9 预期信用损失。表格结果都是 pandas DataFrame，每箱、每个等级、每个截断点、每期或每个变量一行。</p>
+</div>
+<div class="kivi-actions docutils container">
+<p><a class="sd-sphinx-override sd-btn sd-text-wrap sd-btn-primary reference internal" href="getting_started/quickstart.html"><span class="doc">快速上手</span></a></p>
+<p><a class="sd-sphinx-override sd-btn sd-text-wrap sd-btn-outline-primary reference internal" href="user_guide/risk_workflow.html"><span class="doc">风控建模流程</span></a></p>
+<p><a class="sd-sphinx-override sd-btn sd-text-wrap sd-btn-outline-primary reference internal" href="api.html"><span class="doc">API 参考</span></a></p>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>kivi
+</pre></div>
+</div>
+<section id="at-a-glance">
+<h2>速览<a class="headerlink" href="#at-a-glance" title="链接到此标题。">#</a></h2>
+<div class="kivi-showcase docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">bin_edges</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kivi.stability</span><span class="w"> </span><span class="kn">import</span> <span class="n">psi_table</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_table</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">bank_data</span><span class="p">()</span>
+<span class="n">reference</span><span class="p">,</span> <span class="n">current</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">3000</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">3000</span><span class="p">:]</span>
+
+<span class="n">edges</span> <span class="o">=</span> <span class="n">bin_edges</span><span class="p">(</span><span class="n">reference</span><span class="p">[</span><span class="s2">"age"</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">before</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">reference</span><span class="p">[</span><span class="s2">"age"</span><span class="p">],</span> <span class="n">edges</span><span class="p">)</span>
+<span class="n">after</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">current</span><span class="p">[</span><span class="s2">"age"</span><span class="p">],</span> <span class="n">edges</span><span class="p">)</span>
+
+<span class="n">evidence</span> <span class="o">=</span> <span class="n">woe_table</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">reference</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="n">stability</span> <span class="o">=</span> <span class="n">psi_table</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="age 的 WOE 图，含每箱的客户占比和事件率" class="plot-directive" src="_images/index-1.svg" />
+<figcaption>
+<p><span class="caption-text">根据 <code class="docutils literal notranslate"><span class="pre">evidence</span></code> 绘制的 <code class="docutils literal notranslate"><span class="pre">age</span></code> WOE 图。</span><a class="headerlink" href="#id1" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="built-for-risk-teams">
+<h2>为风控团队打造<a class="headerlink" href="#built-for-risk-teams" title="链接到此标题。">#</a></h2>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-1 sd-row-cols-md-3 sd-row-cols-lg-3 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+单变量概况</div>
+<p class="sd-card-text">用一张表列出每个候选变量的缺失值、分布、事件率和初步的 IV 排序。</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="user_guide/univariate.html"><span class="doc">单变量概况</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+分箱</div>
+<p class="sd-card-text">细分箱与粗分箱、特殊值处理、单调 WOE，以及用于逻辑回归评分卡的类别分组。</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="user_guide/binning.html"><span class="doc">分箱</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+WOE 与 IV</div>
+<p class="sd-card-text">每箱的 WOE 和 IV，平滑时不改动计数，以及新数据的 WOE 编码。</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="user_guide/woe_iv.html"><span class="doc">证据权重与信息值</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+变量筛选</div>
+<p class="sd-card-text">按 IV 给候选变量排序，剔除高度相关的变量，并选出系数方向全部正确的逻辑回归模型。</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="user_guide/selection.html"><span class="doc">变量筛选</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+拒绝推断</div>
+<p class="sd-card-text">用模糊扩充、打包法或重新加权推断被拒申请人的结果，并在全部申请人上重新拟合模型。</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="user_guide/reject_inference.html"><span class="doc">拒绝推断</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+评分卡</div>
+<p class="sd-card-text">用 PDO 刻度把模型转换为分值，为新申请打分，并用原因码解释每个分数。</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="user_guide/scorecard.html"><span class="doc">评分卡</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+模型表现</div>
+<p class="sd-card-text">在开发样本和验证样本上计算 AUC、Gini、KS、增益表与 ROC 表，并给出 AUC 的置信区间和两个评分的 DeLong 检验。</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="user_guide/metrics.html"><span class="doc">模型表现</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+校准</div>
+<p class="sd-card-text">先验校正、主标尺，按评级做二项检验、Jeffreys 检验和 Hosmer-Lemeshow 检验，以及 Platt 与保序回归重新校准。</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="user_guide/calibration.html"><span class="doc">校准</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+信贷策略</div>
+<p class="sd-card-text">每个截断点的通过率与坏账率、现行评分与新评分之间的交换集，以及按等级的预期损失。</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="user_guide/strategy.html"><span class="doc">信贷策略</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+分箱方案</div>
+<p class="sd-card-text">把每个变量的分箱和 WOE 保存为带版本号的 JSON，生产环境对新数据的分组与开发时完全一致。</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="user_guide/spec.html"><span class="doc">分箱方案</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+群体稳定性</div>
+<p class="sd-card-text">逐箱比较线上数据与开发样本，按期跟踪 PSI，并用 CSI 衡量每个变量对分数的影响。</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="user_guide/psi.html"><span class="doc">群体稳定性指标</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+模型监控</div>
+<p class="sd-card-text">每期一行：样本量、已知结果、AUC、Gini、KS 和评分的 PSI；以及各变量在每期的 PSI。</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="user_guide/monitoring.html"><span class="doc">模型监控</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Vintage 与滚动率分析</div>
+<p class="sd-card-text">按放款批次的 vintage 曲线，以及逾期档位之间的滚动率和转移矩阵。</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+存续期 PD 与预期信用损失</div>
+<p class="sd-card-text">由 vintage 曲线和转移矩阵得到 PD 期限结构，计算 12 个月与整个存续期 ECL，并划分 IFRS 9 的三个阶段。</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a></div>
+</div>
+</div>
+</div>
+</section>
+<section id="how-it-works">
+<h2>工作流程<a class="headerlink" href="#how-it-works" title="链接到此标题。">#</a></h2>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 kivi-steps docutils">
+<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-1 sd-row-cols-md-3 sd-row-cols-lg-3 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+概况与分箱</div>
+<p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">profile_table</span></code> 让你先概览每个候选变量。 <code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> ，或 <code class="docutils literal notranslate"><span class="pre">monotonic_edges</span></code> 等有监督方法，在开发样本上拟合一次边界， <code class="docutils literal notranslate"><span class="pre">chimerge_groups</span></code> 则对类别变量的类别分组。之后的每个样本都用同样的边界和分组，最外侧边界为无穷，因此后续数据总能落入某个箱。</p>
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+编码与拟合</div>
+<p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">woe_table</span></code> 衡量每箱相对目标变量的表现， <code class="docutils literal notranslate"><span class="pre">woe_transform</span></code> 据此编码。 <code class="docutils literal notranslate"><span class="pre">stepwise</span></code> 和 <code class="docutils literal notranslate"><span class="pre">logistic_regression</span></code> 筛选变量并拟合模型，可通过 <code class="docutils literal notranslate"><span class="pre">weights</span></code> 纳入推断的拒绝样本。</p>
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+刻度与评估</div>
+<p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">points_table</span></code> 把模型转换为分值， <code class="docutils literal notranslate"><span class="pre">gains_table</span></code> 、 <code class="docutils literal notranslate"><span class="pre">roc_auc</span></code> 和 <code class="docutils literal notranslate"><span class="pre">ks</span></code> 在留出样本上衡量分数对申请人的排序能力。 <code class="docutils literal notranslate"><span class="pre">roc_auc_interval</span></code> 显示一个样本对 AUC 的测量有多精确。</p>
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+校准与决策</div>
+<p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">master_scale</span></code> 和 <code class="docutils literal notranslate"><span class="pre">assign_grades</span></code> 把 PD 划分为等级，二项检验和 Jeffreys 检验核对每个等级的 PD。 <code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code> 显示每个截断点通过哪些申请， <code class="docutils literal notranslate"><span class="pre">expected_loss_table</span></code> 汇总每个等级的预期损失。</p>
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+部署与监控</div>
+<p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">BinningSpec</span></code> 把分箱方案保存为 JSON 供生产环境使用。 <code class="docutils literal notranslate"><span class="pre">monitoring_table</span></code> 和 <code class="docutils literal notranslate"><span class="pre">stability_table</span></code> 把每一期与开发样本比较， <code class="docutils literal notranslate"><span class="pre">csi_table</span></code> 衡量各变量对评分的影响。</p>
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+跟踪贷款</div>
+<p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">vintage_table</span></code> 和 <code class="docutils literal notranslate"><span class="pre">transition_matrix</span></code> 跟踪已批准的贷款。 <code class="docutils literal notranslate"><span class="pre">convert_pd</span></code> 和 <code class="docutils literal notranslate"><span class="pre">transition_pd</span></code> 把它们转换为 PD 期限结构， <code class="docutils literal notranslate"><span class="pre">expected_credit_loss</span></code> 和 <code class="docutils literal notranslate"><span class="pre">assign_stages</span></code> 给出 IFRS 9 损失准备。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="documentation">
+<h2>文档<a class="headerlink" href="#documentation" title="链接到此标题。">#</a></h2>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-1 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+快速开始</div>
+<p class="sd-card-text">安装 kivi，并用随包的银行营销数据完成一次完整分析。</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="getting_started/index.html"><span class="doc">快速开始</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+用户指南</div>
+<p class="sd-card-text">风控模型的每个步骤各占一页，从候选变量概况到已批准贷款的预期信用损失，包含定义、完整示例以及各项结果的解读方法。</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="user_guide/index.html"><span class="doc">用户指南</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+API 参考</div>
+<p class="sd-card-text">每个公共函数的参数、返回值和示例，以及它们共同遵循的约定和术语表。</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="api.html"><span class="doc">API 参考</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+版本说明</div>
+<p class="sd-card-text">各版本的变化，以及如何迁移为 0.2.x 编写的代码。</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="release/index.html"><span class="doc">版本说明</span></a></div>
+</div>
+</div>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="right-next"
+       href="getting_started/index.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">快速开始</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

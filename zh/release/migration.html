@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>从 0.2.x 迁移 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=e03d16b7" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=79c7be44"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'release/migration';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="开发" href="../development/index.html" />
+    <link rel="prev" title="版本说明" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="0.8.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 0.8.0">0.8.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/release/migration.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/release/migration.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">从 0.2.x 迁移</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">版本说明</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">从 0.2.x 迁移</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="migrating-from-0-2-x">
+<h1>从 0.2.x 迁移<a class="headerlink" href="#migrating-from-0-2-x" title="链接到此标题。">#</a></h1>
+<p>下表列出取代 0.2.x 各个类的函数。Dataset.bank_data() 保留原有的导入路径和表结构，标签表示客户是否认购定期存款。</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 65.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>0.2.x</p></th>
+<th class="head"><p>替代方案</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">DistanceBins</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bin_edges(values,</span> <span class="pre">method=&quot;uniform&quot;)</span></code>，然后调用 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 和 <code class="docutils literal notranslate"><span class="pre">woe_table</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">FrequencyBins</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bin_edges(values,</span> <span class="pre">method=&quot;quantile&quot;)</span></code>，然后调用 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 和 <code class="docutils literal notranslate"><span class="pre">woe_table</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">abnormal_vals=[...]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.binning.cut</span></code> 的 <code class="docutils literal notranslate"><span class="pre">special=[...]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CategoryBins</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">woe_table(labels,</span> <span class="pre">target)</span></code> ；需要对标签分组时，先用 <code class="docutils literal notranslate"><span class="pre">category_groups</span></code> 或 <code class="docutils literal notranslate"><span class="pre">chimerge_groups</span></code> 和 <code class="docutils literal notranslate"><span class="pre">group_categories</span></code> （0.8.0 起提供）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">WOEScore</span></code></p></td>
+<td><p>对用开发样本边界划分的分组调用 <code class="docutils literal notranslate"><span class="pre">woe_transform(groups,</span> <span class="pre">table)</span></code> （0.5.0 起提供）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PSI.fit()</span></code></p></td>
+<td><p>对用同一组边界划分的分组调用 <code class="docutils literal notranslate"><span class="pre">psi_table(before,</span> <span class="pre">after)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">BinaryMetrics</span></code>, <code class="docutils literal notranslate"><span class="pre">ModelEvaluate</span></code>, <code class="docutils literal notranslate"><span class="pre">ScoreEvaluate</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kivi.metrics</span></code> ： <code class="docutils literal notranslate"><span class="pre">roc_auc</span></code> 、 <code class="docutils literal notranslate"><span class="pre">gini</span></code> 、 <code class="docutils literal notranslate"><span class="pre">ks</span></code> 、 <code class="docutils literal notranslate"><span class="pre">gains_table</span></code> 和 <code class="docutils literal notranslate"><span class="pre">brier_score</span></code> （0.5.0 起提供），以及 <code class="docutils literal notranslate"><span class="pre">roc_table</span></code> 、 <code class="docutils literal notranslate"><span class="pre">roc_auc_interval</span></code> 和 <code class="docutils literal notranslate"><span class="pre">delong_test</span></code> （0.8.0 起提供）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ScoreEvaluate.score_psi</span></code> 、 <code class="docutils literal notranslate"><span class="pre">add_psi</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kivi.monitoring</span></code> ： <code class="docutils literal notranslate"><span class="pre">monitoring_table</span></code> 和 <code class="docutils literal notranslate"><span class="pre">stability_table</span></code> （0.8.0 起提供）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">VIF</span></code>, <code class="docutils literal notranslate"><span class="pre">StepWise</span></code>, <code class="docutils literal notranslate"><span class="pre">feature.Corr</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kivi.selection</span></code> ： <code class="docutils literal notranslate"><span class="pre">vif</span></code> 、 <code class="docutils literal notranslate"><span class="pre">stepwise</span></code> 、 <code class="docutils literal notranslate"><span class="pre">correlation_filter</span></code> 和 <code class="docutils literal notranslate"><span class="pre">logistic_regression</span></code> （0.5.0 起提供）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PDToScore</span></code>, <code class="docutils literal notranslate"><span class="pre">BaseScoreAndPDO</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kivi.scorecard</span></code> ： <code class="docutils literal notranslate"><span class="pre">pd_to_score</span></code> 、 <code class="docutils literal notranslate"><span class="pre">score_to_pd</span></code> 、 <code class="docutils literal notranslate"><span class="pre">score_scaling</span></code> 和 <code class="docutils literal notranslate"><span class="pre">points_table</span></code> （0.5.0 起提供）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">get_omega</span></code>, <code class="docutils literal notranslate"><span class="pre">BinomialTest</span></code>, <code class="docutils literal notranslate"><span class="pre">herfindahl</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration</span></code> ： <code class="docutils literal notranslate"><span class="pre">prior_correction</span></code> 、 <code class="docutils literal notranslate"><span class="pre">calibration_table</span></code> 、 <code class="docutils literal notranslate"><span class="pre">binomial_test</span></code> 和 <code class="docutils literal notranslate"><span class="pre">herfindahl_index</span></code> （0.5.0 起提供）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">MasterScale</span></code>, <code class="docutils literal notranslate"><span class="pre">PDToRant</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration</span></code> ： <code class="docutils literal notranslate"><span class="pre">master_scale</span></code> 、 <code class="docutils literal notranslate"><span class="pre">fit_grade_pd</span></code> 和 <code class="docutils literal notranslate"><span class="pre">assign_grades</span></code> （0.7.0 起提供）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">FeatureEvaluate</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kivi.univariate.profile_table</span></code> （0.7.0 起提供）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">WOEBatch</span></code> 、 <code class="docutils literal notranslate"><span class="pre">ManualBinsTool</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kivi.spec</span></code> 中的 <code class="docutils literal notranslate"><span class="pre">fit_spec</span></code> 和 <code class="docutils literal notranslate"><span class="pre">BinningSpec</span></code> ，自 0.6.0 起</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CSI</span></code></p></td>
+<td><p>对用同一组边界划分的分组调用 <code class="docutils literal notranslate"><span class="pre">kivi.stability.csi_table</span></code> ，自 0.6.0 起</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">VintagePd</span></code></p></td>
+<td><p>对贷款面板数据调用 <code class="docutils literal notranslate"><span class="pre">kivi.vintage.vintage_table</span></code> ，自 0.6.0 起</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Dataset.bank_data()</span></code></p></td>
+<td><p>不变；自 0.6.0 起 <code class="docutils literal notranslate"><span class="pre">kivi.datasets.load_bank()</span></code> 返回相同的数据</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="binning-and-woe">
+<h2>分箱与 WOE<a class="headerlink" href="#binning-and-woe" title="链接到此标题。">#</a></h2>
+<p>旧版 DistanceBins 和 FrequencyBins 在同一步骤中完成分箱和统计。现在先用 bin_edges 选择 uniform 或 quantile，再用 pandas.cut 分组，最后将结果传给 woe_table。abnormal_vals 中的编码改由 special 参数指定：传给 bin_edges，并用带相同编码的 kivi.binning.cut 代替 pandas.cut。原 CategoryBins 用户可直接传入类别标签序列。</p>
+<p>0.5.0 新增 woe_transform，取代 WOEScore。旧版 WOEScore 把原始取值与 WOE 表中的 min_bin 和 max_bin 列逐一比对。现在请改用开发样本的边界划分分组，再把分组和 woe_table 的结果一起传给 woe_transform。与 WOEScore 设置 error=&quot;error&quot; 时一样，匹配不到任何分组的取值会引发错误；也可以传入 unseen 指定其 WOE。</p>
+<p>0.4.0 新增 <code class="docutils literal notranslate"><span class="pre">chimerge_edges</span></code> 和 <code class="docutils literal notranslate"><span class="pre">tree_edges</span></code>，用来替代 <code class="docutils literal notranslate"><span class="pre">Chi2Bins</span></code> 和 <code class="docutils literal notranslate"><span class="pre">TreeBins</span></code>。它们是重新实现而非移植，因此边界可能不同。<code class="docutils literal notranslate"><span class="pre">Chi2Bins</span></code> 从 10 个等频箱开始，在 0.9 置信水平下检验，给每个期望计数加 0.5，并至少保留三个箱；最接近的写法是 <code class="docutils literal notranslate"><span class="pre">chimerge_edges(values,</span> <span class="pre">target,</span> <span class="pre">alpha=0.1,</span> <span class="pre">initial_bins=10)</span></code>。<code class="docutils literal notranslate"><span class="pre">TreeBins</span></code> 报告 scikit-learn 选出的中点阈值，而 <code class="docutils literal notranslate"><span class="pre">tree_edges</span></code> 报告每个切分点下方的最大观测值。切换之前，请在固定的基准样本上核对边界。</p>
+<p><code class="docutils literal notranslate"><span class="pre">Chi2Bins</span></code> 和 <code class="docutils literal notranslate"><span class="pre">TreeBins</span></code> 的 <code class="docutils literal notranslate"><span class="pre">abnormal_vals</span></code> 中列出的编码，对应 <code class="docutils literal notranslate"><span class="pre">chimerge_edges</span></code> 和 <code class="docutils literal notranslate"><span class="pre">tree_edges</span></code> 的 <code class="docutils literal notranslate"><span class="pre">special</span></code> 参数。与以前一样，这些编码连同其标签不参与拟合；把相同的编码传给 <code class="docutils literal notranslate"><span class="pre">kivi.binning.cut</span></code> ，即可让每个编码单独成组。</p>
+</section>
+<section id="population-stability">
+<h2>群体稳定性<a class="headerlink" href="#population-stability" title="链接到此标题。">#</a></h2>
+<p>迁移 PSI.fit() 时，先用同一组基准边界划分两期样本，再调用 psi_table。新结果包含各组的真实计数和单组贡献；旧结果在 psi 列逐行重复总值。新的平滑口径会在补零后归一化。迁移历史分析时应重新核对阈值。</p>
+</section>
+<section id="models-scorecards-and-calibration">
+<h2>模型、评分卡与校准<a class="headerlink" href="#models-scorecards-and-calibration" title="链接到此标题。">#</a></h2>
+<p>这些模块都是重新实现的，切换之前请先在固定的参考样本上与旧版代码的结果对比。</p>
+<ul class="simple">
+<li><p>旧版的 <code class="docutils literal notranslate"><span class="pre">lift</span></code> 列是累计值。在 <code class="docutils literal notranslate"><span class="pre">gains_table</span></code> 中， <code class="docutils literal notranslate"><span class="pre">lift</span></code> 是每个分数段的提升， <code class="docutils literal notranslate"><span class="pre">cum_lift</span></code> 才是累计提升。这些指标要求分数随风险升高，例如 PD；评分卡分值请传入 <code class="docutils literal notranslate"><span class="pre">-score</span></code> 。 <code class="docutils literal notranslate"><span class="pre">ModelEvaluate</span></code> 会用每个样本自己的最小值和最大值重新缩放分数，导致不同样本间的分数不可比；新函数直接使用传入的分数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">VIF</span></code> 调用 statsmodels 时没有加常数项，衡量的是未中心化的 R²； <code class="docutils literal notranslate"><span class="pre">vif</span></code> 按教科书定义在每个辅助回归中都包含截距，因此数值会不同。 <code class="docutils literal notranslate"><span class="pre">stepwise</span></code> 取代 <code class="docutils literal notranslate"><span class="pre">StepWise</span></code> ，默认保证所有系数为正，这正是 WOE 输入的要求。 <code class="docutils literal notranslate"><span class="pre">logistic_regression</span></code> 用 NumPy 拟合模型，不再需要 statsmodels。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BaseScoreAndPDO</span></code> 接收的是坏好比，例如 <code class="docutils literal notranslate"><span class="pre">odds=1/50</span></code> 。 <code class="docutils literal notranslate"><span class="pre">base_odds</span></code> 是好坏比，因此应传入 <code class="docutils literal notranslate"><span class="pre">base_odds=50</span></code> ；若传入 <code class="docutils literal notranslate"><span class="pre">1/50</span></code> ，会在没有任何提示的情况下得到 712.9 的偏移量。旧版 <code class="docutils literal notranslate"><span class="pre">PDToScore</span></code> 只在其中一个分支里除以了 ln 2； <code class="docutils literal notranslate"><span class="pre">pd_to_score</span></code> 和 <code class="docutils literal notranslate"><span class="pre">score_to_pd</span></code> 互为精确的反函数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_omega</span></code> 的功能由 <code class="docutils literal notranslate"><span class="pre">prior_correction</span></code> （校正概率）和 <code class="docutils literal notranslate"><span class="pre">corrected_intercept</span></code> （校正模型截距）取代。</p></li>
+</ul>
+</section>
+<section id="portfolio-analysis-and-production-binning">
+<h2>资产组合分析与生产环境分箱<a class="headerlink" href="#portfolio-analysis-and-production-binning" title="链接到此标题。">#</a></h2>
+<p>0.6.0 版又替代了三个旧版类。它们同样是重新实现的，切换之前请先在固定的参考样本上与旧版代码的结果对比。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">WOEBatch</span></code> 一次拟合多列的 WOE， <code class="docutils literal notranslate"><span class="pre">ManualBinsTool</span></code> 随后手动合并分箱。 <code class="docutils literal notranslate"><span class="pre">fit_spec</span></code> 用为每列选定的分箱函数拟合各列，得到的 <code class="docutils literal notranslate"><span class="pre">BinningSpec</span></code> 把边界和 WOE 表保存为带版本号的 JSON。它不会自动重新分箱：要手动合并分箱，请在 <code class="docutils literal notranslate"><span class="pre">bins</span></code> 中为该列传入合并后的边界。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CSI</span></code> 按位置把分值对应到各箱，并丢失了缺失值分组。 <code class="docutils literal notranslate"><span class="pre">csi_table</span></code> 按标签把分值对应到各组，保留缺失值分组；若某个出现的分组没有分值，除非用 <code class="docutils literal notranslate"><span class="pre">unseen_points</span></code> 给出，否则会报错。各组贡献之和等于该变量平均分值的变化。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">VintagePd</span></code> 根据还款计划和观察日期构建 vintage 表。 <code class="docutils literal notranslate"><span class="pre">vintage_table</span></code> 接受长格式的面板数据，每笔贷款每个账龄月一行，并由你自行定义坏账标记，例如 <code class="docutils literal notranslate"><span class="pre">status</span> <span class="pre">==</span> <span class="pre">&quot;90+&quot;</span></code> 。传入 <code class="docutils literal notranslate"><span class="pre">weights=amount</span></code> 即可得到 <code class="docutils literal notranslate"><span class="pre">VintagePd</span></code> 按金额加权的比率。批次尚未达到的账龄月为 NaN 而不是 0。</p></li>
+</ul>
+</section>
+<section id="master-scales-variable-profiles-and-strategy">
+<h2>主标尺、变量概况与策略<a class="headerlink" href="#master-scales-variable-profiles-and-strategy" title="链接到此标题。">#</a></h2>
+<p>0.7.0 版替代了旧版的主标尺和变量概况。切换之前请先在固定的参考样本上与旧版代码的结果对比。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MasterScale.fit_grade_df</span></code> 和 <code class="docutils literal notranslate"><span class="pre">confirm_master_scale</span></code> 改为 <code class="docutils literal notranslate"><span class="pre">fit_grade_pd</span></code> 和 <code class="docutils literal notranslate"><span class="pre">master_scale</span></code> 。 <code class="docutils literal notranslate"><span class="pre">fit_grade_pd</span></code> 以各等级的观测数为权重，用最小二乘拟合违约率的对数，而旧版的拟合给每个等级相同的权重；各等级规模相同时两者一致。没有违约的等级以半个违约参与拟合，而不是取零的对数。等级之间的边界是相邻 PD 的几何平均；传入 <code class="docutils literal notranslate"><span class="pre">boundary=&quot;arithmetic&quot;</span></code> 可得到旧版标尺的中点。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PDToRant(pd,</span> <span class="pre">ranking)</span></code> 改为 <code class="docutils literal notranslate"><span class="pre">assign_grades(probability,</span> <span class="pre">scale)</span></code> 。旧版函数把恰好落在边界上的 PD 归入边界之上的等级； <code class="docutils literal notranslate"><span class="pre">assign_grades</span></code> 则把它归入边界之下的等级，因为 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 的区间是右闭的。它返回由等级标签构成的有序分类，而不是等级编号。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FeatureEvaluate(df,</span> <span class="pre">target_name).stats()</span></code> 改为 <code class="docutils literal notranslate"><span class="pre">profile_table(frame.drop(columns=target_name),</span> <span class="pre">frame[target_name])</span></code> 。各列沿用 kivi 的命名，例如 <code class="docutils literal notranslate"><span class="pre">missing_share</span></code> 、 <code class="docutils literal notranslate"><span class="pre">missing_event_rate</span></code> 和 <code class="docutils literal notranslate"><span class="pre">non_missing_lift</span></code> ；目标变量中没有事件时会报错，而旧版的提升度为 -9999。取值本身带符号的 Gini 系数取代了单变量逻辑回归的 AUC 和 KS。该表还新增了快速分箱的 IV、特殊值编码、样本权重以及 <code class="docutils literal notranslate"><span class="pre">tied_bins</span></code> 列。</p></li>
+<li><p>策略分析、拒绝推断和带权重的模型拟合在 0.2.x 中没有对应功能。 <code class="docutils literal notranslate"><span class="pre">kivi.strategy</span></code> 取代按分数段手工制作的通过率与坏账率表， <code class="docutils literal notranslate"><span class="pre">kivi.reject_inference</span></code> 推断被拒申请人的结果， <code class="docutils literal notranslate"><span class="pre">logistic_regression</span></code> 和 <code class="docutils literal notranslate"><span class="pre">stepwise</span></code> 则通过 <code class="docutils literal notranslate"><span class="pre">weights</span></code> 纳入这些申请人重新拟合。</p></li>
+</ul>
+</section>
+<section id="category-grouping-validation-and-monitoring">
+<h2>类别分组、模型验证与监控<a class="headerlink" href="#category-grouping-validation-and-monitoring" title="链接到此标题。">#</a></h2>
+<p>0.8.0 版本对类别变量分组，新增 ROC 表和 AUC 的不确定性，并逐期监控模型。这些同样是新的实现。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CategoryBins</span></code> 保留类别变量原有的标签。 <code class="docutils literal notranslate"><span class="pre">category_groups</span></code> 合并稀有类别， <code class="docutils literal notranslate"><span class="pre">chimerge_groups</span></code> 合并事件率相近的类别；两者都返回一个在基准样本上拟合、从类别到分组的字典， <code class="docutils literal notranslate"><span class="pre">group_categories</span></code> 把它应用于每个样本。分组不认识的类别会引发错误，除非 <code class="docutils literal notranslate"><span class="pre">unseen</span></code> 指定了它所属的分组。 <code class="docutils literal notranslate"><span class="pre">fit_spec</span></code> 用 <code class="docutils literal notranslate"><span class="pre">&quot;rare&quot;</span></code> 和 <code class="docutils literal notranslate"><span class="pre">&quot;chimerge&quot;</span></code> 方法对列分组，对列分组的分箱方案保存为第 2 版格式，0.7.0 及更早版本拒绝读取。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BinaryMetrics.roc_curve</span></code> 返回 scikit-learn 的 <code class="docutils literal notranslate"><span class="pre">roc_curve</span></code> 在默认 <code class="docutils literal notranslate"><span class="pre">drop_intermediate=True</span></code> 下的点。 <code class="docutils literal notranslate"><span class="pre">roc_table</span></code> 为每个不同的评分各给一行，与 <code class="docutils literal notranslate"><span class="pre">drop_intermediate=False</span></code> 时的 <code class="docutils literal notranslate"><span class="pre">roc_curve</span></code> 相同，并包含累计计数、两个比率和精确率。它的 <code class="docutils literal notranslate"><span class="pre">precision</span></code> 和 <code class="docutils literal notranslate"><span class="pre">true_positive_rate</span></code> 列就是各阈值下的精确率和召回率，因此它也给出精确率-召回率曲线。 <code class="docutils literal notranslate"><span class="pre">roc_auc_interval</span></code> 补充了 AUC 和 Gini 的 DeLong 标准误与区间， <code class="docutils literal notranslate"><span class="pre">delong_test</span></code> 比较同一样本上两个评分的 AUC；旧版代码两者都没有。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ScoreEvaluate.score_psi</span></code> 和 <code class="docutils literal notranslate"><span class="pre">add_psi</span></code> 比较的是两张提升表的分段合计。 <code class="docutils literal notranslate"><span class="pre">monitoring_table</span></code> 在只拟合一次的评分段上把每一期与同一个基准样本比较，补充了每期的已知结果、AUC、Gini 和 KS，并且结果未知的观测只计入样本量。 <code class="docutils literal notranslate"><span class="pre">stability_table</span></code> 给出每个变量在每一期的 PSI。</p></li>
+<li><p>存续期 PD 期限结构、IFRS 9 预期信用损失和阶段划分在 0.2.x 中没有对应功能；见 <code class="docutils literal notranslate"><span class="pre">kivi.lifetime</span></code> 。</p></li>
+</ul>
+</section>
+<section id="not-ported">
+<h2>未迁移的功能<a class="headerlink" href="#not-ported" title="链接到此标题。">#</a></h2>
+<p>Spark、SQL、AHP、模型封装和应用代码不在范围之内，仍保留在历史版本中。以下 0.2.x 工具同样没有替代：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DefaultAnalysis</span></code> 、 <code class="docutils literal notranslate"><span class="pre">plot_bin</span></code> 、 <code class="docutils literal notranslate"><span class="pre">Calibration.CalibrationCurve</span></code> 的图表和 <code class="docutils literal notranslate"><span class="pre">BinaryMetrics</span></code> 的 <code class="docutils literal notranslate"><span class="pre">plot_*</span></code> 方法，以及 <code class="docutils literal notranslate"><span class="pre">evaluate/Heatmap.py</span></code> 中的相关性热力图 <code class="docutils literal notranslate"><span class="pre">diagonal_corr</span></code> 和 <code class="docutils literal notranslate"><span class="pre">structure_corr</span></code> 。kivi 返回表格，任何绘图库都可以绘制；热力图可以绘制 WOE 编码后候选变量的 <code class="docutils literal notranslate"><span class="pre">X.corr()</span></code> ， <code class="docutils literal notranslate"><span class="pre">correlation_filter</span></code> 用的也是同样的相关系数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BinaryMetrics</span></code> 的 F1 分数和混淆矩阵。它们评价的是单个阈值下的预测标签，而评分卡用截断点设定这个阈值： <code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code> 给出每个截断点通过的事件数以及它拒绝的事件和非事件占比， <code class="docutils literal notranslate"><span class="pre">roc_table</span></code> 的每一行给出其阈值下被标记的事件数和非事件数。需要时请使用 scikit-learn 的 <code class="docutils literal notranslate"><span class="pre">f1_score</span></code> 和 <code class="docutils literal notranslate"><span class="pre">confusion_matrix</span></code> 。</p></li>
+<li><p>抽样工具 <code class="docutils literal notranslate"><span class="pre">sampling</span></code> 和 <code class="docutils literal notranslate"><span class="pre">upsampling</span></code> ，以及 <code class="docutils literal notranslate"><span class="pre">FeatureTools</span></code> 的比率特征和交叉特征。请使用 pandas。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BetaCalibration</span></code> 、 <code class="docutils literal notranslate"><span class="pre">BetaDistribution</span></code> 和 <code class="docutils literal notranslate"><span class="pre">MasterScale.cal_quantile</span></code> 中基于 Beta 分布的分级，以及 <code class="docutils literal notranslate"><span class="pre">model_score_by_weight</span></code> 。 <code class="docutils literal notranslate"><span class="pre">master_scale</span></code> 和 <code class="docutils literal notranslate"><span class="pre">woe_to_points</span></code> 不依赖它们即可完成相同的步骤。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PortfolioAnalysis.Vintage</span></code> 中基于还款计划的计算。请用 pandas 推导逾期状态，再把面板数据传给 <code class="docutils literal notranslate"><span class="pre">vintage_table</span></code> 。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FeatureEvaluate</span></code> 中的偏度、峰度、变异系数、KS 检验、单变量逻辑回归和卡方检验。需要时请用 pandas 或 scipy 计算。</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">版本说明</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../development/index.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">开发</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#binning-and-woe">分箱与 WOE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#population-stability">群体稳定性</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#models-scorecards-and-calibration">模型、评分卡与校准</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#portfolio-analysis-and-production-binning">资产组合分析与生产环境分箱</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#master-scales-variable-profiles-and-strategy">主标尺、变量概况与策略</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#category-grouping-validation-and-monitoring">类别分组、模型验证与监控</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#not-ported">未迁移的功能</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
