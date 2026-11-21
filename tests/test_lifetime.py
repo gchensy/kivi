@@ -504,6 +504,29 @@ def test_expected_credit_loss_twelve_months_equals_lifetime_after_maturity():
     assert (lifetime > twelve_month).all()
 
 
+def test_expected_credit_loss_is_missing_where_an_added_period_is_missing():
+    marginal = np.array(ECL_MARGINAL)
+    expected = expected_credit_loss(marginal, 0.5, ECL_SCHEDULE, rate=0.05, horizon=2)
+    # Account 1 misses its PD in period 3 and account 2 its EAD in period 2.
+    gaps = marginal.copy()
+    gaps[0, 2] = np.nan
+    schedule = np.array(ECL_SCHEDULE)
+    schedule[1, 1] = np.nan
+    lifetime = expected_credit_loss(gaps, 0.5, schedule, rate=0.05)
+    assert np.isnan(lifetime).all()
+    # Periods after the horizon are not used: account 1 is complete in periods 1 and 2.
+    two = expected_credit_loss(gaps, 0.5, schedule, rate=0.05, horizon=2)
+    np.testing.assert_allclose(two[0], expected[0])
+    assert np.isnan(two[1])
+    np.testing.assert_allclose(
+        expected_credit_loss(gaps, 0.5, schedule, rate=0.05, horizon=1),
+        expected_credit_loss(marginal, 0.5, ECL_SCHEDULE, rate=0.05, horizon=1),
+    )
+    # A missing LGD or rate makes the account's loss missing.
+    result = expected_credit_loss(marginal, [0.5, np.nan], ECL_SCHEDULE, rate=[np.nan, 0.05])
+    assert np.isnan(result).all()
+
+
 def test_expected_credit_loss_returns_a_series_for_pandas_inputs():
     index = pd.Index(["x", "y"], name="account")
     frame = pd.DataFrame(ECL_MARGINAL, index=index, columns=[1, 2, 3])
@@ -579,7 +602,6 @@ def test_expected_credit_loss_does_not_mutate_its_inputs():
     [
         (([0.1, 0.2], 0.5, 100.0), {}, "probability must be two-dimensional, .* got 1 dimensions"),
         ((np.zeros((0, 3)), 0.5, 100.0), {}, "probability must have at least one account"),
-        (([[np.nan, 0.1]], 0.5, 100.0), {}, "probability must not have missing values, got 1"),
         (
             ([[0.6, 0.5]], 0.5, 100.0),
             {},
@@ -587,7 +609,6 @@ def test_expected_credit_loss_does_not_mutate_its_inputs():
         ),
         (([[0.1, 1.5]], 0.5, 100.0), {}, "probability must be between 0 and 1, got 1.5"),
         (([[0.1, 0.1]], 1.2, 100.0), {}, "lgd must be between 0 and 1, got 1.2"),
-        (([[0.1, 0.1]], np.nan, 100.0), {}, "lgd must not have missing values, got 1"),
         (([[0.1, 0.1]], "0.5", 100.0), {}, "lgd must be real and numeric, got dtype"),
         (
             ([[0.1, 0.1]], [0.5, 0.5], 100.0),
@@ -604,7 +625,7 @@ def test_expected_credit_loss_does_not_mutate_its_inputs():
         (([[0.1, 0.1]], 0.5, -1.0), {}, "ead must be finite and non-negative, got -1.0"),
         (([[0.1, 0.1]], 0.5, [[100.0, np.inf]]), {}, "ead must be finite and non-negative, got"),
         (([[0.1, 0.1]], 0.5, 100.0), {"rate": -1.0}, "rate must be finite and greater than -1"),
-        (([[0.1, 0.1]], 0.5, 100.0), {"rate": np.nan}, "rate must be finite and greater than -1"),
+        (([[0.1, 0.1]], 0.5, 100.0), {"rate": np.inf}, "rate must be finite and greater than -1"),
         (
             ([[0.1, 0.1]], 0.5, 100.0),
             {"rate": [[0.01]]},

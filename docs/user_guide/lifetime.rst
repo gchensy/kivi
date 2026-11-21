@@ -325,7 +325,7 @@ Missing values
 
 :func:`~kivi.lifetime.convert_pd` treats a missing value as a period that is not observed, and never fills it. The marginal and conditional PDs of a period need the cumulative PDs at its end and at the end of the period before, and a cumulative PD needs every period before it. A curve that starts with missing values, as in a panel that starts after origination, gives marginal and conditional PDs from its second observed period on, but no cumulative PDs. Fill the periods that are not observed first, for example by pooling the cohorts as above or by extending the curve beyond its last month, before passing the PDs on.
 
-The other functions reject missing values. :func:`~kivi.lifetime.expected_credit_loss` needs a PD, an LGD and an EAD for every account and period, :func:`~kivi.lifetime.transition_pd` a complete row for every state other than the default state, and the staging functions a value for every exposure.
+:func:`~kivi.lifetime.expected_credit_loss` converts each account on its own, so as :doc:`/api/conventions` describes, an account with a missing PD, LGD or EAD in a period that is added up, or with a missing rate, gets a missing ECL; the periods after ``horizon`` are not used. :func:`~kivi.lifetime.transition_pd` needs a complete row for every state other than the default state. The staging functions reject missing values, because a flag or a stage cannot be missing: decide how to stage an exposure without a PD or without its days past due before passing it in.
 
 Sample weights
 --------------

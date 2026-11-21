@@ -374,13 +374,13 @@ def expected_credit_loss(
     ------
     ValueError
         If `probability` is not two-dimensional with at least one account
-        and one period, an input is not real and numeric, has a missing
-        value or does not have one of the shapes described, or pandas inputs
-        have different indices or columns. Also if `probability` or `lgd`
-        has a value outside [0, 1], a row of `probability` adds up to more
-        than 1, `ead` has a negative or infinite value, `rate` is not finite
-        and greater than -1 or makes a discount factor overflow, or
-        `horizon` is not a positive integer up to the number of periods.
+        and one period, an input is not real and numeric or does not have
+        one of the shapes described, or pandas inputs have different indices
+        or columns. Also if `probability` or `lgd` has a value outside
+        [0, 1], a row of `probability` adds up to more than 1, `ead` has a
+        negative or infinite value, `rate` is infinite, not greater than -1
+        or makes a discount factor overflow, or `horizon` is not a positive
+        integer up to the number of periods.
 
     See Also
     --------
@@ -419,6 +419,11 @@ def expected_credit_loss(
       maturity, so its 12-month and lifetime expected credit losses are
       equal.
 
+    A missing PD, LGD or EAD in a period that is added up, or a missing
+    rate, gives the account a missing expected credit loss, as in
+    `kivi.strategy.expected_loss`. Missing values in the periods after
+    `horizon` are not used.
+
     Examples
     --------
     >>> from kivi.lifetime import expected_credit_loss
@@ -442,8 +447,7 @@ def expected_credit_loss(
     accounts, periods = marginal.shape
     if not accounts:
         raise ValueError("probability must have at least one account")
-    _check_missing(marginal, "probability")
-    total = marginal.sum(axis=1)
+    total = np.nansum(marginal, axis=1)
     excess = total > 1 + _TOLERANCE
     if excess.any():
         raise ValueError(
@@ -462,7 +466,7 @@ def expected_credit_loss(
             f"ead must be finite and non-negative, got {float(exposure[invalid][0])!r}"
         )
     rates = _per_account(rate, "rate", accounts)
-    invalid = ~np.isfinite(rates) | (rates <= -1)
+    invalid = np.isinf(rates) | (rates <= -1)
     if invalid.any():
         raise ValueError(
             f"rate must be finite and greater than -1, got {float(rates[invalid][0])!r}"
@@ -483,7 +487,7 @@ def expected_credit_loss(
     horizon = int(horizon)
     with np.errstate(over="ignore"):
         discount = (1.0 + rates[:, None]) ** -np.arange(1.0, horizon + 1.0)
-    overflow = ~np.isfinite(discount).all(axis=1)
+    overflow = np.isinf(discount).any(axis=1)
     if overflow.any():
         raise ValueError(
             f"rate must keep the discount factors finite over {horizon} periods, got "
@@ -1121,7 +1125,6 @@ def _schedule(values, name: str, shape: tuple[int, int]) -> npt.NDArray[np.float
             raise ValueError(message.format(array.shape))
     else:
         raise ValueError(message.format(np.shape(values)))
-    _check_missing(array, name)
     return array
 
 
