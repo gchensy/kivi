@@ -962,19 +962,19 @@ def _check_transition_rows(probabilities: np.ndarray, states: pd.Index, default:
         if np.isnan(values).any():
             raise ValueError(
                 f"matrix must not have missing values outside the row of the default state, got "
-                f"one in the row of {state!r}; drop the states without entities"
+                f"one in the row of state {state!r}; drop the states without entities"
             )
         outside = (values < 0) | (values > 1)
         if outside.any():
             raise ValueError(
                 f"matrix must hold probabilities between 0 and 1, got "
-                f"{float(values[outside][0])!r} in the row of {state!r}"
+                f"{float(values[outside][0])!r} in the row of state {state!r}"
             )
         total = values.sum()
         if abs(total - 1) > _TOLERANCE:
             raise ValueError(
-                f"the rows of matrix must add up to 1, got {float(total)!r} for {state!r}; divide "
-                f"each row by its sum"
+                f"the rows of matrix must add up to 1, got {float(total)!r} for state {state!r}; "
+                f"divide each row by its sum"
             )
 
 

@@ -368,15 +368,15 @@ def test_transition_pd_does_not_mutate_its_input():
         ([[True, False], [False, True]], "matrix must be real and numeric, got dtype bool"),
         (
             [[0.5, 0.4], [0.0, 1.0]],
-            r"the rows of matrix must add up to 1, got 0.9 for 0; divide each row by its sum",
+            r"the rows of matrix must add up to 1, got 0.9 for state 0; divide each row by its sum",
         ),
         (
             [[1.5, -0.5], [0.0, 1.0]],
-            r"matrix must hold probabilities between 0 and 1, got 1.5 in the row of 0",
+            r"matrix must hold probabilities between 0 and 1, got 1.5 in the row of state 0",
         ),
         (
             [[np.nan, np.nan, np.nan], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
-            "missing values outside the row of the default state, got one in the row of 0",
+            "missing values outside the row of the default state, got one in the row of state 0",
         ),
     ],
 )
