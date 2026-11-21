@@ -1,16 +1,9 @@
 Model performance
 =================
 
-``kivi.metrics`` measures how well a score separates events from non-events. ``roc_auc``, ``gini`` and ``ks`` summarize the ranking in one number, ``gains_table`` breaks it down by score band, and ``brier_score`` checks predicted probabilities against the outcomes.
+:mod:`kivi.metrics` measures how well a score separates events from non-events. :func:`~kivi.metrics.roc_auc`, :func:`~kivi.metrics.gini` and :func:`~kivi.metrics.ks` summarize the ranking in one number, :func:`~kivi.metrics.gains_table` breaks it down by score band, and :func:`~kivi.metrics.brier_score` checks predicted probabilities against the outcomes.
 
-Score direction
----------------
-
-Every function expects a score that is higher for a higher event probability, such as a predicted probability of default (PD). Scorecard points run the other way, because more points mean a lower risk, so negate them before passing them in: ``roc_auc(-points, target)``.
-
-Every function takes the score first and the target second, as ``woe_table(groups, target)`` takes the groups first. scikit-learn's metrics take the target first, so check the order when porting code from them.
-
-As in ``woe_table``, the target is 1 for an event and 0 for a non-event. Two Series must share the same index; arrays and lists are matched by position. Scores must be finite, so decide how missing values are scored before evaluating the model.
+Performance is measured once the model is scaled to a :doc:`scorecard`, and before its probabilities are checked in :doc:`calibration`.
 
 Definitions
 -----------
@@ -49,6 +42,15 @@ At a cut-off of 0.4, two thirds of the non-events but only one third of the even
 
 >>> round(ks(score, target), 4)
 0.3333
+
+Score direction
+---------------
+
+Every function expects a score that is higher for a higher event probability, such as a predicted probability of default (PD). Scorecard points run the other way, because more points mean a lower risk, so negate them before passing them in: ``roc_auc(-points, target)``.
+
+Every function takes the score first and the target second, as ``woe_table(groups, target)`` takes the groups first. scikit-learn's metrics take the target first, so check the order when porting code from them.
+
+As in :func:`~kivi.woe.woe_table`, the target is 1 for an event and 0 for a non-event. Two Series must share the same index; arrays and lists are matched by position, as :doc:`/api/conventions` describes for every function. Scores must be finite, so decide how missing values are scored before evaluating the model.
 
 Evaluating a WOE score
 ----------------------
@@ -110,9 +112,9 @@ Points that fall as the risk rises rank the customers in the opposite order. Pas
 Gains table
 -----------
 
-``gains_table`` sorts the sample into score bands, from the highest scores to the lowest. Each row shows the event rate of its band and the share of all events found by reviewing that band and every band above it. The default ``bins=10`` cuts the sample at the edges of ``bin_edges(score, bins=10)``, and tied scores always share a band.
+:func:`~kivi.metrics.gains_table` sorts the sample into score bands, from the highest scores to the lowest. Each row shows the event rate of its band and the share of all events found by reviewing that band and every band above it. The default ``bins=10`` cuts the sample at the edges of ``bin_edges(score, bins=10)``, and tied scores always share a band.
 
-In monitoring, fix the bands on the development sample so that every later sample is cut at the same scores. Fit the edges with ``bin_edges`` and round them to readable cut-offs:
+In monitoring, fix the bands on the development sample so that every later sample is cut at the same scores. Fit the edges with :func:`~kivi.binning.bin_edges` and round them to readable cut-offs:
 
 >>> from kivi.binning import bin_edges
 >>> from kivi.metrics import gains_table
@@ -157,7 +159,7 @@ Reading the result
    * - Column
      - Meaning
    * - ``non_event``, ``event``, ``total``
-     - Non-events, events and all observations in the band, as in ``woe_table``.
+     - Non-events, events and all observations in the band, as in :func:`~kivi.woe.woe_table`.
    * - ``event_rate``
      - ``event`` divided by ``total``; NaN for an empty band.
    * - ``lift``
@@ -167,14 +169,14 @@ Reading the result
    * - ``cum_total_share``
      - Share of all observations in this band and the bands above it. Plotting ``cum_event_share`` against ``cum_total_share`` gives the gains chart.
    * - ``ks``
-     - The absolute gap between ``cum_event_share`` and ``cum_non_event_share`` at the lower edge of the band. Like ``ks``, it can come from a band where the score runs the wrong way, with ``cum_non_event_share`` above ``cum_event_share``.
+     - The absolute gap between ``cum_event_share`` and ``cum_non_event_share`` at the lower edge of the band. Like :func:`~kivi.metrics.ks`, it can come from a band where the score runs the wrong way, with ``cum_non_event_share`` above ``cum_event_share``.
    * - ``cum_lift``
      - ``cum_event_share`` divided by ``cum_total_share``: the lift of reviewing this band and every band above it.
 
 Brier score
 -----------
 
-The ranking measures ignore the probability scale: any increasing transformation of the score gives the same AUC, Gini and KS. When a model predicts probabilities, for example a PD used for pricing or provisions, also compare them with the observed outcomes. ``brier_score`` is the mean squared difference between the probability :math:`p_i` and the outcome :math:`y_i`, so a lower value is better:
+The ranking measures ignore the probability scale: any increasing transformation of the score gives the same AUC, Gini and KS. When a model predicts probabilities, for example a PD used for pricing or provisions, also compare them with the observed outcomes. :func:`~kivi.metrics.brier_score` is the mean squared difference between the probability :math:`p_i` and the outcome :math:`y_i`, so a lower value is better:
 
 .. math::
 
@@ -191,10 +193,10 @@ The example below predicts the probability of each validation customer by the de
 
 The group rates lower the Brier score by about 10% compared with the constant forecast. Unlike the ranking measures, the Brier score needs no events in the sample, so it can also be computed for a period without any.
 
-Weighted samples
-----------------
+Sample weights
+--------------
 
-Validation samples often keep every event but only some of the non-events. Every function of :mod:`kivi.metrics` takes ``weights``, one non-negative weight per observation matched like the target, and then counts sums of weights instead of observations. Integer weights give the same result as repeating rows, for ``gains_table`` on fixed edges: with an integer ``bins``, the weighted quantiles of ``bin_edges`` use the inverted CDF and can give other edges than the repeated rows. To weight a sample back to the population, give each observation the inverse of its sampling rate. Below, every event of the validation sample is kept but only every second non-event:
+Validation samples often keep every event but only some of the non-events. Every function of :mod:`kivi.metrics` takes ``weights``, one non-negative weight per observation matched like the target, and then counts sums of weights instead of observations. Integer weights give the same result as repeating rows, for :func:`~kivi.metrics.gains_table` on fixed edges: with an integer ``bins``, the weighted quantiles of :func:`~kivi.binning.bin_edges` use the inverted CDF and can give other edges than the repeated rows. To weight a sample back to the population, give each observation the inverse of its sampling rate. Below, every event of the validation sample is kept but only every second non-event:
 
 >>> non_events_so_far = (y == 0).cumsum()
 >>> kept = (y == 1) | (non_events_so_far % 2 == 0)

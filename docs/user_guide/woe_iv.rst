@@ -1,7 +1,9 @@
 Weight of evidence and information value
 ========================================
 
-``woe_table`` measures how each group separates a binary target. An event is target 1 and a non-event is target 0. Both target classes must be present. Group and target series must share the same index; arrays and lists are matched by position.
+:func:`~kivi.woe.woe_table` measures how each group separates a binary target. An event is target 1 and a non-event is target 0. Both target classes must be present. Group and target series must share the same index; arrays and lists are matched by position, as :doc:`/api/conventions` describes for every function.
+
+WOE and IV follow :doc:`binning`, which forms the groups, and come before :doc:`variable selection <selection>`, which fits a logistic regression on the WOE-encoded variables. :func:`~kivi.woe.woe_transform` encodes new data with the fitted WOE, and :func:`~kivi.woe.woe` and :func:`~kivi.woe.iv` compute the measures from counts that are already aggregated.
 
 Definitions
 -----------
@@ -51,7 +53,7 @@ b             0.6667       0.3333 -0.6931  0.231
 >>> print(f"{result['iv'].sum():.4f}")
 0.4621
 
-When the counts are already aggregated, for example from a database query, ``woe`` and ``iv`` take the event and non-event counts of each group and give the same values:
+When the counts are already aggregated, for example from a database query, :func:`~kivi.woe.woe` and :func:`~kivi.woe.iv` take the event and non-event counts of each group and give the same values:
 
 >>> from kivi.woe import iv, woe
 >>> woe([2, 1], [1, 2]).round(4)
@@ -138,7 +140,7 @@ student         15         44       0.254  0.955
 
 .. dropdown:: Plotting code
 
-   The documentation draws its WOE charts with this matplotlib function. It takes a ``woe_table`` result.
+   The documentation draws its WOE charts with this matplotlib function. It takes a :func:`~kivi.woe.woe_table` result.
 
    .. literalinclude:: ../_plotting.py
       :pyobject: woe_chart
@@ -148,7 +150,7 @@ To compare many variables at once, rank them by IV; see :doc:`risk_workflow`.
 Encoding new data
 -----------------
 
-A scorecard model takes WOE values as inputs. ``woe_transform`` replaces each group with its WOE from a development table, so the validation sample and later production data are encoded with exactly the same values. Group every sample with the edges fitted on the development sample:
+A scorecard model takes WOE values as inputs. :func:`~kivi.woe.woe_transform` replaces each group with its WOE from a development table, so the validation sample and later production data are encoded with exactly the same values. Group every sample with the edges fitted on the development sample:
 
 >>> from kivi.binning import bin_edges
 >>> from kivi.woe import woe_transform
@@ -199,4 +201,4 @@ bin
 no       0.153  0.330      0.431  0.365      0.159  0.365
 yes      0.086 -0.326      0.270 -0.349      0.085 -0.349
 
-The unweighted sample overstates the event rate, and the weights bring it back to the population level. The WOE does not change, because it compares shares within each class and the weights of a class scale all of its counts alike. That holds while no group is empty in either class: ``smoothing`` replaces an empty cell in units of weight, so with weights that do not sum to the number of observations, scale ``smoothing`` along with them. In a weighted result the counts are sums of weights, and groups whose weights sum to zero are left out; ``woe_transform`` treats them as unseen.
+The unweighted sample overstates the event rate, and the weights bring it back to the population level. The WOE does not change, because it compares shares within each class and the weights of a class scale all of its counts alike. That holds while no group is empty in either class: ``smoothing`` replaces an empty cell in units of weight, so with weights that do not sum to the number of observations, scale ``smoothing`` along with them. In a weighted result the counts are sums of weights, and groups whose weights sum to zero are left out; :func:`~kivi.woe.woe_transform` treats them as unseen.

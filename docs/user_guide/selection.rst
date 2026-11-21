@@ -1,10 +1,12 @@
 Variable selection
 ==================
 
-A scorecard is a logistic regression on a short list of WOE-encoded variables. ``kivi.selection`` covers the usual steps from the candidates to that list: drop one variable of each strongly correlated pair, check the rest for collinearity, select variables by their p-values and read the fitted model. Every function takes a DataFrame with one WOE-encoded column per variable, such as the output of ``woe_transform``, and the functions that fit a model also take the 0/1 target.
+A scorecard is a logistic regression on a short list of WOE-encoded variables. :mod:`kivi.selection` covers the usual steps from the candidates to that list: drop one variable of each strongly correlated pair, check the rest for collinearity, select variables by their p-values and read the fitted model. Every function takes a DataFrame with one WOE-encoded column per variable, such as the output of :func:`~kivi.woe.woe_transform`, and the functions that fit a model also take the 0/1 target.
 
-Prepare the candidates
-----------------------
+Selection follows :doc:`woe_iv`, which encodes the candidates, and comes before :doc:`reject_inference` and the :doc:`scorecard`, which refit and scale the chosen model. :func:`~kivi.selection.correlation_filter` drops correlated variables, :func:`~kivi.selection.vif` measures collinearity, :func:`~kivi.selection.logistic_regression` fits the model and :func:`~kivi.selection.stepwise` selects its variables.
+
+Preparing the candidates
+------------------------
 
 Group every candidate as in :doc:`risk_workflow`: quantile bins for most numeric variables, explicit edges where tied values would collapse the quantiles, and the raw labels of categorical variables. Then fit one WOE table per variable on the development sample, rank the variables by IV and encode those with an IV of at least 0.02.
 
@@ -65,7 +67,7 @@ poutcome      1.00   0.68      0.67
 pdays         0.68   1.00      0.71
 previous      0.67   0.71      1.00
 
-``correlation_filter`` visits the variables from the highest ``priority`` to the lowest and keeps a variable unless its absolute correlation with a variable already kept exceeds ``threshold`` (0.7 by default). Pass the IV as the priority, so that of two correlated variables the more predictive one stays:
+:func:`~kivi.selection.correlation_filter` visits the variables from the highest ``priority`` to the lowest and keeps a variable unless its absolute correlation with a variable already kept exceeds ``threshold`` (0.7 by default). Pass the IV as the priority, so that of two correlated variables the more predictive one stays:
 
 >>> kept = correlation_filter(X, priority=iv)
 >>> X.columns.difference(kept).tolist()
@@ -97,7 +99,7 @@ A common rule of thumb flags a VIF above 5, or above 10, as harmful collinearity
 Logistic regression on WOE
 --------------------------
 
-``logistic_regression`` fits the model with an intercept and reports each coefficient with its standard error, its Wald z statistic and the two-sided p-value of that statistic. A model with a single WOE-encoded variable shows why WOE suits a logistic regression:
+:func:`~kivi.selection.logistic_regression` fits the model with an intercept and reports each coefficient with its standard error, its Wald z statistic and the two-sided p-value of that statistic. A model with a single WOE-encoded variable shows why WOE suits a logistic regression:
 
 >>> logistic_regression(X[["poutcome"]], target).round(4)
              coef      se        z  p_value
@@ -121,7 +123,7 @@ A scorecard built on that model would give fewer points to customers with more p
 Stepwise selection
 ------------------
 
-``stepwise`` selects the variables of the model by their p-values. With the default ``direction="both"``, it starts from the intercept alone and repeatedly adds the variable with the smallest p-value below ``p_enter`` (0.05), then removes any selected variable whose p-value has risen above ``p_remove`` (0.10). ``direction="forward"`` only adds variables and ``direction="backward"`` starts from every variable and only removes them.
+:func:`~kivi.selection.stepwise` selects the variables of the model by their p-values. With the default ``direction="both"``, it starts from the intercept alone and repeatedly adds the variable with the smallest p-value below ``p_enter`` (0.05), then removes any selected variable whose p-value has risen above ``p_remove`` (0.10). ``direction="forward"`` only adds variables and ``direction="backward"`` starts from every variable and only removes them.
 
 >>> selected = stepwise(X[kept], target)
 >>> selected.tolist()
@@ -152,10 +154,10 @@ False
 
    Stepwise selection tests many models on the same data, so the p-values of the selected model are optimistic. Treat the result as a proposal: review each variable with the business, and check the model on a validation sample before using it.
 
-Weighted samples
-----------------
+Sample weights
+--------------
 
-``logistic_regression`` and ``stepwise`` take ``weights``: frequency weights that count each row as that many identical observations. Integer weights therefore give the same coefficients, standard errors and selection as repeating the rows:
+:func:`~kivi.selection.logistic_regression` and :func:`~kivi.selection.stepwise` take ``weights``: frequency weights that count each row as that many identical observations. Integer weights therefore give the same coefficients, standard errors and selection as repeating the rows:
 
 >>> weights = np.random.default_rng(0).integers(1, 4, len(X))
 >>> repeated = np.repeat(np.arange(len(X)), weights)

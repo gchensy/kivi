@@ -1,7 +1,11 @@
 Weight of evidence and information value
 ========================================
 
-.. currentmodule:: kivi.woe
+.. module:: kivi.woe
+
+Measure how each group of a variable separates a binary target, and encode groups with the result. :func:`~kivi.woe.woe_table` gives the WOE and IV of each group and :func:`~kivi.woe.woe_transform` encodes new data with them; :func:`~kivi.woe.woe` and :func:`~kivi.woe.iv` compute the same measures from aggregated counts.
+
+See :doc:`/user_guide/woe_iv` for the definitions, examples and how to read the result.
 
 .. autosummary::
 
