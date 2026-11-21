@@ -3,6 +3,8 @@ Calibration
 
 A PD model is calibrated when its probabilities match the default rates that are later observed. Calibration is a separate question from ranking: a model can order applicants well and still predict default rates that are too low for the whole portfolio. :mod:`kivi.calibration` corrects probabilities for the sampling of the development data, builds a master scale, summarizes its grades and tests them, and maps a score to probabilities with Platt scaling or isotonic regression.
 
+Calibration follows :doc:`metrics`, which measures the ranking, and comes before the :doc:`credit strategy <strategy>`, which sets cut-offs on the calibrated PDs.
+
 Correcting for oversampling
 ---------------------------
 
@@ -57,7 +59,7 @@ A master scale divides the PD range into a fixed set of grades, so that ratings 
 Building a scale
 ^^^^^^^^^^^^^^^^
 
-The PDs of a master scale usually grow by a constant factor from grade to grade. ``master_scale`` takes the PD of each grade and adds the bounds of the grades. Here the PDs are a geometric grid of six grades from 2% to 64%, each with twice the PD of the grade before:
+The PDs of a master scale usually grow by a constant factor from grade to grade. :func:`~kivi.calibration.master_scale` takes the PD of each grade and adds the bounds of the grades. Here the PDs are a geometric grid of six grades from 2% to 64%, each with twice the PD of the grade before:
 
 >>> from kivi.calibration import assign_grades, fit_grade_pd, master_scale
 >>> scale = master_scale(np.geomspace(0.02, 0.64, 6), labels=list("ABCDEF"))
@@ -89,7 +91,7 @@ With arithmetic bounds, most PDs of a grade lie above its PD, so the observed de
 Assigning the grades
 ^^^^^^^^^^^^^^^^^^^^
 
-``assign_grades`` gives each PD the grade whose bounds hold it. A PD on a bound goes to the lower grade, as the intervals of ``pandas.cut`` are closed on the right, and a PD of 0 goes to the first grade. The grades are an ordered categorical of the labels, so ``calibration_table`` lists them in the order of the scale when it compares the observed default rate of each grade with its mean predicted PD. Joining the scale adds the PD of each grade:
+:func:`~kivi.calibration.assign_grades` gives each PD the grade whose bounds hold it. A PD on a bound goes to the lower grade, as the intervals of ``pandas.cut`` are closed on the right, and a PD of 0 goes to the first grade. The grades are an ordered categorical of the labels, so :func:`~kivi.calibration.calibration_table` lists them in the order of the scale when it compares the observed default rate of each grade with its mean predicted PD. Joining the scale adds the PD of each grade:
 
 >>> from kivi.calibration import calibration_table
 >>> grades = assign_grades(probability, scale)
@@ -108,7 +110,7 @@ The model gives no customer a PD below 2.83%, so grade A is empty and ``calibrat
 Fitting the PDs of the grades
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The PDs of the grades can also come from the default rates observed in them. ``fit_grade_pd`` fits the logarithm of the default rate as a straight line in the grade number, by least squares weighted with the number of observations of each grade, so the fitted PDs again grow by a constant factor. A grade without defaults enters the fit with half a default, and a grade without observations is left out of the fit but still gets a PD. Count the development sample by the grades of the scale:
+The PDs of the grades can also come from the default rates observed in them. :func:`~kivi.calibration.fit_grade_pd` fits the logarithm of the default rate as a straight line in the grade number, by least squares weighted with the number of observations of each grade, so the fitted PDs again grow by a constant factor. A grade without defaults enters the fit with half a default, and a grade without observations is left out of the fit but still gets a PD. Count the development sample by the grades of the scale:
 
 >>> dev_counts = calibration_table(assign_grades(dev_prob, scale), target, dev_prob)
 >>> dev_counts["event_rate"].round(3)
@@ -146,7 +148,7 @@ The fitted PDs grow by a factor of 1.81 from grade to grade and follow the defau
 Grades given by their bounds
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A scale can also be given by its bounds alone, for example by an existing rating system. Cut the PDs at the bounds with ``pandas.cut``, whose intervals are closed on the right like those of ``assign_grades``; ``include_lowest=True`` keeps a PD of exactly 0 in the first grade. The rest of this page uses these grades:
+A scale can also be given by its bounds alone, for example by an existing rating system. Cut the PDs at the bounds with ``pandas.cut``, whose intervals are closed on the right like those of :func:`~kivi.calibration.assign_grades`; ``include_lowest=True`` keeps a PD of exactly 0 in the first grade. The rest of this page uses these grades:
 
 >>> pd_edges = [0, 0.05, 0.08, 0.12, 0.2, 0.4, 1]
 >>> grades = pd.cut(probability, pd_edges, labels=list("ABCDEF"), include_lowest=True)
@@ -161,7 +163,7 @@ D      572     66       0.115      0.136
 E       65     22       0.338      0.260
 F       46     31       0.674      0.636
 
-``calibration_table`` accepts any grouping, such as score bands or deciles of the PD. It counts the groups like ``woe_table``: categorical groups keep the order of their categories, and grades without observations are left out.
+:func:`~kivi.calibration.calibration_table` accepts any grouping, such as score bands or deciles of the PD. It counts the groups like :func:`~kivi.woe.woe_table`: categorical groups keep the order of their categories, and grades without observations are left out.
 
 Testing each grade
 ------------------
@@ -278,12 +280,12 @@ A master scale differentiates risk poorly when most obligors fall into a few gra
 >>> print(f"{herfindahl_index(table['total'], normalize=True):.3f}")
 0.097
 
-``calibration_table`` leaves out empty grades. To count them, pass the counts of every grade of the scale, for example ``grades.value_counts(sort=False)``.
+:func:`~kivi.calibration.calibration_table` leaves out empty grades. To count them, pass the counts of every grade of the scale, for example ``grades.value_counts(sort=False)``.
 
 Calibrating a score
 -------------------
 
-A score that ranks applicants well need not be a probability, and the PDs of a model may need recalibrating on recent data. ``kivi.calibration`` fits two common mappings from a score to probabilities. Like ``bin_edges`` and ``cut``, each comes as a pair: the fit returns plain numbers, fitted once on a calibration sample, and the predict function applies them to the scores of any later sample.
+A score that ranks applicants well need not be a probability, and the PDs of a model may need recalibrating on recent data. :mod:`kivi.calibration` fits two common mappings from a score to probabilities. Like :func:`~kivi.binning.bin_edges` and :func:`~kivi.binning.cut`, each comes as a pair: the fit returns plain numbers, fitted once on a calibration sample, and the predict function applies them to the scores of any later sample.
 
 Platt scaling
 ^^^^^^^^^^^^^
@@ -318,12 +320,12 @@ D      572     66       0.115             0.136
 E       65     22       0.338             0.260
 F       46     31       0.674             0.636
 
-The score need not be log odds. Platt scaling fits any score, and a score that falls as the risk rises, such as scorecard points, gets a negative slope. When the score separates the classes, the slope that maximizes the likelihood is infinite, and ``platt_fit`` raises :class:`kivi.selection.SeparationError`.
+The score need not be log odds. Platt scaling fits any score, and a score that falls as the risk rises, such as scorecard points, gets a negative slope. When the score separates the classes, the slope that maximizes the likelihood is infinite, and :func:`~kivi.calibration.platt_fit` raises :class:`kivi.selection.SeparationError`.
 
 Isotonic regression
 ^^^^^^^^^^^^^^^^^^^
 
-Isotonic regression assumes only that the event rate rises with the score. The pool-adjacent-violators algorithm merges adjacent score bands until their event rates increase, and each band gets its event rate. ``isotonic_fit`` returns the band edges, from ``-inf`` to ``inf`` like those of ``bin_edges``, and the probability of each band:
+Isotonic regression assumes only that the event rate rises with the score. The pool-adjacent-violators algorithm merges adjacent score bands until their event rates increase, and each band gets its event rate. :func:`~kivi.calibration.isotonic_fit` returns the band edges, from ``-inf`` to ``inf`` like those of :func:`~kivi.binning.bin_edges`, and the probability of each band:
 
 >>> from kivi.calibration import isotonic_fit, isotonic_predict
 >>> edges, probabilities = isotonic_fit(dev_low, target)
@@ -332,7 +334,7 @@ Isotonic regression assumes only that the event rate rises with the score. The p
 >>> probabilities[:4].round(4)
 array([0.0397, 0.0459, 0.069 , 0.0805])
 
-The bands are closed on the right, as in ``pandas.cut``, so they can also serve as grades. ``isotonic_predict`` gives each monitoring PD the probability of its band, and scores outside the development range get the probability of the lowest or the highest band. A score that falls between the observed scores of two bands gets the upper band; with ``increasing=False``, as for scorecard points, that is the band with the lower risk:
+The bands are closed on the right, as in ``pandas.cut``, so they can also serve as grades. :func:`~kivi.calibration.isotonic_predict` gives each monitoring PD the probability of its band, and scores outside the development range get the probability of the lowest or the highest band. A score that falls between the observed scores of two bands gets the upper band; with ``increasing=False``, as for scorecard points, that is the band with the lower risk:
 
 >>> iso = isotonic_predict(low, edges, probabilities)
 >>> iso_table = calibration_table(pd.cut(low, edges), monitoring["target"], iso)
@@ -346,7 +348,7 @@ H = 13.94, p = 0.530
 
 The step function follows the development sample closely, so some bands are small: the smallest holds four customers of the monitoring sample. Fit isotonic regression on a large sample, and check its bands on another sample as above. A band without events has a probability of 0, so floor the probabilities where a PD of zero is not allowed.
 
-Weighted samples
-----------------
+Sample weights
+--------------
 
-A development sample that keeps every bad but only some of the goods can be weighted back to the portfolio, with each observation weighted by the inverse of its sampling rate. ``calibration_table``, ``platt_fit`` and ``isotonic_fit`` take such weights in ``weights``: counts become sums of weights, and integer weights give the same result as repeating rows. The binomial, Jeffreys and Hosmer-Lemeshow tests need whole numbers of observations and events, so run them on an unweighted table.
+A development sample that keeps every bad but only some of the goods can be weighted back to the portfolio, with each observation weighted by the inverse of its sampling rate. :func:`~kivi.calibration.calibration_table`, :func:`~kivi.calibration.platt_fit` and :func:`~kivi.calibration.isotonic_fit` take such weights in ``weights``: counts become sums of weights, and integer weights give the same result as repeating rows. The binomial, Jeffreys and Hosmer-Lemeshow tests need whole numbers of observations and events, so run them on an unweighted table.

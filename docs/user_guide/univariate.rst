@@ -1,7 +1,9 @@
 Univariate profile
 ==================
 
-Before any variable is binned with care, look at all of them at once: how complete each one is, how its values are distributed, and how strongly it separates events from non-events on its own. ``kivi.univariate.profile_table`` summarizes every column of a data frame in one row, so the whole list of candidates fits in one table.
+Before any variable is binned with care, look at all of them at once: how complete each one is, how its values are distributed, and how strongly it separates events from non-events on its own. :func:`kivi.univariate.profile_table` summarizes every column of a data frame in one row, so the whole list of candidates fits in one table.
+
+The profile is the first step of a model. The candidates that pass its screening are binned with care next, as :doc:`binning` describes, and :doc:`risk_workflow` follows them through the remaining steps.
 
 Profiling the candidates
 ------------------------
@@ -37,7 +39,7 @@ poutcome   categorical    525          0.825         3     failure      0.613
 
 Every column gets one row, indexed by its name:
 
-* ``kind`` is ``numeric`` for numeric dtypes other than bool and ``categorical`` for all others, as in ``fit_spec``.
+* ``kind`` is ``numeric`` for numeric dtypes other than bool and ``categorical`` for all others, as in :func:`~kivi.spec.fit_spec`.
 * ``count`` and ``missing`` count the rows with and without a value, and ``missing_share`` is the share of rows without one. ``poutcome`` is missing for 82.5% of the customers, those who were not in the previous campaign.
 * ``distinct`` is the number of different values.
 * ``top`` is the most frequent value and ``top_share`` its share of the rows with a value. A share close to 1 marks an almost constant variable: 98.4% of the customers have no ``default``.
@@ -61,53 +63,17 @@ previous     0.0    0.0    0.0      8.00     20.0
 
 The 1% and 99% quantiles show the range of the bulk of the values. The largest ``balance`` is three times its 99% quantile, so a few customers have far larger balances than the rest. The median of ``pdays`` is -1, the code for a customer who was never contacted before.
 
-Special codes
--------------
-
-A special code such as ``pdays == -1`` is a value, not a number on the scale of the others. Pass it in ``special``, by column as in ``fit_spec``. The code still counts as a value in ``count``, ``distinct`` and ``top``, but ``special`` and ``special_share`` count it separately, and the numeric summary, the Gini coefficient and the quick binning below leave it out:
-
->>> coded = profile_table(candidates, development["target"], special={"pdays": [-1]})
->>> coded.loc[["pdays"], ["special_share", "min", "q50", "max", "gini"]].round(3)
-          special_share  min    q50    max   gini
-variable
-pdays             0.825  1.0  188.0  871.0 -0.332
-
-Among the customers contacted before, half were contacted more than 188 days earlier.
-
-Missing values and the target
------------------------------
-
-With a target, every column also gets the event rate of all rows, ``event_rate``, and the event rates of the rows without and with a value, ``missing_event_rate`` and ``non_missing_event_rate``. The lifts divide them by ``event_rate``, so a lift above 1 marks rows riskier than average:
-
->>> missing = profile["missing"] > 0
->>> profile.loc[missing, ["missing_share", "missing_event_rate", "missing_lift"]].round(3)
-           missing_share  missing_event_rate  missing_lift
-variable
-job                0.008               0.160         1.379
-education          0.042               0.080         0.690
-contact            0.288               0.050         0.430
-poutcome           0.825               0.092         0.794
-
-Customers whose contact type is missing responded at 5.0%, less than half the rate of 11.6% of all customers. A missing value that carries information like this is worth its own group in the binning, which ``woe_table`` gives it.
-
-.. plot::
-   :alt: Share of missing values and their lift for job, education, contact and poutcome
-   :caption: Share of missing values and their lift for the four columns with missing values. The missing values of ``job`` respond more often than average, those of the other columns less often.
-
-   kp.figure_missing_profile()
-
 Screening by IV
 ---------------
 
-The ``iv`` column is the information value of a quick binning: ``bins`` quantile bins from ``bin_edges`` for numeric columns, with a group for each special code, and the labels for categorical ones. Missing values form a group of their own. The ``gini`` column is the Gini coefficient of the values of a numeric column used as a score: positive when events have higher values, negative when they have lower ones.
+The ``iv`` column is the information value of a quick binning: ``bins`` quantile bins from :func:`~kivi.binning.bin_edges` for numeric columns, with a group for each special code, and the labels for categorical ones. Missing values form a group of their own. The ``gini`` column is the Gini coefficient of the values of a numeric column used as a score: positive when events have higher values, negative when they have lower ones.
 
->>> ranking = coded.sort_values("iv", ascending=False)
+>>> ranking = profile.sort_values("iv", ascending=False)
 >>> ranking[["kind", "iv", "tied_bins", "gini"]].round(3)
                   kind     iv  tied_bins   gini
 variable
 duration       numeric  1.594      False  0.627
 poutcome   categorical  0.423      False    NaN
-pdays          numeric  0.355      False -0.332
 month      categorical  0.334      False    NaN
 contact    categorical  0.215      False    NaN
 job        categorical  0.137      False    NaN
@@ -120,13 +86,58 @@ campaign       numeric  0.031       True -0.093
 age            numeric  0.019      False  0.009
 day            numeric  0.011      False -0.048
 default    categorical  0.000      False    NaN
+pdays          numeric  0.000       True  0.175
 previous       numeric  0.000       True  0.199
 
-These are the IVs of the screening step of :doc:`risk_workflow`, which bins every candidate in the same way, except for ``pdays``: without its special code, its tied quantiles merge into a single bin and its IV is 0. ``bin_edges`` warns about such ties; ``profile_table`` records them in ``tied_bins`` instead, so profiling many columns raises no warnings. ``previous`` still has tied bins, and its IV understates it until it is binned with custom edges. The Gini coefficient of ``pdays`` was 0.175 when the code -1 counted as the lowest value; among the customers contacted before, a more recent contact goes with more responses, so the sign turns.
+These are the IVs of the screening step of :doc:`risk_workflow`, which bins every candidate in the same way. ``bin_edges`` warns about tied quantiles; :func:`~kivi.univariate.profile_table` records them in ``tied_bins`` instead, so profiling many columns raises no warnings. Most values of ``pdays`` and ``previous`` are -1 and 0, so their tied quantiles merge into a single bin, and their IV of 0 understates them until they are binned with care: ``pdays`` with its special code, as below, and ``previous`` with custom edges.
 
 The quick binning gives a first ranking, not a final one. Five quantile bins can miss a pattern that other edges would show, and a categorical variable with many rare labels gets an inflated IV. Read the ranking critically, as the workflow does, and bin the shortlist with care in :doc:`binning`.
 
-Weighted samples
-----------------
+Special values
+--------------
 
-``profile_table`` takes ``weights``, for example the inverse of the sampling rate of each row. Counts become sums of weights and every statistic is weighted, so integer weights give the same table as repeating rows with unit weights. The quantiles are then weighted quantiles by the inverted CDF, as the edges of ``bin_edges``, while the unweighted quantiles interpolate. Weights therefore change the quantiles and, through the edges of the quick binning, ``iv`` and ``tied_bins``, even when they are all 1; every other column equals that of the repeated rows without weights. Without ``target``, the table has only the columns that describe the variables.
+A special code such as ``pdays == -1`` is a value, not a number on the scale of the others. Pass it in ``special``, by column as in :func:`~kivi.spec.fit_spec`. The code still counts as a value in ``count``, ``distinct`` and ``top``, but ``special`` and ``special_share`` count it separately, and the numeric summary, the Gini coefficient and the quick binning leave it out:
+
+>>> coded = profile_table(candidates, development["target"], special={"pdays": [-1]})
+>>> coded.loc[["pdays"], ["special_share", "min", "q50", "max", "gini"]].round(3)
+          special_share  min    q50    max   gini
+variable
+pdays             0.825  1.0  188.0  871.0 -0.332
+
+Among the customers contacted before, half were contacted more than 188 days earlier.
+
+Left out of the quick binning, the code gets a group of its own, and the other values fill the five quantile bins. The IV of ``pdays`` rises from 0 to 0.355, the third highest of all the candidates:
+
+>>> coded.loc[["pdays"], ["iv", "tied_bins"]].round(3)
+             iv  tied_bins
+variable
+pdays     0.355      False
+
+The Gini coefficient of ``pdays`` was 0.175 when the code -1 counted as the lowest value; among the customers contacted before, a more recent contact goes with more responses, so the sign turns.
+
+Missing values
+--------------
+
+With a target, every column also gets the event rate of all rows, ``event_rate``, and the event rates of the rows without and with a value, ``missing_event_rate`` and ``non_missing_event_rate``. The lifts divide them by ``event_rate``, so a lift above 1 marks rows riskier than average:
+
+>>> missing = profile["missing"] > 0
+>>> profile.loc[missing, ["missing_share", "missing_event_rate", "missing_lift"]].round(3)
+           missing_share  missing_event_rate  missing_lift
+variable
+job                0.008               0.160         1.379
+education          0.042               0.080         0.690
+contact            0.288               0.050         0.430
+poutcome           0.825               0.092         0.794
+
+Customers whose contact type is missing responded at 5.0%, less than half the rate of 11.6% of all customers. A missing value that carries information like this is worth its own group in the binning, which :func:`~kivi.woe.woe_table` gives it.
+
+.. plot::
+   :alt: Share of missing values and their lift for job, education, contact and poutcome
+   :caption: Share of missing values and their lift for the four columns with missing values. The missing values of ``job`` respond more often than average, those of the other columns less often.
+
+   kp.figure_missing_profile()
+
+Sample weights
+--------------
+
+:func:`~kivi.univariate.profile_table` takes ``weights``, for example the inverse of the sampling rate of each row. Counts become sums of weights and every statistic is weighted, so integer weights give the same table as repeating rows with unit weights. The quantiles are then weighted quantiles by the inverted CDF, as the edges of :func:`~kivi.binning.bin_edges`, while the unweighted quantiles interpolate. Weights therefore change the quantiles and, through the edges of the quick binning, ``iv`` and ``tied_bins``, even when they are all 1; every other column equals that of the repeated rows without weights. Without ``target``, the table has only the columns that describe the variables.

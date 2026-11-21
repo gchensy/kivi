@@ -3,7 +3,12 @@ Vintage and roll-rate analysis
 
 Once a scorecard is in use, the loans it approves are monitored as they age. :mod:`kivi.vintage` covers the two standard views of a loan portfolio: vintage curves, which follow the bad rate of each origination cohort by month on book, and roll rates and transition matrices, which show how loans move between delinquency buckets from one month end to the next.
 
-Both work on a loan panel in long format, with one row per loan and month on book. The examples use the synthetic panel of ``make_loan_panel``: 5,000 instalment loans originated from January 2024 to December 2025 and observed at every month end up to January 2026.
+Vintage analysis is the last step of the user guide. It complements the :doc:`population stability index <psi>`, which monitors the applicants, by following the loans themselves.
+
+The loan panel
+--------------
+
+Both work on a loan panel in long format, with one row per loan and month on book. The examples use the synthetic panel of :func:`~kivi.datasets.make_loan_panel`: 5,000 instalment loans originated from January 2024 to December 2025 and observed at every month end up to January 2026.
 
 >>> import numpy as np
 >>> import pandas as pd
@@ -22,7 +27,7 @@ The status is an ordered categorical of days past due, so a comparison such as `
 Vintage curves
 --------------
 
-A loan is *ever bad* by month on book :math:`k` if it was bad at any month on book up to :math:`k`. A vintage table holds, for each cohort and month on book, the share of the cohort's loans that are ever bad by then. ``vintage_table`` takes the loan, the cohort, the month on book and whether the loan is bad on each row, so the bad definition is a condition on the status. Here a loan is bad once it is 90 days past due:
+A loan is *ever bad* by month on book :math:`k` if it was bad at any month on book up to :math:`k`. A vintage table holds, for each cohort and month on book, the share of the cohort's loans that are ever bad by then. :func:`~kivi.vintage.vintage_table` takes the loan, the cohort, the month on book and whether the loan is bad on each row, so the bad definition is a condition on the status. Here a loan is bad once it is 90 days past due:
 
 >>> from kivi.vintage import vintage_table
 >>> ever_90 = vintage_table(
@@ -108,7 +113,7 @@ current    0.023
 60-89      0.712
 Name: roll_rate, dtype: float64
 
-Both columns are ordered categoricals, so ``roll_rates`` takes the order of the states, from the best to the worst, from their categories. For plain labels, pass ``states``: sorted, ``"current"`` would come after ``"90+"``. Each month about 2.3% of the current loans miss an instalment, and the share that rolls on rises with the days past due: seven in ten of the loans at 60 to 89 days are 90 days past due a month later.
+Both columns are ordered categoricals, so :func:`~kivi.vintage.roll_rates` takes the order of the states, from the best to the worst, from their categories. For plain labels, pass ``states``: sorted, ``"current"`` would come after ``"90+"``. Each month about 2.3% of the current loans miss an instalment, and the share that rolls on rises with the days past due: seven in ten of the loans at 60 to 89 days are 90 days past due a month later.
 
 A loan falls at most one bucket further behind per month, so the only way from current to 90+ in four months is to roll every month. If the movements follow a Markov chain, the product of the roll rates is the share of current loans that are 90+ four months later:
 
@@ -128,7 +133,7 @@ Name: roll_rate, dtype: float64
 Transition matrices
 -------------------
 
-``transition_matrix`` shows all the movements, not only the roll to the next bucket. Row ``i``, column ``j`` counts the loans that moved from state ``i`` to state ``j``:
+:func:`~kivi.vintage.transition_matrix` shows all the movements, not only the roll to the next bucket. Row ``i``, column ``j`` counts the loans that moved from state ``i`` to state ``j``:
 
 >>> transition_matrix(before, after)
 after    current  1-29  30-59  60-89   90+

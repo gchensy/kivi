@@ -1,7 +1,11 @@
 Calibration
 ===========
 
-.. currentmodule:: kivi.calibration
+.. module:: kivi.calibration
+
+Check and correct predicted probabilities. The functions correct probabilities for the sampling of the development data, build a master scale and assign its grades, count and test the grades, and recalibrate a score with Platt scaling or isotonic regression.
+
+See :doc:`/user_guide/calibration` for examples on the bundled data.
 
 .. autosummary::
 

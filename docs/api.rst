@@ -1,15 +1,24 @@
 API reference
 =============
 
-The public functions take one-dimensional array-like inputs, such as lists, NumPy arrays or pandas Series, and return NumPy arrays or pandas DataFrames. Import them from their modules.
-
-Each page below documents one module.
+Import each function from its module, as in ``from kivi.woe import woe_table``. :doc:`api/conventions` describes the rules that every function follows for its arguments, results and errors, and :doc:`api/glossary` defines the terms of the guides. Each of the other pages documents one module, in the order of the user guide.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :glob:
 
+   api/conventions
+   api/glossary
+   api/univariate
    api/binning
    api/woe
+   api/selection
+   api/reject_inference
+   api/scorecard
+   api/metrics
+   api/calibration
+   api/strategy
+   api/spec
    api/stability
+   api/vintage
    api/*

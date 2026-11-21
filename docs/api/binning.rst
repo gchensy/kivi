@@ -1,7 +1,11 @@
 Binning
 =======
 
-.. currentmodule:: kivi.binning
+.. module:: kivi.binning
+
+Fit bin edges on a reference sample and group every sample with the same edges. :func:`~kivi.binning.bin_edges` fits quantile or uniform edges from the values alone; :func:`~kivi.binning.chimerge_edges`, :func:`~kivi.binning.tree_edges` and :func:`~kivi.binning.monotonic_edges` also use a binary target. :func:`~kivi.binning.cut` groups a sample and gives each special code a group of its own.
+
+See :doc:`/user_guide/binning` for examples and how to choose the edges.
 
 .. autosummary::
 
