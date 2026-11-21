@@ -69,7 +69,7 @@ def period_rows(frame, period, edges, reference_score):
 
 
 def test_monitoring_table_matches_hand_calculation():
-    table = monitoring_table(SCORE, TARGET, PERIOD, reference="2024-01", bins=2)
+    table = monitoring_table(SCORE, PERIOD, TARGET, reference="2024-01", bins=2)
     assert table.columns.tolist() == COLUMNS
     assert table.index.tolist() == ["2024-01", "2024-02", "2024-03"]
     assert table.index.name == "period"
@@ -91,8 +91,8 @@ def test_monitoring_table_rows_match_metrics_of_each_period(applications):
     reference = pd.Period("2024-01", "M")
     table = monitoring_table(
         applications["incumbent_pd"],
-        applications["outcome"],
         applications["month"],
+        applications["outcome"],
         reference=reference,
     )
     first = applications.loc[applications["month"] == reference, "incumbent_pd"]
@@ -113,8 +113,8 @@ def test_monitoring_table_reference_sample(applications):
     development = make_applications(n_applicants=2000, rng=8)["incumbent_pd"]
     table = monitoring_table(
         applications["incumbent_pd"],
-        applications["outcome"],
         applications["month"],
+        applications["outcome"],
         reference=development,
         bins=5,
     )
@@ -127,8 +127,8 @@ def test_monitoring_table_reference_sample(applications):
     # A list works as well as a Series.
     listed = monitoring_table(
         applications["incumbent_pd"].tolist(),
-        applications["outcome"].tolist(),
         applications["month"].tolist(),
+        applications["outcome"].tolist(),
         reference=development.tolist(),
         bins=5,
     )
@@ -139,8 +139,8 @@ def test_monitoring_table_integer_bins_are_bin_edges_of_the_reference(applicatio
     score, target, month = (applications[c] for c in ("incumbent_pd", "outcome", "month"))
     reference = pd.Period("2024-02", "M")
     edges = bin_edges(score[month == reference], bins=4)
-    by_count = monitoring_table(score, target, month, reference=reference, bins=4)
-    by_edges = monitoring_table(score, target, month, reference=reference, bins=edges)
+    by_count = monitoring_table(score, month, target, reference=reference, bins=4)
+    by_edges = monitoring_table(score, month, target, reference=reference, bins=edges)
     pd.testing.assert_frame_equal(by_count, by_edges)
     assert by_count.loc[reference, "psi"] == 0.0
 
@@ -148,7 +148,7 @@ def test_monitoring_table_integer_bins_are_bin_edges_of_the_reference(applicatio
 def test_monitoring_table_missing_target_counts_in_total_only():
     target = [np.nan, 0, 1, None, 1, np.nan]
     table = monitoring_table(
-        [0.1, 0.2, 0.3, 0.4, 0.5, 0.6], pd.Series(target, dtype=object), ["a"] * 6, reference="a"
+        [0.1, 0.2, 0.3, 0.4, 0.5, 0.6], ["a"] * 6, pd.Series(target, dtype=object), reference="a"
     )
     assert table["total"].tolist() == [6]
     assert table["known"].tolist() == [3]
@@ -160,7 +160,7 @@ def test_monitoring_table_missing_target_counts_in_total_only():
 
 def test_monitoring_table_nullable_target():
     target = pd.array([0, 1, pd.NA, 1], dtype="Int64")
-    table = monitoring_table([0.1, 0.4, 0.3, 0.2], target, [1, 1, 1, 1], reference=1)
+    table = monitoring_table([0.1, 0.4, 0.3, 0.2], [1, 1, 1, 1], target, reference=1)
     assert table["known"].tolist() == [3]
     assert table["event"].tolist() == [2]
     # Events 0.4 and 0.2 against the non-event 0.1.
@@ -170,7 +170,7 @@ def test_monitoring_table_nullable_target():
 def test_monitoring_table_period_without_both_classes_has_nan_discrimination():
     score = [0.1, 0.5, 0.2, 0.6, 0.3, 0.7]
     target = [0, 1, 0, 0, np.nan, 1]
-    table = monitoring_table(score, target, ["a", "a", "b", "b", "c", "c"], reference="a")
+    table = monitoring_table(score, ["a", "a", "b", "b", "c", "c"], target, reference="a")
     assert table["known"].tolist() == [2, 2, 1]
     assert table["event"].tolist() == [1, 0, 1]
     assert table["event_rate"].tolist() == [0.5, 0.0, 1.0]
@@ -186,7 +186,7 @@ def test_monitoring_table_empty_categorical_period_keeps_its_row():
     score = [0.1, 0.2, 0.3, 0.1, 0.2, 0.9]
     target = [0, 1, 1, 0, 1, 0]
     table = monitoring_table(
-        score, target, period, reference="2024-03", bins=[-np.inf, 0.15, np.inf]
+        score, period, target, reference="2024-03", bins=[-np.inf, 0.15, np.inf]
     )
     assert isinstance(table.index, pd.CategoricalIndex)
     assert table.index.tolist() == categories
@@ -200,30 +200,30 @@ def test_monitoring_table_empty_categorical_period_keeps_its_row():
 
 def test_monitoring_table_unordered_categorical_follows_category_order():
     period = pd.Categorical(["b", "a", "b", "a"], categories=["b", "a", "c"])
-    table = monitoring_table([0.1, 0.2, 0.3, 0.4], [0, 1, 1, 0], period, reference="b")
+    table = monitoring_table([0.1, 0.2, 0.3, 0.4], period, [0, 1, 1, 0], reference="b")
     assert table.index.tolist() == ["b", "a", "c"]
     assert table["total"].tolist() == [2, 2, 0]
 
 
 def test_monitoring_table_sorts_other_periods():
-    table = monitoring_table([0.1, 0.2, 0.3, 0.4], [0, 1, 1, 0], [3, 1, 2, 1], reference=1)
+    table = monitoring_table([0.1, 0.2, 0.3, 0.4], [3, 1, 2, 1], [0, 1, 1, 0], reference=1)
     assert table.index.tolist() == [1, 2, 3]
     assert table["total"].tolist() == [2, 1, 1]
     dates = pd.to_datetime(["2024-02-01", "2024-01-01", "2024-02-01", "2024-01-01"])
-    by_date = monitoring_table([0.1, 0.2, 0.3, 0.4], [0, 1, 1, 0], dates, reference=dates[1])
+    by_date = monitoring_table([0.1, 0.2, 0.3, 0.4], dates, [0, 1, 1, 0], reference=dates[1])
     assert isinstance(by_date.index, pd.DatetimeIndex)
     assert by_date.index.tolist() == [pd.Timestamp("2024-01-01"), pd.Timestamp("2024-02-01")]
 
 
 def test_monitoring_table_without_target():
-    table = monitoring_table(SCORE, None, PERIOD, reference="2024-01", bins=2)
+    table = monitoring_table(SCORE, PERIOD, reference="2024-01", bins=2)
     assert table.columns.tolist() == ["total", "psi"]
-    with_target = monitoring_table(SCORE, TARGET, PERIOD, reference="2024-01", bins=2)
+    with_target = monitoring_table(SCORE, PERIOD, TARGET, reference="2024-01", bins=2)
     pd.testing.assert_frame_equal(table, with_target[["total", "psi"]])
 
 
 def test_monitoring_table_smoothing():
-    table = monitoring_table(SCORE, TARGET, PERIOD, reference="2024-01", bins=2, smoothing=0.1)
+    table = monitoring_table(SCORE, PERIOD, TARGET, reference="2024-01", bins=2, smoothing=0.1)
     assert table["psi"].iloc[2] == pytest.approx(hand_psi([2, 2], [0, 4], smoothing=0.1))
     assert table["psi"].iloc[2] == pytest.approx(psi([2, 2], [0, 4], smoothing=0.1))
 
@@ -233,7 +233,7 @@ def test_monitoring_table_leaves_out_bands_empty_in_both_samples():
     # psi_table never sees a group that neither sample has.
     score = [0.0, 10.0, 0.0, 1.0, 9.0, 10.0]
     period = ["ref", "ref", "now", "now", "now", "now"]
-    table = monitoring_table(score, None, period, reference="ref", bins=4)
+    table = monitoring_table(score, period, reference="ref", bins=4)
     edges = bin_edges([0.0, 10.0], bins=4)
     assert len(edges) == 5
     expected = psi_table(pd.cut([0.0, 10.0], edges), pd.cut([0.0, 1.0, 9.0, 10.0], edges))
@@ -252,10 +252,10 @@ def test_monitoring_table_integer_weights_equal_repeated_rows(applications):
     edges = [-np.inf, 0.04, 0.07, 0.1, 0.15, 0.25, np.inf]
     reference = pd.Period("2024-03", "M")
     weighted = monitoring_table(
-        score, target, month, reference=reference, bins=edges, weights=weights
+        score, month, target, reference=reference, bins=edges, weights=weights
     )
     repeated = monitoring_table(
-        score[repeat], target[repeat], month[repeat], reference=reference, bins=edges
+        score[repeat], month[repeat], target[repeat], reference=reference, bins=edges
     )
     pd.testing.assert_frame_equal(weighted, repeated, check_dtype=False, rtol=1e-12)
     assert weighted["total"].sum() == weights.sum()
@@ -265,15 +265,15 @@ def test_monitoring_table_integer_weights_equal_repeated_rows(applications):
     sample = np.repeat(np.arange(len(development)), development_weights)
     weighted = monitoring_table(
         score,
-        target,
         month,
+        target,
         reference=development,
         bins=edges,
         weights=weights,
         reference_weights=development_weights,
     )
     repeated = monitoring_table(
-        score[repeat], target[repeat], month[repeat], reference=development[sample], bins=edges
+        score[repeat], month[repeat], target[repeat], reference=development[sample], bins=edges
     )
     pd.testing.assert_frame_equal(weighted, repeated, check_dtype=False, rtol=1e-12)
 
@@ -283,7 +283,7 @@ def test_monitoring_table_weighted_rows_match_weighted_metrics(applications):
     weights = pd.Series(rng.uniform(0.5, 3.0, len(applications)), index=applications.index)
     score, target, month = (applications[c] for c in ("incumbent_pd", "outcome", "month"))
     reference = pd.Period("2024-01", "M")
-    table = monitoring_table(score, target, month, reference=reference, bins=5, weights=weights)
+    table = monitoring_table(score, month, target, reference=reference, bins=5, weights=weights)
     first = month == reference
     edges = bin_edges(score[first], bins=5, weights=weights[first])
     for label in table.index:
@@ -311,18 +311,18 @@ def test_monitoring_table_zero_weight_periods():
     weights = [1, 1, 0, 0, 1, 1]
     edges = [-np.inf, 0.15, np.inf]
     table = monitoring_table(
-        score, target, ["a", "a", "b", "b", "c", "c"], reference="a", bins=edges, weights=weights
+        score, ["a", "a", "b", "b", "c", "c"], target, reference="a", bins=edges, weights=weights
     )
     # Repeated rows would have no period b.
     assert table.index.tolist() == ["a", "c"]
     categorical = pd.Categorical(["a", "a", "b", "b", "c", "c"])
-    table = monitoring_table(score, target, categorical, reference="a", bins=edges, weights=weights)
+    table = monitoring_table(score, categorical, target, reference="a", bins=edges, weights=weights)
     assert table.index.tolist() == ["a", "b", "c"]
     assert table.loc["b", "total"] == 0
     assert table.loc[["b"], ["event_rate", "auc", "psi"]].isna().all(axis=None)
     # A period whose events have no weight has no discrimination.
     table = monitoring_table(
-        score, target, ["a"] * 6, reference="a", bins=edges, weights=[1, 0, 1, 0, 1, 0]
+        score, ["a"] * 6, target, reference="a", bins=edges, weights=[1, 0, 1, 0, 1, 0]
     )
     assert table["event"].tolist() == [0.0]
     assert np.isnan(table["auc"].iloc[0])
@@ -332,7 +332,7 @@ def test_monitoring_table_warns_when_ties_leave_fewer_bands():
     score = [0.1] * 6 + [0.2, 0.3]
     message = "tied edges leave 2 of the 4 requested bins; .*pass fewer bins or explicit edges"
     with pytest.warns(UserWarning, match=message) as caught:
-        table = monitoring_table(score, None, ["a"] * 8, reference="a", bins=4)
+        table = monitoring_table(score, ["a"] * 8, reference="a", bins=4)
     assert "special" not in str(caught[0].message)
     assert caught[0].filename == __file__
     assert table["psi"].tolist() == [0.0]
@@ -341,7 +341,7 @@ def test_monitoring_table_warns_when_ties_leave_fewer_bands():
 def test_monitoring_table_tuple_periods():
     period = pd.Series([(2024, 1)] * 3 + [(2024, 2)] * 3)
     score = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
-    table = monitoring_table(score, None, period, reference=(2024, 1), bins=2)
+    table = monitoring_table(score, period, reference=(2024, 1), bins=2)
     assert table.index.tolist() == [(2024, 1), (2024, 2)]
     # The tuple is a period label, not a sample of the scores 2024 and 1.
     assert table["psi"].iloc[0] == 0.0
@@ -350,32 +350,32 @@ def test_monitoring_table_tuple_periods():
     stability = stability_table(groups, period, reference=(2024, 1))
     assert stability["housing"].iloc[0] == 0.0
     with pytest.raises(ValueError, match=r"got \(2024, 3\), which is not one of the periods"):
-        monitoring_table(score, None, period, reference=(2024, 3))
+        monitoring_table(score, period, reference=(2024, 3))
 
 
 def test_monitoring_table_date_string_selects_one_period():
     dates = pd.to_datetime(["2024-01-01"] * 2 + ["2024-02-01"] * 2)
     score = [0.1, 0.2, 0.3, 0.4]
-    by_string = monitoring_table(score, None, dates, reference="2024-01", bins=2)
-    by_date = monitoring_table(score, None, dates, reference=dates[0], bins=2)
+    by_string = monitoring_table(score, dates, reference="2024-01", bins=2)
+    by_date = monitoring_table(score, dates, reference=dates[0], bins=2)
     pd.testing.assert_frame_equal(by_string, by_date)
     with pytest.raises(
         ValueError,
         match="reference must name one period of period, got '2024', which matches 2 periods",
     ):
-        monitoring_table(score, None, dates, reference="2024")
+        monitoring_table(score, dates, reference="2024")
 
 
 def test_monitoring_table_zero_dimensional_array_is_a_label():
-    by_array = monitoring_table(SCORE, TARGET, PERIOD, reference=np.array("2024-01"), bins=2)
-    by_label = monitoring_table(SCORE, TARGET, PERIOD, reference="2024-01", bins=2)
+    by_array = monitoring_table(SCORE, PERIOD, TARGET, reference=np.array("2024-01"), bins=2)
+    by_label = monitoring_table(SCORE, PERIOD, TARGET, reference="2024-01", bins=2)
     pd.testing.assert_frame_equal(by_array, by_label)
 
 
 def test_monitoring_table_lists_three_periods_in_the_error():
     message = "got 'e', which is not one of the periods 'a', 'b', 'c', ...$"
     with pytest.raises(ValueError, match=message):
-        monitoring_table([0.1, 0.2, 0.3, 0.4], None, ["a", "b", "c", "d"], reference="e")
+        monitoring_table([0.1, 0.2, 0.3, 0.4], ["a", "b", "c", "d"], reference="e")
 
 
 def test_monitoring_table_weighted_reference_sample_with_integer_bins(applications):
@@ -385,8 +385,8 @@ def test_monitoring_table_weighted_reference_sample_with_integer_bins(applicatio
     score, target, month = (applications[c] for c in ("incumbent_pd", "outcome", "month"))
     table = monitoring_table(
         score,
-        target,
         month,
+        target,
         reference=development,
         bins=6,
         reference_weights=development_weights,
@@ -396,8 +396,8 @@ def test_monitoring_table_weighted_reference_sample_with_integer_bins(applicatio
         table,
         monitoring_table(
             score,
-            target,
             month,
+            target,
             reference=development,
             bins=edges,
             reference_weights=development_weights,
@@ -419,8 +419,8 @@ def test_monitoring_table_does_not_mutate_inputs(applications):
     weights = pd.Series(np.ones(len(frame)), index=frame.index)
     monitoring_table(
         frame["incumbent_pd"],
-        frame["outcome"],
         frame["month"],
+        frame["outcome"],
         reference=reference,
         weights=weights,
         reference_weights=np.ones(len(reference)),
@@ -488,43 +488,43 @@ def test_monitoring_table_does_not_mutate_inputs(applications):
 )
 def test_monitoring_table_rejects_invalid_arguments(kwargs, message):
     with pytest.raises(ValueError, match=message):
-        monitoring_table(SCORE, TARGET, PERIOD, **kwargs)
+        monitoring_table(SCORE, PERIOD, TARGET, **kwargs)
 
 
 def test_monitoring_table_rejects_invalid_data():
     with pytest.raises(ValueError, match="score and period must have the same length, got 3 and 2"):
-        monitoring_table([0.1, 0.2, 0.3], None, ["a", "b"], reference="a")
+        monitoring_table([0.1, 0.2, 0.3], ["a", "b"], reference="a")
     with pytest.raises(ValueError, match="score and period must not be empty"):
-        monitoring_table([], None, [], reference="a")
+        monitoring_table([], [], reference="a")
     with pytest.raises(ValueError, match="target must have one label per value of score, got 2"):
-        monitoring_table([0.1, 0.2, 0.3], [0, 1], ["a"] * 3, reference="a")
+        monitoring_table([0.1, 0.2, 0.3], ["a"] * 3, [0, 1], reference="a")
     with pytest.raises(ValueError, match="target must contain only 0, 1 and missing values, got 2"):
-        monitoring_table([0.1, 0.2, 0.3], [0, 1, 2], ["a"] * 3, reference="a")
+        monitoring_table([0.1, 0.2, 0.3], ["a"] * 3, [0, 1, 2], reference="a")
     with pytest.raises(ValueError, match=r"score must be finite, got 1 missing or infinite .* inf"):
-        monitoring_table([0.1, np.inf, 0.3], None, ["a"] * 3, reference="a")
+        monitoring_table([0.1, np.inf, 0.3], ["a"] * 3, reference="a")
     with pytest.raises(ValueError, match="score must be real and numeric, got dtype"):
-        monitoring_table(["x", "y"], None, ["a"] * 2, reference="a")
+        monitoring_table(["x", "y"], ["a"] * 2, reference="a")
     with pytest.raises(ValueError, match="period must not have missing values, got 1"):
-        monitoring_table([0.1, 0.2, 0.3], None, ["a", None, "a"], reference="a")
+        monitoring_table([0.1, 0.2, 0.3], ["a", None, "a"], reference="a")
     categorical = pd.Categorical(["a", "a"], categories=["a", "b"])
     with pytest.raises(ValueError, match="reference period 'b' has no observations"):
-        monitoring_table([0.1, 0.2], None, categorical, reference="b")
+        monitoring_table([0.1, 0.2], categorical, reference="b")
     with pytest.raises(ValueError, match="reference period 'b' has no observations with positive"):
-        monitoring_table([0.1, 0.2], None, ["a", "b"], reference="b", weights=[1, 0])
+        monitoring_table([0.1, 0.2], ["a", "b"], reference="b", weights=[1, 0])
     dates = pd.to_datetime(["2024-01-01", "2024-01-15"])
     # A partial date matches both periods.
     with pytest.raises(
         ValueError,
         match="reference must name one period of period, got '2024-01', which matches 2 periods",
     ):
-        monitoring_table([0.1, 0.2], None, dates, reference="2024-01")
+        monitoring_table([0.1, 0.2], dates, reference="2024-01")
     score = pd.Series([0.1, 0.2], index=[1, 2])
     with pytest.raises(ValueError, match="score and period must have identical indices"):
-        monitoring_table(score, None, pd.Series(["a", "a"]), reference="a")
+        monitoring_table(score, pd.Series(["a", "a"]), reference="a")
     with pytest.raises(ValueError, match="score and target must have identical indices"):
-        monitoring_table(score, pd.Series([0, 1]), ["a", "a"], reference="a")
+        monitoring_table(score, ["a", "a"], pd.Series([0, 1]), reference="a")
     with pytest.raises(ValueError, match="score and weights must have identical indices"):
-        monitoring_table(score, None, ["a", "a"], reference="a", weights=pd.Series([1, 1]))
+        monitoring_table(score, ["a", "a"], reference="a", weights=pd.Series([1, 1]))
 
 
 # stability_table

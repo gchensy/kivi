@@ -20,7 +20,7 @@ and the AUC, Gini and KS are those of :doc:`metrics`, computed on the known outc
 
    \mathrm{PSI}_t = \sum_i (p_{t,i} - q_i) \ln \frac{p_{t,i}}{q_i}.
 
-The reference is either one of the periods, often the first after development, or a separate sample, usually the development sample itself. The PSI does not use the outcomes, so it is available as soon as the scores of a period are.
+The reference is either one of the periods, often the first after development, or a separate sample, usually the development sample itself. The PSI does not use the outcomes, so it is available as soon as the scores of a period are. As in :doc:`metrics`, the score rises with the risk: pass a PD as it is and negate scorecard points.
 
 A worked example
 ----------------
@@ -32,7 +32,7 @@ Three months of four scores each, where two outcomes of March are not known yet.
 >>> score = [0.1, 0.2, 0.3, 0.4, 0.2, 0.3, 0.6, 0.7, 0.5, 0.6, 0.8, 0.9]
 >>> target = [0, 0, 1, 1, 0, 1, 0, 1, 0, np.nan, 1, np.nan]
 >>> period = ["2024-01"] * 4 + ["2024-02"] * 4 + ["2024-03"] * 4
->>> table = monitoring_table(score, target, period, reference="2024-01", bins=2)
+>>> table = monitoring_table(score, period, target, reference="2024-01", bins=2)
 >>> table[["total", "known", "event", "event_rate"]]
          total  known  event  event_rate
 period
@@ -70,8 +70,8 @@ The outcome of an application is known only if it was approved, and only once it
 >>> outcome = applications["target"].where(known)
 >>> report = monitoring_table(
 ...     applications["incumbent_pd"],
-...     outcome,
 ...     applications["month"],
+...     outcome,
 ...     reference=development["incumbent_pd"],
 ... )
 >>> report.round(3)
@@ -106,7 +106,7 @@ The PSI stays at about 0.01 or below up to September and rises to between 0.02 a
 The reference can also be a period, such as the first month of the year. Its PSI is then 0, and the other months are compared with it:
 
 >>> by_month = monitoring_table(
-...     applications["incumbent_pd"], outcome, applications["month"], reference="2025-01"
+...     applications["incumbent_pd"], applications["month"], outcome, reference="2025-01"
 ... )
 >>> by_month["psi"].round(3).tail(4)
 period
@@ -192,7 +192,7 @@ The share of permanent employees has fallen from 65% to 49%. Whether the new app
 Missing values
 --------------
 
-* A missing target is an outcome that is not known yet. It counts in ``total`` but not in ``known``, ``event``, ``event_rate`` or the discrimination, so pass the outcomes that are not yet observed as missing values rather than as 0. A period without both classes among its known outcomes, such as the last quarter above, gets NaN discrimination instead of an error.
+* A missing target is an outcome that is not known yet. Most functions raise an error for a missing label, as :doc:`/api/conventions` describes; :func:`~kivi.monitoring.monitoring_table` reads it as an unknown outcome, as :func:`~kivi.strategy.swap_set` does. It counts in ``total`` but not in ``known``, ``event``, ``event_rate`` or the discrimination, so pass the outcomes that are not yet observed as missing values rather than as 0. A period without both classes among its known outcomes, such as the last quarter above, gets NaN discrimination instead of an error.
 * A missing score or a missing period raises an error: a missing score has no band and no rank, and an observation without a period has no row.
 * In :func:`~kivi.monitoring.stability_table`, a missing value is a group of its own, as in :func:`~kivi.stability.psi_table`, and groups observed in only one of the two samples are included.
 * A categorical period keeps every category as a row, also one without observations, whose counts are 0 and whose other columns are NaN. Monthly reports therefore line up even when a month has no applications. Other periods are the distinct values that occur.
@@ -200,7 +200,7 @@ Missing values
 Sample weights
 --------------
 
-Both functions take ``weights``, one non-negative weight per observation, and ``reference_weights`` for a reference sample passed as ``reference``; a reference period takes its weights from ``weights``. Counts become sums of weights, and the discrimination and the PSI are weighted. On the same band edges, integer weights give the same table as repeating rows. An integer ``bins`` fits the edges by weighted quantiles, as :func:`~kivi.binning.bin_edges` does, so its edges can differ from those of the repeated rows.
+Both functions take ``weights``, one non-negative weight per observation, and ``reference_weights`` for a reference sample passed as ``reference``; a reference period takes its weights from ``weights``. Counts become sums of weights, as :doc:`/api/conventions` describes for every function, and the discrimination and the PSI are weighted. On the same band edges, integer weights give the same table as repeating rows. An integer ``bins`` fits the edges by weighted quantiles, as :func:`~kivi.binning.bin_edges` does, so its edges can differ from those of the repeated rows.
 
 Monitoring samples often keep every event but only some of the non-events. Below, every application with an event or an unknown outcome is kept, but only a quarter of the known non-events, which get a weight of 4:
 
@@ -210,8 +210,8 @@ Monitoring samples often keep every event but only some of the non-events. Below
 >>> def event_rates(**options):
 ...     table = monitoring_table(
 ...         sample["incumbent_pd"],
-...         outcome[sampled],
 ...         sample["month"],
+...         outcome[sampled],
 ...         reference=development["incumbent_pd"],
 ...         **options,
 ...     )
@@ -247,8 +247,8 @@ An integer ``bins`` fits quantile edges on the reference scores. When many refer
 ...     warnings.simplefilter("always")
 ...     rounded = monitoring_table(
 ...         applications["incumbent_pd"].round(1),
-...         outcome,
 ...         applications["month"],
+...         outcome,
 ...         reference=development["incumbent_pd"].round(1),
 ...     )
 >>> print(caught[0].message)
@@ -259,7 +259,7 @@ Pass fewer bins or explicit edges, such as those of the development report, to r
 A ``reference`` that is a single value is read as a period label, and one that is not a period raises an error that lists the first periods:
 
 >>> monitoring_table(
-...     applications["incumbent_pd"], outcome, applications["month"], reference="2024-12"
+...     applications["incumbent_pd"], applications["month"], outcome, reference="2024-12"
 ... )
 Traceback (most recent call last):
     ...

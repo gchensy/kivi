@@ -23,8 +23,8 @@ __all__ = ["monitoring_table", "stability_table"]
 
 def monitoring_table(
     score: npt.ArrayLike,
-    target: npt.ArrayLike | None,
     period: npt.ArrayLike,
+    target: npt.ArrayLike | None = None,
     *,
     reference: object,
     bins: int | npt.ArrayLike = 10,
@@ -45,17 +45,18 @@ def monitoring_table(
         Finite numeric scores that are higher for a higher event probability,
         such as a PD. Negate scorecard points, which are higher for a lower
         risk.
-    target : array_like or None
-        Binary labels, with 1 indicating the event, and missing values for
-        outcomes that are not known yet, such as those of loans that have not
-        reached the end of the outcome window. With None, every outcome is
-        unknown and the table only has the columns ``total`` and ``psi``. If
-        `score` and `target` are both pandas Series, they must have identical
-        indices; otherwise they are matched by position.
     period : array_like
         Period of each observation, such as the month of application, without
-        missing values, matched like `target`. Periods are sorted, and
-        categorical periods follow the order of their categories.
+        missing values. Periods are sorted, and categorical periods follow the
+        order of their categories. If `score` and `period` are both pandas
+        Series, they must have identical indices; otherwise they are matched
+        by position.
+    target : array_like, optional
+        Binary labels, with 1 indicating the event, and missing values for
+        outcomes that are not known yet, such as those of loans that have not
+        reached the end of the outcome window, matched like `period`. Without
+        `target`, every outcome is unknown and the table only has the columns
+        ``total`` and ``psi``.
     reference : scalar, tuple or array_like
         The sample that the distribution of each period is compared with:
         either the label of one period, such as the first month after the
@@ -75,7 +76,7 @@ def monitoring_table(
         `kivi.stability.psi_table`, in units of weight with `weights`.
     weights : array_like, optional
         Non-negative weight of each observation, such as the inverse of its
-        sampling rate, matched like `target`. Counts become sums of weights,
+        sampling rate, matched like `period`. Counts become sums of weights,
         and the discrimination and the PSI are weighted. On the same band
         edges, integer weights give the same table as repeating rows.
     reference_weights : array_like, optional
@@ -165,7 +166,7 @@ def monitoring_table(
     >>> score = [0.1, 0.2, 0.3, 0.4, 0.2, 0.3, 0.6, 0.7, 0.5, 0.6, 0.8, 0.9]
     >>> target = [0, 0, 1, 1, 0, 1, 0, 1, 0, np.nan, 1, np.nan]
     >>> period = ["2024-01"] * 4 + ["2024-02"] * 4 + ["2024-03"] * 4
-    >>> table = monitoring_table(score, target, period, reference="2024-01", bins=2)
+    >>> table = monitoring_table(score, period, target, reference="2024-01", bins=2)
     >>> table[["total", "known", "event", "event_rate"]]
              total  known  event  event_rate
     period
@@ -182,7 +183,7 @@ def monitoring_table(
     The March outcomes of two observations are not known yet, so its
     discrimination rests on the other two.
     """
-    _check_indices({"score": score, "target": target, "period": period, "weights": weights})
+    _check_indices({"score": score, "period": period, "target": target, "weights": weights})
     check_smoothing(smoothing)
     raw_score = score
     score, period = as_series(score, "score"), as_series(period, "period")
