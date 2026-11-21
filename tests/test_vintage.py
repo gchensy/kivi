@@ -1,3 +1,5 @@
+import re
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -290,6 +292,18 @@ def test_vintage_table_rejects_months_on_book_that_are_not_whole_numbers(month_o
         vintage_table(LOAN, COHORT, month_on_book, BAD)
 
 
+def test_vintage_table_rejects_negative_months_on_book():
+    # -1 used to become a column of the table.
+    with pytest.raises(
+        ValueError,
+        match="month_on_book must not be negative, got -1; count the months from origination",
+    ):
+        vintage_table(LOAN, COHORT, [-1, *MOB[1:]], BAD)
+    shifted = vintage_table(LOAN, COHORT, [value - 1 for value in MOB], BAD)
+    assert shifted.columns.tolist() == [0, 1, 2]
+    np.testing.assert_array_equal(shifted.to_numpy(), EXPECTED.to_numpy())
+
+
 @pytest.mark.parametrize(
     ("bad", "message"),
     [
@@ -351,6 +365,20 @@ def test_transition_matrix_row_shares():
     # No loan was at 60-89: its row is missing rather than zero.
     assert matrix.loc["60-89"].isna().all()
     np.testing.assert_allclose(matrix.drop("60-89").sum(axis=1), 1)
+
+
+@pytest.mark.parametrize("normalize", ["columns", "index", "all", 1, 0, None, np.int64(1)])
+def test_transition_matrix_normalize_must_be_a_boolean(normalize):
+    # "columns" used to give row shares, the same as True.
+    shown = repr(normalize.item() if isinstance(normalize, np.generic) else normalize)
+    with pytest.raises(
+        ValueError, match=re.escape(f"normalize must be True or False, got {shown}")
+    ):
+        transition_matrix(BEFORE, AFTER, states=STATES, normalize=normalize)
+    shares = transition_matrix(BEFORE, AFTER, states=STATES, normalize=np.True_)
+    pd.testing.assert_frame_equal(
+        shares, transition_matrix(BEFORE, AFTER, states=STATES, normalize=True)
+    )
 
 
 def test_transition_matrix_default_states():
@@ -452,6 +480,10 @@ def test_transition_matrix_rejects_invalid_states():
         transition_matrix(["a"], ["b"], states=["a", "b", "b"])
     with pytest.raises(ValueError, match="states must be one-dimensional, got 'ab'"):
         transition_matrix(["a"], ["b"], states="ab")
+    # A missing state used to give a row and a column labelled NaN.
+    for states in (["a", "b", None], ["a", "b", np.nan], pd.Index([1.0, np.nan])):
+        with pytest.raises(ValueError, match="states must not contain missing values, got 1"):
+            transition_matrix(["a"], ["b"], states=states)
     before = pd.Categorical(["a"], categories=["a", "b"])
     after = pd.Categorical(["b"], categories=["b", "a"])
     with pytest.raises(ValueError, match="before and after must have the same categories"):
@@ -531,6 +563,8 @@ def test_roll_rates_rejects_what_transition_matrix_rejects():
         roll_rates(["a"], ["x"], states=["a", "b"])
     with pytest.raises(ValueError, match="before must not contain missing values, got 1"):
         roll_rates([None, "a"], ["a", "a"], states=["a"])
+    with pytest.raises(ValueError, match="states must not contain missing values, got 1"):
+        roll_rates(["a"], ["a"], states=["a", None])
 
 
 def test_roll_rates_need_the_order_of_the_states():

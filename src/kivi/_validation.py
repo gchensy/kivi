@@ -61,6 +61,9 @@ def as_real(values: npt.ArrayLike, name: str, *, booleans: bool = False) -> npt.
 
     With ``booleans``, True and False count as 1 and 0, as probabilities do in
     `kivi.metrics` and `kivi.calibration`. An empty sequence gives an empty array.
+    Objects and strings are judged by their elements: real numbers and missing
+    values such as ``pd.NA`` are read, and the first other element is shown in the
+    error. A scalar of dtype object, such as None, is not read.
     """
     if np.ndim(values) == 1 and not len(values):  # type: ignore[arg-type]  # one-dimensional
         return np.empty(0)
@@ -68,11 +71,46 @@ def as_real(values: npt.ArrayLike, name: str, *, booleans: bool = False) -> npt.
         # pandas reads [0.1, None] and nullable arrays as numbers, where NumPy keeps objects.
         values = pd.Series(values)
     if isinstance(values, pd.Series):
-        check_real_dtype(values.dtype, name, booleans=booleans)
+        dtype: DTypeObj = values.dtype
+        if _holds_objects(dtype):
+            return _object_reals(values.to_numpy(dtype=object), dtype, name, booleans=booleans)
+        check_real_dtype(dtype, name, booleans=booleans)
         return values.to_numpy(dtype=float, na_value=np.nan)
     array = np.asarray(values)
+    if array.ndim and _holds_objects(array.dtype):
+        return _object_reals(array, array.dtype, name, booleans=booleans)
     check_real_dtype(array.dtype, name, booleans=booleans)
     return array.astype(float)
+
+
+def _holds_objects(dtype: DTypeObj) -> bool:
+    """Whether the elements of a dtype are Python objects or strings, judged one by one."""
+    return pd.api.types.is_object_dtype(dtype) or pd.api.types.is_string_dtype(dtype)
+
+
+def _object_reals(
+    array: npt.NDArray[Any], dtype: DTypeObj, name: str, *, booleans: bool
+) -> npt.NDArray[np.float64]:
+    """Read an array of objects whose elements are real numbers or missing values."""
+    flat = array.ravel()
+    missing = np.asarray(pd.isna(flat), dtype=bool)
+    number = np.fromiter(
+        (
+            isinstance(value, Real) and (booleans or not isinstance(value, (bool, np.bool_)))
+            for value in flat
+        ),
+        dtype=bool,
+        count=len(flat),
+    )
+    invalid = ~(missing | number)
+    if invalid.any():
+        value = flat[np.argmax(invalid)]
+        raise ValueError(
+            f"{name} must be real and numeric, got dtype {dtype} with the value {shown(value)}"
+        )
+    result = np.full(len(flat), np.nan)
+    result[number] = [float(value) for value in flat[number]]
+    return result.reshape(array.shape)
 
 
 def finite_scores(values: pd.Series, name: str) -> npt.NDArray[np.float64]:
