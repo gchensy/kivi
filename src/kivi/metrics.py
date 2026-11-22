@@ -415,9 +415,9 @@ def roc_auc_interval(
     Returns
     -------
     pandas.DataFrame
-        Two rows, ``auc`` and ``gini``, and the columns ``estimate``, ``se``
-        for the standard error, and ``lower`` and ``upper`` for the bounds of
-        the interval.
+        Two rows, ``auc`` and ``gini``, in an index named ``statistic``, and
+        the columns ``estimate``, ``se`` for the standard error, and
+        ``lower`` and ``upper`` for the bounds of the interval.
 
     Raises
     ------
@@ -496,9 +496,10 @@ def roc_auc_interval(
     >>> score = [0.1, 0.4, 0.4, 0.8, 0.7, 0.9]
     >>> target = [0, 0, 1, 0, 1, 1]
     >>> roc_auc_interval(score, target).round(4)
-          estimate      se   lower  upper
-    auc     0.7222  0.2485  0.2353    1.0
-    gini    0.4444  0.4969 -0.5295    1.0
+               estimate      se   lower  upper
+    statistic
+    auc          0.7222  0.2485  0.2353    1.0
+    gini         0.4444  0.4969 -0.5295    1.0
     """
     values, labels, mass = _validation.scores_and_labels(score, target, "score", weights=weights)
     _check_class_totals(labels, mass)
@@ -514,7 +515,7 @@ def roc_auc_interval(
             "lower": [lower, 2 * lower - 1],
             "upper": [upper, 2 * upper - 1],
         },
-        index=["auc", "gini"],
+        index=pd.Index(["auc", "gini"], name="statistic"),
     )
 
 

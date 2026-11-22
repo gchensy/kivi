@@ -128,6 +128,7 @@ def woe_table(
         _validation.check_class_weights(labels, mass)
     counts = _counts.group_counts(groups, labels, mass)
     counts.columns = ["non_event", "event"]
+    smoothing = _validation.check_smoothing(smoothing, booleans=True)
     # Assign by position: aligning interval categories hashes them, which warns on NumPy < 2.2.
     share, log_ratio, contribution = _counts.divergence(counts.to_numpy(), smoothing)
     total = counts["non_event"] + counts["event"]
@@ -190,6 +191,7 @@ def woe(
     counts = _validation.as_count_columns(
         non_event_counts, event_counts, ("non_event_counts", "event_counts")
     )
+    smoothing = _validation.check_smoothing(smoothing, booleans=True)
     return _counts.divergence(counts, smoothing)[1]
 
 
@@ -245,6 +247,7 @@ def iv(
     counts = _validation.as_count_columns(
         non_event_counts, event_counts, ("non_event_counts", "event_counts")
     )
+    smoothing = _validation.check_smoothing(smoothing, booleans=True)
     return float(_counts.divergence(counts, smoothing)[2].sum())
 
 

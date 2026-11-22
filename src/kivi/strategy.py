@@ -345,7 +345,7 @@ def expected_loss(
     float, pandas.Series or numpy.ndarray
         Expected losses, in the units of `ead`, with the broadcast shape of
         the inputs. If an input is a Series, the result is a Series with its
-        index and name; scalar inputs give a float.
+        index, named ``expected_loss``; scalar inputs give a float.
 
     Raises
     ------
@@ -384,7 +384,10 @@ def expected_loss(
     inputs = {"probability": probability, "lgd": lgd, "ead": ead}
     _validation.shared_index(inputs)
     arrays, template = _loss_inputs(inputs)
-    return _validation.like_input(template, arrays["probability"] * arrays["lgd"] * arrays["ead"])
+    loss = _validation.like_input(template, arrays["probability"] * arrays["lgd"] * arrays["ead"])
+    if isinstance(loss, pd.Series):
+        loss.name = "expected_loss"
+    return loss
 
 
 def expected_loss_table(

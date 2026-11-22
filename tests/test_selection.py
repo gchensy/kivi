@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 
 from kivi import _logit, selection
-from kivi.datasets import Dataset
+from kivi.datasets import load_bank
 from kivi.selection import (
     SeparationError,
     correlation_filter,
@@ -33,7 +33,7 @@ def with_intercept(*columns):
 @pytest.fixture(scope="module")
 def bank_woe():
     """WOE of the categorical bank variables, fitted on the whole sample."""
-    data = Dataset.bank_data()
+    data = load_bank()
     columns = ["poutcome", "contact", "housing", "loan", "marital", "default"]
     X = pd.DataFrame(
         {
@@ -47,7 +47,7 @@ def bank_woe():
 @pytest.fixture(scope="module")
 def previous_campaign():
     """Three correlated WOE variables; previous gets a negative coefficient next to the others."""
-    development = Dataset.bank_data().iloc[:3000]
+    development = load_bank().iloc[:3000]
     groups = {
         "poutcome": development["poutcome"],
         "pdays": pd.cut(development["pdays"], [-np.inf, -1, 100, 200, 300, np.inf]),
@@ -291,7 +291,7 @@ def test_matches_reference_values(bank_woe):
     np.testing.assert_allclose(result["coef"], coef, rtol=1e-9)
     np.testing.assert_allclose(result["se"], se, rtol=1e-8)
     np.testing.assert_allclose(result.attrs["log_likelihood"], -1441.8533694068324, rtol=1e-12)
-    raw = Dataset.bank_data()[["age", "balance", "campaign"]].astype(float)
+    raw = load_bank()[["age", "balance", "campaign"]].astype(float)
     result = logistic_regression(raw, target)
     np.testing.assert_allclose(
         result["coef"],
@@ -307,7 +307,6 @@ def test_matches_reference_values(bank_woe):
 
 def test_labels_and_attrs():
     X = pd.DataFrame({"x": BINARY_X, "w": [1, 0, 2, 1, 0, 2, 1, 0]})
-    X.columns.name = "variable"
     result = logistic_regression(X, BINARY_Y)
     assert result.index.name == "variable" and result.index.tolist() == ["intercept", "x", "w"]
     assert result.attrs["converged"] is True
@@ -316,8 +315,14 @@ def test_labels_and_attrs():
         single.attrs["log_likelihood"], 2 * math.log(0.25) + 6 * math.log(0.75)
     )
     assert vif(X).index.name == "variable"
-    assert correlation_filter(X).name == "variable"
-    assert stepwise(X, BINARY_Y, p_enter=0.5, p_remove=0.5).name == "variable"
+    # The index is named variable whatever the name of the columns.
+    X.columns.name = "feature"
+    assert logistic_regression(X, BINARY_Y).index.name == "variable"
+    assert vif(X).index.name == "variable" and X.columns.name == "feature"
+    assert vif(X.to_numpy()).index.tolist() == [0, 1]
+    # The selected columns are a subset of the columns and keep their name.
+    assert correlation_filter(X).name == "feature"
+    assert stepwise(X, BINARY_Y, p_enter=0.5, p_remove=0.5).name == "feature"
 
 
 def test_non_convergence_warns_at_the_callers_line(monkeypatch):

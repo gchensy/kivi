@@ -9,13 +9,13 @@ import pytest
 
 import kivi
 from kivi.binning import bin_edges, cut
-from kivi.datasets import Dataset
+from kivi.datasets import load_bank
 from kivi.stability import psi, psi_table
 from kivi.woe import iv, woe, woe_table, woe_transform
 
 
 def test_example_data():
-    bank = Dataset.bank_data()
+    bank = load_bank()
     assert bank.shape == (4521, 17)
     assert bank.target.value_counts().to_dict() == {0: 4000, 1: 521}
 
@@ -37,7 +37,7 @@ def test_constant_reference_and_repeated_edges():
 
 
 def test_special_value_mass_is_reported():
-    pdays = Dataset.bank_data()["pdays"]
+    pdays = load_bank()["pdays"]
     with pytest.warns(UserWarning, match="value -1 makes up 82% of the fitted values"):
         np.testing.assert_equal(bin_edges(pdays), [-np.inf, np.inf])
 
@@ -141,7 +141,7 @@ def test_cut_keeps_finite_values_outside_the_edges_missing():
 
 
 def test_special_value_bins_on_bank_pdays():
-    bank = Dataset.bank_data()
+    bank = load_bank()
     is_special = bank.pdays == -1
     edges = bin_edges(bank.pdays, bins=5, special=[-1])
     probabilities = np.linspace(0, 1, 6)[1:-1]
@@ -250,7 +250,7 @@ def test_woe_matches_hand_calculation():
 
 
 def test_woe_counts_match_crosstab():
-    bank = Dataset.bank_data()
+    bank = load_bank()
     result = woe_table(bank["job"], bank["target"])
     expected = pd.crosstab(bank["job"], bank["target"]).reindex(result.index)
     np.testing.assert_equal(result[["non_event", "event"]].to_numpy(), expected.to_numpy())
@@ -458,7 +458,7 @@ def test_woe_transform_matches_numbers_by_equality_not_containment():
 
 
 def test_woe_transform_on_bank_matches_lookup():
-    bank = Dataset.bank_data()
+    bank = load_bank()
     development, monitoring = bank.iloc[:3000], bank.iloc[3000:]
     edges = bin_edges(development["age"], bins=5)
     table = woe_table(pd.cut(development["age"], edges), development["target"])

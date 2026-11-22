@@ -117,6 +117,7 @@ Strongly correlated variables carry the same information and make the coefficien
 >>> model = logistic_regression(X_dev[selected], target)
 >>> model.round(3)
             coef     se       z  p_value
+variable
 intercept -2.028  0.062 -32.694    0.000
 balance    0.776  0.183   4.245    0.000
 pdays      0.346  0.122   2.834    0.005
@@ -153,10 +154,10 @@ Score the monitoring sample with the development tables: each customer's score i
 >>> mon_points = woe_to_points(to_woe(mon_groups)[selected], coefficients, intercept, **scale)
 >>> mon_score = mon_points.sum(axis=1)
 >>> mon_points.assign(score=mon_score).head(3).round(1)
-      balance  pdays  poutcome  contact  housing   job  score
-3000     91.0   93.5      95.9     87.5     85.2  90.0  543.1
-3001    102.6   93.5      95.9    106.3     96.6  86.0  580.9
-3002     82.6   93.5      95.9     86.9     96.6  97.1  552.6
+variable  balance  pdays  poutcome  contact  housing   job  score
+3000         91.0   93.5      95.9     87.5     85.2  90.0  543.1
+3001        102.6   93.5      95.9    106.3     96.6  86.0  580.9
+3002         82.6   93.5      95.9     86.9     96.6  97.1  552.6
 
 Evaluate the model
 ------------------
@@ -187,9 +188,10 @@ A monitoring sample of this size measures the Gini with some uncertainty. :func:
 
 >>> from kivi.metrics import roc_auc_interval
 >>> roc_auc_interval(mon_pd, y_mon).round(3)
-      estimate     se  lower  upper
-auc      0.687  0.023  0.643  0.732
-gini     0.375  0.045  0.286  0.464
+           estimate     se  lower  upper
+statistic
+auc           0.687  0.023  0.643  0.732
+gini          0.375  0.045  0.286  0.464
 >>> print(f"development Gini = {gini(dev_pd, target):.3f}")
 development Gini = 0.432
 

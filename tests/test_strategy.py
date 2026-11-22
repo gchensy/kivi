@@ -379,12 +379,15 @@ def test_expected_loss_keeps_the_series_index_and_missing_values():
     probability = pd.Series([0.1, np.nan, 0.3], index=[5, 6, 7], name="pd")
     result = expected_loss(probability, 0.5, pd.Series([10.0, 20.0, 30.0], index=[5, 6, 7]))
     assert isinstance(result, pd.Series)
-    assert result.name == "pd"
     assert result.index.tolist() == [5, 6, 7]
     np.testing.assert_allclose(result, [0.5, np.nan, 4.5])
-    from_ead = expected_loss([0.1, 0.2], 0.5, pd.Series([10.0, 20.0], index=["a", "b"]))
+    ead = pd.Series([10.0, 20.0], index=["a", "b"], name="balance")
+    from_ead = expected_loss([0.1, 0.2], 0.5, ead)
     assert from_ead.index.tolist() == ["a", "b"]
     np.testing.assert_allclose(from_ead, [0.5, 2.0])
+    # The result is named after what it is, whichever input is a Series.
+    assert result.name == from_ead.name == "expected_loss"
+    assert probability.name == "pd" and ead.name == "balance"
 
 
 def test_expected_loss_counts_boolean_probabilities_as_0_and_1():

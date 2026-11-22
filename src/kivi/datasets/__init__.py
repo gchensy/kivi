@@ -9,6 +9,7 @@ from importlib import resources
 
 import pandas as pd
 
+from .. import _deprecation
 from ._applications import make_applications
 from ._loan_panel import make_loan_panel
 
@@ -60,16 +61,17 @@ def load_bank() -> pd.DataFrame:
 class Dataset:
     """Example datasets bundled with kivi.
 
-    New code should call the functions of `kivi.datasets` directly; this
-    class remains so that existing code keeps working.
+    Call the functions of `kivi.datasets` instead. This class is deprecated
+    and is removed in kivi 1.0.
     """
 
     @staticmethod
     def bank_data() -> pd.DataFrame:
         """Load 4,521 observations from UCI Bank Marketing.
 
-        This is the same as `load_bank`, which new code should use instead.
-        It is kept for existing code and does not warn.
+        .. deprecated:: 0.9.0
+           Use `load_bank`, which returns the same frame. ``bank_data``
+           warns with a ``FutureWarning`` and is removed in kivi 1.0.
 
         Returns
         -------
@@ -83,8 +85,18 @@ class Dataset:
 
         Examples
         --------
+        >>> import warnings
         >>> from kivi.datasets import Dataset, load_bank
-        >>> Dataset.bank_data().equals(load_bank())
+        >>> with warnings.catch_warnings(record=True) as caught:
+        ...     warnings.simplefilter("always")
+        ...     data = Dataset.bank_data()
+        >>> caught[0].category.__name__
+        'FutureWarning'
+        >>> data.equals(load_bank())
         True
         """
+        _deprecation.warn(
+            "Dataset.bank_data() is deprecated and is removed in kivi 1.0; "
+            "use kivi.datasets.load_bank(), which returns the same frame"
+        )
         return load_bank()

@@ -104,6 +104,7 @@ def psi_table(
     y            2        3  0.1014
     """
     counts = _sample_counts(reference, current, reference_weights, current_weights)
+    smoothing = _validation.check_smoothing(smoothing, booleans=True)
     share, _, contribution = _counts.divergence(counts.to_numpy(), smoothing)
     return counts.assign(reference_share=share[:, 0], current_share=share[:, 1], psi=contribution)
 
@@ -163,6 +164,7 @@ def psi(
     counts = _validation.as_count_columns(
         reference_counts, current_counts, ("reference_counts", "current_counts")
     )
+    smoothing = _validation.check_smoothing(smoothing, booleans=True)
     return float(_counts.divergence(counts, smoothing)[2].sum())
 
 

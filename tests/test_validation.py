@@ -252,7 +252,7 @@ def test_target_and_weights_series_on_other_indices_raise_with_an_array_score():
 def _assert_same(result, expected):
     if isinstance(result, pd.DataFrame):
         # The variables of a model fitted on an array are numbered, not named.
-        drop = result.index.name is None
+        drop = result.index.name is None or result.index[0] == "intercept"
         pd.testing.assert_frame_equal(
             result.reset_index(drop=drop), expected.reset_index(drop=drop)
         )
@@ -365,18 +365,12 @@ def test_smoothing_must_be_a_finite_positive_number(case, smoothing, shown):
         SMOOTHED[case](smoothing)
 
 
-@pytest.mark.parametrize("case", SMOOTHED)
-def test_smoothing_true_keeps_the_behavior_of_each_function(case):
-    # Until 0.9 decides on booleans, the counting functions read True as 1.
-    if case in ("chimerge_groups", "fit_spec"):
-        with pytest.raises(ValueError, match="^smoothing must be finite and positive, got True$"):
-            SMOOTHED[case](True)
-    else:
-        expected, result = SMOOTHED[case](1), SMOOTHED[case](True)
-        if isinstance(expected, np.ndarray):
-            np.testing.assert_array_equal(result, expected)
-        else:
-            pd.testing.assert_frame_equal(result, expected)
+@pytest.mark.parametrize("case", ["chimerge_groups", "fit_spec"])
+@pytest.mark.parametrize("flag", [True, np.True_])
+def test_spec_and_chimerge_groups_reject_smoothing_true(case, flag):
+    # The counting functions read True as 1 with a FutureWarning; see test_deprecations.py.
+    with pytest.raises(ValueError, match="^smoothing must be finite and positive, got True$"):
+        SMOOTHED[case](flag)
 
 
 @pytest.mark.parametrize(

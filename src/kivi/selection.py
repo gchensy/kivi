@@ -120,8 +120,9 @@ def vif(X: pd.DataFrame | npt.ArrayLike) -> pd.Series:
     -------
     pandas.Series
         VIF of each column, indexed by the column labels of `X` (positions
-        when `X` is not a DataFrame) and named ``vif``. It is infinite for a
-        column that is a linear combination of the others.
+        when `X` is not a DataFrame) in an index named ``variable``, and
+        named ``vif``. It is infinite for a column that is a linear
+        combination of the others.
 
     Raises
     ------
@@ -169,6 +170,7 @@ def vif(X: pd.DataFrame | npt.ArrayLike) -> pd.Series:
     >>> print(f"{X['a'].corr(X['b']):.2f}")
     0.90
     >>> vif(X).round(3)
+    variable
     a    5.263
     b    5.263
     Name: vif, dtype: float64
@@ -176,6 +178,7 @@ def vif(X: pd.DataFrame | npt.ArrayLike) -> pd.Series:
     Adding their sum makes every column a linear combination of the others:
 
     >>> vif(X.assign(total=X["a"] + X["b"]))
+    variable
     a        inf
     b        inf
     total    inf
@@ -197,7 +200,7 @@ def vif(X: pd.DataFrame | npt.ArrayLike) -> pd.Series:
     # combination of the others, and so is a column whose 1 - R^2 = 1 / VIF is at most eps.
     null = (vt[rank:] ** 2).sum(axis=0)
     result[(null > columns * eps) | (result >= 1 / eps)] = np.inf
-    return pd.Series(result, index=frame.columns, name="vif")
+    return pd.Series(result, index=frame.columns.rename("variable"), name="vif")
 
 
 def logistic_regression(
@@ -233,8 +236,8 @@ def logistic_regression(
     pandas.DataFrame
         One row for the intercept, labelled ``intercept``, and one for each
         column of `X`, with the coefficient, its standard error, the Wald z
-        statistic and its two-sided p-value. The index has the name of the
-        columns of `X`. ``attrs["log_likelihood"]`` holds the maximized
+        statistic and its two-sided p-value, in an index named
+        ``variable``. ``attrs["log_likelihood"]`` holds the maximized
         log-likelihood and ``attrs["converged"]`` whether the fit converged.
 
     Raises
@@ -319,6 +322,7 @@ def logistic_regression(
     >>> target = pd.Series([0, 0, 0, 1, 0, 1, 1, 1])
     >>> logistic_regression(X, target).round(4)
                  coef      se       z  p_value
+    variable
     intercept -1.0986  1.1547 -0.9514   0.3414
     x          2.1972  1.6330  1.3455   0.1785
 
@@ -328,6 +332,7 @@ def logistic_regression(
     >>> distinct = pd.DataFrame({"x": [0, 0, 1, 1]})
     >>> logistic_regression(distinct, [0, 1, 0, 1], weights=[3, 1, 1, 3]).round(4)
                  coef      se       z  p_value
+    variable
     intercept -1.0986  1.1547 -0.9514   0.3414
     x          2.1972  1.6330  1.3455   0.1785
     """
@@ -338,7 +343,7 @@ def logistic_regression(
         _warn_not_converged(result, stacklevel=2)
     table = pd.DataFrame(
         {"coef": result.coef, "se": result.se, "z": result.z, "p_value": result.p_value},
-        index=pd.Index(["intercept"], name=frame.columns.name).append(frame.columns),
+        index=pd.Index(["intercept"]).append(frame.columns).rename("variable"),
     )
     table.attrs = {"log_likelihood": result.log_likelihood, "converged": result.converged}
     return table
@@ -455,10 +460,10 @@ def stepwise(
     Examples
     --------
     >>> import pandas as pd
-    >>> from kivi.datasets import Dataset
+    >>> from kivi.datasets import load_bank
     >>> from kivi.selection import stepwise
     >>> from kivi.woe import woe_table, woe_transform
-    >>> data = Dataset.bank_data()
+    >>> data = load_bank()
     >>> columns = ["poutcome", "contact", "housing", "loan", "marital", "default"]
     >>> X = pd.DataFrame({
     ...     column: woe_transform(data[column], woe_table(data[column], data["target"]))

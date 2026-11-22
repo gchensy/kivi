@@ -48,6 +48,7 @@ All the models below use the same groups and the same WOE encoding, fitted on th
 >>> model = logistic_regression(spec.woe_transform(accepts), accepts["target"])
 >>> model.round(3)
                  coef     se       z  p_value
+variable
 intercept      -2.230  0.043 -52.398      0.0
 age             1.223  0.303   4.030      0.0
 income          1.239  0.231   5.374      0.0
@@ -93,6 +94,7 @@ To refit, concatenate the accepts at weight 1 with the inferred rows and pass th
 >>> np.allclose(fuzzy["coef"], model["coef"])
 True
 >>> (fuzzy["se"] / model["se"]).round(2)
+variable
 intercept         0.91
 age               0.75
 income            0.72
@@ -221,6 +223,7 @@ cut-off         0.300      0.311  0.418
 >>> compared = ["accepts", "known", "fuzzy 1.5", "parceling", "reweighting", "cut-off"]
 >>> pd.DataFrame({name: models[name]["coef"] for name in compared}).round(3)
                 accepts  known  fuzzy 1.5  parceling  reweighting  cut-off
+variable
 intercept        -2.230 -2.067     -2.130     -2.104       -2.228   -2.574
 age               1.223  1.640      1.652      1.404        1.201    2.644
 income            1.239  1.345      1.624      1.373        1.146    2.980
