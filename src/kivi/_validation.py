@@ -35,7 +35,7 @@ def is_integral(value: object) -> typing.TypeGuard[int]:
 def check_count(value: int, name: str) -> int:
     """Return a positive integer as an int, or raise a ValueError naming the argument."""
     if isinstance(value, (bool, np.bool_)) or not is_integral(value) or value < 1:
-        raise ValueError(f"{name} must be a positive integer, got {shown(value)}")
+        raise ValueError(f"{name} must be a positive integer, got {shown_argument(value)}")
     return int(value)
 
 
@@ -284,7 +284,7 @@ def check_smoothing(smoothing: object, *, booleans: bool = False) -> None:
         or not (flag or is_real(smoothing))
         or not (math.isfinite(smoothing) and smoothing > 0)  # type: ignore[arg-type, operator]  # a real number or a boolean
     ):
-        raise ValueError(f"smoothing must be finite and positive, got {shown(smoothing)}")
+        raise ValueError(f"smoothing must be finite and positive, got {shown_argument(smoothing)}")
 
 
 def as_count_columns(
@@ -469,7 +469,7 @@ def column_list(columns: abc.Sequence[str], argument: str) -> list[str]:
 def checked_codes(value: npt.ArrayLike, argument: str) -> tuple[float, ...]:
     """Return the special codes of a numeric column as a tuple of distinct Python numbers."""
     if isinstance(value, str):
-        raise ValueError(f"{argument} must be a list of codes, got {shown(value)}")
+        raise ValueError(f"{argument} must be a list of codes, got {shown_argument(value)}")
     codes = []
     for code in pd.unique(as_series(value, argument)):
         # A string never matches a value of a numeric column, and True would match 1 only
@@ -500,22 +500,29 @@ def check_finite_column(values: pd.Series, codes: tuple[float, ...], name: str) 
 def shown(value: object) -> str:
     """Return the repr of a value for an error message.
 
-    A Series or an Index stands for its first value, and a NumPy scalar is
-    shown as the Python scalar it holds, so ``np.int64(0)`` reads ``0`` on
-    every NumPy version.
+    For the values at fault, such as ``target[invalid]``: a Series or an
+    Index stands for its first value (an empty one is shown as ``[]``), and
+    a NumPy scalar is shown as the Python scalar it holds, so ``np.int64(0)``
+    reads ``0`` on every NumPy version. Show a whole argument with
+    `shown_argument`.
     """
-    if isinstance(value, pd.Series):
-        value = value.iloc[0]
-    elif isinstance(value, pd.Index):
-        value = value[0]
+    if isinstance(value, (pd.Series, pd.Index)):
+        if not len(value):
+            return repr([])
+        value = value.iloc[0] if isinstance(value, pd.Series) else value[0]
     if isinstance(value, np.generic):
         value = value.item()
     return repr(value)
 
 
 def shown_argument(value: object) -> str:
-    """Return a whole argument for an error message, an array or a Series as a list."""
-    if isinstance(value, (pd.Series, pd.Index, np.ndarray)):
+    """Return a whole argument for an error message, an array, Series or Index as a list.
+
+    A scalar is shown as `shown` shows it, and a zero-dimensional array keeps
+    its repr, so that a message for ``np.array(0.5)`` does not read as if a
+    number had been passed.
+    """
+    if isinstance(value, (pd.Series, pd.Index)) or (isinstance(value, np.ndarray) and value.ndim):
         value = value.tolist()
     return shown(value)
 

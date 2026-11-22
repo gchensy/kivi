@@ -974,7 +974,9 @@ def _critical_value(level: float) -> float:
     """Return the normal quantile at (1 + level) / 2, for an interval at confidence `level`."""
     # The check is on the float that is used, so a level that rounds to 1 is rejected too.
     if isinstance(level, bool) or not _validation.is_real(level) or not 0 < float(level) < 1:
-        raise ValueError(f"level must be a number between 0 and 1, got {_validation.shown(level)}")
+        raise ValueError(
+            f"level must be a number between 0 and 1, got {_validation.shown_argument(level)}"
+        )
     # (1 - level) / 2 keeps its precision when level is close to 1; 0.5 + level / 2 would not.
     return -_stats.normal_quantile((1 - float(level)) / 2)
 

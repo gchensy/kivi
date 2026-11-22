@@ -225,6 +225,17 @@ def test_invalid_cut_inputs(values, edges, message):
         cut(values, edges)
 
 
+def test_cut_leaves_an_integer_number_of_bins_to_pandas():
+    # cut documents edges only, but passes an integer on to pandas.cut, and with it the
+    # message of pandas.cut when that number cannot be used.
+    values = pd.Series([1.0, 3.0, 5.0])
+    pd.testing.assert_series_equal(cut(values, 2), pd.cut(values, 2))
+    with pytest.raises(ValueError, match="^`bins` should be a positive integer.$"):
+        cut(values, 0)
+    with pytest.raises(ValueError, match="^Cannot cut empty array$"):
+        cut(pd.Series([], dtype=float), 3)
+
+
 def test_all_special_reference_cannot_be_fitted():
     with pytest.raises(ValueError, match="no finite observations apart from missing and special"):
         bin_edges([-1, -1, None], special=[-1])

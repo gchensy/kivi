@@ -75,11 +75,13 @@ def score_scaling(*, pdo: float, base_score: float, base_odds: float) -> tuple[f
     """
     for name, value in (("pdo", pdo), ("base_score", base_score), ("base_odds", base_odds)):
         if isinstance(value, bool) or not _validation.is_real(value) or not math.isfinite(value):
-            raise ValueError(f"{name} must be a finite number, got {_validation.shown(value)}")
+            raise ValueError(
+                f"{name} must be a finite number, got {_validation.shown_argument(value)}"
+            )
     if pdo <= 0:
-        raise ValueError(f"pdo must be positive, got {_validation.shown(pdo)}")
+        raise ValueError(f"pdo must be positive, got {_validation.shown_argument(pdo)}")
     if base_odds <= 0:
-        raise ValueError(f"base_odds must be positive, got {_validation.shown(base_odds)}")
+        raise ValueError(f"base_odds must be positive, got {_validation.shown_argument(base_odds)}")
     # Python floats, so that a float32 argument does not round the scores to float32.
     factor = float(pdo) / math.log(2)
     return factor, float(base_score) - factor * math.log(float(base_odds))
@@ -542,9 +544,11 @@ def reason_codes(
     if not isinstance(points, pd.DataFrame):
         raise ValueError(f"points must be a DataFrame, got {type(points).__name__}")
     if isinstance(top, bool) or not _validation.is_integral(top) or top < 1:
-        raise ValueError(f"top must be a positive integer, got {_validation.shown(top)}")
+        raise ValueError(f"top must be a positive integer, got {_validation.shown_argument(top)}")
     if isinstance(atol, bool) or not _validation.is_real(atol) or not 0 < atol < math.inf:
-        raise ValueError(f"atol must be a finite positive number, got {_validation.shown(atol)}")
+        raise ValueError(
+            f"atol must be a finite positive number, got {_validation.shown_argument(atol)}"
+        )
     if not isinstance(table, pd.DataFrame) or table.index.name != "variable":  # type: ignore[redundant-expr]  # checked at runtime
         raise ValueError(f"table must be a points_table result, got {_describe(table)}")
     if "points" not in table.columns:
@@ -585,11 +589,10 @@ def reason_codes(
             also = "" if np.isnan(unseen) else f" or unseen_points {float(unseen)!r}"
             raise ValueError(
                 f"points of {_validation.shown(variable)} must match a group of table within "
-                f"atol={_validation.shown(atol)}"
-                f"{also}, got {float(values[row, column])!r}, nearest group "
-                f"{float(nearest[row])!r}; check atol and that points and table come from the "
-                "same model and scaling, and for groups that woe_transform encoded with unseen "
-                "pass their points as unseen_points"
+                f"atol={_validation.shown_argument(atol)}{also}, got "
+                f"{float(values[row, column])!r}, nearest group {float(nearest[row])!r}; check "
+                "atol and that points and table come from the same model and scaling, and for "
+                "groups that woe_transform encoded with unseen pass their points as unseen_points"
             )
         matched = np.abs(values[:, column] - nearest) <= atol
         cost[:, column] = np.where(matched, group_points[-1] - nearest, 0.0)
@@ -652,7 +655,9 @@ def _model_points(
         or not _validation.is_real(intercept)
         or not math.isfinite(intercept)
     ):
-        raise ValueError(f"intercept must be a finite number, got {_validation.shown(intercept)}")
+        raise ValueError(
+            f"intercept must be a finite number, got {_validation.shown_argument(intercept)}"
+        )
     if isinstance(coefficients, abc.Mapping):
         coefficients = pd.Series(dict(coefficients), dtype=object)
     elif not isinstance(coefficients, pd.Series):
@@ -688,9 +693,8 @@ def _woe_column(table: pd.DataFrame | pd.Series, variable: object) -> pd.Series:
     invalid = ~np.isfinite(values)
     if invalid.any():
         raise ValueError(
-            f"the table of {_validation.shown(variable)} must have finite WOE values, "
-            f"got {float(values[invalid][0])!r} for group "
-            f"{_validation.shown(woe.index[invalid][0])}"
+            f"the table of {_validation.shown(variable)} must have finite WOE values, got "
+            f"{float(values[invalid][0])!r} for group {_validation.shown(woe.index[invalid][0])}"
         )
     return woe
 

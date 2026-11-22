@@ -260,7 +260,9 @@ def parceling(
     """
     _check_factor(factor)
     if not isinstance(expected, (bool, np.bool_)):
-        raise ValueError(f"expected must be True or False, got {_validation.shown(expected)}")
+        raise ValueError(
+            f"expected must be True or False, got {_validation.shown_argument(expected)}"
+        )
     values, labels, _ = _validation.scores_and_labels(score, target, "score")
     rejects, reject_values = _scores(reject_score, "reject_score")
     edges, accepted, rejected = _bands(values, reject_values, bins, "its bad rate is unknown")
@@ -412,7 +414,7 @@ def _check_factor(factor: float) -> None:
         or factor <= 0
     ):
         raise ValueError(
-            f"factor must be a positive finite number, got {_validation.shown(factor)}"
+            f"factor must be a positive finite number, got {_validation.shown_argument(factor)}"
         )
 
 

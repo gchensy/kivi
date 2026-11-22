@@ -327,7 +327,9 @@ def transition_matrix(
     """
     if not isinstance(normalize, (bool, np.bool_)):
         # pandas.crosstab takes "index", "columns" and "all", which would all give row shares.
-        raise ValueError(f"normalize must be True or False, got {_validation.shown(normalize)}")
+        raise ValueError(
+            f"normalize must be True or False, got {_validation.shown_argument(normalize)}"
+        )
     labels, before_code, after_code, mass = _transitions(before, after, states, weights)
     size = len(labels)
     counts = np.bincount(
@@ -468,7 +470,9 @@ def _state_labels(before: pd.Series, after: pd.Series, states: npt.ArrayLike | N
     """Return the states in order: as given, the shared categories or the sorted values."""
     if states is not None:
         if np.ndim(states) != 1:
-            raise ValueError(f"states must be one-dimensional, got {_validation.shown(states)}")
+            raise ValueError(
+                f"states must be one-dimensional, got {_validation.shown_argument(states)}"
+            )
         labels = pd.Index(states)  # type: ignore[arg-type]  # takes any array_like
         if labels.hasnans:
             raise ValueError(

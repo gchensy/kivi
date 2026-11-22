@@ -296,7 +296,8 @@ def csi_table(
         or not math.isfinite(unseen_points)
     ):
         raise ValueError(
-            f"unseen_points must be a finite number, got {_validation.shown(unseen_points)}"
+            "unseen_points must be a finite number, got "
+            f"{_validation.shown_argument(unseen_points)}"
         )
     counts = _sample_counts(reference, current, reference_weights, current_weights)
     unseen = None if unseen_points is None else float(unseen_points)

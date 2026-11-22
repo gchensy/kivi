@@ -207,7 +207,9 @@ class BinningSpec:
         _validation.check_smoothing(self.smoothing)
         version = kivi.__version__ if self.kivi_version is None else self.kivi_version
         if not isinstance(version, str):
-            raise ValueError(f"kivi_version must be a string, got {_validation.shown(version)}")
+            raise ValueError(
+                f"kivi_version must be a string, got {_validation.shown_argument(version)}"
+            )
         object.__setattr__(self, "kinds", _Columns(kinds))
         object.__setattr__(self, "edges", _Columns(edges, _copy_edges))
         object.__setattr__(self, "special", _Columns(special))
@@ -362,9 +364,8 @@ class BinningSpec:
             if clash.any():
                 raise ValueError(
                     f"column {_validation.shown(name)}: the category "
-                    f"{_validation.shown(new[clash][0])} is not in its "
-                    "grouping but is the label of one of its groups; add it to the grouping to "
-                    "choose its group"
+                    f"{_validation.shown(new[clash][0])} is not in its grouping but is the label "
+                    "of one of its groups; add it to the grouping to choose its group"
                 )
             # An unmapped category keeps its own label, after the groups.
             codes = np.where(
@@ -854,8 +855,7 @@ class BinningSpec:
             if pd.api.types.is_complex_dtype(values.dtype):
                 raise ValueError(
                     f"column {_validation.shown(name)} was fitted as numeric but has the complex "
-                    "dtype "
-                    f"{values.dtype}; pass its real part"
+                    f"dtype {values.dtype}; pass its real part"
                 )
             if not _validation.is_real_dtype(values.dtype) and values.notna().any():
                 raise ValueError(
@@ -1060,8 +1060,7 @@ def fit_spec(
         if pd.api.types.is_complex_dtype(frame[name].dtype):
             raise ValueError(
                 f"column {_validation.shown(name)} has the complex dtype {frame[name].dtype}, "
-                "which kivi can "
-                "neither bin nor group; pass its real part or its absolute value"
+                "which kivi can neither bin nor group; pass its real part or its absolute value"
             )
     kinds: dict[str, typing.Literal["numeric", "categorical"]] = {
         name: "numeric" if _validation.is_binned_dtype(frame[name].dtype) else "categorical"
@@ -1263,7 +1262,9 @@ def _per_column(
 def _checked_method(value: object, argument: str) -> str:
     if not isinstance(value, str) or value not in _FITTERS:
         names = ", ".join(repr(name) for name in _FITTERS)
-        raise ValueError(f"{argument} must be one of {names}, got {_validation.shown(value)}")
+        raise ValueError(
+            f"{argument} must be one of {names}, got {_validation.shown_argument(value)}"
+        )
     return value
 
 
@@ -1382,8 +1383,7 @@ def _fit_groups(
     if not observed.any():
         warnings.warn(
             f"column {_validation.shown(name)} has no values to group apart from missing, special "
-            "and "
-            "zero-weight values; its groups are its special codes",
+            "and zero-weight values; its groups are its special codes",
             UserWarning,
             stacklevel=3,
         )
@@ -1440,8 +1440,7 @@ def _fit_edges(
     if not observed.any():
         warnings.warn(
             f"column {_validation.shown(name)} has no values to fit apart from missing, special "
-            "and zero-weight "
-            "values; its edges are [-inf, inf]",
+            "and zero-weight values; its edges are [-inf, inf]",
             UserWarning,
             stacklevel=3,
         )
@@ -1481,9 +1480,8 @@ def _warn_if_numbers(values: pd.Series, name: str) -> None:
     ):
         warnings.warn(
             f"column {_validation.shown(name)} has dtype object but holds only numbers, so each "
-            "distinct value "
-            "is a group; convert it with pandas.to_numeric to bin it, or to the category dtype "
-            "to keep the labels",
+            "distinct value is a group; convert it with pandas.to_numeric to bin it, or to the "
+            "category dtype to keep the labels",
             UserWarning,
             stacklevel=3,
         )
@@ -1550,7 +1548,9 @@ def _checked_edges(value: object, argument: str) -> npt.NDArray[np.float64]:
 def _checked_labels(value: npt.ArrayLike, argument: str) -> tuple[abc.Hashable, ...]:
     """Check the special codes of a categorical column: labels, not missing or boolean."""
     if isinstance(value, str):
-        raise ValueError(f"{argument} must be a list of codes, got {_validation.shown(value)}")
+        raise ValueError(
+            f"{argument} must be a list of codes, got {_validation.shown_argument(value)}"
+        )
     codes = []
     for code in pd.unique(_validation.as_series(value, argument)):
         if isinstance(code, (bool, np.bool_)) or _validation.is_missing(code):
@@ -1651,9 +1651,8 @@ def _checked_unseen(value: object, argument: str) -> float | str | dict[str, abc
         return {"group": group}
     if isinstance(value, bool) or not isinstance(value, numbers.Real) or not math.isfinite(value):
         raise ValueError(
-            f"{argument} must be 'raise' or a finite number, got {_validation.shown(value)}; a "
-            "grouped "
-            "column also takes {'group': label}"
+            f"{argument} must be 'raise' or a finite number, got "
+            f"{_validation.shown_argument(value)}; a grouped column also takes {{'group': label}}"
         )
     return float(value)
 
@@ -1887,8 +1886,7 @@ def _numeric_labels(labels: pd.Index, edges: npt.ArrayLike, codes: tuple, where:
             if position is None or label.closed != "right":
                 raise ValueError(
                     f"table of {where} has the interval {_validation.shown(_encode(label))}, "
-                    "which does not run "
-                    "between two adjacent edges"
+                    "which does not run between two adjacent edges"
                 )
             label = groups[position]
         result.append(label)

@@ -18,11 +18,15 @@ from kivi import (
     _validation,
     binning,
     calibration,
+    datasets,
     lifetime,
     metrics,
     monitoring,
+    reject_inference,
+    scorecard,
     selection,
     spec,
+    stability,
     strategy,
     univariate,
     vintage,
@@ -445,6 +449,10 @@ def test_shown_stands_a_series_or_index_for_its_first_value():
     assert _validation.shown_argument(pd.Series([1, 2])) == "[1, 2]"
     assert _validation.shown_argument(np.array([0.5])) == "[0.5]"
     assert _validation.shown_argument(3) == "3"
+    assert _validation.shown(pd.Series([], dtype=float)) == "[]"
+    assert _validation.shown(pd.Index([])) == "[]"
+    assert _validation.shown_argument(pd.Series([], dtype=float)) == "[]"
+    assert _validation.shown_argument(np.array(0.5)) == "array(0.5)"
 
 
 def test_check_count_returns_an_int():
@@ -474,3 +482,183 @@ def test_binary_labels_without_both_classes():
     labels = _validation.binary_labels(pd.Series([1.0, 1.0]), both_classes=False)
     assert labels.tolist() == [1, 1]
     assert labels.dtype == np.intp
+
+
+def _option_cases():
+    """Each public option check, as a call that passes the option ``o``."""
+    frame = pd.DataFrame(FRAME)
+    X = pd.DataFrame({"x": VALUES, "y": SCORE})
+    table = woe.woe_table(GROUPS, TARGET)
+    scale = {"pdo": 20, "base_score": 600, "base_odds": 50}
+    card = scorecard.points_table({"g": table}, {"g": 1.0}, 0.0, **scale)
+    points = scorecard.woe_to_points(
+        pd.DataFrame({"g": woe.woe_transform(GROUPS, table)}), {"g": 1.0}, 0.0, **scale
+    )
+    matrix = pd.DataFrame([[0.9, 0.1], [0.0, 1.0]], index=["A", "D"], columns=["A", "D"])
+    event, total, rates = [1, 2, 3], [10, 20, 30], [0.1, 0.1, 0.1]
+    return {
+        # binning
+        "bin_edges-bins": lambda o: binning.bin_edges(VALUES, bins=o),
+        "bin_edges-method": lambda o: binning.bin_edges(VALUES, method=o),
+        "chimerge_edges-max_bins": lambda o: binning.chimerge_edges(VALUES, TARGET, max_bins=o),
+        "chimerge_edges-alpha": lambda o: binning.chimerge_edges(VALUES, TARGET, alpha=o),
+        "chimerge_edges-initial_bins": lambda o: binning.chimerge_edges(
+            VALUES, TARGET, initial_bins=o
+        ),
+        "tree_edges-max_bins": lambda o: binning.tree_edges(VALUES, TARGET, max_bins=o),
+        "tree_edges-min_bin_share": lambda o: binning.tree_edges(VALUES, TARGET, min_bin_share=o),
+        "tree_edges-criterion": lambda o: binning.tree_edges(VALUES, TARGET, criterion=o),
+        "monotonic_edges-max_bins": lambda o: binning.monotonic_edges(VALUES, TARGET, max_bins=o),
+        "monotonic_edges-direction": lambda o: binning.monotonic_edges(VALUES, TARGET, direction=o),
+        "monotonic_edges-initial_bins": lambda o: binning.monotonic_edges(
+            VALUES, TARGET, initial_bins=o
+        ),
+        "monotonic_edges-smoothing": lambda o: binning.monotonic_edges(VALUES, TARGET, smoothing=o),
+        "category_groups-min_share": lambda o: binning.category_groups(GROUPS, min_share=o),
+        "category_groups-min_count": lambda o: binning.category_groups(GROUPS, min_count=o),
+        "category_groups-rare_label": lambda o: binning.category_groups(GROUPS, rare_label=o),
+        "chimerge_groups-max_groups": lambda o: binning.chimerge_groups(
+            GROUPS, TARGET, max_groups=o
+        ),
+        "chimerge_groups-alpha": lambda o: binning.chimerge_groups(GROUPS, TARGET, alpha=o),
+        "chimerge_groups-min_group_share": lambda o: binning.chimerge_groups(
+            GROUPS, TARGET, min_group_share=o
+        ),
+        "chimerge_groups-smoothing": lambda o: binning.chimerge_groups(GROUPS, TARGET, smoothing=o),
+        "group_categories-unseen": lambda o: binning.group_categories(
+            ["c"], {"a": "A", "b": "B"}, unseen=o
+        ),
+        # woe and stability
+        "woe-smoothing": lambda o: woe.woe([1, 2], [2, 1], smoothing=o),
+        "iv-smoothing": lambda o: woe.iv([1, 2], [2, 1], smoothing=o),
+        "woe_table-smoothing": lambda o: woe.woe_table(GROUPS, TARGET, smoothing=o),
+        "woe_transform-unseen": lambda o: woe.woe_transform(["c"], table, unseen=o),
+        "psi-smoothing": lambda o: stability.psi([1, 2], [2, 1], smoothing=o),
+        "psi_table-smoothing": lambda o: stability.psi_table(GROUPS, GROUPS, smoothing=o),
+        "csi_table-unseen_points": lambda o: stability.csi_table(
+            GROUPS, GROUPS, pd.Series({"a": 1.0, "b": 2.0}), unseen_points=o
+        ),
+        # metrics
+        "roc_auc_interval-level": lambda o: metrics.roc_auc_interval(SCORE, TARGET, level=o),
+        "delong_test-level": lambda o: metrics.delong_test(SCORE, NEW, TARGET, level=o),
+        # calibration
+        "platt_predict-slope": lambda o: calibration.platt_predict(SCORE, o, 0.0),
+        "platt_predict-intercept": lambda o: calibration.platt_predict(SCORE, 1.0, o),
+        "isotonic_fit-increasing": lambda o: calibration.isotonic_fit(SCORE, TARGET, increasing=o),
+        "herfindahl_index-normalize": lambda o: calibration.herfindahl_index([1, 2], normalize=o),
+        "hosmer_lemeshow-ddof": lambda o: calibration.hosmer_lemeshow(event, total, rates, ddof=o),
+        "master_scale-boundary": lambda o: calibration.master_scale([0.01, 0.1], boundary=o),
+        "prior_correction-sample_rate": lambda o: calibration.prior_correction(
+            SCORE, sample_rate=o, population_rate=0.1
+        ),
+        "corrected_intercept-intercept": lambda o: calibration.corrected_intercept(
+            o, sample_rate=0.5, population_rate=0.1
+        ),
+        "corrected_intercept-population_rate": lambda o: calibration.corrected_intercept(
+            0.0, sample_rate=0.5, population_rate=o
+        ),
+        "fit_grade_pd-smoothing": lambda o: calibration.fit_grade_pd(event, total, smoothing=o),
+        # lifetime
+        "convert_pd-kind": lambda o: lifetime.convert_pd([[0.1, 0.2]], kind=o, to="marginal"),
+        "convert_pd-to": lambda o: lifetime.convert_pd([[0.1, 0.2]], kind="cumulative", to=o),
+        "transition_pd-default_state": lambda o: lifetime.transition_pd(
+            matrix, horizons=2, default_state=o
+        ),
+        "expected_credit_loss-horizon": lambda o: lifetime.expected_credit_loss(
+            [[0.1, 0.1]], 0.5, 100.0, rate=0.0, horizon=o
+        ),
+        "significant_increase-relative": lambda o: lifetime.significant_increase(
+            [0.2], [0.1], relative=o, absolute=None
+        ),
+        "significant_increase-absolute": lambda o: lifetime.significant_increase(
+            [0.2], [0.1], relative=None, absolute=o
+        ),
+        "assign_stages-stage_2_days": lambda o: lifetime.assign_stages([False], stage_2_days=o),
+        "assign_stages-stage_3_days": lambda o: lifetime.assign_stages([False], stage_3_days=o),
+        # reject inference
+        "fuzzy_augmentation-factor": lambda o: reject_inference.fuzzy_augmentation([0.2], factor=o),
+        "parceling-factor": lambda o: reject_inference.parceling(
+            SCORE, TARGET, [0.3], bins=[0, 0.5, 1], factor=o
+        ),
+        "parceling-expected": lambda o: reject_inference.parceling(
+            SCORE, TARGET, [0.3], bins=[0, 0.5, 1], expected=o
+        ),
+        "parceling-rng": lambda o: reject_inference.parceling(
+            SCORE, TARGET, [0.3], bins=[0, 0.5, 1], rng=o
+        ),
+        # scorecard
+        "score_scaling-pdo": lambda o: scorecard.score_scaling(pdo=o, base_score=600, base_odds=50),
+        "score_scaling-base_score": lambda o: scorecard.score_scaling(
+            pdo=20, base_score=o, base_odds=50
+        ),
+        "score_scaling-base_odds": lambda o: scorecard.score_scaling(
+            pdo=20, base_score=600, base_odds=o
+        ),
+        "points_table-intercept": lambda o: scorecard.points_table(
+            {"g": table}, {"g": 1.0}, o, **scale
+        ),
+        "reason_codes-top": lambda o: scorecard.reason_codes(points, card, top=o),
+        "reason_codes-atol": lambda o: scorecard.reason_codes(points, card, atol=o),
+        # selection
+        "correlation_filter-threshold": lambda o: selection.correlation_filter(X, threshold=o),
+        "stepwise-p_enter": lambda o: selection.stepwise(X, TARGET, p_enter=o),
+        "stepwise-p_remove": lambda o: selection.stepwise(X, TARGET, p_remove=o),
+        "stepwise-direction": lambda o: selection.stepwise(X, TARGET, direction=o),
+        "stepwise-positive": lambda o: selection.stepwise(X, TARGET, positive=o),
+        # spec
+        "fit_spec-method": lambda o: spec.fit_spec(frame, TARGET, method=o),
+        "fit_spec-bins": lambda o: spec.fit_spec(frame, TARGET, bins=o),
+        "fit_spec-unseen": lambda o: spec.fit_spec(frame, TARGET, bins=2, unseen=o),
+        "fit_spec-smoothing": lambda o: spec.fit_spec(frame, TARGET, bins=2, smoothing=o),
+        # strategy, univariate, monitoring, vintage
+        "swap_set-current_cutoff": lambda o: strategy.swap_set(
+            SCORE, NEW, current_cutoff=o, new_cutoff=0.5
+        ),
+        "swap_set-new_cutoff": lambda o: strategy.swap_set(
+            SCORE, NEW, current_cutoff=0.5, new_cutoff=o
+        ),
+        "profile_table-bins": lambda o: univariate.profile_table(frame, bins=o),
+        "monitoring_table-smoothing": lambda o: monitoring.monitoring_table(
+            SCORE, PERIOD, reference_period="p1", smoothing=o
+        ),
+        "stability_table-smoothing": lambda o: monitoring.stability_table(
+            pd.DataFrame({"g": GROUPS}), PERIOD, reference_period="p1", smoothing=o
+        ),
+        "transition_matrix-normalize": lambda o: vintage.transition_matrix(
+            GROUPS, GROUPS, normalize=o
+        ),
+        # datasets
+        "make_applications-n_applicants": lambda o: datasets.make_applications(n_applicants=o),
+        "make_applications-rng": lambda o: datasets.make_applications(n_applicants=10, rng=o),
+        "make_loan_panel-n_loans": lambda o: datasets.make_loan_panel(n_loans=o),
+        "make_loan_panel-n_months": lambda o: datasets.make_loan_panel(n_loans=10, n_months=o),
+        "make_loan_panel-rng": lambda o: datasets.make_loan_panel(n_loans=10, rng=o),
+    }
+
+
+OPTIONS = _option_cases()
+# Options for which a Series of two increasing numbers is valid: only the empty one raises.
+SEQUENCES = {
+    "gains_table-bins": lambda o: metrics.gains_table(SCORE, TARGET, bins=o),
+    "cutoff_table-cutoffs": lambda o: strategy.cutoff_table(SCORE, TARGET, cutoffs=o),
+    "transition_pd-horizons": lambda o: lifetime.transition_pd(
+        pd.DataFrame([[0.9, 0.1], [0.0, 1.0]], index=["A", "D"], columns=["A", "D"]),
+        horizons=o,
+    ),
+    "monitoring_table-bins": lambda o: monitoring.monitoring_table(
+        SCORE, PERIOD, reference_period="p1", bins=o
+    ),
+}
+
+
+@pytest.mark.parametrize("case", list(OPTIONS) + list(SEQUENCES))
+def test_an_empty_series_option_is_shown_as_an_empty_list(case):
+    call = OPTIONS.get(case) or SEQUENCES[case]
+    with pytest.raises(ValueError, match=r"got \[\]"):
+        call(pd.Series([], dtype=float))
+
+
+@pytest.mark.parametrize("case", OPTIONS)
+def test_a_series_option_is_shown_whole(case):
+    with pytest.raises(ValueError, match=r"got \[1\.0, 2\.0\]"):
+        OPTIONS[case](pd.Series([1.0, 2.0]))

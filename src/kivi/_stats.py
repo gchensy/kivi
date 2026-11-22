@@ -185,7 +185,7 @@ def normal_quantile(probability: float) -> float:
     """Return the quantile of the standard normal distribution, for 0 < probability < 1."""
     if not 0 < probability < 1:
         raise ValueError(
-            f"probability must be between 0 and 1, got {_validation.shown(probability)}"
+            f"probability must be between 0 and 1, got {_validation.shown_argument(probability)}"
         )
     if probability > 0.5:
         # 1 - p is exact for p >= 0.5, and the lower tail keeps full relative accuracy.

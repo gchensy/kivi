@@ -88,7 +88,9 @@ def correlation_filter(
     ['b', 'c']
     """
     if isinstance(threshold, bool) or not _validation.is_real(threshold) or not 0 <= threshold <= 1:
-        raise ValueError(f"threshold must be between 0 and 1, got {_validation.shown(threshold)}")
+        raise ValueError(
+            f"threshold must be between 0 and 1, got {_validation.shown_argument(threshold)}"
+        )
     frame, values = _as_frame(X)
     _check_not_constant(frame, values, "its correlation is undefined")
     order = np.argsort(-_priority(priority, frame.columns), kind="stable")
@@ -467,17 +469,20 @@ def stepwise(
     """
     _check_level(p_enter, "p_enter")
     _check_level(p_remove, "p_remove")
-    if direction not in ("forward", "backward", "both"):
+    if not isinstance(direction, str) or direction not in ("forward", "backward", "both"):  # type: ignore[redundant-expr]  # rejects non-str values
         raise ValueError(
-            f"direction must be 'forward', 'backward' or 'both', got {_validation.shown(direction)}"
+            "direction must be 'forward', 'backward' or 'both', got "
+            f"{_validation.shown_argument(direction)}"
         )
     if direction == "both" and p_enter > p_remove:
         raise ValueError(
-            f"p_enter must not exceed p_remove, got p_enter={_validation.shown(p_enter)} and "
-            f"p_remove={_validation.shown(p_remove)}"
+            f"p_enter must not exceed p_remove, got p_enter={_validation.shown_argument(p_enter)} "
+            f"and p_remove={_validation.shown_argument(p_remove)}"
         )
     if not isinstance(positive, (bool, np.bool_)):
-        raise ValueError(f"positive must be True or False, got {_validation.shown(positive)}")
+        raise ValueError(
+            f"positive must be True or False, got {_validation.shown_argument(positive)}"
+        )
     frame, values, labels, mass = _model_inputs(X, target, weights)
     # Every subset of independent columns is independent, so candidate models have full rank.
     _check_independent(frame, values, weighted=mass is not None)
@@ -603,8 +608,7 @@ def _fit(
         label = "intercept" if error.column == 0 else columns[error.column - 1]
         raise ValueError(
             f"X column {_validation.shown(label)} is so close to a linear combination of the "
-            "intercept and "
-            "the other columns that its coefficient cannot be estimated"
+            "intercept and the other columns that its coefficient cannot be estimated"
         ) from None
 
 
@@ -627,7 +631,7 @@ def _with_intercept(values: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
 def _check_level(level: float, name: str) -> None:
     if isinstance(level, bool) or not _validation.is_real(level) or not 0 < level <= 1:
         raise ValueError(
-            f"{name} must be greater than 0 and at most 1, got {_validation.shown(level)}"
+            f"{name} must be greater than 0 and at most 1, got {_validation.shown_argument(level)}"
         )
 
 
@@ -652,8 +656,7 @@ def _as_frame(X: pd.DataFrame | npt.ArrayLike) -> tuple[pd.DataFrame, npt.NDArra
         if not pd.api.types.is_numeric_dtype(dtype):
             raise ValueError(
                 f"X column {_validation.shown(label)} must be numeric, such as WOE values from "
-                "woe_transform, "
-                f"got dtype {dtype}"
+                f"woe_transform, got dtype {dtype}"
             )
     values = frame.to_numpy(dtype=float, na_value=np.nan)
     finite = np.isfinite(values).all(axis=0)
@@ -754,6 +757,5 @@ def _check_independent(
     if dependent is not None:
         raise ValueError(
             f"X column {_validation.shown(frame.columns[dependent - 1])} is a linear combination "
-            "of the "
-            f"intercept and the columns before it{where}"
+            f"of the intercept and the columns before it{where}"
         )

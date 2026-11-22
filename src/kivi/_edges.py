@@ -31,8 +31,10 @@ def fit_edges(
     the line that called them.
     """
     _validation.check_count(bins, "bins")
-    if method not in ("quantile", "uniform"):
-        raise ValueError(f"method must be 'quantile' or 'uniform', got {_validation.shown(method)}")
+    if not isinstance(method, str) or method not in ("quantile", "uniform"):  # type: ignore[redundant-expr]  # rejects non-str values
+        raise ValueError(
+            f"method must be 'quantile' or 'uniform', got {_validation.shown_argument(method)}"
+        )
     fitted, mass = observed(
         _validation.as_series(values, "values"),
         _special.special_values(special),
@@ -118,8 +120,7 @@ def observed(
     if infinite.any():
         raise ValueError(
             "values must be finite or special values, got "
-            f"{_validation.shown(fitted[infinite][0])}; "
-            "pass infinite codes in special"
+            f"{_validation.shown(fitted[infinite][0])}; pass infinite codes in special"
         )
     return fitted, None if weights is None else weights[keep]
 

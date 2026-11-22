@@ -209,6 +209,10 @@ def cut(
             edges,  # type: ignore[arg-type]  # pandas.cut takes any array_like of edges
         )
     except (TypeError, ValueError) as error:
+        if _validation.is_integral(edges) and not isinstance(edges, bool):
+            # pandas.cut reads an integer as a number of equal-width bins, which cut does not
+            # document; its own message explains why that number could not be used.
+            raise
         # pandas names the argument bins and suggests a duplicates keyword that cut lacks.
         raise ValueError(
             f"edges must be increasing numbers, got {_validation.shown_argument(edges)}"
@@ -326,7 +330,9 @@ def chimerge_edges(
     _validation.check_count(max_bins, "max_bins")
     _validation.check_count(initial_bins, "initial_bins")
     if alpha is not None and not (_validation.is_real(alpha) and 0 < alpha < 1):
-        raise ValueError(f"alpha must be None or between 0 and 1, got {_validation.shown(alpha)}")
+        raise ValueError(
+            f"alpha must be None or between 0 and 1, got {_validation.shown_argument(alpha)}"
+        )
     observed, labels, mass = _labeled(values, target, special, weights)
     interior, counts = _fine_bins(observed, labels, initial_bins, mass)
     while len(counts) > 1:
@@ -439,11 +445,12 @@ def tree_edges(
         or not 0 <= min_bin_share <= 0.5
     ):
         raise ValueError(
-            f"min_bin_share must be between 0 and 0.5, got {_validation.shown(min_bin_share)}"
+            "min_bin_share must be between 0 and 0.5, got "
+            f"{_validation.shown_argument(min_bin_share)}"
         )
-    if criterion not in ("entropy", "gini"):
+    if not isinstance(criterion, str) or criterion not in ("entropy", "gini"):  # type: ignore[redundant-expr]  # rejects non-str values
         raise ValueError(
-            f"criterion must be 'entropy' or 'gini', got {_validation.shown(criterion)}"
+            f"criterion must be 'entropy' or 'gini', got {_validation.shown_argument(criterion)}"
         )
     observed, labels, mass = _labeled(values, target, special, weights)
     unique, position = np.unique(observed, return_inverse=True)
@@ -590,10 +597,10 @@ def monotonic_edges(
     if max_bins is not None:
         _validation.check_count(max_bins, "max_bins")
     _validation.check_count(initial_bins, "initial_bins")
-    if direction not in ("auto", "increasing", "decreasing"):
+    if not isinstance(direction, str) or direction not in ("auto", "increasing", "decreasing"):  # type: ignore[redundant-expr]  # rejects non-str values
         raise ValueError(
             "direction must be 'auto', 'increasing' or 'decreasing', got "
-            f"{_validation.shown(direction)}"
+            f"{_validation.shown_argument(direction)}"
         )
     observed, labels, mass = _labeled(values, target, special, weights)
     fine = _fine_bins(observed, labels, initial_bins, mass)
@@ -705,7 +712,8 @@ def category_groups(
         or not (math.isfinite(min_count) and min_count >= 0)
     ):
         raise ValueError(
-            f"min_count must be a finite, non-negative number, got {_validation.shown(min_count)}"
+            "min_count must be a finite, non-negative number, got "
+            f"{_validation.shown_argument(min_count)}"
         )
     if (
         isinstance(rare_label, (bool, np.bool_))
@@ -713,7 +721,7 @@ def category_groups(
         or (_validation.is_real(rare_label) and math.isnan(rare_label))
     ):
         raise ValueError(
-            f"rare_label must be a string or a number, got {_validation.shown(rare_label)}"
+            f"rare_label must be a string or a number, got {_validation.shown_argument(rare_label)}"
         )
     rare_label = _python(rare_label)
     labels, totals, codes = _category_counts(values, None, special, weights)
@@ -721,9 +729,8 @@ def category_groups(
     kept = [label for label, is_rare in zip(labels, rare, strict=True) if not is_rare]
     if rare.any() and rare_label in {*kept, *codes}:
         raise ValueError(
-            f"rare_label {_validation.shown(rare_label)} is the label of a category that is not "
-            "rare or of a "
-            "special code; choose another rare_label"
+            f"rare_label {_validation.shown_argument(rare_label)} is the label of a category that "
+            "is not rare or of a special code; choose another rare_label"
         )
     groups = {code: code for code in codes}
     groups.update((label, label) for label in kept)
@@ -852,7 +859,9 @@ def chimerge_groups(
     """
     _validation.check_count(max_groups, "max_groups")
     if alpha is not None and not (_validation.is_real(alpha) and 0 < alpha < 1):
-        raise ValueError(f"alpha must be None or between 0 and 1, got {_validation.shown(alpha)}")
+        raise ValueError(
+            f"alpha must be None or between 0 and 1, got {_validation.shown_argument(alpha)}"
+        )
     _check_share(min_group_share, "min_group_share", 0.5)
     _validation.check_smoothing(smoothing)
     labels, counts, codes = _category_counts(values, target, special, weights)
@@ -867,8 +876,7 @@ def chimerge_groups(
         if label in taken:
             raise ValueError(
                 f"two groups would have the label {_validation.shown(label)}; rename the "
-                "categories whose "
-                "labels contain ', '"
+                "categories whose labels contain ', '"
             )
         taken.add(label)
         groups.update((name, label) for name in names)
@@ -964,7 +972,8 @@ def group_categories(
             found = int(labels.get_indexer(_validation.object_index([unseen]))[0])
         if found < 0:
             raise ValueError(
-                f"unseen must be 'raise' or one of the groups, got {_validation.shown(unseen)}"
+                "unseen must be 'raise' or one of the groups, got "
+                f"{_validation.shown_argument(unseen)}"
             )
     levels: pd.Index | np.ndarray
     position, levels = pd.factorize(series, sort=False)
@@ -989,7 +998,9 @@ def group_categories(
 
 def _check_share(value: float, name: str, upper: float) -> None:
     if isinstance(value, bool) or not _validation.is_real(value) or not 0 <= value <= upper:
-        raise ValueError(f"{name} must be between 0 and {upper:g}, got {_validation.shown(value)}")
+        raise ValueError(
+            f"{name} must be between 0 and {upper:g}, got {_validation.shown_argument(value)}"
+        )
 
 
 def _python(value: object) -> typing.Any:
@@ -1012,8 +1023,7 @@ def _checked_groups(groups: object, argument: str) -> dict[abc.Hashable, abc.Has
                 raise ValueError(
                     f"{argument} must map non-missing scalar categories to non-missing scalar "
                     f"groups, got the {role} {_validation.shown(label)}; missing values always "
-                    "form "
-                    "their own group"
+                    "form their own group"
                 )
         checked[_python(category)] = _python(group)
     return checked

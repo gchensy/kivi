@@ -488,15 +488,15 @@ def _reference_position(label: object, periods: pd.Index, sample_name: str) -> i
         matched = range(len(periods))[position]
         if len(matched) > 1:
             raise ValueError(
-                f"reference_period must name one period, got {_validation.shown(label)}, which "
-                f"matches {len(matched)} periods"
+                f"reference_period must name one period, got {_validation.shown_argument(label)}, "
+                f"which matches {len(matched)} periods"
             )
         position = matched[0] if len(matched) else None
     if not isinstance(position, (int, np.integer)):
         shown = ", ".join(repr(value) for value in periods[:3].tolist())
         raise ValueError(
             f"reference_period must be one of the periods {shown}"
-            f"{', ...' if len(periods) > 3 else ''}, got {_validation.shown(label)}"
+            f"{', ...' if len(periods) > 3 else ''}, got {_validation.shown_argument(label)}"
         )
     return int(position)
 
@@ -515,7 +515,9 @@ def _check_reference_period(
         )
     if not total > 0:
         detail = "" if mass is None else " with positive weight"
-        raise ValueError(f"reference_period {_validation.shown(label)} has no observations{detail}")
+        raise ValueError(
+            f"reference_period {_validation.shown_argument(label)} has no observations{detail}"
+        )
 
 
 def _reference_scores(

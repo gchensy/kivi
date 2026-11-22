@@ -565,7 +565,7 @@ def _cutoff_values(
 
 def _cutoff(value: object, name: str) -> float:
     if isinstance(value, bool) or not isinstance(value, numbers.Real) or math.isnan(float(value)):
-        raise ValueError(f"{name} must be a number, got {_validation.shown(value)}")
+        raise ValueError(f"{name} must be a number, got {_validation.shown_argument(value)}")
     return float(value)
 
 

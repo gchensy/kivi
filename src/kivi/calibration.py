@@ -149,7 +149,9 @@ def corrected_intercept(intercept: float, *, sample_rate: float, population_rate
         or not _validation.is_real(intercept)
         or not math.isfinite(intercept)
     ):
-        raise ValueError(f"intercept must be a finite number, got {_validation.shown(intercept)}")
+        raise ValueError(
+            f"intercept must be a finite number, got {_validation.shown_argument(intercept)}"
+        )
     return intercept + math.log(_odds_ratio(sample_rate, population_rate))
 
 
@@ -333,7 +335,9 @@ def platt_predict(
     """
     for name, value in (("slope", slope), ("intercept", intercept)):
         if isinstance(value, bool) or not _validation.is_real(value) or not math.isfinite(value):
-            raise ValueError(f"{name} must be a finite number, got {_validation.shown(value)}")
+            raise ValueError(
+                f"{name} must be a finite number, got {_validation.shown_argument(value)}"
+            )
     values = _float_scores(score, "score")
     # A huge score overflows to an infinite log odds, and logaddexp warns on missing values.
     with np.errstate(over="ignore", invalid="ignore"):
@@ -448,7 +452,9 @@ def isotonic_fit(
     array([0.    , 0.3333, 0.5   , 1.    ])
     """
     if not isinstance(increasing, (bool, np.bool_)):
-        raise ValueError(f"increasing must be True or False, got {_validation.shown(increasing)}")
+        raise ValueError(
+            f"increasing must be True or False, got {_validation.shown_argument(increasing)}"
+        )
     values, labels, mass = _validation.scores_and_labels(score, target, "score", weights=weights)
     distinct, position = np.unique(values, return_inverse=True)
     position = position.ravel()  # NumPy 2.0 keeps the input's shape here
@@ -859,7 +865,9 @@ def hosmer_lemeshow(
     statistic = 1.196, pvalue = 0.274
     """
     if isinstance(ddof, bool) or not _validation.is_integral(ddof) or ddof < 0:
-        raise ValueError(f"ddof must be a non-negative integer, got {_validation.shown(ddof)}")
+        raise ValueError(
+            f"ddof must be a non-negative integer, got {_validation.shown_argument(ddof)}"
+        )
     event, total, probability, _ = _grade_inputs(event, total, probability)
     if event.ndim != 1:
         raise ValueError(
@@ -932,7 +940,9 @@ def herfindahl_index(counts: npt.ArrayLike, *, normalize: bool = False) -> float
     0.07
     """
     if not isinstance(normalize, (bool, np.bool_)):
-        raise ValueError(f"normalize must be True or False, got {_validation.shown(normalize)}")
+        raise ValueError(
+            f"normalize must be True or False, got {_validation.shown_argument(normalize)}"
+        )
     if np.ndim(counts) != 1:
         raise ValueError(f"counts must be one-dimensional, got {np.ndim(counts)} dimensions")
     values = _validation.as_real(counts, "counts")
@@ -1041,9 +1051,10 @@ def master_scale(
     2      0.015         0.02  0.030
     3      0.030         0.04  1.000
     """
-    if boundary not in ("geometric", "arithmetic"):
+    if not isinstance(boundary, str) or boundary not in ("geometric", "arithmetic"):  # type: ignore[redundant-expr]  # rejects non-str values
         raise ValueError(
-            f"boundary must be 'geometric' or 'arithmetic', got {_validation.shown(boundary)}"
+            "boundary must be 'geometric' or 'arithmetic', got "
+            f"{_validation.shown_argument(boundary)}"
         )
     values = _numeric_values(probability, "probability")
     if not len(values):
@@ -1190,10 +1201,10 @@ def fit_grade_pd(
         position = int(np.argmax(unsmoothable))
         label = indices[0][position] if indices else position + 1
         raise ValueError(
-            f"smoothing must be smaller than the total of each grade without defaults, got "
-            f"{_validation.shown(smoothing)} for grade {_validation.shown(label)} with a total of "
-            f"{_first(totals, unsmoothable)}; pass counts on the scale of observations or a "
-            "smaller smoothing"
+            "smoothing must be smaller than the total of each grade without defaults, got "
+            f"{_validation.shown_argument(smoothing)} for grade {_validation.shown(label)} with a "
+            f"total of {_first(totals, unsmoothable)}; pass counts on the scale of observations "
+            "or a smaller smoothing"
         )
     grade = np.arange(1, len(totals) + 1, dtype=float)
     x, weight = grade[observed], totals[observed]
@@ -1359,7 +1370,8 @@ def _grade_labels(labels: npt.ArrayLike | None, grades: int) -> pd.Index:
         return pd.Index(np.arange(1, grades + 1), name="grade")
     if isinstance(labels, str):
         raise ValueError(
-            f"labels must be one label per grade, got the string {_validation.shown(labels)}"
+            "labels must be one label per grade, got the string "
+            f"{_validation.shown_argument(labels)}"
         )
     series = _validation.as_series(labels, "labels")
     if len(series) != grades:
@@ -1433,7 +1445,7 @@ def _odds_ratio(sample_rate: float, population_rate: float) -> float:
     for name, rate in (("sample_rate", sample_rate), ("population_rate", population_rate)):
         if isinstance(rate, bool) or not _validation.is_real(rate) or not 0 < rate < 1:
             raise ValueError(
-                f"{name} must be strictly between 0 and 1, got {_validation.shown(rate)}"
+                f"{name} must be strictly between 0 and 1, got {_validation.shown_argument(rate)}"
             )
     return (population_rate / (1 - population_rate)) / (sample_rate / (1 - sample_rate))
 

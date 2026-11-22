@@ -160,7 +160,7 @@ def convert_pd(
         if not (isinstance(value, str) and value in _KINDS):  # type: ignore[redundant-expr]  # rejects non-str values
             raise ValueError(
                 f"{name} must be 'cumulative', 'marginal' or 'conditional', got "
-                f"{_validation.shown(value)}"
+                f"{_validation.shown_argument(value)}"
             )
     values = _curves(probability, "probability")
     _check_curves(values, kind)
@@ -290,7 +290,8 @@ def transition_pd(
             found = False
         if not found:
             raise ValueError(
-                f"default_state must be one of the states, got {_validation.shown(default_state)}"
+                "default_state must be one of the states, got "
+                f"{_validation.shown_argument(default_state)}"
             )
     _check_transition_rows(probabilities, states, default)
 
@@ -484,11 +485,13 @@ def expected_credit_loss(
     if horizon is None:
         horizon = periods
     elif isinstance(horizon, bool) or not _validation.is_integral(horizon) or horizon < 1:
-        raise ValueError(f"horizon must be a positive integer, got {_validation.shown(horizon)}")
+        raise ValueError(
+            f"horizon must be a positive integer, got {_validation.shown_argument(horizon)}"
+        )
     elif horizon > periods:
         raise ValueError(
             f"horizon must be at most the number of periods of probability, {periods}, "
-            f"got {_validation.shown(horizon)}"
+            f"got {_validation.shown_argument(horizon)}"
         )
     index = _account_index(
         {"probability": probability, "lgd": lgd, "ead": ead, "rate": rate}, accounts, periods
@@ -631,14 +634,14 @@ def significant_increase(
         if not _is_number(relative) or not 1 < relative < math.inf:
             raise ValueError(
                 f"relative must be None or a ratio greater than 1, such as 2 for a PD that "
-                f"doubled, got {_validation.shown(relative)}"
+                f"doubled, got {_validation.shown_argument(relative)}"
             )
         flag &= current > relative * origination + _TIES * current
     if absolute is not None:
         if not _is_number(absolute) or not 0 < absolute < 1:
             raise ValueError(
                 f"absolute must be None or a number between 0 and 1, such as 0.01 for one "
-                f"percentage point, got {_validation.shown(absolute)}"
+                f"percentage point, got {_validation.shown_argument(absolute)}"
             )
         flag &= current - origination > absolute + _TIES * current
     if index is None:
@@ -761,12 +764,14 @@ def assign_stages(
     for value, option in ((stage_2_days, "stage_2_days"), (stage_3_days, "stage_3_days")):
         if not _is_number(value) or not 0 <= value < math.inf:
             raise ValueError(
-                f"{option} must be a finite, non-negative number, got {_validation.shown(value)}"
+                f"{option} must be a finite, non-negative number, got "
+                f"{_validation.shown_argument(value)}"
             )
     if not stage_3_days > stage_2_days:
         raise ValueError(
             f"stage_3_days must be greater than stage_2_days, got "
-            f"{_validation.shown(stage_3_days)} and {_validation.shown(stage_2_days)}"
+            f"{_validation.shown_argument(stage_3_days)} and "
+            f"{_validation.shown_argument(stage_2_days)}"
         )
     if days is not None:
         increased = increased | (days > stage_2_days)
@@ -1043,8 +1048,7 @@ def _check_transition_rows(probabilities: np.ndarray, states: pd.Index, default:
         if abs(total - 1) > _TOLERANCE:
             raise ValueError(
                 f"the rows of matrix must add up to 1, got {float(total)!r} for state "
-                f"{_validation.shown(state)}; "
-                f"divide each row by its sum"
+                f"{_validation.shown(state)}; divide each row by its sum"
             )
 
 

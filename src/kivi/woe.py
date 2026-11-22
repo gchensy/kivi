@@ -317,7 +317,7 @@ def woe_transform(
         or not math.isfinite(unseen)
     ):
         raise ValueError(
-            f"unseen must be 'raise' or a finite number, got {_validation.shown(unseen)}"
+            f"unseen must be 'raise' or a finite number, got {_validation.shown_argument(unseen)}"
         )
     series = _validation.as_series(groups, "groups")
     levels: pd.Index | np.ndarray
