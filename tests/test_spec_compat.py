@@ -19,10 +19,16 @@ writes ``binning_spec_<release>.json`` with ``to_json(indent=2)`` and
 format version 2, with a column grouped by ``"rare"``, one grouped by
 ``"chimerge"`` and an ``unseen`` of ``{"group": ...}``. Both were fitted with
 weights, a special code, an ``unseen`` number and every numeric method.
+
+A saved file is read and applied exactly. A fresh fit recomputes logarithms
+and sums, whose last digit NumPy can round differently on another processor,
+because it picks its vectorized routines by the instructions a CPU has. The
+fresh fit is therefore compared with the file to a relative ``RTOL``, while
+its structure, keys and labels must match exactly.
 """
 
-import dataclasses
 import json
+import math
 import pathlib
 import sys
 
@@ -37,6 +43,8 @@ DATA = pathlib.Path(__file__).parent / "data"
 # The release that wrote each file and the format version it wrote.
 RELEASES = {"0.6.0": 1, "0.8.0": 2}
 NUMERIC = ["balance", "age", "pdays", "duration", "campaign"]
+# The last digits of a fresh fit's floats may differ from the file's on another CPU.
+RTOL = 1e-12
 
 
 def columns(release):
@@ -100,6 +108,26 @@ def write(release):
     (DATA / f"binning_spec_{release}.woe.json").write_text(text, encoding="utf-8")
 
 
+def assert_close(fresh, saved, path="spec"):
+    """Compare two parsed JSON specifications: floats to ``RTOL``, all else exactly."""
+    if isinstance(saved, dict):
+        assert isinstance(fresh, dict), path
+        assert list(fresh) == list(saved), path
+        for key, value in saved.items():
+            assert_close(fresh[key], value, f"{path}[{key!r}]")
+    elif isinstance(saved, list):
+        assert isinstance(fresh, list), path
+        assert len(fresh) == len(saved), path
+        for position, (left, right) in enumerate(zip(fresh, saved, strict=True)):
+            assert_close(left, right, f"{path}[{position}]")
+    elif isinstance(saved, float):
+        assert isinstance(fresh, float), path
+        assert math.isclose(fresh, saved, rel_tol=RTOL, abs_tol=RTOL), (path, fresh, saved)
+    else:
+        assert type(fresh) is type(saved), path
+        assert fresh == saved, (path, fresh, saved)
+
+
 def golden(release):
     return (DATA / f"binning_spec_{release}.json").read_text(encoding="utf-8")
 
@@ -119,19 +147,17 @@ def test_a_saved_file_loads_with_its_release_and_format(release):
 
 
 @pytest.mark.parametrize("release", RELEASES)
-def test_a_saved_file_equals_a_fresh_fit_apart_from_the_kivi_version(release):
+def test_a_saved_file_matches_a_fresh_fit_apart_from_the_kivi_version(release):
     loaded = BinningSpec.from_json(golden(release))
     fresh = fit(release)
     # Equality includes the version of kivi that fitted a specification.
     if fresh.kivi_version != release:
         assert loaded != fresh
-    assert dataclasses.replace(loaded, kivi_version=fresh.kivi_version) == fresh
-    # A fit that needs no newer feature still writes the release's file, byte for byte.
+    # A fit that needs no newer feature still writes the release's format and content.
     assert fresh.format_version == RELEASES[release]
-    expected = golden(release).replace(
-        f'"kivi_version": "{release}"', f'"kivi_version": "{fresh.kivi_version}"'
-    )
-    assert fresh.to_json(indent=2) + "\n" == expected
+    saved = json.loads(golden(release))
+    saved["kivi_version"] = fresh.kivi_version
+    assert_close(json.loads(fresh.to_json()), saved)
 
 
 @pytest.mark.parametrize("release", RELEASES)
@@ -140,7 +166,10 @@ def test_a_saved_file_encodes_as_the_release_did(release):
     encoded = BinningSpec.from_json(golden(release)).woe_transform(frame)
     expected = golden_encoding(release).set_axis(frame.index)
     pd.testing.assert_frame_equal(encoded, expected, check_exact=True)
-    pd.testing.assert_frame_equal(fit(release).woe_transform(frame), expected, check_exact=True)
+    # A fresh fit recomputes the WOE, so it gives the same encoding up to rounding.
+    pd.testing.assert_frame_equal(
+        fit(release).woe_transform(frame), expected, check_exact=False, rtol=RTOL, atol=RTOL
+    )
     # The unseen contact gets the number of the file; the unseen job the WOE of its group.
     assert encoded["contact"].iloc[0] == 0.0
     if "job" in frame:

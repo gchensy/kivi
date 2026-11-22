@@ -158,4 +158,4 @@ Saved specifications
 * ``kivi_version`` records the release that fitted the specification and never changes how a file is read. Equality and hashing include it, as they include every field, so a specification saved by an earlier release differs from the same fit today; :ref:`spec-saving` shows how to compare their content.
 * Encoding reads only the ``bin`` and ``woe`` of each table row. The other columns describe the fit and are loaded as written.
 
-The tests of kivi keep files written by 0.6.0, in format version 1, and by 0.8.0, in format version 2, and check that each loads, equals a fresh fit apart from ``kivi_version`` and encodes a fixed sample exactly as the release that wrote it did.
+The tests of kivi keep files written by 0.6.0, in format version 1, and by 0.8.0, in format version 2, and check that each loads and encodes a fixed sample exactly as the release that wrote it did, and that it matches a fresh fit apart from ``kivi_version`` and the rounding of the last digits.
