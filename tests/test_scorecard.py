@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from kivi.datasets import Dataset
+from kivi.datasets import load_bank
 from kivi.scorecard import (
     pd_to_score,
     points_table,
@@ -188,7 +188,7 @@ def test_coefficients_set_the_order_and_extra_tables_are_ignored():
 
 
 def _bank_model():
-    data = Dataset.bank_data()
+    data = load_bank()
     development = data.iloc[:3000]
     edges = np.array([-np.inf, 25, 35, 45, 55, 65, np.inf])
 

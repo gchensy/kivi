@@ -12,7 +12,7 @@ from kivi.binning import (
     chimerge_groups,
     group_categories,
 )
-from kivi.datasets import Dataset
+from kivi.datasets import load_bank
 from kivi.woe import woe_table, woe_transform
 
 
@@ -37,7 +37,7 @@ def p_value(statistic):
 
 @pytest.fixture(scope="module")
 def reference():
-    return Dataset.bank_data().iloc[:3000]
+    return load_bank().iloc[:3000]
 
 
 # Event rates 0.2, 0.4, 0.8 and 0.5, ten observations each; sorted by WOE: A, B, D, C.
@@ -553,7 +553,7 @@ def test_groups_work_with_woe_table_and_woe_transform(reference):
     target = reference["target"]
     groups = chimerge_groups(reference["job"], target)
     table = woe_table(group_categories(reference["job"], groups), target)
-    later = Dataset.bank_data().iloc[3000:]
+    later = load_bank().iloc[3000:]
     encoded = woe_transform(group_categories(later["job"], groups), table)
     by_group = table["woe"].to_dict()
     expected = later["job"].map(lambda job: by_group[groups[job]])

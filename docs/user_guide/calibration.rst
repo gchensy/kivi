@@ -73,9 +73,9 @@ D      0.1131         0.16  0.2263
 E      0.2263         0.32  0.4525
 F      0.4525         0.64  1.0000
 
-Each bound is the geometric mean of the PDs on either side of it, their midpoint on a logarithmic scale, so a PD goes to the grade whose PD is nearer by ratio. ``boundary="arithmetic"`` takes the arithmetic mean instead, as the 0.2 versions of kivi did. The arithmetic mean lies above the geometric one, so each grade reaches further up than down. Grade A then holds the PDs up to 3% instead of 2.83%:
+Each bound is the geometric mean of the PDs on either side of it, their midpoint on a logarithmic scale, so a PD goes to the grade whose PD is nearer by ratio. ``boundary="arithmetic"`` takes the arithmetic mean instead, as the 0.2 versions of kivi did. The arithmetic mean lies above the geometric one, so each grade reaches further up than down. Grade A then holds the PDs up to 3% instead of 2.83%. A Series of PDs gives its index as the grade labels:
 
->>> arithmetic = master_scale(scale["probability"], labels=scale.index, boundary="arithmetic")
+>>> arithmetic = master_scale(scale["probability"], boundary="arithmetic")
 >>> arithmetic["upper"].round(4)
 grade
 A    0.03
@@ -126,7 +126,7 @@ The grades are numbered by their position in the input, so reindex the counts to
 
 >>> dev_counts = dev_counts.reindex(scale.index, fill_value=0)
 >>> fitted_pd = fit_grade_pd(dev_counts["event"], dev_counts["total"])
->>> fitted = master_scale(fitted_pd, labels=scale.index)
+>>> fitted = master_scale(fitted_pd)
 >>> fitted.round(4)
         lower  probability   upper
 grade
@@ -328,15 +328,15 @@ Isotonic regression
 Isotonic regression assumes only that the event rate rises with the score. The pool-adjacent-violators algorithm merges adjacent score bands until their event rates increase, and each band gets its event rate. :func:`~kivi.calibration.isotonic_fit` returns the band edges, from ``-inf`` to ``inf`` like those of :func:`~kivi.binning.bin_edges`, and the probability of each band:
 
 >>> from kivi.calibration import isotonic_fit, isotonic_predict
->>> edges, probabilities = isotonic_fit(dev_low, target)
->>> len(probabilities)
+>>> edges, probability = isotonic_fit(dev_low, target)
+>>> len(probability)
 16
->>> probabilities[:4].round(4)
+>>> probability[:4].round(4)
 array([0.0397, 0.0459, 0.069 , 0.0805])
 
 The bands are closed on the right, as in ``pandas.cut``, so they can also serve as grades. :func:`~kivi.calibration.isotonic_predict` gives each monitoring PD the probability of its band, and scores outside the development range get the probability of the lowest or the highest band. A score that falls between the observed scores of two bands gets the upper band; with ``increasing=False``, as for scorecard points, that is the band with the lower risk:
 
->>> iso = isotonic_predict(low, edges, probabilities)
+>>> iso = isotonic_predict(low, edges, probability)
 >>> iso_table = calibration_table(pd.cut(low, edges), monitoring["target"], iso)
 >>> statistic, pvalue = hosmer_lemeshow(
 ...     iso_table["event"], iso_table["total"], iso_table["mean_probability"], ddof=0

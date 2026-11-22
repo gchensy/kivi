@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from kivi.datasets import Dataset
+from kivi.datasets import load_bank
 from kivi.scorecard import points_table, woe_to_points
 from kivi.stability import csi_table, psi_table
 from kivi.woe import woe_table, woe_transform
@@ -27,7 +27,7 @@ def test_csi_matches_hand_calculation():
 
 
 def test_csi_matches_legacy_on_bank_data():
-    data = Dataset.bank_data()
+    data = load_bank()
     reference, current = data.iloc[:3000], data.iloc[3000:]
     # The legacy CSI(score).Category gave the same contributions and -0.2651545036160423.
     points = {"primary": 30.0, "secondary": 42.5, "tertiary": 55.0, "unknown": 47.0}
@@ -68,7 +68,7 @@ def test_group_missing_from_one_sample_counts_with_a_zero_share():
 
 
 def test_csi_is_the_shift_of_the_average_points_of_a_scorecard():
-    data = Dataset.bank_data()
+    data = load_bank()
     development, monitoring = data.iloc[:3000], data.iloc[3000:]
     edges = np.array([-np.inf, 25, 35, 45, 55, 65, np.inf])
 
@@ -245,7 +245,7 @@ def test_invalid_unseen_points(unseen_points):
 def test_csi_with_unseen_points_is_the_shift_of_the_average_points():
     # A new job category in the monitoring sample: woe_transform gives it WOE 0, so its
     # applicants receive the points of WOE 0, which must be passed as unseen_points.
-    data = Dataset.bank_data()
+    data = load_bank()
     development = data.iloc[:3000]
     monitoring = data.iloc[3000:].copy()
     monitoring.iloc[:40, monitoring.columns.get_loc("job")] = "astronaut"

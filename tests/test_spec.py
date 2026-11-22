@@ -11,7 +11,7 @@ from pandas.testing import assert_frame_equal
 
 import kivi
 from kivi.binning import bin_edges, chimerge_edges, cut, monotonic_edges, tree_edges
-from kivi.datasets import Dataset
+from kivi.datasets import load_bank
 from kivi.spec import BinningSpec, fit_spec
 from kivi.woe import woe_table, woe_transform
 
@@ -35,7 +35,7 @@ def _fit(**kwargs):
 
 @pytest.fixture(scope="module")
 def bank():
-    data = Dataset.bank_data()
+    data = load_bank()
     return data.iloc[:3000], data.iloc[3000:]
 
 

@@ -101,7 +101,7 @@ def ratio(numerator: np.ndarray, denominator: np.ndarray) -> npt.NDArray[np.floa
 
 def shares(counts: np.ndarray, smoothing: float) -> np.ndarray:
     """Replace zero counts with ``smoothing``, then normalize each column."""
-    _validation.check_smoothing(smoothing, booleans=True)
+    _validation.check_smoothing(smoothing)
     counts = np.asarray(counts, dtype=float)
     adjusted = np.where(counts == 0, smoothing, counts)
     return adjusted / adjusted.sum(axis=0)

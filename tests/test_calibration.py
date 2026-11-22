@@ -23,7 +23,7 @@ from kivi.calibration import (
     platt_predict,
     prior_correction,
 )
-from kivi.datasets import Dataset
+from kivi.datasets import load_bank
 from kivi.selection import SeparationError
 
 INF = np.inf
@@ -197,7 +197,7 @@ def test_calibration_table_puts_missing_labels_in_their_own_group():
 
 
 def test_master_scale_on_bank_data():
-    data = Dataset.bank_data()
+    data = load_bank()
     # A stand-in PD: the balance rank, mapped to [0.01, 0.3].
     probability = 0.01 + 0.29 * data["balance"].rank(pct=True)
     edges = [0, 0.05, 0.1, 0.2, 1]
@@ -486,7 +486,7 @@ def test_platt_fit_on_a_binary_score_reproduces_the_two_event_rates():
 
 
 def test_platt_fit_matches_statsmodels_on_bank_data():
-    data = Dataset.bank_data()
+    data = load_bank()
     # statsmodels Logit(target, add_constant(duration)).fit(tol=1e-14).
     slope, intercept = platt_fit(data["duration"], data["target"])
     assert slope == pytest.approx(0.003549552890267578, rel=1e-10)
@@ -728,7 +728,7 @@ def test_isotonic_fit_matches_the_min_max_formula(seed):
 
 
 def test_isotonic_fit_matches_scikit_learn_on_bank_data():
-    data = Dataset.bank_data()
+    data = load_bank()
     edges, probabilities = isotonic_fit(data["duration"], data["target"])
     # scikit-learn's IsotonicRegression gives the same 26 rates at the fitted durations.
     assert len(probabilities) == 26
@@ -747,7 +747,7 @@ def test_isotonic_fit_matches_scikit_learn_on_bank_data():
 
 
 def test_isotonic_integer_weights_equal_repeated_rows():
-    data = Dataset.bank_data()
+    data = load_bank()
     weights = np.random.default_rng(3).integers(0, 3, len(data))
     repeated = np.repeat(np.arange(len(data)), weights)
     weighted = isotonic_fit(data["balance"], data["target"], weights=weights)
@@ -802,19 +802,19 @@ def test_invalid_calibration_fits(fit, score, target, options, message):
 
 
 @pytest.mark.parametrize(
-    "edges,probabilities,message",
+    "edges,probability,message",
     [
         ([0, 1, 2], [0.1, 0.2], r"edges must increase from -inf to inf, got \[0.0, 1.0, 2.0\]"),
         ([-INF, 1, 1, INF], [0.1, 0.2, 0.3], "edges must increase from -inf to inf"),
         ([-INF, np.nan, INF], [0.1, 0.2], "edges must increase from -inf to inf"),
         ([-INF], [], "edges must increase from -inf to inf"),
         ([-INF, 1, INF], [0.1], r"one value for each of the 2 band\(s\), got shape \(1,\)"),
-        ([-INF, 1, INF], [0.1, 1.2], "probabilities must be between 0 and 1, got 1.2"),
-        ([-INF, 1, INF], [0.1, np.nan], "probabilities must not have missing values"),
+        ([-INF, 1, INF], [0.1, 1.2], "probability must be between 0 and 1, got 1.2"),
+        ([-INF, 1, INF], [0.1, np.nan], "probability must not have missing values"),
         (
             [-INF, 1, INF],
             ["a", "b"],
-            r"probabilities must be real and numeric, got dtype (object|str)",
+            r"probability must be real and numeric, got dtype (object|str)",
         ),
         (
             [-INF, "1", INF],
@@ -824,9 +824,9 @@ def test_invalid_calibration_fits(fit, score, target, options, message):
         (np.ones((2, 2)), [0.1], "edges must be one-dimensional, got 2 dimensions"),
     ],
 )
-def test_invalid_isotonic_bands(edges, probabilities, message):
+def test_invalid_isotonic_bands(edges, probability, message):
     with pytest.raises(ValueError, match=message):
-        isotonic_predict([0.5], edges, probabilities)
+        isotonic_predict([0.5], edges, probability)
 
 
 def test_calibration_fits_do_not_modify_inputs():
@@ -857,7 +857,7 @@ def test_weighted_calibration_table_matches_hand_calculation():
 
 
 def test_weighted_calibration_table_equals_repeated_rows():
-    data = Dataset.bank_data()
+    data = load_bank()
     probability = 0.01 + 0.29 * data["balance"].rank(pct=True)
     grades = pd.cut(probability, [0, 0.05, 0.1, 0.2, 1], labels=list("ABCD"))
     weights = np.random.default_rng(2).integers(0, 4, len(data))
@@ -986,6 +986,34 @@ def test_master_scale_from_a_geometric_grid_and_one_grade():
     np.testing.assert_allclose(scale["upper"].to_numpy()[:-1], scale["probability"][:-1] * 2**0.5)
     single = master_scale(pd.Series([0.05], index=["x"]), labels=["only"])
     assert single.loc["only"].tolist() == [0.0, 0.05, 1.0]
+
+
+def test_master_scale_labels_the_grades_by_the_index_of_a_series():
+    probability = pd.Series([0.01, 0.04, 0.16], index=["A", "B", "C"], name="probability")
+    scale = master_scale(probability)
+    assert scale.index.tolist() == ["A", "B", "C"] and scale.index.name == "grade"
+    assert master_scale(probability, labels=[1, 2, 3]).index.tolist() == [1, 2, 3]
+    # The fitted PDs of a table of grades keep the table's index.
+    event = pd.Series([1, 6, 30], index=probability.index)
+    total = pd.Series([100, 150, 200], index=probability.index)
+    assert master_scale(fit_grade_pd(event, total)).index.tolist() == ["A", "B", "C"]
+    # A list or an array has no labels, so its grades are numbered from 1.
+    assert master_scale(probability.to_numpy()).index.tolist() == [1, 2, 3]
+    assert master_scale(pd.Series([0.01, 0.04])).index.tolist() == [0, 1]
+
+
+@pytest.mark.parametrize(
+    "index, message",
+    [
+        (["A", "A"], "^the index of probability must be unique, got 'A' more than once$"),
+        (["A", None], "^the index of probability must not have missing values$"),
+    ],
+)
+def test_master_scale_checks_the_index_it_takes_as_labels(index, message):
+    probability = pd.Series([0.01, 0.04], index=index)
+    with pytest.raises(ValueError, match=message):
+        master_scale(probability)
+    assert master_scale(probability, labels=["x", "y"]).index.tolist() == ["x", "y"]
 
 
 def test_master_scale_of_tiny_pds_does_not_underflow():

@@ -178,16 +178,18 @@ For the six customers of the worked example, the placement values of the events 
 
 >>> from kivi.metrics import roc_auc_interval
 >>> roc_auc_interval(score, target).round(3)
-      estimate     se  lower  upper
-auc      0.722  0.248  0.235    1.0
-gini     0.444  0.497 -0.529    1.0
+           estimate     se  lower  upper
+statistic
+auc           0.722  0.248  0.235    1.0
+gini          0.444  0.497 -0.529    1.0
 
 On the validation sample, the AUC of 0.716 is known to about 0.04 either way:
 
 >>> roc_auc_interval(val_score, y).round(3)
-      estimate     se  lower  upper
-auc      0.716  0.022  0.673  0.759
-gini     0.431  0.044  0.346  0.517
+           estimate     se  lower  upper
+statistic
+auc           0.716  0.022  0.673  0.759
+gini          0.431  0.044  0.346  0.517
 
 The development and validation samples hold different customers, so their AUCs can be treated as independent, with a difference whose standard error is :math:`\sqrt{\mathrm{SE}_1^2 + \mathrm{SE}_2^2}`. This is only a rough check, because the WOE values were fitted on the development sample, whose AUC is therefore optimistic. The difference between the two samples is well within the noise:
 

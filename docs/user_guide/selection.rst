@@ -82,6 +82,7 @@ A correlation compares two variables, but a variable can also be explained by se
 
 >>> pd.concat([vif(X).rename("candidates"), vif(X[kept]).rename("kept")], axis=1).round(2)
            candidates  kept
+variable
 poutcome         2.18  1.90
 pdays            2.46  1.93
 previous         2.47   NaN
@@ -103,6 +104,7 @@ Logistic regression on WOE
 
 >>> logistic_regression(X[["poutcome"]], target).round(4)
              coef      se        z  p_value
+variable
 intercept -2.0309  0.0595 -34.1097      0.0
 poutcome   1.0000  0.0824  12.1332      0.0
 >>> print(f"{np.log(target.sum() / (len(target) - target.sum())):.4f}")
@@ -114,6 +116,7 @@ With several variables, each coefficient weighs a variable against the others. A
 
 >>> logistic_regression(X, target).loc[["poutcome", "pdays", "previous"]].round(3)
            coef     se      z  p_value
+variable
 poutcome  0.709  0.121  5.880    0.000
 pdays     0.368  0.146  2.527    0.012
 previous -0.116  0.189 -0.612    0.541
@@ -130,6 +133,7 @@ Stepwise selection
 ['poutcome', 'pdays', 'contact', 'job', 'housing', 'balance', 'loan', 'marital']
 >>> logistic_regression(X[selected], target).round(3)
             coef     se       z  p_value
+variable
 intercept -2.029  0.062 -32.484    0.000
 poutcome   0.675  0.113   5.975    0.000
 pdays      0.353  0.123   2.863    0.004

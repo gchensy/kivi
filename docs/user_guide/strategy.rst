@@ -185,7 +185,7 @@ The bank data have no loan amounts, so the examples take the average balance as 
 3000     17.38
 3001      0.00
 3002    181.98
-dtype: float64
+Name: expected_loss, dtype: float64
 
 Pass the expected losses as ``loss`` to :func:`~kivi.strategy.cutoff_table` to add the expected loss of the approved book:
 

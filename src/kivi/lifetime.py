@@ -651,9 +651,9 @@ def significant_increase(
 
 def assign_stages(
     significant_increase: npt.ArrayLike,
-    *,
     days_past_due: npt.ArrayLike | None = None,
     defaulted: npt.ArrayLike | None = None,
+    *,
     stage_2_days: float = 30,
     stage_3_days: float = 90,
 ) -> pd.Series | npt.NDArray[np.int64]:
@@ -738,7 +738,7 @@ def assign_stages(
     >>> increase = [False, True, False, False, False]
     >>> days_past_due = [0, 0, 45, 90, 0]
     >>> defaulted = [False, False, False, False, True]
-    >>> assign_stages(increase, days_past_due=days_past_due, defaulted=defaulted)
+    >>> assign_stages(increase, days_past_due, defaulted)
     array([1, 2, 2, 3, 3])
     """
     name = "significant_increase"

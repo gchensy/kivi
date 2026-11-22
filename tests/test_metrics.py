@@ -4,7 +4,7 @@ import pytest
 
 from kivi._stats import normal_quantile
 from kivi.binning import bin_edges
-from kivi.datasets import Dataset
+from kivi.datasets import load_bank
 from kivi.metrics import (
     brier_score,
     delong_test,
@@ -57,7 +57,7 @@ def test_roc_auc_matches_average_ranks_and_pair_counts():
 
 
 def test_roc_auc_on_bank_duration_matches_pair_counts():
-    bank = Dataset.bank_data()
+    bank = load_bank()
     events = bank.loc[bank["target"] == 1, "duration"].to_numpy()
     non_events = bank.loc[bank["target"] == 0, "duration"].to_numpy()
     gap = events[:, None] - non_events[None, :]
@@ -366,7 +366,7 @@ def test_weighted_ranking_measures_match_hand_calculation():
 
 
 def test_integer_weights_equal_repeated_rows():
-    data = Dataset.bank_data()
+    data = load_bank()
     score, target = data["duration"].to_numpy(float), data["target"].to_numpy()
     weights = np.random.default_rng(11).integers(0, 4, len(data))
     rows = np.repeat(np.arange(len(data)), weights)
@@ -560,7 +560,7 @@ def test_roc_table_matches_cumulative_gains_with_one_band_per_score():
 
 
 def test_roc_table_integer_weights_equal_repeated_rows():
-    data = Dataset.bank_data()
+    data = load_bank()
     score, target = data["balance"].to_numpy(float), data["target"].to_numpy()
     weights = np.random.default_rng(12).integers(0, 4, len(data))
     rows = np.repeat(np.arange(len(data)), weights)
@@ -580,6 +580,7 @@ def test_roc_auc_interval_hand_calculation():
     # 1, 5/6 and 1/3. S10 = 7/108 and S01 = 13/108, so Var = (7/108 + 13/108) / 3 = 5/81.
     interval = roc_auc_interval(SCORE, TARGET)
     assert interval.index.tolist() == ["auc", "gini"]
+    assert interval.index.name == "statistic"
     assert interval.columns.tolist() == ["estimate", "se", "lower", "upper"]
     se = np.sqrt(5) / 9
     z = 1.959963984540054
@@ -617,7 +618,7 @@ def test_roc_auc_interval_matches_brute_force_with_ties_and_weights():
 
 
 def test_roc_auc_interval_integer_weights_equal_repeated_rows():
-    data = Dataset.bank_data()
+    data = load_bank()
     score, target = data["duration"].to_numpy(float), data["target"].to_numpy()
     weights = np.random.default_rng(13).integers(0, 4, len(data))
     rows = np.repeat(np.arange(len(data)), weights)
@@ -696,7 +697,7 @@ def test_delong_test_matches_brute_force_covariance():
 
 
 def test_delong_test_integer_weights_equal_repeated_rows():
-    data = Dataset.bank_data()
+    data = load_bank()
     target = data["target"].to_numpy()
     current, new = data["duration"].to_numpy(float), data["balance"].to_numpy(float)
     weights = np.random.default_rng(14).integers(0, 4, len(data))
@@ -824,7 +825,7 @@ def test_level_close_to_one_keeps_its_precision():
 
 def test_standard_errors_on_the_bank_data_with_large_weights():
     # Frequency weights of 1e300 stand for an enormous sample, whose standard error vanishes.
-    data = Dataset.bank_data().iloc[:200]
+    data = load_bank().iloc[:200]
     weights = np.full(len(data), 1e300)
     interval = roc_auc_interval(data["duration"], data["target"], weights=weights)
     assert interval.loc["auc", "se"] == pytest.approx(0, abs=1e-140)

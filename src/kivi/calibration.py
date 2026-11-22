@@ -8,7 +8,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from . import _counts, _logit, _stats, _validation
+from . import _counts, _deprecation, _logit, _stats, _validation
 
 __all__ = [
     "assign_grades",
@@ -382,7 +382,7 @@ def isotonic_fit(
         `kivi.binning.bin_edges`. The bands are closed on the right, as in
         ``pandas.cut``, and each interior edge is the highest score of the
         band below it.
-    probabilities : numpy.ndarray
+    probability : numpy.ndarray
         Event rate of each band, one fewer than `edges`. The rates are
         strictly increasing, or strictly decreasing with
         ``increasing=False``.
@@ -443,12 +443,12 @@ def isotonic_fit(
     >>> from kivi.calibration import isotonic_fit, isotonic_predict
     >>> score = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
     >>> target = [0, 1, 0, 0, 1, 0, 1, 1]
-    >>> edges, probabilities = isotonic_fit(score, target)
+    >>> edges, probability = isotonic_fit(score, target)
     >>> edges
     array([-inf,  0.1,  0.4,  0.6,  inf])
-    >>> probabilities
+    >>> probability
     array([0.        , 0.33333333, 0.5       , 1.        ])
-    >>> isotonic_predict([0.05, 0.25, 0.45, 0.9], edges, probabilities).round(4)
+    >>> isotonic_predict([0.05, 0.25, 0.45, 0.9], edges, probability).round(4)
     array([0.    , 0.3333, 0.5   , 1.    ])
     """
     if not isinstance(increasing, (bool, np.bool_)):
@@ -470,7 +470,11 @@ def isotonic_fit(
 
 
 def isotonic_predict(
-    score: npt.ArrayLike, edges: npt.ArrayLike, probabilities: npt.ArrayLike
+    score: npt.ArrayLike,
+    edges: npt.ArrayLike,
+    probability: npt.ArrayLike | None = None,
+    *,
+    probabilities: npt.ArrayLike | None = None,
 ) -> float | pd.Series | npt.NDArray[np.float64]:
     """Give each score the probability of its band from an isotonic calibration.
 
@@ -485,8 +489,11 @@ def isotonic_predict(
     edges : array_like
         Increasing band edges from ``-inf`` to ``inf``, as returned by
         `isotonic_fit`.
-    probabilities : array_like
+    probability : array_like
         Probability of each band, between 0 and 1, one fewer than `edges`.
+    probabilities : array_like, optional
+        Deprecated name of `probability`. It warns with a ``FutureWarning``
+        and is removed in kivi 1.0.
 
     Returns
     -------
@@ -498,8 +505,10 @@ def isotonic_predict(
     ------
     ValueError
         If `score` is not real and numeric, `edges` is not increasing from
-        ``-inf`` to ``inf``, or `probabilities` does not give one value
+        ``-inf`` to ``inf``, or `probability` does not give one value
         between 0 and 1 for each band.
+    TypeError
+        If neither or both of `probability` and `probabilities` are given.
 
     See Also
     --------
@@ -520,10 +529,22 @@ def isotonic_predict(
     >>> isotonic_predict([0.1, 0.2, 0.3, 0.9], edges, [0.05, 0.2, 0.6])
     array([0.05, 0.05, 0.2 , 0.6 ])
     """
-    edges, probabilities = _isotonic_bands(edges, probabilities)
+    if probabilities is not None:
+        if probability is not None:
+            raise TypeError(
+                "isotonic_predict() got both probability and its deprecated name probabilities"
+            )
+        _deprecation.warn(
+            "the probabilities argument of isotonic_predict is deprecated and is removed in "
+            "kivi 1.0; pass probability instead"
+        )
+        probability = probabilities
+    if probability is None:
+        raise TypeError("isotonic_predict() missing 1 required argument: 'probability'")
+    edges, bands = _isotonic_bands(edges, probability)
     values = _float_scores(score, "score")
     band = np.searchsorted(edges[1:-1], values, side="left")
-    result = probabilities[np.minimum(band, len(probabilities) - 1)]
+    result = bands[np.minimum(band, len(bands) - 1)]
     result = np.where(np.isnan(values), np.nan, result)
     return _validation.like_input(score, result)
 
@@ -983,7 +1004,9 @@ def master_scale(
         the midpoint on a logarithmic scale, or their arithmetic mean.
     labels : array_like, optional
         Unique label of each grade, such as ``list("ABCDEFG")``. By default
-        the grades are numbered from 1.
+        the index of `probability` if it is a Series, such as the result of
+        `fit_grade_pd` for a table of grades; otherwise the grades are
+        numbered from 1.
 
     Returns
     -------
@@ -999,7 +1022,8 @@ def master_scale(
         If `probability` is empty, not one-dimensional or not real and
         numeric, has a missing value, is not strictly increasing or is not
         strictly between 0 and 1, `boundary` is not recognized, or `labels`
-        does not give one unique, non-missing label per grade.
+        (or the index of a Series `probability` without `labels`) does not
+        give one unique, non-missing label per grade.
 
     See Also
     --------
@@ -1050,6 +1074,15 @@ def master_scale(
     1      0.000         0.01  0.015
     2      0.015         0.02  0.030
     3      0.030         0.04  1.000
+
+    A Series gives its index as the labels:
+
+    >>> import pandas as pd
+    >>> master_scale(pd.Series([0.01, 0.04], index=["low", "high"])).round(4)
+           lower  probability  upper
+    grade
+    low     0.00         0.01   0.02
+    high    0.02         0.04   1.00
     """
     if not isinstance(boundary, str) or boundary not in ("geometric", "arithmetic"):  # type: ignore[redundant-expr]  # rejects non-str values
         raise ValueError(
@@ -1073,7 +1106,10 @@ def master_scale(
             "probability must increase strictly from grade to grade, got "
             f"{float(values[i])!r} followed by {float(values[i + 1])!r}"
         )
-    index = _grade_labels(labels, len(values))
+    if labels is None and isinstance(probability, pd.Series):
+        index = _grade_labels(probability.index, len(values), "the index of probability")
+    else:
+        index = _grade_labels(labels, len(values))
     if boundary == "geometric":
         product = values[:-1] * values[1:]
         # Split the square root only where the product of two tiny PDs would underflow.
@@ -1171,7 +1207,7 @@ def fit_grade_pd(
     indices = [values.index for values in (event, total) if isinstance(values, pd.Series)]
     if len(indices) == 2 and not indices[0].equals(indices[1]):
         raise ValueError("event and total must have identical indices when they are Series")
-    _validation.check_smoothing(smoothing, booleans=True)
+    smoothing = _validation.check_smoothing(smoothing, booleans=True)
     events = _numeric_values(event, "event", booleans=False)
     totals = _numeric_values(total, "total", booleans=False)
     if len(events) != len(totals):
@@ -1338,11 +1374,11 @@ def _pool_adjacent_violators(
 
 
 def _isotonic_bands(
-    edges: npt.ArrayLike, probabilities: npt.ArrayLike
+    edges: npt.ArrayLike, probability: npt.ArrayLike
 ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """Check and return the band edges and probabilities of an isotonic calibration."""
     edges = _numeric_values(edges, "edges", booleans=False)
-    probabilities = _numeric_values(probabilities, "probabilities")
+    probabilities = _numeric_values(probability, "probability")
     if (
         edges.ndim != 1
         or len(edges) < 2
@@ -1355,17 +1391,20 @@ def _isotonic_bands(
         )
     if probabilities.shape != (len(edges) - 1,):
         raise ValueError(
-            f"probabilities must give one value for each of the {len(edges) - 1} band(s), "
+            f"probability must give one value for each of the {len(edges) - 1} band(s), "
             f"got shape {probabilities.shape}"
         )
     if np.isnan(probabilities).any():
-        raise ValueError("probabilities must not have missing values")
-    _check_unit_interval(probabilities, "probabilities")
+        raise ValueError("probability must not have missing values")
+    _check_unit_interval(probabilities, "probability")
     return edges, probabilities
 
 
-def _grade_labels(labels: npt.ArrayLike | None, grades: int) -> pd.Index:
-    """Return the labels of a master scale's grades as an index named ``grade``."""
+def _grade_labels(labels: npt.ArrayLike | None, grades: int, name: str = "labels") -> pd.Index:
+    """Return the labels of a master scale's grades as an index named ``grade``.
+
+    ``name`` is the argument the labels came from, for the error messages.
+    """
     if labels is None:
         return pd.Index(np.arange(1, grades + 1), name="grade")
     if isinstance(labels, str):
@@ -1379,11 +1418,11 @@ def _grade_labels(labels: npt.ArrayLike | None, grades: int) -> pd.Index:
             f"labels must give one label for each of the {grades} grade(s), got {len(series)}"
         )
     if series.isna().any():
-        raise ValueError("labels must not have missing values")
+        raise ValueError(f"{name} must not have missing values")
     repeated = series[series.duplicated()]
     if len(repeated):
         raise ValueError(
-            f"labels must be unique, got {_validation.shown(repeated.iloc[0])} more than once"
+            f"{name} must be unique, got {_validation.shown(repeated.iloc[0])} more than once"
         )
     return pd.Index(series.to_numpy(), name="grade")
 

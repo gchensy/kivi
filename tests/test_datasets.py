@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from kivi.datasets import Dataset, load_bank, make_applications, make_loan_panel
+from kivi.datasets import load_bank, make_applications, make_loan_panel
 
 STATUSES = ["current", "1-29", "30-59", "60-89", "90+"]
 COLUMNS = ["loan_id", "cohort", "month", "month_on_book", "term", "amount", "balance", "status"]
@@ -11,10 +11,6 @@ COLUMNS = ["loan_id", "cohort", "month", "month_on_book", "term", "amount", "bal
 @pytest.fixture(scope="module")
 def panel():
     return make_loan_panel(n_loans=1500, n_months=30, rng=7)
-
-
-def test_load_bank_matches_dataset_bank_data():
-    pd.testing.assert_frame_equal(load_bank(), Dataset.bank_data())
 
 
 def test_load_bank_shape_and_target():

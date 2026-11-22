@@ -834,6 +834,14 @@ def test_assign_stages_hand_example():
     assert stage.dtype == np.int64
 
 
+def test_assign_stages_takes_the_loan_data_by_position():
+    stage = assign_stages([False, True, False], [0, 0, 120], [False, False, True])
+    np.testing.assert_array_equal(stage, [1, 2, 3])
+    np.testing.assert_array_equal(assign_stages([False, False], [0, 45]), [1, 2])
+    with pytest.raises(TypeError):
+        assign_stages([False], [0], [False], 30)
+
+
 def test_assign_stages_backstops_follow_ifrs_9():
     # More than 30 days past due is stage 2 (5.5.11); 90 days past due is already stage 3 (B5.5.37).
     days = [0, 30, 31, 89, 90, 91]

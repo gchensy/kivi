@@ -281,7 +281,7 @@ Compare PDs of the same horizon. In the panel, a loan's delinquency bucket is th
 :func:`~kivi.lifetime.assign_stages` adds the backstops: an exposure more than 30 days past due is at least in stage 2, and one 90 days past due or more, or flagged as defaulted, is in stage 3. The defaults follow the rebuttable presumptions of IFRS 9: credit risk has increased significantly when contractual payments are more than 30 days past due (paragraph 5.5.11), and default occurs no later than when a financial asset is 90 days past due (paragraph B5.5.37). Pass ``stage_2_days`` and ``stage_3_days`` for other thresholds. The panel records buckets rather than days, so the example takes the middle of each bucket, and it flags the 90+ loans as defaulted:
 
 >>> days_past_due = np.array([0, 15, 45, 75, 105])[book["status"].cat.codes]
->>> stage = assign_stages(increase, days_past_due=days_past_due, defaulted=defaulted)
+>>> stage = assign_stages(increase, days_past_due, defaulted)
 >>> pd.crosstab(book["status"], stage)
 stage       1   2    3
 status

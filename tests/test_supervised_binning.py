@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 
 from kivi.binning import _pair_chi2, chimerge_edges, cut, monotonic_edges, tree_edges
-from kivi.datasets import Dataset
+from kivi.datasets import load_bank
 from kivi.woe import woe_table
 
 
@@ -26,7 +26,7 @@ def chi2_2x2(a, b, c, d):
 
 @pytest.fixture(scope="module")
 def reference():
-    return Dataset.bank_data().iloc[:3000]
+    return load_bank().iloc[:3000]
 
 
 # Event rates 0, 0.5 and 0.9 for the values 1, 2 and 3.
