@@ -1,27 +1,14 @@
 """Calibration of event probabilities and rating grades."""
 
 import math
+import typing
 import warnings
-from typing import Literal
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from . import _logit
-from ._counts import group_counts, group_rows
-from ._stats import betainc, chi2_sf
-from ._validation import (
-    as_real,
-    as_series,
-    as_weights,
-    check_smoothing,
-    is_integral,
-    is_real,
-    like_input,
-    scores_and_labels,
-    shown,
-)
+from . import _counts, _logit, _stats, _validation
 
 __all__ = [
     "assign_grades",
@@ -104,9 +91,9 @@ def prior_correction(
     array([0.02  , 0.0051, 0.0011])
     """
     omega = _odds_ratio(sample_rate, population_rate)
-    values = as_real(probability, "probability", booleans=True)
+    values = _validation.as_real(probability, "probability", booleans=True)
     _check_unit_interval(values, "probability")
-    return like_input(probability, omega * values / (omega * values + 1 - values))
+    return _validation.like_input(probability, omega * values / (omega * values + 1 - values))
 
 
 def corrected_intercept(intercept: float, *, sample_rate: float, population_rate: float) -> float:
@@ -157,8 +144,14 @@ def corrected_intercept(intercept: float, *, sample_rate: float, population_rate
     >>> print(f"{corrected_intercept(0.0, sample_rate=0.5, population_rate=0.02):.4f}")
     -3.8918
     """
-    if isinstance(intercept, bool) or not is_real(intercept) or not math.isfinite(intercept):
-        raise ValueError(f"intercept must be a finite number, got {intercept!r}")
+    if (
+        isinstance(intercept, bool)
+        or not _validation.is_real(intercept)
+        or not math.isfinite(intercept)
+    ):
+        raise ValueError(
+            f"intercept must be a finite number, got {_validation.shown_argument(intercept)}"
+        )
     return intercept + math.log(_odds_ratio(sample_rate, population_rate))
 
 
@@ -260,7 +253,7 @@ def platt_fit(
     >>> platt_predict([-1.0, 0.0, 1.0], slope, intercept).round(4)
     array([0.2675, 0.4688, 0.6808])
     """
-    values, labels, mass = scores_and_labels(score, target, "score", weights=weights)
+    values, labels, mass = _validation.scores_and_labels(score, target, "score", weights=weights)
     if mass is not None:
         # Rows without weight must not enter the centring and scaling of the fit.
         used = mass > 0
@@ -341,13 +334,15 @@ def platt_predict(
     array([0.0293, 0.3775, 0.9241])
     """
     for name, value in (("slope", slope), ("intercept", intercept)):
-        if isinstance(value, bool) or not is_real(value) or not math.isfinite(value):
-            raise ValueError(f"{name} must be a finite number, got {value!r}")
+        if isinstance(value, bool) or not _validation.is_real(value) or not math.isfinite(value):
+            raise ValueError(
+                f"{name} must be a finite number, got {_validation.shown_argument(value)}"
+            )
     values = _float_scores(score, "score")
     # A huge score overflows to an infinite log odds, and logaddexp warns on missing values.
     with np.errstate(over="ignore", invalid="ignore"):
         probability = np.exp(-np.logaddexp(0, -(slope * values + intercept)))
-    return like_input(score, probability)
+    return _validation.like_input(score, probability)
 
 
 def isotonic_fit(
@@ -457,8 +452,10 @@ def isotonic_fit(
     array([0.    , 0.3333, 0.5   , 1.    ])
     """
     if not isinstance(increasing, (bool, np.bool_)):
-        raise ValueError(f"increasing must be True or False, got {increasing!r}")
-    values, labels, mass = scores_and_labels(score, target, "score", weights=weights)
+        raise ValueError(
+            f"increasing must be True or False, got {_validation.shown_argument(increasing)}"
+        )
+    values, labels, mass = _validation.scores_and_labels(score, target, "score", weights=weights)
     distinct, position = np.unique(values, return_inverse=True)
     position = position.ravel()  # NumPy 2.0 keeps the input's shape here
     total = np.bincount(position, weights=mass, minlength=len(distinct))
@@ -528,7 +525,7 @@ def isotonic_predict(
     band = np.searchsorted(edges[1:-1], values, side="left")
     result = probabilities[np.minimum(band, len(probabilities) - 1)]
     result = np.where(np.isnan(values), np.nan, result)
-    return like_input(score, result)
+    return _validation.like_input(score, result)
 
 
 def calibration_table(
@@ -616,7 +613,9 @@ def calibration_table(
             "groups, target and probability must have identical indices when they are Series"
         )
     raw_groups = groups
-    groups, target, probability = (as_series(values, name) for name, values in inputs.items())
+    groups, target, probability = (
+        _validation.as_series(values, name) for name, values in inputs.items()
+    )
     if len({len(groups), len(target), len(probability)}) > 1:
         raise ValueError(
             "groups, target and probability must have the same length, "
@@ -624,18 +623,15 @@ def calibration_table(
         )
     if groups.empty:
         raise ValueError("groups, target and probability must contain observations")
-    # For nullable dtypes pandas 2.0 returns an object array, which ~ would negate as integers.
-    invalid = ~target.isin([0, 1]).to_numpy(dtype=bool)
-    if invalid.any():
-        raise ValueError(f"target must contain only 0 and 1, got {target[invalid].tolist()[0]!r}")
-    probabilities = as_real(probability, "probability", booleans=True)
+    _validation.binary_labels(target, both_classes=False)
+    probabilities = _validation.as_real(probability, "probability", booleans=True)
     if np.isnan(probabilities).any():
         raise ValueError("probability must not have missing values")
     _check_unit_interval(probabilities, "probability")
     others = {name: inputs[name] for name in ("target", "probability")}
-    mass = as_weights(weights, raw_groups, of="groups", others=others)
-    counts = group_counts(groups, target.to_numpy(dtype=np.intp), mass)
-    rows = group_rows(groups, counts.index)
+    mass = _validation.as_weights(weights, raw_groups, of="groups", others=others)
+    counts = _counts.group_counts(groups, target.to_numpy(dtype=np.intp), mass)
+    rows = _counts.group_rows(groups, counts.index)
     total = counts.to_numpy().sum(axis=1)
     event = counts.to_numpy()[:, 1]
     # Only observations of zero weight lie in a group that group_counts left out.
@@ -720,7 +716,7 @@ def binomial_test(
     event, total, probability, index = _grade_inputs(event, total, probability)
     pvalue = np.ones(event.shape)
     some = event > 0
-    pvalue[some] = betainc(event[some], total[some] - event[some] + 1, probability[some])
+    pvalue[some] = _stats.betainc(event[some], total[some] - event[some] + 1, probability[some])
     return _pvalues(pvalue, index)
 
 
@@ -790,7 +786,7 @@ def jeffreys_test(
     array([0.9956, 0.6701, 0.032 ])
     """
     event, total, probability, index = _grade_inputs(event, total, probability)
-    return _pvalues(betainc(event + 0.5, total - event + 0.5, probability), index)
+    return _pvalues(_stats.betainc(event + 0.5, total - event + 0.5, probability), index)
 
 
 def hosmer_lemeshow(
@@ -868,8 +864,10 @@ def hosmer_lemeshow(
     >>> print(f"statistic = {statistic:.3f}, pvalue = {pvalue:.3f}")
     statistic = 1.196, pvalue = 0.274
     """
-    if isinstance(ddof, bool) or not is_integral(ddof) or ddof < 0:
-        raise ValueError(f"ddof must be a non-negative integer, got {ddof!r}")
+    if isinstance(ddof, bool) or not _validation.is_integral(ddof) or ddof < 0:
+        raise ValueError(
+            f"ddof must be a non-negative integer, got {_validation.shown_argument(ddof)}"
+        )
     event, total, probability, _ = _grade_inputs(event, total, probability)
     if event.ndim != 1:
         raise ValueError(
@@ -886,7 +884,7 @@ def hosmer_lemeshow(
     expected = total * probability
     with np.errstate(over="ignore"):  # a vanishing expected count gives an infinite statistic
         statistic = float(np.sum((event - expected) ** 2 / (expected * (1 - probability))))
-    return statistic, chi2_sf(statistic, dof)
+    return statistic, _stats.chi2_sf(statistic, dof)
 
 
 def herfindahl_index(counts: npt.ArrayLike, *, normalize: bool = False) -> float:
@@ -942,10 +940,12 @@ def herfindahl_index(counts: npt.ArrayLike, *, normalize: bool = False) -> float
     0.07
     """
     if not isinstance(normalize, (bool, np.bool_)):
-        raise ValueError(f"normalize must be True or False, got {normalize!r}")
+        raise ValueError(
+            f"normalize must be True or False, got {_validation.shown_argument(normalize)}"
+        )
     if np.ndim(counts) != 1:
         raise ValueError(f"counts must be one-dimensional, got {np.ndim(counts)} dimensions")
-    values = as_real(counts, "counts")
+    values = _validation.as_real(counts, "counts")
     invalid = ~np.isfinite(values) | (values < 0)
     if invalid.any():
         raise ValueError(f"counts must be finite and non-negative, got {_first(values, invalid)}")
@@ -962,7 +962,7 @@ def herfindahl_index(counts: npt.ArrayLike, *, normalize: bool = False) -> float
 def master_scale(
     probability: npt.ArrayLike,
     *,
-    boundary: Literal["geometric", "arithmetic"] = "geometric",
+    boundary: typing.Literal["geometric", "arithmetic"] = "geometric",
     labels: npt.ArrayLike | None = None,
 ) -> pd.DataFrame:
     r"""Build a master scale from the PD of each grade.
@@ -1051,8 +1051,11 @@ def master_scale(
     2      0.015         0.02  0.030
     3      0.030         0.04  1.000
     """
-    if boundary not in ("geometric", "arithmetic"):
-        raise ValueError(f"boundary must be 'geometric' or 'arithmetic', got {boundary!r}")
+    if not isinstance(boundary, str) or boundary not in ("geometric", "arithmetic"):  # type: ignore[redundant-expr]  # rejects non-str values
+        raise ValueError(
+            "boundary must be 'geometric' or 'arithmetic', got "
+            f"{_validation.shown_argument(boundary)}"
+        )
     values = _numeric_values(probability, "probability")
     if not len(values):
         raise ValueError("probability must give the PD of at least one grade")
@@ -1168,7 +1171,7 @@ def fit_grade_pd(
     indices = [values.index for values in (event, total) if isinstance(values, pd.Series)]
     if len(indices) == 2 and not indices[0].equals(indices[1]):
         raise ValueError("event and total must have identical indices when they are Series")
-    check_smoothing(smoothing)
+    _validation.check_smoothing(smoothing, booleans=True)
     events = _numeric_values(event, "event", booleans=False)
     totals = _numeric_values(total, "total", booleans=False)
     if len(events) != len(totals):
@@ -1198,10 +1201,10 @@ def fit_grade_pd(
         position = int(np.argmax(unsmoothable))
         label = indices[0][position] if indices else position + 1
         raise ValueError(
-            f"smoothing must be smaller than the total of each grade without defaults, got "
-            f"{shown(smoothing)} for grade {shown(label)} with a total of "
-            f"{_first(totals, unsmoothable)}; pass counts on the scale of observations or a "
-            "smaller smoothing"
+            "smoothing must be smaller than the total of each grade without defaults, got "
+            f"{_validation.shown_argument(smoothing)} for grade {_validation.shown(label)} with a "
+            f"total of {_first(totals, unsmoothable)}; pass counts on the scale of observations "
+            "or a smaller smoothing"
         )
     grade = np.arange(1, len(totals) + 1, dtype=float)
     x, weight = grade[observed], totals[observed]
@@ -1295,7 +1298,7 @@ def assign_grades(probability: npt.ArrayLike, scale: pd.DataFrame) -> pd.Series 
     Categories (3, int64): [1 < 2 < 3]
     """
     upper = _scale_bounds(scale)
-    series = as_series(probability, "probability")
+    series = _validation.as_series(probability, "probability")
     values = _numeric_values(series, "probability")
     _check_unit_interval(values, "probability")
     codes = np.searchsorted(upper[:-1], values, side="left")
@@ -1347,7 +1350,9 @@ def _isotonic_bands(
         or edges[0] != -np.inf
         or edges[-1] != np.inf
     ):
-        raise ValueError(f"edges must increase from -inf to inf, got {edges.tolist()!r}")
+        raise ValueError(
+            f"edges must increase from -inf to inf, got {_validation.shown(edges.tolist())}"
+        )
     if probabilities.shape != (len(edges) - 1,):
         raise ValueError(
             f"probabilities must give one value for each of the {len(edges) - 1} band(s), "
@@ -1364,8 +1369,11 @@ def _grade_labels(labels: npt.ArrayLike | None, grades: int) -> pd.Index:
     if labels is None:
         return pd.Index(np.arange(1, grades + 1), name="grade")
     if isinstance(labels, str):
-        raise ValueError(f"labels must be one label per grade, got the string {labels!r}")
-    series = as_series(labels, "labels")
+        raise ValueError(
+            "labels must be one label per grade, got the string "
+            f"{_validation.shown_argument(labels)}"
+        )
+    series = _validation.as_series(labels, "labels")
     if len(series) != grades:
         raise ValueError(
             f"labels must give one label for each of the {grades} grade(s), got {len(series)}"
@@ -1374,7 +1382,9 @@ def _grade_labels(labels: npt.ArrayLike | None, grades: int) -> pd.Index:
         raise ValueError("labels must not have missing values")
     repeated = series[series.duplicated()]
     if len(repeated):
-        raise ValueError(f"labels must be unique, got {repeated.iloc[0]!r} more than once")
+        raise ValueError(
+            f"labels must be unique, got {_validation.shown(repeated.iloc[0])} more than once"
+        )
     return pd.Index(series.to_numpy(), name="grade")
 
 
@@ -1384,7 +1394,10 @@ def _scale_bounds(scale: pd.DataFrame) -> npt.NDArray[np.float64]:
         raise ValueError(f"scale must be a DataFrame from master_scale, got {type(scale).__name__}")
     absent = [name for name in ("lower", "upper") if name not in scale.columns]
     if absent:
-        raise ValueError(f"scale must have the columns 'lower' and 'upper', missing {absent[0]!r}")
+        raise ValueError(
+            "scale must have the columns 'lower' and 'upper', missing "
+            f"{_validation.shown(absent[0])}"
+        )
     if scale.empty:
         raise ValueError("scale must have at least one grade")
     if isinstance(scale.index, pd.MultiIndex) or scale.index.hasnans or not scale.index.is_unique:
@@ -1398,7 +1411,7 @@ def _scale_bounds(scale: pd.DataFrame) -> npt.NDArray[np.float64]:
     if not (np.diff(np.r_[0.0, upper]) > 0).all() or not np.array_equal(lower[1:], upper[:-1]):
         raise ValueError(
             "scale must have increasing grades, each starting where the one before it ends, "
-            f"got upper bounds {upper.tolist()!r}"
+            f"got upper bounds {_validation.shown(upper.tolist())}"
         )
     return upper
 
@@ -1425,13 +1438,15 @@ def _numeric_values(
     Booleans count as 1 and 0, as in probabilities and scores, unless ``booleans`` is
     False, as for counts and edges.
     """
-    return as_real(as_series(values, name), name, booleans=booleans)
+    return _validation.as_real(_validation.as_series(values, name), name, booleans=booleans)
 
 
 def _odds_ratio(sample_rate: float, population_rate: float) -> float:
     for name, rate in (("sample_rate", sample_rate), ("population_rate", population_rate)):
-        if isinstance(rate, bool) or not is_real(rate) or not 0 < rate < 1:
-            raise ValueError(f"{name} must be strictly between 0 and 1, got {rate!r}")
+        if isinstance(rate, bool) or not _validation.is_real(rate) or not 0 < rate < 1:
+            raise ValueError(
+                f"{name} must be strictly between 0 and 1, got {_validation.shown_argument(rate)}"
+            )
     return (population_rate / (1 - population_rate)) / (sample_rate / (1 - sample_rate))
 
 
@@ -1459,9 +1474,9 @@ def _grade_inputs(
             "event, total and probability must have identical indices when they are Series"
         )
     values = (
-        as_real(event, "event"),
-        as_real(total, "total"),
-        as_real(probability, "probability", booleans=True),
+        _validation.as_real(event, "event"),
+        _validation.as_real(total, "total"),
+        _validation.as_real(probability, "probability", booleans=True),
     )
     try:
         arrays = np.broadcast_arrays(*values)

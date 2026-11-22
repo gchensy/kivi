@@ -16,6 +16,8 @@ import math
 import numpy as np
 import numpy.typing as npt
 
+from . import _validation
+
 _EPS = 1e-15
 _TINY = 1e-300
 _HALF_LOG_2PI = 0.5 * math.log(2 * math.pi)
@@ -182,7 +184,9 @@ def gammaincc(a: float, x: float) -> float:
 def normal_quantile(probability: float) -> float:
     """Return the quantile of the standard normal distribution, for 0 < probability < 1."""
     if not 0 < probability < 1:
-        raise ValueError(f"probability must be between 0 and 1, got {probability!r}")
+        raise ValueError(
+            f"probability must be between 0 and 1, got {_validation.shown_argument(probability)}"
+        )
     if probability > 0.5:
         # 1 - p is exact for p >= 0.5, and the lower tail keeps full relative accuracy.
         return -normal_quantile(1 - probability)

@@ -348,9 +348,17 @@ def test_array_like_inputs_are_matched_by_position(fit):
 @pytest.mark.parametrize(
     "values,target,message",
     [
-        (pd.Series([], dtype=float), pd.Series([], dtype=int), "finite observations"),
-        (pd.Series(["a", "b"]), pd.Series([0, 1]), "Unable to parse string"),
-        (pd.Series([1.0, np.inf]), pd.Series([0, 1]), "finite observations"),
+        (pd.Series([], dtype=float), pd.Series([], dtype=int), "^values have no finite obs"),
+        (
+            pd.Series(["a", "b"]),
+            pd.Series([0, 1]),
+            "values must be numbers or special values, got 'a'",
+        ),
+        (
+            pd.Series([1.0, np.inf]),
+            pd.Series([0, 1]),
+            "values must be finite or special values, got inf",
+        ),
         (pd.Series([1, 2]), pd.Series([0, 2]), "only 0 and 1"),
         (pd.Series([1, 2]), pd.Series([0, None]), "only 0 and 1"),
         (pd.Series([1, 2]), pd.Series([1, 1]), "both 0 and 1"),
@@ -382,10 +390,10 @@ def test_invalid_supervised_inputs(fit, values, target, message):
             [1, 2, np.inf],
             [0, 1, 1],
             [-1],
-            "finite observations only; pass infinite codes in special",
+            "^values must be finite or special values, got inf; pass infinite codes in special",
         ),
         ([1, 2, -1], [0, 0, 1], [-1], "both 0 and 1 where values are observed and not special"),
-        (["N/A", 1, 2], [0, 0, 1], [-1], "Unable to parse string"),
+        (["N/A", 1, 2], [0, 0, 1], [-1], "values must be numbers or special values, got 'N/A'"),
         ([1, 2, -1], [0, 1, 2], [-1], "only 0 and 1"),
     ],
 )
@@ -456,7 +464,7 @@ def test_tree_min_bin_share_is_measured_in_weight():
 def test_supervised_weights_need_matching_index_and_weighted_classes():
     values = pd.Series(np.arange(1, 13))
     target = pd.Series([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1])
-    with pytest.raises(ValueError, match="weights must have the same index as values"):
+    with pytest.raises(ValueError, match="values and weights must have identical indices"):
         chimerge_edges(values, target, weights=pd.Series(np.ones(12), index=np.arange(1, 13)))
     with pytest.raises(ValueError, match="observed with a positive weight"):
         tree_edges(values, target, weights=target.to_numpy(dtype=float))

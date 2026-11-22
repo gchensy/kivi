@@ -6,7 +6,7 @@ public wrappers in `kivi.selection` validate the inputs and label the result.
 """
 
 import math
-from typing import NamedTuple
+import typing
 
 import numpy as np
 import numpy.typing as npt
@@ -19,7 +19,7 @@ _AGAINST = 1e-6
 _MAX_HALVINGS = 30
 
 
-class LogitFit(NamedTuple):
+class LogitFit(typing.NamedTuple):
     """Estimates of a logistic regression, one entry per design column."""
 
     coef: npt.NDArray[np.float64]

@@ -6,16 +6,15 @@ change of each group's share with the group's scorecard points.
 """
 
 import math
-from collections.abc import Mapping
-from numbers import Real
-from typing import Any
+import numbers
+import typing
+from collections import abc
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._counts import concat_groups, divergence, group_counts
-from ._validation import as_count_columns, as_series, as_weights, is_real, shown
+from . import _counts, _validation
 
 __all__ = ["csi_table", "psi", "psi_table"]
 
@@ -105,7 +104,7 @@ def psi_table(
     y            2        3  0.1014
     """
     counts = _sample_counts(reference, current, reference_weights, current_weights)
-    share, _, contribution = divergence(counts.to_numpy(), smoothing)
+    share, _, contribution = _counts.divergence(counts.to_numpy(), smoothing)
     return counts.assign(reference_share=share[:, 0], current_share=share[:, 1], psi=contribution)
 
 
@@ -161,16 +160,16 @@ def psi(
     >>> round(psi([2, 2], [1, 3]), 4)
     0.2747
     """
-    counts = as_count_columns(
+    counts = _validation.as_count_columns(
         reference_counts, current_counts, ("reference_counts", "current_counts")
     )
-    return float(divergence(counts, smoothing)[2].sum())
+    return float(_counts.divergence(counts, smoothing)[2].sum())
 
 
 def csi_table(
     reference: npt.ArrayLike,
     current: npt.ArrayLike,
-    points: pd.DataFrame | pd.Series | Mapping[object, float],
+    points: pd.DataFrame | pd.Series | abc.Mapping[object, float],
     *,
     unseen_points: float | None = None,
     reference_weights: npt.ArrayLike | None = None,
@@ -293,10 +292,13 @@ def csi_table(
     labels, values = _points_by_group(points)
     if unseen_points is not None and (
         isinstance(unseen_points, bool)
-        or not is_real(unseen_points)
+        or not _validation.is_real(unseen_points)
         or not math.isfinite(unseen_points)
     ):
-        raise ValueError(f"unseen_points must be a finite number, got {unseen_points!r}")
+        raise ValueError(
+            "unseen_points must be a finite number, got "
+            f"{_validation.shown_argument(unseen_points)}"
+        )
     counts = _sample_counts(reference, current, reference_weights, current_weights)
     unseen = None if unseen_points is None else float(unseen_points)
     group_points = _match(counts.index, labels, values, unseen)
@@ -318,12 +320,19 @@ def _sample_counts(
 ) -> pd.DataFrame:
     """Count each group in the reference and the current sample, as `psi_table` reports them."""
     raw_reference, raw_current = reference, current
-    reference, current = as_series(reference, "reference"), as_series(current, "current")
+    reference, current = (
+        _validation.as_series(reference, "reference"),
+        _validation.as_series(current, "current"),
+    )
     if reference.empty or current.empty:
         raise ValueError("reference and current must both contain observations")
-    reference_mass = as_weights(reference_weights, raw_reference, "reference_weights", "reference")
-    current_mass = as_weights(current_weights, raw_current, "current_weights", "current")
-    groups = concat_groups(reference, current)
+    reference_mass = _validation.as_weights(
+        reference_weights, raw_reference, "reference_weights", "reference"
+    )
+    current_mass = _validation.as_weights(
+        current_weights, raw_current, "current_weights", "current"
+    )
+    groups = _counts.concat_groups(reference, current)
     side = np.repeat([0, 1], [len(reference), len(current)])
     mass = None
     if reference_mass is not None or current_mass is not None:
@@ -333,17 +342,17 @@ def _sample_counts(
                 np.ones(len(current)) if current_mass is None else current_mass,
             ]
         )
-    counts = group_counts(groups, side, mass)
+    counts = _counts.group_counts(groups, side, mass)
     counts.columns = ["reference", "current"]
     return counts
 
 
 def _points_by_group(
-    points: pd.DataFrame | pd.Series | Mapping[object, float],
+    points: pd.DataFrame | pd.Series | abc.Mapping[object, float],
 ) -> tuple[np.ndarray, np.ndarray]:
     """Return the group labels, as an object array, and the float points of `points`."""
     labels: pd.Series | pd.Index | list[object] | np.ndarray
-    values: pd.Series | list[Any]
+    values: pd.Series | list[typing.Any]
     if isinstance(points, pd.DataFrame):
         if "points" not in points.columns:
             raise ValueError(
@@ -354,7 +363,9 @@ def _points_by_group(
             names.append(pd.Index(points["variable"]))
         for variables in names:
             if variables.nunique() > 1:
-                examples = ", ".join(shown(variable) for variable in variables.unique()[:5])
+                examples = ", ".join(
+                    _validation.shown(variable) for variable in variables.unique()[:5]
+                )
                 raise ValueError(
                     f"points must hold the groups of one variable, got {variables.nunique()} "
                     f"variables: {examples}; select one with table.loc[[variable]]"
@@ -363,7 +374,7 @@ def _points_by_group(
         values = points["points"]
     elif isinstance(points, pd.Series):
         labels, values = points.index, points
-    elif isinstance(points, Mapping):
+    elif isinstance(points, abc.Mapping):
         labels, values = list(points.keys()), list(points.values())
     else:
         raise ValueError(
@@ -374,15 +385,23 @@ def _points_by_group(
     labels = np.fromiter(labels, dtype=object, count=len(labels))
     values = pd.Series(values, dtype=object).tolist()
     for label, value in zip(labels, values, strict=True):
-        if pd.isna(value) or (isinstance(value, Real) and not math.isfinite(value)):
-            raise ValueError(f"points must be finite, got {value!r} for group {label!r}")
-        if isinstance(value, (bool, np.bool_)) or not isinstance(value, Real):
-            raise ValueError(f"points must be numbers, got {value!r} for group {label!r}")
+        if pd.isna(value) or (isinstance(value, numbers.Real) and not math.isfinite(value)):
+            raise ValueError(
+                f"points must be finite, got {_validation.shown(value)} for group "
+                f"{_validation.shown(label)}"
+            )
+        if isinstance(value, (bool, np.bool_)) or not isinstance(value, numbers.Real):
+            raise ValueError(
+                f"points must be numbers, got {_validation.shown(value)} for group "
+                f"{_validation.shown(label)}"
+            )
     missing = pd.isna(labels)
     index = pd.Index(labels[~missing], dtype=object)
     if index.has_duplicates or missing.sum() > 1:
         repeated = labels[missing][0] if missing.sum() > 1 else index[index.duplicated()][0]
-        raise ValueError(f"points must give each group once, got {repeated!r} twice")
+        raise ValueError(
+            f"points must give each group once, got {_validation.shown(repeated)} twice"
+        )
     return labels, np.asarray(values, dtype=float)
 
 
@@ -406,9 +425,9 @@ def _match(
     if not found.all():
         if unseen is None:
             absent = levels[~found]
-            shown = ", ".join(repr(label) for label in absent[:5])
+            examples = ", ".join(_validation.shown(label) for label in absent[:5])
             raise ValueError(
-                f"{len(absent)} group(s) have no points, such as {shown}; "
+                f"{len(absent)} group(s) have no points, such as {examples}; "
                 "pass unseen_points to give them points"
             )
         result[~found] = unseen

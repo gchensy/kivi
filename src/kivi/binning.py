@@ -11,17 +11,14 @@ group, which ``group_categories`` applies to any sample.
 """
 
 import math
-import warnings
-from collections.abc import Hashable, Iterable, Mapping
-from numbers import Integral, Real
-from typing import Any, Literal
+import typing
+from collections import abc
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._counts import divergence
-from ._validation import as_series, as_weights, first_value, is_integral, is_real, shown
+from . import _counts, _edges, _special, _validation
 
 __all__ = [
     "bin_edges",
@@ -39,7 +36,7 @@ def bin_edges(
     values: npt.ArrayLike,
     bins: int = 5,
     *,
-    method: Literal["quantile", "uniform"] = "quantile",
+    method: typing.Literal["quantile", "uniform"] = "quantile",
     special: npt.ArrayLike | None = None,
     weights: npt.ArrayLike | None = None,
 ) -> npt.NDArray[np.float64]:
@@ -125,52 +122,7 @@ def bin_edges(
     >>> bin_edges([-1, -1, -1, 10, 20, 30, 40], bins=2, special=[-1])
     array([-inf,  25.,  inf])
     """
-    return _fit_edges(values, bins, method=method, special=special, weights=weights)
-
-
-def _fit_edges(
-    values: npt.ArrayLike,
-    bins: int,
-    *,
-    method: str = "quantile",
-    special: npt.ArrayLike | None = None,
-    weights: npt.ArrayLike | None = None,
-    advice: str = "consider passing it in special",
-    stacklevel: int = 3,
-) -> npt.NDArray[np.float64]:
-    """Fit the edges of `bin_edges`.
-
-    `advice` ends the warning about tied edges. Callers without a `special`
-    argument pass their own, and a `stacklevel` that points the warning at
-    the line that called them.
-    """
-    _check_count(bins, "bins")
-    if method not in ("quantile", "uniform"):
-        raise ValueError(f"method must be 'quantile' or 'uniform', got {method!r}")
-    observed, mass = _observed(
-        as_series(values, "values"), _special_values(special), as_weights(weights, values)
-    )
-    if method == "quantile":
-        probabilities = np.linspace(0, 1, bins + 1)
-        if mass is None:
-            edges = np.quantile(observed, probabilities)
-        else:
-            edges = _weighted_quantile(observed, mass, probabilities)
-    else:
-        edges = np.linspace(observed.min(), observed.max(), bins + 1)
-    edges = np.r_[-np.inf, np.unique(edges)[1:-1], np.inf]
-    if len(edges) - 1 < bins:
-        levels, inverse = np.unique(observed, return_inverse=True)
-        totals = np.bincount(inverse, weights=mass)
-        top = totals.argmax()
-        warnings.warn(
-            f"tied edges leave {len(edges) - 1} of the {bins} requested bins; the value "
-            f"{levels[top]:g} makes up {totals[top] / totals.sum():.0%} of the fitted values, "
-            f"{advice}",
-            UserWarning,
-            stacklevel=stacklevel,
-        )
-    return edges
+    return _edges.fit_edges(values, bins, method=method, special=special, weights=weights)
 
 
 def cut(
@@ -240,21 +192,31 @@ def cut(
     dtype: category
     Categories (3, object): [-1, (-inf, 25.0], (25.0, inf]]
     """
-    series = as_series(values, "values")
-    special = _special_values(special)
-    position = _special_positions(series, special)
+    series = _validation.as_series(values, "values")
+    special = _special.special_values(special)
+    position = _special.special_positions(series, special)
     is_special = position >= 0
-    numbers = pd.to_numeric(series.mask(is_special), errors="raise")
+    numbers = _validation.as_numbers(series.mask(is_special), "values")
     infinite = np.isinf(numbers.to_numpy(dtype=float, na_value=np.nan))
     if infinite.any():
         raise ValueError(
             "values must be finite or special values, got "
-            f"{shown(numbers[infinite].iloc[0])}; pass infinite codes in special"
+            f"{_validation.shown(numbers[infinite].iloc[0])}; pass infinite codes in special"
         )
-    intervals = pd.cut(
-        numbers,
-        edges,  # type: ignore[arg-type]  # pandas.cut takes any array_like of edges
-    )
+    try:
+        intervals = pd.cut(
+            numbers,
+            edges,  # type: ignore[arg-type]  # pandas.cut takes any array_like of edges
+        )
+    except (TypeError, ValueError) as error:
+        if _validation.is_integral(edges) and not isinstance(edges, bool):
+            # pandas.cut reads an integer as a number of equal-width bins, which cut does not
+            # document; its own message explains why that number could not be used.
+            raise
+        # pandas names the argument bins and suggests a duplicates keyword that cut lacks.
+        raise ValueError(
+            f"edges must be increasing numbers, got {_validation.shown_argument(edges)}"
+        ) from error
     if special.empty:
         return intervals if isinstance(values, pd.Series) else intervals.array
     codes = intervals.cat.codes.to_numpy()
@@ -365,10 +327,12 @@ def chimerge_edges(
     >>> chimerge_edges(values, target, max_bins=3, alpha=None)
     array([-inf,   4.,   9.,  inf])
     """
-    _check_count(max_bins, "max_bins")
-    _check_count(initial_bins, "initial_bins")
-    if alpha is not None and not (is_real(alpha) and 0 < alpha < 1):
-        raise ValueError(f"alpha must be None or between 0 and 1, got {alpha!r}")
+    _validation.check_count(max_bins, "max_bins")
+    _validation.check_count(initial_bins, "initial_bins")
+    if alpha is not None and not (_validation.is_real(alpha) and 0 < alpha < 1):
+        raise ValueError(
+            f"alpha must be None or between 0 and 1, got {_validation.shown_argument(alpha)}"
+        )
     observed, labels, mass = _labeled(values, target, special, weights)
     interior, counts = _fine_bins(observed, labels, initial_bins, mass)
     while len(counts) > 1:
@@ -387,7 +351,7 @@ def tree_edges(
     *,
     max_bins: int = 5,
     min_bin_share: float = 0.05,
-    criterion: Literal["entropy", "gini"] = "entropy",
+    criterion: typing.Literal["entropy", "gini"] = "entropy",
     special: npt.ArrayLike | None = None,
     weights: npt.ArrayLike | None = None,
 ) -> npt.NDArray[np.float64]:
@@ -474,15 +438,20 @@ def tree_edges(
     >>> tree_edges(values, target, max_bins=4, min_bin_share=0.1)
     array([-inf,   4.,   6.,   9.,  inf])
     """
-    _check_count(max_bins, "max_bins")
+    _validation.check_count(max_bins, "max_bins")
     if (
         isinstance(min_bin_share, bool)
-        or not is_real(min_bin_share)
+        or not _validation.is_real(min_bin_share)
         or not 0 <= min_bin_share <= 0.5
     ):
-        raise ValueError(f"min_bin_share must be between 0 and 0.5, got {min_bin_share!r}")
-    if criterion not in ("entropy", "gini"):
-        raise ValueError(f"criterion must be 'entropy' or 'gini', got {criterion!r}")
+        raise ValueError(
+            "min_bin_share must be between 0 and 0.5, got "
+            f"{_validation.shown_argument(min_bin_share)}"
+        )
+    if not isinstance(criterion, str) or criterion not in ("entropy", "gini"):  # type: ignore[redundant-expr]  # rejects non-str values
+        raise ValueError(
+            f"criterion must be 'entropy' or 'gini', got {_validation.shown_argument(criterion)}"
+        )
     observed, labels, mass = _labeled(values, target, special, weights)
     unique, position = np.unique(observed, return_inverse=True)
     event_mass = labels if mass is None else labels * mass
@@ -532,7 +501,7 @@ def monotonic_edges(
     target: npt.ArrayLike,
     *,
     max_bins: int | None = 5,
-    direction: Literal["auto", "increasing", "decreasing"] = "auto",
+    direction: typing.Literal["auto", "increasing", "decreasing"] = "auto",
     initial_bins: int = 20,
     smoothing: float = 0.5,
     special: npt.ArrayLike | None = None,
@@ -626,11 +595,12 @@ def monotonic_edges(
     array([-inf,  inf])
     """
     if max_bins is not None:
-        _check_count(max_bins, "max_bins")
-    _check_count(initial_bins, "initial_bins")
-    if direction not in ("auto", "increasing", "decreasing"):
+        _validation.check_count(max_bins, "max_bins")
+    _validation.check_count(initial_bins, "initial_bins")
+    if not isinstance(direction, str) or direction not in ("auto", "increasing", "decreasing"):  # type: ignore[redundant-expr]  # rejects non-str values
         raise ValueError(
-            f"direction must be 'auto', 'increasing' or 'decreasing', got {direction!r}"
+            "direction must be 'auto', 'increasing' or 'decreasing', got "
+            f"{_validation.shown_argument(direction)}"
         )
     observed, labels, mass = _labeled(values, target, special, weights)
     fine = _fine_bins(observed, labels, initial_bins, mass)
@@ -655,7 +625,7 @@ def category_groups(
     rare_label: str | float = "other",
     special: npt.ArrayLike | None = None,
     weights: npt.ArrayLike | None = None,
-) -> dict[Hashable, Hashable]:
+) -> dict[abc.Hashable, abc.Hashable]:
     """Fit a grouping that pools the rare categories of a reference sample.
 
     A category is rare when it makes up less than ``min_share`` of the fitted
@@ -738,19 +708,20 @@ def category_groups(
     _check_share(min_share, "min_share", 1)
     if (
         isinstance(min_count, bool)
-        or not is_real(min_count)
+        or not _validation.is_real(min_count)
         or not (math.isfinite(min_count) and min_count >= 0)
     ):
         raise ValueError(
-            f"min_count must be a finite, non-negative number, got {first_value(min_count)!r}"
+            "min_count must be a finite, non-negative number, got "
+            f"{_validation.shown_argument(min_count)}"
         )
     if (
         isinstance(rare_label, (bool, np.bool_))
-        or not (isinstance(rare_label, str) or is_real(rare_label))
-        or (is_real(rare_label) and math.isnan(rare_label))
+        or not (isinstance(rare_label, str) or _validation.is_real(rare_label))
+        or (_validation.is_real(rare_label) and math.isnan(rare_label))
     ):
         raise ValueError(
-            f"rare_label must be a string or a number, got {first_value(rare_label)!r}"
+            f"rare_label must be a string or a number, got {_validation.shown_argument(rare_label)}"
         )
     rare_label = _python(rare_label)
     labels, totals, codes = _category_counts(values, None, special, weights)
@@ -758,8 +729,8 @@ def category_groups(
     kept = [label for label, is_rare in zip(labels, rare, strict=True) if not is_rare]
     if rare.any() and rare_label in {*kept, *codes}:
         raise ValueError(
-            f"rare_label {rare_label!r} is the label of a category that is not rare or of a "
-            "special code; choose another rare_label"
+            f"rare_label {_validation.shown_argument(rare_label)} is the label of a category that "
+            "is not rare or of a special code; choose another rare_label"
         )
     groups = {code: code for code in codes}
     groups.update((label, label) for label in kept)
@@ -779,7 +750,7 @@ def chimerge_groups(
     smoothing: float = 0.5,
     special: npt.ArrayLike | None = None,
     weights: npt.ArrayLike | None = None,
-) -> dict[Hashable, Hashable]:
+) -> dict[abc.Hashable, abc.Hashable]:
     """Fit a grouping that merges categories with similar event rates by ChiMerge.
 
     The categories are sorted by their WOE, with zero counts smoothed as in
@@ -886,16 +857,13 @@ def chimerge_groups(
     >>> chimerge_groups(values, target, max_groups=2, alpha=None)
     {'c': 'c, a', 'a': 'c, a', 'b': 'b, d', 'd': 'b, d'}
     """
-    _check_count(max_groups, "max_groups")
-    if alpha is not None and not (is_real(alpha) and 0 < alpha < 1):
-        raise ValueError(f"alpha must be None or between 0 and 1, got {first_value(alpha)!r}")
+    _validation.check_count(max_groups, "max_groups")
+    if alpha is not None and not (_validation.is_real(alpha) and 0 < alpha < 1):
+        raise ValueError(
+            f"alpha must be None or between 0 and 1, got {_validation.shown_argument(alpha)}"
+        )
     _check_share(min_group_share, "min_group_share", 0.5)
-    if (
-        isinstance(smoothing, bool)
-        or not is_real(smoothing)
-        or not (math.isfinite(smoothing) and smoothing > 0)
-    ):
-        raise ValueError(f"smoothing must be finite and positive, got {first_value(smoothing)!r}")
+    _validation.check_smoothing(smoothing)
     labels, counts, codes = _category_counts(values, target, special, weights)
     order = np.argsort(_odds(counts, smoothing), kind="stable")
     labels = [labels[position] for position in order]
@@ -907,8 +875,8 @@ def chimerge_groups(
         label = _group_label(names)
         if label in taken:
             raise ValueError(
-                f"two groups would have the label {label!r}; rename the categories whose "
-                "labels contain ', '"
+                f"two groups would have the label {_validation.shown(label)}; rename the "
+                "categories whose labels contain ', '"
             )
         taken.add(label)
         groups.update((name, label) for name in names)
@@ -917,9 +885,9 @@ def chimerge_groups(
 
 def group_categories(
     values: npt.ArrayLike,
-    groups: Mapping[Hashable, Hashable],
+    groups: abc.Mapping[abc.Hashable, abc.Hashable],
     *,
-    unseen: Hashable = "raise",
+    unseen: abc.Hashable = "raise",
 ) -> pd.Series | pd.Categorical:
     """Assign category labels to the groups of a fitted grouping.
 
@@ -995,30 +963,31 @@ def group_categories(
     Categories (2, object): ['a', 'b, c']
     """
     mapping = _checked_groups(groups, "groups")
-    series = as_series(values, "values")
-    group_of_key, labels = pd.factorize(_object_index(mapping.values()))
+    series = _validation.as_series(values, "values")
+    group_of_key, labels = pd.factorize(_validation.object_index(mapping.values()))
     raise_unseen = isinstance(unseen, str) and unseen == "raise"
     if not raise_unseen:
         found = -1
-        if pd.api.types.is_scalar(unseen) and not _is_missing(unseen):
-            found = int(labels.get_indexer(_object_index([unseen]))[0])
+        if pd.api.types.is_scalar(unseen) and not _validation.is_missing(unseen):
+            found = int(labels.get_indexer(_validation.object_index([unseen]))[0])
         if found < 0:
             raise ValueError(
-                f"unseen must be 'raise' or one of the groups, got {first_value(unseen)!r}"
+                "unseen must be 'raise' or one of the groups, got "
+                f"{_validation.shown_argument(unseen)}"
             )
     levels: pd.Index | np.ndarray
     position, levels = pd.factorize(series, sort=False)
     levels = np.asarray(levels, dtype=object)
-    key = _object_index(mapping).get_indexer(_object_index(levels))
+    key = _validation.object_index(mapping).get_indexer(_validation.object_index(levels))
     level_group = np.r_[group_of_key, -1][key]
     unmapped = key < 0
     if unmapped.any():
         if raise_unseen:
-            shown = ", ".join(repr(_python(level)) for level in levels[unmapped][:5])
+            examples = ", ".join(_validation.shown(level) for level in levels[unmapped][:5])
             count = int(unmapped.sum())
             raise ValueError(
                 f"values have {count} {'category' if count == 1 else 'categories'} that groups "
-                f"does not map, such as {shown}; pass unseen to give them a group"
+                f"does not map, such as {examples}; pass unseen to give them a group"
             )
         level_group[unmapped] = found
     grouped = pd.Categorical.from_codes(np.r_[level_group, -1][position], categories=labels)
@@ -1027,50 +996,34 @@ def group_categories(
     return grouped
 
 
-def _check_count(value: int, name: str) -> None:
-    if isinstance(value, bool) or not is_integral(value) or value < 1:
-        raise ValueError(f"{name} must be a positive integer, got {value!r}")
-
-
 def _check_share(value: float, name: str, upper: float) -> None:
-    if isinstance(value, bool) or not is_real(value) or not 0 <= value <= upper:
-        raise ValueError(f"{name} must be between 0 and {upper:g}, got {first_value(value)!r}")
+    if isinstance(value, bool) or not _validation.is_real(value) or not 0 <= value <= upper:
+        raise ValueError(
+            f"{name} must be between 0 and {upper:g}, got {_validation.shown_argument(value)}"
+        )
 
 
-def _python(value: object) -> Any:
+def _python(value: object) -> typing.Any:
     """Return a NumPy number, boolean or string as the Python scalar it holds."""
     if isinstance(value, (np.number, np.bool_, np.str_)):
         return value.item()
     return value
 
 
-def _is_missing(value: object) -> bool:
-    missing = pd.isna(value)  # type: ignore[call-overload]  # pandas.isna takes any object
-    return isinstance(missing, (bool, np.bool_)) and bool(missing)
-
-
-def _object_index(values: Iterable[Hashable]) -> pd.Index:
-    """Return labels as an object Index, which matches them by equality."""
-    labels = list(values)
-    array = np.empty(len(labels), dtype=object)
-    array[:] = labels
-    return pd.Index(array, dtype=object)
-
-
-def _checked_groups(groups: object, argument: str) -> dict[Hashable, Hashable]:
+def _checked_groups(groups: object, argument: str) -> dict[abc.Hashable, abc.Hashable]:
     """Return a grouping as a dict of Python labels, rejecting missing and non-scalar labels."""
-    if not isinstance(groups, Mapping):
+    if not isinstance(groups, abc.Mapping):
         raise ValueError(
             f"{argument} must be a mapping from category to group, got {type(groups).__name__}"
         )
-    checked: dict[Hashable, Hashable] = {}
+    checked: dict[abc.Hashable, abc.Hashable] = {}
     for category, group in groups.items():
         for label, role in ((category, "category"), (group, "group")):
-            if not pd.api.types.is_scalar(label) or _is_missing(label):
+            if not pd.api.types.is_scalar(label) or _validation.is_missing(label):
                 raise ValueError(
                     f"{argument} must map non-missing scalar categories to non-missing scalar "
-                    f"groups, got the {role} {first_value(label)!r}; missing values always form "
-                    "their own group"
+                    f"groups, got the {role} {_validation.shown(label)}; missing values always "
+                    "form their own group"
                 )
         checked[_python(category)] = _python(group)
     return checked
@@ -1094,31 +1047,31 @@ def _category_counts(
     if target is not None and isinstance(values, pd.Series) and isinstance(target, pd.Series):
         if not values.index.equals(target.index):
             raise ValueError("values and target must have identical indices")
-    series = as_series(values, "values")
+    series = _validation.as_series(values, "values")
     if target is not None:
-        target = as_series(target, "target")
+        target = _validation.as_series(target, "target")
         if len(series) != len(target):
             raise ValueError(
                 f"values and target must have the same length, got {len(series)} and {len(target)}"
             )
-        if not target.isin([0, 1]).all():
-            raise ValueError("target must contain only 0 and 1 and no missing labels")
-    codes = _special_values(special)
-    mass = as_weights(weights, raw_values, others={"target": raw_target})
+        _validation.binary_labels(target, both_classes=False)
+    codes = _special.special_values(special)
+    mass = _validation.as_weights(weights, raw_values, others={"target": raw_target})
     levels: pd.Index | np.ndarray
     position, levels = pd.factorize(series, sort=isinstance(series.dtype, pd.CategoricalDtype))
     levels = np.asarray(levels, dtype=object)
     fitted = position >= 0
     excluded = ["missing"]
     if special is not None:
-        found = codes.get_indexer(_object_index(levels))
+        found = codes.get_indexer(_validation.object_index(levels))
         is_special = found >= 0
         # True == 1, so a numeric code would match a boolean category, which cut never does.
         flags = [i for i in np.flatnonzero(is_special) if isinstance(levels[i], (bool, np.bool_))]
         if flags:
             raise ValueError(
-                f"special must not match booleans, got {_python(codes[found[flags[0]]])!r}, "
-                f"which equals the value {_python(levels[flags[0]])!r}"
+                "special must not match booleans, got "
+                f"{_validation.shown(codes[found[flags[0]]])}, "
+                f"which equals the value {_validation.shown(levels[flags[0]])}"
             )
         fitted &= ~np.r_[is_special, False][position]
         excluded.append("special")
@@ -1226,118 +1179,14 @@ def _odds(counts: np.ndarray, smoothing: float) -> np.ndarray:
     return adjusted[:, 1] / adjusted[:, 0]
 
 
-def _group_label(names: list) -> Hashable:
+def _group_label(names: list) -> abc.Hashable:
     """Label of a group: its one category, or up to five of its categories joined by ", "."""
     if len(names) == 1:
         return names[0]
     if len(names) <= _LABEL_CATEGORIES:
         return ", ".join(str(name) for name in names)
-    shown = ", ".join(str(name) for name in names[: _LABEL_CATEGORIES - 1])
-    return f"{shown}, ... (+{len(names) - _LABEL_CATEGORIES + 1})"
-
-
-def _observed(
-    values: pd.Series,
-    special: pd.Index | None = None,
-    weights: np.ndarray | None = None,
-    *,
-    is_special: np.ndarray | None = None,
-) -> tuple[np.ndarray, np.ndarray | None]:
-    """Finite numeric values and their weights, without missing, special or zero-weight values.
-
-    ``is_special`` is the special mask when the caller has already computed it.
-    """
-    keep = values.notna().to_numpy(dtype=bool, copy=True)
-    excluded = ["missing"]
-    if special is not None:
-        if is_special is None:
-            is_special = _special_positions(values, special) >= 0
-        keep &= ~is_special
-        excluded.append("special")
-    if weights is not None:
-        keep &= weights > 0
-        excluded.append("zero-weight")
-    observed = pd.to_numeric(values[keep], errors="raise").to_numpy(dtype=float)
-    if not len(observed):
-        names = (
-            ", ".join(excluded[:-1]) + " and " + excluded[-1] if len(excluded) > 1 else "missing"
-        )
-        raise ValueError(f"reference values have no finite observations apart from {names} values")
-    if not np.isfinite(observed).all():
-        hint = "; pass infinite codes in special" if special is not None else ""
-        raise ValueError(f"reference values must contain finite observations only{hint}")
-    return observed, None if weights is None else weights[keep]
-
-
-def _weighted_quantile(
-    values: np.ndarray, weights: np.ndarray, probabilities: np.ndarray
-) -> np.ndarray:
-    """Weighted quantiles by the inverted CDF, as NumPy's ``method="inverted_cdf"``.
-
-    A probability within a relative 1e-10 of a step of the CDF selects that
-    step, so rounding in ``probabilities`` (``np.linspace(0, 1, 6)[3]`` is
-    0.6000000000000001) neither skips a value nor depends on the weight scale.
-    """
-    order = np.argsort(values, kind="stable")
-    cumulative = np.cumsum(weights[order])
-    targets = (np.asarray(probabilities) - 1e-10) * cumulative[-1]
-    index = np.searchsorted(cumulative, targets, side="left")
-    return values[order][np.minimum(index, len(values) - 1)]
-
-
-def _special_values(special: npt.ArrayLike | None) -> pd.Index:
-    if special is None:
-        return pd.Index([], dtype=object)
-    codes = as_series(special, "special")
-    # Before pd.unique, which would merge True into 1 and False into 0.
-    flags = [value for value in codes if isinstance(value, (bool, np.bool_))]
-    if flags or pd.api.types.is_bool_dtype(codes.dtype):
-        raise ValueError(f"special must not contain booleans, got {(flags or [True])[0]!r}")
-    special = pd.Index(pd.unique(codes), dtype=object)
-    if special.hasnans:
-        raise ValueError(
-            "special must not contain missing values; they always form their own group"
-        )
-    return special
-
-
-def _special_positions(values: pd.Series, special: pd.Index) -> np.ndarray:
-    """Position of each value's code in ``special``, or -1 for other values.
-
-    Values that are not numbers are matched both as given and after
-    ``pandas.to_numeric``, so the string ``"-1"`` matches the code ``-1``.
-    """
-    position = np.full(len(values), -1, dtype=np.intp)
-    if special.empty or pd.api.types.is_bool_dtype(values.dtype):
-        # Booleans are not numbers here, although True == 1 and False == 0.
-        return position
-    observed = values.notna().to_numpy(dtype=bool)
-    if pd.api.types.is_numeric_dtype(values.dtype):
-        # Fast path: look the numbers up among the numeric codes only. Integer
-        # values compare with integer codes, so 2**53 + 1 never matches 2.0**53.
-        integer = pd.api.types.is_integer_dtype(values.dtype)
-        numeric: list[int] | pd.Series
-        numeric, codes = [], []
-        for i, code in enumerate(special):
-            if not isinstance(code, Real):
-                continue
-            if integer and not isinstance(code, Integral):
-                if not (math.isfinite(code) and float(code).is_integer()):
-                    continue
-                code = int(code)  # type: ignore[call-overload]  # float-like codes define __int__
-            numeric.append(i)
-            codes.append(code)
-        if numeric:
-            found = pd.Index(codes).get_indexer(values[observed])
-            position[observed] = np.where(found >= 0, np.asarray(numeric)[found], -1)
-        return position
-    candidates = pd.Index(values[observed].to_numpy(dtype=object), dtype=object)
-    found = special.get_indexer(candidates)
-    unmatched = found < 0
-    numeric = pd.to_numeric(pd.Series(candidates[unmatched]), errors="coerce")
-    found[unmatched] = special.get_indexer(pd.Index(numeric.to_numpy(dtype=object)))
-    position[observed] = found
-    return position
+    head = ", ".join(str(name) for name in names[: _LABEL_CATEGORIES - 1])
+    return f"{head}, ... (+{len(names) - _LABEL_CATEGORIES + 1})"
 
 
 def _labeled(
@@ -1355,24 +1204,26 @@ def _labeled(
     if isinstance(values, pd.Series) and isinstance(target, pd.Series):
         if not values.index.equals(target.index):
             raise ValueError("values and target must have identical indices")
-    values, target = as_series(values, "values"), as_series(target, "target")
+    values, target = (
+        _validation.as_series(values, "values"),
+        _validation.as_series(target, "target"),
+    )
     if len(values) != len(target):
         raise ValueError(
             f"values and target must have the same length, got {len(values)} and {len(target)}"
         )
-    if not target.isin([0, 1]).all():
-        raise ValueError("target must contain only 0 and 1 and no missing labels")
-    mass = as_weights(weights, raw_values, others={"target": raw_target})
+    _validation.binary_labels(target, both_classes=False)
+    mass = _validation.as_weights(weights, raw_values, others={"target": raw_target})
     fitted = values.notna().to_numpy(dtype=bool, copy=True)
     if special is not None:
-        special = _special_values(special)
-        is_special = _special_positions(values, special) >= 0
+        special = _special.special_values(special)
+        is_special = _special.special_positions(values, special) >= 0
         fitted &= ~is_special
     else:
         is_special = None
     if mass is not None:
         fitted &= mass > 0
-    observed, mass = _observed(values, special, mass, is_special=is_special)
+    observed, mass = _edges.observed(values, special, mass, is_special=is_special)
     labels = target.to_numpy()[fitted].astype(np.intp)
     if labels.min() == labels.max():
         rows = "observed and not special" if special is not None else "observed"
@@ -1394,7 +1245,7 @@ def _fine_bins(
         if weights is None:
             quantiles = np.quantile(observed, probabilities)
         else:
-            quantiles = _weighted_quantile(observed, weights, probabilities)
+            quantiles = _edges.weighted_quantile(observed, weights, probabilities)
         interior = np.unique(quantiles)[1:-1]
     position = np.searchsorted(interior, observed, side="left")
     counts: np.ndarray = np.bincount(
@@ -1436,11 +1287,11 @@ def _gini(rate: np.ndarray) -> np.ndarray:
 
 
 def _woe(counts: np.ndarray, smoothing: float) -> np.ndarray:
-    return divergence(counts, smoothing)[1]
+    return _counts.divergence(counts, smoothing)[1]
 
 
 def _iv(counts: np.ndarray, smoothing: float) -> float:
-    return float(divergence(counts, smoothing)[2].sum())
+    return float(_counts.divergence(counts, smoothing)[2].sum())
 
 
 def _monotonic(

@@ -19,8 +19,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._validation import as_series, is_integral, is_real, like_input, scores_and_labels
-from .metrics import _band_edges
+from . import _edges, _validation
 
 __all__ = ["fuzzy_augmentation", "parceling", "reweighting"]
 
@@ -194,8 +193,9 @@ def parceling(
         if `bins` is neither a positive integer nor at least two increasing
         edges, or a score lies outside the edges; if a band holds rejected
         applicants but no accepted one, so that its bad rate is unknown; or
-        if `factor` is not a positive finite number or `expected` is not a
-        boolean.
+        if `factor` is not a positive finite number, `expected` is not a
+        boolean, or `rng` is not a seed or generator that
+        `numpy.random.default_rng` accepts.
 
     Warns
     -----
@@ -260,8 +260,10 @@ def parceling(
     """
     _check_factor(factor)
     if not isinstance(expected, (bool, np.bool_)):
-        raise ValueError(f"expected must be True or False, got {expected!r}")
-    values, labels, _ = scores_and_labels(score, target, "score")
+        raise ValueError(
+            f"expected must be True or False, got {_validation.shown_argument(expected)}"
+        )
+    values, labels, _ = _validation.scores_and_labels(score, target, "score")
     rejects, reject_values = _scores(reject_score, "reject_score")
     edges, accepted, rejected = _bands(values, reject_values, bins, "its bad rate is unknown")
     size = len(edges) - 1
@@ -271,7 +273,7 @@ def parceling(
         rate = np.minimum(factor * bad / total, 1.0)
     if expected:
         return _inferred(rejects.index, rate[rejected])
-    generator = np.random.default_rng(rng)
+    generator = _validation.as_generator(rng)
     inferred = np.zeros(len(reject_values), dtype=np.int64)
     for band in np.flatnonzero(np.bincount(rejected, minlength=size)):
         members = np.flatnonzero(rejected == band)
@@ -382,13 +384,13 @@ def reweighting(
     total = np.bincount(accepted, minlength=size)
     with np.errstate(invalid="ignore", divide="ignore"):
         weight = (total + np.bincount(rejected, minlength=size)) / total
-    result = like_input(score, weight[accepted])
+    result = _validation.like_input(score, weight[accepted])
     return result.rename("weight") if isinstance(result, pd.Series) else result  # type: ignore[return-value]  # one-dimensional, never a float
 
 
 def _scores(values: npt.ArrayLike, name: str) -> tuple[pd.Series, npt.NDArray[np.float64]]:
     """Return `values` as a Series and as finite floats, or raise naming `name`."""
-    series = as_series(values, name)
+    series = _validation.as_series(values, name)
     if not len(series):
         raise ValueError(f"{name} must not be empty")
     dtype = series.dtype
@@ -405,8 +407,15 @@ def _scores(values: npt.ArrayLike, name: str) -> tuple[pd.Series, npt.NDArray[np
 
 
 def _check_factor(factor: float) -> None:
-    if isinstance(factor, bool) or not is_real(factor) or not math.isfinite(factor) or factor <= 0:
-        raise ValueError(f"factor must be a positive finite number, got {factor!r}")
+    if (
+        isinstance(factor, bool)
+        or not _validation.is_real(factor)
+        or not math.isfinite(factor)
+        or factor <= 0
+    ):
+        raise ValueError(
+            f"factor must be a positive finite number, got {_validation.shown_argument(factor)}"
+        )
 
 
 def _bands(
@@ -414,14 +423,14 @@ def _bands(
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Return the band edges and the band of every accepted and rejected score."""
     pooled = np.concatenate([values, reject_values])
-    if not is_integral(bins) or isinstance(bins, bool):
-        edges = _band_edges(pooled, bins, None)
+    if not _validation.is_integral(bins) or isinstance(bins, bool):
+        edges = _edges.band_edges(pooled, bins, None)
     else:
         # Warn about tied scores here instead, in terms of bands and at the caller of
         # parceling or reweighting.
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UserWarning)
-            edges = _band_edges(pooled, bins, None)
+            edges = _edges.band_edges(pooled, bins, None)
         if len(edges) - 1 < bins:
             levels, counts = np.unique(pooled, return_counts=True)
             top = int(counts.argmax())

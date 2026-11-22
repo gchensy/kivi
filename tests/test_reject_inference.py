@@ -309,6 +309,8 @@ def test_scores_outside_the_edges_raise():
         ({"bins": 0}, "bins must be a positive integer or at least two increasing edges, got 0"),
         ({"bins": [0, 1, 0.5]}, "bins must be a positive integer or at least two increasing"),
         ({"expected": "yes"}, "expected must be True or False, got 'yes'"),
+        ({"rng": 1.5}, "rng must be None, an integer, a SeedSequence or a Generator, got 1.5"),
+        ({"rng": "a"}, "rng must be None, an integer, a SeedSequence or a Generator, got 'a'"),
     ],
 )
 def test_parceling_rejects_invalid_arguments(kwargs, message):

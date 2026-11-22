@@ -1,6 +1,7 @@
 import importlib
 import importlib.metadata
 import inspect
+import re
 
 import numpy as np
 import pandas as pd
@@ -58,14 +59,14 @@ def test_bin_edges_accepts_array_like(values):
 @pytest.mark.parametrize(
     "values,bins,method,message",
     [
-        ([], 2, "quantile", "no finite observations apart from missing and special values"),
-        ([None], 2, "quantile", "no finite observations apart from missing and special values"),
-        ([np.inf], 2, "quantile", "finite observations only; pass infinite codes in special"),
+        ([], 2, "quantile", "^values have no finite observations apart from missing and special"),
+        ([None], 2, "quantile", "^values have no finite observations apart from missing and spec"),
+        ([np.inf], 2, "quantile", "^values must be finite or special values, got inf; pass inf"),
         ([1], 0, "quantile", "positive integer, got 0"),
         ([1], True, "quantile", "positive integer, got True"),
         ([1], 2.0, "quantile", "positive integer, got 2.0"),
         ([1], 2, "median", "'quantile' or 'uniform', got 'median'"),
-        (["a", "b"], 2, "quantile", "Unable to parse string"),
+        (["a", "b"], 2, "quantile", "values must be numbers or special values, got 'a'"),
         (np.ones((2, 2)), 2, "quantile", "one-dimensional, got 2 dimensions"),
         (1.0, 2, "quantile", "one-dimensional, got 0 dimensions"),
     ],
@@ -207,14 +208,32 @@ def test_invalid_special_values(special, message):
 @pytest.mark.parametrize(
     "values,edges,message",
     [
-        (["a", 1], [-np.inf, np.inf], "Unable to parse string"),
-        ([1], [3, 1], "increase monotonically"),
+        (["a", 1], [-np.inf, np.inf], "values must be numbers or special values, got 'a'"),
+        ([1], [3, 1], re.escape("edges must be increasing numbers, got [3, 1]")),
+        ([1], [1, 1, 3], re.escape("edges must be increasing numbers, got [1, 1, 3]")),
+        (
+            [1],
+            np.array([1.0, np.nan]),
+            re.escape("edges must be increasing numbers, got [1.0, nan]"),
+        ),
+        ([1], ["a", "b"], re.escape("edges must be increasing numbers, got ['a', 'b']")),
         ([[1]], [-np.inf, np.inf], "values must be one-dimensional"),
     ],
 )
 def test_invalid_cut_inputs(values, edges, message):
     with pytest.raises(ValueError, match=message):
         cut(values, edges)
+
+
+def test_cut_leaves_an_integer_number_of_bins_to_pandas():
+    # cut documents edges only, but passes an integer on to pandas.cut, and with it the
+    # message of pandas.cut when that number cannot be used.
+    values = pd.Series([1.0, 3.0, 5.0])
+    pd.testing.assert_series_equal(cut(values, 2), pd.cut(values, 2))
+    with pytest.raises(ValueError, match="^`bins` should be a positive integer.$"):
+        cut(values, 0)
+    with pytest.raises(ValueError, match="^Cannot cut empty array$"):
+        cut(pd.Series([], dtype=float), 3)
 
 
 def test_all_special_reference_cannot_be_fitted():
@@ -273,9 +292,9 @@ def test_missing_categories_and_smoothing_preserve_counts():
 @pytest.mark.parametrize(
     "target,message",
     [
-        (pd.Series([0, 0]), "both 0 and 1"),
-        (pd.Series([0, 2]), "both 0 and 1"),
-        (pd.Series([1, None]), "no missing labels"),
+        (pd.Series([0, 0]), "target must contain both 0 and 1, got only 0"),
+        (pd.Series([0, 2]), "target must contain only 0 and 1, got 2"),
+        (pd.Series([1, None]), "target must contain only 0 and 1, got nan"),
         (pd.Series([0, 1], index=[1, 0]), "identical indices"),
         ([0, 1, 1], "same length, got 2 and 3"),
         (np.array([[0, 1]]), "target must be one-dimensional"),
@@ -399,6 +418,20 @@ def test_woe_transform_handles_unseen_groups():
         ValueError, match=r"1 group\(s\) are not in table, such as Interval\(-inf, 0.0"
     ):
         woe_transform(pd.cut(pd.Series([-5, 5]), edges), by_interval)
+
+
+@pytest.mark.parametrize(
+    "woe,message",
+    [
+        (["x", 0.5], "table must hold numbers, got 'x'"),
+        ([0.5, {"a": 1}], "table must hold numbers, got {'a': 1}"),
+        ([0.5, pd.NA], "table must hold numbers, got <NA>"),
+    ],
+)
+def test_woe_transform_names_a_table_value_that_is_not_a_number(woe, message):
+    table = pd.Series(woe, index=["a", "b"], dtype=object)
+    with pytest.raises(ValueError, match=f"^{message}$"):
+        woe_transform(["a"], table)
 
 
 def test_woe_transform_matches_numbers_by_equality_not_containment():
@@ -580,12 +613,13 @@ def test_zero_weight_groups_are_left_out():
     "weights,message",
     [
         ([1, 1], "weights must have one weight per value of .*, got 2 for 3"),
-        ([1, -1, 1], "weights must be finite and non-negative"),
-        ([1, np.nan, 1], "weights must be finite and non-negative"),
+        ([1, -1, 1], "weights must be finite and non-negative, got -1.0"),
+        ([1, np.nan, 1], "weights must be finite and non-negative, got nan"),
+        ([1, 1, np.inf], "weights must be finite and non-negative, got inf"),
         ([0, 0, 0], "weights must have a finite, positive total, got 0.0"),
         ([[1, 1, 1]], "weights must be one-dimensional, got 2 dimensions"),
         (["a", "b", "c"], "weights must be numeric, got dtype "),
-        (pd.Series([1, 1, 1], index=[3, 4, 5]), "weights must have the same index as"),
+        (pd.Series([1, 1, 1], index=[3, 4, 5]), "(values|groups) and weights must have identical"),
     ],
 )
 def test_invalid_weights(weights, message):
@@ -675,7 +709,9 @@ def test_special_values_and_weights_together():
 def test_weights_are_aligned_like_the_values():
     reference = pd.Series(["x", "x", "y"], index=[10, 11, 12])
     current = pd.Series(["y", "y", "z"])
-    with pytest.raises(ValueError, match="reference_weights must have the same index as reference"):
+    with pytest.raises(
+        ValueError, match="reference and reference_weights must have identical indices"
+    ):
         psi_table(reference, current, reference_weights=pd.Series([1, 1, 1]))
     by_position = psi_table(reference, current, reference_weights=[3, 1, 2])
     by_index = psi_table(

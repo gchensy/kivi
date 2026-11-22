@@ -182,7 +182,9 @@ def test_weights_are_sums_and_integer_weights_equal_repeated_rows():
         ["a", "b"], ["a", "b"], points, reference_weights=[1, 0], current_weights=[1, 0]
     )
     assert table.index.tolist() == ["a"]
-    with pytest.raises(ValueError, match="reference_weights must have the same index as reference"):
+    with pytest.raises(
+        ValueError, match="reference and reference_weights must have identical indices"
+    ):
         csi_table(reference, current, points, reference_weights=pd.Series([1, 1, 1]))
 
 

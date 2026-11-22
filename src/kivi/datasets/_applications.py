@@ -4,7 +4,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._loan_panel import _positive_integer
+from .. import _validation
 
 HOUSING = ("own", "mortgage", "rent")
 EMPLOYMENT = ("permanent", "temporary", "self_employed")
@@ -52,7 +52,8 @@ def make_applications(
     Raises
     ------
     ValueError
-        If `n_applicants` is not a positive integer.
+        If `n_applicants` is not a positive integer, or `rng` is not a seed
+        or generator that `numpy.random.default_rng` accepts.
 
     See Also
     --------
@@ -117,8 +118,8 @@ def make_applications(
                    True      6770  0.097
     True           False      763  0.274
     """
-    n_applicants = _positive_integer(n_applicants, "n_applicants")
-    rng = np.random.default_rng(rng)
+    n_applicants = _validation.check_count(n_applicants, "n_applicants")
+    rng = _validation.as_generator(rng)
 
     age = np.clip(np.round(rng.normal(40, 11, n_applicants)), 18, 75).astype(np.int64)
     log_income = rng.normal(np.log(_MEDIAN_INCOME) + 0.01 * (age - 40), 0.45)

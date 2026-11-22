@@ -427,9 +427,11 @@ def test_zero_weights_and_weight_validation():
     spec = _fit(weights=weights, bins={"x": [-INF, 3.5, INF]})
     # The lower interval has weight zero, so it is unseen.
     assert pd.Interval(-INF, 3.5) not in spec.tables["x"].index.tolist()
-    with pytest.raises(ValueError, match="weights must give both target classes"):
+    with pytest.raises(
+        ValueError, match=r"^weights must give both target classes a positive total, got 0.0 for 0"
+    ):
         _fit(weights=TARGET.to_numpy())
-    with pytest.raises(ValueError, match="weights must have the same index as frame"):
+    with pytest.raises(ValueError, match="frame and weights must have identical indices"):
         _fit(weights=pd.Series(1.0, index=range(1, 11)))
     with pytest.raises(ValueError, match="weights must have one weight per value of frame"):
         _fit(weights=[1.0, 2.0])
@@ -810,8 +812,8 @@ def test_repr_names_the_columns():
         ({"columns": [0]}, "column names must be strings, got 0"),
         ({"target": TARGET[:3]}, "frame and target must have identical indices"),
         ({"target": TARGET.to_numpy()[:3]}, "frame and target must have the same length, got 10"),
-        ({"target": TARGET * 0}, "target must contain both 0 and 1"),
-        ({"target": TARGET.where(TARGET > 0)}, "target must contain both 0 and 1"),
+        ({"target": TARGET * 0}, "target must contain both 0 and 1, got only 0"),
+        ({"target": TARGET.where(TARGET > 0)}, "target must contain only 0 and 1, got nan"),
         ({"target": TARGET.rename("x")}, "columns include the target 'x'"),
         ({"method": "kmeans"}, "method must be one of 'quantile', 'uniform', 'chimerge', 'tree'"),
         ({"method": {"x": "kmeans"}}, "method of column 'x' must be one of"),

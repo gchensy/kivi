@@ -1,19 +1,19 @@
 """Argument checks shared by the public functions."""
 
 import math
-from collections.abc import Iterable, Mapping, Sequence
-from numbers import Integral, Real
-from typing import Any, TypeAlias, TypeGuard
+import numbers
+import typing
+from collections import abc
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
 #: A NumPy or pandas dtype, as ``Series.dtype`` returns it.
-DTypeObj: TypeAlias = np.dtype[Any] | pd.api.extensions.ExtensionDtype
+DTypeObj: typing.TypeAlias = np.dtype[typing.Any] | pd.api.extensions.ExtensionDtype
 
 
-def is_real(value: object) -> TypeGuard[float]:
+def is_real(value: object) -> typing.TypeGuard[float]:
     """Return ``isinstance(value, numbers.Real)``; type checkers read a True result as float.
 
     mypy does not know that ``int``, ``float`` and the NumPy number types are
@@ -21,15 +21,81 @@ def is_real(value: object) -> TypeGuard[float]:
     annotated ``float`` it would treat the rest of the function as unreachable
     and leave it unchecked.
     """
-    return isinstance(value, Real)
+    return isinstance(value, numbers.Real)
 
 
-def is_integral(value: object) -> TypeGuard[int]:
+def is_integral(value: object) -> typing.TypeGuard[int]:
     """Return ``isinstance(value, numbers.Integral)``; type checkers read True as int.
 
     The counterpart of `is_real` for `numbers.Integral`.
     """
-    return isinstance(value, Integral)
+    return isinstance(value, numbers.Integral)
+
+
+def check_count(value: int, name: str) -> int:
+    """Return a positive integer as an int, or raise a ValueError naming the argument."""
+    if isinstance(value, (bool, np.bool_)) or not is_integral(value) or value < 1:
+        raise ValueError(f"{name} must be a positive integer, got {shown_argument(value)}")
+    return int(value)
+
+
+def is_missing(value: object) -> bool:
+    """Whether a scalar is a missing value; containers are never missing."""
+    missing = pd.isna(value)  # type: ignore[call-overload]  # pandas.isna takes any object
+    return isinstance(missing, (bool, np.bool_)) and bool(missing)
+
+
+def object_index(values: abc.Iterable[abc.Hashable]) -> pd.Index:
+    """Return labels as an object Index, which matches them by equality."""
+    labels = list(values)
+    array = np.empty(len(labels), dtype=object)
+    array[:] = labels
+    return pd.Index(array, dtype=object)
+
+
+def as_generator(rng: object) -> np.random.Generator:
+    """Return ``numpy.random.default_rng(rng)``, raising a ValueError that names `rng`."""
+    try:
+        return np.random.default_rng(rng)  # type: ignore[arg-type]  # checked by NumPy
+    except (TypeError, ValueError):
+        raise ValueError(
+            "rng must be None, an integer, a SeedSequence or a Generator, got "
+            f"{shown_argument(rng)}"
+        ) from None
+
+
+def as_numbers(values: pd.Series, name: str) -> pd.Series:
+    """Return ``pandas.to_numeric(values)``, raising a ValueError that shows a non-number.
+
+    The callers have taken out the special values, so the message says that
+    the other values must be numbers.
+    """
+    try:
+        return pd.to_numeric(values, errors="raise")
+    except (TypeError, ValueError):
+        failed = pd.to_numeric(values, errors="coerce").isna() & values.notna()
+        value = values[failed] if failed.any() else values
+        raise ValueError(f"{name} must be numbers or special values, got {shown(value)}") from None
+
+
+def float_values(values: pd.Series, name: str) -> npt.NDArray[np.float64]:
+    """Return ``values.to_numpy(dtype=float)``, raising a ValueError that shows a non-number."""
+    try:
+        return values.to_numpy(dtype=float)
+    except (TypeError, ValueError):
+        failed = [value for value in values if not (is_missing(value) or _is_float(value))]
+        # NumPy cannot convert pandas.NA or NaT either; show one when nothing else fails.
+        failed += [value for value in values if is_missing(value)]
+        raise ValueError(f"{name} must hold numbers, got {shown(failed[0])}") from None
+
+
+def _is_float(value: object) -> bool:
+    """Whether ``float(value)`` succeeds."""
+    try:
+        float(value)  # type: ignore[arg-type]  # any object may define __float__
+    except (TypeError, ValueError):
+        return False
+    return True
 
 
 def as_series(values: npt.ArrayLike, name: str) -> pd.Series:
@@ -89,14 +155,15 @@ def _holds_objects(dtype: DTypeObj) -> bool:
 
 
 def _object_reals(
-    array: npt.NDArray[Any], dtype: DTypeObj, name: str, *, booleans: bool
+    array: npt.NDArray[typing.Any], dtype: DTypeObj, name: str, *, booleans: bool
 ) -> npt.NDArray[np.float64]:
     """Read an array of objects whose elements are real numbers or missing values."""
     flat = array.ravel()
     missing = np.asarray(pd.isna(flat), dtype=bool)
     number = np.fromiter(
         (
-            isinstance(value, Real) and (booleans or not isinstance(value, (bool, np.bool_)))
+            isinstance(value, numbers.Real)
+            and (booleans or not isinstance(value, (bool, np.bool_)))
             for value in flat
         ),
         dtype=bool,
@@ -134,7 +201,7 @@ def as_flags(values: pd.Series, name: str) -> npt.NDArray[np.bool_]:
     invalid = ~values.isin([0, 1]).to_numpy(dtype=bool)
     if invalid.any():
         raise ValueError(
-            f"{name} must contain only booleans or 0 and 1, got {first_value(values[invalid])!r}"
+            f"{name} must contain only booleans or 0 and 1, got {shown(values[invalid])}"
         )
     return values.to_numpy(dtype=bool)
 
@@ -155,14 +222,42 @@ def known_outcomes(
     # For nullable dtypes pandas 2.0 returns an object array, which ~ would negate as integers.
     invalid = ~(target.isin([0, 1]).to_numpy(dtype=bool) | missing)
     if invalid.any():
-        shown = first_value(target[invalid])
-        raise ValueError(f"target must contain only 0, 1 and missing values, got {shown!r}")
+        raise ValueError(
+            f"target must contain only 0, 1 and missing values, got {shown(target[invalid])}"
+        )
     event = np.zeros(length, dtype=bool)
     event[~missing] = target[~missing].to_numpy(dtype=float) == 1
     return ~missing, event
 
 
-def shared_index(inputs: Mapping[str, object], *, frames: bool = False) -> pd.Index | None:
+def binary_labels(target: pd.Series, *, both_classes: bool = True) -> npt.NDArray[np.intp]:
+    """Return the labels of a 0/1 target as integers.
+
+    Any other label, and a missing one, raises. With `both_classes`, both
+    classes must be present.
+    """
+    # For nullable dtypes pandas 2.0 returns an object array, which ~ would negate as integers.
+    invalid = ~target.isin([0, 1]).to_numpy(dtype=bool)
+    if invalid.any():
+        raise ValueError(f"target must contain only 0 and 1, got {shown(target[invalid])}")
+    labels = target.to_numpy(dtype=np.intp)
+    if both_classes and (not len(labels) or labels.min() == labels.max()):
+        found = f"only {labels[0]}" if len(labels) else "no labels"
+        raise ValueError(f"target must contain both 0 and 1, got {found}")
+    return labels
+
+
+def check_class_weights(labels: npt.NDArray[np.intp], weights: npt.NDArray[np.float64]) -> None:
+    """Require a positive total weight in both classes of 0/1 labels."""
+    totals = np.bincount(labels, weights=weights, minlength=2)
+    if not (totals > 0).all():
+        raise ValueError(
+            "weights must give both target classes a positive total, got "
+            f"{float(totals[0])!r} for 0 and {float(totals[1])!r} for 1"
+        )
+
+
+def shared_index(inputs: abc.Mapping[str, object], *, frames: bool = False) -> pd.Index | None:
     """Return the index that the Series among ``inputs`` share, or None without a Series.
 
     ``inputs`` maps argument names to the arguments that describe the same
@@ -177,9 +272,19 @@ def shared_index(inputs: Mapping[str, object], *, frames: bool = False) -> pd.In
     return indexed[0][1].index if indexed else None
 
 
-def check_smoothing(smoothing: float) -> None:
-    if not np.isfinite(smoothing) or smoothing <= 0:
-        raise ValueError(f"smoothing must be finite and positive, got {smoothing!r}")
+def check_smoothing(smoothing: object, *, booleans: bool = False) -> None:
+    """Require a real, finite and positive scalar.
+
+    With ``booleans``, True counts as 1, as the counting functions have always
+    read it; ``kivi.spec`` and ``chimerge_groups`` reject booleans.
+    """
+    flag = isinstance(smoothing, (bool, np.bool_))
+    if (
+        (flag and not booleans)
+        or not (flag or is_real(smoothing))
+        or not (math.isfinite(smoothing) and smoothing > 0)  # type: ignore[arg-type, operator]  # a real number or a boolean
+    ):
+        raise ValueError(f"smoothing must be finite and positive, got {shown_argument(smoothing)}")
 
 
 def as_count_columns(
@@ -213,7 +318,7 @@ def as_weights(
     name: str = "weights",
     of: str = "values",
     *,
-    others: Mapping[str, object] | None = None,
+    others: abc.Mapping[str, object] | None = None,
 ) -> npt.NDArray[np.float64] | None:
     """Return observation weights as a float array matched to ``values``, or None.
 
@@ -228,7 +333,7 @@ def as_weights(
         return None
     if isinstance(weights, pd.Series):
         if isinstance(values, pd.Series) and not values.index.equals(weights.index):
-            raise ValueError(f"{name} must have the same index as {of}")
+            raise ValueError(f"{of} and {name} must have identical indices")
         for other, data in (others or {}).items():
             if isinstance(data, pd.Series) and not data.index.equals(weights.index):
                 raise ValueError(f"{other} and {name} must have identical indices")
@@ -242,8 +347,9 @@ def as_weights(
         raise ValueError(
             f"{name} must have one weight per value of {of}, got {len(array)} for {count}"
         )
-    if not np.isfinite(array).all() or (array < 0).any():
-        raise ValueError(f"{name} must be finite and non-negative")
+    invalid = ~(np.isfinite(array) & (array >= 0))
+    if invalid.any():
+        raise ValueError(f"{name} must be finite and non-negative, got {shown(array[invalid][0])}")
     with np.errstate(over="ignore"):
         total = array.sum()
     if not (np.isfinite(total) and total > 0):
@@ -286,34 +392,11 @@ def scores_and_labels(
             f"{name} must be finite, got {(~finite).sum()} missing or infinite value(s) "
             f"such as {float(values[~finite][0])!r}"
         )
-    # For nullable dtypes pandas 2.0 returns an object array, which ~ would negate as integers.
-    invalid = ~target.isin([0, 1]).to_numpy(dtype=bool)
-    if invalid.any():
-        raise ValueError(f"target must contain only 0 and 1, got {first_value(target[invalid])!r}")
-    labels = target.to_numpy(dtype=np.intp)
-    if both_classes and labels.sum() in (0, len(labels)):
-        raise ValueError(f"target must contain both 0 and 1, got only {labels[0]}")
+    labels = binary_labels(target, both_classes=both_classes)
     mass = as_weights(weights, raw_score, of=name, others={"target": raw_target})
     if both_classes and mass is not None:
-        totals = np.bincount(labels, weights=mass, minlength=2)
-        if not (totals > 0).all():
-            raise ValueError(
-                "weights must give both target classes a positive total, got "
-                f"{float(totals[0])!r} for 0 and {float(totals[1])!r} for 1"
-            )
+        check_class_weights(labels, mass)
     return values, labels, mass
-
-
-def first_value(values: object) -> object:
-    """First value of a Series or Index, or ``values`` itself, as a Python scalar.
-
-    For error messages, which show NumPy scalars as plain numbers this way.
-    """
-    if isinstance(values, pd.Series):
-        values = values.iloc[0]
-    elif isinstance(values, pd.Index):
-        values = values[0]
-    return values.item() if isinstance(values, np.generic) else values
 
 
 def like_input(
@@ -345,7 +428,7 @@ def is_binned_dtype(dtype: DTypeObj) -> bool:
     return pd.api.types.is_numeric_dtype(dtype) and not pd.api.types.is_bool_dtype(dtype)
 
 
-def fitted_columns(frame: pd.DataFrame, columns: Sequence[str] | None) -> list[str]:
+def fitted_columns(frame: pd.DataFrame, columns: abc.Sequence[str] | None) -> list[str]:
     """Return the names of the columns of ``frame`` to use: ``columns``, or every column."""
     if columns is None:
         names = list(frame.columns)
@@ -353,7 +436,7 @@ def fitted_columns(frame: pd.DataFrame, columns: Sequence[str] | None) -> list[s
             raise ValueError("frame must have at least one column to fit")
         for name in names:
             if not isinstance(name, str):
-                raise ValueError(f"column names must be strings, got {name!r}")
+                raise ValueError(f"column names must be strings, got {shown(name)}")
     else:
         names = column_list(columns, "columns")
         absent = [name for name in names if name not in frame.columns]
@@ -365,9 +448,9 @@ def fitted_columns(frame: pd.DataFrame, columns: Sequence[str] | None) -> list[s
     return names
 
 
-def column_list(columns: Sequence[str], argument: str) -> list[str]:
+def column_list(columns: abc.Sequence[str], argument: str) -> list[str]:
     """Return a sequence of distinct column names, the argument ``argument``, as a list."""
-    if isinstance(columns, str) or not isinstance(columns, (Sequence, pd.Index, np.ndarray)):
+    if isinstance(columns, str) or not isinstance(columns, (abc.Sequence, pd.Index, np.ndarray)):
         raise ValueError(
             f"{argument} must be a sequence of column names, got {type(columns).__name__}"
         )
@@ -376,7 +459,7 @@ def column_list(columns: Sequence[str], argument: str) -> list[str]:
         raise ValueError(f"{argument} must name at least one column")
     for name in names:
         if not isinstance(name, str):
-            raise ValueError(f"column names must be strings, got {name!r}")
+            raise ValueError(f"column names must be strings, got {shown(name)}")
     repeated = sorted({name for name in names if names.count(name) > 1})
     if repeated:
         raise ValueError(f"{argument} must not repeat a column, got {shown_list(repeated)}")
@@ -386,14 +469,18 @@ def column_list(columns: Sequence[str], argument: str) -> list[str]:
 def checked_codes(value: npt.ArrayLike, argument: str) -> tuple[float, ...]:
     """Return the special codes of a numeric column as a tuple of distinct Python numbers."""
     if isinstance(value, str):
-        raise ValueError(f"{argument} must be a list of codes, got {value!r}")
+        raise ValueError(f"{argument} must be a list of codes, got {shown_argument(value)}")
     codes = []
     for code in pd.unique(as_series(value, argument)):
         # A string never matches a value of a numeric column, and True would match 1 only
         # sometimes, so neither is a valid code.
-        if isinstance(code, (bool, np.bool_)) or not isinstance(code, Real) or math.isnan(code):
+        if (
+            isinstance(code, (bool, np.bool_))
+            or not isinstance(code, numbers.Real)
+            or math.isnan(code)
+        ):
             raise ValueError(f"{argument} must be non-missing numbers, got {shown(code)}")
-        codes.append(int(code) if isinstance(code, Integral) else float(code))
+        codes.append(int(code) if isinstance(code, numbers.Integral) else float(code))
     return tuple(codes)
 
 
@@ -405,18 +492,41 @@ def check_finite_column(values: pd.Series, codes: tuple[float, ...], name: str) 
         infinite = infinite & ~values.isin(list(codes)).to_numpy(dtype=bool)
     if infinite.any():
         raise ValueError(
-            f"column {name!r} has infinite values that are not special codes; pass infinite "
+            f"column {shown(name)} has infinite values that are not special codes; pass infinite "
             "codes in special"
         )
 
 
 def shown(value: object) -> str:
-    """Return the repr of a value for an error message, showing NumPy scalars as Python ones."""
-    if isinstance(value, (np.generic,)):
+    """Return the repr of a value for an error message.
+
+    For the values at fault, such as ``target[invalid]``: a Series or an
+    Index stands for its first value (an empty one is shown as ``[]``), and
+    a NumPy scalar is shown as the Python scalar it holds, so ``np.int64(0)``
+    reads ``0`` on every NumPy version. Show a whole argument with
+    `shown_argument`.
+    """
+    if isinstance(value, (pd.Series, pd.Index)):
+        if not len(value):
+            return repr([])
+        value = value.iloc[0] if isinstance(value, pd.Series) else value[0]
+    if isinstance(value, np.generic):
         value = value.item()
     return repr(value)
 
 
-def shown_list(values: Iterable[object]) -> str:
+def shown_argument(value: object) -> str:
+    """Return a whole argument for an error message, an array, Series or Index as a list.
+
+    A scalar is shown as `shown` shows it, and a zero-dimensional array keeps
+    its repr, so that a message for ``np.array(0.5)`` does not read as if a
+    number had been passed.
+    """
+    if isinstance(value, (pd.Series, pd.Index)) or (isinstance(value, np.ndarray) and value.ndim):
+        value = value.tolist()
+    return shown(value)
+
+
+def shown_list(values: abc.Iterable[object]) -> str:
     """Return the values as a list for an error message, each shown like `shown`."""
     return "[" + ", ".join(shown(value) for value in values) + "]"

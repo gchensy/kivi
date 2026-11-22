@@ -1,14 +1,14 @@
 """Scorecard scaling, points and reason codes."""
 
 import math
-from collections.abc import Container, Mapping
-from numbers import Real
+import numbers
+from collections import abc
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._validation import as_real, is_integral, is_real, like_input, shared_index, shown, woe_values
+from . import _validation
 
 __all__ = [
     "pd_to_score",
@@ -74,12 +74,14 @@ def score_scaling(*, pdo: float, base_score: float, base_odds: float) -> tuple[f
     factor = 28.8539, offset = 487.1229
     """
     for name, value in (("pdo", pdo), ("base_score", base_score), ("base_odds", base_odds)):
-        if isinstance(value, bool) or not is_real(value) or not math.isfinite(value):
-            raise ValueError(f"{name} must be a finite number, got {value!r}")
+        if isinstance(value, bool) or not _validation.is_real(value) or not math.isfinite(value):
+            raise ValueError(
+                f"{name} must be a finite number, got {_validation.shown_argument(value)}"
+            )
     if pdo <= 0:
-        raise ValueError(f"pdo must be positive, got {pdo!r}")
+        raise ValueError(f"pdo must be positive, got {_validation.shown_argument(pdo)}")
     if base_odds <= 0:
-        raise ValueError(f"base_odds must be positive, got {base_odds!r}")
+        raise ValueError(f"base_odds must be positive, got {_validation.shown_argument(base_odds)}")
     # Python floats, so that a float32 argument does not round the scores to float32.
     factor = float(pdo) / math.log(2)
     return factor, float(base_score) - factor * math.log(float(base_odds))
@@ -137,11 +139,15 @@ def pd_to_score(
     array([600.  , 620.  , 550.52])
     """
     factor, offset = score_scaling(pdo=pdo, base_score=base_score, base_odds=base_odds)
-    values = as_real(probability, "probability", booleans=True)
+    values = _validation.as_real(probability, "probability", booleans=True)
     if np.any((values <= 0) | (values >= 1)):
         outside = float(values[(values <= 0) | (values >= 1)].flat[0])
-        raise ValueError(f"probability must be strictly between 0 and 1, got {outside!r}")
-    return like_input(probability, offset + factor * (np.log1p(-values) - np.log(values)))
+        raise ValueError(
+            f"probability must be strictly between 0 and 1, got {_validation.shown(outside)}"
+        )
+    return _validation.like_input(
+        probability, offset + factor * (np.log1p(-values) - np.log(values))
+    )
 
 
 def score_to_pd(
@@ -196,15 +202,15 @@ def score_to_pd(
     array([0.03846, 0.01961, 0.0099 ])
     """
     factor, offset = score_scaling(pdo=pdo, base_score=base_score, base_odds=base_odds)
-    log_odds = (as_real(score, "score", booleans=True) - offset) / factor
+    log_odds = (_validation.as_real(score, "score", booleans=True) - offset) / factor
     with np.errstate(invalid="ignore"):  # logaddexp warns on missing values
         probability = np.exp(-np.logaddexp(0, log_odds))
-    return like_input(score, probability)
+    return _validation.like_input(score, probability)
 
 
 def points_table(
-    tables: Mapping[object, pd.DataFrame | pd.Series],
-    coefficients: Mapping[object, float] | pd.Series,
+    tables: abc.Mapping[object, pd.DataFrame | pd.Series],
+    coefficients: abc.Mapping[object, float] | pd.Series,
     intercept: float,
     *,
     pdo: float,
@@ -301,7 +307,7 @@ def points_table(
     contact    unknown  0.6  263.76
     """
     slope, base = _model_points(coefficients, intercept, pdo, base_score, base_odds)
-    if not isinstance(tables, Mapping):
+    if not isinstance(tables, abc.Mapping):
         raise ValueError(
             f"tables must be a mapping of variable to table, got {type(tables).__name__}"
         )
@@ -322,8 +328,8 @@ def points_table(
 
 
 def woe_to_points(
-    woe: pd.DataFrame | Mapping[object, npt.ArrayLike],
-    coefficients: Mapping[object, float] | pd.Series,
+    woe: pd.DataFrame | abc.Mapping[object, npt.ArrayLike],
+    coefficients: abc.Mapping[object, float] | pd.Series,
     intercept: float,
     *,
     pdo: float,
@@ -398,20 +404,26 @@ def woe_to_points(
     [545.41, 540.79]
     """
     slope, base = _model_points(coefficients, intercept, pdo, base_score, base_odds)
-    if isinstance(woe, Mapping):
+    if isinstance(woe, abc.Mapping):
         # pandas would align the Series by label, which is not how kivi matches observations.
-        shared_index({f"woe[{variable!r}]": values for variable, values in woe.items()})
+        _validation.shared_index(
+            {f"woe[{_validation.shown(variable)}]": values for variable, values in woe.items()}
+        )
         woe = pd.DataFrame(woe)  # type: ignore[arg-type]  # a mapping of columns
     elif not isinstance(woe, pd.DataFrame):
         raise ValueError(f"woe must be a DataFrame or a mapping, got {type(woe).__name__}")
     _check_variables(slope.index, woe.columns, "woe")
     repeated = woe.columns[woe.columns.duplicated() & woe.columns.isin(slope.index)]
     if len(repeated):
-        raise ValueError(f"woe must have one column per variable, got {repeated[0]!r} twice")
+        raise ValueError(
+            f"woe must have one column per variable, got {_validation.shown(repeated[0])} twice"
+        )
     values = woe[list(slope.index)].to_numpy(dtype=float)
     if not np.isfinite(values).all():
         column = slope.index[~np.isfinite(values).all(axis=0)][0]
-        raise ValueError(f"woe must be finite, got missing or infinite values in {column!r}")
+        raise ValueError(
+            f"woe must be finite, got missing or infinite values in {_validation.shown(column)}"
+        )
     return pd.DataFrame(base - slope.to_numpy() * values, index=woe.index, columns=slope.index)
 
 
@@ -421,7 +433,7 @@ def reason_codes(
     *,
     top: int = 3,
     atol: float = 1e-4,
-    unseen_points: float | Mapping[object, float] | pd.Series | None = None,
+    unseen_points: float | abc.Mapping[object, float] | pd.Series | None = None,
 ) -> pd.DataFrame:
     """Name the variables that cost each applicant the most points.
 
@@ -531,10 +543,12 @@ def reason_codes(
     """
     if not isinstance(points, pd.DataFrame):
         raise ValueError(f"points must be a DataFrame, got {type(points).__name__}")
-    if isinstance(top, bool) or not is_integral(top) or top < 1:
-        raise ValueError(f"top must be a positive integer, got {top!r}")
-    if isinstance(atol, bool) or not is_real(atol) or not 0 < atol < math.inf:
-        raise ValueError(f"atol must be a finite positive number, got {atol!r}")
+    if isinstance(top, bool) or not _validation.is_integral(top) or top < 1:
+        raise ValueError(f"top must be a positive integer, got {_validation.shown_argument(top)}")
+    if isinstance(atol, bool) or not _validation.is_real(atol) or not 0 < atol < math.inf:
+        raise ValueError(
+            f"atol must be a finite positive number, got {_validation.shown_argument(atol)}"
+        )
     if not isinstance(table, pd.DataFrame) or table.index.name != "variable":  # type: ignore[redundant-expr]  # checked at runtime
         raise ValueError(f"table must be a points_table result, got {_describe(table)}")
     if "points" not in table.columns:
@@ -542,7 +556,7 @@ def reason_codes(
     repeated = points.columns[points.columns.duplicated()]
     if len(repeated):
         raise ValueError(
-            f"points must have one column per variable, got {shown(repeated[0])} twice"
+            f"points must have one column per variable, got {_validation.shown(repeated[0])} twice"
         )
     groups = dict(iter(table["points"].groupby(level="variable", sort=False)))
     _check_present(points.columns, groups, "table")
@@ -552,13 +566,19 @@ def reason_codes(
     if invalid.any():
         row, column = np.argwhere(invalid)[0]
         value, variable = float(values[row, column]), points.columns[column]
-        raise ValueError(f"points must be finite, got {value!r} in {variable!r}")
+        raise ValueError(
+            f"points must be finite, got {_validation.shown(value)} in "
+            f"{_validation.shown(variable)}"
+        )
     cost = np.empty_like(values)
     for column, variable in enumerate(points.columns):
         group_points = np.sort(groups[variable].to_numpy(dtype=float))
         if not np.isfinite(group_points).all():
             bad = float(group_points[~np.isfinite(group_points)][0])
-            raise ValueError(f"table must have finite points, got {bad!r} for {shown(variable)}")
+            raise ValueError(
+                f"table must have finite points, got {_validation.shown(bad)} for "
+                f"{_validation.shown(variable)}"
+            )
         nearest = _nearest(group_points, values[:, column])
         far = np.abs(values[:, column] - nearest) > atol
         unseen = exempt[column]
@@ -568,11 +588,11 @@ def reason_codes(
             row = np.flatnonzero(far)[0]
             also = "" if np.isnan(unseen) else f" or unseen_points {float(unseen)!r}"
             raise ValueError(
-                f"points of {variable!r} must match a group of table within atol={atol!r}"
-                f"{also}, got {float(values[row, column])!r}, nearest group "
-                f"{float(nearest[row])!r}; check atol and that points and table come from the "
-                "same model and scaling, and for groups that woe_transform encoded with unseen "
-                "pass their points as unseen_points"
+                f"points of {_validation.shown(variable)} must match a group of table within "
+                f"atol={_validation.shown_argument(atol)}{also}, got "
+                f"{float(values[row, column])!r}, nearest group {float(nearest[row])!r}; check "
+                "atol and that points and table come from the same model and scaling, and for "
+                "groups that woe_transform encoded with unseen pass their points as unseen_points"
             )
         matched = np.abs(values[:, column] - nearest) <= atol
         cost[:, column] = np.where(matched, group_points[-1] - nearest, 0.0)
@@ -588,16 +608,19 @@ def reason_codes(
 
 
 def _unseen_points(
-    unseen_points: float | Mapping[object, float] | pd.Series | None, variables: pd.Index
+    unseen_points: float | abc.Mapping[object, float] | pd.Series | None, variables: pd.Index
 ) -> npt.NDArray[np.float64]:
     """Return the unseen points of each variable, NaN for a variable without them."""
     if unseen_points is None:
         return np.full(len(variables), np.nan)
-    if isinstance(unseen_points, (Mapping, pd.Series)):
+    if isinstance(unseen_points, (abc.Mapping, pd.Series)):
         by_variable = dict(unseen_points.items())
         if isinstance(unseen_points, pd.Series) and unseen_points.index.has_duplicates:
             repeated = unseen_points.index[unseen_points.index.duplicated()][0]
-            raise ValueError(f"unseen_points must name each variable once, got {repeated!r} twice")
+            raise ValueError(
+                f"unseen_points must name each variable once, got {_validation.shown(repeated)} "
+                "twice"
+            )
     else:
         by_variable = dict.fromkeys(variables, unseen_points)
     result = np.full(len(variables), np.nan)
@@ -605,16 +628,21 @@ def _unseen_points(
         if variable not in by_variable:
             continue
         value = by_variable[variable]
-        if isinstance(value, bool) or not isinstance(value, Real) or not math.isfinite(value):
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, numbers.Real)
+            or not math.isfinite(value)
+        ):
             raise ValueError(
-                f"unseen_points must be finite numbers, got {value!r} for {variable!r}"
+                f"unseen_points must be finite numbers, got {_validation.shown(value)} for "
+                f"{_validation.shown(variable)}"
             )
         result[position] = float(value)
     return result
 
 
 def _model_points(
-    coefficients: Mapping[object, float] | pd.Series,
+    coefficients: abc.Mapping[object, float] | pd.Series,
     intercept: float,
     pdo: float,
     base_score: float,
@@ -622,9 +650,15 @@ def _model_points(
 ) -> tuple[pd.Series, float]:
     """Return the points per unit of WOE and the base points of each variable."""
     factor, offset = score_scaling(pdo=pdo, base_score=base_score, base_odds=base_odds)
-    if isinstance(intercept, bool) or not is_real(intercept) or not math.isfinite(intercept):
-        raise ValueError(f"intercept must be a finite number, got {intercept!r}")
-    if isinstance(coefficients, Mapping):
+    if (
+        isinstance(intercept, bool)
+        or not _validation.is_real(intercept)
+        or not math.isfinite(intercept)
+    ):
+        raise ValueError(
+            f"intercept must be a finite number, got {_validation.shown_argument(intercept)}"
+        )
+    if isinstance(coefficients, abc.Mapping):
         coefficients = pd.Series(dict(coefficients), dtype=object)
     elif not isinstance(coefficients, pd.Series):
         kind = type(coefficients).__name__  # type: ignore[unreachable]  # checked at runtime
@@ -633,30 +667,39 @@ def _model_points(
         raise ValueError("coefficients must name at least one variable, got none")
     if coefficients.index.has_duplicates:
         repeated = coefficients.index[coefficients.index.duplicated()][0]
-        raise ValueError(f"coefficients must name each variable once, got {repeated!r} twice")
+        raise ValueError(
+            f"coefficients must name each variable once, got {_validation.shown(repeated)} twice"
+        )
     for variable, value in zip(coefficients.index, coefficients.tolist(), strict=True):
-        if isinstance(value, bool) or not isinstance(value, Real) or not math.isfinite(value):
-            raise ValueError(f"coefficients must be finite numbers, got {value!r} for {variable!r}")
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, numbers.Real)
+            or not math.isfinite(value)
+        ):
+            raise ValueError(
+                f"coefficients must be finite numbers, got {_validation.shown(value)} for "
+                f"{_validation.shown(variable)}"
+            )
     beta = pd.Series(coefficients.to_numpy(dtype=float), index=coefficients.index)
     return factor * beta, (offset - factor * intercept) / len(beta)
 
 
 def _woe_column(table: pd.DataFrame | pd.Series, variable: object) -> pd.Series:
     try:
-        woe = woe_values(table)
+        woe = _validation.woe_values(table)
     except ValueError as error:
-        raise ValueError(f"invalid table for {variable!r}: {error}") from None
-    values = woe.to_numpy(dtype=float)
+        raise ValueError(f"invalid table for {_validation.shown(variable)}: {error}") from None
+    values = _validation.float_values(woe, f"the table of {_validation.shown(variable)}")
     invalid = ~np.isfinite(values)
     if invalid.any():
         raise ValueError(
-            f"the table of {variable!r} must have finite WOE values, "
-            f"got {float(values[invalid][0])!r} for group {woe.index[invalid][0]!r}"
+            f"the table of {_validation.shown(variable)} must have finite WOE values, got "
+            f"{float(values[invalid][0])!r} for group {_validation.shown(woe.index[invalid][0])}"
         )
     return woe
 
 
-def _check_variables(variables: pd.Index, available: Container[object], name: str) -> None:
+def _check_variables(variables: pd.Index, available: abc.Container[object], name: str) -> None:
     """Require an entry of ``available`` for each variable of the coefficients."""
     if "intercept" in variables and "intercept" not in available:
         # As in the coef column of logistic_regression, whose intercept row is named so.
@@ -664,11 +707,11 @@ def _check_variables(variables: pd.Index, available: Container[object], name: st
     _check_present(variables, available, name)
 
 
-def _check_present(variables: pd.Index, available: Container[object], name: str) -> None:
+def _check_present(variables: pd.Index, available: abc.Container[object], name: str) -> None:
     missing = [variable for variable in variables if variable not in available]
     if missing:
-        shown = ", ".join(repr(variable) for variable in missing[:5])
-        raise ValueError(f"{name} has no entry for {len(missing)} variable(s): {shown}")
+        examples = ", ".join(_validation.shown(variable) for variable in missing[:5])
+        raise ValueError(f"{name} has no entry for {len(missing)} variable(s): {examples}")
 
 
 def _nearest(
@@ -683,5 +726,8 @@ def _nearest(
 
 def _describe(value: object) -> str:
     if isinstance(value, pd.DataFrame):
-        return f"a DataFrame indexed by {value.index.name!r} with columns {value.columns.tolist()}"
+        return (
+            f"a DataFrame indexed by {_validation.shown(value.index.name)} "
+            f"with columns {value.columns.tolist()}"
+        )
     return type(value).__name__
