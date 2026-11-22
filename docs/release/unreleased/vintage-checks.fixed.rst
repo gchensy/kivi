@@ -1,3 +1,0 @@
-* ``kivi.vintage.transition_matrix`` read any ``normalize`` that is true in Python as True, so that ``normalize="columns"``, as ``pandas.crosstab`` takes it, gave the shares of each row. It now raises unless ``normalize`` is True or False, as ``kivi.calibration.herfindahl_index`` does.
-* ``kivi.vintage.transition_matrix`` and ``roll_rates`` gave a missing value in ``states`` a row and a column of its own, although missing values of ``before`` and ``after`` raise. A missing state now raises an error.
-* ``kivi.vintage.vintage_table`` made a column of a negative ``month_on_book``. It now raises an error, because the months on book count from origination.

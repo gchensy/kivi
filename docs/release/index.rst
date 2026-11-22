@@ -8,6 +8,69 @@ Changes merged since the last release.
 
 .. release-fragments::
 
+0.9.0 (2026-11-22)
+------------------
+
+New
+^^^
+
+* A new page, :doc:`/api/compatibility`, states what kivi promises from 1.0: semantic versioning, with deprecations that warn with a ``FutureWarning`` for the rest of a major version, fixes of wrong results in any release, and Python 3.10, NumPy 1.24 and pandas 2.0 as the oldest supported versions, which rise only in a minor release announced by the release before. It also lists the public names, the index and the columns of every table, the exception and warning types, and what later releases read from a saved ``BinningSpec``.
+* :doc:`/api/conventions` states more of the rules that every function follows: the order of the data of other observations, the names of frames and similar options, the default ``bins``, how Series results are named, the index names of tables, the fixed rows of some tables, missing values in the binning fits, and the functions without ``weights``.
+* The tests keep specifications saved by kivi 0.6.0 and 0.8.0 and check that they still load and encode a sample as those releases did, and that they match a fresh fit up to rounding.
+
+* kivi ships inline type hints and a ``py.typed`` marker, so type checkers such as mypy check code that calls it. Every function in the package is annotated and checked with mypy.
+
+Changed
+^^^^^^^
+
+* ``kivi.woe.woe``, ``kivi.woe.iv`` and ``kivi.stability.psi`` warn with a ``FutureWarning`` when both counts are Series with different indices. They still match the counts by position; kivi 1.0 raises a ``ValueError``, as the other functions do for Series that describe the same groups. Pass Series with identical indices, or arrays to keep matching by position.
+* ``smoothing=True`` warns with a ``FutureWarning`` in ``kivi.woe.woe_table``, ``kivi.woe.woe``, ``kivi.woe.iv``, ``kivi.stability.psi_table``, ``kivi.stability.psi``, ``kivi.binning.monotonic_edges``, ``kivi.calibration.fit_grade_pd``, ``kivi.monitoring.monitoring_table`` and ``kivi.monitoring.stability_table``. It still counts as 1, not as the default 0.5; kivi 1.0 raises a ``ValueError``, as ``kivi.spec.fit_spec`` and ``kivi.binning.chimerge_groups`` already do. Pass ``smoothing=1`` for the same result.
+* ``kivi.datasets.Dataset.bank_data()`` warns with a ``FutureWarning`` and is removed in kivi 1.0. ``kivi.datasets.load_bank()`` returns the same frame.
+* ``kivi.calibration.isotonic_predict`` takes the probability of each band as ``probability``, the name the other functions use, and ``kivi.calibration.isotonic_fit`` documents its second result under that name. ``probabilities=`` still works with a ``FutureWarning`` until kivi 1.0.
+* ``kivi.strategy.expected_loss`` names a Series result ``expected_loss``. It took the name of the first Series among its inputs, such as ``pd`` or ``balance``.
+* ``kivi.calibration.master_scale`` labels the grades by the index of a Series ``probability`` when ``labels`` is not given, so ``master_scale(fit_grade_pd(event, total))`` keeps the grades of a table. A list or an array still gives grades numbered from 1.
+* ``kivi.lifetime.assign_stages`` also takes ``days_past_due`` and ``defaulted`` by position, as in ``assign_stages(significant_increase, days_past_due, defaulted)``. Calls with keywords work as before.
+* The index of ``kivi.selection.logistic_regression`` and of ``kivi.selection.vif`` is named ``variable``, like that of ``kivi.scorecard.points_table``, whatever the name of the columns of ``X``. The index of ``kivi.metrics.roc_auc_interval`` is named ``statistic``. ``reset_index()`` therefore gives a column of that name, and ``kivi.scorecard.woe_to_points`` with coefficients taken from ``logistic_regression`` gives columns named ``variable``.
+
+* Error messages show the value at fault in the same form everywhere. NumPy scalars appear as plain numbers, so ``bins=numpy.int64(0)`` gives ``got 0`` instead of ``got np.int64(0)``. Every function that takes a target says ``target must contain only 0 and 1, got 2`` or ``target must contain both 0 and 1, got only 0``; the weights messages show the first invalid weight or the total of each class; and a weights index that differs from the data says ``score and weights must have identical indices``, like the other arguments.
+* The messages that NumPy and pandas gave for kivi's arguments now name those arguments: ``kivi.binning.cut`` says ``edges must be increasing numbers, got [3, 1]`` where pandas spoke of ``bins`` and of a ``duplicates`` keyword that ``cut`` does not have, and the binning functions say ``values must be numbers or special values, got 'a'``. ``kivi.binning.bin_edges`` and the supervised binning functions say ``values`` instead of ``reference values``.
+* ``kivi.version`` and ``kivi.PackageNotFoundError``, which the package imported from ``importlib.metadata`` by accident, no longer exist; use ``kivi.__version__``. The public modules no longer bind the helpers they import, such as ``kivi.binning.as_series`` or ``kivi.metrics.normal_quantile``. None of these names was documented.
+
+Fixed
+^^^^^
+
+* ``kivi.woe.woe_transform`` looked a number up in the interval of a ``pandas.cut`` table that contained it, so raw values and special codes that the table did not have, such as ``-1`` grouped by ``kivi.binning.cut`` with ``special=[-1]``, silently got the WOE of an interval. Labels are now matched by equality, as documented, and such groups are unseen: they raise an error unless ``unseen`` gives them a WOE.
+* ``kivi.binning.cut`` now raises an error for an infinite value that is not a special value. ``pandas.cut`` left ``-inf`` in no interval, so that it was counted as a missing value, and put ``inf`` in the last interval. Pass infinite codes in ``special`` to give them their own group.
+* ``kivi.spec.BinningSpec.woe_transform`` gave ``inf`` the WOE of the last interval, while ``-inf`` was unseen. Both are now unseen, like every infinite value that is not a special code of its column, so they raise an error unless the column has an unseen WOE. ``BinningSpec.cut`` leaves both missing.
+* ``kivi.stability.csi_table`` raised an error for points of several variables only when the variables were in an index named ``variable``. A ``points_table`` result after ``reset_index()``, with the variables in a ``variable`` column, was read as one variable and mixed their groups. It now raises the same error.
+* ``kivi.spec.fit_spec`` binned a column with a complex dtype by its real part, with NumPy's ``ComplexWarning``. It now raises an error, and so do ``BinningSpec.cut`` and ``BinningSpec.woe_transform`` for a complex column fitted as numeric.
+* ``kivi.spec.BinningSpec`` and ``dataclasses.replace`` rejected a numeric table whose intervals ran between the exact edges whenever ``pandas.cut`` rounds them in its labels, such as an edge of 0.6428571428571428 shown as 0.643. Such intervals are now accepted and stored under the labels of ``kivi.binning.cut``, as ``BinningSpec.from_dict`` already did.
+* ``kivi.woe.woe_transform`` accepted ``unseen=numpy.nan``, which gave unseen groups a missing WOE, and infinite values. ``unseen`` must now be ``"raise"`` or a finite number, as for ``kivi.spec.fit_spec`` and ``kivi.stability.csi_table``.
+
+* ``kivi.calibration.prior_correction``, the ``probability`` of ``calibration_table``, ``binomial_test``, ``jeffreys_test``, ``hosmer_lemeshow`` and ``herfindahl_index`` read numbers given as strings, so that ``herfindahl_index(["50", "30"])`` gave 0.53125. They now raise an error that names the argument, such as "counts must be real and numeric, got dtype object with the value '50'", as the other functions of the module do.
+* The counts of ``kivi.calibration`` read True and False as 1 and 0, so that ``binomial_test([True], [True], 0.5)`` gave 0.5. The ``event`` and ``total`` of ``binomial_test``, ``jeffreys_test``, ``hosmer_lemeshow`` and ``fit_grade_pd`` and the ``counts`` of ``herfindahl_index`` now reject booleans, as weights do. Probabilities and scores still count them as 1 and 0.
+* ``kivi.calibration.fit_grade_pd`` raised "the fitted PDs must rise with the grade" for grades that were in order when ``smoothing`` was not smaller than the total of a grade without defaults, as with the counts of a ``calibration_table`` whose weights sum to 1. It now says what is wrong, such as "smoothing must be smaller than the total of each grade without defaults, got 0.5 for grade 1 with a total of 0.4", and the documentation says that weighted counts must be on the scale of observation counts.
+
+* Invalid arguments that NumPy or pandas used to reject with a ``TypeError`` now raise a ``ValueError`` that names the argument, as the conventions promise: a ``smoothing`` that is a string, ``None`` or an array, an ``rng`` that ``numpy.random.default_rng`` does not accept in ``kivi.reject_inference.parceling``, ``kivi.datasets.make_applications`` and ``kivi.datasets.make_loan_panel``, ``edges`` of ``kivi.binning.cut`` that are not numbers, and a WOE table of ``kivi.woe.woe_transform`` or ``kivi.scorecard.points_table`` that holds a value that is not a number.
+
+* ``kivi.lifetime.significant_increase`` let floating-point rounding decide ties: a PD of 0.04 against 0.03 counted as more than one percentage point higher, and 0.45 as more than 1.5 times 0.30. A PD within a few units in the last place of a threshold now meets it exactly and is not flagged, as the strict thresholds say. Of the 89 pairs of two-decimal PDs that are 0.01 apart, 71 were flagged before and none are now.
+* ``kivi.lifetime.transition_pd`` accepted a float such as ``horizons=3.0``. A single number of periods must now be an integer, as the ``horizon`` of ``expected_credit_loss`` is; a sequence of horizons may still hold whole numbers as floats.
+
+* A list or an object array of numbers with ``pd.NA``, such as ``[0.5, pd.NA]``, raised a ``TypeError`` or "must be real and numeric, got dtype object" in ``kivi.calibration``, ``kivi.scorecard``, ``kivi.strategy`` and ``kivi.lifetime``, and ``kivi.calibration.platt_predict([0.5, pd.NA], 1, 0)`` named the valid value 0.5 in its message. These functions now read ``pd.NA`` as a missing value, like None and NaN, and their messages show the first value that is not a number.
+
+* ``kivi.scorecard.pd_to_score`` and ``score_to_pd`` read any input as floats: ``score_to_pd`` of a date gave a PD of 0, and ``pd_to_score(["0.1", "0.2"], ...)`` gave scores. Strings, dates and complex numbers now raise "must be real and numeric", as in ``kivi.metrics``, while booleans still count as 1 and 0.
+* ``kivi.scorecard.reason_codes`` listed a variable twice, such as ``housing, housing, contact``, when a column of ``points`` was repeated. It now raises an error, as ``woe_to_points`` does.
+* ``kivi.scorecard.reason_codes`` gave None between two reasons when the points of a group in ``table`` were missing, for example after editing the table by hand. Missing or infinite points of a variable of ``points`` now raise an error.
+* ``kivi.scorecard.woe_to_points`` aligned a mapping of Series by their index labels, so that one row could combine the WOE values of different applicants. The Series of a mapping must now have identical indices, as the Series that describe the same observations must everywhere in kivi; other values are still matched by position.
+* ``kivi.scorecard.score_scaling`` returned NumPy scalars for NumPy arguments, so that a ``float32`` ``pdo`` rounded the scores of ``pd_to_score`` and the points of ``points_table`` to single precision. It now returns Python floats.
+* ``kivi.scorecard.points_table`` and ``woe_to_points`` said "tables has no entry for 1 variable(s): 'intercept'" for the ``coef`` column of ``kivi.selection.logistic_regression``, which includes the intercept. They now say "coefficients has an 'intercept' entry; drop it and pass it as intercept".
+
+* ``kivi.selection.vif`` gave a finite VIF for some exact linear combinations: 1.003 for ``a`` when ``c`` is ``b + 1e-5 * a``, and 5.6e29 for the two columns of a frame with two rows. A column now has an infinite VIF when it is a linear combination of the others up to rounding, as documented; the VIFs of the other columns are unchanged.
+
+* ``kivi.vintage.transition_matrix`` read any ``normalize`` that is true in Python as True, so that ``normalize="columns"``, as ``pandas.crosstab`` takes it, gave the shares of each row. It now raises unless ``normalize`` is True or False, as ``kivi.calibration.herfindahl_index`` does.
+* ``kivi.vintage.transition_matrix`` and ``roll_rates`` gave a missing value in ``states`` a row and a column of its own, although missing values of ``before`` and ``after`` raise. A missing state now raises an error.
+* ``kivi.vintage.vintage_table`` made a column of a negative ``month_on_book``. It now raises an error, because the months on book count from origination.
+
 0.8.0 (2026-11-21)
 ------------------
 
