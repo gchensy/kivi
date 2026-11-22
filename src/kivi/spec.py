@@ -935,7 +935,9 @@ def fit_spec(
         ``"tree"`` or ``"monotonic"`` for `kivi.binning.chimerge_edges`,
         `kivi.binning.tree_edges` or `kivi.binning.monotonic_edges`. A dict
         maps columns to methods, and the numeric columns it leaves out use
-        ``"quantile"``. A dict can also group categorical columns, with
+        ``"quantile"``. A method applies only to the columns without edges
+        in `bins`, so a dict must not name a column whose edges `bins`
+        gives. A dict can also group categorical columns, with
         ``"rare"`` for `kivi.binning.category_groups` or ``"chimerge"`` for
         `kivi.binning.chimerge_groups`; the categorical columns it leaves out
         keep their labels.
@@ -969,7 +971,9 @@ def fit_spec(
         a WOE or ``"raise"``, and the columns it leaves out raise. For a
         grouped column, ``{"group": label}`` gives such values the WOE of
         that group instead, and `BinningSpec.cut` assigns new categories to
-        it; the group must be in the fitted table.
+        it; the group must be in the fitted table. A dict is always read by
+        column, so give ``{"group": label}`` for each grouped column, as
+        in ``{"job": {"group": "other"}}``.
     smoothing : float, default 0.5
         Positive replacement for a zero count when calculating the WOE, as in
         `kivi.woe.woe_table`. ``"monotonic"`` binning uses the same value, so

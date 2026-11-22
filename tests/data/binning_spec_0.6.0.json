@@ -1,0 +1,609 @@
+{
+  "format": "kivi.BinningSpec",
+  "format_version": 1,
+  "kivi_version": "0.6.0",
+  "smoothing": 0.5,
+  "variables": [
+    {
+      "name": "balance",
+      "kind": "numeric",
+      "edges": [
+        {
+          "float": "-inf"
+        },
+        69.0,
+        462.0,
+        1427.0,
+        {
+          "float": "inf"
+        }
+      ],
+      "special": [],
+      "unseen": "raise",
+      "table": [
+        {
+          "bin": {
+            "interval": [
+              {
+                "float": "-inf"
+              },
+              69.0
+            ],
+            "closed": "right"
+          },
+          "non_event": 1398.0,
+          "event": 105.0,
+          "total": 1503.0,
+          "non_event_share": 0.2637238256932654,
+          "event_share": 0.15021459227467812,
+          "total_share": 0.2505,
+          "event_rate": 0.06986027944111776,
+          "woe": -0.5628375538822363,
+          "iv": 0.06388725928036547
+        },
+        {
+          "bin": {
+            "interval": [
+              69.0,
+              462.0
+            ],
+            "closed": "right"
+          },
+          "non_event": 1335.0,
+          "event": 168.0,
+          "total": 1503.0,
+          "non_event_share": 0.25183927560837577,
+          "event_share": 0.24034334763948498,
+          "total_share": 0.2505,
+          "event_rate": 0.11177644710578842,
+          "woe": -0.04672257267709509,
+          "iv": 0.0005371193300171501
+        },
+        {
+          "bin": {
+            "interval": [
+              462.0,
+              1427.0
+            ],
+            "closed": "right"
+          },
+          "non_event": 1300.0,
+          "event": 197.0,
+          "total": 1497.0,
+          "non_event_share": 0.2452367477834371,
+          "event_share": 0.28183118741058655,
+          "total_share": 0.2495,
+          "event_rate": 0.13159652638610556,
+          "woe": 0.13908420404235608,
+          "iv": 0.005089708507918135
+        },
+        {
+          "bin": {
+            "interval": [
+              1427.0,
+              {
+                "float": "inf"
+              }
+            ],
+            "closed": "right"
+          },
+          "non_event": 1268.0,
+          "event": 229.0,
+          "total": 1497.0,
+          "non_event_share": 0.23920015091492172,
+          "event_share": 0.32761087267525035,
+          "total_share": 0.2495,
+          "event_rate": 0.15297261189044756,
+          "woe": 0.3145258873110643,
+          "iv": 0.02780746070947898
+        }
+      ]
+    },
+    {
+      "name": "age",
+      "kind": "numeric",
+      "edges": [
+        {
+          "float": "-inf"
+        },
+        29.0,
+        42.0,
+        {
+          "float": "inf"
+        }
+      ],
+      "special": [],
+      "unseen": "raise",
+      "table": [
+        {
+          "bin": {
+            "interval": [
+              {
+                "float": "-inf"
+              },
+              29.0
+            ],
+            "closed": "right"
+          },
+          "non_event": 572.0,
+          "event": 115.0,
+          "total": 687.0,
+          "non_event_share": 0.10790416902471232,
+          "event_share": 0.16452074391988555,
+          "total_share": 0.1145,
+          "event_rate": 0.16739446870451238,
+          "woe": 0.42179315573744797,
+          "iv": 0.02388048379208069
+        },
+        {
+          "bin": {
+            "interval": [
+              29.0,
+              42.0
+            ],
+            "closed": "right"
+          },
+          "non_event": 2666.0,
+          "event": 297.0,
+          "total": 2963.0,
+          "non_event_share": 0.5029239766081871,
+          "event_share": 0.4248927038626609,
+          "total_share": 0.49383333333333335,
+          "event_rate": 0.10023624704691192,
+          "woe": -0.16860234318195855,
+          "iv": 0.013156255426366214
+        },
+        {
+          "bin": {
+            "interval": [
+              42.0,
+              {
+                "float": "inf"
+              }
+            ],
+            "closed": "right"
+          },
+          "non_event": 2063.0,
+          "event": 287.0,
+          "total": 2350.0,
+          "non_event_share": 0.38917185436710056,
+          "event_share": 0.4105865522174535,
+          "total_share": 0.39166666666666666,
+          "event_rate": 0.12212765957446808,
+          "woe": 0.053565721442365086,
+          "iv": 0.00114709373982442
+        }
+      ]
+    },
+    {
+      "name": "pdays",
+      "kind": "numeric",
+      "edges": [
+        {
+          "float": "-inf"
+        },
+        109.0,
+        177.0,
+        192.0,
+        371.0,
+        {
+          "float": "inf"
+        }
+      ],
+      "special": [
+        -1
+      ],
+      "unseen": "raise",
+      "table": [
+        {
+          "bin": -1,
+          "non_event": 4489.0,
+          "event": 447.0,
+          "total": 4936.0,
+          "non_event_share": 0.8468213544614224,
+          "event_share": 0.6394849785407726,
+          "total_share": 0.8226666666666667,
+          "event_rate": 0.09055915721231766,
+          "woe": -0.2808266254143674,
+          "iv": 0.05822557477544079
+        },
+        {
+          "bin": {
+            "interval": [
+              {
+                "float": "-inf"
+              },
+              109.0
+            ],
+            "closed": "right"
+          },
+          "non_event": 116.0,
+          "event": 110.0,
+          "total": 226.0,
+          "non_event_share": 0.02188266364836823,
+          "event_share": 0.15736766809728184,
+          "total_share": 0.03766666666666667,
+          "event_rate": 0.48672566371681414,
+          "woe": 1.9728901934400476,
+          "iv": 0.26729703663544285
+        },
+        {
+          "bin": {
+            "interval": [
+              109.0,
+              177.0
+            ],
+            "closed": "right"
+          },
+          "non_event": 184.0,
+          "event": 31.0,
+          "total": 215.0,
+          "non_event_share": 0.034710431993963405,
+          "event_share": 0.044349070100143065,
+          "total_share": 0.035833333333333335,
+          "event_rate": 0.14418604651162792,
+          "woe": 0.24505146563015653,
+          "iv": 0.0023619623945980023
+        },
+        {
+          "bin": {
+            "interval": [
+              177.0,
+              192.0
+            ],
+            "closed": "right"
+          },
+          "non_event": 53.0,
+          "event": 54.0,
+          "total": 107.0,
+          "non_event_share": 0.00999811356347859,
+          "event_share": 0.07725321888412018,
+          "total_share": 0.017833333333333333,
+          "event_rate": 0.5046728971962616,
+          "woe": 2.0446921517661485,
+          "iv": 0.1375159860153216
+        },
+        {
+          "bin": {
+            "interval": [
+              192.0,
+              371.0
+            ],
+            "closed": "right"
+          },
+          "non_event": 427.0,
+          "event": 33.0,
+          "total": 460.0,
+          "non_event_share": 0.08055083946425202,
+          "event_share": 0.04721030042918455,
+          "total_share": 0.07666666666666666,
+          "event_rate": 0.07173913043478261,
+          "woe": -0.5342764330081483,
+          "iv": 0.01781306427022478
+        },
+        {
+          "bin": {
+            "interval": [
+              371.0,
+              {
+                "float": "inf"
+              }
+            ],
+            "closed": "right"
+          },
+          "non_event": 32.0,
+          "event": 24.0,
+          "total": 56.0,
+          "non_event_share": 0.006036596868515374,
+          "event_share": 0.034334763948497854,
+          "total_share": 0.009333333333333334,
+          "event_rate": 0.42857142857142855,
+          "woe": 1.738317946302215,
+          "iv": 0.049191211682592086
+        }
+      ]
+    },
+    {
+      "name": "duration",
+      "kind": "numeric",
+      "edges": [
+        {
+          "float": "-inf"
+        },
+        75.0,
+        201.0,
+        321.0,
+        755.0,
+        {
+          "float": "inf"
+        }
+      ],
+      "special": [],
+      "unseen": "raise",
+      "table": [
+        {
+          "bin": {
+            "interval": [
+              {
+                "float": "-inf"
+              },
+              75.0
+            ],
+            "closed": "right"
+          },
+          "non_event": 900.0,
+          "event": 0.0,
+          "total": 900.0,
+          "non_event_share": 0.1697792869269949,
+          "event_share": 0.0007147962830593281,
+          "total_share": 0.15,
+          "event_rate": 0.0,
+          "woe": -5.470256977001986,
+          "iv": 0.9248262095082757
+        },
+        {
+          "bin": {
+            "interval": [
+              75.0,
+              201.0
+            ],
+            "closed": "right"
+          },
+          "non_event": 2304.0,
+          "event": 97.0,
+          "total": 2401.0,
+          "non_event_share": 0.43463497453310695,
+          "event_share": 0.13867047891350964,
+          "total_share": 0.40016666666666667,
+          "event_rate": 0.04039983340274885,
+          "woe": -1.142406076430129,
+          "iv": 0.33811163820340623
+        },
+        {
+          "bin": {
+            "interval": [
+              201.0,
+              321.0
+            ],
+            "closed": "right"
+          },
+          "non_event": 1044.0,
+          "event": 155.0,
+          "total": 1199.0,
+          "non_event_share": 0.1969439728353141,
+          "event_share": 0.2215868477483917,
+          "total_share": 0.19983333333333334,
+          "event_rate": 0.1292743953294412,
+          "woe": 0.1178953153589329,
+          "iv": 0.0029052795092280224
+        },
+        {
+          "bin": {
+            "interval": [
+              321.0,
+              755.0
+            ],
+            "closed": "right"
+          },
+          "non_event": 922.0,
+          "event": 281.0,
+          "total": 1203.0,
+          "non_event_share": 0.17392944727409923,
+          "event_share": 0.4017155110793424,
+          "total_share": 0.2005,
+          "event_rate": 0.23358270989193683,
+          "woe": 0.8370944126594222,
+          "iv": 0.1906784412930517
+        },
+        {
+          "bin": {
+            "interval": [
+              755.0,
+              {
+                "float": "inf"
+              }
+            ],
+            "closed": "right"
+          },
+          "non_event": 131.0,
+          "event": 166.0,
+          "total": 297.0,
+          "non_event_share": 0.024712318430484815,
+          "event_share": 0.23731236597569694,
+          "total_share": 0.0495,
+          "event_rate": 0.5589225589225589,
+          "woe": 2.262075432037662,
+          "iv": 0.48091734440206313
+        }
+      ]
+    },
+    {
+      "name": "campaign",
+      "kind": "numeric",
+      "edges": [
+        {
+          "float": "-inf"
+        },
+        10.8,
+        20.6,
+        30.400000000000002,
+        40.2,
+        {
+          "float": "inf"
+        }
+      ],
+      "special": [],
+      "unseen": "raise",
+      "table": [
+        {
+          "bin": {
+            "interval": [
+              {
+                "float": "-inf"
+              },
+              10.8
+            ],
+            "closed": "right"
+          },
+          "non_event": 5126.0,
+          "event": 695.0,
+          "total": 5821.0,
+          "non_event_share": 0.9669873608753066,
+          "event_share": 0.9928571428571429,
+          "total_share": 0.9701666666666666,
+          "event_rate": 0.11939529290499915,
+          "woe": 0.0264013645851771,
+          "iv": 0.000682997545841506
+        },
+        {
+          "bin": {
+            "interval": [
+              10.8,
+              20.6
+            ],
+            "closed": "right"
+          },
+          "non_event": 144.0,
+          "event": 2.0,
+          "total": 146.0,
+          "non_event_share": 0.027164685908319185,
+          "event_share": 0.002857142857142857,
+          "total_share": 0.024333333333333332,
+          "event_rate": 0.0136986301369863,
+          "woe": -2.252095693071654,
+          "iv": 0.05474291301470802
+        },
+        {
+          "bin": {
+            "interval": [
+              20.6,
+              30.400000000000002
+            ],
+            "closed": "right"
+          },
+          "non_event": 26.0,
+          "event": 2.0,
+          "total": 28.0,
+          "non_event_share": 0.004904734955668742,
+          "event_share": 0.002857142857142857,
+          "total_share": 0.004666666666666667,
+          "event_rate": 0.07142857142857142,
+          "woe": -0.5403789315171353,
+          "iv": 0.0011064756303843467
+        },
+        {
+          "bin": {
+            "interval": [
+              30.400000000000002,
+              40.2
+            ],
+            "closed": "right"
+          },
+          "non_event": 2.0,
+          "event": 0.0,
+          "total": 2.0,
+          "non_event_share": 0.0003772873042822109,
+          "event_share": 0.0007142857142857143,
+          "total_share": 0.0003333333333333333,
+          "event_rate": 0.0,
+          "woe": 0.6382760648245108,
+          "iv": 0.0002150980189891532
+        },
+        {
+          "bin": {
+            "interval": [
+              40.2,
+              {
+                "float": "inf"
+              }
+            ],
+            "closed": "right"
+          },
+          "non_event": 3.0,
+          "event": 0.0,
+          "total": 3.0,
+          "non_event_share": 0.0005659309564233164,
+          "event_share": 0.0007142857142857143,
+          "total_share": 0.0005,
+          "event_rate": 0.0,
+          "woe": 0.2328109567163463,
+          "iv": 3.453861311136675e-05
+        }
+      ]
+    },
+    {
+      "name": "housing",
+      "kind": "categorical",
+      "unseen": "raise",
+      "table": [
+        {
+          "bin": "no",
+          "non_event": 2221.0,
+          "event": 390.0,
+          "total": 2611.0,
+          "non_event_share": 0.4189775514053952,
+          "event_share": 0.5579399141630901,
+          "total_share": 0.43516666666666665,
+          "event_rate": 0.1493680582152432,
+          "woe": 0.2864339339832604,
+          "iv": 0.03980353624029545
+        },
+        {
+          "bin": "yes",
+          "non_event": 3080.0,
+          "event": 309.0,
+          "total": 3389.0,
+          "non_event_share": 0.5810224485946048,
+          "event_share": 0.44206008583690987,
+          "total_share": 0.5648333333333333,
+          "event_rate": 0.09117733844791974,
+          "woe": -0.27334358031587896,
+          "iv": 0.0379844697653423
+        }
+      ]
+    },
+    {
+      "name": "contact",
+      "kind": "categorical",
+      "unseen": 0.0,
+      "table": [
+        {
+          "bin": "cellular",
+          "non_event": 3346.0,
+          "event": 562.0,
+          "total": 3908.0,
+          "non_event_share": 0.6312016600641388,
+          "event_share": 0.804005722460658,
+          "total_share": 0.6513333333333333,
+          "event_rate": 0.14380757420675538,
+          "woe": 0.24198098710091764,
+          "iv": 0.041815297593758294
+        },
+        {
+          "bin": "unknown",
+          "non_event": 1643.0,
+          "event": 89.0,
+          "total": 1732.0,
+          "non_event_share": 0.30994152046783624,
+          "event_share": 0.12732474964234622,
+          "total_share": 0.2886666666666667,
+          "event_rate": 0.05138568129330254,
+          "woe": -0.8896427295511323,
+          "iv": 0.16246368245900253
+        },
+        {
+          "bin": "telephone",
+          "non_event": 312.0,
+          "event": 48.0,
+          "total": 360.0,
+          "non_event_share": 0.0588568194680249,
+          "event_share": 0.06866952789699571,
+          "total_share": 0.06,
+          "event_rate": 0.13333333333333333,
+          "woe": 0.15419784185240434,
+          "iv": 0.0015130984624741955
+        }
+      ]
+    }
+  ]
+}

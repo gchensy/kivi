@@ -1,7 +1,7 @@
 Installation
 ============
 
-kivi requires Python 3.10 or newer, NumPy 1.24 or newer and pandas 2.0 or newer. pip installs NumPy and pandas automatically.
+kivi requires Python 3.10 or newer, NumPy 1.24 or newer and pandas 2.0 or newer. pip installs NumPy and pandas automatically. From kivi 1.0, a minimum version rises only in a minor release, announced in the notes of the release before; see :doc:`/api/compatibility`.
 
 .. tab-set::
 

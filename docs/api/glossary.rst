@@ -50,6 +50,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    DeLong test
       A test of whether two scores have the same AUC on the same sample. It uses the variances and the covariance of the two AUCs that DeLong, DeLong and Clarke-Pearson (1988) derived from the placement values; see :doc:`/user_guide/metrics`.
 
+   Deprecation
+      A part of the public API that still works but warns with a ``FutureWarning``, because a later release removes or changes it. The warning says what to use instead; see :doc:`compatibility`.
+
    Effective interest rate
       The rate that discounts the estimated future cash flows of a loan over its expected life to its gross carrying amount at initial recognition. IFRS 9 discounts expected credit losses at this rate; see :doc:`/user_guide/lifetime`.
 
@@ -70,6 +73,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Exposure at default (EAD)
       The amount owed when a borrower defaults, such as the outstanding balance of a loan; see :doc:`/user_guide/strategy`.
+
+   Format version
+      The version of the JSON format of a binning specification, stored in each file. A release reads every format version up to its own and rejects a newer one; see :doc:`compatibility`.
 
    Gains table
       A table of score bands from the riskiest to the safest, with the event rate and lift of each band and the cumulative shares of events and non-events; see :doc:`/user_guide/metrics`.
@@ -163,6 +169,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Swap set
       The four groups of applicants that two scores, each with its cut-off, approve or decline. The swap-outs are approved only by the current score and the swap-ins only by the new one; see :doc:`/user_guide/strategy`.
+
+   Total
+      The number of observations in a row of a table, missing values included, or their sum of weights. The ``count`` of :func:`~kivi.univariate.profile_table` is the number of values that are not missing instead, as in ``pandas.DataFrame.describe``; see :doc:`/user_guide/univariate`.
 
    Transition matrix
       A table that counts the loans or obligors that moved from each state to each other state between two dates, such as delinquency buckets or rating grades; see :doc:`/user_guide/vintage`.
