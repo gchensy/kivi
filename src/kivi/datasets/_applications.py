@@ -4,7 +4,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._loan_panel import _positive_integer
+from .. import _validation
 
 HOUSING = ("own", "mortgage", "rent")
 EMPLOYMENT = ("permanent", "temporary", "self_employed")
@@ -117,7 +117,7 @@ def make_applications(
                    True      6770  0.097
     True           False      763  0.274
     """
-    n_applicants = _positive_integer(n_applicants, "n_applicants")
+    n_applicants = _validation.check_count(n_applicants, "n_applicants")
     rng = np.random.default_rng(rng)
 
     age = np.clip(np.round(rng.normal(40, 11, n_applicants)), 18, 75).astype(np.int64)

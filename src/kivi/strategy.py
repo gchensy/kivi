@@ -12,27 +12,14 @@ when the score is at or below the cut-off.
 """
 
 import math
-from collections.abc import Mapping
-from numbers import Real
+import numbers
+from collections import abc
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._counts import group_counts, group_rows, ratio
-from ._validation import (
-    as_real,
-    as_series,
-    as_weights,
-    finite_scores,
-    is_integral,
-    is_real_dtype,
-    known_outcomes,
-    like_input,
-    scores_and_labels,
-    shared_index,
-)
-from .binning import _fit_edges
+from . import _counts, _edges, _validation
 
 __all__ = ["cutoff_table", "swap_set", "expected_loss", "expected_loss_table"]
 
@@ -157,8 +144,8 @@ def cutoff_table(
     0.5                     0.75                       0.0
     1.0                     0.00                       0.0
     """
-    shared_index({"score": score, "target": target, "loss": loss, "weights": weights})
-    values, labels, mass = scores_and_labels(score, target, "score", weights=weights)
+    _validation.shared_index({"score": score, "target": target, "loss": loss, "weights": weights})
+    values, labels, mass = _validation.scores_and_labels(score, target, "score", weights=weights)
     points = _cutoff_values(values, cutoffs, mass)
     amounts = None if loss is None else _loss_amounts(loss, score)
     order = np.argsort(values, kind="stable")
@@ -181,7 +168,7 @@ def cutoff_table(
         "approved": approved,
         "approval_rate": approved / (total_event + total_non_event),
         "approved_event": approved_event,
-        "approved_event_rate": ratio(approved_event, approved),
+        "approved_event_rate": _counts.ratio(approved_event, approved),
         "rejected_event_share": (total_event - approved_event) / total_event,
         "rejected_non_event_share": (total_non_event - approved_non_event) / total_non_event,
     }
@@ -301,31 +288,34 @@ def swap_set(
     decline approve      1  0.125      0      0         NaN
             decline      3  0.375      0      0         NaN
     """
-    shared_index({"current": current, "new": new, "target": target, "weights": weights})
+    _validation.shared_index({"current": current, "new": new, "target": target, "weights": weights})
     raw_current = current
-    current, new = as_series(current, "current"), as_series(new, "new")
+    current, new = _validation.as_series(current, "current"), _validation.as_series(new, "new")
     if len(current) != len(new):
         raise ValueError(
             f"current and new must have the same length, got {len(current)} and {len(new)}"
         )
     if not len(current):
         raise ValueError("current and new must not be empty")
-    current, new = finite_scores(current, "current"), finite_scores(new, "new")
+    current, new = (
+        _validation.finite_scores(current, "current"),
+        _validation.finite_scores(new, "new"),
+    )
     declined = 2 * (current > _cutoff(current_cutoff, "current_cutoff")) + (
         new > _cutoff(new_cutoff, "new_cutoff")
     )
-    mass = as_weights(weights, raw_current, of="current")
+    mass = _validation.as_weights(weights, raw_current, of="current")
     total = np.bincount(declined, weights=mass, minlength=4)
     columns = {"total": total, "share": total / total.sum()}
     if target is not None:
-        known, event = known_outcomes(target, len(current), "current")
+        known, event = _validation.known_outcomes(target, len(current), "current")
         if mass is None:
             columns["known"] = np.bincount(declined[known], minlength=4)
             columns["event"] = np.bincount(declined[event], minlength=4)
         else:
             columns["known"] = np.bincount(declined, weights=known * mass, minlength=4)
             columns["event"] = np.bincount(declined, weights=event * mass, minlength=4)
-        columns["event_rate"] = ratio(columns["event"], columns["known"])
+        columns["event_rate"] = _counts.ratio(columns["event"], columns["known"])
     index = pd.MultiIndex.from_product([_DECISIONS, _DECISIONS], names=["current", "new"])
     return pd.DataFrame(columns, index=index)
 
@@ -392,9 +382,9 @@ def expected_loss(
     array([ 9. , 22.5, 22.5])
     """
     inputs = {"probability": probability, "lgd": lgd, "ead": ead}
-    shared_index(inputs)
+    _validation.shared_index(inputs)
     arrays, template = _loss_inputs(inputs)
-    return like_input(template, arrays["probability"] * arrays["lgd"] * arrays["ead"])
+    return _validation.like_input(template, arrays["probability"] * arrays["lgd"] * arrays["ead"])
 
 
 def expected_loss_table(
@@ -500,12 +490,12 @@ def expected_loss_table(
     B    0.175
     Name: exposure_weighted_probability, dtype: float64
     """
-    shared_index(
+    _validation.shared_index(
         {"groups": groups, "probability": probability, "lgd": lgd, "ead": ead, "weights": weights}
     )
     raw_groups = groups
-    groups = as_series(groups, "groups")
-    length = len(as_series(probability, "probability"))
+    groups = _validation.as_series(groups, "groups")
+    length = len(_validation.as_series(probability, "probability"))
     if length != len(groups):
         raise ValueError(
             f"groups and probability must have the same length, got {len(groups)} and {length}"
@@ -515,9 +505,9 @@ def expected_loss_table(
     arrays, _ = _loss_inputs(
         {"probability": probability, "lgd": lgd, "ead": ead}, length=len(groups)
     )
-    mass = as_weights(weights, raw_groups, of="groups")
-    counts = group_counts(groups, np.zeros(len(groups), dtype=np.intp), mass)
-    rows = group_rows(groups, counts.index)
+    mass = _validation.as_weights(weights, raw_groups, of="groups")
+    counts = _counts.group_counts(groups, np.zeros(len(groups), dtype=np.intp), mass)
+    rows = _counts.group_rows(groups, counts.index)
     # Only exposures of zero weight lie in a group that group_counts left out.
     kept = rows >= 0
     exposure = arrays["ead"] if mass is None else mass * arrays["ead"]
@@ -531,11 +521,11 @@ def expected_loss_table(
         {
             "total": counts.to_numpy()[:, 0],
             "exposure": group_exposure,
-            "exposure_weighted_probability": ratio(
+            "exposure_weighted_probability": _counts.ratio(
                 group_sum(exposure * arrays["probability"]), group_exposure
             ),
             "expected_loss": group_loss,
-            "expected_loss_rate": ratio(group_loss, group_exposure),
+            "expected_loss_rate": _counts.ratio(group_loss, group_exposure),
         },
         index=counts.index,
     )
@@ -545,13 +535,16 @@ def _cutoff_values(
     values: np.ndarray, cutoffs: int | npt.ArrayLike, weights: np.ndarray | None
 ) -> np.ndarray:
     """Increasing cut-offs: quantile edges above the lowest for an integer, else the values."""
-    message = "cutoffs must be a positive integer or a sequence of increasing numbers, got {!r}"
-    if is_integral(cutoffs) and not isinstance(cutoffs, bool):
+    error = ValueError(
+        "cutoffs must be a positive integer or a sequence of increasing numbers, got "
+        f"{_validation.shown_argument(cutoffs)}"
+    )
+    if _validation.is_integral(cutoffs) and not isinstance(cutoffs, bool):
         if cutoffs < 1:
-            raise ValueError(message.format(cutoffs))
+            raise error
         # The edges of bin_edges above the lowest; the last one, infinity, approves everyone.
         # The warning for tied quantiles points at the caller of cutoff_table.
-        edges = _fit_edges(
+        edges = _edges.fit_edges(
             values,
             int(cutoffs),
             weights=weights,
@@ -560,24 +553,24 @@ def _cutoff_values(
         )
         return edges[1:]
     if np.ndim(cutoffs) != 1:
-        raise ValueError(message.format(cutoffs))
+        raise error
     series = cutoffs if isinstance(cutoffs, pd.Series) else pd.Series(cutoffs)
-    if not len(series) or not is_real_dtype(series.dtype):
-        raise ValueError(message.format(cutoffs))
+    if not len(series) or not _validation.is_real_dtype(series.dtype):
+        raise error
     array = series.to_numpy(dtype=float, na_value=np.nan)
     if np.isnan(array).any() or not (np.diff(array) > 0).all():
-        raise ValueError(message.format(cutoffs))
+        raise error
     return array
 
 
 def _cutoff(value: object, name: str) -> float:
-    if isinstance(value, bool) or not isinstance(value, Real) or math.isnan(float(value)):
-        raise ValueError(f"{name} must be a number, got {value!r}")
+    if isinstance(value, bool) or not isinstance(value, numbers.Real) or math.isnan(float(value)):
+        raise ValueError(f"{name} must be a number, got {_validation.shown(value)}")
     return float(value)
 
 
 def _loss_amounts(loss: npt.ArrayLike, score: npt.ArrayLike) -> npt.NDArray[np.float64]:
-    amounts = as_real(as_series(loss, "loss"), "loss")
+    amounts = _validation.as_real(_validation.as_series(loss, "loss"), "loss")
     count = len(score)  # type: ignore[arg-type]  # one-dimensional: validated by the caller
     if len(amounts) != count:
         raise ValueError(
@@ -592,7 +585,7 @@ def _loss_amounts(loss: npt.ArrayLike, score: npt.ArrayLike) -> npt.NDArray[np.f
 
 
 def _loss_inputs(
-    inputs: Mapping[str, npt.ArrayLike], length: int | None = None
+    inputs: abc.Mapping[str, npt.ArrayLike], length: int | None = None
 ) -> tuple[dict[str, npt.NDArray[np.float64]], npt.ArrayLike]:
     """Broadcast and check PD, LGD and EAD; also return the input whose shape the result takes.
 
@@ -601,7 +594,7 @@ def _loss_inputs(
     """
     # Booleans count as 0 and 1 in probabilities, as elsewhere in kivi, but not in LGDs or EADs.
     arrays = {
-        name: as_real(values, name, booleans=name == "probability")
+        name: _validation.as_real(values, name, booleans=name == "probability")
         for name, values in inputs.items()
     }
     if length is not None:

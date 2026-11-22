@@ -7,22 +7,13 @@ any of them is binned with care.
 """
 
 import warnings
-from collections.abc import Mapping, Sequence
+from collections import abc
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from . import binning, metrics, woe
-from ._validation import (
-    as_series,
-    as_weights,
-    check_finite_column,
-    checked_codes,
-    fitted_columns,
-    is_binned_dtype,
-    shown_list,
-)
+from . import _edges, _special, _validation, binning, metrics, woe
 
 __all__ = ["profile_table"]
 
@@ -34,9 +25,9 @@ def profile_table(
     frame: pd.DataFrame,
     target: npt.ArrayLike | None = None,
     *,
-    columns: Sequence[str] | None = None,
+    columns: abc.Sequence[str] | None = None,
     bins: int = 5,
-    special: Mapping[str, npt.ArrayLike] | None = None,
+    special: abc.Mapping[str, npt.ArrayLike] | None = None,
     weights: npt.ArrayLike | None = None,
 ) -> pd.DataFrame:
     r"""Summarize each column of a data frame in one row.
@@ -189,12 +180,12 @@ def profile_table(
     """
     if not isinstance(frame, pd.DataFrame):
         raise ValueError(f"frame must be a pandas DataFrame, got {type(frame).__name__}")
-    names = fitted_columns(frame, columns)
+    names = _validation.fitted_columns(frame, columns)
     if not len(frame):
         raise ValueError("frame must have at least one row")
-    binning._check_count(bins, "bins")
+    _validation.check_count(bins, "bins")
     labels = None if target is None else _target_labels(target, frame, names)
-    mass = as_weights(weights, frame.index.to_series(), of="frame")
+    mass = _validation.as_weights(weights, frame.index.to_series(), of="frame")
     if labels is not None and mass is not None:
         totals = np.bincount(labels, weights=mass, minlength=2)
         if not (totals > 0).all():
@@ -203,7 +194,8 @@ def profile_table(
                 f"{float(totals[0])!r} for 0 and {float(totals[1])!r} for 1"
             )
     kinds = {
-        name: "numeric" if is_binned_dtype(frame[name].dtype) else "categorical" for name in names
+        name: "numeric" if _validation.is_binned_dtype(frame[name].dtype) else "categorical"
+        for name in names
     }
     codes = _special_codes(special, kinds)
     weight = np.ones(len(frame)) if mass is None else mass
@@ -211,10 +203,12 @@ def profile_table(
     for name in names:
         if kinds[name] == "numeric":
             if pd.api.types.is_complex_dtype(frame[name].dtype):
-                raise ValueError(f"column {name!r} must be real, got dtype {frame[name].dtype}")
+                raise ValueError(
+                    f"column {_validation.shown(name)} must be real, got dtype {frame[name].dtype}"
+                )
             # Rows without weight count for nothing, whatever value they hold.
             used = frame[name] if mass is None else frame[name][mass > 0]
-            check_finite_column(used, codes.get(name, ()), name)
+            _validation.check_finite_column(used, codes.get(name, ()), name)
         rows.append(
             _profile(frame[name], kinds[name], codes.get(name, ()), labels, weight, mass, bins)
         )
@@ -240,9 +234,9 @@ def _profile(
     row["missing_share"] = row["missing"] / total
     row.update(_top(values, ~missing & (weight > 0), weight, row["count"]))
     numeric = kind == "numeric"
-    special = binning._special_values(list(codes) or None)
+    special = _special.special_values(list(codes) or None)
     is_special = (
-        binning._special_positions(values, special) >= 0 if numeric else np.zeros(len(values), bool)
+        _special.special_positions(values, special) >= 0 if numeric else np.zeros(len(values), bool)
     )
     row["special"] = weight[is_special].sum()
     row["special_share"] = row["special"] / total
@@ -315,7 +309,7 @@ def _summary(x: np.ndarray, weight: np.ndarray | None) -> dict:
         mean = np.average(x, weights=weight)
         dof = weight.sum() - 1
         squares = np.sum(weight * (x - mean) ** 2)
-        quantiles = binning._weighted_quantile(x, weight, probabilities)
+        quantiles = _edges.weighted_quantile(x, weight, probabilities)
     std = np.sqrt(squares / dof) if dof > 0 else np.nan
     return dict(
         zip(names, [mean, std, x.min(), *quantiles, x.max()], strict=True),
@@ -332,11 +326,12 @@ def _target_labels(target: npt.ArrayLike, frame: pd.DataFrame, names: list[str])
     if isinstance(target, pd.Series):
         if target.name is not None and target.name in names:
             raise ValueError(
-                f"columns include the target {target.name!r}; leave it out of the profiled columns"
+                f"columns include the target {_validation.shown(target.name)}; leave it out of "
+                "the profiled columns"
             )
         if not target.index.equals(frame.index):
             raise ValueError("frame and target must have identical indices")
-    series = as_series(target, "target")
+    series = _validation.as_series(target, "target")
     if len(series) != len(frame):
         raise ValueError(
             f"frame and target must have the same length, got {len(frame)} and {len(series)}"
@@ -346,20 +341,24 @@ def _target_labels(target: npt.ArrayLike, frame: pd.DataFrame, names: list[str])
     return series.to_numpy(dtype=np.intp)
 
 
-def _special_codes(special: Mapping | None, kinds: dict[str, str]) -> dict[str, tuple]:
+def _special_codes(special: abc.Mapping | None, kinds: dict[str, str]) -> dict[str, tuple]:
     """Check the special codes by column and return them as tuples of numbers."""
     if special is None:
         return {}
-    if not isinstance(special, Mapping):
+    if not isinstance(special, abc.Mapping):
         raise ValueError(f"special must be a dict by column, got {type(special).__name__}")
     unknown = [name for name in special if name not in kinds]
     if unknown:
-        raise ValueError(f"special names columns that are not profiled: {shown_list(unknown)}")
+        raise ValueError(
+            f"special names columns that are not profiled: {_validation.shown_list(unknown)}"
+        )
     categorical = [name for name in special if kinds[name] != "numeric"]
     if categorical:
         raise ValueError(
-            f"special names categorical columns, which keep their labels: {shown_list(categorical)}"
+            "special names categorical columns, which keep their labels: "
+            f"{_validation.shown_list(categorical)}"
         )
     return {
-        name: checked_codes(value, f"special of column {name!r}") for name, value in special.items()
+        name: _validation.checked_codes(value, f"special of column {_validation.shown(name)}")
+        for name, value in special.items()
     }

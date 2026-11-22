@@ -14,17 +14,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._counts import concat_groups, divergence, ratio
-from ._validation import (
-    as_series,
-    as_weights,
-    check_smoothing,
-    finite_scores,
-    first_value,
-    known_outcomes,
-    shared_index,
-)
-from .metrics import _band_edges, ks, roc_auc
+from . import _counts, _edges, _validation, metrics
 
 __all__ = ["monitoring_table", "stability_table"]
 
@@ -198,22 +188,24 @@ def monitoring_table(
     The March outcomes of two observations are not known yet, so its
     discrimination rests on the other two.
     """
-    shared_index(
+    _validation.shared_index(
         {"score": score, "period": period, "target": target, "weights": weights}, frames=True
     )
     _one_reference(reference_period, reference_score, "reference_score")
-    check_smoothing(smoothing)
+    _validation.check_smoothing(smoothing)
     raw_score = score
-    score, period = as_series(score, "score"), as_series(period, "period")
+    score, period = _validation.as_series(score, "score"), _validation.as_series(period, "period")
     if len(score) != len(period):
         raise ValueError(
             f"score and period must have the same length, got {len(score)} and {len(period)}"
         )
     if not len(score):
         raise ValueError("score and period must not be empty")
-    values = finite_scores(score, "score")
-    mass = as_weights(weights, raw_score, of="score")
-    known, event = (None, None) if target is None else known_outcomes(target, len(score), "score")
+    values = _validation.finite_scores(score, "score")
+    mass = _validation.as_weights(weights, raw_score, of="score")
+    known, event = (
+        (None, None) if target is None else _validation.known_outcomes(target, len(score), "score")
+    )
     code, periods, categorical = _periods(period)
     totals = _period_sums(code, len(periods), mass)
 
@@ -225,7 +217,7 @@ def monitoring_table(
     else:
         reference_values, reference_mass = _reference_scores(reference_score, reference_weights)
     # Called here, not in a helper, so that the warning for tied quantiles points at the caller.
-    edges = _band_edges(reference_values, bins, reference_mass)
+    edges = _edges.band_edges(reference_values, bins, reference_mass)
     band = _bands(values, edges, "score")
     reference_band = _bands(reference_values, edges, "reference_score")
     psi = _period_psi(
@@ -237,7 +229,7 @@ def monitoring_table(
         labels = event.astype(np.intp)  # type: ignore[union-attr]  # set with target
         columns["known"] = _period_sums(code[known], len(periods), _subset(mass, known))  # type: ignore[arg-type]  # set with target
         columns["event"] = _period_sums(code[event], len(periods), _subset(mass, event))  # type: ignore[arg-type]  # set with target
-        columns["event_rate"] = ratio(columns["event"], columns["known"])
+        columns["event_rate"] = _counts.ratio(columns["event"], columns["known"])
         auc, ks_value = _discrimination(code, values, labels, known, mass, len(periods))  # type: ignore[arg-type]  # set with target
         columns.update(auc=auc, gini=2 * auc - 1, ks=ks_value)
     columns["psi"] = psi
@@ -365,10 +357,10 @@ def stability_table(
     _check_columns(groups, "groups")
     if not len(groups):
         raise ValueError("groups must have at least one row")
-    shared_index({"groups": groups, "period": period, "weights": weights}, frames=True)
+    _validation.shared_index({"groups": groups, "period": period, "weights": weights}, frames=True)
     _one_reference(reference_period, reference_groups, "reference_groups")
-    check_smoothing(smoothing)
-    period = as_series(period, "period")
+    _validation.check_smoothing(smoothing)
+    period = _validation.as_series(period, "period")
     if len(period) != len(groups):
         raise ValueError(
             f"period must have one value per row of groups, got {len(period)} for {len(groups)}"
@@ -392,7 +384,7 @@ def stability_table(
         if len(absent):
             raise ValueError(
                 "reference_groups must have every column of groups, got no column "
-                f"{first_value(absent)!r}"
+                f"{_validation.shown(absent)}"
             )
         if not len(reference_groups):
             raise ValueError("reference_groups must have at least one row")
@@ -438,8 +430,8 @@ def _check_columns(frame: pd.DataFrame, name: str) -> None:
     if isinstance(frame.columns, pd.MultiIndex):
         raise ValueError(f"{name} must have one level of column names, got {frame.columns.nlevels}")
     if frame.columns.has_duplicates:
-        repeated = first_value(frame.columns[frame.columns.duplicated()])
-        raise ValueError(f"{name} must have unique column names, got {repeated!r} twice")
+        repeated = _validation.shown(frame.columns[frame.columns.duplicated()])
+        raise ValueError(f"{name} must have unique column names, got {repeated} twice")
 
 
 def _row_weights(
@@ -447,12 +439,12 @@ def _row_weights(
 ) -> np.ndarray | None:
     """Weights of the rows of a DataFrame, checked as in ``kivi._validation.as_weights``."""
     if weights is not None:
-        length = len(as_series(weights, name))
+        length = len(_validation.as_series(weights, name))
         if length != len(frame):
             raise ValueError(
                 f"{name} must have one weight per row of {of}, got {length} for {len(frame)}"
             )
-    return as_weights(weights, frame, name, of)
+    return _validation.as_weights(weights, frame, name, of)
 
 
 def _periods(period: pd.Series) -> tuple[np.ndarray, pd.Index, bool]:
@@ -496,7 +488,7 @@ def _reference_position(label: object, periods: pd.Index, sample_name: str) -> i
         matched = range(len(periods))[position]
         if len(matched) > 1:
             raise ValueError(
-                f"reference_period must name one period, got {first_value(label)!r}, which "
+                f"reference_period must name one period, got {_validation.shown(label)}, which "
                 f"matches {len(matched)} periods"
             )
         position = matched[0] if len(matched) else None
@@ -504,7 +496,7 @@ def _reference_position(label: object, periods: pd.Index, sample_name: str) -> i
         shown = ", ".join(repr(value) for value in periods[:3].tolist())
         raise ValueError(
             f"reference_period must be one of the periods {shown}"
-            f"{', ...' if len(periods) > 3 else ''}, got {first_value(label)!r}"
+            f"{', ...' if len(periods) > 3 else ''}, got {_validation.shown(label)}"
         )
     return int(position)
 
@@ -523,7 +515,7 @@ def _check_reference_period(
         )
     if not total > 0:
         detail = "" if mass is None else " with positive weight"
-        raise ValueError(f"reference_period {first_value(label)!r} has no observations{detail}")
+        raise ValueError(f"reference_period {_validation.shown(label)} has no observations{detail}")
 
 
 def _reference_scores(
@@ -531,7 +523,7 @@ def _reference_scores(
 ) -> tuple[np.ndarray, np.ndarray | None]:
     """Finite scores and weights of an explicit reference sample."""
     raw_reference = reference_score
-    reference_score = as_series(reference_score, "reference_score")
+    reference_score = _validation.as_series(reference_score, "reference_score")
     if not len(reference_score):
         raise ValueError("reference_score must not be empty")
     if pd.api.types.is_bool_dtype(reference_score.dtype):
@@ -540,8 +532,10 @@ def _reference_scores(
             f"reference_score must be real and numeric, got dtype {reference_score.dtype}; "
             "pass the scores of the reference rows, such as score[mask], not the mask"
         )
-    values = finite_scores(reference_score, "reference_score")
-    mass = as_weights(reference_weights, raw_reference, "reference_weights", "reference_score")
+    values = _validation.finite_scores(reference_score, "reference_score")
+    mass = _validation.as_weights(
+        reference_weights, raw_reference, "reference_weights", "reference_score"
+    )
     return values, mass
 
 
@@ -565,7 +559,7 @@ def _levels(groups: pd.Series) -> np.ndarray:
 
 def _shared_levels(reference: pd.Series, current: pd.Series) -> tuple[np.ndarray, np.ndarray]:
     """Group codes of the current and the reference values, from one factorization of both."""
-    levels = _levels(concat_groups(reference, current))
+    levels = _levels(_counts.concat_groups(reference, current))
     return levels[len(reference) :], levels[: len(reference)]
 
 
@@ -597,7 +591,7 @@ def _period_psi(
         both = np.column_stack([reference, counts])
         # Groups empty in both samples are left out, as psi_table never sees them.
         both = both[both.sum(axis=1) > 0]
-        psi[number] = divergence(both, smoothing)[2].sum()
+        psi[number] = _counts.divergence(both, smoothing)[2].sum()
     return psi
 
 
@@ -620,8 +614,8 @@ def _discrimination(
         classes = np.bincount(labels[selected], weights=period_mass, minlength=2)
         if not (classes > 0).all():
             continue
-        auc[number] = roc_auc(values[selected], labels[selected], weights=period_mass)
-        ks_value[number] = ks(values[selected], labels[selected], weights=period_mass)
+        auc[number] = metrics.roc_auc(values[selected], labels[selected], weights=period_mass)
+        ks_value[number] = metrics.ks(values[selected], labels[selected], weights=period_mass)
     return auc, ks_value
 
 

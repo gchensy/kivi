@@ -8,16 +8,12 @@ negate them before passing them in.
 """
 
 import math
-from numbers import Integral
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._counts import ratio
-from ._stats import normal_quantile
-from ._validation import is_integral, is_real, scores_and_labels
-from .binning import _fit_edges
+from . import _counts, _edges, _stats, _validation
 
 __all__ = [
     "roc_auc",
@@ -113,7 +109,7 @@ def roc_auc(
     >>> round(roc_auc(-points, target), 4)
     0.7222
     """
-    values, labels, mass = scores_and_labels(score, target, "score", weights=weights)
+    values, labels, mass = _validation.scores_and_labels(score, target, "score", weights=weights)
     return _auc(values, labels, mass)
 
 
@@ -259,7 +255,7 @@ def ks(
     >>> round(ks(score, target), 4)
     0.3333
     """
-    values, labels, mass = scores_and_labels(score, target, "score", weights=weights)
+    values, labels, mass = _validation.scores_and_labels(score, target, "score", weights=weights)
     non_event, event = _distinct_counts(labels, values, mass).T
     gap = np.cumsum(event) / event.sum() - np.cumsum(non_event) / non_event.sum()
     return float(np.max(np.abs(gap)))
@@ -360,7 +356,7 @@ def roc_table(
     >>> table["precision"].round(3).tolist()
     [nan, 1.0, 0.5, 0.667, 0.6, 0.5]
     """
-    values, labels, mass = scores_and_labels(score, target, "score", weights=weights)
+    values, labels, mass = _validation.scores_and_labels(score, target, "score", weights=weights)
     if mass is not None:
         # Repeated rows would leave out an observation of zero weight, and with it its score.
         kept = mass > 0
@@ -375,7 +371,7 @@ def roc_table(
             "cum_event": cum_event,
             "false_positive_rate": cum_non_event / cum_non_event[-1],
             "true_positive_rate": cum_event / cum_event[-1],
-            "precision": ratio(cum_event, cum_non_event + cum_event),
+            "precision": _counts.ratio(cum_event, cum_non_event + cum_event),
         },
         index=pd.Index(np.concatenate([[np.inf], distinct[::-1]]), name="threshold"),
     )
@@ -504,7 +500,7 @@ def roc_auc_interval(
     auc     0.7222  0.2485  0.2353    1.0
     gini    0.4444  0.4969 -0.5295    1.0
     """
-    values, labels, mass = scores_and_labels(score, target, "score", weights=weights)
+    values, labels, mass = _validation.scores_and_labels(score, target, "score", weights=weights)
     _check_class_totals(labels, mass)
     z = _critical_value(level)
     auc = _auc(values, labels, mass)
@@ -651,8 +647,10 @@ def delong_test(
     if isinstance(current, pd.Series) and isinstance(new, pd.Series):
         if not current.index.equals(new.index):
             raise ValueError("current and new must have identical indices")
-    current_values, labels, mass = scores_and_labels(current, target, "current", weights=weights)
-    new_values, _, _ = scores_and_labels(new, target, "new", weights=weights)
+    current_values, labels, mass = _validation.scores_and_labels(
+        current, target, "current", weights=weights
+    )
+    new_values, _, _ = _validation.scores_and_labels(new, target, "new", weights=weights)
     _check_class_totals(labels, mass)
     z_level = _critical_value(level)
     current_auc = _auc(current_values, labels, mass)
@@ -789,8 +787,8 @@ def gains_table(
     (2.0, 3.0]      2      1         0.5            1.000  0.800  1.333
     (-inf, 2.0]     4      0         0.0            1.000  0.000  0.000
     """
-    values, labels, mass = scores_and_labels(score, target, "score", weights=weights)
-    edges = _band_edges(values, bins, mass)
+    values, labels, mass = _validation.scores_and_labels(score, target, "score", weights=weights)
+    edges = _edges.band_edges(values, bins, mass)
     band = np.searchsorted(edges, values, side="left") - 1
     outside = (band < 0) | (band >= len(edges) - 1)
     if outside.any():
@@ -807,7 +805,7 @@ def gains_table(
     non_event, event = counts[::-1].T
     total = non_event + event
     inverse_rate = total.sum() / event.sum()
-    event_rate = ratio(event, total)
+    event_rate = _counts.ratio(event, total)
     cum_event_share = np.cumsum(event) / event.sum()
     cum_non_event_share = np.cumsum(non_event) / non_event.sum()
     return pd.DataFrame(
@@ -821,7 +819,7 @@ def gains_table(
             "cum_event_share": cum_event_share,
             "cum_total_share": np.cumsum(total) / total.sum(),
             "ks": np.abs(cum_event_share - cum_non_event_share),
-            "cum_lift": ratio(np.cumsum(event), np.cumsum(total)) * inverse_rate,
+            "cum_lift": _counts.ratio(np.cumsum(event), np.cumsum(total)) * inverse_rate,
         },
         index=index,
     )
@@ -899,7 +897,7 @@ def brier_score(
     >>> round(brier_score([0.1, 0.3, 0.6, 0.8], target), 4)
     0.075
     """
-    values, labels, mass = scores_and_labels(
+    values, labels, mass = _validation.scores_and_labels(
         probability, target, "probability", both_classes=False, weights=weights
     )
     outside = (values < 0) | (values > 1)
@@ -975,10 +973,10 @@ def _check_class_totals(labels: np.ndarray, weights: np.ndarray | None) -> None:
 def _critical_value(level: float) -> float:
     """Return the normal quantile at (1 + level) / 2, for an interval at confidence `level`."""
     # The check is on the float that is used, so a level that rounds to 1 is rejected too.
-    if isinstance(level, bool) or not is_real(level) or not 0 < float(level) < 1:
-        raise ValueError(f"level must be a number between 0 and 1, got {level!r}")
+    if isinstance(level, bool) or not _validation.is_real(level) or not 0 < float(level) < 1:
+        raise ValueError(f"level must be a number between 0 and 1, got {_validation.shown(level)}")
     # (1 - level) / 2 keeps its precision when level is close to 1; 0.5 + level / 2 would not.
-    return -normal_quantile((1 - float(level)) / 2)
+    return -_stats.normal_quantile((1 - float(level)) / 2)
 
 
 def _score_counts(
@@ -999,29 +997,3 @@ def _distinct_counts(
 ) -> npt.NDArray[np.int64] | npt.NDArray[np.float64]:
     """(non_event, event) counts at each distinct score, from the lowest score to the highest."""
     return _score_counts(values, labels, weights)[1]
-
-
-def _band_edges(
-    values: np.ndarray, bins: Integral | npt.ArrayLike, weights: np.ndarray | None
-) -> npt.NDArray[np.float64]:
-    """Increasing band edges: quantile edges for an integer ``bins``, else ``bins`` itself."""
-    message = "bins must be a positive integer or at least two increasing edges, got {!r}"
-    if is_integral(bins) and not isinstance(bins, bool):
-        if bins < 1:
-            raise ValueError(message.format(bins))
-        # The edges of bin_edges; the warning for tied quantiles points at the caller of
-        # gains_table and gives advice that applies to it.
-        return _fit_edges(
-            values,
-            int(bins),
-            weights=weights,
-            advice="pass fewer bins or explicit edges",
-            stacklevel=4,
-        )
-    try:
-        edges = np.asarray(bins, dtype=float)
-    except (TypeError, ValueError):
-        raise ValueError(message.format(bins)) from None
-    if edges.ndim != 1 or len(edges) < 2 or not (np.diff(edges) > 0).all():
-        raise ValueError(message.format(bins))
-    return edges

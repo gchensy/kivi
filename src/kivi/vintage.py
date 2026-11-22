@@ -10,7 +10,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._validation import as_flags, as_series, as_weights, first_value, shared_index, shown
+from . import _validation
 
 __all__ = ["vintage_table", "transition_matrix", "roll_rates"]
 
@@ -132,7 +132,7 @@ def vintage_table(
     2024-02 cohort has not reached month on book 3.
     """
     names = ("loan", "cohort", "month_on_book", "bad")
-    shared_index(
+    _validation.shared_index(
         {
             "loan": loan,
             "cohort": cohort,
@@ -143,7 +143,7 @@ def vintage_table(
     )
     raw_loan = loan
     loan, cohort, month_on_book, bad = (
-        as_series(values, name)
+        _validation.as_series(values, name)
         for values, name in zip((loan, cohort, month_on_book, bad), names, strict=True)
     )
     lengths = [len(loan), len(cohort), len(month_on_book), len(bad)]
@@ -154,7 +154,7 @@ def vintage_table(
         )
     if not lengths[0]:
         raise ValueError("loan, cohort, month_on_book and bad must not be empty")
-    mass = as_weights(weights, raw_loan, "weights", "loan")
+    mass = _validation.as_weights(weights, raw_loan, "weights", "loan")
 
     loan_code, loan_label = pd.factorize(loan)
     _check_not_missing(loan_code, "loan")
@@ -166,7 +166,7 @@ def vintage_table(
             f"month_on_book must not be negative, got {int(mob[mob < 0][0])}; count the months "
             "from origination"
         )
-    flag = as_flags(bad, "bad")
+    flag = _validation.as_flags(bad, "bad")
 
     # The cohort and the weight of each loan come from its first row; all rows must agree.
     n_loans = len(loan_label)
@@ -177,8 +177,8 @@ def vintage_table(
         row = conflict[0]
         first = cohort.iloc[first_row[loan_code[row]]]
         raise ValueError(
-            f"each loan must have one cohort, got {first_value(first)!r} and "
-            f"{first_value(cohort.iloc[row])!r} for loan {first_value(loan.iloc[row])!r}"
+            f"each loan must have one cohort, got {_validation.shown(first)} and "
+            f"{_validation.shown(cohort.iloc[row])} for loan {_validation.shown(loan.iloc[row])}"
         )
     loan_mass = np.ones(n_loans)
     if mass is not None:
@@ -189,7 +189,7 @@ def vintage_table(
             raise ValueError(
                 f"weights must be the same on every row of a loan, got "
                 f"{float(loan_mass[loan_code[row]])!r} and {float(mass[row])!r} for loan "
-                f"{first_value(loan.iloc[row])!r}"
+                f"{_validation.shown(loan.iloc[row])}"
             )
 
     # Rows by loan and month on book: duplicates are adjacent, and so is each loan's first bad row.
@@ -200,7 +200,7 @@ def vintage_table(
         row = order[repeated[0]]
         raise ValueError(
             f"each loan must have at most one row per month on book, got two rows for loan "
-            f"{first_value(loan.iloc[row])!r} at month on book {int(mob[row])}"
+            f"{_validation.shown(loan.iloc[row])} at month on book {int(mob[row])}"
         )
     columns = np.unique(mob)
     # Column position of each loan's first bad month on book; loans never bad get len(columns).
@@ -327,7 +327,7 @@ def transition_matrix(
     """
     if not isinstance(normalize, (bool, np.bool_)):
         # pandas.crosstab takes "index", "columns" and "all", which would all give row shares.
-        raise ValueError(f"normalize must be True or False, got {shown(normalize)}")
+        raise ValueError(f"normalize must be True or False, got {_validation.shown(normalize)}")
     labels, before_code, after_code, mass = _transitions(before, after, states, weights)
     size = len(labels)
     counts = np.bincount(
@@ -442,16 +442,16 @@ def _transitions(
     weights: npt.ArrayLike | None,
 ) -> tuple[pd.Index, npt.NDArray[np.intp], npt.NDArray[np.intp], npt.NDArray[np.float64] | None]:
     """States as an Index, the state code of each entity before and after, and the weights."""
-    shared_index({"before": before, "after": after, "weights": weights})
+    _validation.shared_index({"before": before, "after": after, "weights": weights})
     raw_after = after
-    before, after = as_series(before, "before"), as_series(after, "after")
+    before, after = _validation.as_series(before, "before"), _validation.as_series(after, "after")
     if len(before) != len(after):
         raise ValueError(
             f"before and after must have the same length, got {len(before)} and {len(after)}"
         )
     if not len(before):
         raise ValueError("before and after must not be empty")
-    mass = as_weights(weights, raw_after, "weights", "after")
+    mass = _validation.as_weights(weights, raw_after, "weights", "after")
     for values, name in ((before, "before"), (after, "after")):
         missing = values.isna().to_numpy(dtype=bool)
         if missing.any():
@@ -468,15 +468,15 @@ def _state_labels(before: pd.Series, after: pd.Series, states: npt.ArrayLike | N
     """Return the states in order: as given, the shared categories or the sorted values."""
     if states is not None:
         if np.ndim(states) != 1:
-            raise ValueError(f"states must be one-dimensional, got {states!r}")
+            raise ValueError(f"states must be one-dimensional, got {_validation.shown(states)}")
         labels = pd.Index(states)  # type: ignore[arg-type]  # takes any array_like
         if labels.hasnans:
             raise ValueError(
                 f"states must not contain missing values, got {np.count_nonzero(labels.isna())}"
             )
         if labels.has_duplicates:
-            repeated = first_value(labels[labels.duplicated()])
-            raise ValueError(f"states must not contain duplicates, got {repeated!r} more than once")
+            repeated = _validation.shown(labels[labels.duplicated()])
+            raise ValueError(f"states must not contain duplicates, got {repeated} more than once")
         return labels
     categories = [
         values.dtype.categories
@@ -494,10 +494,10 @@ def _state_labels(before: pd.Series, after: pd.Series, states: npt.ArrayLike | N
     try:
         return values.sort_values()
     except TypeError:
-        first, second = first_value(values), first_value(values[1:])
+        first, second = _validation.shown(values), _validation.shown(values[1:])
         raise ValueError(
-            f"before and after have values that cannot be sorted, such as {first!r} and "
-            f"{second!r}; pass states to give their order"
+            f"before and after have values that cannot be sorted, such as {first} and "
+            f"{second}; pass states to give their order"
         ) from None
 
 
@@ -511,7 +511,7 @@ def _state_codes(values: pd.Series, labels: pd.Index, name: str) -> npt.NDArray[
     unknown = codes < 0
     if unknown.any():
         raise ValueError(
-            f"{name} must contain only values in states, got {first_value(values[unknown])!r}"
+            f"{name} must contain only values in states, got {_validation.shown(values[unknown])}"
         )
     return codes.astype(np.intp)
 

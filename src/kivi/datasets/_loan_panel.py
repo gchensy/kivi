@@ -4,7 +4,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from .._validation import is_integral
+from .. import _validation
 
 STATUSES = ("current", "1-29", "30-59", "60-89", "90+")
 FIRST_COHORT = pd.Period("2024-01", freq="M")
@@ -115,8 +115,8 @@ def make_loan_panel(
     90+         1733
     Name: count, dtype: int64
     """
-    n_loans = _positive_integer(n_loans, "n_loans")
-    n_months = _positive_integer(n_months, "n_months")
+    n_loans = _validation.check_count(n_loans, "n_loans")
+    n_months = _validation.check_count(n_months, "n_months")
     rng = np.random.default_rng(rng)
 
     cohort = np.sort(rng.integers(0, n_months, n_loans))
@@ -180,10 +180,3 @@ def make_loan_panel(
             "status": pd.Categorical.from_codes(status, categories=STATUSES, ordered=True),  # type: ignore[call-overload]  # categories may be any list-like
         }
     )
-
-
-def _positive_integer(value: int, name: str) -> int:
-    """``value`` as an int, or a ValueError naming the argument."""
-    if isinstance(value, bool) or not is_integral(value) or value < 1:
-        raise ValueError(f"{name} must be a positive integer, got {value!r}")
-    return int(value)

@@ -6,14 +6,13 @@ measures from counts that are already aggregated.
 """
 
 import math
-from typing import Literal
+import typing
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._counts import divergence, group_counts
-from ._validation import as_count_columns, as_series, as_weights, is_real, shown, woe_values
+from . import _counts, _validation
 
 __all__ = ["iv", "woe", "woe_table", "woe_transform"]
 
@@ -115,15 +114,18 @@ def woe_table(
         if not groups.index.equals(target.index):
             raise ValueError("groups and target must have identical indices")
     raw_groups, raw_target = groups, target
-    groups, target = as_series(groups, "groups"), as_series(target, "target")
+    groups, target = (
+        _validation.as_series(groups, "groups"),
+        _validation.as_series(target, "target"),
+    )
     if len(groups) != len(target):
         raise ValueError(
             f"groups and target must have the same length, got {len(groups)} and {len(target)}"
         )
     if not target.isin([0, 1]).all() or target.nunique() != 2:
         raise ValueError("target must contain both 0 and 1 and no missing labels")
-    mass = as_weights(weights, raw_groups, of="groups", others={"target": raw_target})
-    counts = group_counts(groups, target.to_numpy(dtype=np.intp), mass)
+    mass = _validation.as_weights(weights, raw_groups, of="groups", others={"target": raw_target})
+    counts = _counts.group_counts(groups, target.to_numpy(dtype=np.intp), mass)
     totals = counts.to_numpy().sum(axis=0)
     if not (totals > 0).all():
         raise ValueError(
@@ -132,7 +134,7 @@ def woe_table(
         )
     counts.columns = ["non_event", "event"]
     # Assign by position: aligning interval categories hashes them, which warns on NumPy < 2.2.
-    share, log_ratio, contribution = divergence(counts.to_numpy(), smoothing)
+    share, log_ratio, contribution = _counts.divergence(counts.to_numpy(), smoothing)
     total = counts["non_event"] + counts["event"]
     return counts.assign(
         total=total,
@@ -190,8 +192,10 @@ def woe(
     >>> woe([2, 1], [1, 2]).round(4)
     array([ 0.6931, -0.6931])
     """
-    counts = as_count_columns(non_event_counts, event_counts, ("non_event_counts", "event_counts"))
-    return divergence(counts, smoothing)[1]
+    counts = _validation.as_count_columns(
+        non_event_counts, event_counts, ("non_event_counts", "event_counts")
+    )
+    return _counts.divergence(counts, smoothing)[1]
 
 
 def iv(
@@ -243,15 +247,17 @@ def iv(
     >>> round(iv([2, 1], [1, 2]), 4)
     0.4621
     """
-    counts = as_count_columns(non_event_counts, event_counts, ("non_event_counts", "event_counts"))
-    return float(divergence(counts, smoothing)[2].sum())
+    counts = _validation.as_count_columns(
+        non_event_counts, event_counts, ("non_event_counts", "event_counts")
+    )
+    return float(_counts.divergence(counts, smoothing)[2].sum())
 
 
 def woe_transform(
     groups: npt.ArrayLike,
     table: pd.DataFrame | pd.Series,
     *,
-    unseen: float | Literal["raise"] = "raise",
+    unseen: float | typing.Literal["raise"] = "raise",
 ) -> pd.Series | npt.NDArray[np.float64]:
     """Replace each group with its weight of evidence.
 
@@ -308,15 +314,17 @@ def woe_transform(
     >>> woe_transform(pd.Series(["b", "a", None]), table, unseen=0.0).round(4).tolist()
     [-0.6931, 0.6931, 0.0]
     """
-    woe = woe_values(table)
+    woe = _validation.woe_values(table)
     raise_unseen = isinstance(unseen, str) and unseen == "raise"
     if not raise_unseen and (
         isinstance(unseen, (bool, np.bool_, str))
-        or not is_real(unseen)
+        or not _validation.is_real(unseen)
         or not math.isfinite(unseen)
     ):
-        raise ValueError(f"unseen must be 'raise' or a finite number, got {shown(unseen)}")
-    series = as_series(groups, "groups")
+        raise ValueError(
+            f"unseen must be 'raise' or a finite number, got {_validation.shown(unseen)}"
+        )
+    series = _validation.as_series(groups, "groups")
     levels: pd.Index | np.ndarray
     codes, levels = pd.factorize(series, sort=False, use_na_sentinel=False)
     levels = np.asarray(levels, dtype=object)
@@ -338,7 +346,7 @@ def woe_transform(
     if not found.all():
         if raise_unseen:
             missing = levels[~found]
-            examples = ", ".join(shown(label) for label in missing[:5])
+            examples = ", ".join(_validation.shown(label) for label in missing[:5])
             raise ValueError(
                 f"{len(missing)} group(s) are not in table, such as {examples}; "
                 "pass unseen to give them a WOE"

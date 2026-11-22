@@ -16,26 +16,14 @@ already in stage 3, as in the presumptions of IFRS 9.
 """
 
 import math
-from collections.abc import Hashable
-from typing import TypeGuard
+import typing
+from collections import abc
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._counts import ratio
-from ._validation import (
-    as_flags,
-    as_real,
-    as_series,
-    as_weights,
-    check_real_dtype,
-    first_value,
-    is_integral,
-    is_real,
-    is_real_dtype,
-    shared_index,
-)
+from . import _counts, _validation
 
 __all__ = [
     "convert_pd",
@@ -172,7 +160,7 @@ def convert_pd(
         if not (isinstance(value, str) and value in _KINDS):  # type: ignore[redundant-expr]  # rejects non-str values
             raise ValueError(
                 f"{name} must be 'cumulative', 'marginal' or 'conditional', got "
-                f"{first_value(value)!r}"
+                f"{_validation.shown(value)}"
             )
     values = _curves(probability, "probability")
     _check_curves(values, kind)
@@ -191,7 +179,7 @@ def transition_pd(
     matrix: npt.ArrayLike | pd.DataFrame,
     *,
     horizons: int | npt.ArrayLike,
-    default_state: Hashable | None = None,
+    default_state: abc.Hashable | None = None,
 ) -> pd.DataFrame:
     r"""Project the cumulative PD of each state from a transition matrix.
 
@@ -297,12 +285,12 @@ def transition_pd(
         try:
             default = states.get_loc(default_state)  # type: ignore[assignment]  # an int when found
             # get_loc also finds the interval that holds a number; the label itself must match.
-            found = is_integral(default) and bool(states[default] == default_state)
+            found = _validation.is_integral(default) and bool(states[default] == default_state)
         except (KeyError, TypeError, ValueError, pd.errors.InvalidIndexError):
             found = False
         if not found:
             raise ValueError(
-                f"default_state must be one of the states, got {first_value(default_state)!r}"
+                f"default_state must be one of the states, got {_validation.shown(default_state)}"
             )
     _check_transition_rows(probabilities, states, default)
 
@@ -495,12 +483,12 @@ def expected_credit_loss(
         )
     if horizon is None:
         horizon = periods
-    elif isinstance(horizon, bool) or not is_integral(horizon) or horizon < 1:
-        raise ValueError(f"horizon must be a positive integer, got {first_value(horizon)!r}")
+    elif isinstance(horizon, bool) or not _validation.is_integral(horizon) or horizon < 1:
+        raise ValueError(f"horizon must be a positive integer, got {_validation.shown(horizon)}")
     elif horizon > periods:
         raise ValueError(
             f"horizon must be at most the number of periods of probability, {periods}, "
-            f"got {first_value(horizon)}"
+            f"got {_validation.shown(horizon)}"
         )
     index = _account_index(
         {"probability": probability, "lgd": lgd, "ead": ead, "rate": rate}, accounts, periods
@@ -628,7 +616,7 @@ def significant_increase(
     """
     names = ("probability", "origination_probability")
     pairs = {"probability": probability, "origination_probability": origination_probability}
-    index = shared_index(pairs)
+    index = _validation.shared_index(pairs)
     current, origination = (_vector(pairs[name], name, booleans=True) for name in names)
     _same_length(current, origination, names)
     for values, name in ((current, "probability"), (origination, "origination_probability")):
@@ -643,14 +631,14 @@ def significant_increase(
         if not _is_number(relative) or not 1 < relative < math.inf:
             raise ValueError(
                 f"relative must be None or a ratio greater than 1, such as 2 for a PD that "
-                f"doubled, got {first_value(relative)!r}"
+                f"doubled, got {_validation.shown(relative)}"
             )
         flag &= current > relative * origination + _TIES * current
     if absolute is not None:
         if not _is_number(absolute) or not 0 < absolute < 1:
             raise ValueError(
                 f"absolute must be None or a number between 0 and 1, such as 0.01 for one "
-                f"percentage point, got {first_value(absolute)!r}"
+                f"percentage point, got {_validation.shown(absolute)}"
             )
         flag &= current - origination > absolute + _TIES * current
     if index is None:
@@ -752,11 +740,11 @@ def assign_stages(
     """
     name = "significant_increase"
     inputs = {name: significant_increase, "days_past_due": days_past_due, "defaulted": defaulted}
-    index = shared_index(inputs)
-    flags = as_series(significant_increase, name)
+    index = _validation.shared_index(inputs)
+    flags = _validation.as_series(significant_increase, name)
     if not len(flags):
         raise ValueError(f"{name} must not be empty")
-    increased = as_flags(flags, name)
+    increased = _validation.as_flags(flags, name)
     days = None
     if days_past_due is not None:
         days = _vector(days_past_due, "days_past_due")
@@ -768,17 +756,17 @@ def assign_stages(
             )
     impaired = np.zeros(len(increased), dtype=bool)
     if defaulted is not None:
-        impaired = as_flags(as_series(defaulted, "defaulted"), "defaulted")
+        impaired = _validation.as_flags(_validation.as_series(defaulted, "defaulted"), "defaulted")
         _same_length(increased, impaired, (name, "defaulted"))
     for value, option in ((stage_2_days, "stage_2_days"), (stage_3_days, "stage_3_days")):
         if not _is_number(value) or not 0 <= value < math.inf:
             raise ValueError(
-                f"{option} must be a finite, non-negative number, got {first_value(value)!r}"
+                f"{option} must be a finite, non-negative number, got {_validation.shown(value)}"
             )
     if not stage_3_days > stage_2_days:
         raise ValueError(
             f"stage_3_days must be greater than stage_2_days, got "
-            f"{first_value(stage_3_days)!r} and {first_value(stage_2_days)!r}"
+            f"{_validation.shown(stage_3_days)} and {_validation.shown(stage_2_days)}"
         )
     if days is not None:
         increased = increased | (days > stage_2_days)
@@ -875,17 +863,19 @@ def stage_table(
     3          1     200.0            0.04                  90.0     0.450
     """
     inputs = {"stage": stage, "exposure": exposure, "allowance": allowance, "weights": weights}
-    shared_index(inputs)
+    _validation.shared_index(inputs)
     raw_stage = stage
-    stage = as_series(stage, "stage")
+    stage = _validation.as_series(stage, "stage")
     if not len(stage):
         raise ValueError("stage must not be empty")
-    if not is_real_dtype(stage.dtype):
+    if not _validation.is_real_dtype(stage.dtype):
         raise ValueError(f"stage must be real and numeric, got dtype {stage.dtype}")
     # For nullable dtypes pandas 2.0 returns an object array, which ~ would negate as integers.
     invalid = ~stage.isin([1, 2, 3]).to_numpy(dtype=bool)
     if invalid.any():
-        raise ValueError(f"stage must contain only 1, 2 and 3, got {first_value(stage[invalid])!r}")
+        raise ValueError(
+            f"stage must contain only 1, 2 and 3, got {_validation.shown(stage[invalid])}"
+        )
     code = stage.to_numpy(dtype=float).astype(np.intp) - 1
     amounts = {}
     for values, name in ((exposure, "exposure"), (allowance, "allowance")):
@@ -897,7 +887,7 @@ def stage_table(
                 f"{name} must be finite and non-negative, got {float(array[invalid][0])!r}"
             )
         amounts[name] = array
-    mass = as_weights(weights, raw_stage, of="stage")
+    mass = _validation.as_weights(weights, raw_stage, of="stage")
     if mass is not None:
         amounts = {name: mass * array for name, array in amounts.items()}
     total = np.bincount(code, weights=mass, minlength=3)
@@ -907,17 +897,17 @@ def stage_table(
         {
             "total": total,
             "exposure": stage_exposure,
-            "exposure_share": ratio(stage_exposure, np.full(3, stage_exposure.sum())),
+            "exposure_share": _counts.ratio(stage_exposure, np.full(3, stage_exposure.sum())),
             "expected_credit_loss": stage_loss,
-            "coverage": ratio(stage_loss, stage_exposure),
+            "coverage": _counts.ratio(stage_loss, stage_exposure),
         },
         index=pd.Index([1, 2, 3], name="stage"),
     )
 
 
-def _is_number(value: object) -> TypeGuard[float]:
+def _is_number(value: object) -> typing.TypeGuard[float]:
     """Whether a scalar is a real number other than a boolean or NaN."""
-    return is_real(value) and not isinstance(value, bool) and not math.isnan(value)
+    return _validation.is_real(value) and not isinstance(value, bool) and not math.isnan(value)
 
 
 def _missing_as_float(series: pd.Series) -> pd.Series:
@@ -932,7 +922,7 @@ def _float_frame(frame: pd.DataFrame, name: str, *, booleans: bool = False) -> n
     if any(pd.api.types.is_object_dtype(dtype) for dtype in frame.dtypes):
         frame = frame.apply(_missing_as_float)
     for dtype in frame.dtypes:
-        check_real_dtype(dtype, name, booleans=booleans)
+        _validation.check_real_dtype(dtype, name, booleans=booleans)
     return frame.to_numpy(dtype=float, na_value=np.nan)
 
 
@@ -942,10 +932,10 @@ def _curves(values: npt.ArrayLike | pd.DataFrame, name: str) -> npt.NDArray[np.f
     if dimensions not in (1, 2):
         raise ValueError(f"{name} must be one- or two-dimensional, got {dimensions} dimensions")
     if dimensions == 1:
-        series = _missing_as_float(as_series(values, name))
+        series = _missing_as_float(_validation.as_series(values, name))
         if not len(series):
             raise ValueError(f"{name} must have at least one period")
-        check_real_dtype(series.dtype, name, booleans=True)
+        _validation.check_real_dtype(series.dtype, name, booleans=True)
         curves = series.to_numpy(dtype=float, na_value=np.nan)[None, :]
     else:
         # pandas reads [[0.1, None]] and nullable arrays as numbers, where NumPy keeps objects.
@@ -1018,7 +1008,9 @@ def _transition_probabilities(
             )
         if states.has_duplicates:
             repeated = states[states.duplicated()][:1].tolist()[0]
-            raise ValueError(f"matrix must not repeat a state, got {repeated!r} more than once")
+            raise ValueError(
+                f"matrix must not repeat a state, got {_validation.shown(repeated)} more than once"
+            )
         frame = matrix
     else:
         frame = pd.DataFrame(matrix)  # type: ignore[arg-type]  # takes any 2-D array_like
@@ -1038,18 +1030,20 @@ def _check_transition_rows(probabilities: np.ndarray, states: pd.Index, default:
         if np.isnan(values).any():
             raise ValueError(
                 f"matrix must not have missing values outside the row of the default state, got "
-                f"one in the row of state {state!r}; drop the states without entities"
+                f"one in the row of state {_validation.shown(state)}; drop the states without "
+                "entities"
             )
         outside = (values < 0) | (values > 1)
         if outside.any():
             raise ValueError(
                 f"matrix must hold probabilities between 0 and 1, got "
-                f"{float(values[outside][0])!r} in the row of state {state!r}"
+                f"{float(values[outside][0])!r} in the row of state {_validation.shown(state)}"
             )
         total = values.sum()
         if abs(total - 1) > _TOLERANCE:
             raise ValueError(
-                f"the rows of matrix must add up to 1, got {float(total)!r} for state {state!r}; "
+                f"the rows of matrix must add up to 1, got {float(total)!r} for state "
+                f"{_validation.shown(state)}; "
                 f"divide each row by its sum"
             )
 
@@ -1057,24 +1051,23 @@ def _check_transition_rows(probabilities: np.ndarray, states: pd.Index, default:
 def _horizons(horizons: int | npt.ArrayLike) -> npt.NDArray[np.int64]:
     """Increasing positive whole numbers of periods."""
     message = (
-        "horizons must be a positive integer or a sequence of increasing positive integers, "
-        "got {!r}"
+        "horizons must be a positive integer or a sequence of increasing positive integers, got {}"
     )
-    if isinstance(horizons, pd.Series | pd.Index | np.ndarray):
-        shown = horizons.tolist()
-    else:
-        shown = first_value(horizons) if np.ndim(horizons) == 0 else horizons
-    error = ValueError(message.format(shown))
+    error = ValueError(message.format(_validation.shown_argument(horizons)))
     if np.ndim(horizons) == 0:
         # A number of periods is an integer, as the horizon of expected_credit_loss; a
         # sequence is read like data, so whole numbers such as 12.0 are accepted there.
-        if isinstance(horizons, bool) or not is_integral(horizons) or not 1 <= horizons < 2**63:
+        if (
+            isinstance(horizons, bool)
+            or not _validation.is_integral(horizons)
+            or not 1 <= horizons < 2**63
+        ):
             raise error
         return np.arange(1, int(horizons) + 1)
     if np.ndim(horizons) != 1:
         raise error
     series = horizons if isinstance(horizons, pd.Series) else pd.Series(horizons)
-    if not len(series) or not is_real_dtype(series.dtype):
+    if not len(series) or not _validation.is_real_dtype(series.dtype):
         raise error
     values = series.to_numpy(dtype=float, na_value=np.nan)
     if (
@@ -1117,10 +1110,10 @@ def _vector(values: npt.ArrayLike, name: str, *, booleans: bool = False) -> npt.
 
     Unlike `kivi._validation.as_real` alone, it reads values that are all missing as floats.
     """
-    series = _missing_as_float(as_series(values, name))
+    series = _missing_as_float(_validation.as_series(values, name))
     if not len(series):
         raise ValueError(f"{name} must not be empty")
-    return as_real(series, name, booleans=booleans)
+    return _validation.as_real(series, name, booleans=booleans)
 
 
 def _same_length(first: np.ndarray, second: np.ndarray, names: tuple[str, str]) -> None:
@@ -1149,7 +1142,7 @@ def _schedule(
     )
     if dimensions == 0:
         array = np.asarray(values)
-        check_real_dtype(array.dtype, name)
+        _validation.check_real_dtype(array.dtype, name)
         array = array.astype(float).reshape(1, 1)
     elif dimensions == 1:
         array = _vector(values, name)
@@ -1172,7 +1165,7 @@ def _per_account(
     """One value or one value per account as a 1-D float array."""
     if np.ndim(values) == 0:
         array = np.asarray(values)
-        check_real_dtype(array.dtype, name)
+        _validation.check_real_dtype(array.dtype, name)
         return array.astype(float).reshape(1)
     if np.ndim(values) != 1:
         raise ValueError(

@@ -1,16 +1,15 @@
 """Variable selection for scorecards built on WOE-encoded variables."""
 
+import typing
 import warnings
-from collections.abc import Hashable
-from typing import Literal, cast
+from collections import abc
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from . import _logit
+from . import _logit, _validation
 from ._logit import SeparationError
-from ._validation import as_series, as_weights, is_real
 
 __all__ = ["SeparationError", "correlation_filter", "logistic_regression", "stepwise", "vif"]
 
@@ -88,8 +87,8 @@ def correlation_filter(
     >>> correlation_filter(X, priority=iv).tolist()
     ['b', 'c']
     """
-    if isinstance(threshold, bool) or not is_real(threshold) or not 0 <= threshold <= 1:
-        raise ValueError(f"threshold must be between 0 and 1, got {threshold!r}")
+    if isinstance(threshold, bool) or not _validation.is_real(threshold) or not 0 <= threshold <= 1:
+        raise ValueError(f"threshold must be between 0 and 1, got {_validation.shown(threshold)}")
     frame, values = _as_frame(X)
     _check_not_constant(frame, values, "its correlation is undefined")
     order = np.argsort(-_priority(priority, frame.columns), kind="stable")
@@ -349,7 +348,7 @@ def stepwise(
     *,
     p_enter: float = 0.05,
     p_remove: float = 0.10,
-    direction: Literal["forward", "backward", "both"] = "both",
+    direction: typing.Literal["forward", "backward", "both"] = "both",
     positive: bool = True,
     weights: npt.ArrayLike | None = None,
 ) -> pd.Index:
@@ -469,13 +468,16 @@ def stepwise(
     _check_level(p_enter, "p_enter")
     _check_level(p_remove, "p_remove")
     if direction not in ("forward", "backward", "both"):
-        raise ValueError(f"direction must be 'forward', 'backward' or 'both', got {direction!r}")
+        raise ValueError(
+            f"direction must be 'forward', 'backward' or 'both', got {_validation.shown(direction)}"
+        )
     if direction == "both" and p_enter > p_remove:
         raise ValueError(
-            f"p_enter must not exceed p_remove, got p_enter={p_enter!r} and p_remove={p_remove!r}"
+            f"p_enter must not exceed p_remove, got p_enter={_validation.shown(p_enter)} and "
+            f"p_remove={_validation.shown(p_remove)}"
         )
     if not isinstance(positive, (bool, np.bool_)):
-        raise ValueError(f"positive must be True or False, got {positive!r}")
+        raise ValueError(f"positive must be True or False, got {_validation.shown(positive)}")
     frame, values, labels, mass = _model_inputs(X, target, weights)
     # Every subset of independent columns is independent, so candidate models have full rank.
     _check_independent(frame, values, weighted=mass is not None)
@@ -600,7 +602,8 @@ def _fit(
     except _logit.SingularError as error:
         label = "intercept" if error.column == 0 else columns[error.column - 1]
         raise ValueError(
-            f"X column {label!r} is so close to a linear combination of the intercept and "
+            f"X column {_validation.shown(label)} is so close to a linear combination of the "
+            "intercept and "
             "the other columns that its coefficient cannot be estimated"
         ) from None
 
@@ -622,8 +625,10 @@ def _with_intercept(values: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
 
 
 def _check_level(level: float, name: str) -> None:
-    if isinstance(level, bool) or not is_real(level) or not 0 < level <= 1:
-        raise ValueError(f"{name} must be greater than 0 and at most 1, got {level!r}")
+    if isinstance(level, bool) or not _validation.is_real(level) or not 0 < level <= 1:
+        raise ValueError(
+            f"{name} must be greater than 0 and at most 1, got {_validation.shown(level)}"
+        )
 
 
 def _as_frame(X: pd.DataFrame | npt.ArrayLike) -> tuple[pd.DataFrame, npt.NDArray[np.float64]]:
@@ -639,19 +644,24 @@ def _as_frame(X: pd.DataFrame | npt.ArrayLike) -> tuple[pd.DataFrame, npt.NDArra
     if not frame.shape[1]:
         raise ValueError("X must have at least one column")
     if frame.columns.has_duplicates:
-        label: Hashable = frame.columns[frame.columns.duplicated()][0]
-        raise ValueError(f"X must have unique column labels, got {label!r} more than once")
+        label: abc.Hashable = frame.columns[frame.columns.duplicated()][0]
+        raise ValueError(
+            f"X must have unique column labels, got {_validation.shown(label)} more than once"
+        )
     for label, dtype in frame.dtypes.items():
         if not pd.api.types.is_numeric_dtype(dtype):
             raise ValueError(
-                f"X column {label!r} must be numeric, such as WOE values from woe_transform, "
+                f"X column {_validation.shown(label)} must be numeric, such as WOE values from "
+                "woe_transform, "
                 f"got dtype {dtype}"
             )
     values = frame.to_numpy(dtype=float, na_value=np.nan)
     finite = np.isfinite(values).all(axis=0)
     if not finite.all():
         label = frame.columns[np.argmin(finite)]  # type: ignore[call-overload]  # a NumPy integer selects one label
-        raise ValueError(f"X column {label!r} must not contain missing or infinite values")
+        raise ValueError(
+            f"X column {_validation.shown(label)} must not contain missing or infinite values"
+        )
     return frame, values
 
 
@@ -675,7 +685,7 @@ def _model_inputs(
     if "intercept" in frame.columns:
         raise ValueError("X must not have a column labelled 'intercept'")
     raw_target = target
-    target = as_series(target, "target")
+    target = _validation.as_series(target, "target")
     if len(target) != len(frame):
         raise ValueError(
             f"X and target must have the same number of rows, got {len(frame)} and {len(target)}"
@@ -689,8 +699,9 @@ def _model_inputs(
         raise ValueError(
             f"weights must have one weight per row of X, got {len(weights)} for {len(frame)}"  # type: ignore[arg-type]  # one-dimensional
         )
-    mass = cast(
-        npt.NDArray[np.float64], as_weights(weights, frame, of="X", others={"target": raw_target})
+    mass = typing.cast(
+        npt.NDArray[np.float64],
+        _validation.as_weights(weights, frame, of="X", others={"target": raw_target}),
     )
     totals = np.bincount(labels.astype(np.intp), weights=mass, minlength=2)
     if not (totals > 0).all():
@@ -711,9 +722,9 @@ def _priority(priority: npt.ArrayLike | None, columns: pd.Index) -> npt.NDArray[
             raise ValueError("priority must have one value per column label")
         absent = columns[~columns.isin(priority.index)]
         if len(absent):
-            raise ValueError(f"priority has no value for X column {absent[0]!r}")
+            raise ValueError(f"priority has no value for X column {_validation.shown(absent[0])}")
         priority = priority.reindex(columns)
-    priority = as_series(priority, "priority")
+    priority = _validation.as_series(priority, "priority")
     if len(priority) != len(columns):
         raise ValueError(
             f"priority must have one value per column of X, got {len(priority)} values "
@@ -729,9 +740,8 @@ def _check_not_constant(
 ) -> None:
     constant = np.ptp(values, axis=0) == 0
     if constant.any():
-        raise ValueError(
-            f"X column {frame.columns[np.argmax(constant)]!r} is constant{where}; {reason}"  # type: ignore[call-overload]  # a NumPy integer selects one label
-        )
+        label = frame.columns[int(np.argmax(constant))]
+        raise ValueError(f"X column {_validation.shown(label)} is constant{where}; {reason}")
 
 
 def _check_independent(
@@ -742,6 +752,7 @@ def _check_independent(
     dependent = _logit.dependent_column(_with_intercept(values))
     if dependent is not None:
         raise ValueError(
-            f"X column {frame.columns[dependent - 1]!r} is a linear combination of the "
+            f"X column {_validation.shown(frame.columns[dependent - 1])} is a linear combination "
+            "of the "
             f"intercept and the columns before it{where}"
         )

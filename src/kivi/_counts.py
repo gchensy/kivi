@@ -8,7 +8,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from ._validation import DTypeObj, check_smoothing
+from . import _validation
 
 
 def group_counts(
@@ -86,7 +86,7 @@ def concat_groups(first: pd.Series, second: pd.Series) -> pd.Series:
     return pd.concat(samples, ignore_index=True)
 
 
-def _interval_dtype(dtype: DTypeObj) -> pd.IntervalDtype | None:
+def _interval_dtype(dtype: _validation.DTypeObj) -> pd.IntervalDtype | None:
     """Return the interval dtype of the values or the categories, or None for other dtypes."""
     if isinstance(dtype, pd.CategoricalDtype):
         dtype = dtype.categories.dtype
@@ -101,7 +101,7 @@ def ratio(numerator: np.ndarray, denominator: np.ndarray) -> npt.NDArray[np.floa
 
 def shares(counts: np.ndarray, smoothing: float) -> np.ndarray:
     """Replace zero counts with ``smoothing``, then normalize each column."""
-    check_smoothing(smoothing)
+    _validation.check_smoothing(smoothing)
     counts = np.asarray(counts, dtype=float)
     adjusted = np.where(counts == 0, smoothing, counts)
     return adjusted / adjusted.sum(axis=0)

@@ -5,7 +5,7 @@
 ``make_applications`` simulates loan applications with an approval decision.
 """
 
-from importlib.resources import files
+from importlib import resources
 
 import pandas as pd
 
@@ -51,7 +51,7 @@ def load_bank() -> pd.DataFrame:
     >>> data["target"].value_counts().to_dict()
     {0: 4000, 1: 521}
     """
-    with files(__package__).joinpath("bank.csv").open("rb") as source:
+    with resources.files(__package__).joinpath("bank.csv").open("rb") as source:
         data = pd.read_csv(source, sep=";")
     data["target"] = data.pop("y").map({"yes": 1, "no": 0})
     return data
