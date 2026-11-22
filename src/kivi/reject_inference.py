@@ -193,8 +193,9 @@ def parceling(
         if `bins` is neither a positive integer nor at least two increasing
         edges, or a score lies outside the edges; if a band holds rejected
         applicants but no accepted one, so that its bad rate is unknown; or
-        if `factor` is not a positive finite number or `expected` is not a
-        boolean.
+        if `factor` is not a positive finite number, `expected` is not a
+        boolean, or `rng` is not a seed or generator that
+        `numpy.random.default_rng` accepts.
 
     Warns
     -----
@@ -270,7 +271,7 @@ def parceling(
         rate = np.minimum(factor * bad / total, 1.0)
     if expected:
         return _inferred(rejects.index, rate[rejected])
-    generator = np.random.default_rng(rng)
+    generator = _validation.as_generator(rng)
     inferred = np.zeros(len(reject_values), dtype=np.int64)
     for band in np.flatnonzero(np.bincount(rejected, minlength=size)):
         members = np.flatnonzero(rejected == band)

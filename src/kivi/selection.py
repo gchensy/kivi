@@ -690,9 +690,7 @@ def _model_inputs(
         raise ValueError(
             f"X and target must have the same number of rows, got {len(frame)} and {len(target)}"
         )
-    if not target.isin([0, 1]).all() or target.nunique() != 2:
-        raise ValueError("target must contain both 0 and 1 and no missing labels")
-    labels = target.to_numpy(dtype=float)
+    labels = _validation.binary_labels(target).astype(float)
     if weights is None:
         return frame, values, labels, None
     if np.ndim(weights) == 1 and len(weights) != len(frame):  # type: ignore[arg-type]  # one-dimensional
@@ -703,12 +701,7 @@ def _model_inputs(
         npt.NDArray[np.float64],
         _validation.as_weights(weights, frame, of="X", others={"target": raw_target}),
     )
-    totals = np.bincount(labels.astype(np.intp), weights=mass, minlength=2)
-    if not (totals > 0).all():
-        raise ValueError(
-            "weights must give both target classes a positive total, got "
-            f"{float(totals[0])!r} for 0 and {float(totals[1])!r} for 1"
-        )
+    _validation.check_class_weights(labels.astype(np.intp), mass)
     # Rows without weight must not enter the centring and scaling of the fit.
     used = mass > 0
     return frame, values[used], labels[used], mass[used]
@@ -730,8 +723,16 @@ def _priority(priority: npt.ArrayLike | None, columns: pd.Index) -> npt.NDArray[
             f"priority must have one value per column of X, got {len(priority)} values "
             f"for {len(columns)} columns"
         )
-    if not pd.api.types.is_numeric_dtype(priority) or priority.isna().any():
-        raise ValueError("priority must contain numbers only, without missing values")
+    if not pd.api.types.is_numeric_dtype(priority):
+        raise ValueError(
+            "priority must contain numbers only, without missing values, got dtype "
+            f"{priority.dtype}"
+        )
+    if priority.isna().any():
+        raise ValueError(
+            "priority must contain numbers only, without missing values, got "
+            f"{_validation.shown(priority[priority.isna()])}"
+        )
     return priority.to_numpy(dtype=float)
 
 

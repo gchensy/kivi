@@ -187,12 +187,7 @@ def profile_table(
     labels = None if target is None else _target_labels(target, frame, names)
     mass = _validation.as_weights(weights, frame.index.to_series(), of="frame")
     if labels is not None and mass is not None:
-        totals = np.bincount(labels, weights=mass, minlength=2)
-        if not (totals > 0).all():
-            raise ValueError(
-                "weights must give both target classes a positive total, got "
-                f"{float(totals[0])!r} for 0 and {float(totals[1])!r} for 1"
-            )
+        _validation.check_class_weights(labels, mass)
     kinds = {
         name: "numeric" if _validation.is_binned_dtype(frame[name].dtype) else "categorical"
         for name in names
@@ -336,9 +331,7 @@ def _target_labels(target: npt.ArrayLike, frame: pd.DataFrame, names: list[str])
         raise ValueError(
             f"frame and target must have the same length, got {len(frame)} and {len(series)}"
         )
-    if not series.isin([0, 1]).all() or series.nunique() != 2:
-        raise ValueError("target must contain both 0 and 1 and no missing labels")
-    return series.to_numpy(dtype=np.intp)
+    return _validation.binary_labels(series)
 
 
 def _special_codes(special: abc.Mapping | None, kinds: dict[str, str]) -> dict[str, tuple]:

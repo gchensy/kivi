@@ -108,15 +108,19 @@ def observed(
     if weights is not None:
         keep &= weights > 0
         excluded.append("zero-weight")
-    fitted = pd.to_numeric(values[keep], errors="raise").to_numpy(dtype=float)
+    fitted = _validation.as_numbers(values[keep], "values").to_numpy(dtype=float)
     if not len(fitted):
         names = (
             ", ".join(excluded[:-1]) + " and " + excluded[-1] if len(excluded) > 1 else "missing"
         )
-        raise ValueError(f"reference values have no finite observations apart from {names} values")
-    if not np.isfinite(fitted).all():
-        hint = "; pass infinite codes in special" if special is not None else ""
-        raise ValueError(f"reference values must contain finite observations only{hint}")
+        raise ValueError(f"values have no finite observations apart from {names} values")
+    infinite = ~np.isfinite(fitted)
+    if infinite.any():
+        raise ValueError(
+            "values must be finite or special values, got "
+            f"{_validation.shown(fitted[infinite][0])}; "
+            "pass infinite codes in special"
+        )
     return fitted, None if weights is None else weights[keep]
 
 

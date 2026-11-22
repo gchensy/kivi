@@ -196,17 +196,23 @@ def cut(
     special = _special.special_values(special)
     position = _special.special_positions(series, special)
     is_special = position >= 0
-    numbers = pd.to_numeric(series.mask(is_special), errors="raise")
+    numbers = _validation.as_numbers(series.mask(is_special), "values")
     infinite = np.isinf(numbers.to_numpy(dtype=float, na_value=np.nan))
     if infinite.any():
         raise ValueError(
             "values must be finite or special values, got "
             f"{_validation.shown(numbers[infinite].iloc[0])}; pass infinite codes in special"
         )
-    intervals = pd.cut(
-        numbers,
-        edges,  # type: ignore[arg-type]  # pandas.cut takes any array_like of edges
-    )
+    try:
+        intervals = pd.cut(
+            numbers,
+            edges,  # type: ignore[arg-type]  # pandas.cut takes any array_like of edges
+        )
+    except (TypeError, ValueError) as error:
+        # pandas names the argument bins and suggests a duplicates keyword that cut lacks.
+        raise ValueError(
+            f"edges must be increasing numbers, got {_validation.shown_argument(edges)}"
+        ) from error
     if special.empty:
         return intervals if isinstance(values, pd.Series) else intervals.array
     codes = intervals.cat.codes.to_numpy()
@@ -848,14 +854,7 @@ def chimerge_groups(
     if alpha is not None and not (_validation.is_real(alpha) and 0 < alpha < 1):
         raise ValueError(f"alpha must be None or between 0 and 1, got {_validation.shown(alpha)}")
     _check_share(min_group_share, "min_group_share", 0.5)
-    if (
-        isinstance(smoothing, bool)
-        or not _validation.is_real(smoothing)
-        or not (math.isfinite(smoothing) and smoothing > 0)
-    ):
-        raise ValueError(
-            f"smoothing must be finite and positive, got {_validation.shown(smoothing)}"
-        )
+    _validation.check_smoothing(smoothing)
     labels, counts, codes = _category_counts(values, target, special, weights)
     order = np.argsort(_odds(counts, smoothing), kind="stable")
     labels = [labels[position] for position in order]
@@ -1045,8 +1044,7 @@ def _category_counts(
             raise ValueError(
                 f"values and target must have the same length, got {len(series)} and {len(target)}"
             )
-        if not target.isin([0, 1]).all():
-            raise ValueError("target must contain only 0 and 1 and no missing labels")
+        _validation.binary_labels(target, both_classes=False)
     codes = _special.special_values(special)
     mass = _validation.as_weights(weights, raw_values, others={"target": raw_target})
     levels: pd.Index | np.ndarray
@@ -1204,8 +1202,7 @@ def _labeled(
         raise ValueError(
             f"values and target must have the same length, got {len(values)} and {len(target)}"
         )
-    if not target.isin([0, 1]).all():
-        raise ValueError("target must contain only 0 and 1 and no missing labels")
+    _validation.binary_labels(target, both_classes=False)
     mass = _validation.as_weights(weights, raw_values, others={"target": raw_target})
     fitted = values.notna().to_numpy(dtype=bool, copy=True)
     if special is not None:

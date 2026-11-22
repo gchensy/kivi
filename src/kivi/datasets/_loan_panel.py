@@ -56,7 +56,8 @@ def make_loan_panel(
     Raises
     ------
     ValueError
-        If `n_loans` or `n_months` is not a positive integer.
+        If `n_loans` or `n_months` is not a positive integer, or `rng` is not
+        a seed or generator that `numpy.random.default_rng` accepts.
 
     See Also
     --------
@@ -117,7 +118,7 @@ def make_loan_panel(
     """
     n_loans = _validation.check_count(n_loans, "n_loans")
     n_months = _validation.check_count(n_months, "n_months")
-    rng = np.random.default_rng(rng)
+    rng = _validation.as_generator(rng)
 
     cohort = np.sort(rng.integers(0, n_months, n_loans))
     amount = np.maximum(np.round(rng.lognormal(np.log(8000), 0.5, n_loans), -2), 1000.0)

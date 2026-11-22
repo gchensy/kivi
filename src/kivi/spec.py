@@ -204,7 +204,7 @@ class BinningSpec:
         for name, policy in unseen.items():
             if isinstance(policy, dict):
                 _check_unseen_group(policy["group"], name, name in groups, tables[name])
-        _check_smoothing(self.smoothing)
+        _validation.check_smoothing(self.smoothing)
         version = kivi.__version__ if self.kivi_version is None else self.kivi_version
         if not isinstance(version, str):
             raise ValueError(f"kivi_version must be a string, got {_validation.shown(version)}")
@@ -1052,10 +1052,10 @@ def fit_spec(
         raise ValueError(f"frame must be a pandas DataFrame, got {type(frame).__name__}")
     names = _validation.fitted_columns(frame, columns)
     labels = _target_labels(target, frame, names)
-    _check_smoothing(smoothing)
+    _validation.check_smoothing(smoothing)
     mass = _validation.as_weights(weights, frame.index.to_series(), of="frame")
-    if mass is not None and not (np.bincount(labels, weights=mass, minlength=2) > 0).all():
-        raise ValueError("weights must give both target classes a positive total")
+    if mass is not None:
+        _validation.check_class_weights(labels, mass)
     for name in names:
         if pd.api.types.is_complex_dtype(frame[name].dtype):
             raise ValueError(
@@ -1218,9 +1218,7 @@ def _target_labels(target: npt.ArrayLike, frame: pd.DataFrame, names: list[str])
         raise ValueError(
             f"frame and target must have the same length, got {len(frame)} and {len(series)}"
         )
-    if not series.isin([0, 1]).all() or series.nunique() != 2:
-        raise ValueError("target must contain both 0 and 1 and no missing labels")
-    return series.to_numpy(dtype=np.intp)
+    return _validation.binary_labels(series)
 
 
 def _per_column(
@@ -1488,17 +1486,6 @@ def _warn_if_numbers(values: pd.Series, name: str) -> None:
             "to keep the labels",
             UserWarning,
             stacklevel=3,
-        )
-
-
-def _check_smoothing(smoothing: object) -> None:
-    if (
-        isinstance(smoothing, bool)
-        or not isinstance(smoothing, numbers.Real)
-        or not (math.isfinite(smoothing) and smoothing > 0)  # type: ignore[operator]  # Real declares only < and <=
-    ):
-        raise ValueError(
-            f"smoothing must be finite and positive, got {_validation.shown(smoothing)}"
         )
 
 

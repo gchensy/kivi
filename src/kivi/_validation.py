@@ -53,6 +53,51 @@ def object_index(values: abc.Iterable[abc.Hashable]) -> pd.Index:
     return pd.Index(array, dtype=object)
 
 
+def as_generator(rng: object) -> np.random.Generator:
+    """Return ``numpy.random.default_rng(rng)``, raising a ValueError that names `rng`."""
+    try:
+        return np.random.default_rng(rng)  # type: ignore[arg-type]  # checked by NumPy
+    except (TypeError, ValueError):
+        raise ValueError(
+            "rng must be None, an integer, a SeedSequence or a Generator, got "
+            f"{shown_argument(rng)}"
+        ) from None
+
+
+def as_numbers(values: pd.Series, name: str) -> pd.Series:
+    """Return ``pandas.to_numeric(values)``, raising a ValueError that shows a non-number.
+
+    The callers have taken out the special values, so the message says that
+    the other values must be numbers.
+    """
+    try:
+        return pd.to_numeric(values, errors="raise")
+    except (TypeError, ValueError):
+        failed = pd.to_numeric(values, errors="coerce").isna() & values.notna()
+        value = values[failed] if failed.any() else values
+        raise ValueError(f"{name} must be numbers or special values, got {shown(value)}") from None
+
+
+def float_values(values: pd.Series, name: str) -> npt.NDArray[np.float64]:
+    """Return ``values.to_numpy(dtype=float)``, raising a ValueError that shows a non-number."""
+    try:
+        return values.to_numpy(dtype=float)
+    except (TypeError, ValueError):
+        failed = [value for value in values if not (is_missing(value) or _is_float(value))]
+        # NumPy cannot convert pandas.NA or NaT either; show one when nothing else fails.
+        failed += [value for value in values if is_missing(value)]
+        raise ValueError(f"{name} must hold numbers, got {shown(failed[0])}") from None
+
+
+def _is_float(value: object) -> bool:
+    """Whether ``float(value)`` succeeds."""
+    try:
+        float(value)  # type: ignore[arg-type]  # any object may define __float__
+    except (TypeError, ValueError):
+        return False
+    return True
+
+
 def as_series(values: npt.ArrayLike, name: str) -> pd.Series:
     """Return a one-dimensional array_like as a Series without copying a Series."""
     if isinstance(values, pd.Series):
@@ -185,6 +230,33 @@ def known_outcomes(
     return ~missing, event
 
 
+def binary_labels(target: pd.Series, *, both_classes: bool = True) -> npt.NDArray[np.intp]:
+    """Return the labels of a 0/1 target as integers.
+
+    Any other label, and a missing one, raises. With `both_classes`, both
+    classes must be present.
+    """
+    # For nullable dtypes pandas 2.0 returns an object array, which ~ would negate as integers.
+    invalid = ~target.isin([0, 1]).to_numpy(dtype=bool)
+    if invalid.any():
+        raise ValueError(f"target must contain only 0 and 1, got {shown(target[invalid])}")
+    labels = target.to_numpy(dtype=np.intp)
+    if both_classes and (not len(labels) or labels.min() == labels.max()):
+        found = f"only {labels[0]}" if len(labels) else "no labels"
+        raise ValueError(f"target must contain both 0 and 1, got {found}")
+    return labels
+
+
+def check_class_weights(labels: npt.NDArray[np.intp], weights: npt.NDArray[np.float64]) -> None:
+    """Require a positive total weight in both classes of 0/1 labels."""
+    totals = np.bincount(labels, weights=weights, minlength=2)
+    if not (totals > 0).all():
+        raise ValueError(
+            "weights must give both target classes a positive total, got "
+            f"{float(totals[0])!r} for 0 and {float(totals[1])!r} for 1"
+        )
+
+
 def shared_index(inputs: abc.Mapping[str, object], *, frames: bool = False) -> pd.Index | None:
     """Return the index that the Series among ``inputs`` share, or None without a Series.
 
@@ -200,8 +272,18 @@ def shared_index(inputs: abc.Mapping[str, object], *, frames: bool = False) -> p
     return indexed[0][1].index if indexed else None
 
 
-def check_smoothing(smoothing: float) -> None:
-    if not np.isfinite(smoothing) or smoothing <= 0:
+def check_smoothing(smoothing: object, *, booleans: bool = False) -> None:
+    """Require a real, finite and positive scalar.
+
+    With ``booleans``, True counts as 1, as the counting functions have always
+    read it; ``kivi.spec`` and ``chimerge_groups`` reject booleans.
+    """
+    flag = isinstance(smoothing, (bool, np.bool_))
+    if (
+        (flag and not booleans)
+        or not (flag or is_real(smoothing))
+        or not (math.isfinite(smoothing) and smoothing > 0)  # type: ignore[arg-type, operator]  # a real number or a boolean
+    ):
         raise ValueError(f"smoothing must be finite and positive, got {shown(smoothing)}")
 
 
@@ -251,7 +333,7 @@ def as_weights(
         return None
     if isinstance(weights, pd.Series):
         if isinstance(values, pd.Series) and not values.index.equals(weights.index):
-            raise ValueError(f"{name} must have the same index as {of}")
+            raise ValueError(f"{of} and {name} must have identical indices")
         for other, data in (others or {}).items():
             if isinstance(data, pd.Series) and not data.index.equals(weights.index):
                 raise ValueError(f"{other} and {name} must have identical indices")
@@ -265,8 +347,9 @@ def as_weights(
         raise ValueError(
             f"{name} must have one weight per value of {of}, got {len(array)} for {count}"
         )
-    if not np.isfinite(array).all() or (array < 0).any():
-        raise ValueError(f"{name} must be finite and non-negative")
+    invalid = ~(np.isfinite(array) & (array >= 0))
+    if invalid.any():
+        raise ValueError(f"{name} must be finite and non-negative, got {shown(array[invalid][0])}")
     with np.errstate(over="ignore"):
         total = array.sum()
     if not (np.isfinite(total) and total > 0):
@@ -309,21 +392,10 @@ def scores_and_labels(
             f"{name} must be finite, got {(~finite).sum()} missing or infinite value(s) "
             f"such as {float(values[~finite][0])!r}"
         )
-    # For nullable dtypes pandas 2.0 returns an object array, which ~ would negate as integers.
-    invalid = ~target.isin([0, 1]).to_numpy(dtype=bool)
-    if invalid.any():
-        raise ValueError(f"target must contain only 0 and 1, got {shown(target[invalid])}")
-    labels = target.to_numpy(dtype=np.intp)
-    if both_classes and labels.sum() in (0, len(labels)):
-        raise ValueError(f"target must contain both 0 and 1, got only {labels[0]}")
+    labels = binary_labels(target, both_classes=both_classes)
     mass = as_weights(weights, raw_score, of=name, others={"target": raw_target})
     if both_classes and mass is not None:
-        totals = np.bincount(labels, weights=mass, minlength=2)
-        if not (totals > 0).all():
-            raise ValueError(
-                "weights must give both target classes a positive total, got "
-                f"{float(totals[0])!r} for 0 and {float(totals[1])!r} for 1"
-            )
+        check_class_weights(labels, mass)
     return values, labels, mass
 
 

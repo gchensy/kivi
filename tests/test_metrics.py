@@ -414,7 +414,7 @@ def test_weights_match_like_target():
     weights = pd.Series([1.0, 2.0, 1.0, 1.0], index=[10, 11, 12, 13])
     assert roc_auc(score, target, weights=weights) == 1.0
     assert roc_auc(score, target, weights=weights.to_numpy()) == 1.0
-    with pytest.raises(ValueError, match="weights must have the same index as score"):
+    with pytest.raises(ValueError, match="score and weights must have identical indices"):
         roc_auc(score, target, weights=weights.reset_index(drop=True))
     nullable = pd.Series([1, 2, 1, 1], index=score.index, dtype="Int64")
     assert ks(score, target, weights=nullable) == 1.0
@@ -764,7 +764,7 @@ def test_delong_test_matches_series_by_index_or_position():
     with pytest.raises(ValueError, match="new and target must have identical indices"):
         delong_test(SCORE, new, target.reset_index(drop=True))
     weights = pd.Series(1.0, index=range(6))
-    with pytest.raises(ValueError, match="weights must have the same index as current"):
+    with pytest.raises(ValueError, match="current and weights must have identical indices"):
         delong_test(current, new, target, weights=weights)
 
 

@@ -617,13 +617,7 @@ def calibration_table(
         )
     if groups.empty:
         raise ValueError("groups, target and probability must contain observations")
-    # For nullable dtypes pandas 2.0 returns an object array, which ~ would negate as integers.
-    invalid = ~target.isin([0, 1]).to_numpy(dtype=bool)
-    if invalid.any():
-        raise ValueError(
-            "target must contain only 0 and 1, got "
-            f"{_validation.shown(target[invalid].tolist()[0])}"
-        )
+    _validation.binary_labels(target, both_classes=False)
     probabilities = _validation.as_real(probability, "probability", booleans=True)
     if np.isnan(probabilities).any():
         raise ValueError("probability must not have missing values")
@@ -1166,7 +1160,7 @@ def fit_grade_pd(
     indices = [values.index for values in (event, total) if isinstance(values, pd.Series)]
     if len(indices) == 2 and not indices[0].equals(indices[1]):
         raise ValueError("event and total must have identical indices when they are Series")
-    _validation.check_smoothing(smoothing)
+    _validation.check_smoothing(smoothing, booleans=True)
     events = _numeric_values(event, "event", booleans=False)
     totals = _numeric_values(total, "total", booleans=False)
     if len(events) != len(totals):

@@ -219,8 +219,8 @@ def _pairs():
 def test_two_pandas_inputs_with_other_indices_raise(case, first, second):
     indices = {first: DEFAULT, second: OTHER}
     # The message names the argument whose index differs, such as "target and weights must
-    # have identical indices" or "weights must have the same index as score".
-    message = rf"(?=.*\b{second}\b).*(identical indices|same index)"
+    # have identical indices".
+    message = rf"(?=.*\b{second}\b).*identical indices"
     with pytest.raises(ValueError, match=message):
         _call(case, indices)
 
@@ -322,3 +322,155 @@ def test_as_real_reads_booleans_only_when_asked():
     np.testing.assert_array_equal(
         _validation.as_real([True, None], "x", booleans=True), [1, np.nan]
     )
+
+
+SMOOTHED = {
+    "woe_table": lambda smoothing: woe.woe_table(GROUPS, TARGET, smoothing=smoothing),
+    "chimerge_groups": lambda smoothing: binning.chimerge_groups(
+        GROUPS, TARGET, smoothing=smoothing
+    ),
+    "monotonic_edges": lambda smoothing: binning.monotonic_edges(
+        VALUES, TARGET, smoothing=smoothing
+    ),
+    "fit_spec": lambda smoothing: spec.fit_spec(
+        pd.DataFrame(FRAME), TARGET, bins=2, smoothing=smoothing
+    ),
+    "stability_table": lambda smoothing: monitoring.stability_table(
+        pd.DataFrame({"g": GROUPS}), PERIOD, reference_period="p1", smoothing=smoothing
+    ),
+}
+
+
+@pytest.mark.parametrize("case", SMOOTHED)
+@pytest.mark.parametrize(
+    "smoothing,shown",
+    [
+        ("1", "'1'"),
+        (None, "None"),
+        ([0.5, 0.5], r"\[0.5, 0.5\]"),
+        (np.array(0.5), r"array\(0.5\)"),
+        (np.float64(np.nan), "nan"),
+        (np.inf, "inf"),
+        (0, "0"),
+        (np.int64(-1), "-1"),
+        (False, "False"),
+    ],
+)
+def test_smoothing_must_be_a_finite_positive_number(case, smoothing, shown):
+    with pytest.raises(ValueError, match=f"^smoothing must be finite and positive, got {shown}$"):
+        SMOOTHED[case](smoothing)
+
+
+@pytest.mark.parametrize("case", SMOOTHED)
+def test_smoothing_true_keeps_the_behavior_of_each_function(case):
+    # Until 0.9 decides on booleans, the counting functions read True as 1.
+    if case in ("chimerge_groups", "fit_spec"):
+        with pytest.raises(ValueError, match="^smoothing must be finite and positive, got True$"):
+            SMOOTHED[case](True)
+    else:
+        expected, result = SMOOTHED[case](1), SMOOTHED[case](True)
+        if isinstance(expected, np.ndarray):
+            np.testing.assert_array_equal(result, expected)
+        else:
+            pd.testing.assert_frame_equal(result, expected)
+
+
+@pytest.mark.parametrize(
+    "call,message",
+    [
+        (
+            lambda: binning.bin_edges(VALUES, bins=np.int64(0)),
+            "bins must be a positive integer, got 0",
+        ),
+        (
+            lambda: binning.chimerge_edges(VALUES, TARGET, alpha=np.float64(1.5)),
+            "alpha must be None or between 0 and 1, got 1.5",
+        ),
+        (
+            lambda: metrics.gains_table(SCORE, TARGET, bins=np.int64(0)),
+            "bins must be a positive integer or at least two increasing edges, got 0",
+        ),
+        (
+            lambda: metrics.gains_table(SCORE, TARGET, bins=pd.Series([0.5, 0.1])),
+            r"bins must be a positive integer or at least two increasing edges, got \[0.5, 0.1\]",
+        ),
+        (
+            lambda: strategy.cutoff_table(SCORE, TARGET, cutoffs=np.array([0.5, 0.1])),
+            r"cutoffs must be a positive integer or a sequence of increasing numbers, got "
+            r"\[0.5, 0.1\]",
+        ),
+        (
+            lambda: metrics.roc_auc_interval(SCORE, TARGET, level=np.float64(2)),
+            "level must be a number between 0 and 1, got 2.0",
+        ),
+        (
+            lambda: lifetime.transition_pd(
+                pd.DataFrame([[0.9, 0.1], [0.0, 1.0]], index=["A", "D"], columns=["A", "D"]),
+                horizons=np.int64(0),
+            ),
+            "horizons must be a positive integer or a sequence of increasing positive integers, "
+            "got 0",
+        ),
+    ],
+)
+def test_messages_show_numpy_scalars_as_python_numbers(call, message):
+    with pytest.raises(ValueError, match=f"^{message}$"):
+        call()
+
+
+@pytest.mark.parametrize("rng", [1.5, "a", -1, [1.5]])
+def test_rng_must_be_accepted_by_default_rng(rng):
+    from kivi.datasets import make_applications, make_loan_panel
+
+    message = "^rng must be None, an integer, a SeedSequence or a Generator, got "
+    for call in (
+        lambda: make_applications(n_applicants=10, rng=rng),
+        lambda: make_loan_panel(n_loans=10, n_months=2, rng=rng),
+    ):
+        with pytest.raises(ValueError, match=message):
+            call()
+
+
+@pytest.mark.parametrize(
+    "rng", [None, 0, np.random.SeedSequence(0), np.random.default_rng(0), [1, 2]]
+)
+def test_rng_accepts_what_default_rng_accepts(rng):
+    assert isinstance(_validation.as_generator(rng), np.random.Generator)
+
+
+def test_shown_stands_a_series_or_index_for_its_first_value():
+    assert _validation.shown(pd.Series([np.int64(2), 3])) == "2"
+    assert _validation.shown(pd.Index(["a", "b"])) == "'a'"
+    assert _validation.shown(np.float32(0.5)) == "0.5"
+    assert _validation.shown_argument(pd.Series([1, 2])) == "[1, 2]"
+    assert _validation.shown_argument(np.array([0.5])) == "[0.5]"
+    assert _validation.shown_argument(3) == "3"
+
+
+def test_check_count_returns_an_int():
+    assert _validation.check_count(np.int64(3), "bins") == 3
+    assert type(_validation.check_count(np.int64(3), "bins")) is int
+    with pytest.raises(ValueError, match="^n must be a positive integer, got True$"):
+        _validation.check_count(np.True_, "n")
+
+
+@pytest.mark.parametrize(
+    "target,message",
+    [
+        ([0, 2], "target must contain only 0 and 1, got 2"),
+        ([0, None], "target must contain only 0 and 1, got None"),
+        ([0, np.nan], "target must contain only 0 and 1, got nan"),
+        (["0", "1"], "target must contain only 0 and 1, got '0'"),
+        ([1, 1], "target must contain both 0 and 1, got only 1"),
+        ([], "target must contain both 0 and 1, got no labels"),
+    ],
+)
+def test_binary_labels_show_the_label_at_fault(target, message):
+    with pytest.raises(ValueError, match=f"^{message}$"):
+        _validation.binary_labels(pd.Series(target, dtype=object if target else float))
+
+
+def test_binary_labels_without_both_classes():
+    labels = _validation.binary_labels(pd.Series([1.0, 1.0]), both_classes=False)
+    assert labels.tolist() == [1, 1]
+    assert labels.dtype == np.intp

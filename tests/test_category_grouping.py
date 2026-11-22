@@ -456,7 +456,7 @@ def test_bank_categories_merge_into_groups_with_increasing_woe(reference):
         ({"target": TARGET.where(TARGET > 0)}, "target must contain only 0 and 1"),
         ({"target": TARGET * 0}, "target must contain both 0 and 1 where values are observed$"),
         ({"special": [np.nan]}, "special must not contain missing values"),
-        ({"weights": TARGET[:5]}, "weights must have the same index as values"),
+        ({"weights": TARGET[:5]}, "values and weights must have identical indices"),
     ],
 )
 def test_invalid_chimerge_grouping(kwargs, message):

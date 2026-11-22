@@ -768,7 +768,7 @@ def test_isotonic_on_series_with_other_indices_and_nullable_dtypes():
     )
     np.testing.assert_array_equal(edges, [-INF, 0.2, INF])
     np.testing.assert_array_equal(probabilities, [0, 1])
-    with pytest.raises(ValueError, match="weights must have the same index as score"):
+    with pytest.raises(ValueError, match="score and weights must have identical indices"):
         isotonic_fit(score, target, weights=pd.Series([1, 1, 1, 1]))
     predicted = isotonic_predict(
         pd.Series([0.2, None], index=["a", "b"], dtype="Float64"), edges, probabilities
@@ -898,7 +898,7 @@ def test_calibration_table_on_nullable_dtypes_and_other_indices():
     assert table.index.tolist() == [1, 2]
     assert table["event"].tolist() == [3.0, 1.0]
     np.testing.assert_allclose(table["mean_probability"], [(0.2 + 1.8) / 4, 0.4])
-    with pytest.raises(ValueError, match="weights must have the same index as groups"):
+    with pytest.raises(ValueError, match="groups and weights must have identical indices"):
         calibration_table(grades, target, probability, weights=pd.Series([1, 1, 3]))
 
 

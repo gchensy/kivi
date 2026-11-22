@@ -208,6 +208,12 @@ def _bank_model():
     return data, to_groups, tables, coefficients
 
 
+def test_points_table_names_a_woe_value_that_is_not_a_number():
+    tables = {**TABLES, "housing": pd.Series({"no": "low", "yes": 0.3})}
+    with pytest.raises(ValueError, match="^the table of 'housing' must hold numbers, got 'low'$"):
+        points_table(tables, COEFFICIENTS, INTERCEPT, **SCALE)
+
+
 def test_points_table_on_interval_and_shared_labels():
     _, _, tables, coefficients = _bank_model()
     table = points_table(tables, coefficients, -2.0, **SCALE)

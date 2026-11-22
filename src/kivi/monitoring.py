@@ -192,7 +192,7 @@ def monitoring_table(
         {"score": score, "period": period, "target": target, "weights": weights}, frames=True
     )
     _one_reference(reference_period, reference_score, "reference_score")
-    _validation.check_smoothing(smoothing)
+    _validation.check_smoothing(smoothing, booleans=True)
     raw_score = score
     score, period = _validation.as_series(score, "score"), _validation.as_series(period, "period")
     if len(score) != len(period):
@@ -359,7 +359,7 @@ def stability_table(
         raise ValueError("groups must have at least one row")
     _validation.shared_index({"groups": groups, "period": period, "weights": weights}, frames=True)
     _one_reference(reference_period, reference_groups, "reference_groups")
-    _validation.check_smoothing(smoothing)
+    _validation.check_smoothing(smoothing, booleans=True)
     period = _validation.as_series(period, "period")
     if len(period) != len(groups):
         raise ValueError(
@@ -391,7 +391,7 @@ def stability_table(
         if isinstance(reference_weights, pd.Series) and not reference_weights.index.equals(
             reference_groups.index
         ):
-            raise ValueError("reference_weights must have the same index as reference_groups")
+            raise ValueError("reference_groups and reference_weights must have identical indices")
         reference_mass = _row_weights(
             reference_weights, reference_groups, "reference_weights", "reference_groups"
         )

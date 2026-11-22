@@ -122,16 +122,11 @@ def woe_table(
         raise ValueError(
             f"groups and target must have the same length, got {len(groups)} and {len(target)}"
         )
-    if not target.isin([0, 1]).all() or target.nunique() != 2:
-        raise ValueError("target must contain both 0 and 1 and no missing labels")
+    labels = _validation.binary_labels(target)
     mass = _validation.as_weights(weights, raw_groups, of="groups", others={"target": raw_target})
-    counts = _counts.group_counts(groups, target.to_numpy(dtype=np.intp), mass)
-    totals = counts.to_numpy().sum(axis=0)
-    if not (totals > 0).all():
-        raise ValueError(
-            "weights must give both target classes a positive total, got "
-            f"{float(totals[0])!r} for 0 and {float(totals[1])!r} for 1"
-        )
+    if mass is not None:
+        _validation.check_class_weights(labels, mass)
+    counts = _counts.group_counts(groups, labels, mass)
     counts.columns = ["non_event", "event"]
     # Assign by position: aligning interval categories hashes them, which warns on NumPy < 2.2.
     share, log_ratio, contribution = _counts.divergence(counts.to_numpy(), smoothing)
@@ -336,7 +331,7 @@ def woe_transform(
         levels
     )
     position[is_missing] = -1
-    values = woe.to_numpy(dtype=float)
+    values = _validation.float_values(woe, "table")
     level_woe = np.full(len(levels), np.nan)
     found = position >= 0
     level_woe[found] = values[labelled][position[found]]

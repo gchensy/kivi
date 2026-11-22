@@ -684,7 +684,7 @@ def _woe_column(table: pd.DataFrame | pd.Series, variable: object) -> pd.Series:
         woe = _validation.woe_values(table)
     except ValueError as error:
         raise ValueError(f"invalid table for {_validation.shown(variable)}: {error}") from None
-    values = woe.to_numpy(dtype=float)
+    values = _validation.float_values(woe, f"the table of {_validation.shown(variable)}")
     invalid = ~np.isfinite(values)
     if invalid.any():
         raise ValueError(

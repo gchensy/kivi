@@ -234,9 +234,9 @@ def test_invalid_X(X, message):
 @pytest.mark.parametrize(
     "target,message",
     [
-        (np.zeros(8), "target must contain both 0 and 1 and no missing labels"),
-        ([0, 1, 2, 0, 1, 2, 0, 1], "target must contain both 0 and 1 and no missing labels"),
-        ([0, 1, None, 0, 1, 1, 0, 1], "target must contain both 0 and 1 and no missing labels"),
+        (np.zeros(8), "target must contain both 0 and 1, got only 0"),
+        ([0, 1, 2, 0, 1, 2, 0, 1], "target must contain only 0 and 1, got 2"),
+        ([0, 1, None, 0, 1, 1, 0, 1], "target must contain only 0 and 1, got nan"),
         (np.zeros((8, 1)), "target must be one-dimensional, got 2 dimensions"),
         ([0, 1, 0], "X and target must have the same number of rows, got 8 and 3"),
     ],
@@ -502,8 +502,8 @@ def test_correlation_filter_rejects_threshold(threshold):
             "priority must have one value per column label",
         ),
         ([1.0, 2.0], "priority must have one value per column of X, got 2 values for 3 columns"),
-        ([1.0, np.nan, 2.0], "priority must contain numbers only, without missing values"),
-        (["x", "y", "z"], "priority must contain numbers only, without missing values"),
+        ([1.0, np.nan, 2.0], "priority must contain numbers only, without missing values, got nan"),
+        (["x", "y", "z"], "priority must contain numbers only, without missing values, got dtype"),
         (1.0, "priority must be one-dimensional, got 0 dimensions"),
     ],
 )

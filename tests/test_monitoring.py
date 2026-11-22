@@ -545,7 +545,7 @@ def test_monitoring_table_does_not_mutate_inputs(applications):
                 "reference_score": pd.Series([0.1, 0.2], index=[1, 2]),
                 "reference_weights": pd.Series([1, 1]),
             },
-            "reference_weights must have the same index as reference_score",
+            "reference_score and reference_weights must have identical indices",
         ),
         (
             {"reference_period": "2024-01", "bins": 0},
@@ -852,7 +852,7 @@ def test_stability_table_rejects_invalid_arguments():
     with pytest.raises(ValueError, match="reference_weights must not be given with reference_"):
         stability_table(groups, period, reference_period="a", reference_weights=[1, 1])
     with pytest.raises(
-        ValueError, match="reference_weights must have the same index as reference_"
+        ValueError, match="reference_groups and reference_weights must have identical indices"
     ):
         stability_table(
             groups,
