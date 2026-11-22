@@ -190,6 +190,8 @@ BinningSpec(columns=['balance', 'pdays', 'poutcome', 'contact', 'housing', 'job'
 
 ``production.tables`` can be passed to :func:`~kivi.scorecard.points_table` as it is; see :doc:`scorecard`.
 
+.. _spec-saving:
+
 Saving and loading a specification
 ----------------------------------
 
@@ -201,6 +203,16 @@ Saving and loading a specification
 True
 >>> loaded.woe_transform(monitoring).equals(production.woe_transform(monitoring))
 True
+
+A specification saved by an earlier release of kivi loads and encodes as it did, but it differs from the same fit made today, because equality includes ``kivi_version``. To compare the content only, give the saved specification the version of the new one with ``dataclasses.replace``. Here ``saved`` stands for a file written by kivi 0.7.0:
+
+>>> saved = dataclasses.replace(loaded, kivi_version="0.7.0")
+>>> saved == production
+False
+>>> dataclasses.replace(saved, kivi_version=production.kivi_version) == production
+True
+
+:doc:`/api/compatibility` lists what later releases promise for saved files.
 
 The same specification always gives the same text, so it can be kept under version control and compared. Labels are written as they are, including non-ASCII ones, so save the text as UTF-8:
 
@@ -239,13 +251,13 @@ The format
    * - ``kivi_version``
      - Version of kivi that fitted the specification.
    * - ``smoothing``
-     - Smoothing of the WOE tables.
+     - Smoothing of the WOE tables. It records the fit: changing it, for example with ``dataclasses.replace``, recomputes nothing.
    * - ``variables``
      - One entry per column, in order, with ``name``, ``kind`` (``"numeric"`` or ``"categorical"``), ``unseen`` (``"raise"``, a number or, for a grouped column, ``{"group": label}``) and ``table``, plus ``edges`` and ``special`` for numeric columns and ``groups`` for grouped categorical columns.
    * - ``groups``
      - One entry per group, in order, with its label ``group`` and the list of its ``categories``.
    * - ``table``
-     - One entry per group with its label ``bin`` and the columns of :func:`~kivi.woe.woe_table`. An interval of a numeric column is written with the two exact edges that bound it.
+     - One entry per group with its label ``bin`` and the columns of :func:`~kivi.woe.woe_table`. An interval of a numeric column is written with the two exact edges that bound it. Encoding reads only ``bin`` and ``woe``; the other columns describe the fit and are loaded as written, with the same keys in every entry.
 
 JSON has no infinite numbers and does not keep the types of labels apart in every language, so labels and edges are written as follows:
 

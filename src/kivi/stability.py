@@ -81,8 +81,8 @@ def psi_table(
     contribution. The ``reference`` and ``current`` columns always report
     the observed counts.
 
-    If both samples are categorical with the same categories, rows follow
-    the order of the categories with missing values last. Otherwise they
+    If both samples are categorical with the same dtype, rows follow the
+    order of the categories with missing values last. Otherwise they
     follow the order in which the groups first appear, in the reference
     sample and then in the current sample.
 
