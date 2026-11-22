@@ -212,6 +212,8 @@ False
 >>> dataclasses.replace(saved, kivi_version=production.kivi_version) == production
 True
 
+Equality compares every digit, and NumPy picks its vectorized routines by the processor, so the same fit repeated on another computer can differ in the last digit of a WOE and then compare unequal.
+
 :doc:`/api/compatibility` lists what later releases promise for saved files.
 
 The same specification always gives the same text, so it can be kept under version control and compared. Labels are written as they are, including non-ASCII ones, so save the text as UTF-8:
