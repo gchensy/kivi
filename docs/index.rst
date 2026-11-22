@@ -201,7 +201,7 @@ Documentation
       :link: api
       :link-type: doc
 
-      Parameters, return values and examples for every public function, the conventions they share and a glossary of the terms.
+      Parameters, return values and examples for every public function, the conventions they share, what a release may change and a glossary of the terms.
 
    .. grid-item-card:: Release notes
       :link: release/index

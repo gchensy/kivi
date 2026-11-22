@@ -226,6 +226,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | Lifetime PD and expected credit loss | [Read](https://gchensy.github.io/kivi/en/user_guide/lifetime.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/lifetime.html) |
 | Example data | [Read](https://gchensy.github.io/kivi/en/user_guide/datasets.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/datasets.html) |
 | Conventions | [Read](https://gchensy.github.io/kivi/en/api/conventions.html) | [阅读](https://gchensy.github.io/kivi/zh/api/conventions.html) |
+| Compatibility | [Read](https://gchensy.github.io/kivi/en/api/compatibility.html) | [阅读](https://gchensy.github.io/kivi/zh/api/compatibility.html) |
 | Glossary | [Read](https://gchensy.github.io/kivi/en/api/glossary.html) | [阅读](https://gchensy.github.io/kivi/zh/api/glossary.html) |
 | Migrating from 0.2.x | [Read](https://gchensy.github.io/kivi/en/release/migration.html) | [阅读](https://gchensy.github.io/kivi/zh/release/migration.html) |
 
@@ -248,16 +249,17 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 - ✅ Categorical grouping, ROC tables and DeLong tests of the AUC
 - ✅ Model monitoring by period
 - ✅ Lifetime PD term structures, IFRS 9 expected credit loss and stage allocation
-- 🔜 Type hints checked in CI, test coverage and an API review towards 1.0
+- ✅ Type hints checked in CI, test coverage, and an API review: the 0.9 deprecations and the compatibility promise for 1.0
+- 🔜 1.0: semantic versioning, with the 0.9 deprecations removed
 
 ## 🤝 Contributing
 
 ```bash
 git clone https://github.com/gchensy/kivi.git
 cd kivi
-python -m pip install -e '.[test,docs,lint]'
-pre-commit install                                        # ruff before every commit
-python -m pytest                                          # unit tests
+python -m pip install -e '.[test,docs,lint]'              # the lint extra needs Python 3.11 or newer
+pre-commit install                                        # ruff and mypy before every commit
+python -m pytest --cov                                    # unit tests with branch coverage
 python -m sphinx -W -b doctest docs docs/_build/doctest   # documentation examples
 python docs/build.py                                      # English and Chinese HTML
 ```

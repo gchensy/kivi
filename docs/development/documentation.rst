@@ -23,7 +23,7 @@ Apart from the home page and the index page of each section, every page is one o
      - One step of a risk model: what it measures, an example and how to read the result. :doc:`/user_guide/datasets` describes the example data in the same way.
    * - Reference
      - The pages of the API reference
-     - :doc:`/api/conventions`, the rules that every function follows; :doc:`/api/glossary`, the terms of the guides; and one page per public module, generated from its docstrings.
+     - :doc:`/api/conventions`, the rules that every function follows; :doc:`/api/compatibility`, what a release may change; :doc:`/api/glossary`, the terms of the guides; and one page per public module, generated from its docstrings.
    * - Release notes
      - :doc:`/release/index` and :doc:`/release/migration`
      - What changed in each version, and how to move code from the 0.2.x classes to their replacements. The notes of a released version are not edited. The migration guide is revised whenever a release changes what it describes.
@@ -35,7 +35,7 @@ Where pages live
 ----------------
 
 * A public module ``kivi.<module>`` has an API page ``docs/api/<module>.rst`` and usually a topic guide ``docs/user_guide/<topic>.rst``. The toctrees of the API reference and of the user guide list their pages in the order of a project and end with a glob, so a new page appears at the end without editing them. The integration moves it to its place, as Entry points below describes.
-* The conventions and the glossary are ``docs/api/conventions.rst`` and ``docs/api/glossary.rst``. They come first in the API reference, and the index of the user guide links to both.
+* The conventions, the compatibility promises and the glossary are ``docs/api/conventions.rst``, ``docs/api/compatibility.rst`` and ``docs/api/glossary.rst``. They come first in the API reference, and the index of the user guide links to the conventions and the glossary.
 * Page names are part of the URLs, and the language switch links each page to the page of the same name in the other edition. Change the title of a page rather than renaming or removing it.
 * The API page of a module and its topic guide have the same title. Its cards and its rows in the README use that title or a short form of it, such as WOE and IV.
 
@@ -103,7 +103,7 @@ Names and links
 API reference
 -------------
 
-* :doc:`/api` lists the conventions, the glossary and then the module pages in the order of the user guide, and ends with a glob for the pages that are not integrated yet. ``api/datasets`` comes last through the glob, so that the glob always matches a page.
+* :doc:`/api` lists the conventions, the compatibility page, the glossary and then the module pages in the order of the user guide, and ends with a glob for the pages that are not integrated yet. ``api/datasets`` comes last through the glob, so that the glob always matches a page.
 * A module page starts with its title, a ``module`` directive, which gives ``:mod:`` links their target, and an introduction: one or two sentences on what the module is for, with links to its main functions, and a sentence that links to its topic guide. The entries follow. For example:
 
   .. code-block:: rst

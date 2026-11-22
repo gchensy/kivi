@@ -226,6 +226,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | 存续期 PD 与预期信用损失 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/lifetime.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/lifetime.html) |
 | 示例数据 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/datasets.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/datasets.html) |
 | 约定 | [阅读](https://gchensy.github.io/kivi/zh/api/conventions.html) | [Read](https://gchensy.github.io/kivi/en/api/conventions.html) |
+| 兼容性 | [阅读](https://gchensy.github.io/kivi/zh/api/compatibility.html) | [Read](https://gchensy.github.io/kivi/en/api/compatibility.html) |
 | 术语表 | [阅读](https://gchensy.github.io/kivi/zh/api/glossary.html) | [Read](https://gchensy.github.io/kivi/en/api/glossary.html) |
 | 从 0.2.x 迁移 | [阅读](https://gchensy.github.io/kivi/zh/release/migration.html) | [Read](https://gchensy.github.io/kivi/en/release/migration.html) |
 
@@ -248,16 +249,17 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 - ✅ 类别分组、ROC 表与 AUC 的 DeLong 检验
 - ✅ 逐期的模型监控
 - ✅ 存续期 PD 期限结构、IFRS 9 预期信用损失与阶段划分
-- 🔜 在 CI 中检查类型标注、测试覆盖率，以及面向 1.0 的 API 审查
+- ✅ 在 CI 中检查类型标注、测试覆盖率，以及 API 审查：0.9 的弃用与面向 1.0 的兼容性承诺
+- 🔜 1.0：采用语义化版本，移除 0.9 中弃用的内容
 
 ## 🤝 参与贡献
 
 ```bash
 git clone https://github.com/gchensy/kivi.git
 cd kivi
-python -m pip install -e '.[test,docs,lint]'
-pre-commit install                                        # 每次提交前运行 ruff
-python -m pytest                                          # 单元测试
+python -m pip install -e '.[test,docs,lint]'              # lint 附加依赖需要 Python 3.11 或更新版本
+pre-commit install                                        # 每次提交前运行 ruff 和 mypy
+python -m pytest --cov                                    # 单元测试，并统计分支覆盖率
 python -m sphinx -W -b doctest docs docs/_build/doctest   # 文档示例
 python docs/build.py                                      # 中英文 HTML 文档
 ```

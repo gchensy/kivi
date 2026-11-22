@@ -1,7 +1,7 @@
 Migrating from 0.2.x
 ====================
 
-The functions below replace the 0.2.x classes. Dataset.bank_data() retains its import path and table schema. The target describes deposit subscription.
+The functions below replace the 0.2.x classes. Dataset.bank_data() still returns the same table, but warns with a FutureWarning from 0.9.0 and is removed in 1.0; use kivi.datasets.load_bank() instead. The target describes deposit subscription.
 
 .. list-table::
    :header-rows: 1
@@ -42,7 +42,7 @@ The functions below replace the 0.2.x classes. Dataset.bank_data() retains its i
    * - ``VintagePd``
      - ``kivi.vintage.vintage_table`` on a loan panel, from 0.6.0
    * - ``Dataset.bank_data()``
-     - Unchanged; ``kivi.datasets.load_bank()`` returns the same data from 0.6.0
+     - ``kivi.datasets.load_bank()``, from 0.6.0. ``Dataset.bank_data()`` returns the same data with a ``FutureWarning`` from 0.9.0 and is removed in 1.0
 
 Binning and WOE
 ---------------
