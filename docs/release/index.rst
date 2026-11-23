@@ -8,6 +8,23 @@ Changes merged since the last release.
 
 .. release-fragments::
 
+1.0.0 (2026-11-22)
+------------------
+
+Changed
+^^^^^^^
+
+* ``kivi.woe.woe`` returns a Series named ``woe``, with the index of the counts, when a count argument is a Series, as other functions shape their results like their input. Lists and arrays still give an array. Use ``.to_numpy()`` for the array and ``.iloc`` to select by position.
+* kivi 1.0 is the first stable release. From now on it follows semantic versioning, as :doc:`/api/compatibility` describes, and its package metadata says ``Development Status :: 5 - Production/Stable``.
+
+Removed
+^^^^^^^
+
+* ``smoothing=True`` raises a ``ValueError`` in ``kivi.woe.woe_table``, ``kivi.woe.woe``, ``kivi.woe.iv``, ``kivi.stability.psi_table``, ``kivi.stability.psi``, ``kivi.binning.monotonic_edges``, ``kivi.calibration.fit_grade_pd``, ``kivi.monitoring.monitoring_table`` and ``kivi.monitoring.stability_table``, as it already did in ``kivi.spec.fit_spec`` and ``kivi.binning.chimerge_groups``. kivi 0.9 read it as 1 with a ``FutureWarning``; pass ``smoothing=1`` for that result.
+* ``kivi.woe.woe``, ``kivi.woe.iv`` and ``kivi.stability.psi`` raise a ``ValueError`` when both counts are Series with different indices, which kivi 0.9 matched by position with a ``FutureWarning``. Align the counts first, for example with ``Series.align(other, fill_value=0)``, or pass arrays when both list the groups in the same order.
+* ``kivi.datasets.Dataset`` and its method ``bank_data()`` are removed. ``kivi.datasets.load_bank()`` returns the same frame.
+* The ``probabilities`` argument of ``kivi.calibration.isotonic_predict`` is removed; pass ``probability``.
+
 0.9.0 (2026-11-22)
 ------------------
 

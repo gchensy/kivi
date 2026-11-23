@@ -1,2 +1,0 @@
-* ``kivi.woe.woe`` returns a Series named ``woe``, with the index of the counts, when a count argument is a Series, as other functions shape their results like their input. Lists and arrays still give an array. Use ``.to_numpy()`` for the array and ``.iloc`` to select by position.
-* kivi 1.0 is the first stable release. From now on it follows semantic versioning, as :doc:`/api/compatibility` describes, and its package metadata says ``Development Status :: 5 - Production/Stable``.
