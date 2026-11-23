@@ -100,7 +100,7 @@ def correlation_filter(
     >>> correlation_filter(X, priority=iv).tolist()
     ['b', 'c']
 
-    A relation that is monotone but not linear is perfect by rank:
+    A relation that is strictly monotone but not linear is perfect by rank:
 
     >>> growth = pd.DataFrame({
     ...     "x": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],

@@ -75,7 +75,7 @@ previous      0.67   0.71      1.00
 
 ``previous`` is dropped for ``pdays``, which has a higher IV. ``poutcome`` and ``pdays`` stay together because their correlation of 0.68 is below the threshold. Thresholds between 0.6 and 0.8 are common; a lower one gives a shorter list.
 
-``method`` chooses the correlation. The default, ``"pearson"``, measures how close two variables are to a straight line. ``"spearman"`` is Spearman's rank correlation, the Pearson correlation of the ranks of the values, as ``pandas.DataFrame.corr`` computes it: it counts any monotone relation as a perfect one and is not moved by a few extreme values. That suits raw variables screened before binning, whose relations are often monotone but not linear and whose tails are long:
+``method`` chooses the correlation. The default, ``"pearson"``, measures how close two variables are to a straight line. ``"spearman"`` is Spearman's rank correlation, the Pearson correlation of the ranks of the values, as ``pandas.DataFrame.corr`` computes it: it counts any strictly monotone relation as a perfect one and is not moved by a few extreme values. That suits raw variables screened before binning, whose relations are often monotone but not linear and whose tails are long:
 
 >>> raw = development[["age", "balance", "day", "campaign", "pdays", "previous"]]
 >>> correlations = {
