@@ -35,7 +35,7 @@ Each release follows the promises of :doc:`/api/compatibility`. From 1.0:
 * A release that adds to the API, deprecates a part of it or raises a minimum version is a minor release, such as 1.4.
 * A release that removes or changes what earlier releases deprecated is a major release, such as 2.0.
 
-A fix of a wrong result can go into a patch or a minor release, with a ``fixed`` fragment that says what was wrong. Before 1.0, a deprecation of 0.9 takes effect in 1.0.
+A fix of a wrong result can go into a patch or a minor release, with a ``fixed`` fragment that says what was wrong.
 
 Deprecations
 ------------

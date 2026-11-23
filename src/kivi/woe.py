@@ -128,7 +128,7 @@ def woe_table(
         _validation.check_class_weights(labels, mass)
     counts = _counts.group_counts(groups, labels, mass)
     counts.columns = ["non_event", "event"]
-    smoothing = _validation.check_smoothing(smoothing, booleans=True)
+    smoothing = _validation.check_smoothing(smoothing)
     # Assign by position: aligning interval categories hashes them, which warns on NumPy < 2.2.
     share, log_ratio, contribution = _counts.divergence(counts.to_numpy(), smoothing)
     total = counts["non_event"] + counts["event"]
@@ -145,7 +145,7 @@ def woe_table(
 
 def woe(
     event_counts: npt.ArrayLike, non_event_counts: npt.ArrayLike, *, smoothing: float = 0.5
-) -> npt.NDArray[np.float64]:
+) -> pd.Series | npt.NDArray[np.float64]:
     r"""Compute the weight of evidence of each group from its counts.
 
     Use this when the counts are already aggregated, for example from a
@@ -155,21 +155,24 @@ def woe(
     ----------
     event_counts, non_event_counts : array_like
         One-dimensional, non-negative counts of events and non-events in each
-        group, in the same group order. Weighted counts need not be integers.
+        group, in the same group order. Two Series must have identical
+        indices. Weighted counts need not be integers.
     smoothing : float, default 0.5
         Positive replacement for a zero count when calculating shares.
 
     Returns
     -------
-    numpy.ndarray
-        The WOE of each group.
+    pandas.Series or numpy.ndarray
+        The WOE of each group. If a count argument is a Series, the result is
+        a Series with its index, named ``woe``; otherwise it is an array.
 
     Raises
     ------
     ValueError
         If the counts are not one-dimensional, numeric, finite and
-        non-negative, have different lengths or a zero total, or `smoothing`
-        is not finite and positive.
+        non-negative, have different lengths or a zero total, or are two
+        Series with different indices, or `smoothing` is not finite and
+        positive.
 
     See Also
     --------
@@ -184,15 +187,26 @@ def woe(
 
     Examples
     --------
+    >>> import pandas as pd
     >>> from kivi.woe import woe
     >>> woe([2, 1], [1, 2]).round(4)
     array([ 0.6931, -0.6931])
+    >>> event = pd.Series([2, 1], index=["a", "b"])
+    >>> non_event = pd.Series([1, 2], index=["a", "b"])
+    >>> woe(event, non_event).round(4)
+    a    0.6931
+    b   -0.6931
+    Name: woe, dtype: float64
     """
+    index = _validation.shared_index(
+        {"event_counts": event_counts, "non_event_counts": non_event_counts}
+    )
     counts = _validation.as_count_columns(
         non_event_counts, event_counts, ("non_event_counts", "event_counts")
     )
-    smoothing = _validation.check_smoothing(smoothing, booleans=True)
-    return _counts.divergence(counts, smoothing)[1]
+    smoothing = _validation.check_smoothing(smoothing)
+    values = _counts.divergence(counts, smoothing)[1]
+    return values if index is None else pd.Series(values, index=index, name="woe")
 
 
 def iv(
@@ -207,7 +221,8 @@ def iv(
     ----------
     event_counts, non_event_counts : array_like
         One-dimensional, non-negative counts of events and non-events in each
-        group, in the same group order. Weighted counts need not be integers.
+        group, in the same group order. Two Series must have identical
+        indices. Weighted counts need not be integers.
     smoothing : float, default 0.5
         Positive replacement for a zero count when calculating shares.
 
@@ -220,8 +235,9 @@ def iv(
     ------
     ValueError
         If the counts are not one-dimensional, numeric, finite and
-        non-negative, have different lengths or a zero total, or `smoothing`
-        is not finite and positive.
+        non-negative, have different lengths or a zero total, or are two
+        Series with different indices, or `smoothing` is not finite and
+        positive.
 
     See Also
     --------
@@ -244,10 +260,11 @@ def iv(
     >>> round(iv([2, 1], [1, 2]), 4)
     0.4621
     """
+    _validation.shared_index({"event_counts": event_counts, "non_event_counts": non_event_counts})
     counts = _validation.as_count_columns(
         non_event_counts, event_counts, ("non_event_counts", "event_counts")
     )
-    smoothing = _validation.check_smoothing(smoothing, booleans=True)
+    smoothing = _validation.check_smoothing(smoothing)
     return float(_counts.divergence(counts, smoothing)[2].sum())
 
 

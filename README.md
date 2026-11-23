@@ -228,7 +228,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | Conventions | [Read](https://gchensy.github.io/kivi/en/api/conventions.html) | [阅读](https://gchensy.github.io/kivi/zh/api/conventions.html) |
 | Compatibility | [Read](https://gchensy.github.io/kivi/en/api/compatibility.html) | [阅读](https://gchensy.github.io/kivi/zh/api/compatibility.html) |
 | Glossary | [Read](https://gchensy.github.io/kivi/en/api/glossary.html) | [阅读](https://gchensy.github.io/kivi/zh/api/glossary.html) |
-| Migrating from 0.2.x | [Read](https://gchensy.github.io/kivi/en/release/migration.html) | [阅读](https://gchensy.github.io/kivi/zh/release/migration.html) |
+| Migration guide | [Read](https://gchensy.github.io/kivi/en/release/migration.html) | [阅读](https://gchensy.github.io/kivi/zh/release/migration.html) |
 
 ## 🗺️ Roadmap
 
@@ -250,7 +250,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 - ✅ Model monitoring by period
 - ✅ Lifetime PD term structures, IFRS 9 expected credit loss and stage allocation
 - ✅ Type hints checked in CI, test coverage, and an API review: the 0.9 deprecations and the compatibility promise for 1.0
-- 🔜 1.0: semantic versioning, with the 0.9 deprecations removed
+- ✅ 1.0: a stable API under semantic versioning, with the 0.9 deprecations removed
 
 ## 🤝 Contributing
 

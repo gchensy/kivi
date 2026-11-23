@@ -604,7 +604,7 @@ def monotonic_edges(
         )
     observed, labels, mass = _labeled(values, target, special, weights)
     fine = _fine_bins(observed, labels, initial_bins, mass)
-    smoothing = _validation.check_smoothing(smoothing, booleans=True)
+    smoothing = _validation.check_smoothing(smoothing)
     limit = len(fine[1]) if max_bins is None else max_bins
     if direction == "auto":
         rising = _monotonic(*fine, 1, limit, smoothing)

@@ -9,8 +9,6 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from . import _deprecation
-
 #: A NumPy or pandas dtype, as ``Series.dtype`` returns it.
 DTypeObj: typing.TypeAlias = np.dtype[typing.Any] | pd.api.extensions.ExtensionDtype
 
@@ -274,28 +272,19 @@ def shared_index(inputs: abc.Mapping[str, object], *, frames: bool = False) -> p
     return indexed[0][1].index if indexed else None
 
 
-def check_smoothing(smoothing: object, *, booleans: bool = False) -> float:
+def check_smoothing(smoothing: object) -> float:
     """Require a real, finite and positive scalar, and return it.
 
-    With ``booleans``, True still counts as 1, as the counting functions have
-    always read it, but warns and is returned as 1.0, so that the functions
-    the caller passes it on to neither warn again nor reject it. kivi 1.0
-    rejects it, as ``kivi.spec`` and ``chimerge_groups`` already do.
+    Booleans are rejected: ``smoothing=True`` reads as "smooth", not as a
+    replacement count of 1.
     """
-    flag = isinstance(smoothing, (bool, np.bool_))
     if (
-        (flag and not booleans)
-        or not (flag or is_real(smoothing))
-        or not (math.isfinite(smoothing) and smoothing > 0)  # type: ignore[arg-type, operator]  # a real number or a boolean
+        isinstance(smoothing, (bool, np.bool_))
+        or not is_real(smoothing)
+        or not (math.isfinite(smoothing) and smoothing > 0)
     ):
         raise ValueError(f"smoothing must be finite and positive, got {shown_argument(smoothing)}")
-    if flag:
-        _deprecation.warn(
-            "smoothing=True is deprecated and counts as 1; kivi 1.0 raises a ValueError. "
-            "Pass smoothing=1 for the same result, or leave smoothing out for the default 0.5"
-        )
-        return 1.0
-    return typing.cast(float, smoothing)
+    return smoothing
 
 
 def as_count_columns(
@@ -303,8 +292,8 @@ def as_count_columns(
 ) -> npt.NDArray[np.float64]:
     """Stack two one-dimensional count arrays into the columns of a float array.
 
-    Two Series with different indices are matched by position with a
-    ``FutureWarning``; kivi 1.0 rejects them, as every other function does.
+    The caller checks first, with `shared_index`, that two Series of counts
+    have identical indices.
     """
     columns = []
     for values, name in zip((first, second), names, strict=True):
@@ -323,16 +312,6 @@ def as_count_columns(
         raise ValueError(
             f"{names[0]} and {names[1]} must have the same length, "
             f"got {len(columns[0])} and {len(columns[1])}"
-        )
-    if (
-        isinstance(first, pd.Series)
-        and isinstance(second, pd.Series)
-        and not first.index.equals(second.index)
-    ):
-        _deprecation.warn(
-            f"{names[0]} and {names[1]} are Series with different indices, which are matched "
-            "by position; kivi 1.0 raises a ValueError. Pass Series with identical indices, "
-            "or arrays such as Series.to_numpy() to keep matching by position"
         )
     return np.column_stack(columns)
 

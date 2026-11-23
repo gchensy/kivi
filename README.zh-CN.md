@@ -228,7 +228,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | 约定 | [阅读](https://gchensy.github.io/kivi/zh/api/conventions.html) | [Read](https://gchensy.github.io/kivi/en/api/conventions.html) |
 | 兼容性 | [阅读](https://gchensy.github.io/kivi/zh/api/compatibility.html) | [Read](https://gchensy.github.io/kivi/en/api/compatibility.html) |
 | 术语表 | [阅读](https://gchensy.github.io/kivi/zh/api/glossary.html) | [Read](https://gchensy.github.io/kivi/en/api/glossary.html) |
-| 从 0.2.x 迁移 | [阅读](https://gchensy.github.io/kivi/zh/release/migration.html) | [Read](https://gchensy.github.io/kivi/en/release/migration.html) |
+| 迁移指南 | [阅读](https://gchensy.github.io/kivi/zh/release/migration.html) | [Read](https://gchensy.github.io/kivi/en/release/migration.html) |
 
 ## 🗺️ 路线图
 
@@ -250,7 +250,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 - ✅ 逐期的模型监控
 - ✅ 存续期 PD 期限结构、IFRS 9 预期信用损失与阶段划分
 - ✅ 在 CI 中检查类型标注、测试覆盖率，以及 API 审查：0.9 的弃用与面向 1.0 的兼容性承诺
-- 🔜 1.0：采用语义化版本，移除 0.9 中弃用的内容
+- ✅ 1.0：稳定的 API，采用语义化版本，移除 0.9 中弃用的内容
 
 ## 🤝 参与贡献
 

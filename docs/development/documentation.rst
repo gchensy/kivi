@@ -26,7 +26,7 @@ Apart from the home page and the index page of each section, every page is one o
      - :doc:`/api/conventions`, the rules that every function follows; :doc:`/api/compatibility`, what a release may change; :doc:`/api/glossary`, the terms of the guides; and one page per public module, generated from its docstrings.
    * - Release notes
      - :doc:`/release/index` and :doc:`/release/migration`
-     - What changed in each version, and how to move code from the 0.2.x classes to their replacements. The notes of a released version are not edited. The migration guide is revised whenever a release changes what it describes.
+     - What changed in each version, and how to move code from 0.9 to 1.0 and from the 0.2.x classes to their replacements. The notes of a released version are not edited. The migration guide is revised whenever a release changes what it describes.
    * - Contributor guide
      - The pages of this section
      - How to work on kivi. :doc:`legacy_review` records the review of the 0.2.x code that preceded the rewrite.

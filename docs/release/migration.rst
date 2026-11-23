@@ -1,7 +1,34 @@
-Migrating from 0.2.x
-====================
+Migration guide
+===============
 
-The functions below replace the 0.2.x classes. Dataset.bank_data() still returns the same table, but warns with a FutureWarning from 0.9.0 and is removed in 1.0; use kivi.datasets.load_bank() instead. The target describes deposit subscription.
+From 0.9 to 1.0
+---------------
+
+kivi 1.0 removes what 0.9 deprecated. Code that runs on 0.9 without a ``FutureWarning`` runs on 1.0 unchanged, except where it imports ``Dataset`` or uses the result of :func:`~kivi.woe.woe` for Series counts. To find the calls to change, run the code or its tests on 0.9 with ``FutureWarning`` turned into an error, as ``python -W error::FutureWarning`` or ``pytest -W error::FutureWarning`` do.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 65
+
+   * - 0.9
+     - 1.0
+   * - ``smoothing=True`` in ``woe_table``, ``woe``, ``iv``, ``psi_table``, ``psi``, ``monotonic_edges``, ``fit_grade_pd``, ``monitoring_table`` and ``stability_table`` counts as 1 with a ``FutureWarning``
+     - Raises a ``ValueError``, as in every other function. Pass ``smoothing=1`` for the result of 0.9, or leave ``smoothing`` out for the default 0.5
+   * - ``woe``, ``iv`` and ``psi`` match two count Series with different indices by position, with a ``FutureWarning``
+     - Raise a ``ValueError``. Align the counts first, as in ``reference, current = reference.align(current, fill_value=0)``, or pass arrays when both list the groups in the same order
+   * - ``woe`` returns an array
+     - Returns a Series named ``woe`` with the index of the counts when a count argument is a Series. Use ``.to_numpy()`` for the array and ``.iloc`` to select by position; lists and arrays still give an array
+   * - ``Dataset.bank_data()`` warns with a ``FutureWarning``
+     - Removed, together with the class ``Dataset``. ``kivi.datasets.load_bank()`` returns the same frame
+   * - ``isotonic_predict(score, edges, probabilities=...)`` warns with a ``FutureWarning``
+     - Removed. Pass ``probability=``, or the probabilities by position
+
+kivi 1.0 still supports Python 3.10, NumPy 1.24 and pandas 2.0. From 1.0 on, kivi follows semantic versioning: a deprecation keeps working with a ``FutureWarning`` until the next major release. :doc:`/api/compatibility` describes what a release may change.
+
+From 0.2.x
+----------
+
+The functions below replace the 0.2.x classes. The example data of ``Dataset.bank_data()``, which 1.0 removed, come from ``kivi.datasets.load_bank()``. The target describes deposit subscription.
 
 .. list-table::
    :header-rows: 1
@@ -42,10 +69,10 @@ The functions below replace the 0.2.x classes. Dataset.bank_data() still returns
    * - ``VintagePd``
      - ``kivi.vintage.vintage_table`` on a loan panel, from 0.6.0
    * - ``Dataset.bank_data()``
-     - ``kivi.datasets.load_bank()``, from 0.6.0. ``Dataset.bank_data()`` returns the same data with a ``FutureWarning`` from 0.9.0 and is removed in 1.0
+     - ``kivi.datasets.load_bank()``, from 0.6.0. ``Dataset.bank_data()`` warned with a ``FutureWarning`` in 0.9.0 and was removed in 1.0
 
 Binning and WOE
----------------
+~~~~~~~~~~~~~~~
 
 DistanceBins and FrequencyBins previously calculated group assignments and statistics together. Use bin_edges with uniform or quantile, call pandas.cut, then pass the groups to woe_table. Codes listed in abnormal_vals become the special argument: pass them to bin_edges, and use kivi.binning.cut with the same codes in place of pandas.cut. CategoryBins users can pass the label series directly.
 
@@ -56,12 +83,12 @@ Version 0.4.0 adds ``chimerge_edges`` and ``tree_edges`` in place of ``Chi2Bins`
 Codes listed in ``abnormal_vals`` of ``Chi2Bins`` and ``TreeBins`` become the ``special`` argument of ``chimerge_edges`` and ``tree_edges``. As before, the codes and their labels are left out of the fit; pass the same codes to ``kivi.binning.cut`` to give each one its own group.
 
 Population stability
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 For PSI.fit(), form both sets of groups using the same reference edges, then call psi_table. It returns raw counts and a contribution per bin. Previously the psi column repeated the overall total. The new smoothing rule preserves counts and normalizes each distribution after replacing zeros. Recheck thresholds when migrating saved analyses.
 
 Models, scorecards and calibration
-----------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 These modules are new implementations, so compare their output with the legacy code on a fixed reference sample before switching.
 
@@ -71,7 +98,7 @@ These modules are new implementations, so compare their output with the legacy c
 * ``get_omega`` becomes ``prior_correction`` for probabilities and ``corrected_intercept`` for the model intercept.
 
 Portfolio analysis and production binning
------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Version 0.6.0 replaces three more legacy classes. They are new implementations as well, so compare their output with the legacy code on a fixed reference sample before switching.
 
@@ -80,7 +107,7 @@ Version 0.6.0 replaces three more legacy classes. They are new implementations a
 * ``VintagePd`` built the vintage table from repayment schedules and observation dates. ``vintage_table`` takes a long panel with one row per loan and month on book and a bad flag that you define, for example ``status == "90+"``. Pass ``weights=amount`` for the amount-weighted rates of ``VintagePd``. Months that a cohort has not reached are NaN rather than 0.
 
 Master scales, variable profiles and strategy
----------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Version 0.7.0 replaces the legacy master scale and variable profile. Compare their output with the legacy code on a fixed reference sample before switching.
 
@@ -90,7 +117,7 @@ Version 0.7.0 replaces the legacy master scale and variable profile. Compare the
 * Strategy analysis, reject inference and weighted model fits have no 0.2.x counterpart. ``kivi.strategy`` replaces approval and bad-rate tables built by hand from score bands, ``kivi.reject_inference`` infers the outcomes of declined applicants, and ``logistic_regression`` and ``stepwise`` take ``weights`` to refit on them.
 
 Category grouping, validation and monitoring
---------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Version 0.8.0 groups categorical variables, adds the ROC table and the uncertainty of an AUC, and monitors a model period by period. These are new implementations as well.
 
@@ -100,7 +127,7 @@ Version 0.8.0 groups categorical variables, adds the ROC table and the uncertain
 * Lifetime PD term structures, the IFRS 9 expected credit loss and the allocation to stages have no 0.2.x counterpart; see ``kivi.lifetime``.
 
 Not ported
-----------
+~~~~~~~~~~
 
 Spark, SQL, AHP, model wrappers and application code are out of scope and remain in the historical revisions. These 0.2.x tools have no replacement either:
 

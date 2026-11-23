@@ -14,7 +14,7 @@ From version 1.0, kivi follows semantic versioning:
 * A deprecated function, argument or behavior keeps working, with a ``FutureWarning`` that says what to use instead, for the rest of the major version. It changes in the next major release, so a deprecation of 1.4 takes effect in 2.0. The release notes list each deprecation under Changed.
 * A fix of a wrong result can come in any release, minor or patch, even when code relies on the wrong result. The release notes list such fixes under Fixed.
 
-Until 1.0 a shorter rule applies: what 0.9 deprecates changes in 1.0. To find the calls that a release will change, run the code or its tests with ``FutureWarning`` turned into an error, as ``python -W error::FutureWarning`` or ``pytest -W error::FutureWarning`` do.
+Before 1.0 a shorter rule applied: what 0.9 deprecated changed in 1.0, as :doc:`/release/migration` lists. To find the calls that a release will change, run the code or its tests with ``FutureWarning`` turned into an error, as ``python -W error::FutureWarning`` or ``pytest -W error::FutureWarning`` do.
 
 Supported versions
 ------------------
@@ -46,6 +46,9 @@ The index name, the column names and the order of the columns of every table are
    * - :func:`~kivi.woe.woe_table`, ``BinningSpec.tables``
      - ``bin``
      - ``non_event``, ``event``, ``total``, ``non_event_share``, ``event_share``, ``total_share``, ``event_rate``, ``woe``, ``iv``
+   * - :func:`~kivi.woe.woe` of Series counts
+     - A Series named ``woe`` with the index of the counts
+     -
    * - :func:`~kivi.stability.psi_table`
      - ``bin``
      - ``reference``, ``current``, ``reference_share``, ``current_share``, ``psi``

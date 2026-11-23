@@ -7,6 +7,7 @@ objects sharing one index, are matched by position. The last tests cover how
 ``kivi._validation.as_real`` reads the numbers that several modules share.
 """
 
+import dataclasses
 import inspect
 import itertools
 
@@ -69,6 +70,10 @@ CASES = {
         {},
     ),
     "woe_table": (woe.woe_table, {"groups": GROUPS, "target": TARGET, "weights": WEIGHTS}, {}),
+    # Counts per group: the rows are the groups.
+    "woe": (woe.woe, {"event_counts": WEIGHTS, "non_event_counts": VALUES}, {}),
+    "iv": (woe.iv, {"event_counts": WEIGHTS, "non_event_counts": VALUES}, {}),
+    "psi": (stability.psi, {"reference_counts": WEIGHTS, "current_counts": VALUES}, {}),
     "roc_auc": (metrics.roc_auc, {"score": SCORE, "target": TARGET, "weights": WEIGHTS}, {}),
     "gini": (metrics.gini, {"score": SCORE, "target": TARGET, "weights": WEIGHTS}, {}),
     "ks": (metrics.ks, {"score": SCORE, "target": TARGET, "weights": WEIGHTS}, {}),
@@ -330,19 +335,47 @@ def test_as_real_reads_booleans_only_when_asked():
 
 SMOOTHED = {
     "woe_table": lambda smoothing: woe.woe_table(GROUPS, TARGET, smoothing=smoothing),
+    "woe": lambda smoothing: woe.woe([0, 2, 3], [3, 1, 0], smoothing=smoothing),
+    "iv": lambda smoothing: woe.iv([0, 2, 3], [3, 1, 0], smoothing=smoothing),
+    "psi_table": lambda smoothing: stability.psi_table(GROUPS[:4], GROUPS[4:], smoothing=smoothing),
+    "psi": lambda smoothing: stability.psi([0, 2, 3], [3, 1, 0], smoothing=smoothing),
     "chimerge_groups": lambda smoothing: binning.chimerge_groups(
         GROUPS, TARGET, smoothing=smoothing
     ),
     "monotonic_edges": lambda smoothing: binning.monotonic_edges(
         VALUES, TARGET, smoothing=smoothing
     ),
+    "fit_grade_pd": lambda smoothing: calibration.fit_grade_pd(
+        [0, 3, 5], [400, 500, 300], smoothing=smoothing
+    ),
     "fit_spec": lambda smoothing: spec.fit_spec(
         pd.DataFrame(FRAME), TARGET, bins=2, smoothing=smoothing
+    ),
+    "BinningSpec": lambda smoothing: dataclasses.replace(
+        spec.fit_spec(pd.DataFrame(FRAME), TARGET, bins=2), smoothing=smoothing
+    ),
+    "monitoring_table": lambda smoothing: monitoring.monitoring_table(
+        SCORE, PERIOD, TARGET, reference_period="p1", bins=2, smoothing=smoothing
     ),
     "stability_table": lambda smoothing: monitoring.stability_table(
         pd.DataFrame({"g": GROUPS}), PERIOD, reference_period="p1", smoothing=smoothing
     ),
 }
+
+
+def test_every_public_smoothing_argument_is_checked():
+    modules = (binning, calibration, lifetime, metrics, monitoring, reject_inference, scorecard)
+    modules += (selection, spec, stability, strategy, univariate, vintage, woe, datasets)
+    names = set()
+    for module in modules:
+        for name in module.__all__:
+            item = getattr(module, name)
+            # Exceptions have no signature of their own.
+            if isinstance(item, type) and issubclass(item, Exception):
+                continue
+            if "smoothing" in inspect.signature(item).parameters:
+                names.add(name)
+    assert names == set(SMOOTHED)
 
 
 @pytest.mark.parametrize("case", SMOOTHED)
@@ -365,10 +398,10 @@ def test_smoothing_must_be_a_finite_positive_number(case, smoothing, shown):
         SMOOTHED[case](smoothing)
 
 
-@pytest.mark.parametrize("case", ["chimerge_groups", "fit_spec"])
+@pytest.mark.parametrize("case", SMOOTHED)
 @pytest.mark.parametrize("flag", [True, np.True_])
-def test_spec_and_chimerge_groups_reject_smoothing_true(case, flag):
-    # The counting functions read True as 1 with a FutureWarning; see test_deprecations.py.
+def test_smoothing_true_raises(case, flag):
+    # kivi 0.9 read True as 1 in nine of these functions, with a FutureWarning.
     with pytest.raises(ValueError, match="^smoothing must be finite and positive, got True$"):
         SMOOTHED[case](flag)
 

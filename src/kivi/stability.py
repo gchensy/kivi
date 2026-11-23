@@ -104,7 +104,7 @@ def psi_table(
     y            2        3  0.1014
     """
     counts = _sample_counts(reference, current, reference_weights, current_weights)
-    smoothing = _validation.check_smoothing(smoothing, booleans=True)
+    smoothing = _validation.check_smoothing(smoothing)
     share, _, contribution = _counts.divergence(counts.to_numpy(), smoothing)
     return counts.assign(reference_share=share[:, 0], current_share=share[:, 1], psi=contribution)
 
@@ -121,8 +121,8 @@ def psi(
     ----------
     reference_counts, current_counts : array_like
         One-dimensional, non-negative counts of each group in the reference
-        and the current sample, in the same group order. Weighted counts
-        need not be integers.
+        and the current sample, in the same group order. Two Series must have
+        identical indices. Weighted counts need not be integers.
     smoothing : float, default 0.5
         Positive replacement for a zero count when calculating shares.
 
@@ -135,8 +135,9 @@ def psi(
     ------
     ValueError
         If the counts are not one-dimensional, numeric, finite and
-        non-negative, have different lengths or a zero total, or `smoothing`
-        is not finite and positive.
+        non-negative, have different lengths or a zero total, or are two
+        Series with different indices, or `smoothing` is not finite and
+        positive.
 
     See Also
     --------
@@ -161,10 +162,13 @@ def psi(
     >>> round(psi([2, 2], [1, 3]), 4)
     0.2747
     """
+    _validation.shared_index(
+        {"reference_counts": reference_counts, "current_counts": current_counts}
+    )
     counts = _validation.as_count_columns(
         reference_counts, current_counts, ("reference_counts", "current_counts")
     )
-    smoothing = _validation.check_smoothing(smoothing, booleans=True)
+    smoothing = _validation.check_smoothing(smoothing)
     return float(_counts.divergence(counts, smoothing)[2].sum())
 
 

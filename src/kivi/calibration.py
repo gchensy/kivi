@@ -8,7 +8,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from . import _counts, _deprecation, _logit, _stats, _validation
+from . import _counts, _logit, _stats, _validation
 
 __all__ = [
     "assign_grades",
@@ -470,11 +470,7 @@ def isotonic_fit(
 
 
 def isotonic_predict(
-    score: npt.ArrayLike,
-    edges: npt.ArrayLike,
-    probability: npt.ArrayLike | None = None,
-    *,
-    probabilities: npt.ArrayLike | None = None,
+    score: npt.ArrayLike, edges: npt.ArrayLike, probability: npt.ArrayLike
 ) -> float | pd.Series | npt.NDArray[np.float64]:
     """Give each score the probability of its band from an isotonic calibration.
 
@@ -491,9 +487,6 @@ def isotonic_predict(
         `isotonic_fit`.
     probability : array_like
         Probability of each band, between 0 and 1, one fewer than `edges`.
-    probabilities : array_like, optional
-        Deprecated name of `probability`. It warns with a ``FutureWarning``
-        and is removed in kivi 1.0.
 
     Returns
     -------
@@ -507,8 +500,6 @@ def isotonic_predict(
         If `score` is not real and numeric, `edges` is not increasing from
         ``-inf`` to ``inf``, or `probability` does not give one value
         between 0 and 1 for each band.
-    TypeError
-        If neither or both of `probability` and `probabilities` are given.
 
     See Also
     --------
@@ -529,18 +520,6 @@ def isotonic_predict(
     >>> isotonic_predict([0.1, 0.2, 0.3, 0.9], edges, [0.05, 0.2, 0.6])
     array([0.05, 0.05, 0.2 , 0.6 ])
     """
-    if probabilities is not None:
-        if probability is not None:
-            raise TypeError(
-                "isotonic_predict() got both probability and its deprecated name probabilities"
-            )
-        _deprecation.warn(
-            "the probabilities argument of isotonic_predict is deprecated and is removed in "
-            "kivi 1.0; pass probability instead"
-        )
-        probability = probabilities
-    if probability is None:
-        raise TypeError("isotonic_predict() missing 1 required argument: 'probability'")
     edges, bands = _isotonic_bands(edges, probability)
     values = _float_scores(score, "score")
     band = np.searchsorted(edges[1:-1], values, side="left")
@@ -1207,7 +1186,7 @@ def fit_grade_pd(
     indices = [values.index for values in (event, total) if isinstance(values, pd.Series)]
     if len(indices) == 2 and not indices[0].equals(indices[1]):
         raise ValueError("event and total must have identical indices when they are Series")
-    smoothing = _validation.check_smoothing(smoothing, booleans=True)
+    smoothing = _validation.check_smoothing(smoothing)
     events = _numeric_values(event, "event", booleans=False)
     totals = _numeric_values(total, "total", booleans=False)
     if len(events) != len(totals):

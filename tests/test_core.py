@@ -497,6 +497,34 @@ def test_count_functions_match_the_tables():
     assert psi(stability.reference, stability.current) == pytest.approx(stability.psi.sum())
 
 
+def test_woe_of_count_series_is_a_series_on_their_index():
+    table = woe_table(pd.Series(["a", "a", "a", "b", "b", "c"]), pd.Series([1, 1, 0, 1, 0, 0]))
+    pd.testing.assert_series_equal(woe(table.event, table.non_event), table.woe)
+    result = woe(table.event.to_numpy(), table.non_event)
+    pd.testing.assert_series_equal(result, table.woe)
+    pd.testing.assert_series_equal(woe(table.event, table.non_event.to_list()), table.woe)
+    assert isinstance(woe(table.event.to_list(), table.non_event.to_numpy()), np.ndarray)
+
+
+@pytest.mark.parametrize(
+    "function,names",
+    [
+        (woe, "event_counts and non_event_counts"),
+        (iv, "event_counts and non_event_counts"),
+        (psi, "reference_counts and current_counts"),
+    ],
+)
+def test_count_series_with_different_indices_raise(function, names):
+    # kivi 0.9 matched them by position with a FutureWarning.
+    first = pd.Series([1, 9], index=["a", "b"])
+    second = pd.Series([3, 5], index=["b", "a"])
+    with pytest.raises(ValueError, match=f"^{names} must have identical indices$"):
+        function(first, second)
+    np.testing.assert_allclose(
+        function(*first.align(second, fill_value=0)), function([1, 9], [5, 3])
+    )
+
+
 def test_count_functions_match_hand_calculation():
     np.testing.assert_allclose(woe([2, 1], [1, 2]), [np.log(2), -np.log(2)])
     assert iv([2, 1], [1, 2]) == pytest.approx(2 * np.log(2) / 3)
