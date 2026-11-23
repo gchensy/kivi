@@ -18,11 +18,13 @@ if SearchChinese.js_stemmer_rawcode == "english-stemmer.js":
     sphinx.search.languages["zh"] = ChineseSearch
 
 # Examples must not warn. A warning raised from doctest code (module "<string>") or
-# from a chart recipe (_plotting, or __main__ in the plot directive) is an error. To
-# show an expected warning, catch it in the example with warnings.catch_warnings.
-warnings.filterwarnings("error", module=r"(<string>|_plotting|__main__)$")
+# from a chart or diagram recipe (_plotting, _diagrams, or __main__ in the plot
+# directive) is an error. To show an expected warning, catch it in the example with
+# warnings.catch_warnings.
+warnings.filterwarnings("error", module=r"(<string>|_plotting|_diagrams|__main__)$")
 
-# Lets the plot directives import docs/_plotting.py and loads docs/_fragments.py.
+# Lets the plot directives import docs/_plotting.py and docs/_diagrams.py, and loads
+# docs/_fragments.py.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 project = "kivi"
@@ -55,8 +57,8 @@ doctest_default_flags = (
 copybutton_prompt_text = r">>> |\.\.\. |\$ "
 copybutton_prompt_is_regexp = True
 
-# Charts are drawn at build time from the bundled data by docs/_plotting.py.
-plot_pre_code = "import _plotting as kp\nkp.apply_style()\n"
+# Charts (docs/_plotting.py) and diagrams (docs/_diagrams.py) are drawn at build time.
+plot_pre_code = "import _plotting as kp\nimport _diagrams as kd\nkp.apply_style()\n"
 plot_include_source = False
 plot_html_show_source_link = False
 plot_html_show_formats = False
