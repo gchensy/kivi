@@ -1,3 +1,4 @@
+import datetime
 import re
 
 import numpy as np
@@ -5,7 +6,7 @@ import pandas as pd
 import pytest
 
 from kivi.datasets import make_loan_panel
-from kivi.vintage import roll_rates, transition_matrix, vintage_table
+from kivi.vintage import delinquency_panel, roll_rates, transition_matrix, vintage_table
 
 # Cohort 2024-01: loan 1 is bad at month on book 2 and cures at 3; loan 2 is never bad.
 # Cohort 2024-02: loan 3 is bad from month on book 1; loan 4 is never bad. 2024-02 is observed
@@ -585,3 +586,879 @@ def test_roll_rates_need_the_order_of_the_states():
     pd.testing.assert_series_equal(
         roll_rates(pd.Series(before, dtype=dtype), pd.Series(after, dtype=dtype)), rates
     )
+
+
+# delinquency_panel
+
+DUE = ["2024-01-15", "2024-02-15", "2024-03-15"]
+
+
+def status_of(days):
+    """The delinquency bucket of a number of days past due."""
+    for low, label in ((90, "90+"), (60, "60-89"), (30, "30-59"), (1, "1-29")):
+        if days >= low:
+            return label
+    return "current"
+
+
+COLUMNS = ["loan_id", "cohort", "month", "month_on_book", "days_past_due", "overdue_amount"]
+COLUMNS += ["outstanding", "status"]
+
+
+def expected_panel(rows, balance=None):
+    """Expected panel from (loan, first month, days past due, overdue amount, outstanding) rows.
+
+    Consecutive rows of a loan are consecutive months from its first month, and the cohort is
+    the month before it, as without origination dates.
+    """
+    frame = pd.DataFrame(rows, columns=["loan", "first", "days", "overdue", "outstanding"])
+    step = frame.groupby("loan", sort=False).cumcount()
+    first = pd.PeriodIndex(frame["first"], freq="M")
+    panel = pd.DataFrame(
+        {
+            "loan_id": frame["loan"],
+            "cohort": first - 1,
+            "month": first + step.to_numpy(),
+            "month_on_book": (step + 1).astype(np.int64),
+            "days_past_due": frame["days"].astype(np.int64),
+            "overdue_amount": frame["overdue"].astype(float),
+            "outstanding": frame["outstanding"].astype(float),
+        }
+    )
+    if balance is not None:
+        panel["balance"] = np.asarray(balance, dtype=float)
+    panel["status"] = pd.Categorical(
+        [status_of(days) for days in frame["days"]], categories=STATES, ordered=True
+    )
+    return panel
+
+
+def one_loan(dates=DUE, amount=100.0, name="A"):
+    """Schedule arguments of one loan with one instalment of ``amount`` on each date."""
+    return [name] * len(dates), list(dates), [amount] * len(dates)
+
+
+def brute_force_panel(
+    loan,
+    due_date,
+    amount_due,
+    payment_loan,
+    payment_date,
+    payment_amount,
+    *,
+    end,
+    origination=None,
+    principal=None,
+    tolerance=0.0,
+):
+    """The panel month end by month end, paying the instalments one at a time."""
+    schedule = pd.DataFrame(
+        {
+            "loan": loan,
+            "due": pd.to_datetime(pd.Series(due_date)),
+            "amount": amount_due,
+            "principal": np.nan if principal is None else principal,
+        }
+    )
+    payments = pd.DataFrame(
+        {
+            "loan": payment_loan,
+            "date": pd.to_datetime(pd.Series(payment_date)),
+            "amount": payment_amount,
+        }
+    )
+    last = pd.Period(end, freq="M")
+    rows = []
+    for name in sorted(schedule["loan"].unique()):
+        # A stable sort keeps instalments due on the same day in the order of the schedule.
+        own = schedule[schedule["loan"] == name].sort_values("due", kind="stable")
+        paid = payments[payments["loan"] == name]
+        month = own["due"].iloc[0].to_period("M")
+        if origination is None:
+            cohort = month - 1
+        else:
+            cohort = pd.Timestamp(origination[name]).to_period("M")
+        while month <= last:
+            day = month.end_time.normalize()
+            left = paid.loc[paid["date"] <= day, "amount"].sum()
+            unpaid = []
+            for amount in own["amount"]:
+                share = min(amount, left)
+                left -= share
+                unpaid.append(amount - share)
+            unpaid = np.array(unpaid)
+            # Instalment k counts as paid when it and the older ones lack at most tolerance.
+            counted = np.cumsum(unpaid) <= tolerance
+            fallen = (own["due"] < day).to_numpy()
+            behind = np.flatnonzero(~counted)
+            days = 0
+            if len(behind) and fallen[behind[0]]:
+                days = (day - own["due"].iloc[behind[0]]).days
+            row = {
+                "loan_id": name,
+                "cohort": cohort,
+                "month": month,
+                "month_on_book": (month - cohort).n,
+                "days_past_due": days,
+                "overdue_amount": unpaid[fallen].sum(),
+                "outstanding": unpaid.sum(),
+            }
+            if principal is not None:
+                row["balance"] = np.minimum(own["principal"].to_numpy(), unpaid).sum()
+            row["status"] = status_of(days)
+            rows.append(row)
+            if counted.all():
+                break
+            month += 1
+    panel = pd.DataFrame(rows)
+    panel["cohort"] = pd.PeriodIndex(panel["cohort"], freq="M")
+    panel["month"] = pd.PeriodIndex(panel["month"], freq="M")
+    panel["status"] = pd.Categorical(panel["status"], categories=STATES, ordered=True)
+    return panel.astype({"month_on_book": np.int64, "days_past_due": np.int64})
+
+
+def random_book(seed, n_loans=40):
+    """Schedules and payments in whole amounts, so that every sum is exact."""
+    rng = np.random.default_rng(seed)
+    start = np.datetime64("2024-01-01")
+    loan, due_date, amount_due, principal = [], [], [], []
+    payment_loan, payment_date, payment_amount = [], [], []
+    origination = {}
+    for name in rng.permutation(n_loans) * 7:
+        first = start + rng.integers(0, 120)
+        # Up to three months between origination and the first due date, sometimes none.
+        origination[name] = first - rng.integers(0, 100)
+        # Some instalments fall due on the same day, and some months have none.
+        gaps = rng.choice([0, 28, 29, 30, 31, 61], size=rng.integers(1, 7))
+        gaps[0] = 0
+        dates = first + np.cumsum(gaps)
+        amounts = rng.integers(0, 150, size=len(dates)).astype(float)
+        loan += [name] * len(dates)
+        due_date += list(dates)
+        amount_due += list(amounts)
+        principal += list(np.floor(amounts * rng.uniform(0, 1, len(dates))))
+        n_payments = rng.integers(0, 9)
+        payment_loan += [name] * n_payments
+        payment_date += list(first + rng.integers(-30, 200, size=n_payments))
+        payment_amount += list(rng.integers(0, 260, size=n_payments).astype(float))
+    order = rng.permutation(len(loan))
+    pay_order = rng.permutation(len(payment_loan))
+    schedule = [np.asarray(values)[order] for values in (loan, due_date, amount_due, principal)]
+    payments = [
+        np.asarray(values)[pay_order] for values in (payment_loan, payment_date, payment_amount)
+    ]
+    end = pd.Period("2024-03", freq="M") + int(rng.integers(0, 12))
+    return schedule, payments, end, origination
+
+
+def test_delinquency_panel_on_time_payments_stay_current():
+    panel = delinquency_panel(*one_loan(), ["A"] * 3, DUE, [100.0] * 3, end="2024-06")
+    expected = expected_panel(
+        [("A", "2024-01", 0, 0, 200), ("A", "2024-01", 0, 0, 100), ("A", "2024-01", 0, 0, 0)]
+    )
+    # The loan leaves the panel after the month end at which it is repaid.
+    pd.testing.assert_frame_equal(panel, expected)
+
+
+def test_delinquency_panel_missed_instalments_are_caught_up():
+    dates = [*DUE, "2024-04-15"]
+    loan, due_date, amount_due = one_loan(dates)
+    loan += ["B"] * 4
+    due_date += dates
+    amount_due += [100.0] * 4
+    # A misses February and pays it on 10 March; B misses February and March and pays both on
+    # 2 April. The payments after a month end count as unpaid at that month end.
+    payment_loan = ["A", "A", "A", "B", "B", "B"]
+    payment_date = ["2024-01-15", "2024-03-10", "2024-04-15", "2024-01-15", "2024-04-02"]
+    payment_date += ["2024-04-15"]
+    payment_amount = [100.0, 200.0, 100.0, 100.0, 200.0, 100.0]
+    panel = delinquency_panel(
+        loan, due_date, amount_due, payment_loan, payment_date, payment_amount, end="2024-12"
+    )
+    expected = expected_panel(
+        [
+            ("A", "2024-01", 0, 0, 300),
+            ("A", "2024-01", 14, 100, 300),
+            ("A", "2024-01", 0, 0, 100),
+            ("A", "2024-01", 0, 0, 0),
+            ("B", "2024-01", 0, 0, 300),
+            ("B", "2024-01", 14, 100, 300),
+            # 31 March is 45 days after the February due date.
+            ("B", "2024-01", 45, 200, 300),
+            ("B", "2024-01", 0, 0, 0),
+        ]
+    )
+    pd.testing.assert_frame_equal(panel, expected)
+
+
+@pytest.mark.parametrize("tolerance", [0.5, 1, np.float64(10.0)])
+def test_delinquency_panel_partial_payment_within_tolerance_counts_as_paid(tolerance):
+    payments = ["A", "A"], DUE[:2], [99.5, 100.0]
+    panel = delinquency_panel(*one_loan(DUE[:2]), *payments, end="2024-03", tolerance=tolerance)
+    # The 0.5 left of January stays owed: February's payment goes to it first.
+    expected = expected_panel([("A", "2024-01", 0, 0.5, 100.5), ("A", "2024-01", 0, 0.5, 0.5)])
+    pd.testing.assert_frame_equal(panel, expected)
+
+
+@pytest.mark.parametrize("tolerance", [0, 0.25, 0.49])
+def test_delinquency_panel_partial_payment_beyond_tolerance_is_past_due(tolerance):
+    payments = ["A", "A"], DUE[:2], [99.5, 100.0]
+    panel = delinquency_panel(*one_loan(DUE[:2]), *payments, end="2024-03", tolerance=tolerance)
+    expected = expected_panel(
+        [
+            ("A", "2024-01", 16, 0.5, 100.5),
+            # 0.5 of February's instalment is unpaid, so it is past due from 15 February.
+            ("A", "2024-01", 14, 0.5, 0.5),
+            ("A", "2024-01", 45, 0.5, 0.5),
+        ]
+    )
+    pd.testing.assert_frame_equal(panel, expected)
+
+
+def test_delinquency_panel_shortfalls_within_tolerance_add_up():
+    payments = ["A"] * 3, DUE, [99.5] * 3
+    panel = delinquency_panel(*one_loan(), *payments, end="2024-04", tolerance=1)
+    # 0.5, then 1.0 and then 1.5 is unpaid in total; 1.5 exceeds the tolerance.
+    expected = expected_panel(
+        [
+            ("A", "2024-01", 0, 0.5, 200.5),
+            ("A", "2024-01", 0, 1.0, 101.0),
+            ("A", "2024-01", 16, 1.5, 1.5),
+            ("A", "2024-01", 46, 1.5, 1.5),
+        ]
+    )
+    pd.testing.assert_frame_equal(panel, expected)
+
+
+def test_delinquency_panel_prepayment_keeps_the_loan_current():
+    loan, due_date, amount_due = one_loan()
+    loan += ["B"] * 3
+    due_date += DUE
+    amount_due += [100.0] * 3
+    # A pays two instalments in January; B repays the loan before its first due date.
+    payments = ["A", "B"], ["2024-01-10", "2024-01-05"], [200.0, 300.0]
+    panel = delinquency_panel(loan, due_date, amount_due, *payments, end="2024-03")
+    expected = expected_panel(
+        [
+            ("A", "2024-01", 0, 0, 100),
+            ("A", "2024-01", 0, 0, 100),
+            ("A", "2024-01", 16, 100, 100),
+            ("B", "2024-01", 0, 0, 0),
+        ]
+    )
+    pd.testing.assert_frame_equal(panel, expected)
+
+
+def test_delinquency_panel_loan_past_maturity_keeps_rolling():
+    panel = delinquency_panel(*one_loan(), [], [], [], end="2024-08")
+    # Days since 15 January at the end of each month from January to August.
+    days = [16, 45, 76, 106, 137, 167, 198, 229]
+    overdue = [100, 200, 300, 300, 300, 300, 300, 300]
+    rows = [("A", "2024-01", d, p, 300) for d, p in zip(days, overdue, strict=True)]
+    pd.testing.assert_frame_equal(panel, expected_panel(rows))
+    assert panel["status"].tolist() == ["1-29", "30-59", "60-89"] + ["90+"] * 5
+
+
+def test_delinquency_panel_counts_payments_up_to_the_last_day_of_the_month():
+    schedule = one_loan(["2024-02-15"])
+    on_time = delinquency_panel(*schedule, ["A"], ["2024-02-29"], [100.0], end="2024-04")
+    pd.testing.assert_frame_equal(on_time, expected_panel([("A", "2024-02", 0, 0, 0)]))
+    late = delinquency_panel(*schedule, ["A"], ["2024-03-01"], [100.0], end="2024-04")
+    expected = expected_panel([("A", "2024-02", 14, 100, 100), ("A", "2024-02", 0, 0, 0)])
+    pd.testing.assert_frame_equal(late, expected)
+
+
+def test_delinquency_panel_instalment_due_at_the_month_end_is_not_yet_past_due():
+    panel = delinquency_panel(*one_loan(["2024-01-31"]), [], [], [], end="2024-04")
+    # 0 days at the end of January, 29 at the end of February and 60 at the end of March: the
+    # loan skips 30-59.
+    rows = [("A", "2024-01", 0, 0, 100), ("A", "2024-01", 29, 100, 100)]
+    rows += [("A", "2024-01", 60, 100, 100), ("A", "2024-01", 90, 100, 100)]
+    pd.testing.assert_frame_equal(panel, expected_panel(rows))
+    assert panel["status"].tolist() == ["current", "1-29", "60-89", "90+"]
+
+
+def test_delinquency_panel_several_loans_in_any_order():
+    loan = ["B", "A", "C", "A", "B", "C", "A", "B"]
+    due_date = ["2024-02-10", "2024-03-15", "2024-01-20", "2024-01-15", "2024-01-10"]
+    due_date += ["2024-02-20", "2024-02-15", "2024-03-10"]
+    amount_due = [50.0, 100.0, 80.0, 100.0, 50.0, 80.0, 100.0, 50.0]
+    payment_loan = ["C", "A", "B", "A", "C"]
+    payment_date = ["2024-02-20", "2024-01-15", "2024-01-08", "2024-02-28", "2024-01-20"]
+    payment_amount = [80.0, 100.0, 50.0, 200.0, 80.0]
+    panel = delinquency_panel(
+        loan, due_date, amount_due, payment_loan, payment_date, payment_amount, end="2024-04"
+    )
+    expected = expected_panel(
+        [
+            ("A", "2024-01", 0, 0, 200),
+            ("A", "2024-01", 0, 0, 0),
+            ("B", "2024-01", 0, 0, 100),
+            ("B", "2024-01", 19, 50, 100),
+            ("B", "2024-01", 50, 100, 100),
+            ("B", "2024-01", 80, 100, 100),
+            ("C", "2024-01", 0, 0, 80),
+            ("C", "2024-01", 0, 0, 0),
+        ]
+    )
+    pd.testing.assert_frame_equal(panel, expected)
+    # The payments may have any index; the schedule's Series share one.
+    index = pd.Index([5, 3, 9, 1, 7, 2, 8, 4])
+    schedule = [pd.Series(values, index=index) for values in (loan, due_date, amount_due)]
+    payments = [
+        pd.Series(values, index=list("vwxyz"))
+        for values in (payment_loan, payment_date, payment_amount)
+    ]
+    pd.testing.assert_frame_equal(delinquency_panel(*schedule, *payments, end="2024-04"), expected)
+
+
+def test_delinquency_panel_sorts_loans_and_keeps_their_labels():
+    loan = [10, 2, 33]
+    panel = delinquency_panel(loan, ["2024-01-15"] * 3, [100.0] * 3, [], [], [], end="2024-01")
+    assert panel["loan_id"].tolist() == [2, 10, 33]
+    assert panel["loan_id"].dtype == np.int64
+    mixed = delinquency_panel([2, "a", 1], ["2024-01-15"] * 3, [1.0] * 3, [], [], [], end="2024-01")
+    assert mixed["loan_id"].tolist() == [1, 2, "a"]
+
+
+def test_delinquency_panel_balance_pays_interest_before_principal():
+    loan, due_date, amount_due = one_loan(DUE[:2], amount=110.0)
+    payments = ["A", "A"], ["2024-01-15", "2024-02-20"], [50.0, 170.0]
+    panel = delinquency_panel(
+        loan, due_date, amount_due, *payments, end="2024-03", principal=[100.0, 100.0]
+    )
+    # 50 pays January's 10 of interest and 40 of principal: 60 + 100 of principal remain.
+    expected = expected_panel(
+        [("A", "2024-01", 16, 60, 170), ("A", "2024-01", 0, 0, 0)], balance=[160, 0]
+    )
+    pd.testing.assert_frame_equal(panel, expected)
+    # 5 pays only interest, so all the principal remains.
+    small = delinquency_panel(
+        loan,
+        due_date,
+        amount_due,
+        ["A"],
+        ["2024-01-15"],
+        [5.0],
+        end="2024-01",
+        principal=[100.0] * 2,
+    )
+    assert small["balance"].tolist() == [200.0]
+    # Without principal, there is no balance.
+    assert "balance" not in delinquency_panel(loan, due_date, amount_due, [], [], [], end="2024-01")
+
+
+def test_delinquency_panel_vintage_table_of_the_status():
+    # Cohort 2023-12 (first due in January): A pays on time, B never pays. Cohort 2024-01: C pays
+    # its first instalment only, D misses two and repays everything on 1 April.
+    loan, due_date, amount_due = [], [], []
+    for name, first in (("A", 1), ("B", 1), ("C", 2), ("D", 2)):
+        loan += [name] * 3
+        due_date += [f"2024-{month:02d}-15" for month in range(first, first + 3)]
+        amount_due += [100.0] * 3
+    payment_loan = ["A", "A", "A", "C", "D"]
+    payment_date = ["2024-01-15", "2024-02-15", "2024-03-15", "2024-02-15", "2024-04-01"]
+    payment_amount = [100.0, 100.0, 100.0, 100.0, 300.0]
+    panel = delinquency_panel(
+        loan, due_date, amount_due, payment_loan, payment_date, payment_amount, end="2024-06"
+    )
+    assert panel.groupby("loan_id")["month_on_book"].max().to_dict() == {
+        "A": 3,
+        "B": 6,
+        "C": 5,
+        "D": 3,
+    }
+    assert (panel["cohort"] == panel["month"] - panel["month_on_book"]).all()
+    table = vintage_table(
+        panel["loan_id"], panel["cohort"], panel["month_on_book"], panel["status"] >= "30-59"
+    )
+    # B is 30-59 at month on book 2; D at 2 (45 days on 31 March) and C at 3 (46 days on 30 April).
+    expected = pd.DataFrame(
+        [[0.0, 0.5, 0.5, 0.5, 0.5, 0.5], [0.0, 0.5, 1.0, 1.0, 1.0, np.nan]],
+        index=pd.PeriodIndex(["2023-12", "2024-01"], freq="M", name="cohort"),
+        columns=pd.Index(range(1, 7), name="month_on_book"),
+    )
+    pd.testing.assert_frame_equal(table, expected)
+
+
+@pytest.mark.parametrize("seed", range(6))
+def test_delinquency_panel_matches_a_month_by_month_calculation(seed):
+    schedule, payments, end, origination = random_book(seed)
+    tolerance = [0.0, 3.0, 40.0][seed % 3]
+    loan, due_date, amount_due, principal = schedule
+    arguments = (loan, due_date, amount_due, *payments)
+    options = {"end": end, "tolerance": tolerance, "principal": principal}
+    if seed % 2:
+        # As a mapping on odd seeds, without origination dates on even ones.
+        options["origination"] = origination
+    panel = delinquency_panel(*arguments, **options)
+    pd.testing.assert_frame_equal(panel, brute_force_panel(*arguments, **options))
+    assert (panel["overdue_amount"] <= panel["outstanding"]).all()
+    assert (panel["balance"] <= panel["outstanding"]).all()
+
+
+def test_delinquency_panel_has_the_columns_of_make_loan_panel_in_its_order():
+    panel = delinquency_panel(*one_loan(), [], [], [], end="2024-01", principal=[90.0] * 3)
+    assert panel.columns.tolist() == [*COLUMNS[:-1], "balance", "status"]
+    simulated = make_loan_panel(n_loans=5, n_months=2, rng=0).columns.tolist()
+    shared = [column for column in simulated if column in panel.columns]
+    assert shared == ["loan_id", "cohort", "month", "month_on_book", "balance", "status"]
+    assert [column for column in panel.columns if column in simulated] == shared
+    assert panel["cohort"].dtype == pd.PeriodDtype("M")
+
+
+def test_delinquency_panel_origination_sets_the_cohort_and_the_month_on_book():
+    # E is originated a month before its first due date, F three months before (a grace
+    # period), and G in the month of its first due date.
+    loan = ["E", "E", "F", "F", "G"]
+    due_date = ["2024-02-20", "2024-03-20", "2024-04-05", "2024-05-05", "2024-01-25"]
+    payments = (loan, due_date, [50.0] * 5)
+    dates = {"E": "2024-01-20", "F": "2024-01-05", "G": "2024-01-02"}
+    by_due = delinquency_panel(loan, due_date, [50.0] * 5, *payments, end="2024-06")
+    by_origination = delinquency_panel(
+        loan, due_date, [50.0] * 5, *payments, end="2024-06", origination=dates
+    )
+    assert by_origination["cohort"].astype(str).tolist() == ["2024-01"] * 5
+    assert by_origination["month_on_book"].tolist() == [1, 2, 3, 4, 0]
+    assert by_due["cohort"].astype(str).tolist() == ["2024-01"] * 2 + ["2024-03"] * 2 + ["2023-12"]
+    assert by_due["month_on_book"].tolist() == [1, 2, 1, 2, 1]
+    # Only the cohort and the month on book change; the rows stay the same.
+    changed = ["cohort", "month_on_book"]
+    pd.testing.assert_frame_equal(
+        by_origination.drop(columns=changed), by_due.drop(columns=changed)
+    )
+    # A Series indexed by loan works like a mapping; other loans and the order do not matter.
+    series = pd.Series(pd.to_datetime([*dates.values(), "2020-01-01"]), index=[*dates, "Z"])
+    pd.testing.assert_frame_equal(
+        delinquency_panel(
+            loan, due_date, [50.0] * 5, *payments, end="2024-06", origination=series[::-1]
+        ),
+        by_origination,
+    )
+
+
+def test_delinquency_panel_origination_matches_integer_loans():
+    panel = delinquency_panel(
+        [3, 1],
+        ["2024-03-15", "2024-02-15"],
+        [1.0, 1.0],
+        [],
+        [],
+        [],
+        end="2024-03",
+        origination=pd.Series(["2023-11-30", "2024-01-15"], index=[3.0, 1.0]),
+    )
+    assert panel["loan_id"].tolist() == [1, 1, 3]
+    assert panel["month_on_book"].tolist() == [1, 2, 4]
+
+
+@pytest.mark.parametrize(
+    "origination, message",
+    [
+        (
+            ["2024-01-01"],
+            "origination must be a Series indexed by loan or a mapping from loan to date, got list",
+        ),
+        (
+            pd.DataFrame({"date": ["2024-01-01"]}, index=["A"]),
+            "origination must be a Series "
+            "indexed by loan or a mapping from loan to date, got DataFrame",
+        ),
+        (
+            pd.Series(["2024-01-01", "2024-01-02"], index=["A", "A"]),
+            "origination must have one date per loan, got 'A' twice",
+        ),
+        (
+            {"B": "2024-01-01"},
+            "origination must give the date of every loan of the schedule, got none for 'A'",
+        ),
+        ({}, "origination must give the date of every loan of the schedule, got none for 'A'"),
+        ({"A": None}, "origination must not contain missing values, got 1"),
+        (pd.Series([pd.NaT], index=["A"]), "origination must not contain missing values, got 1"),
+        ({"A": 20240101}, "origination must hold dates, got dtype int64"),
+        ({"A": "soon"}, "origination must hold dates, got 'soon'"),
+        (
+            {"A": "2024-01-16"},
+            "due_date must not be before the origination of its loan, got "
+            "'2024-01-15' for loan 'A', originated on '2024-01-16'",
+        ),
+    ],
+)
+def test_delinquency_panel_rejects_invalid_origination(origination, message):
+    with pytest.raises(ValueError, match=f"^{re.escape(message)}$"):
+        delinquency_panel(*one_loan(), [], [], [], end="2024-06", origination=origination)
+
+
+def test_delinquency_panel_origination_on_the_first_due_date_is_valid():
+    panel = delinquency_panel(*one_loan(), [], [], [], end="2024-01", origination={"A": DUE[0]})
+    assert panel["month_on_book"].tolist() == [0]
+
+
+def test_delinquency_panel_balance_roll_rates_run_as_in_the_guide():
+    # The guide's roll-rate code for make_loan_panel, on a panel built from schedules.
+    loan = np.repeat(["A", "B", "C", "D"], 3)
+    due_date = DUE * 4
+    principal = [94.0, 96.0, 98.0] * 4
+    payment_loan = ["A", "A", "A", "B", "B", "C", "C", "D", "D"]
+    payment_date = ["2024-01-15", "2024-02-15", "2024-03-14", "2024-01-15", "2024-03-20"]
+    payment_date += ["2024-01-10", "2024-03-15", "2024-01-15", "2024-02-15"]
+    payment_amount = [100.0, 100.0, 100.0, 100.0, 200.0, 200.0, 100.0, 100.0, 99.99]
+    panel = delinquency_panel(
+        loan,
+        due_date,
+        [100.0] * 12,
+        payment_loan,
+        payment_date,
+        payment_amount,
+        end="2024-06",
+        principal=principal,
+    )
+    later = panel[["loan_id", "month_on_book", "status"]].assign(
+        month_on_book=panel["month_on_book"] - 1
+    )
+    pairs = panel.merge(later, on=["loan_id", "month_on_book"], suffixes=("", "_next"))
+    before, after = pairs["status"], pairs["status_next"]
+    # Six pairs start current (B and D roll), two at 1-29 (D rolls), and D rolls on twice.
+    np.testing.assert_allclose(roll_rates(before, after).to_numpy(), [2 / 6, 1 / 2, 1, 1])
+    # By balance: B and D roll from current with 194 each of 876, and D from 1-29 with 98.01
+    # of 194 + 98.01.
+    np.testing.assert_allclose(
+        roll_rates(before, after, weights=pairs["balance"]).to_numpy(),
+        [388 / 876, 98.01 / 292.01, 1, 1],
+    )
+
+
+def test_delinquency_panel_tolerance_of_the_total_due_lets_an_unpaid_loan_leave():
+    panel = delinquency_panel(*one_loan(), [], [], [], end="2024-06", tolerance=300)
+    # The amounts stay exact: January's 100 is overdue, although it counts as paid.
+    pd.testing.assert_frame_equal(panel, expected_panel([("A", "2024-01", 0, 100, 300)]))
+    rolling = delinquency_panel(*one_loan(), [], [], [], end="2024-06", tolerance=299.5)
+    assert len(rolling) == 6
+
+
+def test_delinquency_panel_adds_up_instalments_due_on_the_same_day():
+    # A schedule row repeated by a faulty join doubles the amount due.
+    loan, due_date, amount_due = one_loan()
+    doubled = delinquency_panel(
+        loan + ["A"],
+        due_date + [DUE[0]],
+        amount_due + [100.0],
+        ["A"],
+        [DUE[0]],
+        [100.0],
+        end="2024-02",
+    )
+    expected = expected_panel([("A", "2024-01", 16, 100, 300), ("A", "2024-01", 45, 200, 300)])
+    pd.testing.assert_frame_equal(doubled, expected)
+
+
+def test_delinquency_panel_ignores_payments_after_end_and_after_repayment():
+    expected = delinquency_panel(*one_loan(), ["A"], ["2024-01-15"], [300.0], end="2024-04")
+    # Payments after the loan was repaid, and after end, leave no credit and add no rows.
+    payments = ["A"] * 3, ["2024-01-15", "2024-02-01", "2024-09-01"], [300.0, 50.0, 500.0]
+    pd.testing.assert_frame_equal(
+        delinquency_panel(*one_loan(), *payments, end="2024-04"), expected
+    )
+    late = delinquency_panel(*one_loan(), ["A"], ["2024-05-02"], [300.0], end="2024-04")
+    assert late["days_past_due"].tolist() == [16, 45, 76, 106]
+
+
+def test_delinquency_panel_counts_an_instalment_paid_in_parts_despite_rounding():
+    assert 0.1 + 0.7 < 0.8
+    panel = delinquency_panel(
+        *one_loan(["2024-01-15"], amount=0.8),
+        ["A", "A"],
+        ["2024-01-10"] * 2,
+        [0.1, 0.7],
+        end="2024-03",
+    )
+    pd.testing.assert_frame_equal(panel, expected_panel([("A", "2024-01", 0, 0, 0)]))
+
+
+def test_delinquency_panel_overpayments_and_instalments_of_zero():
+    loan, due_date, amount_due = one_loan(["2024-01-15", "2024-02-15", "2024-02-15"])
+    amount_due = [100.0, 0.0, 100.0]
+    panel = delinquency_panel(
+        loan, due_date, amount_due, ["A"], ["2024-01-15"], [100.0], end="2024-03"
+    )
+    # The instalment of 0 is paid with nothing.
+    expected = expected_panel(
+        [
+            ("A", "2024-01", 0, 0, 100),
+            ("A", "2024-01", 14, 100, 100),
+            ("A", "2024-01", 45, 100, 100),
+        ]
+    )
+    pd.testing.assert_frame_equal(panel, expected)
+    overpaid = delinquency_panel(
+        loan, due_date, amount_due, ["A"], ["2024-01-15"], [500.0], end="2024-03"
+    )
+    pd.testing.assert_frame_equal(overpaid, expected_panel([("A", "2024-01", 0, 0, 0)]))
+
+
+def test_delinquency_panel_leaves_out_loans_first_due_after_end():
+    loan = ["A", "B"]
+    panel = delinquency_panel(
+        loan, ["2024-01-15", "2024-03-15"], [1.0, 1.0], [], [], [], end="2024-02"
+    )
+    assert panel["loan_id"].tolist() == ["A", "A"]
+    message = re.escape(
+        "end must not be before the month of the earliest due date, got '2023-12' before '2024-01'"
+    )
+    with pytest.raises(ValueError, match=f"^{message}$"):
+        delinquency_panel(loan, ["2024-01-15", "2024-03-15"], [1.0, 1.0], [], [], [], end="2023-12")
+
+
+@pytest.mark.parametrize(
+    "end",
+    [
+        "2024-03",
+        "2024-03-31",
+        "2024-03-01 18:00",
+        pd.Timestamp("2024-03-02"),
+        pd.Timestamp("2024-03-02", tz="Asia/Shanghai"),
+        datetime.date(2024, 3, 9),
+        np.datetime64("2024-03-30"),
+        pd.Period("2024-03", freq="M"),
+        pd.Period("2024-03-15", freq="D"),
+        pd.Period("2024Q1", freq="Q"),
+        # Strings are read as pandas.Period reads them, without warnings: a quarter ends in its
+        # last month, and a time zone is dropped.
+        "2024Q1",
+        "March 2024",
+        "2024-03-15T10:00:00+08:00",
+        datetime.datetime(2024, 3, 2, tzinfo=datetime.timezone.utc),
+    ],
+)
+def test_delinquency_panel_end_is_a_month_or_a_date_in_it(end):
+    panel = delinquency_panel(*one_loan(), [], [], [], end=end)
+    assert panel["month"].astype(str).tolist() == ["2024-01", "2024-02", "2024-03"]
+
+
+def test_delinquency_panel_end_of_a_year_is_its_december():
+    panel = delinquency_panel(*one_loan(), [], [], [], end="2024")
+    assert panel["month"].astype(str).tolist() == [f"2024-{month:02d}" for month in range(1, 13)]
+
+
+def test_delinquency_panel_reads_dates_of_any_type():
+    expected = delinquency_panel(*one_loan(), ["A"], ["2024-02-20"], [150.0], end="2024-04")
+    loan, _, amount_due = one_loan()
+    due = pd.to_datetime(pd.Series(DUE))
+    variants = [
+        (due.to_numpy(), np.array(["2024-02-20"], dtype="datetime64[D]")),
+        (list(due), [pd.Timestamp("2024-02-20 23:30")]),
+        ([day.date() for day in due], [datetime.datetime(2024, 2, 20, 8)]),
+        (due.dt.tz_localize("Europe/Paris"), pd.Series(["2024-02-20T01:00"])),
+        (pd.Series(DUE, dtype="string"), pd.Series(pd.to_datetime(["2024-02-20"]), dtype=object)),
+    ]
+    for due_date, payment_date in variants:
+        panel = delinquency_panel(
+            loan, due_date, amount_due, ["A"], payment_date, [150.0], end="2024-04"
+        )
+        pd.testing.assert_frame_equal(panel, expected)
+
+
+def test_delinquency_panel_accepts_nullable_dtypes_and_empty_payments():
+    expected = delinquency_panel(*one_loan(), [], [], [], end="2024-02")
+    loan = pd.array(["A"] * 3, dtype="string")
+    amount = pd.array([100, 100, 100], dtype="Int64")
+    panel = delinquency_panel(loan, DUE, amount, [], [], [], end="2024-02")
+    pd.testing.assert_frame_equal(panel, expected, check_dtype=False)
+    for empty in (np.array([]), pd.Series([], dtype=object), np.array([], dtype="datetime64[ns]")):
+        panel = delinquency_panel(*one_loan(), empty, empty, [], end="2024-02")
+        pd.testing.assert_frame_equal(panel, expected)
+
+
+def test_delinquency_panel_does_not_modify_its_inputs():
+    loan, due_date, amount_due = (pd.Series(values) for values in one_loan())
+    payments = [pd.Series(values) for values in (["A"], ["2024-01-20"], [100.0])]
+    copies = [values.copy() for values in (loan, due_date, amount_due, *payments)]
+    delinquency_panel(loan, due_date, amount_due, *payments, end="2024-03", principal=amount_due)
+    for values, copy in zip((loan, due_date, amount_due, *payments), copies, strict=True):
+        pd.testing.assert_series_equal(values, copy)
+
+
+def test_delinquency_panel_has_the_statuses_of_make_loan_panel():
+    panel = delinquency_panel(*one_loan(), [], [], [], end="2024-01")
+    simulated = make_loan_panel(n_loans=5, n_months=2, rng=0)
+    assert panel["status"].dtype == simulated["status"].dtype
+
+
+def test_delinquency_panel_end_is_keyword_only_and_required():
+    with pytest.raises(TypeError):
+        delinquency_panel(*one_loan(), [], [], [])  # type: ignore[call-arg]
+    with pytest.raises(TypeError):
+        delinquency_panel(*one_loan(), [], [], [], "2024-01")  # type: ignore[misc]
+
+
+SCHEDULE = one_loan()
+NO_PAYMENTS = ([], [], [])
+
+
+@pytest.mark.parametrize(
+    "arguments, options, message",
+    [
+        (
+            (["A"] * 3, DUE[:2], [1.0] * 3, *NO_PAYMENTS),
+            {},
+            "loan, due_date and amount_due must have the same length, got 3, 2 and 3",
+        ),
+        (
+            (*SCHEDULE, *NO_PAYMENTS),
+            {"principal": [1.0]},
+            "loan, due_date, amount_due and principal must have the same length, got 3, 3, 3 and 1",
+        ),
+        (
+            (*SCHEDULE, ["A"], ["2024-01-15"], [1.0, 2.0]),
+            {},
+            "payment_loan, payment_date and payment_amount must have the same length, got 1, 1 "
+            "and 2",
+        ),
+        (([], [], [], *NO_PAYMENTS), {}, "loan, due_date and amount_due must not be empty"),
+        (
+            (np.array([["A"]]), ["2024-01-15"], [1.0], *NO_PAYMENTS),
+            {},
+            "loan must be one-dimensional, got 2 dimensions",
+        ),
+        (
+            (["A", None, "B"], DUE, [1.0] * 3, *NO_PAYMENTS),
+            {},
+            "loan must not contain missing values, got 1",
+        ),
+        (
+            (["A"] * 3, ["2024-01-15", None, "2024-03-15"], [1.0] * 3, *NO_PAYMENTS),
+            {},
+            "due_date must not contain missing values, got 1",
+        ),
+        (
+            (["A"] * 3, ["2024-01-15", "soon", "2024-03-15"], [1.0] * 3, *NO_PAYMENTS),
+            {},
+            "due_date must hold dates, got 'soon'",
+        ),
+        (
+            (["A"] * 3, [20240115, 20240215, 20240315], [1.0] * 3, *NO_PAYMENTS),
+            {},
+            "due_date must hold dates, got dtype int64",
+        ),
+        (
+            (
+                ["A"] * 2,
+                pd.Series(pd.period_range("2024-01-15", periods=2)),
+                [1.0] * 2,
+                *NO_PAYMENTS,
+            ),
+            {},
+            r"due_date must hold dates, got dtype period\[D\]",
+        ),
+        (
+            (["A"] * 3, DUE, [1.0, np.nan, 1.0], *NO_PAYMENTS),
+            {},
+            "amount_due must not contain missing values, got 1",
+        ),
+        (
+            (["A"] * 3, DUE, [1.0, -1.0, 1.0], *NO_PAYMENTS),
+            {},
+            "amount_due must be finite and non-negative, got -1.0",
+        ),
+        (
+            (["A"] * 3, DUE, [True, False, True], *NO_PAYMENTS),
+            {},
+            "amount_due must be real and numeric, got dtype bool",
+        ),
+        (
+            (["A"] * 3, DUE, ["1", "2", "3"], *NO_PAYMENTS),
+            {},
+            "amount_due must be real and numeric, got dtype (object|str) with the value '1'",
+        ),
+        (
+            (*SCHEDULE, *NO_PAYMENTS),
+            {"principal": [100.0, 120.0, 0.0]},
+            "principal must not exceed amount_due, got 120.0 for an amount due of 100.0",
+        ),
+        (
+            (*SCHEDULE, *NO_PAYMENTS),
+            {"principal": [100.0, -1.0, 0.0]},
+            "principal must be finite and non-negative, got -1.0",
+        ),
+        (
+            (*SCHEDULE, ["A", "Z"], ["2024-01-15"] * 2, [1.0, 1.0]),
+            {},
+            "payment_loan must contain only loans of the schedule, got 'Z'",
+        ),
+        (
+            (*SCHEDULE, ["A", None], ["2024-01-15"] * 2, [1.0, 1.0]),
+            {},
+            "payment_loan must not contain missing values, got 1",
+        ),
+        (
+            (*SCHEDULE, ["A"], [pd.NaT], [1.0]),
+            {},
+            "payment_date must not contain missing values, got 1",
+        ),
+        (
+            (*SCHEDULE, ["A"], ["2024-01-15"], [np.inf]),
+            {},
+            "payment_amount must be finite and non-negative, got inf",
+        ),
+        (
+            (*SCHEDULE, ["A"], ["2024-01-15"], [-5]),
+            {},
+            "payment_amount must be finite and non-negative, got -5.0",
+        ),
+    ],
+)
+def test_delinquency_panel_rejects_invalid_inputs(arguments, options, message):
+    options = {"end": "2024-06", **options}
+    with pytest.raises(ValueError, match=f"^{message}$"):
+        delinquency_panel(*arguments, **options)
+
+
+def test_delinquency_panel_matches_the_series_of_each_input_by_index():
+    loan, due_date, amount_due = (pd.Series(values) for values in SCHEDULE)
+    other = due_date.set_axis([5, 6, 7])
+    with pytest.raises(ValueError, match="^loan and due_date must have identical indices$"):
+        delinquency_panel(loan, other, amount_due, *NO_PAYMENTS, end="2024-06")
+    with pytest.raises(ValueError, match="^loan and principal must have identical indices$"):
+        delinquency_panel(
+            loan, due_date, amount_due, *NO_PAYMENTS, end="2024-06", principal=other.map(len)
+        )
+    payments = [pd.Series(values) for values in (["A"], ["2024-01-15"], [1.0])]
+    payments[2].index = [9]
+    with pytest.raises(
+        ValueError, match="^payment_loan and payment_amount must have identical indices$"
+    ):
+        delinquency_panel(loan, due_date, amount_due, *payments, end="2024-06")
+
+
+@pytest.mark.parametrize(
+    "end, shown",
+    [
+        (None, "None"),
+        (pd.NaT, "NaT"),
+        (5, "5"),
+        (np.int64(202401), "202401"),
+        (True, "True"),
+        ("soon", "'soon'"),
+        ([2024, 1], r"\[2024, 1\]"),
+        (np.timedelta64(3, "D"), r"datetime.timedelta\(days=3\)"),
+        # pandas reads these as NaT instead of raising.
+        ("", "''"),
+        ("NaT", "'NaT'"),
+        (np.datetime64("NaT", "D"), "NaT"),
+        (" ", "' '"),
+        ("2024-W11", "'2024-W11'"),
+    ],
+)
+def test_delinquency_panel_end_must_be_a_date_or_a_month(end, shown):
+    with pytest.raises(ValueError, match=f"^end must be a date or a month, got {shown}$"):
+        delinquency_panel(*SCHEDULE, *NO_PAYMENTS, end=end)
+
+
+@pytest.mark.parametrize(
+    "tolerance, shown",
+    [(-1, "-1"), (np.nan, "nan"), (np.inf, "inf"), (True, "True"), ("1", "'1'"), (None, "None")],
+)
+def test_delinquency_panel_tolerance_must_be_finite_and_non_negative(tolerance, shown):
+    message = f"^tolerance must be finite and non-negative, got {shown}$"
+    with pytest.raises(ValueError, match=message):
+        delinquency_panel(*SCHEDULE, *NO_PAYMENTS, end="2024-06", tolerance=tolerance)
