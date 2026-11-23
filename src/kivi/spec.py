@@ -37,6 +37,7 @@ _FITTERS: dict[str, abc.Callable[..., npt.NDArray[np.float64]]] = {
     "uniform": binning.bin_edges,
     "chimerge": binning.chimerge_edges,
     "tree": binning.tree_edges,
+    "ks": binning.ks_edges,
     "monotonic": binning.monotonic_edges,
 }
 _GROUPERS: dict[str, abc.Callable[..., dict[abc.Hashable, abc.Hashable]]] = {
@@ -932,8 +933,9 @@ def fit_spec(
     method : str or dict, default "quantile"
         Binning method of the numeric columns: ``"quantile"`` or
         ``"uniform"`` for `kivi.binning.bin_edges`, or ``"chimerge"``,
-        ``"tree"`` or ``"monotonic"`` for `kivi.binning.chimerge_edges`,
-        `kivi.binning.tree_edges` or `kivi.binning.monotonic_edges`. A dict
+        ``"tree"``, ``"ks"`` or ``"monotonic"`` for
+        `kivi.binning.chimerge_edges`, `kivi.binning.tree_edges`,
+        `kivi.binning.ks_edges` or `kivi.binning.monotonic_edges`. A dict
         maps columns to methods, and the numeric columns it leaves out use
         ``"quantile"``. A method applies only to the columns without edges
         in `bins`, so a dict must not name a column whose edges `bins`
