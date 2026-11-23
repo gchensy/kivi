@@ -8,6 +8,35 @@ Changes merged since the last release.
 
 .. release-fragments::
 
+1.1.0 (2026-11-22)
+------------------
+
+New
+^^^
+
+* ``kivi.strategy.confusion_table`` counts, at each cut-off of a score, the declined events and non-events and the approved ones, with the precision, recall, F1 score and accuracy of the decision. A score above the cut-off is declined, as in ``cutoff_table``, and counts as the prediction of an event. The function takes ``cutoffs`` and ``weights`` as ``cutoff_table`` does, so the rows line up, and its ``recall`` is the ``rejected_event_share`` of that table. ``precision`` is NaN for a cut-off that declines nobody.
+
+* The new module ``kivi.plotting`` draws the result tables of the other modules with matplotlib, an optional dependency installed with ``pip install "kivi[plot]"``. ``woe_chart`` draws the share and the event rate or WOE of each group of a WOE table, ``correlation_chart`` a correlation matrix, ``roc_chart`` the ROC curve with its KS, ``gains_chart`` the cumulative shares of a gains table, ``calibration_chart`` the observed against the predicted event rate of each group, ``cutoff_chart`` the event rate of the approved book against the approval rate, ``psi_chart`` the reference and current shares of a PSI table, ``monitoring_chart`` one column of a monitoring or stability table by period, as a line or as bars, and ``vintage_chart`` the curve of each cohort of a vintage table.
+* Each chart draws on the matplotlib Axes passed as ``ax``, or on a new figure, and returns the Axes it drew on. It never shows the figure, never changes ``matplotlib.rcParams`` and never modifies the table, and the text inside it is limited to column names and data values.
+
+* :func:`~kivi.univariate.profile_table` appends five columns. Numeric columns get ``skewness`` and ``kurtosis``, the bias-corrected sample skewness and excess kurtosis that ``pandas.Series.skew`` and ``pandas.Series.kurt`` compute, and ``cv``, the coefficient of variation, all from the values without missing values and special codes and weighted with ``weights``. With a target, numeric columns get ``ks``, the KS statistic of their values, and every column gets ``chi2_p_value``, the p-value of the chi-squared test of independence between the target and the groups of the quick binning that gives ``iv``.
+
+* :func:`~kivi.selection.correlation_filter` takes ``method="spearman"`` for Spearman's rank correlation, as ``pandas.DataFrame.corr`` computes it, which suits raw variables with monotone but not linear relations and long tails. The default ``"pearson"`` keeps the previous results and remains the choice for WOE-encoded variables.
+
+Changed
+^^^^^^^
+
+* Fourteen topic guides gain diagrams that show how a function computes its result, with the numbers of the guide's example: the rows of ``profile_table``, edges and ``pandas.cut``, ``woe_table`` and ``woe_transform``, ``correlation_filter`` and the steps of ``stepwise``, fuzzy augmentation and the bands of parceling and reweighting, the points of a scorecard, the ROC table, isotonic regression, the confusion matrix and the swap set of a cut-off, a binning specification from the fit to JSON, ``psi_table``, the monitoring table, the transition matrix, and the expected credit loss and the days-past-due backstops of the stages. The calibration guide gains a small example of isotonic regression to go with its diagram.
+
+* The migration guide maps the charts, the confusion matrix and F1 score, the skewness, kurtosis and coefficient of variation, and the Spearman correlation of 0.2.x to their replacements in 1.1, and it lists the 0.2.x tools that have no replacement, such as ``KSBins``, ``KmeansBins``, ``PearsonBins`` and ``Dataset.crime_data()``.
+* The installation page explains the ``plot`` extra, and the conventions and compatibility pages state the rules and the promises of the charts.
+
+* The risk modeling workflow merges the twelve jobs into three groups with ``chimerge_groups`` before it measures their WOE, sends new jobs to the group of ``unknown`` with ``unseen``, and saves that grouping in its ``BinningSpec`` with ``method={"job": "chimerge"}``. Its model, scorecard, evaluation, calibration, cut-off and stability report are computed again on the grouped variable.
+
+* The documentation gains a tutorial section: a credit scorecard project in ten chapters, from the applications of a year to the IFRS 9 loss allowance of the loans. It profiles and bins the candidates, selects the variables, infers the outcomes of the rejects, scales and evaluates the scorecard against the incumbent's PD, calibrates it on a master scale, chooses the cut-off, monitors a year of production with a shift in the applicants, and allocates the loan book to stages. Boxes marked "Simulation check" compare each estimate with the outcomes that only the simulated data reveal.
+
+* Type checkers infer the precise result of the functions whose result follows the type of their input, which now declare it with overloads: a Series input gives a ``pandas.Series``, a number a ``float``, and a list or a one-dimensional NumPy array an array, or a ``pandas.Categorical`` for ``cut``, ``group_categories`` and ``assign_grades``. Code such as ``pd_to_score(series, ...).round(2).index`` no longer reports a false error in mypy or Pylance. The functions are ``pd_to_score`` and ``score_to_pd`` of ``kivi.scorecard``; ``prior_correction``, ``platt_predict``, ``isotonic_predict``, ``binomial_test``, ``jeffreys_test``, ``fit_grade_pd`` and ``assign_grades`` of ``kivi.calibration``; ``kivi.strategy.expected_loss``; ``convert_pd``, ``expected_credit_loss``, ``significant_increase`` and ``assign_stages`` of ``kivi.lifetime``; ``kivi.reject_inference.reweighting``; ``woe`` and ``woe_transform`` of ``kivi.woe``; and ``cut`` and ``group_categories`` of ``kivi.binning``. An argument typed ``numpy.typing.ArrayLike`` still gets the union of the possible results, mypy infers ``Any`` for a ``Series[Any]`` such as a DataFrame column, and nothing changes at run time.
+
 1.0.0 (2026-11-22)
 ------------------
 

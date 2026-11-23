@@ -10854,6 +10854,9 @@ msgstr "未发布"
 msgid "Changes merged since the last release."
 msgstr "上次发布以来合并的改动。"
 
+msgid "1.1.0 (2026-11-22)"
+msgstr "1.1.0（2026-11-22）"
+
 msgid "New"
 msgstr "新增"
 
@@ -10937,18 +10940,6 @@ msgstr ""
 "表、保序回归、截断点的混淆矩阵与交换集、分箱方案从拟合到 JSON 的过程、 ``psi_table`` "
 "、监控表、转移矩阵，以及预期信用损失和阶段划分的逾期天数兜底标准。校准指南新增一个保序回归的小示例，与其示意图配套。"
 
-#, python-brace-format
-msgid ""
-"The risk modeling workflow merges the twelve jobs into three groups with ``chimerge_groups`` "
-"before it measures their WOE, sends new jobs to the group of ``unknown`` with ``unseen``, and "
-"saves that grouping in its ``BinningSpec`` with ``method={\"job\": \"chimerge\"}``. Its model, "
-"scorecard, evaluation, calibration, cut-off and stability report are computed again on the "
-"grouped variable."
-msgstr ""
-"风控建模流程示例先用 ``chimerge_groups`` 把十二种职业合并为三组，再计算其 WOE；用 ``unseen`` 让新职业并入 ``unknown`` 所在的组；并用 "
-"``method={\"job\": \"chimerge\"}`` 把这一分组保存在其 ``BinningSpec`` "
-"中。示例中的模型、评分卡、评估、校准、截断点和稳定性报告都基于分组后的变量重新计算。"
-
 msgid ""
 "The migration guide maps the charts, the confusion matrix and F1 score, the skewness, kurtosis "
 "and coefficient of variation, and the Spearman correlation of 0.2.x to their replacements in 1.1,"
@@ -10962,6 +10953,18 @@ msgid ""
 "The installation page explains the ``plot`` extra, and the conventions and compatibility pages "
 "state the rules and the promises of the charts."
 msgstr "安装页面说明了 ``plot`` 附加依赖，约定页和兼容性页给出了图表的规则和承诺。"
+
+#, python-brace-format
+msgid ""
+"The risk modeling workflow merges the twelve jobs into three groups with ``chimerge_groups`` "
+"before it measures their WOE, sends new jobs to the group of ``unknown`` with ``unseen``, and "
+"saves that grouping in its ``BinningSpec`` with ``method={\"job\": \"chimerge\"}``. Its model, "
+"scorecard, evaluation, calibration, cut-off and stability report are computed again on the "
+"grouped variable."
+msgstr ""
+"风控建模流程示例先用 ``chimerge_groups`` 把十二种职业合并为三组，再计算其 WOE；用 ``unseen`` 让新职业并入 ``unknown`` 所在的组；并用 "
+"``method={\"job\": \"chimerge\"}`` 把这一分组保存在其 ``BinningSpec`` "
+"中。示例中的模型、评分卡、评估、校准、截断点和稳定性报告都基于分组后的变量重新计算。"
 
 msgid ""
 "The documentation gains a tutorial section: a credit scorecard project in ten chapters, from the "
