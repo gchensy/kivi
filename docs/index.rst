@@ -7,7 +7,7 @@ Credit risk modeling with pandas
 
 .. container:: kivi-lead
 
-   kivi is a pandas toolkit for credit risk and financial modeling. It profiles the candidate variables, bins them and groups their categories, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard, infers the outcomes of rejected applicants, scales the model to points, evaluates it and calibrates it on a master scale, and prices the cut-offs and the expected loss. Once the model is live, it monitors the score period by period, follows how the approved loans perform, and measures their expected credit loss under IFRS 9. Tables come back as pandas DataFrames with one row per bin, grade, cut-off, period or variable.
+   kivi is a pandas toolkit for credit risk and financial modeling. It profiles the candidate variables, bins them and groups their categories, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard, infers the outcomes of rejected applicants, scales the model to points, evaluates it and calibrates it on a master scale, and prices the cut-offs and the expected loss. Once the model is live, it monitors the score period by period, follows how the approved loans perform, and measures their expected credit loss under IFRS 9. Tables come back as pandas DataFrames with one row per bin, grade, cut-off, period or variable, and :mod:`kivi.plotting` draws them as charts.
 
 .. container:: kivi-actions
 
@@ -68,7 +68,7 @@ Built for risk teams
       :link: user_guide/univariate
       :link-type: doc
 
-      Missing values, distributions, event rates and a first IV ranking of every candidate in one table.
+      Missing values, distributions and their shape, event rates, a first IV ranking and a chi-squared test of every candidate in one table.
 
    .. grid-item-card:: Binning
       :link: user_guide/binning
@@ -86,7 +86,7 @@ Built for risk teams
       :link: user_guide/selection
       :link-type: doc
 
-      Rank candidates by IV, drop correlated variables and select a logistic model whose coefficients all point the right way.
+      Rank candidates by IV, drop variables with a high Pearson or Spearman correlation and select a logistic model whose coefficients all point the right way.
 
    .. grid-item-card:: Reject inference
       :link: user_guide/reject_inference
@@ -116,7 +116,7 @@ Built for risk teams
       :link: user_guide/strategy
       :link-type: doc
 
-      Approval and bad rates of every cut-off, swap sets between a current and a new score, and expected loss by grade.
+      Approval and bad rates of every cut-off, its confusion matrix and F1, swap sets between a current and a new score, and expected loss by grade.
 
    .. grid-item-card:: Binning specifications
       :link: user_guide/spec
@@ -148,6 +148,12 @@ Built for risk teams
 
       PD term structures from vintage curves and transition matrices, 12-month and lifetime ECL, and the three IFRS 9 stages.
 
+   .. grid-item-card:: Charts
+      :link: user_guide/plotting
+      :link-type: doc
+
+      WOE, ROC, gains, calibration, cut-off, PSI, monitoring and vintage charts drawn straight from kivi's tables with matplotlib.
+
 How it works
 ------------
 
@@ -169,7 +175,7 @@ How it works
 
    .. grid-item-card:: Calibrate and decide
 
-      ``master_scale`` and ``assign_grades`` group the PDs into grades, and the binomial and Jeffreys tests check the PD of each grade. ``cutoff_table`` shows what each cut-off approves, and ``expected_loss_table`` adds up the expected loss of each grade.
+      ``master_scale`` and ``assign_grades`` group the PDs into grades, and the binomial and Jeffreys tests check the PD of each grade. ``cutoff_table`` shows what each cut-off approves, ``confusion_table`` how many events it declines, and ``expected_loss_table`` adds up the expected loss of each grade.
 
    .. grid-item-card:: Deploy and monitor
 

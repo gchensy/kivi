@@ -1,7 +1,7 @@
 User guide
 ==========
 
-The user guide follows the steps of a credit risk model in the order of a project: profile and bin the candidate variables, encode them with WOE, select the variables and fit the model, infer the outcomes of rejected applicants, scale the model to a scorecard, evaluate and calibrate it, set the cut-offs, save the binning for production, monitor the model period by period, follow the loans that it approves, and measure their expected credit loss under IFRS 9. :doc:`risk_workflow` runs the steps from the profile to the stability report on the bundled data, leaving out reject inference.
+The user guide follows the steps of a credit risk model in the order of a project: profile and bin the candidate variables, encode them with WOE, select the variables and fit the model, infer the outcomes of rejected applicants, scale the model to a scorecard, evaluate and calibrate it, set the cut-offs, save the binning for production, monitor the model period by period, follow the loans that it approves, and measure their expected credit loss under IFRS 9. :doc:`plotting` draws the tables of every step. :doc:`risk_workflow` runs the steps from the profile to the stability report on the bundled data, leaving out reject inference, and the :doc:`/tutorial/index` follows a whole project from the first applications to the loss allowance.
 
 kivi keeps fitting and applying apart. Bin edges, category groupings, WOE tables, master scales and cut-offs are fitted on the development sample and then applied unchanged to every later sample, so that counts and rates stay comparable. The tables take the groups as they are, so category labels can be passed directly.
 
@@ -20,7 +20,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: univariate
       :link-type: doc
 
-      One row per candidate: missing values, distribution, event rates and the IV of a quick binning.
+      One row per candidate: missing values, distribution and shape, event rates, the IV and chi-squared test of a quick binning, and the Gini and KS of numeric values.
 
    .. grid-item-card:: Binning
       :link: binning
@@ -38,7 +38,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: selection
       :link-type: doc
 
-      Correlation filtering, variance inflation factors, logistic regression and stepwise selection with positive coefficients.
+      Correlation filtering by Pearson or Spearman correlation, variance inflation factors, logistic regression and stepwise selection with positive coefficients.
 
    .. grid-item-card:: Reject inference
       :link: reject_inference
@@ -68,7 +68,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: strategy
       :link-type: doc
 
-      Approval and bad rates of each cut-off, swap sets between two scores, and expected loss by grade.
+      Approval and bad rates of each cut-off, the confusion matrix, precision, recall and F1 of a cut-off, swap sets between two scores, and expected loss by grade.
 
    .. grid-item-card:: Binning specifications
       :link: spec
@@ -100,6 +100,12 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
 
       PD term structures from vintage curves and transition matrices, 12-month and lifetime expected credit loss, and IFRS 9 stages.
 
+   .. grid-item-card:: Charts
+      :link: plotting
+      :link-type: doc
+
+      Draw WOE tables, ROC and gains curves, calibration, cut-offs, PSI, monitoring reports and vintage curves with matplotlib.
+
    .. grid-item-card:: Example data
       :link: datasets
       :link-type: doc
@@ -125,4 +131,5 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
    monitoring
    vintage
    lifetime
+   plotting
    *

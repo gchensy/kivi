@@ -124,6 +124,11 @@ CASES = {
         {"score": SCORE, "target": TARGET, "loss": [10.0] * ROWS, "weights": WEIGHTS},
         {"cutoffs": [0.5]},
     ),
+    "confusion_table": (
+        strategy.confusion_table,
+        {"score": SCORE, "target": TARGET, "weights": WEIGHTS},
+        {"cutoffs": [0.5]},
+    ),
     "swap_set": (
         strategy.swap_set,
         {"current": SCORE, "new": NEW, "target": TARGET, "weights": WEIGHTS},
@@ -431,6 +436,11 @@ def test_smoothing_true_raises(case, flag):
             r"\[0.5, 0.1\]",
         ),
         (
+            lambda: strategy.confusion_table(SCORE, TARGET, cutoffs=np.array([0.5, 0.1])),
+            r"cutoffs must be a positive integer or a sequence of increasing numbers, got "
+            r"\[0.5, 0.1\]",
+        ),
+        (
             lambda: metrics.roc_auc_interval(SCORE, TARGET, level=np.float64(2)),
             "level must be a number between 0 and 1, got 2.0",
         ),
@@ -668,6 +678,7 @@ OPTIONS = _option_cases()
 SEQUENCES = {
     "gains_table-bins": lambda o: metrics.gains_table(SCORE, TARGET, bins=o),
     "cutoff_table-cutoffs": lambda o: strategy.cutoff_table(SCORE, TARGET, cutoffs=o),
+    "confusion_table-cutoffs": lambda o: strategy.confusion_table(SCORE, TARGET, cutoffs=o),
     "transition_pd-horizons": lambda o: lifetime.transition_pd(
         pd.DataFrame([[0.9, 0.1], [0.0, 1.0]], index=["A", "D"], columns=["A", "D"]),
         horizons=o,
