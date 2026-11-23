@@ -3326,6 +3326,236 @@ msgid ""
 "synthetic data can show:"
 msgstr "拒绝申请人的违约频率是获批申请人的三倍，这只有合成数据才能展示："
 
+msgid "Expert scorecards"
+msgstr "专家评分卡"
+
+msgid ""
+"Weigh the factors of an expert scorecard from pairwise comparisons, as the analytic hierarchy "
+"process does. :func:`~kivi.expert.ahp_weights` turns a matrix of comparisons into weights, "
+":func:`~kivi.expert.ahp_consistency` measures how consistent the comparisons are, and "
+":func:`~kivi.expert.combine_weights` joins the weights of factors and sub-factors into global "
+"weights."
+msgstr ""
+"像层次分析法（AHP）那样，根据两两比较确定专家评分卡中各因子的权重。 :func:`~kivi.expert.ahp_weights` 把比较矩阵转换为权重， "
+":func:`~kivi.expert.ahp_consistency` 度量各项比较的一致程度， :func:`~kivi.expert.combine_weights` "
+"把因子和子因子的权重合成为全局权重。"
+
+msgid "See :doc:`/user_guide/expert` for a worked example and how to read the consistency ratio."
+msgstr "示例和一致性比率的解读见 :doc:`/user_guide/expert` 。"
+
+msgid ":py:obj:`ahp_weights <kivi.expert.ahp_weights>`\\ \\(matrix\\, \\*\\[\\, method\\]\\)"
+msgstr ":py:obj:`ahp_weights <kivi.expert.ahp_weights>`\\ \\(matrix\\, \\*\\[\\, method\\]\\)"
+
+msgid "Weigh factors from a pairwise comparison matrix, as the analytic hierarchy process does."
+msgstr "像层次分析法那样，根据两两比较矩阵确定各因子的权重。"
+
+msgid ":py:obj:`ahp_consistency <kivi.expert.ahp_consistency>`\\ \\(matrix\\)"
+msgstr ":py:obj:`ahp_consistency <kivi.expert.ahp_consistency>`\\ \\(matrix\\)"
+
+msgid "Measure how consistent the judgments of a pairwise comparison matrix are."
+msgstr "度量两两比较矩阵中各项判断的一致程度。"
+
+msgid ":py:obj:`combine_weights <kivi.expert.combine_weights>`\\ \\(parent\\, children\\)"
+msgstr ":py:obj:`combine_weights <kivi.expert.combine_weights>`\\ \\(parent\\, children\\)"
+
+msgid "Combine the weights of factors and of their sub-factors into global weights."
+msgstr "把因子及其子因子的权重合成为全局权重。"
+
+#, python-brace-format
+msgid ""
+"Entry :math:`a_{ij}` of the matrix says how much more important factor :math:`i` is than factor "
+":math:`j`, on Saaty's scale from 1 (equally important) to 9 (extremely more important), and its "
+"reciprocal :math:`a_{ji} = 1 / a_{ij}` the other way round. The weights are proportional to the "
+"principal eigenvector of the matrix, or to the geometric means of its rows, and sum to 1."
+msgstr ""
+"矩阵的元素 :math:`a_{ij}` 按 Saaty 标度（从 1 表示同等重要到 9 表示极端重要）表示因子 :math:`i` 比因子 :math:`j` 重要多少倍，反过来则取其倒数 "
+":math:`a_{ji} = 1 / a_{ij}` 。权重与矩阵的主特征向量或各行的几何平均数成正比，且总和为 1。"
+
+msgid "**matrix**"
+msgstr "**matrix**"
+
+msgid "DataFrame or array_like"
+msgstr "pandas.DataFrame 或 array_like"
+
+#, python-brace-format
+msgid ""
+"A square matrix of pairwise comparisons with a diagonal of 1 and reciprocal entries, "
+":math:`a_{ij} a_{ji} = 1` to a relative tolerance of 1e-6. A DataFrame names the factors by its "
+"index, which must equal its columns; an array numbers them from 0."
+msgstr ""
+"两两比较的方阵，对角线为 1，元素互为倒数，即 :math:`a_{ij} a_{ji} = 1` ，相对容差为 1e-6。DataFrame "
+"以其索引作为因子名称，索引必须与列相同；数组则把因子从 0 起编号。"
+
+#, python-brace-format
+msgid "{\"eigenvector\", \"geometric\"}, default \"eigenvector\""
+msgstr "{\"eigenvector\", \"geometric\"}，默认 \"eigenvector\""
+
+msgid ""
+"``\"eigenvector\"`` is Saaty's principal eigenvector. ``\"geometric\"`` takes the geometric mean "
+"of each row, which gives the same weights for a consistent matrix and needs no eigenvalue "
+"computation."
+msgstr "``\"eigenvector\"`` 是 Saaty 的主特征向量法。 ``\"geometric\"`` 取每一行的几何平均数，对一致矩阵给出相同的权重，且无需计算特征值。"
+
+msgid "pandas.Series"
+msgstr "pandas.Series"
+
+msgid ""
+"The weights, named ``weight`` and indexed by the factors in an index named ``factor``. They are "
+"positive and sum to 1."
+msgstr "权重，名为 ``weight`` ，以因子为索引，索引名为 ``factor`` 。权重均为正数，总和为 1。"
+
+msgid ""
+"If `matrix` is not a square matrix of finite, positive numbers with a diagonal of 1 and "
+"reciprocal entries, a DataFrame's index and columns differ or repeat a label, or `method` is not "
+"one of the two names."
+msgstr "如果 `matrix` 不是由有限正数构成、对角线为 1 且元素互为倒数的方阵，DataFrame 的索引与列不一致或标签重复，或者 `method` 不是这两个名称之一。"
+
+msgid ":obj:`ahp_consistency`"
+msgstr ":obj:`ahp_consistency`"
+
+msgid "Check how consistent the judgments in the matrix are."
+msgstr "检查矩阵中各项判断的一致程度。"
+
+msgid ":obj:`combine_weights`"
+msgstr ":obj:`combine_weights`"
+
+msgid "Weigh the sub-factors of a hierarchy."
+msgstr "为层次结构中的子因子确定权重。"
+
+#, python-brace-format
+msgid ""
+"For a consistent matrix, :math:`a_{ij} = w_i / w_j`, both methods give :math:`w`. Otherwise the "
+"eigenvector method solves :math:`A w = \\lambda_{\\max} w` and the geometric method takes"
+msgstr ""
+"对一致矩阵， :math:`a_{ij} = w_i / w_j` ，两种方法都给出 :math:`w` 。否则，特征向量法求解 :math:`A w = \\lambda_{\\max} w`"
+" ，几何法则取"
+
+msgid ""
+"w_i = \\frac{\\left(\\prod_j a_{ij}\\right)^{1/n}}\n"
+"           {\\sum_k \\left(\\prod_j a_{kj}\\right)^{1/n}}."
+msgstr ""
+"w_i = \\frac{\\left(\\prod_j a_{ij}\\right)^{1/n}}\n"
+"           {\\sum_k \\left(\\prod_j a_{kj}\\right)^{1/n}}."
+
+msgid ""
+"For two or three factors the two methods give the same weights for every reciprocal matrix; they "
+"differ slightly from four factors on if the judgments are inconsistent. The legacy 0.2.x ``AHP`` "
+"class used the geometric method."
+msgstr "对两个或三个因子，两种方法对任何互反矩阵都给出相同的权重；从四个因子起，若判断不一致，两者会略有差异。旧的 0.2.x ``AHP`` 类使用几何法。"
+
+msgid ""
+"Judgments are consistent when they agree with each other: if factor A is twice as important as B "
+"and B twice as important as C, then A should be four times as important as C. The consistency "
+"ratio compares the inconsistency of the matrix with that of random judgments."
+msgstr "各项判断相互吻合时即为一致：如果因子 A 的重要性是 B 的 2 倍，B 又是 C 的 2 倍，那么 A 应是 C 的 4 倍。一致性比率把矩阵的不一致程度与随机判断的不一致程度相比。"
+
+msgid "A square matrix that compares at most 15 factors, as for `ahp_weights`."
+msgstr "比较至多 15 个因子的方阵，要求与 `ahp_weights` 相同。"
+
+msgid ""
+"The statistics, named ``value`` and indexed by ``lambda_max``, ``ci``, ``ri`` and ``cr`` in an "
+"index named ``statistic``:"
+msgstr "统计量，名为 ``value`` ，以 ``lambda_max`` 、 ``ci`` 、 ``ri`` 和 ``cr`` 为索引，索引名为 ``statistic`` ："
+
+msgid "``lambda_max``, the principal eigenvalue of the matrix, at least the number of factors :math:`n`;"
+msgstr "``lambda_max`` ，矩阵的主特征值，不小于因子数 :math:`n` ；"
+
+msgid "``ci``, the consistency index, zero for consistent judgments;"
+msgstr "``ci`` ，一致性指标，判断一致时为零；"
+
+msgid "``ri``, Saaty's random index for :math:`n`;"
+msgstr "``ri`` ， :math:`n` 对应的 Saaty 随机一致性指标；"
+
+msgid "``cr``, the consistency ratio ``ci / ri``."
+msgstr "``cr`` ，一致性比率 ``ci / ri`` 。"
+
+msgid ""
+"If `matrix` is not a valid comparison matrix, as for `ahp_weights`, or compares more than 15 "
+"factors, the largest order with a tabulated random index."
+msgstr "如果 `matrix` 不是有效的比较矩阵（要求与 `ahp_weights` 相同），或比较的因子超过 15 个，即超过有随机一致性指标表的最大阶数。"
+
+msgid ":obj:`ahp_weights`"
+msgstr ":obj:`ahp_weights`"
+
+msgid "The weights that the matrix gives."
+msgstr "该矩阵给出的权重。"
+
+msgid "With :math:`n` factors,"
+msgstr "有 :math:`n` 个因子时，"
+
+msgid ""
+"\\mathrm{CI} = \\frac{\\lambda_{\\max} - n}{n - 1}, \\qquad\n"
+"\\mathrm{CR} = \\frac{\\mathrm{CI}}{\\mathrm{RI}}."
+msgstr ""
+"\\mathrm{CI} = \\frac{\\lambda_{\\max} - n}{n - 1}, \\qquad\n"
+"\\mathrm{CR} = \\frac{\\mathrm{CI}}{\\mathrm{RI}}."
+
+#, python-brace-format
+msgid ""
+"Saaty suggested that judgments with a CR above 0.1 should be reviewed. That is a rule of thumb, "
+"not a test, and the function does not raise for a larger CR. Every matrix of one or two factors "
+"is consistent, so its ``ci``, ``ri`` and ``cr`` are 0. For a reciprocal matrix "
+":math:`\\lambda_{\\max} \\ge n`; a computed value below :math:`n`, from rounding, is set to "
+":math:`n`."
+msgstr ""
+"Saaty 建议，CR 高于 0.1 的判断应当复核。这只是经验法则而不是检验，CR 更大时函数也不会报错。一个或两个因子的矩阵必然一致，因此其 ``ci`` 、 ``ri`` 和 ``cr``"
+" 均为 0。对互反矩阵 :math:`\\lambda_{\\max} \\ge n` ；若舍入使计算值低于 :math:`n` ，则取 :math:`n` 。"
+
+#, python-brace-format
+msgid ""
+"The random index is the average CI of random reciprocal matrices on Saaty's scale, tabulated by "
+"T. L. Saaty, *The Analytic Hierarchy Process*, McGraw-Hill, 1980, for orders 1 to 15 (the values "
+"are those listed by T. Obata and S. Shiraishi, arXiv:2607.07950, Table 2). The legacy 0.2.x class"
+" estimated :math:`\\lambda_{\\max}` as the mean of :math:`(A w)_i / w_i` for the geometric-mean "
+"weights, which equals the exact value for up to three factors, and used almost the same random "
+"indices."
+msgstr ""
+"随机一致性指标是 Saaty 标度下随机互反矩阵的平均 CI，由 T. L. Saaty 编写的 *The Analytic Hierarchy Process* （McGraw-"
+"Hill，1980）列出了 1 到 15 阶的数值（这里的数值取自 T. Obata 和 S. Shiraishi，arXiv:2607.07950，表 2）。旧的 0.2.x "
+"类用几何平均权重下 :math:`(A w)_i / w_i` 的均值来估计 :math:`\\lambda_{\\max}` "
+"，在不超过三个因子时它等于精确值，并且使用了几乎相同的随机一致性指标。"
+
+msgid ""
+"In a hierarchy, each factor is split into sub-factors that are weighed against each other. The "
+"global weight of a sub-factor is the weight of its factor times its weight within the factor, so "
+"the global weights of all sub-factors still sum to 1."
+msgstr "在层次结构中，每个因子被拆分为若干子因子，子因子之间再相互比较权重。子因子的全局权重等于其所属因子的权重乘以它在该因子内的权重，因此所有子因子的全局权重之和仍为 1。"
+
+msgid "**parent**"
+msgstr "**parent**"
+
+msgid "Series"
+msgstr "pandas.Series"
+
+msgid ""
+"The weights of the factors, such as the result of `ahp_weights`. They must be finite and non-"
+"negative and sum to 1 to a relative tolerance of 1e-6."
+msgstr "各因子的权重，例如 `ahp_weights` 的结果。必须为有限的非负数，总和为 1，相对容差为 1e-6。"
+
+msgid "**children**"
+msgstr "**children**"
+
+msgid ""
+"For each factor of `parent`, a Series of the weights of its sub-factors, indexed by their labels,"
+" such as the result of `ahp_weights`. Each must be finite and non-negative, sum to 1 and name "
+"each sub-factor once. A factor without sub-factors takes a Series of one label with the weight 1."
+msgstr ""
+"对 `parent` 的每个因子，给出其子因子权重的 Series，以子因子标签为索引，例如 `ahp_weights` 的结果。每个 Series 的权重必须为有限的非负数且总和为 "
+"1，每个子因子只能出现一次。没有子因子的因子对应只含一个标签、权重为 1 的 Series。"
+
+msgid ""
+"The global weights, named ``weight`` and indexed by ``factor`` and ``subfactor``, in the order of"
+" `parent` and then of each factor's sub-factors."
+msgstr "全局权重，名为 ``weight`` ，以 ``factor`` 和 ``subfactor`` 为索引，先按 `parent` 的顺序，再按各因子的子因子顺序排列。"
+
+msgid ""
+"If `parent` is not a Series, `children` is not a mapping of Series, its keys are not the factors "
+"of `parent`, or a set of weights is not finite, non-negative and summing to 1."
+msgstr "如果 `parent` 不是 Series， `children` 不是由 Series 构成的映射，其键不是 `parent` 的因子，或者某组权重不是有限的非负数、总和不为 1。"
+
+msgid "Weigh the factors and the sub-factors of each factor."
+msgstr "为各因子及每个因子的子因子确定权重。"
+
 msgid "Glossary"
 msgstr "术语表"
 
@@ -4082,9 +4312,6 @@ msgid ""
 msgstr ""
 "转移矩阵的第 :math:`i` 行给出一期内从状态 :math:`i` （例如某个评级或逾期档位）迁移到各个状态的概率。如果迁移服从时齐马尔可夫链，矩阵的 :math:`h` 次幂给出 "
 ":math:`h` 期内的迁移概率，其违约列就是每个起始状态的累计 PD。"
-
-msgid "**matrix**"
-msgstr "**matrix**"
 
 msgid ""
 "Square matrix of the probabilities of moving between the states over one period, such as a year "
@@ -5145,9 +5372,6 @@ msgid ""
 "weight :math:`w` counts as :math:`w` observations, so integer weights give the same result as "
 "repeating rows. The weights of each class must add up to more than 1."
 msgstr "每个观测的非负频数权重，对应方式与 `target` 相同。权重为 :math:`w` 的观测计为 :math:`w` 个观测，因此整数权重与重复相应行的结果相同。每一类的权重之和必须大于 1。"
-
-msgid "pandas.Series"
-msgstr "pandas.Series"
 
 msgid ""
 "``current_auc`` and ``new_auc``, the AUCs of the two scores; ``difference``, which is ``new_auc``"
@@ -10854,11 +11078,30 @@ msgstr "未发布"
 msgid "Changes merged since the last release."
 msgstr "上次发布以来合并的改动。"
 
-msgid "1.1.0 (2026-11-22)"
-msgstr "1.1.0（2026-11-22）"
-
 msgid "New"
 msgstr "新增"
+
+msgid ""
+"The new module ``kivi.expert`` weighs the factors of an expert scorecard, the kind of scorecard "
+"that credit analysts set by judgment where there are too few defaults to fit a model, with the "
+"analytic hierarchy process. ``ahp_weights`` turns a pairwise comparison matrix into weights that "
+"sum to 1, by Saaty's principal eigenvector or by the geometric mean of the rows, and "
+"``ahp_consistency`` returns the principal eigenvalue, the consistency index, Saaty's random index"
+" and the consistency ratio, so that judgments with a ratio above the 0.1 rule of thumb can be "
+"reviewed. ``combine_weights`` multiplies the weights of factors and of their sub-factors into "
+"global weights. The matrix is a DataFrame whose index and columns name the factors, or an array, "
+"and it must have a diagonal of 1 and reciprocal entries, which the functions check. They replace "
+"the geometric-mean weights and the consistency check of the ``AHP`` class of the 0.2.x series, "
+"which is not part of kivi 1."
+msgstr ""
+"新模块 ``kivi.expert`` 用层次分析法为专家评分卡确定各因子的权重。专家评分卡是违约样本太少、无法拟合模型时由信贷分析师凭判断设定的评分卡。 ``ahp_weights`` "
+"把两两比较矩阵转换为总和为 1 的权重，可用 Saaty 的主特征向量法或各行几何平均数法； ``ahp_consistency`` 返回主特征值、一致性指标、Saaty "
+"随机一致性指标和一致性比率，使一致性比率高于 0.1 经验法则的判断可以得到复核。 ``combine_weights`` "
+"把因子及其子因子的权重相乘，得到全局权重。矩阵可以是用索引和列标注因子名称的 DataFrame，也可以是数组，必须满足对角线为 1、元素互为倒数，函数会检查这些条件。它们取代了 0.2.x "
+"系列 ``AHP`` 类中的几何平均权重和一致性检验，而该类不属于 kivi 1。"
+
+msgid "1.1.0 (2026-11-22)"
+msgstr "1.1.0（2026-11-22）"
 
 msgid ""
 "``kivi.strategy.confusion_table`` counts, at each cut-off of a score, the declined events and "
@@ -15175,6 +15418,378 @@ msgstr ""
 "<https://creativecommons.org/licenses/by/4.0/>`_。贷款面板和申请数据是合成数据，没有需要注明的来源。"
 
 msgid ""
+"An expert scorecard sets its weights by judgment instead of fitting them to data. It is the tool "
+"for a portfolio with too few defaults for a statistical model, such as large corporates, small "
+"businesses or a new product, where credit analysts score a handful of factors and a committee "
+"decides how much each factor counts. The analytic hierarchy process (AHP) makes that decision "
+"less arbitrary: the committee compares the factors two at a time, and the comparisons give the "
+"weights together with a check that the comparisons agree with each other."
+msgstr "专家评分卡不是用数据拟合权重，而是由判断来设定权重。它适用于违约样本太少、无法建立统计模型的组合，例如大型企业、小微企业或新产品：信贷分析师对少数几个因子打分，由委员会决定每个因子的分量。层次分析法（AHP）让这一决定不那么随意：委员会对因子两两比较，由比较得出权重，并检验各项比较是否相互吻合。"
+
+msgid ""
+"An expert scorecard replaces the fitting steps of :doc:`selection` and :doc:`scorecard` when "
+"there is no data to fit to. Once outcomes exist, its score is evaluated with :doc:`metrics` and "
+"its grades are calibrated to default rates with :doc:`calibration`. "
+":func:`~kivi.expert.ahp_weights` turns a matrix of pairwise comparisons into weights, "
+":func:`~kivi.expert.ahp_consistency` measures how well the comparisons agree, and "
+":func:`~kivi.expert.combine_weights` joins the weights of factors and sub-factors into global "
+"weights."
+msgstr ""
+"当没有数据可供拟合时，专家评分卡取代 :doc:`selection` 和 :doc:`scorecard` 中的拟合步骤。有了结果数据之后，用 :doc:`metrics` 评估其评分，并用 "
+":doc:`calibration` 把评级校准到违约率。 :func:`~kivi.expert.ahp_weights` 把两两比较矩阵转换为权重， "
+":func:`~kivi.expert.ahp_consistency` 度量各项比较的吻合程度， :func:`~kivi.expert.combine_weights` "
+"把因子和子因子的权重合成为全局权重。"
+
+msgid "Definitions"
+msgstr "定义"
+
+#, python-brace-format
+msgid ""
+"A comparison is a judgment on Saaty's scale. For two factors :math:`i` and :math:`j`, "
+":math:`a_{ij}` says how many times more important :math:`i` is than :math:`j`, and :math:`a_{ji} "
+"= 1 / a_{ij}` says the same the other way round:"
+msgstr ""
+"比较就是按 Saaty 标度做出的判断。对两个因子 :math:`i` 和 :math:`j` ， :math:`a_{ij}` 表示 :math:`i` 比 :math:`j` 重要多少倍，而"
+" :math:`a_{ji} = 1 / a_{ij}` 表示反过来的情形："
+
+#, python-brace-format
+msgid ":math:`a_{ij}`"
+msgstr ":math:`a_{ij}`"
+
+msgid "1"
+msgstr "1"
+
+msgid "Equally important"
+msgstr "同等重要"
+
+msgid "3"
+msgstr "3"
+
+msgid "Moderately more important"
+msgstr "稍微重要"
+
+msgid "5"
+msgstr "5"
+
+msgid "Strongly more important"
+msgstr "明显重要"
+
+msgid "7"
+msgstr "7"
+
+msgid "Very strongly more important"
+msgstr "强烈重要"
+
+msgid "9"
+msgstr "9"
+
+msgid "Extremely more important"
+msgstr "极端重要"
+
+msgid "2, 4, 6, 8"
+msgstr "2, 4, 6, 8"
+
+msgid "Intermediate values"
+msgstr "中间值"
+
+#, python-brace-format
+msgid ""
+"The :math:`n \\times n` matrix :math:`A = (a_{ij})` of all comparisons has a diagonal of 1 and "
+"reciprocal entries. If the judgments agree with each other, so that :math:`a_{ij} a_{jk} = "
+"a_{ik}` for every three factors, then :math:`a_{ij} = w_i / w_j` for weights :math:`w` that sum "
+"to 1, and the matrix is *consistent*. Judgments are rarely quite consistent, so "
+":func:`~kivi.expert.ahp_weights` estimates the weights in one of two ways, which agree on a "
+"consistent matrix. Saaty's estimate is the principal eigenvector,"
+msgstr ""
+"全部比较构成的 :math:`n \\times n` 矩阵 :math:`A = (a_{ij})` 的对角线为 1，元素互为倒数。如果各项判断相互吻合，即任意三个因子都满足 "
+":math:`a_{ij} a_{jk} = a_{ik}` ，那么存在总和为 1 的权重 :math:`w` 使 :math:`a_{ij} = w_i / w_j` ，该矩阵是 *一致* "
+"的。判断很少完全一致，所以 :func:`~kivi.expert.ahp_weights` 用两种方法之一来估计权重，两种方法对一致矩阵给出相同的结果。Saaty 的估计是主特征向量，"
+
+#, python-brace-format
+msgid "A w = \\lambda_{\\max} w, \\qquad \\sum_i w_i = 1,"
+msgstr "A w = \\lambda_{\\max} w, \\qquad \\sum_i w_i = 1,"
+
+msgid "and the geometric method scales the geometric means of the rows of the matrix to sum to 1:"
+msgstr "几何法则把矩阵各行的几何平均数缩放为总和 1："
+
+msgid "w_i = \\frac{\\left(\\prod_j a_{ij}\\right)^{1/n}}{\\sum_k \\left(\\prod_j a_{kj}\\right)^{1/n}}."
+msgstr "w_i = \\frac{\\left(\\prod_j a_{ij}\\right)^{1/n}}{\\sum_k \\left(\\prod_j a_{kj}\\right)^{1/n}}."
+
+#, python-brace-format
+msgid ""
+"For a reciprocal matrix, :math:`\\lambda_{\\max} \\ge n`, with equality exactly when the matrix "
+"is consistent. :func:`~kivi.expert.ahp_consistency` therefore measures the inconsistency by the "
+"consistency index and compares it with the index that random judgments give on average, the "
+"random index :math:`\\mathrm{RI}`, which depends only on the number of factors:"
+msgstr ""
+"对互反矩阵， :math:`\\lambda_{\\max} \\ge n` ，当且仅当矩阵一致时等号成立。因此 :func:`~kivi.expert.ahp_consistency` "
+"用一致性指标度量不一致程度，并与随机判断平均给出的指标，即只取决于因子数的随机一致性指标 :math:`\\mathrm{RI}` 相比："
+
+#, python-brace-format
+msgid ""
+"The ratio :math:`\\mathrm{CR}` is the consistency ratio. Saaty's rule of thumb is that judgments "
+"with a ratio of 0.1 or less are consistent enough to use. For three to fifteen factors the random"
+" index is 0.58, 0.90, 1.12, 1.24, 1.32, 1.41, 1.45, 1.49, 1.51, 1.53, 1.56, 1.57 and 1.59. Every "
+"comparison of one or two factors is consistent, so their ratio is 0."
+msgstr ""
+"比值 :math:`\\mathrm{CR}` 即一致性比率。Saaty 的经验法则是，比率不超过 0.1 的判断一致性足够好，可以使用。3 到 15 个因子对应的随机一致性指标依次为 "
+"0.58、0.90、1.12、1.24、1.32、1.41、1.45、1.49、1.51、1.53、1.56、1.57 和 1.59。一个或两个因子的比较必然一致，因此其比率为 0。"
+
+msgid "A worked example"
+msgstr "计算示例"
+
+msgid ""
+"Three factors of a corporate scorecard are compared. The analyst judges sales to be twice as "
+"important as margin and four times as important as leverage, and margin to be twice as important "
+"as leverage:"
+msgstr "对企业评分卡的三个因子做比较。分析师判断销售的重要性是利润率的 2 倍、杠杆率的 4 倍，利润率的重要性是杠杆率的 2 倍："
+
+msgid ""
+"The judgments agree, since 2 × 2 = 4, so the weights are 4, 2 and 1 parts of 7 and the "
+"consistency ratio is 0:"
+msgstr "各项判断相互吻合，因为 2 × 2 = 4，所以权重分别是 7 份中的 4 份、2 份和 1 份，一致性比率为 0："
+
+msgid ""
+"If the analyst judges margin to be four times as important as leverage instead, the judgments "
+"contradict each other, because sales would then have to be eight times as important as leverage "
+"and not four:"
+msgstr "如果分析师改判利润率的重要性是杠杆率的 4 倍，各项判断就会相互矛盾，因为这样销售的重要性应是杠杆率的 8 倍，而不是 4 倍："
+
+#, python-brace-format
+msgid ""
+"Here :math:`\\mathrm{CI} = (3.0536 - 3) / 2 = 0.0268` and :math:`\\mathrm{CR} = 0.0268 / 0.58 = "
+"0.0462`: the judgments are still consistent enough to use. The weights shift towards margin:"
+msgstr ""
+"这里 :math:`\\mathrm{CI} = (3.0536 - 3) / 2 = 0.0268` ， :math:`\\mathrm{CR} = 0.0268 / 0.58 = "
+"0.0462` ：这些判断的一致性仍然足以使用。权重向利润率倾斜："
+
+msgid ""
+"For two or three factors, the eigenvector and the geometric method give the same weights for "
+"every reciprocal matrix, so here ``method=\"geometric\"`` changes nothing. From four factors on "
+"they differ slightly where the judgments are inconsistent."
+msgstr "对两个或三个因子，特征向量法与几何法对任何互反矩阵都给出相同的权重，所以这里 ``method=\"geometric\"`` 不会改变结果。从四个因子起，判断不一致时两者会略有差异。"
+
+msgid "Weighing five factors"
+msgstr "确定五个因子的权重"
+
+msgid ""
+"The credit committee of a lender to mid-sized companies compares five factors: ``leverage`` (debt"
+" to equity), ``coverage`` (interest cover), ``liquidity``, ``profitability`` and ``industry`` "
+"(the outlook of the borrower's industry). A helper puts the names on the rows and columns of a "
+"matrix. Only the entries above the diagonal are judgments; each entry below it is the reciprocal:"
+msgstr ""
+"一家中型企业贷款机构的信贷委员会比较五个因子： ``leverage`` （负债权益比）、 ``coverage`` （利息保障倍数）、 ``liquidity`` （流动性）、 "
+"``profitability`` （盈利能力）和 ``industry`` "
+"（借款人所在行业的前景）。一个辅助函数为矩阵的行和列加上名称。只有对角线以上的元素是判断，对角线以下的每个元素是其倒数："
+
+msgid ""
+"The weights sum to 1, and a consistency ratio of 0.004 is far below 0.1. "
+":func:`~kivi.expert.ahp_weights` takes the eigenvector method by default; "
+"``method=\"geometric\"`` gives almost the same weights here, because the matrix is nearly "
+"consistent."
+msgstr ""
+"权重之和为 1，一致性比率 0.004 远低于 0.1。 :func:`~kivi.expert.ahp_weights` 默认使用特征向量法； ``method=\"geometric\"``"
+" 在这里给出几乎相同的权重，因为该矩阵近乎一致。"
+
+msgid "Revising judgments"
+msgstr "修订判断"
+
+msgid ""
+"A second analyst judges leverage to be four times as important as liquidity and liquidity four "
+"times as important as profitability, yet profitability three times as important as leverage. The "
+"judgments run in a circle, and the consistency ratio is far above 0.1:"
+msgstr "第二位分析师判断杠杆率的重要性是流动性的 4 倍，流动性的重要性是盈利能力的 4 倍，而盈利能力的重要性又是杠杆率的 3 倍。这些判断首尾相接成一个循环，一致性比率远高于 0.1："
+
+msgid ""
+"The statistics do not say which judgment to revise. Dividing each entry by the ratio of the "
+"weights that it should equal, :math:`w_i / w_j`, shows it: a ratio near 1 means that the judgment"
+" agrees with the weights, and the judgments that are furthest from 1 are the ones to discuss "
+"first."
+msgstr "统计量并不说明应当修订哪一项判断。把每个元素除以它应当等于的权重之比 :math:`w_i / w_j` 就能看出来：比值接近 1，说明该判断与权重吻合，而离 1 最远的判断应当最先讨论。"
+
+msgid ""
+"The entries furthest from 1, such as 4.23 for liquidity against profitability and 3.02 for "
+"leverage against liquidity, compare the three factors of the circle with each other, so these are"
+" the comparisons for the analysts to settle. The function does not raise for a ratio above 0.1, "
+"because the committee decides what to do with it."
+msgstr ""
+"离 1 最远的元素，例如流动性对盈利能力的 4.23 和杠杆率对流动性的 3.02，都是循环中三个因子之间的比较，因此这些比较需要分析师达成一致。比率高于 0.1 "
+"时函数不会报错，因为如何处理由委员会决定。"
+
+msgid "Scoring borrowers"
+msgstr "为借款人评分"
+
+msgid ""
+"An analyst scores each borrower on every factor, on a scale of 0 (weak) to 100 (strong), and the "
+"score of the borrower is the weighted sum of the factor scores. A frame times the weights does "
+"that, and aligns the columns with the factors by name, so a missing or misspelled factor raises "
+"an error instead of being dropped:"
+msgstr ""
+"分析师按 0（弱）到 "
+"100（强）的尺度，对每个借款人的每个因子打分，借款人的评分就是各因子得分的加权和。用数据框乘以权重即可得到，并且按名称把列与因子对齐，因此缺少或拼错的因子会报错，而不会被悄悄丢弃："
+
+msgid ""
+"The score rises with creditworthiness, while :mod:`kivi.metrics` and :mod:`kivi.strategy` expect "
+"scores that rise with risk. Pass ``-score`` when you evaluate it, as :doc:`metrics` says for "
+"points. The score ranks borrowers; it is not a probability of default. Calibrate it to default "
+"rates, for example with the master scale of :doc:`calibration`, once the lender has outcomes."
+msgstr ""
+"该评分随资信水平上升，而 :mod:`kivi.metrics` 和 :mod:`kivi.strategy` 期望评分随风险上升。评估时请传入 ``-score`` ，做法与 "
+":doc:`metrics` 对评分卡分数的说明相同。该评分只用于给借款人排序，不是违约概率。待机构有了结果数据，再把它校准到违约率，例如使用 :doc:`calibration` 中的主标尺。"
+
+msgid "Sub-factors"
+msgstr "子因子"
+
+msgid ""
+"A hierarchy compares the factors of each level on their own: first the groups of factors, then "
+"the factors within each group. :func:`~kivi.expert.combine_weights` multiplies the weight of a "
+"group by the weight of each of its factors within the group, so the global weights still sum to "
+"1:"
+msgstr ""
+"层次结构在每一层单独比较因子：先比较因子组，再比较每个组内的因子。 :func:`~kivi.expert.combine_weights` 把组的权重乘以组内各因子的权重，因此全局权重之和仍为"
+" 1："
+
+msgid ""
+"Financial factors weigh 0.75 against 0.25 for business factors, and leverage carries 4 / 7 of the"
+" financial weight, so its global weight is 0.75 × 4 / 7 = 0.4286. The index has two levels, "
+"``factor`` and ``subfactor``, so the same sub-factor name may appear under two factors. Dropping "
+"the first level indexes a frame of scores by sub-factor name, if the names are distinct:"
+msgstr ""
+"财务因子的权重为 0.75，经营因子为 0.25；杠杆率占财务权重的 4 / 7，所以其全局权重是 0.75 × 4 / 7 = 0.4286。索引有 ``factor`` 和 "
+"``subfactor`` 两层，因此同一个子因子名称可以出现在两个因子之下。若子因子名称互不相同，去掉第一层索引后，就可以按子因子名称为评分数据框建立索引："
+
+msgid "A factor without sub-factors takes a Series with one label and the weight 1 in ``children``."
+msgstr "没有子因子的因子，在 ``children`` 中对应只含一个标签、权重为 1 的 Series。"
+
+msgid "Several experts"
+msgstr "多位专家"
+
+msgid ""
+"When several experts compare the factors, a common choice is to combine their judgments entry by "
+"entry with the geometric mean, which keeps the diagonal at 1 and the matrix reciprocal, and then "
+"to weigh the combined matrix. The weights of the group lie between those of the experts:"
+msgstr "多位专家比较因子时，常见的做法是对各元素取几何平均数来合并他们的判断，这样对角线仍为 1，矩阵仍是互反的，然后对合并后的矩阵确定权重。群体的权重介于各位专家的权重之间："
+
+msgid ""
+"The geometric mean of consistent matrices is consistent, so the consistency ratio of the group "
+"matrix does not tell whether the experts agree. Compare their weights, and discuss the "
+"comparisons where they differ most."
+msgstr "一致矩阵的几何平均仍是一致矩阵，所以群体矩阵的一致性比率并不能说明专家们是否意见一致。请比较他们的权重，并讨论分歧最大的那些比较。"
+
+msgid "Reading the result"
+msgstr "解读结果"
+
+msgid ""
+":func:`~kivi.expert.ahp_weights` returns one weight per factor, positive, summing to 1 and in the"
+" order of the matrix. A larger weight means a factor that counts more in the weighted score; the "
+"weights are relative, so the ratio of two weights is the importance of one factor against the "
+"other that the judgments imply. :func:`~kivi.expert.ahp_consistency` returns four statistics:"
+msgstr ""
+":func:`~kivi.expert.ahp_weights` 为每个因子返回一个权重，权重均为正数，总和为 "
+"1，顺序与矩阵相同。权重越大，说明该因子在加权评分中分量越重；权重是相对的，两个权重之比就是判断所隐含的一个因子相对于另一个因子的重要程度。 "
+":func:`~kivi.expert.ahp_consistency` 返回四个统计量："
+
+msgid "Statistic"
+msgstr "统计量"
+
+msgid "``lambda_max``"
+msgstr "``lambda_max``"
+
+msgid ""
+"The principal eigenvalue of the matrix. It is at least the number of factors, and equals it for "
+"consistent judgments."
+msgstr "矩阵的主特征值。它不小于因子数，判断一致时等于因子数。"
+
+msgid "``ci``"
+msgstr "``ci``"
+
+msgid ""
+"The consistency index, ``(lambda_max - n) / (n - 1)``. Zero for consistent judgments, larger for "
+"less consistent ones."
+msgstr "一致性指标 ``(lambda_max - n) / (n - 1)`` 。判断一致时为零，一致性越差越大。"
+
+msgid "``ri``"
+msgstr "``ri``"
+
+msgid ""
+"Saaty's random index for ``n`` factors: the average ``ci`` of random judgments. It is 0 for one "
+"or two factors."
+msgstr "``n`` 个因子对应的 Saaty 随机一致性指标：随机判断的平均 ``ci`` 。一个或两个因子时为 0。"
+
+msgid "``cr``"
+msgstr "``cr``"
+
+msgid ""
+"The consistency ratio ``ci / ri``. At most 0.1 is the usual threshold; above it, review the "
+"judgments, for example with the table of ratios above. It is 0 for one or two factors."
+msgstr "一致性比率 ``ci / ri`` 。常用阈值是不超过 0.1；高于该值时应复核判断，例如借助上文的比值表。一个或两个因子时为 0。"
+
+msgid ""
+"A ratio below the threshold does not make the weights right. It says that the judgments do not "
+"contradict each other, not that they describe the borrowers correctly."
+msgstr "比率低于阈值并不意味着权重正确。它只说明各项判断没有相互矛盾，而不是说明判断正确地刻画了借款人。"
+
+msgid ""
+"Every comparison must be given. A missing entry raises an error instead of being skipped, because"
+" the weights of the other factors depend on it. Factor scores with missing values give a missing "
+"weighted score for that borrower in ``factor_scores @ weights``; decide what a missing factor "
+"means before scoring, for example by scoring it as the weakest grade or by renormalizing the "
+"weights of the other factors."
+msgstr ""
+"每一项比较都必须给出。矩阵中有缺失的元素会报错而不是被跳过，因为其他因子的权重都依赖于它。因子得分有缺失值时， ``factor_scores @ weights`` "
+"给出的该借款人的加权评分也是缺失的；评分前请先决定缺失的因子意味着什么，例如把它记为最低等级，或者对其余因子的权重重新归一化。"
+
+msgid ""
+"The weights are as subjective as the judgments. The process makes them explicit and checkable, "
+"and it does not make them right. Different committees give different weights, and the weights can"
+" be tested only once outcomes exist."
+msgstr "权重和判断一样带有主观性。这一方法让权重变得明确、可检验，但并不能保证权重正确。不同的委员会会给出不同的权重，而权重只有在有了结果数据之后才能检验。"
+
+msgid ""
+"A consistency ratio at or below 0.1 shows that the comparisons agree with each other. Judgments "
+"can agree and still be wrong, for example when every comparison repeats the same bias."
+msgstr "一致性比率不超过 0.1，说明各项比较相互吻合。判断可以相互吻合却仍然是错的，例如每一项比较都带有同样的偏见。"
+
+msgid ""
+"The scale stops at 9 and its reciprocals, so a factor cannot count more than nine times as much "
+"as another in a single comparison. Large matrices are hard to judge: more than about nine factors"
+" are better split into a hierarchy, as in the section on sub-factors."
+msgstr "标度止于 9 及其倒数，因此在单次比较中，一个因子的分量不能超过另一个因子的 9 倍。大矩阵很难做出判断：超过约九个因子时，最好像子因子一节那样拆分为层次结构。"
+
+msgid ""
+"The random index is tabulated for up to 15 factors, and :func:`~kivi.expert.ahp_consistency` "
+"raises an error for more. Published tables differ slightly in their random indices, because they "
+"come from simulations of different sizes."
+msgstr ""
+"随机一致性指标最多列到 15 个因子，因子更多时 :func:`~kivi.expert.ahp_consistency` "
+"会报错。已发表的各种表中，随机一致性指标略有差异，因为它们来自规模不同的模拟。"
+
+msgid ""
+"The functions cover the weights. kivi does not score factors, set the scale of a factor score, "
+"calibrate the score to default rates or aggregate the judgments of a group beyond the example "
+"above."
+msgstr "这些函数只负责权重。kivi 不对因子打分，不设定因子得分的尺度，不把评分校准到违约率，也不做超出上文示例的群体判断汇总。"
+
+msgid ""
+"The comparisons of two factors must be exact reciprocals, within a relative tolerance of 1e-6. A "
+"rounded reciprocal such as 0.33 for 1 / 3 raises an error that shows the two entries; write ``1 /"
+" 3`` instead."
+msgstr "两个因子的两项比较必须互为倒数，相对容差为 1e-6。像用 0.33 代替 1 / 3 这样四舍五入的倒数会报错，并显示这两个元素；请直接写成 ``1 / 3`` 。"
+
+msgid ""
+"The diagonal must be 1, and every entry must be finite and positive; a DataFrame names the "
+"offending factors, and an array numbers them from 0:"
+msgstr "对角线必须为 1，每个元素都必须是有限的正数；DataFrame 的报错会指出有问题的因子，数组则从 0 起给因子编号："
+
+msgid ""
+"The index and the columns of a DataFrame must hold the same labels in the same order, and "
+":func:`~kivi.expert.combine_weights` needs weights that sum to 1 and one set of children for each"
+" factor of its first argument."
+msgstr ""
+"DataFrame 的索引和列必须有相同的标签且顺序一致；而 :func:`~kivi.expert.combine_weights` 要求权重总和为 "
+"1，并且第一个参数中的每个因子都有一组对应的子因子。"
+
+msgid ""
 "The user guide follows the steps of a credit risk model in the order of a project: profile and "
 "bin the candidate variables, encode them with WOE, select the variables and fit the model, infer "
 "the outcomes of rejected applicants, scale the model to a scorecard, evaluate and calibrate it, "
@@ -15316,9 +15931,6 @@ msgstr ""
 ":func:`~kivi.lifetime.significant_increase` 和 :func:`~kivi.lifetime.assign_stages` 把账户划分到三个阶段， "
 ":func:`~kivi.lifetime.stage_table` 汇总每个阶段的损失准备。"
 
-msgid "Definitions"
-msgstr "定义"
-
 msgid ""
 "A PD term structure describes the risk of each period after a starting point, such as the "
 "origination of a loan or the reporting date. For period :math:`k`, the *cumulative PD* "
@@ -15385,9 +15997,6 @@ msgstr "IFRS 9 把每笔敞口划入三个阶段之一，阶段决定其求和�
 msgid "Exposures"
 msgstr "敞口"
 
-msgid "1"
-msgstr "1"
-
 msgid "Credit risk not increased significantly since initial recognition"
 msgstr "自初始确认以来信用风险未显著增加"
 
@@ -15403,17 +16012,11 @@ msgstr "自初始确认以来信用风险已显著增加"
 msgid "Lifetime ECL"
 msgstr "整个存续期 ECL"
 
-msgid "3"
-msgstr "3"
-
 msgid ""
 "IFRS 9 defines credit-impaired exposures by events that hurt their expected cash flows, such as a"
 " default or the significant financial difficulty of the borrower. In practice, lenders usually "
 "align them with their definition of default."
 msgstr "IFRS 9 按对预计现金流量产生不利影响的事件来界定已发生信用减值的敞口，例如违约或借款人发生重大财务困难。实务中，贷款人通常使其与自身的违约定义保持一致。"
-
-msgid "A worked example"
-msgstr "计算示例"
 
 msgid ""
 "A loan defaults in its first year with probability 0.02, by the end of its second year with "
@@ -15693,9 +16296,6 @@ msgid ""
 msgstr ""
 "第一阶段贷款的损失准备是其 12 个月 ECL，第二、三阶段贷款的损失准备是其整个存续期 ECL。 :func:`~kivi.lifetime.stage_table` "
 "汇总每个阶段的敞口和损失准备："
-
-msgid "Reading the result"
-msgstr "解读结果"
 
 msgid "``total``"
 msgstr "``total``"
