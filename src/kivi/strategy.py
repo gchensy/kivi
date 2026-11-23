@@ -1,10 +1,11 @@
 """Credit strategy: cut-offs, swap sets and expected loss.
 
 ``cutoff_table`` shows what each candidate cut-off of a score approves and
-how many events it lets through. ``swap_set`` compares the decisions of a
-current and a new score at their cut-offs. ``expected_loss`` and
-``expected_loss_table`` turn PDs, LGDs and exposures into the expected loss
-of each exposure and of each grade.
+how many events it lets through, and ``confusion_table`` gives the confusion
+matrix, precision, recall and F1 of the same decisions. ``swap_set`` compares
+the decisions of a current and a new score at their cut-offs.
+``expected_loss`` and ``expected_loss_table`` turn PDs, LGDs and exposures
+into the expected loss of each exposure and of each grade.
 
 As in ``kivi.metrics``, a score is higher for a higher risk, such as a PD,
 so negate scorecard points before passing them in. An applicant is approved
@@ -21,7 +22,7 @@ import pandas as pd
 
 from . import _counts, _edges, _validation
 
-__all__ = ["cutoff_table", "swap_set", "expected_loss", "expected_loss_table"]
+__all__ = ["cutoff_table", "confusion_table", "swap_set", "expected_loss", "expected_loss_table"]
 
 _DECISIONS = ("approve", "decline")
 
@@ -148,18 +149,7 @@ def cutoff_table(
     values, labels, mass = _validation.scores_and_labels(score, target, "score", weights=weights)
     points = _cutoff_values(values, cutoffs, mass)
     amounts = None if loss is None else _loss_amounts(loss, score)
-    order = np.argsort(values, kind="stable")
-    labels = labels[order]
-    if mass is None:
-        event_mass: np.ndarray = labels
-        non_event_mass: np.ndarray = 1 - labels
-    else:
-        event_mass = labels * mass[order]
-        non_event_mass = (1 - labels) * mass[order]
-    # Observations at or below each cut-off: tied scores are all approved.
-    approved_rows = np.searchsorted(values[order], points, side="right")
-    cum_event = np.r_[0, np.cumsum(event_mass)]
-    cum_non_event = np.r_[0, np.cumsum(non_event_mass)]
+    order, approved_rows, cum_event, cum_non_event = _approved_counts(values, labels, mass, points)
     approved_event = cum_event[approved_rows]
     approved_non_event = cum_non_event[approved_rows]
     approved = approved_event + approved_non_event
@@ -175,6 +165,155 @@ def cutoff_table(
     if amounts is not None:
         weighted = amounts if mass is None else amounts * mass
         columns["approved_loss"] = np.r_[0.0, np.cumsum(weighted[order])][approved_rows]
+    return pd.DataFrame(columns, index=pd.Index(points, name="cutoff"))
+
+
+def confusion_table(
+    score: npt.ArrayLike,
+    target: npt.ArrayLike,
+    *,
+    cutoffs: int | npt.ArrayLike = 10,
+    weights: npt.ArrayLike | None = None,
+) -> pd.DataFrame:
+    r"""Count the declined events and non-events at each cut-off, with precision, recall and F1.
+
+    A cut-off approves every observation whose score is at or below it and
+    declines the others. Treating a decline as the prediction of an event,
+    each row is the confusion matrix of that decision, with the measures that
+    follow from it.
+
+    Parameters
+    ----------
+    score : array_like
+        Finite numeric scores that are higher for a higher risk, such as a
+        PD. Negate scorecard points, which are higher for a lower risk.
+    target : array_like
+        Binary labels, with 1 indicating the event. Both classes must be
+        present. If `score` and `target` are both pandas Series, they must
+        have identical indices; otherwise they are matched by position.
+    cutoffs : int or array_like, default 10
+        Number of quantile cut-offs, or increasing cut-off values, as in
+        `cutoff_table`: an integer `n` uses the edges of
+        ``kivi.binning.bin_edges(score, bins=n)`` above the lowest, and tied
+        scores can leave fewer rows. Pass explicit values as a sequence,
+        also for a single cut-off, such as ``[0.1]``. With `weights`, an
+        integer gives weighted quantiles.
+    weights : array_like, optional
+        Non-negative weight of each observation, such as the inverse of its
+        sampling rate, matched like `target`. The counts become sums of
+        weights. On the same cut-offs, integer weights give the same table
+        as repeating rows; an integer `cutoffs` can give other cut-offs,
+        because weighted quantiles use the inverted CDF.
+
+    Returns
+    -------
+    pandas.DataFrame
+        One row per cut-off, from the lowest to the highest, indexed by the
+        cut-off value in an index named ``cutoff``, as in `cutoff_table`. The
+        columns are described in the Notes.
+
+    Raises
+    ------
+    ValueError
+        If the inputs are empty or not one-dimensional, their indices or
+        lengths do not match, `target` has a label other than 0 and 1 or a
+        missing label, or lacks one of the classes, `score` is not real and
+        numeric or has a missing or infinite value, or `cutoffs` is neither
+        a positive integer nor a sequence of increasing numbers. Also if
+        `weights` is not numeric, does not give each observation one finite,
+        non-negative weight, has an index other than that of `score`, or
+        leaves a class without weight.
+
+    Warns
+    -----
+    UserWarning
+        If `cutoffs` is an integer and tied scores leave fewer cut-offs than
+        requested, as in `kivi.binning.bin_edges`.
+
+    See Also
+    --------
+    cutoff_table : Approval rate and rejected shares at the same cut-offs.
+    kivi.metrics.roc_table : The same counts at every threshold, flagging scores at or above it.
+    swap_set : Compare the decisions of two scores at their cut-offs.
+
+    Notes
+    -----
+    An event is the positive class and a decline, a score above the
+    cut-off, the positive prediction. A score equal to the cut-off is
+    approved, so tied scores always get the same decision. The columns are:
+
+    - ``true_positive`` and ``false_positive``: events and non-events that
+      the cut-off declines, or the sums of their weights;
+    - ``true_negative`` and ``false_negative``: non-events and events that
+      the cut-off approves;
+    - ``precision``: ``true_positive`` divided by the declined observations,
+      the event rate among them, which is NaN when the cut-off declines
+      nobody;
+    - ``recall``: ``true_positive`` divided by all events, the share of
+      events that the cut-off declines;
+    - ``f1``: the harmonic mean of ``precision`` and ``recall``,
+      :math:`2 \mathrm{TP} / (2 \mathrm{TP} + \mathrm{FP} + \mathrm{FN})`,
+      which is 0 when no event is declined, also when nothing is declined;
+    - ``accuracy``: ``true_positive`` plus ``true_negative``, divided by the
+      whole sample.
+
+    The rows match the other tables of kivi. ``recall`` equals
+    ``rejected_event_share`` of `cutoff_table`, ``false_positive`` divided
+    by all non-events equals its ``rejected_non_event_share``, and
+    ``false_negative`` equals its ``approved_event``. The ``true_positive``,
+    ``false_positive``, ``recall`` and ``precision`` of a row also equal
+    ``cum_event``, ``cum_non_event``, ``true_positive_rate`` and
+    ``precision`` of the row of `kivi.metrics.roc_table` with the lowest
+    threshold above the cut-off, which is infinity when the cut-off is not
+    below any score. The rows are shifted because `roc_table` flags the
+    scores at or above a threshold, while a cut-off declines only those
+    above it.
+
+    The measures depend on the share of events in the sample. A cut-off that
+    approves everyone has an accuracy of one minus the event rate, and an
+    event rate of a few per cent gives high accuracy and a low ``precision``
+    at almost every cut-off. Compare cut-offs by the shares of events and
+    non-events they decline, as in `cutoff_table`, or by the costs of the
+    two kinds of error.
+
+    Examples
+    --------
+    >>> from kivi.strategy import confusion_table
+    >>> score = [0.1, 0.2, 0.2, 0.3, 0.5, 0.6, 0.8, 0.9]
+    >>> target = [0, 0, 1, 0, 0, 1, 1, 1]
+    >>> table = confusion_table(score, target, cutoffs=[0.2, 0.5, 1.0])
+    >>> table[["true_positive", "false_positive", "true_negative", "false_negative"]]
+            true_positive  false_positive  true_negative  false_negative
+    cutoff
+    0.2                 3               2              2               1
+    0.5                 3               0              4               1
+    1.0                 0               0              4               4
+    >>> table[["precision", "recall", "f1", "accuracy"]].round(3)
+            precision  recall     f1  accuracy
+    cutoff
+    0.2           0.6    0.75  0.667     0.625
+    0.5           1.0    0.75  0.857     0.875
+    1.0           NaN    0.00  0.000     0.500
+    """
+    _validation.shared_index({"score": score, "target": target, "weights": weights})
+    values, labels, mass = _validation.scores_and_labels(score, target, "score", weights=weights)
+    points = _cutoff_values(values, cutoffs, mass)
+    _, approved_rows, cum_event, cum_non_event = _approved_counts(values, labels, mass, points)
+    false_negative = cum_event[approved_rows]
+    true_negative = cum_non_event[approved_rows]
+    true_positive = cum_event[-1] - false_negative
+    false_positive = cum_non_event[-1] - true_negative
+    declined = true_positive + false_positive
+    columns = {
+        "true_positive": true_positive,
+        "false_positive": false_positive,
+        "true_negative": true_negative,
+        "false_negative": false_negative,
+        "precision": _counts.ratio(true_positive, declined),
+        "recall": true_positive / cum_event[-1],
+        "f1": 2 * true_positive / (2 * true_positive + false_positive + false_negative),
+        "accuracy": (true_positive + true_negative) / (cum_event[-1] + cum_non_event[-1]),
+    }
     return pd.DataFrame(columns, index=pd.Index(points, name="cutoff"))
 
 
@@ -532,6 +671,32 @@ def expected_loss_table(
         },
         index=counts.index,
     )
+
+
+def _approved_counts(
+    values: np.ndarray,
+    labels: np.ndarray,
+    weights: np.ndarray | None,
+    points: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Sort order, approved rows per cut-off and the cumulative event and non-event counts.
+
+    ``cum_event[k]`` and ``cum_non_event[k]`` count the first k observations in score order
+    (sums of weights with ``weights``), and ``approved_rows[i]`` is the number of observations
+    at or below ``points[i]``: tied scores are all approved.
+    """
+    order = np.argsort(values, kind="stable")
+    labels = labels[order]
+    if weights is None:
+        event_mass: np.ndarray = labels
+        non_event_mass: np.ndarray = 1 - labels
+    else:
+        event_mass = labels * weights[order]
+        non_event_mass = (1 - labels) * weights[order]
+    approved_rows = np.searchsorted(values[order], points, side="right")
+    cum_event = np.r_[0, np.cumsum(event_mass)]
+    cum_non_event = np.r_[0, np.cumsum(non_event_mass)]
+    return order, approved_rows, cum_event, cum_non_event
 
 
 def _cutoff_values(
