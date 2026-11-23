@@ -17,9 +17,10 @@ import pandas as pd
 import pytest
 
 from kivi import _stats
-from kivi.binning import chimerge_edges, tree_edges
+from kivi.binning import chimerge_edges, chimerge_groups, tree_edges
 from kivi.calibration import (
     binomial_test,
+    fit_grade_pd,
     hosmer_lemeshow,
     isotonic_fit,
     isotonic_predict,
@@ -143,9 +144,7 @@ def test_isotonic_fit_matches_scikit_learn_at_the_fitted_scores(case, increasing
     reference = isotonic.IsotonicRegression(increasing=increasing, out_of_bounds="clip")
     reference.fit(score, target, sample_weight=weights)
     expected = reference.predict(score)
-    np.testing.assert_allclose(
-        isotonic_predict(score, edges, probability), expected, rtol=1e-12, atol=1e-15
-    )
+    np.testing.assert_allclose(isotonic_predict(score, edges, probability), expected, rtol=1e-12)
     # The same pooled event rates, and no two adjacent bands share one.
     np.testing.assert_allclose(np.sort(np.unique(expected)), np.sort(probability), rtol=1e-12)
     assert len(probability) == len(edges) - 1 >= 8
@@ -178,10 +177,10 @@ def test_roc_auc_matches_scikit_learn(use_weights):
     score, _, target, weights = simulated_scores(seed=21)
     weights = weights if use_weights else None
     expected = metrics.roc_auc_score(target, score, sample_weight=weights)
-    assert roc_auc(score, target, weights=weights) == pytest.approx(expected, rel=1e-12)
+    assert roc_auc(score, target, weights=weights) == pytest.approx(expected, rel=1e-12, abs=0)
     # The same on plain arrays, with both the score and the labels reversed.
     assert roc_auc(-score.to_numpy(), 1 - target.to_numpy(), weights=weights) == pytest.approx(
-        expected, rel=1e-12
+        expected, rel=1e-12, abs=0
     )
 
 
@@ -196,18 +195,16 @@ def test_roc_table_matches_scikit_learn_roc_curve(use_weights):
     )
     # The first threshold, which flags nobody, is infinite since scikit-learn 1.3.
     np.testing.assert_array_equal(table.index.to_numpy(), thresholds)
-    np.testing.assert_allclose(table["false_positive_rate"], fpr, rtol=1e-12, atol=1e-15)
-    np.testing.assert_allclose(table["true_positive_rate"], tpr, rtol=1e-12, atol=1e-15)
+    np.testing.assert_allclose(table["false_positive_rate"], fpr, rtol=1e-12)
+    np.testing.assert_allclose(table["true_positive_rate"], tpr, rtol=1e-12)
     # The counts are the rates times the class totals.
     total = np.ones(len(score)) if weights is None else weights.to_numpy()
     event = target.to_numpy() == 1
-    np.testing.assert_allclose(table["cum_event"], tpr * total[event].sum(), rtol=1e-12, atol=1e-12)
-    np.testing.assert_allclose(
-        table["cum_non_event"], fpr * total[~event].sum(), rtol=1e-12, atol=1e-12
-    )
+    np.testing.assert_allclose(table["cum_event"], tpr * total[event].sum(), rtol=1e-12)
+    np.testing.assert_allclose(table["cum_non_event"], fpr * total[~event].sum(), rtol=1e-12)
     # The trapezoids under the curve are the AUC.
     area = np.sum(np.diff(fpr) * (tpr[1:] + tpr[:-1]) / 2)
-    assert area == pytest.approx(roc_auc(score, target, weights=weights), rel=1e-12)
+    assert area == pytest.approx(roc_auc(score, target, weights=weights), rel=1e-12, abs=0)
 
 
 @pytest.mark.parametrize("use_weights", [False, True])
@@ -216,7 +213,9 @@ def test_brier_score_matches_scikit_learn(use_weights):
     _, probability, target, weights = simulated_scores(seed=23)
     weights = weights if use_weights else None
     expected = metrics.brier_score_loss(target, probability, sample_weight=weights)
-    assert brier_score(probability, target, weights=weights) == pytest.approx(expected, rel=1e-12)
+    assert brier_score(probability, target, weights=weights) == pytest.approx(
+        expected, rel=1e-12, abs=0
+    )
 
 
 # --------------------------------------------------------------------------------- SciPy
@@ -228,9 +227,9 @@ def test_ks_matches_the_two_sample_statistic_of_scipy():
     event = score[target == 1].to_numpy()
     non_event = score[target == 0].to_numpy()
     expected = stats.ks_2samp(event, non_event, method="asymp").statistic
-    assert ks(score, target) == pytest.approx(expected, rel=1e-12)
+    assert ks(score, target) == pytest.approx(expected, rel=1e-12, abs=0)
     # The gap is absolute, so a score that runs the other way gives the same statistic.
-    assert ks(-score, target) == pytest.approx(expected, rel=1e-12)
+    assert ks(-score, target) == pytest.approx(expected, rel=1e-12, abs=0)
 
 
 def test_ks_with_integer_weights_matches_scipy_on_repeated_rows():
@@ -242,7 +241,7 @@ def test_ks_with_integer_weights_matches_scipy_on_repeated_rows():
     expected = stats.ks_2samp(
         repeated[labels == 1].to_numpy(), repeated[labels == 0].to_numpy(), method="asymp"
     ).statistic
-    assert ks(score, target, weights=weights) == pytest.approx(expected, rel=1e-12)
+    assert ks(score, target, weights=weights) == pytest.approx(expected, rel=1e-12, abs=0)
 
 
 BETA_SHAPES = [0.5, 1.0, 2.0, 7.5, 30.0, 150.0, 1e3, 2e4, 1e5]
@@ -267,17 +266,15 @@ def test_incomplete_beta_matches_scipy_on_a_grid():
     # it adds up: values below 1e-100 agree to about 9 digits, all others to 11.
     tail = expected < 1e-100
     assert tail.any() and (~tail).any()
-    np.testing.assert_allclose(actual[~tail], expected[~tail], rtol=1e-10, atol=0)
-    np.testing.assert_allclose(actual[tail], expected[tail], rtol=1e-8, atol=0)
+    np.testing.assert_allclose(actual[~tail], expected[~tail], rtol=1e-10)
+    np.testing.assert_allclose(actual[tail], expected[tail], rtol=1e-8)
 
 
 def test_incomplete_beta_matches_scipy_at_the_end_points_and_in_the_tails():
     special = pytest.importorskip("scipy.special")
     x = np.array([0.0, 1e-300, 1e-12, 1e-6, 0.5, 1 - 1e-6, 1 - 1e-12, 1.0])
     for a, b in [(0.5, 0.5), (2.0, 3.0), (40.0, 5.0), (3.0, 800.0)]:
-        np.testing.assert_allclose(
-            _stats.betainc(a, b, x), special.betainc(a, b, x), rtol=1e-10, atol=1e-15
-        )
+        np.testing.assert_allclose(_stats.betainc(a, b, x), special.betainc(a, b, x), rtol=1e-10)
 
 
 GAMMA_SHAPES = [0.5, 1.0, 2.5, 10.0, 50.0, 500.0, 5000.0]
@@ -290,7 +287,7 @@ def test_incomplete_gamma_matches_scipy_on_a_grid(shape):
     x = special.gammainccinv(shape, GAMMA_QUANTILES)
     expected = special.gammaincc(shape, x)
     actual = [_stats.gammaincc(shape, value) for value in x]
-    np.testing.assert_allclose(actual, expected, rtol=1e-10, atol=0)
+    np.testing.assert_allclose(actual, expected, rtol=1e-10)
 
 
 @pytest.mark.parametrize("dof", [1, 2, 3, 4, 5, 9, 10, 30, 99, 250, 1000])
@@ -299,7 +296,7 @@ def test_chi2_sf_matches_scipy(dof):
     statistic = stats.chi2.isf([1e-12, 1e-6, 0.001, 0.05, 0.5, 0.9, 0.999, 1 - 1e-9], dof)
     expected = stats.chi2.sf(statistic, dof)
     actual = [_stats.chi2_sf(value, dof) for value in statistic]
-    np.testing.assert_allclose(actual, expected, rtol=1e-10, atol=0)
+    np.testing.assert_allclose(actual, expected, rtol=1e-10)
     assert _stats.chi2_sf(0.0, dof) == 1.0
 
 
@@ -313,21 +310,29 @@ def test_normal_quantile_matches_scipy():
         0.5,
     ]
     actual = np.array([_stats.normal_quantile(p) for p in probability])
-    np.testing.assert_allclose(actual, special.ndtri(probability), rtol=1e-13, atol=1e-15)
-    np.testing.assert_allclose(actual, stats.norm.ppf(probability), rtol=1e-13, atol=1e-15)
+    np.testing.assert_allclose(actual, special.ndtri(probability), rtol=1e-13)
+    np.testing.assert_allclose(actual, stats.norm.ppf(probability), rtol=1e-13)
     # The quantile inverts the normal CDF, the tail of which is `math.erfc` in the Wald tests.
     lower = probability < 0.5
     np.testing.assert_allclose(special.ndtr(actual[lower]), probability[lower], rtol=1e-10)
 
 
-@pytest.mark.parametrize("statistic", [0.0, 1e-6, 0.01, 0.5, 1.0, 3.841458820694124, 10.0, 80.0])
-def test_chimerge_p_value_is_the_chi_square_tail_with_one_degree_of_freedom(statistic):
-    stats = pytest.importorskip("scipy.stats")
-    # The expression in `chimerge_edges`: 1 - erf(sqrt(x / 2)) = chi-square tail with 1 dof.
-    assert math.erfc(math.sqrt(statistic / 2)) == pytest.approx(
-        stats.chi2.sf(statistic, 1), rel=1e-12
-    )
-    assert _stats.chi2_sf(statistic, 1) == pytest.approx(stats.chi2.sf(statistic, 1), rel=1e-12)
+@pytest.mark.parametrize("per_value", [15, 60, 250, 1000, 4000, 15000])
+def test_chimerge_merges_a_pair_exactly_when_its_chi_square_p_value_is_not_below_alpha(per_value):
+    contingency = pytest.importorskip("scipy.stats").contingency
+    # Two values with event rates of 10 % and 20 %: from a p-value near 0.5 to one near 1e-130.
+    values = np.repeat([0, 1], per_value)
+    target = np.r_[np.arange(per_value) < per_value // 10, np.arange(per_value) < per_value // 5]
+    table = [
+        [per_value - per_value // 10, per_value // 10],
+        [per_value - per_value // 5, per_value // 5],
+    ]
+    p_value = contingency.chi2_contingency(table, correction=False).pvalue
+    assert 1e-200 < p_value < 0.9
+    kept = chimerge_edges(values, target.astype(int), max_bins=2, alpha=p_value * (1 + 1e-6))
+    merged = chimerge_edges(values, target.astype(int), max_bins=2, alpha=p_value * (1 - 1e-6))
+    np.testing.assert_array_equal(kept, [-np.inf, 0, np.inf])
+    np.testing.assert_array_equal(merged, [-np.inf, np.inf])
 
 
 def fine_bin_counts(values, target, bins):
@@ -356,23 +361,23 @@ def pair_p_values(counts):
     )
 
 
-def reference_chimerge(interior, counts, max_bins, alpha):
-    """ChiMerge as `chimerge_edges` describes it, with the statistics and tests of scipy."""
-    interior, counts = list(interior), counts.copy()
+def reference_chimerge(counts, max_bins, alpha):
+    """ChiMerge as `chimerge_edges` describes it, with the statistics and tests of scipy.
+
+    Returns the merged groups, each a list of indices of the bins ChiMerge started from.
+    """
+    counts = counts.copy()
+    groups = [[i] for i in range(len(counts))]
     while len(counts) > 1:
         p_values = pair_p_values(counts)
         pair = int(np.argmax(p_values))  # the smallest statistic has the largest p-value
         significant = alpha is None or p_values[pair] < alpha
         if len(counts) <= max_bins and significant:
             break
-        counts = np.insert(
-            np.delete(counts, [pair, pair + 1], axis=0),
-            pair,
-            counts[pair : pair + 2].sum(axis=0),
-            axis=0,
-        )
-        del interior[pair]
-    return np.r_[-np.inf, interior, np.inf]
+        counts[pair] += counts[pair + 1]
+        counts = np.delete(counts, pair + 1, axis=0)
+        groups[pair] += groups.pop(pair + 1)
+    return groups
 
 
 @pytest.mark.parametrize("column", ["age", "balance", "duration", "day"])
@@ -381,7 +386,8 @@ def test_chimerge_edges_match_a_scipy_implementation(bank, column, max_bins, alp
     pytest.importorskip("scipy.stats")
     values, target = bank[column], bank["target"]
     interior, counts = fine_bin_counts(values, target, 20)
-    expected = reference_chimerge(interior, counts, max_bins, alpha)
+    groups = reference_chimerge(counts, max_bins, alpha)
+    expected = np.r_[-np.inf, [interior[group[-1]] for group in groups[:-1]], np.inf]
     actual = chimerge_edges(values, target, max_bins=max_bins, alpha=alpha, initial_bins=20)
     np.testing.assert_array_equal(actual, expected)
 
@@ -400,6 +406,27 @@ def test_chimerge_stops_merging_at_the_p_value_of_the_least_different_pair(bank,
     assert len(merged) < len(kept)
 
 
+@pytest.mark.parametrize("column", ["job", "month", "education", "poutcome"])
+@pytest.mark.parametrize("max_groups,alpha", [(5, 0.05), (3, None), (8, 0.3), (12, 0.01)])
+def test_chimerge_groups_match_a_scipy_implementation(bank, column, max_groups, alpha):
+    pytest.importorskip("scipy.stats")
+    values, target = bank[column], bank["target"]
+    table = pd.crosstab(values, target)
+    assert (table.to_numpy() > 0).all()  # no zero cell, so the order needs no smoothing
+    # The categories side by side in increasing order of their event rate, which is the order
+    # of their WOE, are the bins ChiMerge starts from.
+    order = np.argsort(table[1].to_numpy() / table.sum(axis=1).to_numpy(), kind="stable")
+    names = table.index.to_numpy()[order]
+    groups = reference_chimerge(table.to_numpy()[order].astype(float), max_groups, alpha)
+    expected = {frozenset(names[i] for i in group) for group in groups}
+    fitted = chimerge_groups(values, target, max_groups=max_groups, alpha=alpha, min_group_share=0)
+    members = {}
+    for category, group in fitted.items():
+        members.setdefault(group, set()).add(category)
+    assert {frozenset(group) for group in members.values()} == expected
+    assert len(expected) >= 2
+
+
 def test_hosmer_lemeshow_matches_scipy_chi_square_test():
     stats = pytest.importorskip("scipy.stats")
     rng = np.random.default_rng(41)
@@ -415,9 +442,9 @@ def test_hosmer_lemeshow_matches_scipy_chi_square_test():
             np.r_[total * probability, total * (1 - probability)],
             ddof=groups - 1 + ddof,
         )
-        assert statistic == pytest.approx(reference.statistic, rel=1e-12)
-        assert p_value == pytest.approx(reference.pvalue, rel=1e-10)
-        assert p_value == pytest.approx(stats.chi2.sf(statistic, groups - ddof), rel=1e-10)
+        assert statistic == pytest.approx(reference.statistic, rel=1e-12, abs=0)
+        assert p_value == pytest.approx(reference.pvalue, rel=1e-10, abs=0)
+        assert p_value == pytest.approx(stats.chi2.sf(statistic, groups - ddof), rel=1e-10, abs=0)
 
 
 EVENT_GRID = [
@@ -433,7 +460,7 @@ def test_binomial_test_matches_scipy_one_sided_exact_test():
     for total, probability, factor in EVENT_GRID:
         event = min(total, round(factor * total * probability))
         expected = stats.binomtest(event, total, probability, alternative="greater").pvalue
-        assert binomial_test(event, total, probability) == pytest.approx(expected, rel=1e-10)
+        assert binomial_test(event, total, probability) == pytest.approx(expected, rel=1e-10, abs=0)
 
 
 def test_binomial_test_broadcasts_like_a_vectorized_scipy_tail():
@@ -451,20 +478,65 @@ def test_jeffreys_test_matches_the_beta_posterior_of_scipy():
     for total, probability, factor in EVENT_GRID:
         event = min(total, round(factor * total * probability))
         expected = stats.beta.cdf(probability, event + 0.5, total - event + 0.5)
-        assert jeffreys_test(event, total, probability) == pytest.approx(expected, rel=1e-10)
+        assert jeffreys_test(event, total, probability) == pytest.approx(expected, rel=1e-10, abs=0)
 
 
-def test_roc_auc_interval_and_delong_test_use_the_normal_distribution():
+def delong_reference(scores, target):
+    """AUCs and their covariance matrix by DeLong, DeLong and Clarke-Pearson (1988).
+
+    Compares every event with every non-event, in O(m n) time, instead of the midranks that
+    kivi uses. The structural components V10 (one per event) and V01 (one per non-event) are the
+    mean of 1 for a higher score and 1/2 for a tie; their covariances give the covariance of the
+    AUCs as S10 / m + S01 / n.
+    """
+    scores, event = np.asarray(scores, dtype=float), np.asarray(target) == 1
+    x, y = scores[:, event, None], scores[:, None, ~event]
+    placement = (x > y) + 0.5 * (x == y)
+    v10, v01 = placement.mean(axis=2), placement.mean(axis=1)
+    covariance = (
+        np.atleast_2d(np.cov(v10)) / v10.shape[1] + np.atleast_2d(np.cov(v01)) / v01.shape[1]
+    )
+    return v10.mean(axis=1), covariance
+
+
+def test_roc_auc_interval_matches_an_independent_delong_computation():
     stats = pytest.importorskip("scipy.stats")
     score, _, target, _ = simulated_scores(seed=51)
-    other = score + np.random.default_rng(51).normal(scale=0.7, size=len(score))
+    auc, covariance = delong_reference([score], target)
+    se, z = math.sqrt(covariance[0, 0]), stats.norm.ppf(0.95)
     interval = roc_auc_interval(score, target, level=0.9)
-    z = stats.norm.ppf(0.95)
-    row = interval.loc["auc"]
-    assert row["lower"] == pytest.approx(row["estimate"] - z * row["se"], rel=1e-12)
-    assert row["upper"] == pytest.approx(min(row["estimate"] + z * row["se"], 1), rel=1e-12)
-    result = delong_test(score, other, target)
-    assert result["p_value"] == pytest.approx(2 * stats.norm.sf(abs(result["z"])), rel=1e-10)
+    assert interval.loc["auc", "estimate"] == pytest.approx(auc[0], rel=1e-12, abs=0)
+    assert interval.loc["auc", "se"] == pytest.approx(se, rel=1e-10, abs=0)
+    assert interval.loc["auc", "lower"] == pytest.approx(auc[0] - z * se, rel=1e-10, abs=0)
+    assert interval.loc["auc", "upper"] == pytest.approx(auc[0] + z * se, rel=1e-10, abs=0)
+    # The Gini coefficient is 2 AUC - 1, so its standard error doubles.
+    assert interval.loc["gini", "se"] == pytest.approx(2 * se, rel=1e-10, abs=0)
+
+
+@pytest.mark.parametrize("seed", [52, 53])
+def test_delong_test_matches_an_independent_delong_computation(seed):
+    stats = pytest.importorskip("scipy.stats")
+    score, _, target, _ = simulated_scores(seed=seed)
+    # A second score that is the first plus independent noise, rounded to have ties of its own.
+    noise = np.random.default_rng(1000 + seed).normal(scale=0.35, size=len(score))
+    other = pd.Series(np.round(score + noise, 1), index=score.index)
+    z = stats.norm.ppf(0.975)
+    for current, new in [(score, other), (other, score)]:
+        auc, covariance = delong_reference([current, new], target)
+        difference = auc[1] - auc[0]
+        se = math.sqrt(covariance[0, 0] + covariance[1, 1] - 2 * covariance[0, 1])
+        p_value = 2 * stats.norm.sf(abs(difference / se))
+        result = delong_test(current, new, target)
+        assert result["current_auc"] == pytest.approx(auc[0], rel=1e-12, abs=0)
+        assert result["new_auc"] == pytest.approx(auc[1], rel=1e-12, abs=0)
+        assert result["difference"] == pytest.approx(difference, rel=1e-10, abs=0)
+        assert result["se"] == pytest.approx(se, rel=1e-10, abs=0)
+        assert result["z"] == pytest.approx(difference / se, rel=1e-10, abs=0)
+        assert result["p_value"] == pytest.approx(p_value, rel=1e-9, abs=0)
+        assert result["lower"] == pytest.approx(difference - z * se, rel=1e-9, abs=0)
+        assert result["upper"] == pytest.approx(difference + z * se, rel=1e-9, abs=0)
+        # The scores differ modestly, so the p-value is neither vacuous nor 1.
+        assert 1e-3 < p_value < 0.9
 
 
 # ----------------------------------------------------------------------------- statsmodels
@@ -476,8 +548,8 @@ def test_platt_fit_matches_statsmodels_logit(bank, column):
     score, target = bank[column].astype(float), bank["target"]
     slope, intercept = platt_fit(score, target)
     fitted = sm.Logit(target, sm.add_constant(score)).fit(disp=0, tol=1e-14, maxiter=200)
-    assert slope == pytest.approx(fitted.params[column], rel=1e-8)
-    assert intercept == pytest.approx(fitted.params["const"], rel=1e-8)
+    assert slope == pytest.approx(fitted.params[column], rel=1e-8, abs=0)
+    assert intercept == pytest.approx(fitted.params["const"], rel=1e-8, abs=0)
 
 
 @pytest.mark.parametrize("use_weights", [False, True])
@@ -486,8 +558,8 @@ def test_platt_fit_matches_statsmodels_glm_on_a_simulated_score(use_weights):
     weights = weights if use_weights else None
     slope, intercept = platt_fit(score, target, weights=weights)
     fitted = glm_fit(score, target, weights)
-    assert slope == pytest.approx(fitted.params.iloc[1], rel=1e-8)
-    assert intercept == pytest.approx(fitted.params.iloc[0], rel=1e-8)
+    assert slope == pytest.approx(fitted.params.iloc[1], rel=1e-8, abs=0)
+    assert intercept == pytest.approx(fitted.params.iloc[0], rel=1e-8, abs=0)
 
 
 def design(bank):
@@ -520,7 +592,7 @@ def test_logistic_regression_matches_statsmodels_glm(bank, kind):
     np.testing.assert_allclose(ours["se"], reference.bse, rtol=1e-8)
     np.testing.assert_allclose(ours["z"], reference.tvalues, rtol=1e-8)
     np.testing.assert_allclose(ours["p_value"], reference.pvalues, rtol=1e-7)
-    assert ours.attrs["log_likelihood"] == pytest.approx(reference.llf, rel=1e-10)
+    assert ours.attrs["log_likelihood"] == pytest.approx(reference.llf, rel=1e-10, abs=0)
 
 
 def test_logistic_regression_on_woe_like_columns_matches_statsmodels():
@@ -554,3 +626,33 @@ def test_vif_matches_statsmodels_on_a_design_with_a_constant(bank):
     assert list(actual.index) == list(X.columns)
     assert actual.max() > 5
     np.testing.assert_allclose(actual, expected, rtol=1e-8)
+
+
+@pytest.mark.parametrize(
+    "event,total",
+    [
+        ([0, 3, 5, 18, 30], [400, 500, 300, 400, 200]),
+        ([1, 2, 6, 9, 21, 40, 83], [900, 800, 700, 500, 450, 400, 380]),
+        # Grades 2 and 5 have no observations: they stay out of the fit but still get a PD.
+        ([0, 0, 4, 9, 0, 30, 61], [300, 0, 350, 280, 0, 260, 250]),
+    ],
+)
+def test_fit_grade_pd_matches_statsmodels_weighted_least_squares(event, total):
+    sm = pytest.importorskip("statsmodels.api")
+    event, total = np.array(event, dtype=float), np.array(total, dtype=float)
+    grade = np.arange(1, len(total) + 1, dtype=float)
+    seen = total > 0
+
+    def expected_pd(smoothing):
+        # ln(rate) on the grade number, weighted with the totals, where a zero count is replaced
+        # by `smoothing` defaults; the line is extended to the grades without observations.
+        log_rate = np.log(np.where(event > 0, event, smoothing)[seen] / total[seen])
+        fitted = sm.WLS(
+            log_rate, np.column_stack([np.ones(seen.sum()), grade[seen]]), weights=total[seen]
+        ).fit()
+        return np.exp(fitted.predict(np.column_stack([np.ones(len(grade)), grade])))
+
+    np.testing.assert_allclose(fit_grade_pd(event, total), expected_pd(0.5), rtol=1e-10)
+    np.testing.assert_allclose(
+        fit_grade_pd(event, total, smoothing=2.0), expected_pd(2.0), rtol=1e-10
+    )
