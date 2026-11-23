@@ -49,7 +49,14 @@ Read the ranking critically before building the shortlist:
 Bin the shortlist
 -----------------
 
-Each variable on the shortlist gets edges that can be explained: merged balance bins with a monotonic WOE, a bin of its own for the ``pdays == -1`` code, policy age bands, and the raw labels of the categorical variables. The twelve labels of ``job`` could also be grouped first, as in :ref:`category-groups`; this example keeps them as they are. Keep the binning in one place so that development and monitoring data are grouped identically.
+Each variable on the shortlist gets groups that can be explained: merged balance bins with a monotonic WOE, a bin of its own for the ``pdays == -1`` code, policy age bands, the labels of ``poutcome``, ``contact`` and ``housing``, and a few groups of jobs. Small categories give unstable WOE: a job held by a few dozen customers has only a handful of events, and on a later sample the WOE of four of the twelve jobs changes sign, as :ref:`category-groups` shows. :func:`~kivi.binning.chimerge_groups` merges the jobs with similar event rates into larger groups and returns a dict from job to group:
+
+>>> from kivi.binning import chimerge_groups, group_categories
+>>> job_groups = chimerge_groups(development["job"], development["target"])
+>>> job_groups["unknown"]
+'technician, admin., housemaid, management, unknown'
+
+Each group is labelled with its jobs in increasing order of their WOE. A job that the development sample did not have is not in the dict, so decide before scoring new data which group it joins. Here a new job joins the group of ``unknown``, the customers whose job is not recorded, through the ``unseen`` argument of :func:`~kivi.binning.group_categories`. Keep the binning in one place so that development and monitoring data are grouped identically:
 
 >>> fine = bin_edges(development["balance"], bins=10)
 >>> numeric_edges = {
@@ -57,15 +64,23 @@ Each variable on the shortlist gets edges that can be explained: merged balance 
 ...     "pdays": np.array([-np.inf, -1, 100, 200, 300, np.inf]),
 ...     "age": np.array([-np.inf, 25, 35, 45, 55, 65, np.inf]),
 ... }
->>> categorical = ["poutcome", "contact", "housing", "job"]
+>>> categorical = ["poutcome", "contact", "housing"]
+>>> new_job = job_groups["unknown"]
 >>> def to_groups(frame):
 ...     groups = {column: pd.cut(frame[column], edges) for column, edges in numeric_edges.items()}
 ...     groups.update({column: frame[column] for column in categorical})
+...     groups["job"] = group_categories(frame["job"], job_groups, unseen=new_job)
 ...     return pd.DataFrame(groups)
 >>> dev_groups = to_groups(development)
 >>> tables = {column: woe_table(dev_groups[column], development["target"]) for column in dev_groups}
+>>> print(tables["job"][["total", "event_rate", "woe"]].round(3).to_string())
+                                                                total  event_rate    woe
+bin
+blue-collar, services, self-employed, entrepreneur, unemployed   1210       0.079 -0.420
+technician, admin., housemaid, management, unknown               1581       0.132  0.144
+retired, student                                                  209       0.211  0.709
 
-``tables`` holds one :func:`~kivi.woe.woe_table` result per variable. Review each one as a WOE chart (see :doc:`woe_iv`) before moving on. ``pdays`` and ``poutcome`` both describe the previous campaign, so check how strongly they are correlated before keeping both.
+The three groups of ``job`` hold between 209 and 1,581 development customers each, and their WOE rises from -0.420 to 0.709. ``tables`` holds one :func:`~kivi.woe.woe_table` result per variable. Review each one as a WOE chart (see :doc:`woe_iv`) before moving on. ``pdays`` and ``poutcome`` both describe the previous campaign, so check how strongly they are correlated before keeping both.
 
 Encode with WOE
 ---------------
@@ -79,26 +94,38 @@ A logistic regression on WOE values is the classic scorecard model. Replace each
 >>> X_dev = to_woe(dev_groups)
 >>> X_dev.head(3).round(3)
    balance  pdays    age  poutcome  contact  housing    job
-0    0.373 -0.257 -0.032    -0.257    0.241    0.333 -0.233
-1    0.373 -0.092 -0.032     0.214    0.241   -0.327 -0.339
-2    0.373 -0.092 -0.032     0.214    0.241   -0.327  0.271
+0    0.373 -0.257 -0.032    -0.257    0.241    0.333 -0.420
+1    0.373 -0.092 -0.032     0.214    0.241   -0.327 -0.420
+2    0.373 -0.092 -0.032     0.214    0.241   -0.327  0.144
 
-``woe_transform`` raises an error for a group that never appeared in development, such as a new category. Agree on a policy before scoring new data, for example ``unseen=0.0`` for a neutral WOE.
+``woe_transform`` raises an error for a group that never appeared in development, such as a new category of ``poutcome``. The grouping of ``job`` already gives new jobs a group; for the other variables, agree on a policy before scoring new data, for example ``unseen=0.0`` for a neutral WOE.
 
 Save the binning
 ----------------
 
-Production systems must group and encode new applications exactly as the development sample was. :func:`~kivi.spec.fit_spec` fits the edges and the WOE table of every column at once, and the resulting :class:`~kivi.spec.BinningSpec` saves them as versioned JSON; see :doc:`spec`. Passing the edges of the shortlist as ``bins`` reproduces the encoding above:
+Production systems must group and encode new applications exactly as the development sample was. :func:`~kivi.spec.fit_spec` fits the edges and the WOE table of every column at once, and the resulting :class:`~kivi.spec.BinningSpec` saves them as versioned JSON; see :doc:`spec`. Passing the edges of the shortlist as ``bins``, the method ``"chimerge"`` for ``job`` and its group for new jobs as ``unseen`` reproduces the grouping and the encoding above:
 
 >>> from kivi.spec import BinningSpec, fit_spec
->>> spec = fit_spec(development, development["target"], columns=list(dev_groups), bins=numeric_edges)
+>>> spec = fit_spec(
+...     development,
+...     development["target"],
+...     columns=list(dev_groups),
+...     method={"job": "chimerge"},
+...     bins=numeric_edges,
+...     unseen={"job": {"group": new_job}},
+... )
+>>> spec.groups["job"] == job_groups
+True
 >>> spec.woe_transform(development).equals(X_dev)
 True
 >>> restored = BinningSpec.from_json(spec.to_json())
 >>> restored == spec
 True
 
-Store the JSON with the model. A scoring service that loads it with ``BinningSpec.from_json`` encodes new data with ``restored.woe_transform(frame)``, without the code of the development project.
+Store the JSON with the model. A scoring service that loads it with ``BinningSpec.from_json`` encodes new data with ``restored.woe_transform(frame)``, without the code of the development project, and gives a new job the WOE of the group of ``unknown``:
+
+>>> restored.woe_transform(monitoring.head(1).assign(job="astronaut"))["job"].round(3).tolist()
+[0.144]
 
 Select variables and fit the model
 ----------------------------------
@@ -118,13 +145,13 @@ Strongly correlated variables carry the same information and make the coefficien
 >>> model.round(3)
             coef     se       z  p_value
 variable
-intercept -2.028  0.062 -32.694    0.000
-balance    0.776  0.183   4.245    0.000
-pdays      0.346  0.122   2.834    0.005
-poutcome   0.671  0.112   5.985    0.000
-contact    0.580  0.153   3.793    0.000
-housing    0.597  0.190   3.138    0.002
-job        0.632  0.170   3.721    0.000
+intercept -2.028  0.062 -32.730    0.000
+balance    0.796  0.183   4.360    0.000
+pdays      0.356  0.122   2.920    0.004
+poutcome   0.657  0.112   5.876    0.000
+contact    0.588  0.153   3.850    0.000
+housing    0.635  0.189   3.358    0.001
+job        0.592  0.180   3.285    0.001
 
 No pair is correlated strongly enough to drop a variable, and ``stepwise`` leaves out ``age``. The model is fitted on the development sample only.
 
@@ -143,10 +170,10 @@ Scale to a scorecard
 >>> card.loc["poutcome"].round({"woe": 3, "points": 1})
               bin    woe  points
 variable
-poutcome  unknown -0.257    95.9
-poutcome  failure  0.214    86.8
-poutcome    other  0.592    79.5
-poutcome  success  2.548    41.6
+poutcome  unknown -0.257    95.8
+poutcome  failure  0.214    86.9
+poutcome    other  0.592    79.7
+poutcome  success  2.548    42.6
 
 Score the monitoring sample with the development tables: each customer's score is the sum of their points.
 
@@ -155,9 +182,9 @@ Score the monitoring sample with the development tables: each customer's score i
 >>> mon_score = mon_points.sum(axis=1)
 >>> mon_points.assign(score=mon_score).head(3).round(1)
 variable  balance  pdays  poutcome  contact  housing   job  score
-3000         91.0   93.5      95.9     87.5     85.2  90.0  543.1
-3001        102.6   93.5      95.9    106.3     96.6  86.0  580.9
-3002         82.6   93.5      95.9     86.9     96.6  97.1  552.6
+3000         91.0   93.6      95.8     87.4     84.8  88.5  541.1
+3001        102.9   93.6      95.8    106.5     96.9  88.5  584.2
+3002         82.4   93.6      95.8     86.9     96.9  98.1  553.7
 
 Evaluate the model
 ------------------
@@ -170,19 +197,19 @@ A higher score means lower risk, while the measures in :doc:`metrics` expect a s
 >>> dev_pd, mon_pd = score_to_pd(dev_score, **scale), score_to_pd(mon_score, **scale)
 >>> y_mon = monitoring["target"]
 >>> print(f"Gini = {gini(mon_pd, y_mon):.3f}, KS = {ks(mon_pd, y_mon):.3f}")
-Gini = 0.375, KS = 0.285
+Gini = 0.375, KS = 0.281
 >>> pd_edges = bin_edges(dev_pd, bins=5).round(3)
 >>> gains = gains_table(mon_pd, y_mon, bins=pd_edges)
 >>> gains[["total", "event_rate", "lift", "cum_event_share"]].round(3)
-                total  event_rate   lift  cum_event_share
+               total  event_rate   lift  cum_event_share
 bin
-(0.144, inf]      356       0.233  2.050            0.480
-(0.102, 0.144]    250       0.104  0.914            0.630
-(0.076, 0.102]    296       0.095  0.832            0.792
-(0.05, 0.076]     291       0.069  0.604            0.908
-(-inf, 0.05]      328       0.049  0.429            1.000
+(0.136, inf]     313       0.249  2.191            0.451
+(0.1, 0.136]     294       0.102  0.897            0.624
+(0.071, 0.1]     300       0.093  0.821            0.786
+(0.05, 0.071]    235       0.077  0.673            0.890
+(-inf, 0.05]     379       0.050  0.441            1.000
 
-The riskiest band, about a fifth of the monitoring sample, holds 48% of its events at about twice the average event rate.
+The riskiest band, about a fifth of the monitoring sample, holds 45% of its events at more than twice the average event rate.
 
 A monitoring sample of this size measures the Gini with some uncertainty. :func:`~kivi.metrics.roc_auc_interval` gives the DeLong standard error and the 95% interval of the AUC and of the Gini:
 
@@ -191,11 +218,11 @@ A monitoring sample of this size measures the Gini with some uncertainty. :func:
            estimate     se  lower  upper
 statistic
 auc           0.687  0.023  0.643  0.732
-gini          0.375  0.045  0.286  0.464
+gini          0.375  0.046  0.285  0.464
 >>> print(f"development Gini = {gini(dev_pd, target):.3f}")
-development Gini = 0.432
+development Gini = 0.429
 
-With 173 events among 1,521 customers, the interval of the Gini runs from 0.286 to 0.464. It contains the development Gini of 0.432, which is itself optimistic because the binning, the variables and the coefficients were all fitted on the development sample, so the lower Gini of the monitoring sample is within the sampling noise. :doc:`metrics` also compares two scores on the same sample with the DeLong test.
+With 173 events among 1,521 customers, the interval of the Gini runs from 0.285 to 0.464. It contains the development Gini of 0.429, which is itself optimistic because the binning, the variables and the coefficients were all fitted on the development sample, so the lower Gini of the monitoring sample is within the sampling noise. :doc:`metrics` also compares two scores on the same sample with the DeLong test.
 
 Check calibration
 -----------------
@@ -220,13 +247,13 @@ E      0.2828        0.400  1.0000
 >>> grade_table.round(3)
      total  event  event_rate  mean_probability  probability  jeffreys
 bin
-A      139      6       0.043             0.030        0.025     0.093
-B      419     27       0.064             0.053        0.050     0.091
-C      589     56       0.095             0.101        0.100     0.649
-D      286     45       0.157             0.177        0.200     0.967
-E       88     39       0.443             0.467        0.400     0.204
+A       80      2       0.025             0.028        0.025     0.452
+B      534     35       0.066             0.053        0.050     0.054
+C      595     58       0.097             0.108        0.100     0.574
+D      222     38       0.171             0.187        0.200     0.859
+E       90     40       0.444             0.460        0.400     0.194
 
-No grade is rejected at the 5% level, but grades A and B come close: their event rates of 4.3% and 6.4% exceed their PDs of 2.5% and 5%, and the monitoring of the next periods should watch them. Grade D has fewer events than its PD, which this one-sided test does not flag.
+No grade is rejected at the 5% level, but grade B comes close: its event rate of 6.6% exceeds its PD of 5% with a p-value of 0.054, and the monitoring of the next periods should watch it. Grade D has fewer events than its PD, which this one-sided test does not flag.
 
 Set a cut-off
 -------------
@@ -239,13 +266,13 @@ The scorecard ranks the applicants, and a cut-off decides whom to approve. :func
 >>> policies.set_index(scale.index)[columns].round(3)
        approval_rate  approved_event_rate  rejected_event_share
 grade
-A              0.091                0.043                 0.965
-B              0.367                0.059                 0.809
-C              0.754                0.078                 0.486
-D              0.942                0.094                 0.225
+A              0.053                0.025                 0.988
+B              0.404                0.060                 0.786
+C              0.795                0.079                 0.451
+D              0.941                0.093                 0.231
 E              1.000                0.114                 0.000
 
-Approving the grades up to C, a PD of at most 14.1%, approves 75.4% of the applicants at a bad rate of 7.8% and turns away 48.6% of the events. Approving grade D as well approves 94.2% at a bad rate of 9.4%. Which row to choose is a business decision; the table shows its price.
+Approving the grades up to C, a PD of at most 14.1%, approves 79.5% of the applicants at a bad rate of 7.9% and turns away 45.1% of the events. Approving grade D as well approves 94.1% at a bad rate of 9.3%. Which row to choose is a business decision; the table shows its price.
 
 The expected loss of an exposure is its PD times its loss given default times its exposure at default. :func:`~kivi.strategy.expected_loss_table` adds it up for each grade. The bank data have no loan amounts, so the example takes the balance, floored at zero, as the exposure and one LGD of 45%:
 
@@ -256,13 +283,13 @@ The expected loss of an exposure is its PD times its loss given default times it
 ... )
      exposure  expected_loss  expected_loss_rate
 bin
-A     28316.0          415.0              0.0147
-B    391913.0         9604.0              0.0245
-C    951396.0        46003.0              0.0484
-D    793187.0        66906.0              0.0844
-E    156797.0        32050.0              0.2044
+A      2390.0           30.0              0.0125
+B    440743.0        11065.0              0.0251
+C    957512.0        46901.0              0.0490
+D    769549.0        66399.0              0.0863
+E    151415.0        31344.0              0.2070
 
-Grade E holds 6.8% of the exposure but 20.7% of the expected loss of 154,978, and grades D and E together hold 41% of the exposure and 64% of the expected loss.
+Grade E holds 6.5% of the exposure but 20.1% of the expected loss of 155,740, and grades D and E together hold 40% of the exposure and 63% of the expected loss.
 
 Report stability
 ----------------
@@ -283,25 +310,25 @@ Compare each variable of the monitoring sample with its development distribution
 ... })
 >>> report.sort_values("iv", ascending=False).round(3)
              iv    psi  status    csi
-poutcome  0.423  0.003  stable -0.343
-pdays     0.360  0.005  stable -0.072
-contact   0.215  0.008  stable  0.310
-job       0.137  0.005  stable  0.176
-balance   0.115  0.000  stable -0.141
-housing   0.108  0.000  stable -0.033
+poutcome  0.423  0.003  stable -0.336
+pdays     0.360  0.005  stable -0.074
+contact   0.215  0.008  stable  0.315
+job       0.118  0.001  stable  0.123
+balance   0.115  0.000  stable -0.145
+housing   0.108  0.000  stable -0.035
 age       0.061  0.005  stable    NaN
 
-Every variable is stable here, as expected when the monitoring rows come from the same population. The ``csi`` column weights each group's change of share with its points, so it is the change of the variable's average points; ``age`` is not in the scorecard and has none. Over the variables of the scorecard, the CSI adds up to the change of the average score:
+Every variable is stable here, as expected when the monitoring rows come from the same population. The IV of ``job`` is that of its three groups, 0.118, a little below the 0.137 of its twelve labels in the screening. The ``csi`` column weights each group's change of share with its points, so it is the change of the variable's average points; ``age`` is not in the scorecard and has none. Over the variables of the scorecard, the CSI adds up to the change of the average score:
 
 >>> shift = mon_score.mean() - dev_score.mean()
 >>> print(f"sum of csi = {report['csi'].sum():.3f}, score shift = {shift:.3f}")
-sum of csi = -0.102, score shift = -0.102
+sum of csi = -0.151, score shift = -0.151
 
 The score itself is monitored the same way, with bands fitted on the development scores:
 
 >>> score_edges = bin_edges(dev_score, bins=5).round(1)
 >>> score_psi = psi_table(pd.cut(dev_score, score_edges), pd.cut(mon_score, score_edges))
 >>> print(f"score PSI = {score_psi['psi'].sum():.4f}")
-score PSI = 0.0029
+score PSI = 0.0020
 
 :doc:`psi` shows what a shift looks like. In production, :func:`~kivi.monitoring.monitoring_table` repeats this PSI for every period together with the known outcomes and the Gini, and :func:`~kivi.monitoring.stability_table` the PSI of every variable; see :doc:`monitoring`. Once the approved loans are booked, :doc:`vintage` follows their delinquency, and :doc:`lifetime` turns it into PD term structures and the IFRS 9 loss allowance.
