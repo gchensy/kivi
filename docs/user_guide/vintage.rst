@@ -52,22 +52,22 @@ A loan system records the instalments that each loan owes and the payments that 
 >>> paid = payments["loan"], payments["date"], payments["amount"]
 >>> book = delinquency_panel(*instalments, *paid, end="2024-06")
 >>> book.drop(columns="month_on_book")
-   loan    month  days_past_due   status  past_due_amount  outstanding
-0     A  2024-01              0  current             0.00       200.00
-1     A  2024-02              0  current             0.00       100.00
-2     A  2024-03              0  current             0.00         0.00
-3     B  2024-01              0  current             0.00       200.00
-4     B  2024-02             14     1-29           100.00       200.00
-5     B  2024-03              0  current             0.00         0.00
-6     C  2024-01              0  current             0.00       100.00
-7     C  2024-02              0  current             0.00       100.00
-8     C  2024-03              0  current             0.00         0.00
-9     D  2024-01              0  current             0.00       200.00
-10    D  2024-02             14     1-29             0.01       100.01
-11    D  2024-03             45    30-59           100.01       100.01
-12    D  2024-04             75    60-89           100.01       100.01
-13    D  2024-05            106      90+           100.01       100.01
-14    D  2024-06            136      90+           100.01       100.01
+   loan    month  days_past_due   status  overdue_amount  outstanding
+0     A  2024-01              0  current            0.00       200.00
+1     A  2024-02              0  current            0.00       100.00
+2     A  2024-03              0  current            0.00         0.00
+3     B  2024-01              0  current            0.00       200.00
+4     B  2024-02             14     1-29          100.00       200.00
+5     B  2024-03              0  current            0.00         0.00
+6     C  2024-01              0  current            0.00       100.00
+7     C  2024-02              0  current            0.00       100.00
+8     C  2024-03              0  current            0.00         0.00
+9     D  2024-01              0  current            0.00       200.00
+10    D  2024-02             14     1-29            0.01       100.01
+11    D  2024-03             45    30-59          100.01       100.01
+12    D  2024-04             75    60-89          100.01       100.01
+13    D  2024-05            106      90+          100.01       100.01
+14    D  2024-06            136      90+          100.01       100.01
 
 Each loan has a row at the end of every month from the month of its first due date, here January, to ``end``. The rows follow the rules that loan servicing usually applies:
 
@@ -77,7 +77,7 @@ Each loan has a row at the end of every month from the month of its first due da
 * A partial payment leaves the instalment unpaid. D pays 99.99 in February, so its February instalment remains unpaid by 0.01 and the loan is past due from 15 February.
 * A loan leaves the panel after the month end at which all its instalments are paid, also before its last due date, while a loan that is still behind after its last due date keeps rolling until ``end``: D is 136 days past due at the end of June. :func:`~kivi.datasets.make_loan_panel` treats its loans in the same way.
 
-``days_past_due`` counts the days from the due date of the oldest unpaid instalment to the month end, and is 0 while nothing is past due; an instalment is not past due on its due date. ``status`` puts the days in the buckets of the simulated panel, and ``past_due_amount`` and ``outstanding`` are the unpaid amounts of the instalments due before the month end and of all instalments. ``month_on_book`` is 1 in the month of the first due date, as in the simulated panel, whose first instalment falls due a month after origination.
+``days_past_due`` counts the days from the due date of the oldest unpaid instalment to the month end, and is 0 while nothing is past due; an instalment is not past due on its due date. ``status`` puts the days in the buckets of the simulated panel, and ``overdue_amount`` and ``outstanding`` are the unpaid amounts of the instalments due before the month end and of all instalments. ``month_on_book`` is 1 in the month of the first due date, as in the simulated panel, whose first instalment falls due a month after origination.
 
 Payments of a loan that is not in the schedule raise an error, and so do missing loans, dates and amounts and negative amounts; net a reversal against the payment that it reverses:
 

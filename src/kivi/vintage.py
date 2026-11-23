@@ -150,7 +150,7 @@ def delinquency_panel(
       categories ``current`` (0 days), ``1-29``, ``30-59``, ``60-89`` and
       ``90+`` (90 days or more), the statuses of
       `kivi.datasets.make_loan_panel`;
-    - ``past_due_amount``: the unpaid amount of the instalments due before
+    - ``overdue_amount``: the unpaid amount of the instalments due before
       the month end;
     - ``outstanding``: the unpaid amount of all instalments, past due or not;
     - ``balance``, only with `principal`: the unpaid principal of all
@@ -174,15 +174,15 @@ def delinquency_panel(
     ...     loan, due_date, amount_due, payment_loan, payment_date, payment_amount, end="2024-05"
     ... )
     >>> panel.drop(columns="month_on_book")
-      loan    month  days_past_due   status  past_due_amount  outstanding
-    0    A  2024-01              0  current              0.0        200.0
-    1    A  2024-02             14     1-29            100.0        200.0
-    2    A  2024-03              0  current              0.0          0.0
-    3    B  2024-01              0  current              0.0        100.0
-    4    B  2024-02              0  current              0.0        100.0
-    5    B  2024-03             16     1-29            100.0        100.0
-    6    B  2024-04             46    30-59            100.0        100.0
-    7    B  2024-05             77    60-89            100.0        100.0
+      loan    month  days_past_due   status  overdue_amount  outstanding
+    0    A  2024-01              0  current             0.0        200.0
+    1    A  2024-02             14     1-29           100.0        200.0
+    2    A  2024-03              0  current             0.0          0.0
+    3    B  2024-01              0  current             0.0        100.0
+    4    B  2024-02              0  current             0.0        100.0
+    5    B  2024-03             16     1-29           100.0        100.0
+    6    B  2024-04             46    30-59           100.0        100.0
+    7    B  2024-05             77    60-89           100.0        100.0
 
     Loan A missed its February instalment and paid it with the March one on
     20 March, after the end of February, so it was 14 days past due at the
@@ -314,9 +314,9 @@ def delinquency_panel(
     late = counted < fallen_due
     days_past_due = np.zeros(len(row_loan), dtype=np.int64)
     days_past_due[late] = row_day[late] - inst_day[(start + counted)[late]]
-    past_due = np.zeros(len(row_loan))
+    overdue = np.zeros(len(row_loan))
     owed = settled < fallen_due
-    past_due[owed] = cumulative_due[(start + fallen_due - 1)[owed]] - total_paid[owed]
+    overdue[owed] = cumulative_due[(start + fallen_due - 1)[owed]] - total_paid[owed]
     outstanding = np.zeros(len(row_loan))
     open_ = settled < size
     outstanding[open_] = cumulative_due[inst_last[row_loan][open_]] - total_paid[open_]
@@ -329,7 +329,7 @@ def delinquency_panel(
         "status": pd.Categorical.from_codes(
             status, dtype=pd.CategoricalDtype(list(_STATUSES), ordered=True)
         ),
-        "past_due_amount": past_due,
+        "overdue_amount": overdue,
         "outstanding": outstanding,
     }
     if principal is not None:

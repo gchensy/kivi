@@ -606,7 +606,7 @@ def expected_panel(rows, balance=None):
 
     Consecutive rows of a loan are consecutive months from its first month.
     """
-    frame = pd.DataFrame(rows, columns=["loan", "first", "days", "past_due", "outstanding"])
+    frame = pd.DataFrame(rows, columns=["loan", "first", "days", "overdue", "outstanding"])
     step = frame.groupby("loan", sort=False).cumcount()
     month = pd.PeriodIndex(frame["first"], freq="M") + step.to_numpy()
     panel = pd.DataFrame(
@@ -618,7 +618,7 @@ def expected_panel(rows, balance=None):
             "status": pd.Categorical(
                 [status_of(days) for days in frame["days"]], categories=STATES, ordered=True
             ),
-            "past_due_amount": frame["past_due"].astype(float),
+            "overdue_amount": frame["overdue"].astype(float),
             "outstanding": frame["outstanding"].astype(float),
         }
     )
@@ -690,7 +690,7 @@ def brute_force_panel(
                 "month_on_book": mob,
                 "days_past_due": days,
                 "status": status_of(days),
-                "past_due_amount": unpaid[fallen].sum(),
+                "overdue_amount": unpaid[fallen].sum(),
                 "outstanding": unpaid.sum(),
             }
             if principal is not None:
@@ -839,8 +839,8 @@ def test_delinquency_panel_loan_past_maturity_keeps_rolling():
     panel = delinquency_panel(*one_loan(), [], [], [], end="2024-08")
     # Days since 15 January at the end of each month from January to August.
     days = [16, 45, 76, 106, 137, 167, 198, 229]
-    past_due = [100, 200, 300, 300, 300, 300, 300, 300]
-    rows = [("A", "2024-01", d, p, 300) for d, p in zip(days, past_due, strict=True)]
+    overdue = [100, 200, 300, 300, 300, 300, 300, 300]
+    rows = [("A", "2024-01", d, p, 300) for d, p in zip(days, overdue, strict=True)]
     pd.testing.assert_frame_equal(panel, expected_panel(rows))
     assert panel["status"].tolist() == ["1-29", "30-59", "60-89"] + ["90+"] * 5
 
@@ -974,7 +974,7 @@ def test_delinquency_panel_matches_a_month_by_month_calculation(seed):
     options = {"end": end, "tolerance": tolerance, "principal": principal}
     panel = delinquency_panel(*arguments, **options)
     pd.testing.assert_frame_equal(panel, brute_force_panel(*arguments, **options))
-    assert (panel["past_due_amount"] <= panel["outstanding"]).all()
+    assert (panel["overdue_amount"] <= panel["outstanding"]).all()
     assert (panel["balance"] <= panel["outstanding"]).all()
 
 
