@@ -49,14 +49,13 @@ __all__ = [
 
 _BLUE = "#2f5bd3"
 _LIGHT_BLUE = "#9fb4ee"
-_TEAL = "#14a397"
 _AMBER = "#d97706"
 _RED = "#dc2626"
 _GRAY = "#9ca3af"
 _TEXT = "#1f2937"
 _LEVEL_COLORS = (_AMBER, _RED, _GRAY)
-# monitoring_chart draws these columns as bars and the others as a line.
-_BAR_COLUMNS = ("total", "known", "event", "psi")
+# vintage_chart names at most this many cohorts in its legend.
+_LEGEND_COHORTS = 8
 _INSTALL = 'kivi.plotting needs matplotlib; install it with pip install "kivi[plot]"'
 
 
@@ -69,9 +68,10 @@ def woe_chart(
     """Draw the population share of each group with its event rate or WOE.
 
     The bars show ``total_share``, the share of the sample in each group,
-    and a line on a second y-axis shows ``event_rate`` or ``woe``. The
-    groups keep the order of the table, and the legend gives the IV of the
-    whole table.
+    on the left y-axis, and a line shows ``event_rate`` or ``woe`` on a
+    second y-axis on the right. This is the one chart of the module with
+    two y-axes, and so the one that returns two Axes. The groups keep the
+    order of the table, and the legend gives the IV of the whole table.
 
     Parameters
     ----------
@@ -112,6 +112,10 @@ def woe_chart(
     ``table.sort_index()`` or ``table.sort_values("woe")``, to draw the
     groups in another order.
 
+    Each y-axis is labeled in the color of what it shows, and the dotted
+    line of zero WOE belongs to the right axis. Both axes leave room at the
+    top for the legend, so that it covers no bar and no point.
+
     Examples
     --------
     >>> import pandas as pd
@@ -132,33 +136,33 @@ def woe_chart(
     table = _table(table, ["total_share", line, "iv"], "kivi.woe.woe_table")
     ax = _axes(ax, (7, 4))
     x = np.arange(len(table))
-    bars = ax.bar(
-        x,
-        table["total_share"].to_numpy(dtype=float),
-        width=0.6,
-        color=_LIGHT_BLUE,
-        label="total_share",
-    )
-    ax.set_ylabel("total_share")
+    shares = table["total_share"].to_numpy(dtype=float)
+    values = table[line].to_numpy(dtype=float)
+    bars = ax.bar(x, shares, width=0.6, color=_LIGHT_BLUE, label="total_share")
+    columns = _legend_columns(ax, ["total_share", line])
+    room = _legend_room(ax, 1 + 2 // columns)
+    ax.set_ylim(0, _top(shares, 0.0, room))
+    ax.set_ylabel("total_share", color=_BLUE)
     _percent(ax.yaxis)
-    ax.margins(y=0.3)
+    _xlabel(ax, table.index)
     _ticks(ax, x, _labels(table.index))
     twin = ax.twinx()
-    values = table[line].to_numpy(dtype=float)
     if line == "woe":
-        twin.axhline(0, color=_GRAY, linewidth=1)
-    (curve,) = twin.plot(x, values, color=_AMBER, marker="o", linewidth=2, label=line)
-    twin.margins(y=0.3)
-    if line == "event_rate":
+        twin.axhline(0, color=_AMBER, linestyle=":", linewidth=1)
+        low, high = _span(values)
+        bottom = low - 0.08 * (high - low)
+    else:
         _percent(twin.yaxis)
-        twin.set_ylim(0, _upper(values, 1.3))
-    twin.set_ylabel(line)
+        bottom = 0.0
+    (curve,) = twin.plot(x, values, color=_AMBER, marker="o", linewidth=2, label=line)
+    twin.set_ylim(bottom, _top(np.r_[values, 0.0], bottom, room))
+    twin.set_ylabel(line, color=_AMBER)
     twin.grid(False)
     twin.legend(
         [bars, curve],
         ["total_share", line],
         loc="upper left",
-        ncols=2,
+        ncols=columns,
         title=f"iv = {table['iv'].sum():.3f}",
     )
     return ax, twin
@@ -194,8 +198,9 @@ def correlation_chart(
         If matplotlib is not installed.
     ValueError
         If `matrix` is not a DataFrame, has no rows, does not have the same
-        labels in its index and columns, or has a column that is not
-        numeric, or `ax` is not a matplotlib Axes.
+        labels in its index and columns, has a column that is not numeric
+        or a value outside [-1, 1], such as a covariance, or `ax` is not a
+        matplotlib Axes.
 
     See Also
     --------
@@ -237,11 +242,18 @@ def correlation_chart(
         _validation.check_real_dtype(
             matrix.iloc[:, column].dtype, f"column {_validation.shown(matrix.columns[column])}"
         )
+    values = matrix.to_numpy(dtype=float)
+    # Rounding can put a correlation a few units in the last place beyond 1.
+    outside = np.abs(values) > 1 + 1e-9
+    if outside.any():
+        raise ValueError(
+            "matrix must hold correlations between -1 and 1, got "
+            f"{_validation.shown(values[outside][0])}"
+        )
     size = len(matrix)
     ax = _axes(ax, (max(4.0, 0.6 * size + 1.6), max(3.2, 0.6 * size + 1.0)), "compressed")
     import matplotlib.colors
 
-    values = matrix.to_numpy(dtype=float)
     colors = matplotlib.colors.LinearSegmentedColormap.from_list(
         "kivi_correlation", [_AMBER, "white", _BLUE]
     )
@@ -362,14 +374,19 @@ def roc_chart(
 
 
 def gains_chart(
-    table: pd.DataFrame, *, ax: "matplotlib.axes.Axes | None" = None
+    table: pd.DataFrame,
+    *,
+    ks: bool = True,
+    label: str | None = None,
+    ax: "matplotlib.axes.Axes | None" = None,
 ) -> "matplotlib.axes.Axes":
     """Draw the cumulative shares of events and non-events by score band.
 
     Reviewing the bands from the highest scores down, the curves show the
     share of all events and of all non-events captured against the share
-    of the sample reviewed, ``cum_total_share``. A vertical segment marks
-    the band with the largest ``ks``, the gap between the two curves.
+    of the sample reviewed, ``cum_total_share``. With `ks`, a vertical
+    segment marks the band with the largest ``ks``, the gap between the
+    two curves.
 
     Parameters
     ----------
@@ -377,6 +394,11 @@ def gains_chart(
         A table from `kivi.metrics.gains_table`, with the highest band
         first. It needs the columns ``cum_total_share``,
         ``cum_event_share``, ``cum_non_event_share`` and ``ks``.
+    ks : bool, default True
+        Whether to mark the largest ``ks``.
+    label : str, optional
+        Name of the score, added to the legend entries of both curves, as
+        in ``cum_event_share (label)``.
     ax : matplotlib.axes.Axes, optional
         Axes to draw on. A new figure is created when it is not given.
 
@@ -391,8 +413,8 @@ def gains_chart(
         If matplotlib is not installed.
     ValueError
         If `table` is not a DataFrame, lacks a column it needs or has no
-        rows, a column it needs is not numeric, or `ax` is not a matplotlib
-        Axes.
+        rows, a column it needs is not numeric, `ks` is not True or False,
+        or `ax` is not a matplotlib Axes.
 
     See Also
     --------
@@ -404,6 +426,13 @@ def gains_chart(
     Both curves start at the origin, before the first band is reviewed,
     and each band adds one point. The diagonal is the ``cum_event_share``
     of a score that ranks at random.
+
+    The ``cum_event_share`` curve is solid and the ``cum_non_event_share``
+    curve dashed, both in the next color of the Axes' color cycle, so that
+    the gains of several scores drawn on the same `ax` are told apart by
+    color and by `label`. The KS segment and its value share that color.
+    The legend goes where it covers the fewest points; with several scores
+    it has two entries for each, and ``ax.legend(loc=...)`` moves it.
 
     Examples
     --------
@@ -417,6 +446,8 @@ def gains_chart(
     >>> ax.texts[0].get_text()
     'ks = 0.800'
     """
+    if not isinstance(ks, (bool, np.bool_)):
+        raise ValueError(f"ks must be True or False, got {_validation.shown_argument(ks)}")
     table = _table(
         table,
         ["cum_total_share", "cum_event_share", "cum_non_event_share", "ks"],
@@ -426,27 +457,32 @@ def gains_chart(
     share = np.r_[0.0, table["cum_total_share"].to_numpy(dtype=float)]
     event = np.r_[0.0, table["cum_event_share"].to_numpy(dtype=float)]
     non_event = np.r_[0.0, table["cum_non_event_share"].to_numpy(dtype=float)]
+    suffix = "" if label is None else f" ({label})"
     ax.plot([0, 1], [0, 1], color=_GRAY, linestyle="--", linewidth=1)
-    ax.plot(
-        share, event, color=_BLUE, marker="o", markersize=4, linewidth=2, label="cum_event_share"
+    (curve,) = ax.plot(
+        share, event, marker="o", markersize=4, linewidth=2, label=f"cum_event_share{suffix}"
     )
+    color = curve.get_color()
     ax.plot(
         share,
         non_event,
-        color=_TEAL,
+        color=color,
+        linestyle="--",
         marker="o",
         markersize=4,
         linewidth=2,
-        label="cum_non_event_share",
+        label=f"cum_non_event_share{suffix}",
     )
-    largest = int(np.argmax(table["ks"].to_numpy(dtype=float))) + 1
-    _gap(ax, share[largest], non_event[largest], event[largest], _RED)
+    if ks:
+        largest = int(np.argmax(table["ks"].to_numpy(dtype=float))) + 1
+        _gap(ax, share[largest], non_event[largest], event[largest], color)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     _percent(ax.xaxis)
     _percent(ax.yaxis)
     ax.set_xlabel("cum_total_share")
-    ax.legend(loc="lower right")
+    ax.set_ylabel("cum_event_share, cum_non_event_share")
+    ax.legend(loc="best")
     return ax
 
 
@@ -532,7 +568,7 @@ def calibration_chart(
     ax.set_xlabel("mean_probability")
     ax.set_ylabel("event_rate")
     if label is not None:
-        ax.legend(loc="upper left")
+        ax.legend(loc="best")
     return ax
 
 
@@ -616,7 +652,7 @@ def cutoff_chart(
     ax.set_xlabel("approval_rate")
     ax.set_ylabel("approved_event_rate")
     if label is not None:
-        ax.legend(loc="upper left")
+        ax.legend(loc="best")
     return ax
 
 
@@ -663,6 +699,9 @@ def psi_chart(
     tick labels are the group labels of the index, with ``NaN`` for the
     group of missing values.
 
+    The y-axis leaves room at the top for the legend, so that it covers no
+    bar.
+
     Examples
     --------
     >>> import pandas as pd
@@ -677,24 +716,17 @@ def psi_chart(
     table = _table(table, ["reference_share", "current_share", "psi"], "kivi.stability.psi_table")
     ax = _axes(ax, (7, 4))
     x = np.arange(len(table))
-    ax.bar(
-        x - 0.2,
-        table["reference_share"].to_numpy(dtype=float),
-        width=0.4,
-        color=_LIGHT_BLUE,
-        label="reference_share",
-    )
-    ax.bar(
-        x + 0.2,
-        table["current_share"].to_numpy(dtype=float),
-        width=0.4,
-        color=_BLUE,
-        label="current_share",
-    )
+    reference = table["reference_share"].to_numpy(dtype=float)
+    current = table["current_share"].to_numpy(dtype=float)
+    ax.bar(x - 0.2, reference, width=0.4, color=_LIGHT_BLUE, label="reference_share")
+    ax.bar(x + 0.2, current, width=0.4, color=_BLUE, label="current_share")
+    columns = _legend_columns(ax, ["reference_share", "current_share"])
+    ax.set_ylim(0, _top(np.r_[reference, current], 0.0, _legend_room(ax, 1 + 2 // columns)))
     _percent(ax.yaxis)
-    ax.margins(y=0.2)
+    ax.set_ylabel("reference_share, current_share")
+    _xlabel(ax, table.index)
     _ticks(ax, x, _labels(table.index))
-    ax.legend(title=f"psi = {table['psi'].sum():.3f}")
+    ax.legend(loc="upper left", ncols=columns, title=f"psi = {table['psi'].sum():.3f}")
     return ax
 
 
@@ -702,16 +734,17 @@ def monitoring_chart(
     table: pd.DataFrame,
     *,
     column: str = "psi",
+    kind: typing.Literal["line", "bar"] = "line",
+    label: str | None = None,
     levels: float | abc.Sequence[float] = (),
     ax: "matplotlib.axes.Axes | None" = None,
 ) -> "matplotlib.axes.Axes":
     """Draw one column of a monitoring report period by period.
 
-    The periods of the table run along the x-axis in its order. The counts
-    ``total``, ``known`` and ``event`` and the ``psi`` are drawn as bars,
-    and the rates and measures of discrimination, such as ``event_rate``
-    and ``gini``, as a line. Dashed lines can mark the `levels` that the
-    column is compared with.
+    The periods of the table run along the x-axis in its order, and
+    `column` is drawn as a line or as bars, as `kind` says. Dashed lines can
+    mark the `levels` that the column is compared with, such as the PSI
+    thresholds or the Gini of the development sample.
 
     Parameters
     ----------
@@ -722,10 +755,17 @@ def monitoring_chart(
         `column`.
     column : str, default 'psi'
         Column to draw.
+    kind : {'line', 'bar'}, default 'line'
+        Draw the column as a line, which suits rates and measures such as
+        ``event_rate`` and ``gini`` and several columns on one `ax`, or as
+        bars, which suit counts such as ``total`` and a single ``psi``.
+    label : str, optional
+        Legend entry of the line or the bars. A legend is drawn only when
+        something on the Axes has a label.
     levels : float or sequence of float, default ()
         Values of `column` to mark with dashed horizontal lines, such as
         the PSI thresholds ``[0.1, 0.25]`` or the Gini of the development
-        sample. Each line is labeled with its value.
+        sample. Each line is labeled with its value at its right end.
     ax : matplotlib.axes.Axes, optional
         Axes to draw on. A new figure is created when it is not given.
 
@@ -740,8 +780,8 @@ def monitoring_chart(
         If matplotlib is not installed.
     ValueError
         If `table` is not a DataFrame, has no rows or has no numeric column
-        named `column`, a level is not a finite number, or `ax` is not a
-        matplotlib Axes.
+        named `column`, `kind` is neither ``'line'`` nor ``'bar'``, a level
+        is not a finite number, or `ax` is not a matplotlib Axes.
 
     See Also
     --------
@@ -750,9 +790,18 @@ def monitoring_chart(
 
     Notes
     -----
+    The y-axis is labeled with `column`, or with ``psi`` when the columns
+    of `table` are named ``variable``, as those of
+    `kivi.monitoring.stability_table` are, whose columns are the PSIs of
+    the variables. The x-axis is labeled with the name of the index.
+
     A missing value, such as the ``gini`` of a period whose outcomes are
     not known yet, leaves a gap in the line and no bar. To draw several
-    columns, call the function once for each, on the panels of one figure.
+    columns, call the function once for each: on the panels of one figure
+    for columns on different scales, or on one `ax` with a `label` each,
+    as for the variables of a stability table. The line or the bars take
+    the next color of the Axes' color cycle, and the legend sits to the
+    right of the Axes, so that it covers no line.
 
     Examples
     --------
@@ -770,31 +819,36 @@ def monitoring_chart(
     """
     if not isinstance(column, str):
         raise ValueError(f"column must be a column name, got {_validation.shown_argument(column)}")
+    if not isinstance(kind, str) or kind not in ("line", "bar"):  # type: ignore[redundant-expr]  # rejects non-str values
+        raise ValueError(f"kind must be 'line' or 'bar', got {_validation.shown_argument(kind)}")
     marks = _levels(levels)
     table = _table(table, [column], "kivi.monitoring.monitoring_table")
     ax = _axes(ax, (7, 3.6))
     x = np.arange(len(table))
     values = table[column].to_numpy(dtype=float)
-    if column in _BAR_COLUMNS:
-        ax.bar(x, values, width=0.6, color=_BLUE)
+    if kind == "bar":
+        ax.bar(x, values, width=0.6, label=label)
     else:
-        ax.plot(x, values, color=_BLUE, marker="o", linewidth=2)
+        ax.plot(x, values, marker="o", linewidth=2, label=label)
     for number, level in enumerate(marks):
         color = _LEVEL_COLORS[min(number, len(_LEVEL_COLORS) - 1)]
         ax.axhline(level, color=color, linestyle="--", linewidth=1)
-        ax.text(
-            1.005,
-            level,
+        ax.annotate(
             f"{level:g}",
-            transform=ax.get_yaxis_transform(),
-            va="center",
+            (1, level),
+            xycoords=ax.get_yaxis_transform(),
+            xytext=(-2, 2),
+            textcoords="offset points",
+            ha="right",
+            va="bottom",
             fontsize="small",
             color=color,
         )
-    if column == "event_rate":
-        _percent(ax.yaxis)
-    ax.set_ylabel(column)
+    ax.set_ylabel("psi" if table.columns.name == "variable" else column)
+    _xlabel(ax, table.index)
     _ticks(ax, x, _labels(table.index))
+    if label is not None:
+        ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1), borderaxespad=0)
     return ax
 
 
@@ -840,10 +894,14 @@ def vintage_chart(
     -----
     The missing months of a cohort, those it has not reached or that come
     before its first observed month on book, are left out of its curve.
-    The legend names every cohort, titled with the name of the index, and
-    the x-axis is labeled with the name of the columns. Select fewer
-    cohorts first, for example every third one with ``table.iloc[::3]``,
-    when there are too many curves to tell apart.
+    The x-axis is labeled with the name of the columns.
+
+    The legend sits to the right of the Axes, so that it covers no curve,
+    and is titled with the name of the index. It names every cohort when
+    there are at most eight, and otherwise eight cohorts evenly spread from
+    the first to the last, since the shades of the others lie between
+    theirs. In a figure of several panels, use a layout engine, such as
+    ``layout="constrained"``, to make room for it.
 
     Examples
     --------
@@ -878,17 +936,24 @@ def vintage_chart(
 
     shades = matplotlib.colormaps["Blues"](np.linspace(0.95, 0.35, len(table))[::-1])
     months = table.columns.to_numpy(dtype=float)
-    for (cohort, row), color in zip(table.iterrows(), shades, strict=True):
+    curves = []
+    for (_, row), color in zip(table.iterrows(), shades, strict=True):
         values = row.to_numpy(dtype=float)
         observed = ~np.isnan(values)
-        ax.plot(months[observed], values[observed], color=color, linewidth=1.8, label=str(cohort))
+        (curve,) = ax.plot(months[observed], values[observed], color=color, linewidth=1.8)
+        curves.append(curve)
     _percent(ax.yaxis)
     ax.set_ylim(bottom=0)
-    if table.columns.name is not None:
-        ax.set_xlabel(str(table.columns.name))
+    _xlabel(ax, table.columns)
+    named = np.unique(np.linspace(0, len(table) - 1, _LEGEND_COHORTS).round().astype(int))
+    labels = _labels(table.index)
     ax.legend(
+        [curves[row] for row in named],
+        [labels[row] for row in named],
         title=None if table.index.name is None else str(table.index.name),
-        ncols=2 if len(table) > 8 else 1,
+        loc="upper left",
+        bbox_to_anchor=(1.02, 1),
+        borderaxespad=0,
         fontsize="small",
     )
     return ax
@@ -899,15 +964,18 @@ def _axes(
     size: tuple[float, float],
     layout: typing.Literal["constrained", "compressed"] = "constrained",
 ) -> "matplotlib.axes.Axes":
-    """Import matplotlib and return `ax`, or the Axes of a new figure of `size` inches."""
-    try:
-        import matplotlib.axes
-        import matplotlib.pyplot as plt
-    except ImportError as error:
-        raise ImportError(_INSTALL) from error
+    """Return `ax`, or the Axes of a new figure of `size` inches; import pyplot only for that."""
     if ax is None:
+        try:
+            import matplotlib.pyplot as plt
+        except ImportError as error:
+            raise ImportError(_INSTALL) from error
         _, created = plt.subplots(figsize=size, layout=layout)
         return created
+    try:
+        import matplotlib.axes
+    except ImportError as error:
+        raise ImportError(_INSTALL) from error
     if not isinstance(ax, matplotlib.axes.Axes):
         raise ValueError(f"ax must be a matplotlib Axes, got {type(ax).__name__}")
     return ax
@@ -952,6 +1020,12 @@ def _labels(index: pd.Index) -> list[str]:
     return ["NaN" if _validation.is_missing(value) else str(value) for value in index]
 
 
+def _xlabel(ax: "matplotlib.axes.Axes", index: pd.Index) -> None:
+    """Label the x-axis with the name of `index`, when it has one."""
+    if index.name is not None:
+        ax.set_xlabel(str(index.name))
+
+
 def _ticks(ax: "matplotlib.axes.Axes", x: np.ndarray, labels: list[str]) -> None:
     """Label the x ticks, slanted when the longest label is wider than the space of a tick."""
     import matplotlib.font_manager
@@ -968,6 +1042,49 @@ def _ticks(ax: "matplotlib.axes.Axes", x: np.ndarray, labels: list[str]) -> None
         ax.set_xticks(x, labels)
 
 
+def _legend_columns(ax: "matplotlib.axes.Axes", labels: list[str]) -> int:
+    """Return how many columns a legend of `labels` can have, side by side or one."""
+    import matplotlib.font_manager
+
+    size = matplotlib.font_manager.FontProperties(
+        size=matplotlib.rcParams["legend.fontsize"]
+    ).get_size_in_points()
+    # Measured: about 0.53 font sizes per character and 4 more per entry for the handle
+    # and the spacing, plus the frame.
+    width = (sum(0.55 * len(label) + 4 for label in labels) + 1) * size / 72
+    return len(labels) if width <= ax.bbox.width / ax.figure.dpi else 1
+
+
+def _legend_room(ax: "matplotlib.axes.Axes", rows: int) -> float:
+    """Return the share of the height of `ax` that a legend of `rows` text rows at its top takes."""
+    import matplotlib.font_manager
+
+    size = matplotlib.font_manager.FontProperties(
+        size=matplotlib.rcParams["legend.fontsize"]
+    ).get_size_in_points()
+    # Measured: a row takes about 1.55 font sizes; add the padding, the gap to the
+    # top of the Axes and a margin for the space that the layout later takes.
+    height = (1.6 * rows + 1.5) * size / 72
+    return min(0.6, height / (ax.bbox.height / ax.figure.dpi))
+
+
+def _top(values: np.ndarray, bottom: float, room: float) -> float:
+    """Return the upper limit that keeps every value below the top `room` of the height."""
+    finite = values[np.isfinite(values)]
+    largest = float(finite.max()) if finite.size else bottom
+    if largest <= bottom:
+        return bottom + 1.0
+    return bottom + 1.03 * (largest - bottom) / (1 - room)
+
+
+def _span(values: np.ndarray) -> tuple[float, float]:
+    """Return the smallest and the largest finite value, with 0 between them."""
+    finite = values[np.isfinite(values)]
+    low = min(0.0, float(finite.min())) if finite.size else 0.0
+    high = max(0.0, float(finite.max())) if finite.size else 0.0
+    return low, high
+
+
 def _percent(axis: "matplotlib.axis.Axis") -> None:
     """Show the ticks of an axis of shares as percentages, such as 0.125 as 12.5%."""
     import matplotlib.ticker
@@ -978,13 +1095,6 @@ def _percent(axis: "matplotlib.axis.Axis") -> None:
 def _percent_text(value: float, position: int | None = None) -> str:
     """Return a share as a percentage without trailing zeros or rounding noise."""
     return f"{100 * value + 0.0:g}%"  # + 0.0 turns -0.0 into 0.0
-
-
-def _upper(values: np.ndarray, factor: float) -> float:
-    """Return `factor` times the largest finite value, or 1 when there is none above 0."""
-    finite = values[np.isfinite(values)]
-    largest = float(finite.max()) if finite.size else 0.0
-    return factor * largest if largest > 0 else 1.0
 
 
 def _gap(

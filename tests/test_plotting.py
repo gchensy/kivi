@@ -1,6 +1,7 @@
 """kivi.plotting draws the values of the tables it is given and checks its inputs."""
 
 import re
+import subprocess
 import sys
 
 import numpy as np
@@ -8,9 +9,11 @@ import pandas as pd
 import pytest
 
 from kivi import plotting
+from kivi.binning import bin_edges
 from kivi.calibration import calibration_table
+from kivi.datasets import load_bank, make_loan_panel
 from kivi.metrics import gains_table, ks, roc_table
-from kivi.monitoring import monitoring_table
+from kivi.monitoring import monitoring_table, stability_table
 from kivi.stability import psi_table
 from kivi.strategy import cutoff_table
 from kivi.vintage import vintage_table
@@ -22,12 +25,21 @@ plt = pytest.importorskip("matplotlib.pyplot")
 
 SCORE = pd.Series([0.1, 0.4, 0.35, 0.8, 0.2, 0.6, 0.7, 0.9, 0.3, 0.5])
 TARGET = pd.Series([0, 0, 1, 1, 0, 1, 0, 1, 0, 1])
+BLUE, AMBER = "#2f5bd3", "#d97706"
 
 
 @pytest.fixture(autouse=True)
 def close_figures():
     yield
     plt.close("all")
+
+
+@pytest.fixture
+def no_new_figure():
+    """Fail a test that leaves a figure behind, as a chart that raises must not."""
+    before = plt.get_fignums()
+    yield
+    assert plt.get_fignums() == before
 
 
 def woe_example():
@@ -61,11 +73,18 @@ def psi_example():
     return psi_table(pd.Series(list("aabbcc")), pd.Series(list("abbccc")))
 
 
+PERIOD = pd.Series(["2025-01"] * 4 + ["2025-02"] * 4 + ["2025-03"] * 2)
+
+
 def monitoring_example():
-    period = pd.Series(["2025-01"] * 4 + ["2025-02"] * 4 + ["2025-03"] * 2)
     target = TARGET.copy()
     target[8:] = 1  # 2025-03 has only events, so its gini is missing
-    return monitoring_table(SCORE, period, target, reference_period="2025-01", bins=2)
+    return monitoring_table(SCORE, PERIOD, target, reference_period="2025-01", bins=2)
+
+
+def stability_example():
+    groups = pd.DataFrame({"x": list("aabbabbbab"), "y": list("ccddcdcddd")})
+    return stability_table(groups, PERIOD, reference_period="2025-01")
 
 
 def vintage_example():
@@ -128,17 +147,79 @@ def test_leaves_the_table_and_rcparams_alone(name):
 
 
 @pytest.mark.parametrize("name", plotting.__all__)
-def test_rejects_an_ax_that_is_not_an_axes(name):
+def test_rejects_an_ax_that_is_not_an_axes(name, no_new_figure):
     with pytest.raises(ValueError, match="ax must be a matplotlib Axes, got str"):
         getattr(plotting, name)(CASES[name](), ax="left")
 
 
 @pytest.mark.parametrize("name", plotting.__all__)
-@pytest.mark.parametrize("module", ["matplotlib.pyplot", "matplotlib.axes"])
-def test_asks_to_install_the_plot_extra_without_matplotlib(name, module, monkeypatch):
-    monkeypatch.setitem(sys.modules, module, None)
+def test_asks_to_install_the_plot_extra_without_matplotlib(name, monkeypatch):
+    table = CASES[name]()
+    ax = matplotlib.figure.Figure().add_subplot()
+    # A new figure needs pyplot; drawing on a given ax needs only matplotlib itself.
+    monkeypatch.setitem(sys.modules, "matplotlib.pyplot", None)
+    monkeypatch.setitem(sys.modules, "matplotlib.axes", None)
     with pytest.raises(ImportError, match=r'pip install "kivi\[plot\]"'):
-        getattr(plotting, name)(CASES[name]())
+        getattr(plotting, name)(table)
+    with pytest.raises(ImportError, match=r'pip install "kivi\[plot\]"'):
+        getattr(plotting, name)(table, ax=ax)
+
+
+def run_python(code):
+    """Run `code` in a fresh interpreter and return what it prints."""
+    result = subprocess.run(
+        [sys.executable, "-c", code], capture_output=True, text=True, check=False
+    )
+    assert result.returncode == 0, result.stderr
+    return result.stdout.strip()
+
+
+def test_importing_the_module_leaves_matplotlib_unimported():
+    code = (
+        "import sys, kivi.plotting\n"
+        "print([name for name in sys.modules if name.split('.')[0] == 'matplotlib'])"
+    )
+    assert run_python(code) == "[]"
+
+
+DRAW_ON_GIVEN_AXES = """
+import sys
+import matplotlib
+from matplotlib.figure import Figure
+import pandas as pd
+from kivi import plotting
+from kivi.calibration import calibration_table
+from kivi.metrics import gains_table, roc_table
+from kivi.monitoring import monitoring_table
+from kivi.stability import psi_table
+from kivi.strategy import cutoff_table
+from kivi.vintage import vintage_table
+from kivi.woe import woe_table
+
+score = [0.1, 0.4, 0.35, 0.8, 0.2, 0.6]
+target = [0, 0, 1, 1, 0, 1]
+groups = pd.Series(list("aabbcc"))
+tables = {
+    "woe_chart": woe_table(groups, pd.Series(target)),
+    "correlation_chart": pd.DataFrame({"a": [1, 2, 3], "b": [2, 1, 3]}).corr(),
+    "roc_chart": roc_table(score, target),
+    "gains_chart": gains_table(score, target, bins=2),
+    "calibration_chart": calibration_table(groups, target, score),
+    "cutoff_chart": cutoff_table(score, target, cutoffs=[0.3, 1.0]),
+    "psi_chart": psi_table(groups, pd.Series(list("abbccc"))),
+    "monitoring_chart": monitoring_table(
+        score, ["1", "1", "1", "2", "2", "2"], target, reference_period="1", bins=2
+    ),
+    "vintage_chart": vintage_table([1, 1, 2], ["a", "a", "b"], [1, 2, 1], [0, 1, 0]),
+}
+for name, table in tables.items():
+    getattr(plotting, name)(table, ax=Figure().add_subplot())
+print("matplotlib.pyplot" in sys.modules, len(tables))
+"""
+
+
+def test_drawing_on_a_given_ax_leaves_pyplot_unimported():
+    assert run_python(DRAW_ON_GIVEN_AXES) == f"False {len(plotting.__all__)}"
 
 
 TABLES = {
@@ -153,16 +234,14 @@ TABLES = {
 
 
 @pytest.mark.parametrize("name", TABLES)
-def test_rejects_a_table_that_is_not_a_dataframe(name):
+def test_rejects_a_table_that_is_not_a_dataframe(name, no_new_figure):
     source, _ = TABLES[name]
-    before = plt.get_fignums()
     with pytest.raises(ValueError, match=f"table must be a DataFrame from {source}, got list"):
         getattr(plotting, name)([[0.1, 0.2]])
-    assert plt.get_fignums() == before
 
 
 @pytest.mark.parametrize("name", TABLES)
-def test_names_the_missing_columns(name):
+def test_names_the_missing_columns(name, no_new_figure):
     source, column = TABLES[name]
     table = CASES[name]().drop(columns=column)
     with pytest.raises(
@@ -173,17 +252,77 @@ def test_names_the_missing_columns(name):
 
 
 @pytest.mark.parametrize("name", TABLES)
-def test_rejects_an_empty_table(name):
+def test_rejects_an_empty_table(name, no_new_figure):
     with pytest.raises(ValueError, match="table must have at least one row"):
         getattr(plotting, name)(CASES[name]().iloc[:0])
 
 
 @pytest.mark.parametrize("name", TABLES)
-def test_rejects_a_column_that_is_not_numeric(name):
+def test_rejects_a_column_that_is_not_numeric(name, no_new_figure):
     _, column = TABLES[name]
     table = CASES[name]().astype({column: str})
     with pytest.raises(ValueError, match=f"{column} of table must be real and numeric, got dtype"):
         getattr(plotting, name)(table)
+
+
+def covered(legend, axes):
+    """Whether `legend` covers a bar or a point drawn on any of `axes`."""
+    renderer = legend.figure.canvas.get_renderer()
+    box = legend.get_window_extent(renderer)
+    for ax in axes:
+        if any(box.overlaps(patch.get_window_extent(renderer)) for patch in ax.patches):
+            return True
+        for line in ax.get_lines():
+            x, y = line.get_transform().transform(line.get_xydata()).T
+            if ((x > box.x0) & (x < box.x1) & (y > box.y0) & (y < box.y1)).any():
+                return True
+    return False
+
+
+def test_legends_cover_no_data_in_report_panels():
+    data = load_bank()
+    development, validation = data.iloc[:3000], data.iloc[3000:]
+    edges = bin_edges(development["age"], bins=5)
+    reference = pd.cut(development["age"], edges)
+    panel = make_loan_panel(rng=0)
+    vintage = vintage_table(
+        panel["loan_id"], panel["cohort"], panel["month_on_book"], panel["status"] == "90+"
+    )
+    figure, axes = plt.subplots(2, 2, figsize=(8, 6), layout="constrained")
+    twins = [plotting.woe_chart(woe_table(reference, development["target"]), ax=axes[0, 0])]
+    twins += [
+        plotting.woe_chart(
+            woe_table(development["poutcome"], development["target"]).sort_values("woe"),
+            line="woe",
+            ax=axes[0, 1],
+        )
+    ]
+    single = data.loc[data["marital"] == "single", "age"]
+    plotting.psi_chart(psi_table(reference, pd.cut(single, edges)), ax=axes[1, 0])
+    plotting.vintage_chart(vintage, ax=axes[1, 1])
+    figure.canvas.draw()
+    renderer = figure.canvas.get_renderer()
+    for bars, line in twins:
+        assert not covered(line.get_legend(), [bars, line])
+    assert not covered(axes[1, 0].get_legend(), [axes[1, 0]])
+    # The entries stand side by side when they fit in the Axes and are stacked otherwise.
+    legends = [(bars, line.get_legend()) for bars, line in twins]
+    legends.append((axes[1, 0], axes[1, 0].get_legend()))
+    for ax, legend in legends:
+        box = legend.get_window_extent(renderer)
+        assert ax.bbox.x0 <= box.x0 and box.x1 <= ax.bbox.x1
+    columns = [
+        len({round(text.get_window_extent(renderer).x0) for text in legend.get_texts()})
+        for _, legend in legends
+    ]
+    assert columns == [1, 2, 1]
+    legend_box = axes[1, 1].get_legend().get_window_extent(figure.canvas.get_renderer())
+    assert not legend_box.overlaps(axes[1, 1].bbox)
+    # The PSI chart of a sample like the reference, whose bars are all about as high.
+    figure, ax = plt.subplots(figsize=(4, 3), layout="constrained")
+    plotting.psi_chart(psi_table(reference, pd.cut(validation["age"], edges)), ax=ax)
+    figure.canvas.draw()
+    assert not covered(ax.get_legend(), [ax])
 
 
 # woe_chart -------------------------------------------------------------------
@@ -197,7 +336,13 @@ def test_woe_chart_draws_the_shares_and_the_event_rate():
     (curve,) = line.get_lines()
     np.testing.assert_array_equal(curve.get_xdata(), np.arange(4))
     np.testing.assert_allclose(curve.get_ydata(), table["event_rate"])
-    assert (bars.get_ylabel(), line.get_ylabel()) == ("total_share", "event_rate")
+    assert (bars.get_ylabel(), line.get_ylabel(), bars.get_xlabel()) == (
+        "total_share",
+        "event_rate",
+        "bin",
+    )
+    assert matplotlib.colors.same_color(bars.yaxis.label.get_color(), BLUE)
+    assert matplotlib.colors.same_color(line.yaxis.label.get_color(), AMBER)
     assert line.get_shared_x_axes().joined(bars, line)
     assert line.get_ylim()[0] == 0
     legend = line.get_legend()
@@ -206,24 +351,34 @@ def test_woe_chart_draws_the_shares_and_the_event_rate():
     assert bars.yaxis.get_major_formatter()(0.125) == "12.5%"
 
 
-def test_woe_chart_draws_the_woe_around_zero():
+def test_woe_chart_draws_the_woe_and_its_zero_on_the_right_axis():
     table = woe_example()
     _, line = plotting.woe_chart(table, line="woe")
     zero, curve = line.get_lines()
     np.testing.assert_array_equal(zero.get_ydata(), [0, 0])
+    assert zero.get_linestyle() == ":"
+    assert matplotlib.colors.same_color(zero.get_color(), curve.get_color())
     np.testing.assert_allclose(curve.get_ydata(), table["woe"])
     assert line.get_ylabel() == "woe"
     assert line.get_ylim()[0] < table["woe"].min()
 
 
-def test_woe_chart_keeps_a_range_when_every_event_rate_is_zero():
-    table = pd.DataFrame({"total_share": [0.5, 0.5], "event_rate": [0.0, 0.0], "iv": [0.0, 0.0]})
-    _, line = plotting.woe_chart(table)
-    assert line.get_ylim() == (0, 1)
+def test_woe_chart_keeps_zero_in_view_when_every_woe_is_negative():
+    table = pd.DataFrame({"total_share": [0.5, 0.5], "woe": [-0.4, -0.2], "iv": [0.1, 0.1]})
+    _, line = plotting.woe_chart(table, line="woe")
+    low, high = line.get_ylim()
+    assert low < -0.4 and high > 0
+
+
+@pytest.mark.parametrize("column", ["event_rate", "woe"])
+def test_woe_chart_keeps_a_range_when_every_value_is_zero(column):
+    table = pd.DataFrame({"total_share": [0.0, 0.0], column: [0.0, 0.0], "iv": [0.0, 0.0]})
+    bars, line = plotting.woe_chart(table, line=column)
+    assert bars.get_ylim() == (0, 1) and line.get_ylim() == (0, 1)
 
 
 @pytest.mark.parametrize("line", ["iv", ["woe"], None])
-def test_woe_chart_rejects_another_line(line):
+def test_woe_chart_rejects_another_line(line, no_new_figure):
     with pytest.raises(ValueError, match="line must be 'event_rate' or 'woe', got"):
         plotting.woe_chart(woe_example(), line=line)
 
@@ -281,6 +436,14 @@ def test_correlation_chart_leaves_missing_cells_empty():
     assert [text.get_text() for text in ax.texts] == ["1.00", "1.00"]
 
 
+def test_correlation_chart_accepts_rounding_beyond_one():
+    matrix = pd.DataFrame(
+        [[1 + 1e-12, -1 - 1e-12], [-1 - 1e-12, 1.0]], index=["a", "b"], columns=["a", "b"]
+    )
+    ax = plotting.correlation_chart(matrix)
+    assert [text.get_text() for text in ax.texts] == ["1.00", "-1.00", "-1.00", "1.00"]
+
+
 def test_correlation_chart_sizes_a_new_figure_to_the_variables():
     small = plotting.correlation_chart(correlation_example())
     names = [f"x{i}" for i in range(10)]
@@ -307,9 +470,17 @@ def test_correlation_chart_sizes_a_new_figure_to_the_variables():
             pd.DataFrame({"a": [1.0, "x"], "b": [0.5, 1.0]}, index=["a", "b"]),
             "column 'a' must be real and numeric, got dtype object",
         ),
+        (
+            pd.DataFrame([[4.0, 3.0], [3.0, 9.0]], index=["a", "b"], columns=["a", "b"]),
+            "matrix must hold correlations between -1 and 1, got 4.0",
+        ),
+        (
+            pd.DataFrame([[1.0, -1.5], [-1.5, 1.0]], index=["a", "b"], columns=["a", "b"]),
+            "matrix must hold correlations between -1 and 1, got -1.5",
+        ),
     ],
 )
-def test_correlation_chart_rejects_another_matrix(matrix, message):
+def test_correlation_chart_rejects_another_matrix(matrix, message, no_new_figure):
     with pytest.raises(ValueError, match=re.escape(message)):
         plotting.correlation_chart(matrix)
 
@@ -349,9 +520,11 @@ def test_roc_chart_compares_curves_on_one_ax():
     assert [text.get_text() for text in ax.get_legend().get_texts()] == ["score", "rank"]
 
 
-def test_roc_chart_rejects_a_ks_that_is_not_a_boolean():
+@pytest.mark.parametrize("chart", [plotting.roc_chart, plotting.gains_chart])
+def test_rejects_a_ks_that_is_not_a_boolean(chart, no_new_figure):
+    table = roc_example() if chart is plotting.roc_chart else gains_example()
     with pytest.raises(ValueError, match="ks must be True or False, got 'yes'"):
-        plotting.roc_chart(roc_example(), ks="yes")
+        chart(table, ks="yes")
 
 
 # gains_chart -----------------------------------------------------------------
@@ -366,6 +539,8 @@ def test_gains_chart_draws_both_curves_and_the_largest_ks():
     np.testing.assert_allclose(event.get_ydata(), np.r_[0, table["cum_event_share"]])
     np.testing.assert_allclose(non_event.get_xdata(), share)
     np.testing.assert_allclose(non_event.get_ydata(), np.r_[0, table["cum_non_event_share"]])
+    assert (event.get_linestyle(), non_event.get_linestyle()) == ("-", "--")
+    assert event.get_color() == non_event.get_color() == gap.get_color()
     row = table.iloc[table["ks"].argmax()]
     np.testing.assert_allclose(
         gap.get_xydata(),
@@ -379,7 +554,24 @@ def test_gains_chart_draws_both_curves_and_the_largest_ks():
         "cum_event_share",
         "cum_non_event_share",
     ]
-    assert ax.get_xlabel() == "cum_total_share"
+    assert (ax.get_xlabel(), ax.get_ylabel()) == (
+        "cum_total_share",
+        "cum_event_share, cum_non_event_share",
+    )
+
+
+def test_gains_chart_compares_scores_on_one_ax():
+    ax = plotting.gains_chart(gains_example(), label="score")
+    plotting.gains_chart(gains_table(SCORE.rank(), TARGET, bins=3), ks=False, label="rank", ax=ax)
+    assert [text.get_text() for text in ax.get_legend().get_texts()] == [
+        "cum_event_share (score)",
+        "cum_non_event_share (score)",
+        "cum_event_share (rank)",
+        "cum_non_event_share (rank)",
+    ]
+    first, second = ax.get_lines()[1], ax.get_lines()[5]
+    assert first.get_color() != second.get_color()
+    assert len(ax.texts) == 1
 
 
 # calibration_chart -----------------------------------------------------------
@@ -444,6 +636,7 @@ def test_psi_chart_draws_both_shares_of_each_group():
     centers = [bar.get_x() + bar.get_width() / 2 for bar in bars]
     assert centers == pytest.approx([-0.2, 0.8, 1.8, 0.2, 1.2, 2.2])
     assert [label.get_text() for label in ax.get_xticklabels()] == ["a", "b", "c"]
+    assert (ax.get_xlabel(), ax.get_ylabel()) == ("bin", "reference_share, current_share")
     legend = ax.get_legend()
     assert [text.get_text() for text in legend.get_texts()] == ["reference_share", "current_share"]
     assert legend.get_title().get_text() == f"psi = {table['psi'].sum():.3f}"
@@ -452,12 +645,17 @@ def test_psi_chart_draws_both_shares_of_each_group():
 # monitoring_chart ------------------------------------------------------------
 
 
-def test_monitoring_chart_draws_counts_and_psi_as_bars():
+def test_monitoring_chart_draws_a_line_by_default():
     report = monitoring_example()
-    for column in ["total", "psi"]:
+    assert np.isnan(report["gini"].iloc[-1])
+    for column in ["psi", "gini"]:
         ax = plotting.monitoring_chart(report, column=column)
-        assert [bar.get_height() for bar in ax.patches] == pytest.approx(report[column])
-        assert ax.get_ylabel() == column
+        (line,) = ax.get_lines()
+        np.testing.assert_array_equal(line.get_xdata(), [0, 1, 2])
+        np.testing.assert_allclose(line.get_ydata(), report[column])
+        assert len(ax.patches) == 0
+        assert (ax.get_xlabel(), ax.get_ylabel()) == ("period", column)
+        assert ax.get_legend() is None
         assert [label.get_text() for label in ax.get_xticklabels()] == [
             "2025-01",
             "2025-02",
@@ -465,21 +663,31 @@ def test_monitoring_chart_draws_counts_and_psi_as_bars():
         ]
 
 
-def test_monitoring_chart_draws_rates_as_a_line_with_gaps():
+def test_monitoring_chart_draws_bars_on_request():
     report = monitoring_example()
-    assert np.isnan(report["gini"].iloc[-1])
-    ax = plotting.monitoring_chart(report, column="gini")
-    (line,) = ax.get_lines()
-    np.testing.assert_array_equal(line.get_xdata(), [0, 1, 2])
-    np.testing.assert_allclose(line.get_ydata(), report["gini"])
-    assert len(ax.patches) == 0
-    percent = plotting.monitoring_chart(report, column="event_rate")
-    assert percent.yaxis.get_major_formatter()(0.25) == "25%"
-    assert ax.yaxis.get_major_formatter()(0.25) != "25%"
+    ax = plotting.monitoring_chart(report, column="total", kind="bar")
+    assert [bar.get_height() for bar in ax.patches] == pytest.approx(report["total"])
+    assert len(ax.get_lines()) == 0
+
+
+def test_monitoring_chart_draws_the_variables_of_a_stability_table():
+    stability = stability_example()
+    assert stability.columns.name == "variable"
+    ax = None
+    for column in stability:
+        ax = plotting.monitoring_chart(stability, column=column, label=column, ax=ax)
+    first, second = ax.get_lines()
+    np.testing.assert_allclose(second.get_ydata(), stability["y"])
+    assert first.get_color() != second.get_color()
+    assert ax.get_ylabel() == "psi"
+    legend = ax.get_legend()
+    assert [text.get_text() for text in legend.get_texts()] == ["x", "y"]
+    ax.figure.canvas.draw()
+    assert not legend.get_window_extent(ax.figure.canvas.get_renderer()).overlaps(ax.bbox)
 
 
 def test_monitoring_chart_marks_the_levels():
-    ax = plotting.monitoring_chart(monitoring_example(), levels=[0.1, 0.25, 0.5, 1])
+    ax = plotting.monitoring_chart(monitoring_example(), kind="bar", levels=[0.1, 0.25, 0.5, 1])
     levels = [line.get_ydata()[0] for line in ax.get_lines()]
     assert levels == [0.1, 0.25, 0.5, 1]
     assert [text.get_text() for text in ax.texts] == ["0.1", "0.25", "0.5", "1"]
@@ -490,18 +698,24 @@ def test_monitoring_chart_marks_the_levels():
 
 
 @pytest.mark.parametrize("levels", ["a", True, np.inf, [0.1, None], [[0.1]]])
-def test_monitoring_chart_rejects_levels_that_are_not_finite_numbers(levels):
+def test_monitoring_chart_rejects_levels_that_are_not_finite_numbers(levels, no_new_figure):
     with pytest.raises(ValueError, match="levels must be finite numbers, got"):
         plotting.monitoring_chart(monitoring_example(), levels=levels)
 
 
+@pytest.mark.parametrize("kind", ["bars", None, ["line"]])
+def test_monitoring_chart_rejects_another_kind(kind, no_new_figure):
+    with pytest.raises(ValueError, match="kind must be 'line' or 'bar', got"):
+        plotting.monitoring_chart(monitoring_example(), kind=kind)
+
+
 @pytest.mark.parametrize("column", [["psi"], 1, None])
-def test_monitoring_chart_rejects_a_column_that_is_not_a_name(column):
+def test_monitoring_chart_rejects_a_column_that_is_not_a_name(column, no_new_figure):
     with pytest.raises(ValueError, match="column must be a column name, got"):
         plotting.monitoring_chart(monitoring_example(), column=column)
 
 
-def test_monitoring_chart_names_a_missing_column():
+def test_monitoring_chart_names_a_missing_column(no_new_figure):
     with pytest.raises(ValueError, match=r"missing \['auc_change'\]"):
         plotting.monitoring_chart(monitoring_example(), column="auc_change")
 
@@ -529,6 +743,24 @@ def test_vintage_chart_draws_the_observed_months_of_each_cohort():
     assert ax.get_ylim()[0] == 0
 
 
+def test_vintage_chart_names_eight_cohorts_from_the_first_to_the_last():
+    table = pd.DataFrame(
+        np.tile([0.0, 0.01, 0.02], (24, 1)),
+        index=pd.Index([f"c{i:02d}" for i in range(24)], name="cohort"),
+        columns=[1, 2, 3],
+    )
+    ax = plotting.vintage_chart(table)
+    assert len(ax.get_lines()) == 24
+    legend = ax.get_legend()
+    names = [text.get_text() for text in legend.get_texts()]
+    assert names == ["c00", "c03", "c07", "c10", "c13", "c16", "c20", "c23"]
+    # Each entry has the color of its cohort's curve.
+    for handle, name in zip(legend.legend_handles, names, strict=True):
+        assert matplotlib.colors.same_color(
+            handle.get_color(), ax.get_lines()[int(name[1:])].get_color()
+        )
+
+
 def test_vintage_chart_draws_an_unnamed_table():
     table = pd.DataFrame([[0.0, 0.1, 0.2]], columns=[1, 2, 3])
     ax = plotting.vintage_chart(table)
@@ -552,6 +784,6 @@ def test_vintage_chart_draws_an_unnamed_table():
         ),
     ],
 )
-def test_vintage_chart_rejects_another_table(table, message):
+def test_vintage_chart_rejects_another_table(table, message, no_new_figure):
     with pytest.raises(ValueError, match=re.escape(message)):
         plotting.vintage_chart(table)

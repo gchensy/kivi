@@ -38,7 +38,7 @@ b            0.4    0.250000
 c            0.3    0.666667
 NaN          0.1    0.000000
 
-:func:`~kivi.plotting.woe_chart` returns two Axes: one for the bars and one for the line, which shares the x-axis of the bars and has a y-axis of its own on the right. The bars are the ``total_share`` column, the line is the ``event_rate`` column, the tick labels are the groups of the index, and the legend gives the sum of the ``iv`` column:
+:func:`~kivi.plotting.woe_chart` is the one chart with two y-axes, and so the one that returns two Axes: one for the bars, with the left y-axis, and one for the line, which shares the x-axis of the bars and has a y-axis of its own on the right. The bars are the ``total_share`` column, the line is the ``event_rate`` column, the tick labels are the groups of the index, and the legend gives the sum of the ``iv`` column:
 
 >>> bars, line = woe_chart(table)
 >>> [bar.get_height() for bar in bars.patches] == table["total_share"].tolist()
@@ -78,9 +78,11 @@ True
 
 Each function returns the Axes it drew on, ``ax`` when it is given, so that titles, limits and labels can be changed afterwards with matplotlib, as in ``right.set_title("woe")``. :func:`~kivi.plotting.woe_chart` returns the Axes of the bars and that of the line, which is why the figure above has four Axes.
 
-The functions never call ``matplotlib.pyplot.show``, never change ``matplotlib.rcParams`` and never modify the table. Save a figure with ``figure.savefig("woe.png")``, or show it with ``plt.show()`` outside a notebook. The colors of the bars and the lines are fixed, but fonts, grids and spines follow the active matplotlib style, so a style set with ``plt.style.context`` applies to the charts drawn inside it.
+The functions never call ``matplotlib.pyplot.show``, never change ``matplotlib.rcParams`` and never modify the table. Save a figure with ``figure.savefig("woe.png")``, or show it with ``plt.show()`` outside a notebook. The curves that can be compared on one ``ax``, those of :func:`~kivi.plotting.roc_chart`, :func:`~kivi.plotting.gains_chart`, :func:`~kivi.plotting.calibration_chart`, :func:`~kivi.plotting.cutoff_chart` and :func:`~kivi.plotting.monitoring_chart`, take the next color of the Axes' color cycle. The other charts use fixed colors. Fonts, grids and spines follow the active matplotlib style, so a style set with ``plt.style.context`` applies to the charts drawn inside it.
 
-Text inside a chart is limited to column names, such as ``total_share`` and ``event_rate``, and data values, such as the group labels and the IV. The same chart therefore suits a report in any language; add titles in the language of the report.
+Text inside a chart is limited to column names, such as ``total_share`` and ``event_rate``, and data values, such as the group labels and the IV. Each axis is labeled with the columns it shows, or with the name of the index for the groups and periods. The same chart therefore suits a report in any language; add titles in the language of the report.
+
+Legends are placed so that they cover no data: :func:`~kivi.plotting.woe_chart` and :func:`~kivi.plotting.psi_chart` leave room for theirs at the top of the Axes, and :func:`~kivi.plotting.vintage_chart` and :func:`~kivi.plotting.monitoring_chart` put theirs to the right of the Axes.
 
 WOE and event rate
 ------------------
@@ -148,7 +150,7 @@ poutcome  0.01     0.09     0.03     0.19      1.00
    woe = spec.woe_transform(development[columns])
    correlation_chart(woe.corr())
 
-Each cell shows its value, blue for a positive correlation and amber for a negative one, darker towards 1 and -1. The colors always span -1 to 1, so charts of different samples compare directly. For Spearman's rank correlation, pass ``woe.corr(method="spearman")``.
+Each cell shows its value, blue for a positive correlation and amber for a negative one, darker towards 1 and -1. The colors always span -1 to 1, so charts of different samples compare directly, and a value outside that range, as in a covariance matrix, raises an error. For Spearman's rank correlation, pass ``woe.corr(method="spearman")``.
 
 ROC curve
 ---------
@@ -200,7 +202,7 @@ Gains and KS
    from kivi.plotting import gains_chart
    gains_chart(gains_table(score, y))
 
-The ``cum_event_share`` curve lies above the diagonal and the ``cum_non_event_share`` curve below it when the score ranks well. The red segment marks the band with the largest ``ks``. The KS of the bands is at most that of :func:`~kivi.plotting.roc_chart`, which compares every score rather than the band edges.
+The solid ``cum_event_share`` curve lies above the diagonal and the dashed ``cum_non_event_share`` curve below it when the score ranks well. The dotted segment marks the band with the largest ``ks``. The KS of the bands is at most that of :func:`~kivi.plotting.roc_chart`, which compares every score rather than the band edges. As in :func:`~kivi.plotting.roc_chart`, ``ks=False`` leaves the segment out, and ``label`` names the score in the legend, so that the gains of several scores can be drawn on one ``ax``.
 
 Calibration
 -----------
@@ -320,11 +322,12 @@ Monitoring
 ...     reference_score=reference_applications["incumbent_pd"],
 ... )
 
-Call the function once for each column, on the panels of one figure. ``levels`` marks the values that a column is compared with, such as the PSI thresholds 0.1 and 0.25:
+Call the function once for each column, on the panels of one figure. ``kind`` draws a column as a line, the default, or as bars, and ``levels`` marks the values that a column is compared with, such as the PSI thresholds 0.1 and 0.25. ``label_outer`` then hides the x-axis labels of the upper panel, which shares the x-axis of the lower one:
 
 >>> figure, (top, bottom) = plt.subplots(2, 1, figsize=(8, 5), sharex=True, layout="constrained")
 >>> top = monitoring_chart(report, column="gini", ax=top)
->>> bottom = monitoring_chart(report, column="psi", levels=[0.1, 0.25], ax=bottom)
+>>> bottom = monitoring_chart(report, column="psi", kind="bar", levels=[0.1, 0.25], ax=bottom)
+>>> top.label_outer()
 >>> [text.get_text() for text in bottom.texts]
 ['0.1', '0.25']
 
@@ -352,14 +355,52 @@ Call the function once for each column, on the panels of one figure. ``levels`` 
    )
    figure, (top, bottom) = plt.subplots(2, 1, figsize=(8, 5), sharex=True, layout="constrained")
    monitoring_chart(report, column="gini", ax=top)
-   monitoring_chart(report, column="psi", levels=[0.1, 0.25], ax=bottom)
+   monitoring_chart(report, column="psi", kind="bar", levels=[0.1, 0.25], ax=bottom)
+   top.label_outer()
 
-The counts ``total``, ``known`` and ``event`` and the ``psi`` are drawn as bars, the rates and the measures of discrimination as a line. Any other table with one row per period works as well, such as a column of :func:`~kivi.monitoring.stability_table`.
+A line suits rates and measures of discrimination, and several columns on one ``ax``; bars suit counts such as ``total`` and a single ``psi``. ``kind`` decides, not the name of the column, so any table with one row per period can be drawn either way.
+
+A :func:`~kivi.monitoring.stability_table` holds the PSI of each variable by period. Draw its columns on one ``ax``, each with a ``label``. The y-axis is labeled ``psi``, because the columns of a stability table are named ``variable``:
+
+>>> from kivi.monitoring import stability_table
+>>> features = ["age", "income", "debt_to_income"]
+>>> application_spec = fit_spec(
+...     reference_applications[features], reference_applications["target"]
+... )
+>>> stability = stability_table(
+...     application_spec.cut(applications[features]),
+...     applications["month"],
+...     reference_groups=application_spec.cut(reference_applications[features]),
+... )
+>>> ax = None
+>>> for column in stability:
+...     ax = monitoring_chart(stability, column=column, label=column, ax=ax)
+>>> ax.get_ylabel()
+'psi'
+
+.. plot::
+   :context: close-figs
+   :alt: PSI of age, income and debt_to_income for each month of 2025
+   :caption: The PSI of the three variables stays below 0.01 in every month.
+
+   from kivi.monitoring import stability_table
+   features = ["age", "income", "debt_to_income"]
+   application_spec = fit_spec(
+       reference_applications[features], reference_applications["target"]
+   )
+   stability = stability_table(
+       application_spec.cut(applications[features]),
+       applications["month"],
+       reference_groups=application_spec.cut(reference_applications[features]),
+   )
+   ax = None
+   for column in stability:
+       ax = monitoring_chart(stability, column=column, label=column, ax=ax)
 
 Vintage curves
 --------------
 
-:func:`~kivi.plotting.vintage_chart` draws a :func:`~kivi.vintage.vintage_table` with one curve per cohort, later cohorts in darker blue. Twenty-four cohorts are too many to tell apart, so the example draws every third:
+:func:`~kivi.plotting.vintage_chart` draws a :func:`~kivi.vintage.vintage_table` with one curve per cohort, later cohorts in darker blue. The legend, to the right of the Axes, names eight of the twenty-four cohorts, evenly spread from the first to the last, since the shades of the others lie between theirs:
 
 >>> from kivi.datasets import make_loan_panel
 >>> from kivi.plotting import vintage_chart
@@ -368,13 +409,13 @@ Vintage curves
 >>> ever_90 = vintage_table(
 ...     panel["loan_id"], panel["cohort"], panel["month_on_book"], panel["status"] == "90+"
 ... )
->>> ax = vintage_chart(ever_90.iloc[::3])
+>>> ax = vintage_chart(ever_90)
 >>> [text.get_text() for text in ax.get_legend().get_texts()]
-['2024-01', '2024-04', '2024-07', '2024-10', '2025-01', '2025-04', '2025-07', '2025-10']
+['2024-01', '2024-04', '2024-08', '2024-11', '2025-02', '2025-05', '2025-09', '2025-12']
 
 .. plot::
    :context: close-figs
-   :alt: Cumulative 90+ rate of eight cohorts by month on book
+   :alt: Cumulative 90+ rate of twenty-four cohorts by month on book
    :caption: No cohort has a loan 90 days past due before its fourth month on book, and the curves of the later cohorts end where their observation ends.
 
    from kivi.datasets import make_loan_panel
@@ -384,7 +425,7 @@ Vintage curves
    ever_90 = vintage_table(
        panel["loan_id"], panel["cohort"], panel["month_on_book"], panel["status"] == "90+"
    )
-   vintage_chart(ever_90.iloc[::3])
+   vintage_chart(ever_90)
 
 A cohort whose curve rises above those of the cohorts before it is worth a closer look. The function takes any table of the same shape, such as the cumulative PDs of :func:`~kivi.lifetime.convert_pd`.
 
@@ -426,6 +467,6 @@ Traceback (most recent call last):
 ...
 ValueError: table must have the columns ['total_share', 'event_rate', 'iv'] of kivi.woe.woe_table, missing ['total_share', 'event_rate', 'iv']
 
-An ``ax`` that is not a matplotlib Axes, an empty table and a column that is not numeric raise a ``ValueError`` as well. A chart that raises does not leave an empty figure behind.
+An ``ax`` that is not a matplotlib Axes, an empty table, a column that is not numeric and a correlation matrix with a value outside [-1, 1] raise a ``ValueError`` as well. A chart that raises does not leave an empty figure behind.
 
 matplotlib warns when more than 20 figures are open. When a report draws a chart for each of many variables, save each figure and close it with ``plt.close(ax.figure)``.
