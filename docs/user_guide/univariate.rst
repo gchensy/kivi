@@ -37,6 +37,12 @@ pdays          numeric   3000          0.000       246          -1      0.825
 previous       numeric   3000          0.000        18           0      0.825
 poutcome   categorical    525          0.825         3     failure      0.613
 
+.. plot::
+   :alt: Six rows of five candidate columns with their missing values in gray, and the rows of the profile for the five columns with their kind, missing share, number of distinct values and IV
+   :caption: ``profile_table`` turns every column of the frame into one row of the profile; here five of the sixteen columns and four of the 29 statistics. Missing values, in gray, count in ``missing_share``.
+
+   kd.figure_profile_rows()
+
 Every column gets one row, indexed by its name:
 
 * ``kind`` is ``numeric`` for numeric dtypes other than bool and ``categorical`` for all others, as in :func:`~kivi.spec.fit_spec`.

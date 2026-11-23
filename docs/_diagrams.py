@@ -20,6 +20,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from fractions import Fraction
 
+import _plotting
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -34,9 +35,11 @@ from kivi.metrics import roc_auc, roc_table
 from kivi.monitoring import monitoring_table
 from kivi.reject_inference import fuzzy_augmentation, parceling, reweighting
 from kivi.scorecard import score_scaling, woe_to_points
-from kivi.selection import logistic_regression
+from kivi.selection import correlation_filter, logistic_regression, stepwise
 from kivi.spec import BinningSpec, fit_spec
 from kivi.stability import psi_table
+from kivi.strategy import confusion_table, cutoff_table, swap_set
+from kivi.univariate import profile_table
 from kivi.vintage import roll_rates, transition_matrix
 from kivi.woe import woe_table, woe_transform
 
@@ -1217,7 +1220,7 @@ def figure_spec_roundtrip():
             target_column(development["target"].loc[sample.index], 2.6),
         ],
     )
-    canvas.note(1.2, 8.8, f"... {len(development)} rows", size=8.5)
+    canvas.note(1.2, 8.8, f"development.shape = {development.shape}", size=8.5)
     # Top right: the fitted specification.
     x = right_card[0]
     canvas.card(x, 0.4, right_card[1], 9.4)
@@ -1375,4 +1378,373 @@ def figure_monitoring_table():
         ],
     )
     canvas.arrow((right + 0.25, out.rows[1]), (x - 0.25, out.rows[1]), linewidth=1.2)
+    return canvas.fig
+
+
+# Univariate profile
+
+
+def figure_profile_rows():
+    """profile_table turns every column of a frame into one row of the profile."""
+    data = load_bank()
+    development = data.iloc[:3000]
+    candidates = development.drop(columns="target").replace("unknown", np.nan)
+    profile = profile_table(candidates, development["target"])
+    columns = ["age", "job", "contact", "pdays", "poutcome"]
+    styles = group_styles(columns)
+    sample = candidates[columns].head(6)
+
+    canvas = Canvas(height=10.2)
+    left = 0.6
+    widths = {"age": 1.5, "job": 3.9, "contact": 2.9, "pdays": 1.7, "poutcome": 2.9}
+    cells = []
+    for column in columns:
+        values = sample[column]
+        missing = values.isna().to_numpy()
+        cells.append(
+            Column(
+                column,
+                ["NaN" if m else str(v) for v, m in zip(values, missing, strict=True)],
+                widths[column],
+                fill=[MISSING_FILL if m else styles[column][0] for m in missing],
+                color=[FAINT if m else styles[column][1] for m in missing],
+                header_color=styles[column][1],
+            )
+        )
+    frame = canvas.table(left, 1.6, cells)
+    canvas.call(left, 0.15, "candidates.head(6)")
+    canvas.note(left, frame.bottom + 0.5, f"candidates.shape = {candidates.shape}")
+
+    x = frame.right + 1.4
+    canvas.call(31.4, 0.15, "profile_table(candidates, target)", ha="right")
+    shown = profile.loc[columns]
+    out = canvas.table(
+        x,
+        1.6,
+        [
+            group_column("variable", columns, 3.0, styles),
+            Column("kind", list(shown["kind"]), 3.9),
+            Column("missing_share", [number(v) for v in shown["missing_share"]], 4.3),
+            Column("distinct", [str(v) for v in shown["distinct"]], 2.4),
+            result("iv", [number(v) for v in shown["iv"]], 1.9),
+        ],
+    )
+    canvas.arrow((frame.right + 0.3, out.rows[2]), (x - 0.3, out.rows[2]))
+    canvas.note(x, out.bottom + 0.5, f"profile.shape = {profile.shape}")
+    return canvas.fig
+
+
+# Variable selection
+
+
+def _selection_example():
+    data = load_bank()
+    development = data.iloc[:3000]
+    target = development["target"]
+    edges = {
+        "age": bin_edges(development["age"], bins=5),
+        "balance": bin_edges(development["balance"], bins=5),
+        "day": bin_edges(development["day"], bins=5),
+        "campaign": [-np.inf, 1, 2, 3, np.inf],
+        "pdays": [-np.inf, -1, 100, 200, 300, np.inf],
+        "previous": [-np.inf, 0, 1, 3, np.inf],
+    }
+    groups = pd.DataFrame({c: pd.cut(development[c], e) for c, e in edges.items()})
+    for column in [
+        "job",
+        "marital",
+        "education",
+        "default",
+        "housing",
+        "loan",
+        "contact",
+        "poutcome",
+    ]:
+        groups[column] = development[column]
+    tables = {column: woe_table(groups[column], target) for column in groups}
+    iv = pd.Series({column: table["iv"].sum() for column, table in tables.items()})
+    iv = iv.sort_values(ascending=False)
+    candidates = iv.index[iv >= 0.02]
+    X = pd.DataFrame({c: woe_transform(groups[c], tables[c]) for c in candidates})
+    return X, target, iv
+
+
+def figure_correlation_filter():
+    """correlation_filter visits the variables by IV and drops those too close to a kept one."""
+    X, _, iv = _selection_example()
+    threshold = 0.7
+    correlation = X.corr().abs()
+    kept, largest, partner = [], [], []
+    for column in X.columns:
+        if kept:
+            value = correlation.loc[column, kept].max()
+            largest.append(value)
+            partner.append(correlation.loc[column, kept].idxmax())
+        else:
+            largest.append(np.nan)
+            partner.append(None)
+        if not kept or largest[-1] <= threshold:
+            kept.append(column)
+    if kept != correlation_filter(X, priority=iv).tolist():
+        raise AssertionError("the drawn filter does not match correlation_filter")
+
+    dropped = [column not in kept for column in X.columns]
+    canvas = Canvas(height=14.6)
+    x = 2.6
+    canvas.call(x, 0.15, "correlation_filter(X, priority=iv)  # threshold=0.7")
+    out = canvas.table(
+        x,
+        1.6,
+        [
+            Column("variable", list(X.columns), 3.6),
+            Column("iv", [number(iv[c]) for c in X.columns], 2.4, color=MUTED),
+            Column(
+                "max |corr| with kept",
+                [number(v, 2) for v in largest],
+                6.4,
+                color=[RESULT_TEXT if d else INK for d in dropped],
+                bold=dropped,
+                edge=[AMBER if d else None for d in dropped],
+            ),
+            result(
+                "kept",
+                [str(not d) for d in dropped],
+                2.6,
+                fill=[EVENT_FILL if d else RESULT_FILL for d in dropped],
+                color=[EVENT if d else INK for d in dropped],
+                edge=[EVENT if d else RESULT_EDGE for d in dropped],
+            ),
+        ],
+    )
+    canvas.arrow((x - 0.6, out.rows[0] - 0.3), (x - 0.6, out.rows[-1] + 0.3), color=MUTED)
+    canvas.note(x - 1.1, (out.rows[0] + out.rows[-1]) / 2, "iv", ha="right", size=8.5)
+    for i, column in enumerate(X.columns):
+        if dropped[i]:
+            j = list(X.columns).index(partner[i])
+            near, far = out.right + 0.3, out.right + 1.0
+            canvas.line(near, out.rows[i], far, out.rows[i], color=AMBER, linewidth=1.3)
+            canvas.line(far, out.rows[i], far, out.rows[j], color=AMBER, linewidth=1.3)
+            canvas.arrow((far, out.rows[j]), (near, out.rows[j]), color=AMBER, linewidth=1.3)
+            canvas.note(
+                far + 0.5,
+                (out.rows[i] + out.rows[j]) / 2,
+                f"|corr({column}, {partner[i]})| = {largest[i]:.2f} > {threshold}",
+                color=RESULT_TEXT,
+            )
+    return canvas.fig
+
+
+def figure_stepwise_path():
+    """Forward steps of stepwise: the z statistic of each candidate, and the one that enters."""
+    X, target, iv = _selection_example()
+    kept = list(correlation_filter(X, priority=iv))
+    selected, steps = [], []
+    while True:
+        trials, best, best_z = {}, None, -np.inf
+        for column in kept:
+            if column in selected:
+                continue
+            fit = logistic_regression(X[[*selected, column]], target)
+            z, p_value = fit.loc[column, "z"], fit.loc[column, "p_value"]
+            eligible = p_value < 0.05 and (fit["coef"].drop("intercept") > 0).all()
+            trials[column] = (z, eligible)
+            if eligible and abs(z) > best_z:
+                best, best_z = column, abs(z)
+        steps.append((list(selected), trials, best))
+        if best is None:
+            break
+        selected.append(best)
+        fit = logistic_regression(X[selected], target).drop("intercept")
+        if (fit["p_value"] > 0.1).any() or (fit["coef"] <= 0).any():
+            raise AssertionError("stepwise would remove a variable, which the diagram omits")
+    if sorted(selected) != sorted(stepwise(X[kept], target)):
+        raise AssertionError("the drawn steps do not match stepwise")
+
+    canvas = Canvas(height=15.4)
+    left, width = 3.4, 2.62
+    canvas.call(left, 0.15, "stepwise(X[kept], target)  # p_enter=0.05, positive=True")
+    header = 2.0
+    for j, column in enumerate(kept):
+        canvas.text(left + j * (width + GAP) + width / 2, header, column, size=8.3, bold=True)
+    right = left + len(kept) * (width + GAP) - GAP
+    canvas.line(left, header + 0.55, right, header + 0.55)
+    for i, (before, trials, best) in enumerate(steps):
+        y = header + 1.25 + i * ROW
+        canvas.text(left - 0.5, y, str(i + 1), size=9, ha="right", color=MUTED)
+        for j, column in enumerate(kept):
+            x = left + j * (width + GAP)
+            if column in before:
+                canvas.box(x, y - CELL / 2, width, CELL, fill=BLUE_FILL, edge=BLUE_FILL)
+                continue
+            z, eligible = trials[column]
+            chosen = column == best
+            fill = RESULT_FILL if chosen else CELL_FILL
+            edge = AMBER if chosen else CELL_EDGE
+            color = RESULT_TEXT if chosen else INK if eligible else FAINT
+            canvas.box(
+                x, y - CELL / 2, width, CELL, fill=fill, edge=edge, linewidth=1.3 if chosen else 0.8
+            )
+            canvas.text(x + width / 2, y, f"{z:.2f}", color=color, bold=chosen, size=9)
+    bottom = header + 1.25 + len(steps) * ROW
+    legend = [
+        (BLUE_FILL, BLUE_FILL, "selected"),
+        (RESULT_FILL, AMBER, "max |z|"),
+        (CELL_FILL, CELL_EDGE, "p_value >= p_enter"),
+    ]
+    x = left
+    for fill, edge, name in legend:
+        canvas.box(x, bottom, 0.8, 0.6, fill=fill, edge=edge, radius=0.08)
+        canvas.note(x + 1.1, bottom + 0.3, name, color=FAINT if name.startswith("p_") else INK)
+        x += 1.6 + text_width(name, 8.8) + 0.6
+    canvas.note(
+        left,
+        bottom + 1.5,
+        "z = logistic_regression(X[[*selected, column]], target).loc[column, 'z']",
+    )
+    return canvas.fig
+
+
+# Credit strategy
+
+
+def figure_confusion_cutoff():
+    """The four counts of confusion_table at one cut-off, and the cutoff_table columns they make."""
+    current, _, target = _plotting._strategy_scores()
+    cutoff = 0.1
+    row = confusion_table(current, target, cutoffs=[cutoff]).iloc[0]
+    approved = cutoff_table(current, target, cutoffs=[cutoff]).iloc[0]
+    tp, fp, tn, fn = (
+        int(row[c]) for c in ("true_positive", "false_positive", "true_negative", "false_negative")
+    )
+    if approved["approved"] != tn + fn or approved["approved_event"] != fn:
+        raise AssertionError("the drawn counts do not match cutoff_table")
+
+    canvas = Canvas(height=9.0)
+    left, top, width, height = 4.6, 2.2, 5.0, 2.2
+    canvas.call(0.6, 0.15, f"confusion_table(current, y, cutoffs=[{cutoff}])")
+    canvas.text(left + width / 2, top - 0.5, f"current <= {cutoff}", size=9, bold=True, color=BLUE)
+    canvas.text(
+        left + width + GAP + width / 2,
+        top - 0.5,
+        f"current > {cutoff}",
+        size=9,
+        bold=True,
+        color=RESULT_TEXT,
+    )
+    cells = {
+        (0, 0): ("true_negative", tn, CELL_FILL, INK),
+        (0, 1): ("false_positive", fp, CELL_FILL, INK),
+        (1, 0): ("false_negative", fn, RESULT_FILL, RESULT_TEXT),
+        (1, 1): ("true_positive", tp, EVENT_FILL, EVENT),
+    }
+    for (i, j), (name, count, fill, color) in cells.items():
+        x = left + j * (width + GAP)
+        y = top + i * (height + GAP)
+        canvas.box(
+            x, y, width, height, fill=fill, edge=RESULT_EDGE if fill == RESULT_FILL else CELL_EDGE
+        )
+        canvas.text(x + width / 2, y + 0.8, str(count), size=12, bold=True, color=color)
+        canvas.note(x + width / 2, y + 1.6, name, ha="center", size=8.3)
+    for i, label_ in enumerate(("y = 0", "y = 1")):
+        canvas.text(
+            left - 0.4,
+            top + i * (height + GAP) + height / 2,
+            label_,
+            size=9,
+            ha="right",
+            bold=True,
+            color=EVENT if i else INK,
+        )
+    middle = left + width + GAP / 2
+    canvas.line(
+        middle,
+        top - 0.9,
+        middle,
+        top + 2 * height + GAP + 0.3,
+        color=AMBER,
+        linewidth=1.6,
+        style="--",
+        z=3,
+    )
+    total = len(target)
+    canvas.notes(
+        16.0,
+        2.4,
+        [
+            f"approved             = {tn} + {fn} = {tn + fn}",
+            f"approved_event       = false_negative = {fn}",
+            f"rejected_event_share = recall = {tp} / {tp + fn} = {tp / (tp + fn):.3f}",
+            f"precision            = {tp} / {tp + fp} = {tp / (tp + fp):.3f}",
+            f"accuracy             = ({tp} + {tn}) / {total} = {(tp + tn) / total:.3f}",
+        ],
+        step=1.05,
+        size=8.6,
+    )
+    canvas.note(16.0, 8.0, f"cutoff_table(current, y, cutoffs=[{cutoff}])", color=CHIP_TEXT)
+    return canvas.fig
+
+
+def figure_swap_set():
+    """The four groups of swap_set, with all outcomes known and as they are observed."""
+    current, new, target = _plotting._strategy_scores()
+    approved = int((current <= 0.1).sum())
+    new_cutoff = float(np.sort(new)[approved - 1])
+    observed = target.where(current <= 0.1)
+    tables = {
+        "y": swap_set(current, new, target, current_cutoff=0.1, new_cutoff=new_cutoff),
+        "observed": swap_set(current, new, observed, current_cutoff=0.1, new_cutoff=new_cutoff),
+    }
+
+    canvas = Canvas(height=11.4)
+    width, height = 5.2, 2.5
+    fills = {
+        ("approve", "approve"): (CELL_FILL, CELL_EDGE),
+        ("approve", "decline"): (EVENT_FILL, "#f3b4b4"),
+        ("decline", "approve"): (TEAL_FILL, "#8fd3c9"),
+        ("decline", "decline"): (CELL_FILL, CELL_EDGE),
+    }
+    for k, (name, table) in enumerate(tables.items()):
+        left = 4.2 + k * 15.6
+        top = 3.0
+        canvas.call(left - 3.6, 0.15, f"swap_set(current, new, {name}, ...)", size=8.8)
+        canvas.note(left + width + GAP / 2, top - 1.3, "new", ha="center", color=INK, bold=True)
+        for j, decision in enumerate(("approve", "decline")):
+            canvas.text(
+                left + j * (width + GAP) + width / 2, top - 0.5, decision, size=9, bold=True
+            )
+        canvas.text(left - 2.6, top + height + GAP / 2, "current", size=9, bold=True, ha="center")
+        for i, row in enumerate(("approve", "decline")):
+            canvas.text(
+                left - 0.4,
+                top + i * (height + GAP) + height / 2,
+                row,
+                size=9,
+                ha="right",
+                bold=True,
+            )
+            for j, column in enumerate(("approve", "decline")):
+                cell = table.loc[(row, column)]
+                fill, edge = fills[(row, column)]
+                x = left + j * (width + GAP)
+                y = top + i * (height + GAP)
+                canvas.box(x, y, width, height, fill=fill, edge=edge)
+                canvas.text(x + width / 2, y + 0.75, f"{int(cell['total'])}", size=11, bold=True)
+                known = int(cell["known"])
+                rate = "NaN" if known == 0 else number(cell["event_rate"])
+                canvas.note(
+                    x + width / 2,
+                    y + 1.7,
+                    f"event_rate {rate}",
+                    ha="center",
+                    size=8.3,
+                    color=FAINT if known == 0 else INK,
+                )
+    canvas.notes(
+        0.6,
+        9.0,
+        [
+            f"current_cutoff=0.1, new_cutoff={new_cutoff:.6f}",
+            "observed = y.where(current <= 0.1)",
+        ],
+    )
     return canvas.fig
