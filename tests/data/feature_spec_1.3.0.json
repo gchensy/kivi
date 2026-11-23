@@ -17,29 +17,23 @@
         ],
         "90D"
       ],
-      "aggregations": [
-        {
-          "column": "amount",
-          "aggregations": [
-            "count",
-            "sum",
-            "mean",
-            "min",
-            "max",
-            "std",
-            "first",
-            "last",
-            "days_since_last"
-          ]
-        },
-        {
-          "column": "merchant",
-          "aggregations": [
-            "count",
-            "nunique"
-          ]
-        }
-      ],
+      "aggregations": {
+        "amount": [
+          "count",
+          "sum",
+          "mean",
+          "min",
+          "max",
+          "std",
+          "first",
+          "last",
+          "days_since_last"
+        ],
+        "merchant": [
+          "count",
+          "nunique"
+        ]
+      },
       "closed": "left",
       "prefix": ""
     },
@@ -49,14 +43,11 @@
       "windows": [
         "3M"
       ],
-      "aggregations": [
-        {
-          "column": "amount",
-          "aggregations": [
-            "sum"
-          ]
-        }
-      ],
+      "aggregations": {
+        "amount": [
+          "sum"
+        ]
+      },
       "closed": "left",
       "prefix": "cash_"
     },
@@ -70,15 +61,12 @@
           "30D"
         ]
       ],
-      "aggregations": [
-        {
-          "column": "balance",
-          "aggregations": [
-            "mean",
-            "last"
-          ]
-        }
-      ],
+      "aggregations": {
+        "balance": [
+          "mean",
+          "last"
+        ]
+      },
       "closed": "right",
       "prefix": "daily_"
     }

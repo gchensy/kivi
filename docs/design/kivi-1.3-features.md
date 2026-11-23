@@ -1,6 +1,6 @@
 # kivi 1.3 设计稿：批量时间窗特征（`kivi.features`）
 
-2026-11-22 起草 · 2026-11-23 审定：第 8 节的 9 项全部采用推荐
+2026-11-22 起草 · 2026-11-23 审定：第 8 节的 9 项全部采用推荐 · 2026-11-23 按 PR #72 的评审决定修订列名大小写、窗口对、`days_since_last` 和 `FeatureSpec` 的 JSON 结构
 
 ## 目标与范围
 
@@ -97,12 +97,21 @@ panel_features(
     windows=("6M", "12M"), bad="30-59",
 )  # -> DataFrame
 
-spec = FeatureSpec(id=..., time=..., windows=..., aggregations=..., ratios=..., panel=...)
-spec.compute(observations, events=events, panel=panel)  # 与上面两个函数结果相同
+spec = FeatureSpec(
+    id="customer_id", observation_time="application_date",
+    events=[  # 每组是一次 window_features 调用的参数，加上所读事件表的名称 table
+        {"time": "time", "windows": ["3M", "12M"], "aggregations": {"amount": ["sum"]}},
+        {"table": "cash", "time": "time", "windows": ["3M"],
+         "aggregations": {"amount": ["sum"]}, "prefix": "cash_"},
+    ],
+    ratios=[("cash_amount_sum_3m", "amount_sum_3m")],  # 可跨组
+    panel=None,  # panel_features 的定义，由第二个 PR 在 1.3.0 发布前加入
+)
+spec.compute(observations, events={"events": events, "cash": cash}, panel=panel)  # 与上面两个函数结果相同
 FeatureSpec.from_json(spec.to_json())
 ```
 
-**列名规则：** `{prefix}{列}_{聚合}_{窗口}`，全小写，窗口写作 `3m`、`90d`、`6m_3m`。
+**列名规则：** `{prefix}{列}_{聚合}_{窗口}`。只有 kivi 自己的部分，即聚合名和窗口，写成小写，窗口写作 `3m`、`90d`、`6m_3m`；调用者给的列名和前缀保持原样，因此 `Amount` 和 `amount` 不会撞名。窗口对必须作为窗口列表中的一项，如 `windows=[("6M", "3M")]`；`windows=("6M", "3M")` 是 `6M` 和 `3M` 两个窗口。
 
 | 定义 | 列名 |
 | --- | --- |
@@ -115,7 +124,7 @@ FeatureSpec.from_json(spec.to_json())
 
 **输出：** 每个观察一行。列先按窗口、再按列、再按聚合排序，比率列在最后。计数为整数，其余为浮点数。这些列名和顺序一旦发布，就受 1.x 兼容性承诺约束。
 
-**`FeatureSpec`：** 不可变的 dataclass，只存定义，不从数据拟合任何东西，这一点与 `BinningSpec` 不同。JSON 带 `format: "kivi.FeatureSpec"`、`format_version: 1` 和 `kivi_version`，读到更新的格式版本时拒绝。
+**`FeatureSpec`：** 不可变的 dataclass，只存定义，不从数据拟合任何东西，这一点与 `BinningSpec` 不同。所有事件表共用一个 `id` 列。JSON 的结构与构造函数的参数一致：先是 `format: "kivi.FeatureSpec"`、`format_version: 1` 和 `kivi_version`，然后依次是构造函数的参数 `id`、`observation_time`、`events`、`ratios` 和 `panel`。`events` 的每组写出全部键 `table`、`time`、`windows`、`aggregations`（列到聚合列表的对象，按结果中列的顺序）、`closed` 和 `prefix`，元组写成列表，所以 `to_dict()` 的这些键可以直接传给构造函数。读到更新的格式版本时拒绝，JSON 对象中重复的键也报错。`panel_features` 在 1.3.0 发布前合入，`format_version` 1 届时定稿；在此之前 `panel` 为 `null`。
 
 ## 语义细节
 
@@ -130,7 +139,7 @@ FeatureSpec.from_json(spec.to_json())
 | `std` | 样本标准差，与 pandas `std()` 一致 | NaN（少于 2 个值也是 NaN） |
 | `nunique` | 不同取值个数，可用于文本列（如商户类型） | 0 |
 | `first`、`last` | 窗口内最早、最晚一个事件的值，同一时刻按行序 | NaN |
-| `days_since_last` | 观察日到窗口内最后一个事件的天数 | NaN |
+| `days_since_last` | 观察日到窗口内最后一个事件经过的天数，可含小数；有时区时，它与 `"D"` 窗口按当地日历计的天数可能相差夏令时调整的一小时 | NaN |
 
 `events_{窗口}` 列永远给出，是窗口内的事件行数。
 

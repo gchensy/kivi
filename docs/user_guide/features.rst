@@ -69,6 +69,13 @@ Windows
 
 Thirty days before 31 March is 1 March, so the withdrawal of 29 February is outside the window ``30d`` but inside ``1m``. The window ``3m_1m`` ends where ``1m`` begins, so the two together are the window ``3m``.
 
+.. note::
+
+   A pair is one window only as an item of the list of windows. ``windows=[("3M", "1M")]`` is the window ``3m_1m``, while ``windows=("3M", "1M")`` is the two windows ``3m`` and ``1m``:
+
+   >>> list(window_features(events, applications, **keys, windows=("3M", "1M")).columns)
+   ['events_3m', 'events_1m']
+
 By default every window is closed on the left, :math:`[t - k, t)`. With ``closed="right"`` the windows are :math:`(t - k, t]` instead, and events at the observation time count, for events that are known at their own time, such as balances at the end of a day. Whether such an event is known at the observation time is the caller's judgment, because kivi cannot tell. Here the payment of 31 March counts, and the withdrawal on the lower bound of the window, 29 February, does not:
 
 >>> window_features(events, applications, **keys, windows=["1M"], closed="right")
@@ -137,7 +144,7 @@ amount_last_3m              50.00  25.00  NaN
 amount_days_since_last_3m   16.00  11.00  NaN
 kind_nunique_3m              2.00   2.00  0.0
 
-Customer ``b`` made two transactions on 20 March, a withdrawal of 40 and a payment of 25; ``last`` takes the payment, which comes later in the rows. Both are eleven days before the application. For a pair of windows ``days_since_last`` is still measured from the observation time.
+Customer ``b`` made two transactions on 20 March, a withdrawal of 40 and a payment of 25; ``last`` takes the payment, which comes later in the rows. Both are eleven days before the application. For a pair of windows ``days_since_last`` is still measured from the observation time. It is the time that has passed, so with a time zone it can differ by the hour that clocks change from the local calendar days that windows such as ``"90D"`` count.
 
 Ratios and changes
 ------------------
@@ -219,7 +226,7 @@ Reading the result
      - Ratios, last
      - Float, NaN for a denominator of 0
 
-The columns come window by window, then column by column in the order of ``aggregations``, then aggregation by aggregation, and the ratios last. A NaN means that the window had no value to aggregate, which is information in its own right: profile the features with :func:`~kivi.univariate.profile_table` to see how often they are missing and how well they separate the classes, and bin them with :doc:`binning`, where missing values form their own group.
+The columns come window by window, then column by column in the order of ``aggregations``, then aggregation by aggregation, and the ratios last. Column names and prefixes keep their case: only kivi's own parts of the names, the aggregations and the windows, are in lower case, so the features of ``Amount`` and ``amount`` stay apart. A NaN means that the window had no value to aggregate, which is information in its own right: profile the features with :func:`~kivi.univariate.profile_table` to see how often they are missing and how well they separate the classes, and bin them with :doc:`binning`, where missing values form their own group.
 
 Feature specifications
 ----------------------
@@ -264,7 +271,7 @@ True
 >>> loaded.compute(applications, events={"events": events, "cash": cash}).equals(features)
 True
 
-The file has these keys:
+The file has the keys below. After ``kivi_version`` they are the arguments of :class:`~kivi.features.FeatureSpec` as it takes them, with lists for tuples and every key of each group, so :meth:`~kivi.features.FeatureSpec.to_dict` gives what the constructor takes:
 
 .. list-table::
    :header-rows: 1
@@ -281,11 +288,11 @@ The file has these keys:
    * - ``id`` and ``observation_time``
      - The columns of the entities and of the observation times.
    * - ``events``
-     - One entry per group, in order, with ``table``, ``time``, ``windows`` (strings and pairs of strings), ``aggregations`` (one entry per column with ``column`` and the list of its ``aggregations``), ``closed`` and ``prefix``.
+     - One dict per group, in order, with ``table``, ``time``, ``windows`` (strings and pairs of strings), ``aggregations`` (a dict from each column to the list of its aggregations, in the order of the columns of the result), ``closed`` and ``prefix``. A JSON object that repeats a key raises an error, because it would otherwise lose a value.
    * - ``ratios``
      - The pairs of column names of the ratios.
    * - ``panel``
-     - ``null``; reserved for the features of monthly status panels.
+     - ``null``; reserved for the features of monthly status panels, which ``panel_features`` adds before kivi 1.3.0 is released, completing version 1 of the format.
 
 Missing values
 --------------

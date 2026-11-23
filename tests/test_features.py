@@ -537,6 +537,48 @@ def test_ratios_name_their_columns_and_divide_by_zero_into_nan():
     )
 
 
+def test_column_names_and_the_prefix_keep_their_case():
+    events = pd.DataFrame(
+        {
+            "customer": [1, 1],
+            "time": pd.to_datetime(["2024-01-05", "2024-01-06"]),
+            "Amount": [1.0, 2.0],
+            "amount": [10.0, 20.0],
+        }
+    )
+    observations = pd.DataFrame({"customer": [1], "date": pd.to_datetime(["2024-02-01"])})
+    result = window_features(
+        events,
+        observations,
+        **KEYS,
+        windows=["1M", ("2M", "1M")],
+        aggregations={"Amount": ["sum"], "amount": ["sum"]},
+        ratios=[("Cash_Amount_sum_1m", "Cash_amount_sum_1m")],
+        prefix="Cash_",
+    )
+    assert list(result.columns) == [
+        "Cash_events_1m",
+        "Cash_Amount_sum_1m",
+        "Cash_amount_sum_1m",
+        "Cash_events_2m_1m",
+        "Cash_Amount_sum_2m_1m",
+        "Cash_amount_sum_2m_1m",
+        "Cash_Amount_sum_1m_over_Cash_amount_sum_1m",
+    ]
+    assert result.iloc[0].tolist() == [2, 3.0, 30.0, 0, 0.0, 0.0, 0.1]
+
+
+def test_a_pair_is_one_window_only_inside_the_list():
+    events, observations = random_tables(13)
+    pair = window_features(events, observations, **KEYS, windows=[("6M", "3M")])
+    two = window_features(events, observations, **KEYS, windows=("6M", "3M"))
+    assert list(pair.columns) == ["events_6m_3m"]
+    assert list(two.columns) == ["events_6m", "events_3m"]
+    pd.testing.assert_series_equal(
+        pair["events_6m_3m"], two["events_6m"] - two["events_3m"], check_names=False
+    )
+
+
 def test_columns_come_window_by_window_with_a_prefix():
     events, observations = random_tables(5)
     result = window_features(
@@ -1105,27 +1147,21 @@ def damaged(change):
             r"^events\[1\] has unknown keys \['where'\]$",
         ),
         (
-            damaged(lambda d: d["events"][0].update(aggregations={})),
-            r"^aggregations of events\[0\] must be a list, got dict$",
+            # The layout of format version 1 before the review, a list of columns.
+            damaged(
+                lambda d: d["events"][0].update(
+                    aggregations=[{"column": "amount", "aggregations": ["sum"]}]
+                )
+            ),
+            r"^aggregations of events\[0\] must be a dict from column names to lists of "
+            r"aggregations, got \[\{'column': 'amount', 'aggregations': \['sum'\]\}\]$",
         ),
         (
-            damaged(lambda d: d["events"][0]["aggregations"].append("sum")),
-            r"^each aggregation of events\[0\] must be a mapping, got str$",
-        ),
-        (
-            damaged(lambda d: d["events"][0]["aggregations"][0].pop("column")),
-            r"^an aggregation of events\[0\] lacks \['column'\]$",
-        ),
-        (
-            damaged(lambda d: d["events"][0]["aggregations"][0].update(column=1)),
+            damaged(lambda d: d["events"][0]["aggregations"].update({1: ["sum"]})),
             "^column names must be strings, got 1$",
         ),
         (
-            damaged(lambda d: d["events"][0]["aggregations"][1].update(column="amount")),
-            r"^aggregations of events\[0\] must not repeat a column, got 'amount'$",
-        ),
-        (
-            damaged(lambda d: d["events"][0]["aggregations"][0].update(aggregations="sum")),
+            damaged(lambda d: d["events"][0]["aggregations"].update(amount="sum")),
             r"^aggregations of events\[0\] of column 'amount' must be a list such as",
         ),
         (
@@ -1153,6 +1189,38 @@ def test_invalid_json_raises():
         FeatureSpec.from_json({})  # type: ignore[arg-type]
     with pytest.raises(ValueError):
         FeatureSpec.from_json("{")
+    # json.loads would keep the last of two values of one key.
+    text = two_groups().to_json().replace('"amount": [', '"amount": ["sum"], "amount": [', 1)
+    with pytest.raises(
+        ValueError, match="^JSON objects must not repeat a key, got 'amount' twice$"
+    ):
+        FeatureSpec.from_json(text)
+
+
+def test_the_dict_holds_the_arguments_of_the_constructor():
+    spec = two_groups()
+    data = spec.to_dict()
+    assert list(data) == [
+        "format",
+        "format_version",
+        "kivi_version",
+        "id",
+        "observation_time",
+        "events",
+        "ratios",
+        "panel",
+    ]
+    assert data["events"][1] == {
+        "table": "cash",
+        "time": "time",
+        "windows": ["3M", ["6M", "3M"]],
+        "aggregations": {"amount": ["sum", "max"]},
+        "closed": "right",
+        "prefix": "cash_",
+    }
+    assert list(data["events"][0]["aggregations"]) == ["amount", "kind", "flag"]
+    arguments = ["id", "observation_time", "events", "ratios", "panel", "kivi_version"]
+    assert FeatureSpec(**{name: data[name] for name in arguments}) == spec
 
 
 def test_a_missing_kivi_version_is_rejected_even_though_the_constructor_fills_it_in():

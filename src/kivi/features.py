@@ -150,7 +150,9 @@ def window_features(
         calendar months and ``"90D"`` the last 90 days. A pair such as
         ``("6M", "3M")`` is the earlier period from six to three months
         before the observation time; its two bounds must have the same unit
-        and the first must be further back.
+        and the first must be further back. A pair is one window only as an
+        item of the list, as in ``windows=[("6M", "3M")]``:
+        ``windows=("6M", "3M")`` is the two windows ``"6M"`` and ``"3M"``.
     aggregations : dict, optional
         The aggregations of each column of `events`, such as
         ``{"amount": ["count", "sum", "max"]}``, among ``"count"``,
@@ -172,8 +174,9 @@ def window_features(
         observation time is the caller's judgment. A pair of windows is
         closed on the same side.
     prefix : str, default ""
-        Text put in front of every column name, such as ``"cash_"`` for the
-        features of cash withdrawals. Ratios name columns with the prefix.
+        Text put in front of every column name, as given, such as
+        ``"cash_"`` for the features of cash withdrawals. Ratios name columns
+        with the prefix.
 
     Returns
     -------
@@ -181,8 +184,11 @@ def window_features(
         One row per row of `observations`, on its index and in its order.
         For each window in turn, the column ``{prefix}events_{window}`` and
         then, column by column and aggregation by aggregation, the columns
-        ``{prefix}{column}_{aggregation}_{window}``, with the window in lower
-        case, such as ``amount_sum_3m`` or ``amount_sum_6m_3m``. The ratios
+        ``{prefix}{column}_{aggregation}_{window}``, such as
+        ``amount_sum_3m`` or ``amount_sum_6m_3m``. The prefix and the column
+        names are kept as given, and only kivi's own parts, the aggregations
+        and the windows, are in lower case, so ``Amount`` and ``amount`` give
+        different columns. The ratios
         follow, named ``{numerator}_over_{window}`` when the numerator and
         the denominator differ only in their windows, such as
         ``amount_sum_3m_over_12m``, and ``{numerator}_over_{denominator}``
@@ -240,7 +246,10 @@ def window_features(
     events of one time in the order of the rows of `events`.
     ``days_since_last`` counts fractions of a day, so an event twelve hours
     before the observation is 0.5 days old; for a pair of windows it is
-    still measured from the observation time. ``count``, ``nunique`` and
+    still measured from the observation time. It is the time that has
+    passed, so with a time zone it can differ by the hour that clocks change
+    from the local calendar days that windows such as ``"90D"`` count.
+    ``count``, ``nunique`` and
     ``days_since_last`` take columns of any dtype, such as the type of a
     merchant; the other aggregations need numbers, and booleans count as 0
     and 1. A ratio is NaN where its denominator is 0 or NaN.
@@ -281,6 +290,25 @@ def window_features(
 
     The event of 31 March is on the observation date, so no window uses
     it, and the month before 31 March starts on 29 February.
+
+    A pair of bounds is one window only as an item of the list of windows;
+    on its own, it is two windows:
+
+    >>> pair = window_features(
+    ...     events, observations, id="customer", time="time", observation_time="date",
+    ...     windows=[("3M", "1M")],
+    ... )
+    >>> pair
+       events_3m_1m
+    0             1
+    1             1
+    2             0
+    >>> two = window_features(
+    ...     events, observations, id="customer", time="time", observation_time="date",
+    ...     windows=("3M", "1M"),
+    ... )
+    >>> list(two.columns)
+    ['events_3m', 'events_1m']
     """
     group = _checked_group(
         table=_DEFAULT_TABLE,
@@ -321,7 +349,7 @@ class FeatureSpec:
     ----------
     id : str
         Column of the observations and of every event table that names the
-        entity.
+        entity; all groups share it.
     observation_time : str
         Column of the observations with the observation times.
     events : sequence of dict
@@ -334,8 +362,9 @@ class FeatureSpec:
         Ratios of two features of any groups, named by their columns, as in
         `window_features`.
     panel : None, default None
-        Reserved for features of a monthly status panel, which a later
-        version adds; must be None.
+        Reserved for the features of monthly status panels, which
+        ``panel_features`` adds before kivi 1.3.0 is released, completing
+        version 1 of the JSON format; until then it must be None.
     kivi_version : str, optional
         Version of kivi that wrote the specification. By default, or if
         None, the installed version.
@@ -576,19 +605,21 @@ class FeatureSpec:
     def to_dict(self) -> dict[str, typing.Any]:
         """Return the feature specification as a dict of JSON types.
 
-        The result holds only dicts, lists, strings and None, so
-        ``json.dumps`` can write it without further conversion. Its keys are
-        always in the same order. `to_json` writes this dict.
+        The dict holds the arguments of the constructor as the constructor
+        takes them, with lists for tuples, so they rebuild the specification.
+        It holds only dicts, lists, strings and None, so ``json.dumps`` can
+        write it without further conversion, and its keys are always in the
+        same order. `to_json` writes this dict.
 
         Returns
         -------
         dict
-            The keys ``format``, ``format_version``, ``kivi_version``,
-            ``id``, ``observation_time``, ``events``, a list with one dict per
-            group, ``ratios``, a list of pairs, and ``panel``. Each group has
-            the keys ``table``, ``time``, ``windows``, a list of strings and
-            pairs, ``aggregations``, a list of dicts with the keys ``column``
-            and ``aggregations``, ``closed`` and ``prefix``.
+            The keys ``format``, ``format_version`` and ``kivi_version``,
+            then the arguments ``id``, ``observation_time``, ``events``,
+            ``ratios`` and ``panel``. Each group of ``events`` has all its
+            keys: ``table``, ``time``, ``windows``, ``aggregations``, a dict
+            from each column to the list of its aggregations in the order of
+            the columns of the result, ``closed`` and ``prefix``.
 
         See Also
         --------
@@ -607,8 +638,12 @@ class FeatureSpec:
         >>> list(data)
         ['format', 'format_version', 'kivi_version', 'id', 'observation_time', 'events', 'ratios',
          'panel']
-        >>> data["events"][0]["windows"]
-        ['3M', ['6M', '3M']]
+        >>> data["events"][0]
+        {'table': 'events', 'time': 'time', 'windows': ['3M', ['6M', '3M']], 'aggregations': {},
+         'closed': 'left', 'prefix': ''}
+        >>> arguments = ["id", "observation_time", "events", "ratios", "panel", "kivi_version"]
+        >>> FeatureSpec(**{name: data[name] for name in arguments}) == spec
+        True
         """
         groups = []
         for group in self.__dict__["_groups"]:
@@ -622,10 +657,9 @@ class FeatureSpec:
                         else window.definition
                         for window in group.windows
                     ],
-                    "aggregations": [
-                        {"column": column, "aggregations": list(names)}
-                        for column, names in group.aggregations.items()
-                    ],
+                    "aggregations": {
+                        column: list(names) for column, names in group.aggregations.items()
+                    },
                     "closed": group.closed,
                     "prefix": group.prefix,
                 }
@@ -653,7 +687,8 @@ class FeatureSpec:
         ----------
         data : mapping
             A dict in the format of `to_dict`, for example from
-            ``json.load``.
+            ``json.load``. Every key that `to_dict` writes must be present,
+            also in each group.
 
         Returns
         -------
@@ -711,32 +746,7 @@ class FeatureSpec:
             if not isinstance(entry, abc.Mapping):
                 raise ValueError(f"{where} must be a mapping, got {type(entry).__name__}")
             _check_keys(entry, set(_GROUP_KEYS), where)
-            group = dict(entry)
-            columns = entry["aggregations"]
-            if not isinstance(columns, list):
-                raise ValueError(
-                    f"aggregations of {where} must be a list, got {type(columns).__name__}"
-                )
-            aggregations = {}
-            for item in columns:
-                if not isinstance(item, abc.Mapping):
-                    raise ValueError(
-                        f"each aggregation of {where} must be a mapping, got {type(item).__name__}"
-                    )
-                _check_keys(item, {"column", "aggregations"}, f"an aggregation of {where}")
-                column = item["column"]
-                if not isinstance(column, str):
-                    raise ValueError(
-                        f"column names must be strings, got {_validation.shown(column)}"
-                    )
-                if column in aggregations:
-                    raise ValueError(
-                        f"aggregations of {where} must not repeat a column, got "
-                        f"{_validation.shown(column)}"
-                    )
-                aggregations[column] = item["aggregations"]
-            group["aggregations"] = aggregations
-            groups.append(group)
+            groups.append(entry)
         return cls(
             id=data["id"],
             observation_time=data["observation_time"],
@@ -793,14 +803,11 @@ class FeatureSpec:
               "windows": [
                 "3M"
               ],
-              "aggregations": [
-                {
-                  "column": "amount",
-                  "aggregations": [
-                    "sum"
-                  ]
-                }
-              ],
+              "aggregations": {
+                "amount": [
+                  "sum"
+                ]
+              },
               "closed": "left",
               "prefix": ""
             }
@@ -826,7 +833,8 @@ class FeatureSpec:
         """Read a feature specification from the JSON text of `to_json`.
 
         A file written by a newer version of the format is rejected rather
-        than read in part.
+        than read in part, and so is a JSON object that repeats a key, which
+        ``json.loads`` would otherwise read as its last value.
 
         Parameters
         ----------
@@ -841,8 +849,9 @@ class FeatureSpec:
         Raises
         ------
         ValueError
-            If `text` is neither a str nor bytes, is not valid JSON, or does
-            not describe a valid specification; see `from_dict`.
+            If `text` is neither a str nor bytes, is not valid JSON, repeats
+            a key of an object, or does not describe a valid specification;
+            see `from_dict`.
 
         See Also
         --------
@@ -861,7 +870,7 @@ class FeatureSpec:
                 f"text must be JSON text as a str or bytes, got {type(text).__name__}; read a "
                 'file first, for example with Path(...).read_text(encoding="utf-8")'
             )
-        return cls.from_dict(json.loads(text))
+        return cls.from_dict(json.loads(text, object_pairs_hook=_unique_keys))
 
 
 def _checked_group(
@@ -1109,6 +1118,18 @@ def _check_keys(data: abc.Mapping[str, typing.Any], expected: set[str], where: s
         if unknown:
             problems.append(f"has unknown keys {_validation.shown_list(unknown)}")
         raise ValueError(f"{where} " + " and ".join(problems))
+
+
+def _unique_keys(pairs: list[tuple[str, typing.Any]]) -> dict[str, typing.Any]:
+    """Return the pairs of a JSON object as a dict, rejecting a repeated key."""
+    result: dict[str, typing.Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(
+                f"JSON objects must not repeat a key, got {_validation.shown(key)} twice"
+            )
+        result[key] = value
+    return result
 
 
 def _tables(events: object, names: list[str]) -> dict[str, tuple[pd.DataFrame, str]]:
