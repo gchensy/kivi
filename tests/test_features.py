@@ -25,6 +25,7 @@ import pandas as pd
 import pytest
 
 import kivi
+from kivi import features
 from kivi.features import FeatureSpec, window_features
 
 DATA = pathlib.Path(__file__).parent / "data"
@@ -368,7 +369,7 @@ def test_bounds_in_the_hours_that_clocks_skip_or_repeat():
     zone = "Europe/Berlin"
     events = pd.DataFrame(
         {
-            "customer": [1, 1, 2, 2],
+            "customer": [1, 1, 2, 2, 3],
             "time": pd.to_datetime(
                 [
                     # 03:00 CEST, the end of the hour skipped on 31 March, and a second before.
@@ -377,6 +378,8 @@ def test_bounds_in_the_hours_that_clocks_skip_or_repeat():
                     # 02:15 CEST before the repeated hour of 27 October, and 02:45 CET in it.
                     "2024-10-27 00:15",
                     "2024-10-27 01:45",
+                    # 02:45 CEST, in the first occurrence of the repeated hour.
+                    "2024-10-27 00:45",
                 ],
                 format="ISO8601",
                 utc=True,
@@ -385,17 +388,21 @@ def test_bounds_in_the_hours_that_clocks_skip_or_repeat():
     )
     observations = pd.DataFrame(
         {
-            "customer": [1, 2],
-            "date": pd.to_datetime(["2024-04-30 02:30", "2024-11-27 02:30"]).tz_localize(zone),
+            "customer": [1, 2, 3],
+            "date": pd.to_datetime(
+                ["2024-04-30 02:30", "2024-11-27 02:30"] + ["2024-11-27 02:30"]
+            ).tz_localize(zone),
         }
     )
     result = window_features(events, observations, **KEYS, windows=["30D", "1M"])
     # 30 days before 30 April 02:30 is 31 March 02:30, which does not exist: 03:00 instead.
     # 30 days before 27 November is 28 October, after both events of customer 2.
-    assert result["events_30d"].tolist() == [1, 0]
-    # A month before 27 November 02:30 is 02:30 on 27 October, taken in summer time, so the
-    # event at 02:45 in winter time counts and the one at 02:15 in summer time does not.
-    assert result["events_1m"].tolist() == [2, 1]
+    assert result["events_30d"].tolist() == [1, 0, 0]
+    # A month before 27 November 02:30 is 02:30 on 27 October, taken at its first occurrence,
+    # in summer time: the event at 02:45 in winter time counts and the one at 02:15 in summer
+    # time does not. The event of customer 3 at 02:45 in summer time lies between the two
+    # occurrences of 02:30, so it counts only because the first one is taken.
+    assert result["events_1m"].tolist() == [2, 1, 1]
 
 
 def test_sums_keep_the_precision_of_each_entity():
@@ -411,6 +418,61 @@ def test_sums_keep_the_precision_of_each_entity():
         events, observations, **KEYS, windows=["1M"], aggregations={"amount": ["sum"]}
     )
     assert result["amount_sum_1m"].tolist() == [1e17 + 3.0, 0.1 + 0.2]
+
+
+def test_sums_keep_their_precision_after_large_values_of_the_same_entity():
+    events = pd.DataFrame(
+        {
+            "customer": [1, 1, 1],
+            "time": pd.to_datetime(["2020-01-01", "2024-03-10", "2024-03-20"]),
+            "amount": [1e17, 0.1, 0.2],
+        }
+    )
+    observations = pd.DataFrame({"customer": [1], "date": pd.to_datetime(["2024-03-31"])})
+    result = window_features(
+        events, observations, **KEYS, windows=["1M"], aggregations={"amount": ["sum", "mean"]}
+    )
+    assert result.iloc[0].tolist() == [2, 0.1 + 0.2, (0.1 + 0.2) / 2]
+    # Large values at random places before small windows of one entity.
+    rng = np.random.default_rng(11)
+    n = 2000
+    events = pd.DataFrame(
+        {
+            "customer": 1,
+            "time": pd.Timestamp("2020-01-01") + pd.to_timedelta(np.arange(n) * 12, unit="h"),
+            "amount": np.where(rng.random(n) < 0.05, 1e15, rng.random(n)),
+        }
+    )
+    observations = pd.DataFrame(
+        {"customer": 1, "date": events["time"].sample(200, random_state=0).to_numpy()}
+    )
+    result = window_features(
+        events, observations, **KEYS, windows=["7D", "90D"], aggregations={"amount": ["sum"]}
+    )
+    for _, row in observations.iterrows():
+        for days in (7, 90):
+            inside = events.loc[
+                (events["time"] >= row["date"] - pd.Timedelta(days=days))
+                & (events["time"] < row["date"]),
+                "amount",
+            ]
+            expected = math.fsum(inside)
+            got = result.loc[_, f"amount_sum_{days}d"]
+            assert got == pytest.approx(expected, rel=1e-13, abs=1e-13), (row["date"], days)
+
+
+def test_windows_are_expanded_in_chunks(monkeypatch):
+    events, observations = random_tables(12)
+    options = {"windows": WINDOWS, "aggregations": AGGREGATIONS}
+    whole = window_features(events, observations, **KEYS, **options)
+    # Chunks smaller than some windows, which then form chunks of their own.
+    monkeypatch.setattr(features, "_CHUNK", 5)
+    assert [(c.start, c.stop) for c in features._chunks(np.array([2, 2, 9, 0, 1, 4]))] == [
+        (0, 2),
+        (2, 3),
+        (3, 6),
+    ]
+    pd.testing.assert_frame_equal(window_features(events, observations, **KEYS, **options), whole)
 
 
 def test_std_is_accurate_for_large_values_with_a_small_spread():

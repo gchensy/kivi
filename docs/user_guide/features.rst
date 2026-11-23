@@ -191,7 +191,7 @@ An entity may appear in several rows of the observations, such as one row per mo
 1          1          120.0
 2          3          250.0
 
-Three months before 29 February is 29 November, after the payment of 20 November, which therefore counts only at the end of January. One call computes the features of every date, which is how past samples are rebuilt: the events are sorted once and the bounds of every window are found by binary search, so the time grows with the number of rows rather than with their product.
+Three months before 29 February is 29 November, after the payment of 20 November, which therefore counts only at the end of January. One call computes the features of every date, which is how past samples are rebuilt. The events are sorted once and the bounds of every window are found by binary search, so counts, sums, means, first and last values and ``days_since_last`` take a time that grows with the number of rows of the two tables. ``min``, ``max``, ``std`` and ``nunique`` look at every event of every window instead, so their time grows with the number of observation dates of an entity times its events per window.
 
 Reading the result
 ------------------

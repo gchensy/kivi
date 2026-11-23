@@ -248,9 +248,14 @@ def window_features(
     Entities of `observations` without events get the values of empty
     windows, and events of entities that `observations` lacks are ignored.
     The events are sorted once, and the bounds of every window are found by
-    binary search, so the time grows with the number of rows rather than
-    with their product; ``min``, ``max``, ``std`` and ``nunique`` also
-    visit each event once for every window that contains it.
+    binary search. Counts, sums, means, first and last values and
+    ``days_since_last`` then take a time that grows with the number of rows
+    of the two tables, and a sum adds only values inside its window, so a
+    large earlier value does not round away the small ones in it.
+    ``min``, ``max``, ``std`` and ``nunique`` visit each event once for every
+    window that contains it, so their time grows with the events of all
+    windows together; they are expanded a bounded number at a time, so
+    memory does not.
 
     Examples
     --------
@@ -1240,12 +1245,6 @@ def _group_values(
     distinct, rank = np.unique(times, return_inverse=True)
     width = len(distinct) + 1
     keys = codes * width + rank.reshape(-1)
-    entities = int(codes[-1]) + 1 if len(codes) else 0
-    sizes = np.bincount(codes, minlength=entities)
-    starts = np.cumsum(sizes) - sizes
-    # The first event of the entity of each observation; observations of entities without
-    # events have empty windows, whose sums need no such start.
-    first_rows = np.where(targets >= 0, starts[np.maximum(targets, 0)] if entities else 0, 0)
     side: typing.Literal["left", "right"] = "left" if group.closed == "left" else "right"
 
     def position(bound: tuple[int, str] | None) -> npt.NDArray[np.intp]:
@@ -1253,35 +1252,60 @@ def _group_values(
         found = np.searchsorted(keys, targets * width + np.searchsorted(distinct, instant, side))
         return np.where(targets >= 0, found, 0)
 
-    segments = {}
-    for window in group.windows:
-        segments[window.label] = (position(window.start), position(window.end))
+    columns = {
+        column: _ColumnValues(values[column], order, column, where, names)
+        for column, names in group.aggregations.items()
+    }
     result: dict[str, npt.NDArray[typing.Any]] = {}
     for window in group.windows:
-        start, end = segments[window.label]
-        result[f"{group.prefix}events_{window.label}"] = (end - start).astype(np.int64)
-    expansions: dict[str, _Expansion] = {}
-    for column, names in group.aggregations.items():
-        column_values = _ColumnValues(values[column], order, codes, column, where, names)
-        for window in group.windows:
-            start, end = segments[window.label]
-            if any(name in _REDUCED for name in names) and window.label not in expansions:
-                expansions[window.label] = _expansion(start, end)
+        start, end = position(window.start), position(window.end)
+        label = window.label
+        result[f"{group.prefix}events_{label}"] = (end - start).astype(np.int64)
+        reduced = []
+        for column, names in group.aggregations.items():
             for name in names:
-                result[f"{group.prefix}{column}_{name}_{window.label}"] = column_values.aggregate(
-                    name,
-                    start,
-                    end,
-                    first_rows=first_rows,
-                    times=times,
-                    instants=observed.instants,
-                    expansion=expansions.get(window.label),
-                )
+                key = f"{group.prefix}{column}_{name}_{label}"
+                if name in _REDUCED:
+                    reduced.append((key, columns[column], name))
+                else:
+                    result[key] = columns[column].aggregate(
+                        name, start, end, times=times, instants=observed.instants
+                    )
+        for key, _, name in reduced:
+            result[key] = (
+                np.zeros(len(start), dtype=np.int64)
+                if name == "nunique"
+                else np.full(len(start), np.nan)
+            )
+        # The rows of the windows are expanded a bounded number at a time, so that memory stays
+        # bounded however many events the windows hold together.
+        for chunk in _chunks(end - start):
+            expansion = _expansion(start[chunk], end[chunk])
+            for key, column_values, name in reduced:
+                result[key][chunk] = column_values.reduce(name, start[chunk], end[chunk], expansion)
     return {feature.name: result[feature.name] for feature in _features(group)}
 
 
+# The largest number of event rows of windows that are expanded at once.
+_CHUNK = 1 << 20
+
+
+def _chunks(lengths: npt.NDArray[np.intp]) -> abc.Iterator[slice]:
+    """Yield slices of consecutive windows that hold at most `_CHUNK` rows together.
+
+    A window that is longer on its own forms a slice of its own.
+    """
+    ends = np.cumsum(lengths)
+    first = 0
+    while first < len(lengths):
+        before = ends[first - 1] if first else 0
+        last = max(int(np.searchsorted(ends, before + _CHUNK, side="right")), first + 1)
+        yield slice(first, last)
+        first = last
+
+
 class _Expansion(typing.NamedTuple):
-    """The event rows of every window, window after window.
+    """The event rows of some windows, window after window.
 
     ``heads`` are the positions in ``rows`` where the non-empty windows
     begin, ``filled`` marks those windows and ``lengths`` are their lengths.
@@ -1309,7 +1333,6 @@ class _ColumnValues:
         self,
         values: pd.Series,
         order: npt.NDArray[np.intp],
-        entities: npt.NDArray[np.int64],
         column: str,
         where: str,
         names: tuple[str, ...],
@@ -1319,16 +1342,13 @@ class _ColumnValues:
         # Rows with a value, for the first and the last value of a window.
         self.kept = np.flatnonzero(present)
         self.numbers = np.empty(0)
-        self.totals = np.empty(0)
+        self.blocks: list[npt.NDArray[np.float64]] = []
         self.codes = np.empty(0, dtype=np.intp)
         self.previous = np.empty(0, dtype=np.intp)
         if any(name in _NUMERIC for name in names):
             self.numbers = _numbers(values, column, where)[order]
         if "sum" in names or "mean" in names:
-            filled = np.where(present, self.numbers, 0.0)
-            # Running sums restart with each entity, so that the sums of a small entity keep
-            # their precision after large ones.
-            self.totals = np.asarray(pd.Series(filled).groupby(entities).cumsum(), dtype=float)
+            self.blocks = _blocks(np.where(present, self.numbers, 0.0))
         if "nunique" in names:
             codes = pd.factorize(values)[0][order]
             self.codes = codes
@@ -1340,35 +1360,41 @@ class _ColumnValues:
         start: npt.NDArray[np.intp],
         end: npt.NDArray[np.intp],
         *,
-        first_rows: npt.NDArray[np.intp],
         times: npt.NDArray[np.int64],
         instants: npt.NDArray[np.int64],
-        expansion: _Expansion | None,
     ) -> npt.NDArray[typing.Any]:
-        """Return one aggregation of the column over the windows [start, end) of the rows."""
+        """Return an aggregation other than those of `_REDUCED` over the windows [start, end)."""
         before, until = self.counts[start], self.counts[end]
         count = until - before
         if name == "count":
             return count
         if name in ("sum", "mean"):
-            sums = self._sums(start, end, first_rows)
+            sums = _block_sums(self.blocks, start, end)
             if name == "sum":
                 return sums
             return np.divide(sums, count, out=np.full(len(sums), np.nan), where=count > 0)
-        if name in ("first", "last", "days_since_last"):
-            result = np.full(len(start), np.nan)
-            has = count > 0
-            if name == "first":
-                rows = self.kept[before[has]]
+        result = np.full(len(start), np.nan)
+        has = count > 0
+        if name == "first":
+            rows = self.kept[before[has]]
+            result[has] = self.numbers[rows]
+        else:
+            rows = self.kept[until[has] - 1]
+            if name == "last":
                 result[has] = self.numbers[rows]
             else:
-                rows = self.kept[until[has] - 1]
-                if name == "last":
-                    result[has] = self.numbers[rows]
-                else:
-                    result[has] = (instants[has] - times[rows]) / _NANOSECONDS_PER_DAY
-            return result
-        rows, heads, filled, lengths = typing.cast(_Expansion, expansion)
+                result[has] = (instants[has] - times[rows]) / _NANOSECONDS_PER_DAY
+        return result
+
+    def reduce(
+        self,
+        name: str,
+        start: npt.NDArray[np.intp],
+        end: npt.NDArray[np.intp],
+        expansion: _Expansion,
+    ) -> npt.NDArray[typing.Any]:
+        """Return an aggregation of `_REDUCED` over the windows [start, end) of an expansion."""
+        rows, heads, filled, lengths = expansion
         if name == "nunique":
             # A value is new in a window when its previous occurrence lies before the window.
             new = (self.codes[rows] >= 0) & (
@@ -1388,7 +1414,7 @@ class _ColumnValues:
             result[filled] = np.fmax.reduceat(values, heads)
         else:
             missing = np.isnan(values)
-            n = count[filled]
+            n = (self.counts[end] - self.counts[start])[filled]
             sums = np.add.reduceat(np.where(missing, 0.0, values), heads)
             means = np.divide(sums, n, out=np.zeros(len(n)), where=n > 0)
             deviations = np.where(missing, 0.0, values - np.repeat(means, lengths))
@@ -1397,22 +1423,47 @@ class _ColumnValues:
             result[filled] = np.sqrt(variance)
         return result
 
-    def _sums(
-        self,
-        start: npt.NDArray[np.intp],
-        end: npt.NDArray[np.intp],
-        first_rows: npt.NDArray[np.intp],
-    ) -> npt.NDArray[np.float64]:
-        """Return the sums of the windows from the running sums of their entities."""
-        result = np.zeros(len(start))
-        has = end > start
-        if not has.any():
-            return result
-        last = self.totals[end[has] - 1]
-        earlier = start[has] > first_rows[has]
-        previous = self.totals[np.maximum(start[has] - 1, 0)]
-        result[has] = last - np.where(earlier, previous, 0.0)
-        return result
+
+def _blocks(values: npt.NDArray[np.float64]) -> list[npt.NDArray[np.float64]]:
+    """Return the sums of aligned blocks of 1, 2, 4, ... values, one array per block length.
+
+    Each block sums two blocks of half its length, so that the sum of a
+    window, assembled from the blocks that lie inside it, is as precise as
+    a pairwise sum of the window alone.
+    """
+    blocks = [values]
+    while len(blocks[-1]) > 1:
+        level = blocks[-1]
+        if len(level) % 2:
+            level = np.append(level, 0.0)
+        blocks.append(level[0::2] + level[1::2])
+    return blocks
+
+
+def _block_sums(
+    blocks: list[npt.NDArray[np.float64]],
+    start: npt.NDArray[np.intp],
+    end: npt.NDArray[np.intp],
+) -> npt.NDArray[np.float64]:
+    """Return the sums of the windows [start, end), each from the aligned blocks inside it.
+
+    At every block length, a window takes the block at its left end when
+    that end is not aligned to the next length, and likewise at its right
+    end, as a segment tree is read from the leaves up. Values outside a
+    window never enter its sum, so a large value before a window cannot
+    swamp the small ones inside it.
+    """
+    sums = np.zeros(len(start))
+    low, high = start.astype(np.intp), end.astype(np.intp)
+    for level in blocks:
+        left = (low & 1).astype(bool) & (low < high)
+        sums[left] += level[low[left]]
+        low = low + left
+        right = (high & 1).astype(bool) & (low < high)
+        high = high - right
+        sums[right] += level[high[right]]
+        low, high = low >> 1, high >> 1
+    return sums
 
 
 def _numbers(values: pd.Series, column: str, where: str) -> npt.NDArray[np.float64]:
