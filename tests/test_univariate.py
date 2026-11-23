@@ -8,6 +8,7 @@ import pytest
 
 from kivi.binning import bin_edges, cut
 from kivi.datasets import load_bank
+from kivi.metrics import ks
 from kivi.univariate import profile_table
 from kivi.woe import woe_table
 
@@ -39,6 +40,8 @@ TARGETED = [
     "tied_bins",
     "gini",
 ]
+SHAPE = ["skewness", "kurtosis", "cv"]
+TESTS = ["ks", "chi2_p_value"]
 
 FRAME = pd.DataFrame(
     {
@@ -51,7 +54,7 @@ TARGET = pd.Series([0, 0, 1, 0, 1, 1, 0, 1])
 
 def test_profile_by_hand():
     profile = profile_table(FRAME, TARGET, bins=2, special={"x": [-1]})
-    assert list(profile.columns) == BASE + TARGETED
+    assert list(profile.columns) == BASE + TARGETED + SHAPE + TESTS
     assert profile.index.name == "variable"
     assert profile.index.tolist() == ["x", "c"]
     x, c = profile.loc["x"], profile.loc["c"]
@@ -77,6 +80,17 @@ def test_profile_by_hand():
     assert not x["tied_bins"]
     # Events 2, 4, 5 against non-events 1, 2, 3: 7.5 of 9 pairs, so AUC = 5/6.
     assert x["gini"] == pytest.approx(2 * 7.5 / 9 - 1)
+    # Six times the deviations from the mean 17/6 are -11, -5, -5, 1, 7, 13, whose squares,
+    # cubes and fourth powers sum to 390, 960 and 46854.
+    assert x["skewness"] == pytest.approx(6 * math.sqrt(5) / 4 * 960 / 390**1.5)
+    assert x["kurtosis"] == pytest.approx(6 * 7 * 5 / (4 * 3) * 46854 / 390**2 - 3 * 25 / 12)
+    assert x["cv"] == pytest.approx(math.sqrt(390 / 36 / 5) / (17 / 6))
+    # The cumulative shares of non-events reach 1 at 3, where the events have only 1 of 3.
+    assert x["ks"] == pytest.approx(2 / 3)
+    # Each of the four groups is expected to hold as many events as non-events; the observed
+    # counts are off by 1/2, 1/2, 1/2 and 1/2, so the statistic is 1 + 1/3 + 1/3 + 1 = 8/3. With
+    # 3 degrees of freedom, Q(3/2, x/2) = erfc(sqrt(x/2)) + sqrt(2x/pi) exp(-x/2).
+    assert x["chi2_p_value"] == pytest.approx(_chi2_sf_3(8 / 3))
 
     assert c["kind"] == "categorical"
     assert (c["count"], c["missing"], c["distinct"], c["special"]) == (7, 1, 3, 0)
@@ -89,6 +103,16 @@ def test_profile_by_hand():
     assert c["iv"] == pytest.approx(expected)
     assert not c["tied_bins"]
     assert np.isnan(c["gini"])
+    assert all(np.isnan(c[name]) for name in SHAPE + ["ks"])
+    # Groups a, b, c and missing hold (1, 3), (1, 1), (1, 0) and (1, 0): the statistic is
+    # 1 + 0 + 1 + 1.
+    assert c["chi2_p_value"] == pytest.approx(_chi2_sf_3(3))
+
+
+def _chi2_sf_3(statistic):
+    """Upper tail of a chi-squared distribution with 3 degrees of freedom."""
+    half = statistic / 2
+    return math.erfc(math.sqrt(half)) + math.sqrt(2 * statistic / math.pi) * math.exp(-half)
 
 
 def test_profile_iv_equals_the_quick_binning_with_the_public_functions():
@@ -101,7 +125,7 @@ def test_profile_iv_equals_the_quick_binning_with_the_public_functions():
 
 def test_profile_without_target_describes_only():
     profile = profile_table(FRAME)
-    assert list(profile.columns) == BASE
+    assert list(profile.columns) == BASE + SHAPE
     assert profile["count"].dtype == np.int64
     assert profile["distinct"].dtype == np.int64
     # Without special codes, -1 is a regular value.
@@ -153,6 +177,8 @@ def test_infinite_special_code_and_all_missing_column():
     assert np.isnan(empty["non_missing_event_rate"]) and empty["missing_lift"] == 1
     # One group, the missing values, carries no information.
     assert empty["iv"] == 0 and empty["tied_bins"]
+    assert empty["chi2_p_value"] == 1
+    assert all(np.isnan(empty[name]) for name in SHAPE + ["ks"])
 
 
 def test_all_special_column_has_tied_bins_and_no_summary():
@@ -161,6 +187,8 @@ def test_all_special_column_has_tied_bins_and_no_summary():
     assert (profile["count"], profile["special"], profile["distinct"]) == (4, 4, 1)
     assert np.isnan(profile["mean"]) and np.isnan(profile["gini"])
     assert profile["iv"] == 0 and profile["tied_bins"]
+    assert profile["chi2_p_value"] == 1
+    assert all(np.isnan(profile[name]) for name in SHAPE + ["ks"])
 
 
 def test_rows_without_weight_are_not_checked():
@@ -235,12 +263,123 @@ def test_integer_weights_equal_repeated_rows():
     pd.testing.assert_frame_equal(weighted, unit)
     # Without weights the quantiles interpolate, so only the other columns match.
     repeated = profile_table(rows, labels, special=special)
-    exact = [name for name in BASE + TARGETED if name not in ("q01", "q50", "q99", "iv")]
+    binned = ("q01", "q50", "q99", "iv", "chi2_p_value")
+    exact = [name for name in BASE + TARGETED + SHAPE + TESTS if name not in binned]
     pd.testing.assert_frame_equal(weighted[exact], repeated[exact], check_dtype=False)
+    # A categorical column keeps its labels, so its test does not depend on the edges.
+    assert weighted.loc["label", "chi2_p_value"] == pytest.approx(
+        repeated.loc["label", "chi2_p_value"], rel=1e-12
+    )
     # The weighted quantiles are those of NumPy's inverted CDF on the repeated rows.
     values = rows["x"].dropna().to_numpy()
     expected = [np.sort(values)[math.ceil(p * len(values)) - 1] for p in (0.01, 0.5, 0.99)]
     assert weighted.loc["x", ["q01", "q50", "q99"]].tolist() == expected
+
+
+def test_shape_matches_pandas():
+    rng = np.random.default_rng(5)
+    frame = pd.DataFrame(
+        {
+            "normal": rng.normal(10, 2, 200),
+            "skewed": np.where(rng.random(200) < 0.2, np.nan, rng.lognormal(0, 1, 200)),
+            "coded": np.where(rng.random(200) < 0.4, -1, rng.integers(0, 30, 200)),
+            "negative": -rng.exponential(5, 200),
+        }
+    )
+    special = {"coded": [-1]}
+    profile = profile_table(frame, special=special)
+    for name in frame:
+        values = frame[name].dropna()
+        values = values[values != -1] if name in special else values
+        assert profile.loc[name, "skewness"] == pytest.approx(values.skew(), rel=1e-10)
+        assert profile.loc[name, "kurtosis"] == pytest.approx(values.kurt(), rel=1e-10)
+        assert profile.loc[name, "cv"] == pytest.approx(values.std() / values.mean(), rel=1e-12)
+    # The coefficient of variation has the sign of the mean.
+    assert profile.loc["negative", "cv"] < 0
+
+
+def test_shape_needs_enough_values_and_a_spread():
+    frame = pd.DataFrame(
+        {
+            "two": [1.0, 3.0, np.nan, np.nan],
+            "three": [1.0, 2.0, 4.0, np.nan],
+            "four": [1.0, 2.0, 4.0, 8.0],
+            "constant": [0.1, 0.1, 0.1, 0.1],
+            "centred": [-2.0, -1.0, 1.0, 2.0],
+        }
+    )
+    profile = profile_table(frame)
+    assert np.isnan(profile.loc["two", "skewness"]) and np.isnan(profile.loc["two", "kurtosis"])
+    assert profile.loc["three", "skewness"] == pytest.approx(frame["three"].skew())
+    assert np.isnan(profile.loc["three", "kurtosis"])
+    assert profile.loc["four", "kurtosis"] == pytest.approx(frame["four"].kurt())
+    # Equal values have no shape, as pandas >= 3 and SciPy report, but a coefficient of
+    # variation of 0; a mean of 0 leaves the coefficient undefined.
+    assert np.isnan(profile.loc["constant", "skewness"])
+    assert np.isnan(profile.loc["constant", "kurtosis"])
+    assert profile.loc["constant", "cv"] == 0
+    assert np.isnan(profile.loc["centred", "cv"])
+    assert profile.loc["centred", "skewness"] == 0
+    # With weights, the total weight takes the place of the number of values.
+    weighted = profile_table(frame[["four"]], weights=[0.5, 0.5, 0.5, 0.5]).loc["four"]
+    assert np.isnan(weighted["skewness"]) and np.isnan(weighted["kurtosis"])
+    weighted = profile_table(frame[["four"]], weights=[1, 1, 0.25, 0.25]).loc["four"]
+    assert np.isfinite(weighted["skewness"]) and np.isnan(weighted["kurtosis"])
+
+
+def test_shape_does_not_depend_on_the_scale():
+    values = np.array([1.0, 2.0, 2.0, 3.0, 7.0, 11.0])
+    frame = pd.DataFrame({"unit": values, "huge": values * 1e150, "tiny": values * 1e-160})
+    profile = profile_table(frame)  # no overflow or underflow warning
+    for name in ["huge", "tiny"]:
+        assert profile.loc[name, ["skewness", "kurtosis"]].tolist() == pytest.approx(
+            profile.loc["unit", ["skewness", "kurtosis"]].tolist(), rel=1e-12
+        )
+
+
+def test_ks_and_chi2_with_the_public_functions():
+    frame, target, weights = _weighted_sample()
+    special = {"code": [-1]}
+    profile = profile_table(frame, target, special=special, weights=weights)
+    regular = frame["code"] != -1
+    assert profile.loc["code", "ks"] == pytest.approx(
+        ks(frame["code"][regular], target[regular], weights=weights[regular.to_numpy()])
+    )
+    x = frame["x"].notna()
+    assert profile.loc["x", "ks"] == pytest.approx(
+        ks(frame["x"][x], target[x], weights=weights[x.to_numpy()])
+    )
+    assert np.isnan(profile.loc["label", "ks"])
+
+
+def test_profile_matches_scipy():
+    stats = pytest.importorskip("scipy.stats")
+    frame, target, weights = _weighted_sample()
+    special = {"code": [-1]}
+    profile = profile_table(frame, target, special=special)
+    for name, values in [
+        ("x", frame["x"].dropna()),
+        ("code", frame["code"][frame["code"] != -1]),
+        ("flag", frame["flag"]),
+    ]:
+        row = profile.loc[name]
+        assert row["skewness"] == pytest.approx(stats.skew(values, bias=False), rel=1e-10)
+        assert row["kurtosis"] == pytest.approx(stats.kurtosis(values, bias=False), rel=1e-10)
+        events, non_events = values[target == 1], values[target == 0]
+        assert row["ks"] == pytest.approx(stats.ks_2samp(events, non_events).statistic)
+    # The test runs on the groups of the quick binning, the special code and the missing
+    # values included; codes rather than intervals, which old NumPy cannot hash quietly.
+    edges = bin_edges(frame["code"], bins=5, special=[-1])
+    groups = cut(frame["code"], edges, special=[-1]).cat.codes
+    for name, grouped in [("code", groups), ("label", frame["label"].fillna("missing"))]:
+        result = stats.chi2_contingency(pd.crosstab(grouped, target), correction=False)
+        assert profile.loc[name, "chi2_p_value"] == pytest.approx(result.pvalue, rel=1e-10)
+    # With weights the counts are sums of weights.
+    weighted = profile_table(frame, target, weights=weights)
+    table = pd.crosstab(frame["label"].fillna("missing"), target, values=weights, aggfunc="sum")
+    table = table.fillna(0)[table.sum(axis=1) > 0]
+    result = stats.chi2_contingency(table, correction=False)
+    assert weighted.loc["label", "chi2_p_value"] == pytest.approx(result.pvalue, rel=1e-10)
 
 
 def test_zero_weights_drop_rows():
