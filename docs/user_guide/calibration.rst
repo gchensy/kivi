@@ -328,6 +328,24 @@ Isotonic regression
 Isotonic regression assumes only that the event rate rises with the score. The pool-adjacent-violators algorithm merges adjacent score bands until their event rates increase, and each band gets its event rate. :func:`~kivi.calibration.isotonic_fit` returns the band edges, from ``-inf`` to ``inf`` like those of :func:`~kivi.binning.bin_edges`, and the probability of each band:
 
 >>> from kivi.calibration import isotonic_fit, isotonic_predict
+>>> scores = list(range(1, 11))
+>>> outcomes = [0, 1, 0, 0, 1, 0, 1, 1, 0, 1]
+>>> edges, probability = isotonic_fit(scores, outcomes)
+>>> edges
+array([-inf,   1.,   4.,   6.,   9.,  inf])
+>>> probability.round(3)
+array([0.   , 0.333, 0.5  , 0.667, 1.   ])
+
+The algorithm goes through the scores from the lowest to the highest. Each score starts a band of its own, and while a band has a higher event rate than the band after it, the two are pooled. Here the outcome 0 at score 3 follows an event at score 2, so scores 2 and 3 are pooled at 0.5, and the 0 at score 4 pools them again at 1/3. Each edge is the highest score of its band:
+
+.. plot::
+   :alt: Ten scores and outcomes, the bands after each pooling, and the fitted probabilities with the edges 1, 4, 6 and 9
+   :caption: Pool-adjacent-violators on the ten scores. Each row shows the bands once the scores up to the one on its left are processed; the outlined band has just been pooled, and the gray outcomes are not processed yet. The last row holds the fitted probabilities.
+
+   kd.figure_isotonic_pav()
+
+On the development PDs, the fit gives 16 bands:
+
 >>> edges, probability = isotonic_fit(dev_low, target)
 >>> len(probability)
 16

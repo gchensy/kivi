@@ -53,6 +53,12 @@ b             0.6667       0.3333 -0.6931  0.231
 >>> print(f"{result['iv'].sum():.4f}")
 0.4621
 
+.. plot::
+   :alt: The six rows of groups a and b with their targets, and the woe_table result with counts, shares, WOE and IV
+   :caption: How ``woe_table`` computes the example: it counts the non-events and events of each group, divides each count by its column total, takes the log of the ratio of the two shares as the WOE, and multiplies the WOE by the difference of the shares for the IV.
+
+   kd.figure_woe_table()
+
 When the counts are already aggregated, for example from a database query, :func:`~kivi.woe.woe` and :func:`~kivi.woe.iv` take the event and non-event counts of each group and give the same values:
 
 >>> from kivi.woe import iv, woe
@@ -164,6 +170,12 @@ A scorecard model takes WOE values as inputs. :func:`~kivi.woe.woe_transform` re
 3001   43 -0.050
 3002   27  0.114
 3003   33 -0.125
+
+.. plot::
+   :alt: Four new rows grouped by age, each linked to its row in the development WOE table and to the WOE it receives
+   :caption: ``woe_transform`` looks up the group of each row in the development table and returns its WOE, with the index of the rows.
+
+   kd.figure_woe_transform()
 
 The result keeps the index of the groups. A missing value takes the WOE of the missing group when the development sample had missing values.
 

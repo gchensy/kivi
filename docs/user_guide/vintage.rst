@@ -156,6 +156,12 @@ current    0.977  0.023  0.000  0.000  0.000
 60-89      0.108  0.000  0.000  0.181  0.712
 90+        0.000  0.000  0.000  0.000  1.000
 
+.. plot::
+   :alt: The monthly transition matrix between the delinquency buckets, with the roll rates outlined just right of the diagonal
+   :caption: The monthly transition matrix with ``normalize=True``. The shares just right of the diagonal, outlined, are the roll rates that ``roll_rates`` returns.
+
+   kd.figure_transition_matrix()
+
 The diagonal holds the loans that stayed in their bucket, the ``current`` column the cures and the entries just right of the diagonal the roll rates. A loan that reaches 90+ stays there in this data, so the last row is all 90+.
 
 Migration between two dates

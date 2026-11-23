@@ -83,6 +83,12 @@ Fuzzy augmentation
 15       1   0.250
 15       0   0.750
 
+.. plot::
+   :alt: Three rejects with their PDs, each split into a row with target 1 and a row with target 0
+   :caption: ``fuzzy_augmentation`` splits each reject into two rows with its index: target 1 with its PD as the weight, and target 0 with the rest of the weight of 1.
+
+   kd.figure_fuzzy_augmentation()
+
 To refit, concatenate the accepts at weight 1 with the inferred rows and pass the weights. Only the features of the rejects enter the fit, never their ``target`` column:
 
 >>> def refit(inferred, accept_weight=1.0):
@@ -189,6 +195,12 @@ Reweighting
 ...     spec.woe_transform(accepts), accepts["target"], weights=weights
 ... )
 >>> results["reweighting"] = summary(models["reweighting"])
+
+.. plot::
+   :alt: The ten score bands with their accepts, rejects and event rates, the bad weights of parceling and the weights of reweighting
+   :caption: The ten bands of the scores of both samples. Parceling labels the rejects of a band bad at the event rate of its accepts times ``factor``, and reweighting gives the accepts of a band the weight (accepts + rejects) / accepts. The rejects crowd into the riskiest bands, where accepts are fewest.
+
+   kd.figure_reject_bands()
 
 Reweighting assumes that rejects default like accepts with the same score, which is exactly what fails here. The weights add up to all 9,237 applicants of the population, although only the 6,770 accepts have an observed outcome, so the standard errors of the fit are too small. Each band must also hold accepts. On the incumbent PD, which decided the approval with a hard cut-off, the bands above the cut-off hold only rejects:
 

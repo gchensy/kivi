@@ -48,6 +48,12 @@ period
 
 January has two scores in each band, February one and three, and March none and four. The PSI of February is :math:`(0.25 - 0.5) \ln 0.5 + (0.75 - 0.5) \ln 1.5 = 0.2747`. The empty band of March is smoothed to 0.5, which gives the shares 0.5/4.5 and 4/4.5 and a PSI of 0.8087. In February, the events 0.3 and 0.7 score higher than the non-events 0.2 and 0.6 in three of the four pairs, so the AUC is 0.75. The two known outcomes of March, a non-event at 0.5 and an event at 0.8, are ranked correctly.
 
+.. plot::
+   :alt: Twelve scores and targets in three months, split into two bands by the median of the January scores, and the monitoring table with one row per month
+   :caption: The worked example. The median of the January scores splits every month into the same two bands, and each month becomes one row of the table.
+
+   kd.figure_monitoring_table()
+
 A monitoring report
 -------------------
 

@@ -237,6 +237,12 @@ The same specification always gives the same text, so it can be kept under versi
 >>> entry["table"][1]["woe"]
 2.0098134623334465
 
+.. plot::
+   :alt: The pdays column from the development sample to the fitted specification, its JSON text, and a monitoring sample encoded with the loaded specification
+   :caption: A specification from the fit to production, followed for ``pdays``. ``fit_spec`` fits the edges and the WOE table on the development sample, ``to_json`` writes them with the exact edges, and the specification loaded with ``from_json`` groups and encodes a monitoring sample in the same way.
+
+   kd.figure_spec_roundtrip()
+
 The format
 ----------
 

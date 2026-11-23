@@ -111,6 +111,12 @@ Encode new applicants with the development WOE tables, as described in :doc:`woe
 3001     143.1    153.8    142.9  139.8  579.7
 3002     143.1    131.8    142.9  137.1  554.9
 
+.. plot::
+   :alt: The applicant with index 3001: values, groups, WOE, coefficients and points of four variables, and the score
+   :caption: Scoring the applicant with index 3001: each value is grouped, encoded with the WOE of its group and turned into points, and the points add up to the score.
+
+   kd.figure_scorecard_points()
+
 The score is the scaled log odds of the model, so it equals :func:`~kivi.scorecard.pd_to_score` of the model's probability:
 
 >>> probability = 1 / (1 + np.exp(-(intercept + woe @ pd.Series(coefficients))))

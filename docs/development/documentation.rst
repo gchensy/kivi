@@ -81,15 +81,37 @@ Examples
 * Examples are doctests, and the ``build`` check runs them. Their output is real: when a change alters a printed table, run the code again and paste the new output instead of editing the numbers.
 * Examples use the data described in :doc:`/user_guide/datasets`, or a few values that readers can check by hand. Random data comes from a generator with a fixed seed.
 * Import each function from its module, as in ``from kivi.woe import woe_table``.
-* Examples must not warn: a warning raised by a doctest or by a chart recipe in docs/_plotting.py fails the build. When an example is about a warning, catch it with ``warnings.catch_warnings(record=True)`` and print the message.
+* Examples must not warn: a warning raised by a doctest, or by a chart or diagram recipe in docs/_plotting.py or docs/_diagrams.py, fails the build. When an example is about a warning, catch it with ``warnings.catch_warnings(record=True)`` and print the message.
 * All the examples of a page share one namespace, so a section can use what an earlier section defined. When sections move, check that every name is still defined before it is used.
 
 Charts
 ------
 
-Charts are drawn when the documentation is built. A ``plot`` directive calls a ``figure_*`` function in ``docs/_plotting.py``, which recomputes the example shown just above the chart, so change the two together. Text inside a chart is limited to kivi's column and parameter names and to data values, so that one image serves both editions. The caption and the alternative text are translated.
+Charts and diagrams are drawn when the documentation is built. A ``plot`` directive calls a ``figure_*`` function, which recomputes the example shown just above it, so change the two together:
 
-A pull request that adds a module describes the charts for its page in its description. They are added to ``docs/_plotting.py`` when the page is integrated, together with the entry points.
+* A chart, from ``docs/_plotting.py`` and called as ``kp.figure_*()``, plots a result on the bundled data, such as the WOE of each group or the vintage curves.
+* A diagram, from ``docs/_diagrams.py`` and called as ``kd.figure_*()``, shows how a function computes its result: the input rows, the call and the result table, with the numbers that kivi returns. A topic guide shows its main computation in a diagram right after the worked example, or after the first example of the body section that the computation belongs to.
+
+Text inside a chart or a diagram is limited to kivi's column and parameter names, data values and formulas written with them, so that one image serves both editions. The caption explains the image and the alternative text describes it; both are translated. A recipe that computes numbers apart from the function it shows checks them against that function, so that a change of the function fails the build instead of leaving the image out of date.
+
+Every diagram gives a color the same meaning:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 60
+
+   * - Color
+     - Meaning
+   * - One tint per category, a blue ramp from light to dark for intervals, gray for missing values
+     - Groups and bins, in the input and in the result
+   * - Red
+     - Events, the rows with target 1
+   * - Amber
+     - The result that the diagram is about, and the edges and thresholds
+   * - Blue and teal
+     - The reference sample and the current sample
+
+A pull request that adds a module describes the charts and diagrams for its page in its description. They are added when the page is integrated, together with the entry points.
 
 Names and links
 ---------------
