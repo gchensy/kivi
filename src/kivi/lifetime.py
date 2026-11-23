@@ -42,6 +42,18 @@ _TOLERANCE = 1e-9
 _TIES = 4 * np.finfo(float).eps
 
 
+@typing.overload
+def convert_pd(probability: pd.DataFrame, *, kind: str, to: str) -> pd.DataFrame: ...
+@typing.overload
+def convert_pd(probability: pd.Series, *, kind: str, to: str) -> pd.Series: ...
+@typing.overload
+def convert_pd(
+    probability: _validation.ListLike, *, kind: str, to: str
+) -> npt.NDArray[np.float64]: ...
+@typing.overload
+def convert_pd(
+    probability: npt.ArrayLike | pd.DataFrame, *, kind: str, to: str
+) -> pd.DataFrame | pd.Series | npt.NDArray[np.float64]: ...
 def convert_pd(
     probability: npt.ArrayLike | pd.DataFrame, *, kind: str, to: str
 ) -> pd.DataFrame | pd.Series | npt.NDArray[np.float64]:
@@ -314,6 +326,33 @@ def transition_pd(
     return pd.DataFrame(result, index=index, columns=pd.Index(steps, name="horizon"))
 
 
+@typing.overload
+def expected_credit_loss(
+    probability: pd.DataFrame,
+    lgd: float | npt.ArrayLike | pd.DataFrame,
+    ead: float | npt.ArrayLike | pd.DataFrame,
+    *,
+    rate: float | npt.ArrayLike,
+    horizon: int | None = ...,
+) -> pd.Series: ...
+@typing.overload
+def expected_credit_loss(
+    probability: _validation.ListLike,
+    lgd: float | _validation.ListLike,
+    ead: float | _validation.ListLike,
+    *,
+    rate: float | _validation.ListLike,
+    horizon: int | None = ...,
+) -> npt.NDArray[np.float64]: ...
+@typing.overload
+def expected_credit_loss(
+    probability: npt.ArrayLike | pd.DataFrame,
+    lgd: float | npt.ArrayLike | pd.DataFrame,
+    ead: float | npt.ArrayLike | pd.DataFrame,
+    *,
+    rate: float | npt.ArrayLike,
+    horizon: int | None = ...,
+) -> pd.Series | npt.NDArray[np.float64]: ...
 def expected_credit_loss(
     probability: npt.ArrayLike | pd.DataFrame,
     lgd: float | npt.ArrayLike | pd.DataFrame,
@@ -515,6 +554,38 @@ def expected_credit_loss(
     return pd.Series(loss, index=index, name="expected_credit_loss")
 
 
+@typing.overload
+def significant_increase(
+    probability: pd.Series,
+    origination_probability: npt.ArrayLike,
+    *,
+    relative: float | None,
+    absolute: float | None,
+) -> pd.Series: ...
+@typing.overload
+def significant_increase(
+    probability: npt.ArrayLike,
+    origination_probability: pd.Series,
+    *,
+    relative: float | None,
+    absolute: float | None,
+) -> pd.Series: ...
+@typing.overload
+def significant_increase(
+    probability: _validation.ListLike,
+    origination_probability: _validation.ListLike,
+    *,
+    relative: float | None,
+    absolute: float | None,
+) -> npt.NDArray[np.bool_]: ...
+@typing.overload
+def significant_increase(
+    probability: npt.ArrayLike,
+    origination_probability: npt.ArrayLike,
+    *,
+    relative: float | None,
+    absolute: float | None,
+) -> pd.Series | npt.NDArray[np.bool_]: ...
 def significant_increase(
     probability: npt.ArrayLike,
     origination_probability: npt.ArrayLike,
@@ -649,6 +720,51 @@ def significant_increase(
     return pd.Series(flag, index=index, name="significant_increase")
 
 
+@typing.overload
+def assign_stages(
+    significant_increase: pd.Series,
+    days_past_due: npt.ArrayLike | None = ...,
+    defaulted: npt.ArrayLike | None = ...,
+    *,
+    stage_2_days: float = ...,
+    stage_3_days: float = ...,
+) -> pd.Series: ...
+@typing.overload
+def assign_stages(
+    significant_increase: npt.ArrayLike,
+    days_past_due: pd.Series,
+    defaulted: npt.ArrayLike | None = ...,
+    *,
+    stage_2_days: float = ...,
+    stage_3_days: float = ...,
+) -> pd.Series: ...
+@typing.overload
+def assign_stages(
+    significant_increase: npt.ArrayLike,
+    days_past_due: npt.ArrayLike | None,
+    defaulted: pd.Series,
+    *,
+    stage_2_days: float = ...,
+    stage_3_days: float = ...,
+) -> pd.Series: ...
+@typing.overload
+def assign_stages(
+    significant_increase: _validation.ListLike,
+    days_past_due: _validation.ListLike | None = ...,
+    defaulted: _validation.ListLike | None = ...,
+    *,
+    stage_2_days: float = ...,
+    stage_3_days: float = ...,
+) -> npt.NDArray[np.int64]: ...
+@typing.overload
+def assign_stages(
+    significant_increase: npt.ArrayLike,
+    days_past_due: npt.ArrayLike | None = ...,
+    defaulted: npt.ArrayLike | None = ...,
+    *,
+    stage_2_days: float = ...,
+    stage_3_days: float = ...,
+) -> pd.Series | npt.NDArray[np.int64]: ...
 def assign_stages(
     significant_increase: npt.ArrayLike,
     days_past_due: npt.ArrayLike | None = None,

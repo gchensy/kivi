@@ -28,6 +28,22 @@ __all__ = [
 ]
 
 
+@typing.overload
+def prior_correction(
+    probability: pd.Series, *, sample_rate: float, population_rate: float
+) -> pd.Series: ...
+@typing.overload
+def prior_correction(
+    probability: float, *, sample_rate: float, population_rate: float
+) -> float: ...
+@typing.overload
+def prior_correction(
+    probability: _validation.ListLike, *, sample_rate: float, population_rate: float
+) -> npt.NDArray[np.float64]: ...
+@typing.overload
+def prior_correction(
+    probability: npt.ArrayLike, *, sample_rate: float, population_rate: float
+) -> float | pd.Series | npt.NDArray[np.float64]: ...
 def prior_correction(
     probability: npt.ArrayLike, *, sample_rate: float, population_rate: float
 ) -> float | pd.Series | npt.NDArray[np.float64]:
@@ -285,6 +301,18 @@ def platt_fit(
     return float(np.ldexp(slope, -exponent)), float(intercept)
 
 
+@typing.overload
+def platt_predict(score: pd.Series, slope: float, intercept: float) -> pd.Series: ...
+@typing.overload
+def platt_predict(score: float, slope: float, intercept: float) -> float: ...
+@typing.overload
+def platt_predict(
+    score: _validation.ListLike, slope: float, intercept: float
+) -> npt.NDArray[np.float64]: ...
+@typing.overload
+def platt_predict(
+    score: npt.ArrayLike, slope: float, intercept: float
+) -> float | pd.Series | npt.NDArray[np.float64]: ...
 def platt_predict(
     score: npt.ArrayLike, slope: float, intercept: float
 ) -> float | pd.Series | npt.NDArray[np.float64]:
@@ -469,6 +497,20 @@ def isotonic_fit(
     return edges, pooled_event / pooled_total
 
 
+@typing.overload
+def isotonic_predict(
+    score: pd.Series, edges: npt.ArrayLike, probability: npt.ArrayLike
+) -> pd.Series: ...
+@typing.overload
+def isotonic_predict(score: float, edges: npt.ArrayLike, probability: npt.ArrayLike) -> float: ...
+@typing.overload
+def isotonic_predict(
+    score: _validation.ListLike, edges: npt.ArrayLike, probability: npt.ArrayLike
+) -> npt.NDArray[np.float64]: ...
+@typing.overload
+def isotonic_predict(
+    score: npt.ArrayLike, edges: npt.ArrayLike, probability: npt.ArrayLike
+) -> float | pd.Series | npt.NDArray[np.float64]: ...
 def isotonic_predict(
     score: npt.ArrayLike, edges: npt.ArrayLike, probability: npt.ArrayLike
 ) -> float | pd.Series | npt.NDArray[np.float64]:
@@ -649,6 +691,30 @@ def calibration_table(
     )
 
 
+@typing.overload
+def binomial_test(
+    event: pd.Series, total: npt.ArrayLike, probability: npt.ArrayLike
+) -> pd.Series: ...
+@typing.overload
+def binomial_test(
+    event: npt.ArrayLike, total: pd.Series, probability: npt.ArrayLike
+) -> pd.Series: ...
+@typing.overload
+def binomial_test(
+    event: npt.ArrayLike, total: npt.ArrayLike, probability: pd.Series
+) -> pd.Series: ...
+@typing.overload
+def binomial_test(event: float, total: float, probability: float) -> float: ...
+@typing.overload
+def binomial_test(
+    event: _validation.ListLike,
+    total: float | _validation.ListLike,
+    probability: float | _validation.ListLike,
+) -> npt.NDArray[np.float64]: ...
+@typing.overload
+def binomial_test(
+    event: npt.ArrayLike, total: npt.ArrayLike, probability: npt.ArrayLike
+) -> float | pd.Series | npt.NDArray[np.float64]: ...
 def binomial_test(
     event: npt.ArrayLike, total: npt.ArrayLike, probability: npt.ArrayLike
 ) -> float | pd.Series | npt.NDArray[np.float64]:
@@ -720,6 +786,30 @@ def binomial_test(
     return _pvalues(pvalue, index)
 
 
+@typing.overload
+def jeffreys_test(
+    event: pd.Series, total: npt.ArrayLike, probability: npt.ArrayLike
+) -> pd.Series: ...
+@typing.overload
+def jeffreys_test(
+    event: npt.ArrayLike, total: pd.Series, probability: npt.ArrayLike
+) -> pd.Series: ...
+@typing.overload
+def jeffreys_test(
+    event: npt.ArrayLike, total: npt.ArrayLike, probability: pd.Series
+) -> pd.Series: ...
+@typing.overload
+def jeffreys_test(event: float, total: float, probability: float) -> float: ...
+@typing.overload
+def jeffreys_test(
+    event: _validation.ListLike,
+    total: float | _validation.ListLike,
+    probability: float | _validation.ListLike,
+) -> npt.NDArray[np.float64]: ...
+@typing.overload
+def jeffreys_test(
+    event: npt.ArrayLike, total: npt.ArrayLike, probability: npt.ArrayLike
+) -> float | pd.Series | npt.NDArray[np.float64]: ...
 def jeffreys_test(
     event: npt.ArrayLike, total: npt.ArrayLike, probability: npt.ArrayLike
 ) -> float | pd.Series | npt.NDArray[np.float64]:
@@ -1105,6 +1195,22 @@ def master_scale(
     )
 
 
+@typing.overload
+def fit_grade_pd(
+    event: pd.Series, total: npt.ArrayLike, *, smoothing: float = ...
+) -> pd.Series: ...
+@typing.overload
+def fit_grade_pd(
+    event: npt.ArrayLike, total: pd.Series, *, smoothing: float = ...
+) -> pd.Series: ...
+@typing.overload
+def fit_grade_pd(
+    event: _validation.ListLike, total: _validation.ListLike, *, smoothing: float = ...
+) -> npt.NDArray[np.float64]: ...
+@typing.overload
+def fit_grade_pd(
+    event: npt.ArrayLike, total: npt.ArrayLike, *, smoothing: float = ...
+) -> pd.Series | npt.NDArray[np.float64]: ...
 def fit_grade_pd(
     event: npt.ArrayLike, total: npt.ArrayLike, *, smoothing: float = 0.5
 ) -> pd.Series | npt.NDArray[np.float64]:
@@ -1242,6 +1348,14 @@ def fit_grade_pd(
     return probability
 
 
+@typing.overload
+def assign_grades(probability: pd.Series, scale: pd.DataFrame) -> pd.Series: ...
+@typing.overload
+def assign_grades(probability: _validation.ListLike, scale: pd.DataFrame) -> pd.Categorical: ...
+@typing.overload
+def assign_grades(
+    probability: npt.ArrayLike, scale: pd.DataFrame
+) -> pd.Series | pd.Categorical: ...
 def assign_grades(probability: npt.ArrayLike, scale: pd.DataFrame) -> pd.Series | pd.Categorical:
     """Give each predicted PD the grade of a master scale.
 

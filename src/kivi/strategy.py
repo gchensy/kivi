@@ -14,6 +14,7 @@ when the score is at or below the cut-off.
 
 import math
 import numbers
+import typing
 from collections import abc
 
 import numpy as np
@@ -459,6 +460,24 @@ def swap_set(
     return pd.DataFrame(columns, index=index)
 
 
+@typing.overload
+def expected_loss(probability: pd.Series, lgd: npt.ArrayLike, ead: npt.ArrayLike) -> pd.Series: ...
+@typing.overload
+def expected_loss(probability: npt.ArrayLike, lgd: pd.Series, ead: npt.ArrayLike) -> pd.Series: ...
+@typing.overload
+def expected_loss(probability: npt.ArrayLike, lgd: npt.ArrayLike, ead: pd.Series) -> pd.Series: ...
+@typing.overload
+def expected_loss(probability: float, lgd: float, ead: float) -> float: ...
+@typing.overload
+def expected_loss(
+    probability: _validation.ListLike,
+    lgd: float | _validation.ListLike,
+    ead: float | _validation.ListLike,
+) -> npt.NDArray[np.float64]: ...
+@typing.overload
+def expected_loss(
+    probability: npt.ArrayLike, lgd: npt.ArrayLike, ead: npt.ArrayLike
+) -> float | pd.Series | npt.NDArray[np.float64]: ...
 def expected_loss(
     probability: npt.ArrayLike, lgd: npt.ArrayLike, ead: npt.ArrayLike
 ) -> float | pd.Series | npt.NDArray[np.float64]:

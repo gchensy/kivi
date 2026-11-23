@@ -483,7 +483,7 @@ class BinningSpec:
                 values = woe.woe_transform(groups[name], self.tables[name]["woe"], unseen=unseen)
             except ValueError as error:
                 raise ValueError(f"column {_validation.shown(name)}: {error}") from error
-            values = values.to_numpy(dtype=float, copy=True)  # type: ignore[union-attr]  # a Series in gives a Series
+            values = values.to_numpy(dtype=float, copy=True)
             if outside.any():
                 values[outside] = unseen
             encoded[name] = values
@@ -870,7 +870,7 @@ class BinningSpec:
                 values.mask(_infinite(values, self.special[name])),
                 self.edges[name],
                 special=codes,
-            ).array  # type: ignore[union-attr]  # a Series in gives a Series
+            ).array
         return groups, unmapped
 
     def _sample(self, frame: pd.DataFrame) -> pd.DataFrame:
@@ -1833,7 +1833,7 @@ def _groups(edges: np.ndarray, codes: tuple) -> pd.Index:
     The interval labels are those of ``pandas.cut``, whose bounds are rounded for display.
     """
     empty = pd.Series([], dtype=float)
-    categories = binning.cut(empty, edges, special=list(codes) or None).cat.categories  # type: ignore[union-attr]  # a Series in gives a Series
+    categories = binning.cut(empty, edges, special=list(codes) or None).cat.categories
     return pd.Index([_label(group, "groups") for group in categories], dtype=object)
 
 

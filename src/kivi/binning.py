@@ -125,6 +125,18 @@ def bin_edges(
     return _edges.fit_edges(values, bins, method=method, special=special, weights=weights)
 
 
+@typing.overload
+def cut(
+    values: pd.Series, edges: npt.ArrayLike, *, special: npt.ArrayLike | None = ...
+) -> pd.Series: ...
+@typing.overload
+def cut(
+    values: _validation.ListLike, edges: npt.ArrayLike, *, special: npt.ArrayLike | None = ...
+) -> pd.Categorical: ...
+@typing.overload
+def cut(
+    values: npt.ArrayLike, edges: npt.ArrayLike, *, special: npt.ArrayLike | None = ...
+) -> pd.Series | pd.Categorical: ...
 def cut(
     values: npt.ArrayLike, edges: npt.ArrayLike, *, special: npt.ArrayLike | None = None
 ) -> pd.Series | pd.Categorical:
@@ -883,6 +895,27 @@ def chimerge_groups(
     return groups
 
 
+@typing.overload
+def group_categories(
+    values: pd.Series,
+    groups: abc.Mapping[abc.Hashable, abc.Hashable],
+    *,
+    unseen: abc.Hashable = ...,
+) -> pd.Series: ...
+@typing.overload
+def group_categories(
+    values: _validation.ListLike,
+    groups: abc.Mapping[abc.Hashable, abc.Hashable],
+    *,
+    unseen: abc.Hashable = ...,
+) -> pd.Categorical: ...
+@typing.overload
+def group_categories(
+    values: npt.ArrayLike,
+    groups: abc.Mapping[abc.Hashable, abc.Hashable],
+    *,
+    unseen: abc.Hashable = ...,
+) -> pd.Series | pd.Categorical: ...
 def group_categories(
     values: npt.ArrayLike,
     groups: abc.Mapping[abc.Hashable, abc.Hashable],

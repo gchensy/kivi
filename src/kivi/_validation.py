@@ -12,6 +12,15 @@ import pandas as pd
 #: A NumPy or pandas dtype, as ``Series.dtype`` returns it.
 DTypeObj: typing.TypeAlias = np.dtype[typing.Any] | pd.api.extensions.ExtensionDtype
 
+#: Array_like inputs that are neither Series nor scalars: sequences, Categoricals and
+#: one-dimensional NumPy arrays. The overloads of functions whose result follows the type of an
+#: input map them to arrays or Categoricals. An array of any other number of dimensions is left to
+#: the catch-all overload, because a zero-dimensional one gives a float where the result follows
+#: the shape of the input; type checkers match an array of unknown shape as one-dimensional.
+ListLike: typing.TypeAlias = (
+    abc.Sequence[typing.Any] | pd.Categorical | np.ndarray[tuple[int], np.dtype[typing.Any]]
+)
+
 
 def is_real(value: object) -> typing.TypeGuard[float]:
     """Return ``isinstance(value, numbers.Real)``; type checkers read a True result as float.
@@ -403,6 +412,12 @@ def scores_and_labels(
     return values, labels, mass
 
 
+@typing.overload
+def like_input(template: pd.Series, values: npt.NDArray[np.float64]) -> pd.Series: ...
+@typing.overload
+def like_input(
+    template: npt.ArrayLike, values: npt.NDArray[np.float64]
+) -> float | pd.Series | npt.NDArray[np.float64]: ...
 def like_input(
     template: npt.ArrayLike, values: npt.NDArray[np.float64]
 ) -> float | pd.Series | npt.NDArray[np.float64]:

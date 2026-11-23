@@ -143,6 +143,25 @@ def woe_table(
     )
 
 
+@typing.overload
+def woe(
+    event_counts: pd.Series, non_event_counts: npt.ArrayLike, *, smoothing: float = ...
+) -> pd.Series: ...
+@typing.overload
+def woe(
+    event_counts: npt.ArrayLike, non_event_counts: pd.Series, *, smoothing: float = ...
+) -> pd.Series: ...
+@typing.overload
+def woe(
+    event_counts: _validation.ListLike,
+    non_event_counts: _validation.ListLike,
+    *,
+    smoothing: float = ...,
+) -> npt.NDArray[np.float64]: ...
+@typing.overload
+def woe(
+    event_counts: npt.ArrayLike, non_event_counts: npt.ArrayLike, *, smoothing: float = ...
+) -> pd.Series | npt.NDArray[np.float64]: ...
 def woe(
     event_counts: npt.ArrayLike, non_event_counts: npt.ArrayLike, *, smoothing: float = 0.5
 ) -> pd.Series | npt.NDArray[np.float64]:
@@ -268,6 +287,27 @@ def iv(
     return float(_counts.divergence(counts, smoothing)[2].sum())
 
 
+@typing.overload
+def woe_transform(
+    groups: pd.Series,
+    table: pd.DataFrame | pd.Series,
+    *,
+    unseen: float | typing.Literal["raise"] = ...,
+) -> pd.Series: ...
+@typing.overload
+def woe_transform(
+    groups: _validation.ListLike,
+    table: pd.DataFrame | pd.Series,
+    *,
+    unseen: float | typing.Literal["raise"] = ...,
+) -> npt.NDArray[np.float64]: ...
+@typing.overload
+def woe_transform(
+    groups: npt.ArrayLike,
+    table: pd.DataFrame | pd.Series,
+    *,
+    unseen: float | typing.Literal["raise"] = ...,
+) -> pd.Series | npt.NDArray[np.float64]: ...
 def woe_transform(
     groups: npt.ArrayLike,
     table: pd.DataFrame | pd.Series,
