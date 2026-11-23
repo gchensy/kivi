@@ -258,8 +258,8 @@ def confusion_table(
       whole sample.
 
     The rows match the other tables of kivi. ``recall`` equals
-    ``rejected_event_share`` of `cutoff_table`, the share of non-events in
-    ``false_positive`` equals its ``rejected_non_event_share``, and
+    ``rejected_event_share`` of `cutoff_table`, ``false_positive`` divided
+    by all non-events equals its ``rejected_non_event_share``, and
     ``false_negative`` equals its ``approved_event``. The ``true_positive``,
     ``false_positive``, ``recall`` and ``precision`` of a row also equal
     ``cum_event``, ``cum_non_event``, ``true_positive_rate`` and

@@ -171,7 +171,7 @@ cutoff
    * - ``accuracy``
      - Share of applicants whose decision matches the outcome: declined events and approved non-events.
 
-A cut-off of 0.10 declines 737 applicants, 124 of them events. It declines 71.7% of the events, and 16.8% of the declined applicants are events, 1.5 times the 11.4% of all applicants. The rows are those of :func:`~kivi.strategy.cutoff_table`: ``recall`` is its ``rejected_event_share``, ``false_negative`` its ``approved_event``, and the share of non-events in ``false_positive`` its ``rejected_non_event_share``. The table adds the counts that these shares are made of, and the measures of a classifier:
+A cut-off of 0.10 declines 737 applicants, 124 of them events. It declines 71.7% of the events, and 16.8% of the declined applicants are events, 1.5 times the 11.4% of all applicants. The rows are those of :func:`~kivi.strategy.cutoff_table`: ``recall`` is its ``rejected_event_share``, ``false_negative`` its ``approved_event``, and ``false_positive`` divided by all non-events its ``rejected_non_event_share``. The table adds the counts that these shares are made of, and the measures of a classifier:
 
 >>> confusion["recall"].equals(table["rejected_event_share"])
 True
