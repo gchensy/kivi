@@ -4,8 +4,14 @@ import pytest
 
 from kivi.binning import bin_edges
 from kivi.datasets import load_bank
-from kivi.metrics import gains_table
-from kivi.strategy import cutoff_table, expected_loss, expected_loss_table, swap_set
+from kivi.metrics import gains_table, roc_table
+from kivi.strategy import (
+    confusion_table,
+    cutoff_table,
+    expected_loss,
+    expected_loss_table,
+    swap_set,
+)
 
 # Events score 0.2, 0.6, 0.8 and 0.9; non-events score 0.1, 0.2, 0.3 and 0.5.
 SCORE = [0.1, 0.2, 0.2, 0.3, 0.5, 0.6, 0.8, 0.9]
@@ -18,6 +24,17 @@ CUTOFF_COLUMNS = [
     "approved_event_rate",
     "rejected_event_share",
     "rejected_non_event_share",
+]
+
+CONFUSION_COLUMNS = [
+    "true_positive",
+    "false_positive",
+    "true_negative",
+    "false_negative",
+    "precision",
+    "recall",
+    "f1",
+    "accuracy",
 ]
 
 # The current score approves rows 0-3 at 0.4, the new score rows 0, 1, 2 and 4.
@@ -241,6 +258,288 @@ def test_cutoff_table_rejects_invalid_scores_and_targets():
         cutoff_table([0.1, 0.2], [0, 2], cutoffs=[0.2])
     with pytest.raises(ValueError, match="weights must give both target classes"):
         cutoff_table([0.1, 0.2], [0, 1], cutoffs=[0.2], weights=[1, 0])
+
+
+def brute_force_confusion(score, target, cutoffs, weights=None):
+    """Recompute every column of confusion_table with one prediction vector per cut-off."""
+    score, target = np.asarray(score, dtype=float), np.asarray(target)
+    weights = np.ones(len(score)) if weights is None else np.asarray(weights, dtype=float)
+    rows = []
+    for cutoff in cutoffs:
+        declined = score > cutoff
+        tp = weights[declined & (target == 1)].sum()
+        fp = weights[declined & (target == 0)].sum()
+        tn = weights[~declined & (target == 0)].sum()
+        fn = weights[~declined & (target == 1)].sum()
+        precision = tp / (tp + fp) if tp + fp > 0 else np.nan
+        recall = tp / (tp + fn)
+        rows.append(
+            {
+                "true_positive": tp,
+                "false_positive": fp,
+                "true_negative": tn,
+                "false_negative": fn,
+                "precision": precision,
+                "recall": recall,
+                "f1": 2 * precision * recall / (precision + recall) if tp > 0 else 0.0,
+                "accuracy": (tp + tn) / (tp + fp + tn + fn),
+            }
+        )
+    return pd.DataFrame(rows, index=pd.Index(np.asarray(cutoffs, dtype=float), name="cutoff"))
+
+
+def test_confusion_table_matches_hand_calculation():
+    table = confusion_table(SCORE, TARGET, cutoffs=[0.2, 0.5, 1.0])
+    assert table.columns.tolist() == CONFUSION_COLUMNS
+    assert table.index.name == "cutoff"
+    assert table.index.tolist() == [0.2, 0.5, 1.0]
+    # At 0.2 the scores 0.3 to 0.9 are declined: the events 0.6, 0.8 and 0.9 and two non-events.
+    assert table["true_positive"].tolist() == [3, 3, 0]
+    assert table["false_positive"].tolist() == [2, 0, 0]
+    assert table["true_negative"].tolist() == [2, 4, 4]
+    assert table["false_negative"].tolist() == [1, 1, 4]
+    assert table["true_positive"].dtype == np.int64
+    np.testing.assert_allclose(table["precision"], [3 / 5, 3 / 3, np.nan])
+    np.testing.assert_allclose(table["recall"], [3 / 4, 3 / 4, 0.0])
+    np.testing.assert_allclose(table["f1"], [6 / 9, 6 / 7, 0.0])
+    np.testing.assert_allclose(table["accuracy"], [5 / 8, 7 / 8, 4 / 8])
+
+
+def test_confusion_table_declines_only_scores_above_the_cutoff():
+    # Both tied scores of 0.2 are approved at 0.2 and both declined just below it.
+    table = confusion_table(SCORE, TARGET, cutoffs=[np.nextafter(0.2, 0), 0.2])
+    assert table["true_positive"].tolist() == [4, 3]
+    assert table["false_positive"].tolist() == [3, 2]
+    assert table["false_negative"].tolist() == [0, 1]
+    assert table["true_negative"].tolist() == [1, 2]
+
+
+def test_confusion_table_matches_brute_force_on_random_scores():
+    rng = np.random.default_rng(7)
+    score = rng.integers(0, 30, 500) / 10
+    target = (rng.random(500) < 0.1 + 0.25 * (score > 1.5)).astype(int)
+    cutoffs = [-1.0, 0.0, 0.55, 1.5, 2.2, 2.9, 10.0]
+    pd.testing.assert_frame_equal(
+        confusion_table(score, target, cutoffs=cutoffs),
+        brute_force_confusion(score, target, cutoffs),
+        check_dtype=False,
+    )
+
+
+def test_confusion_table_with_nobody_or_everybody_declined():
+    table = confusion_table(SCORE, TARGET, cutoffs=[-np.inf, 0.0, 0.9, np.inf])
+    # Declining everyone predicts every observation an event: precision is the event rate.
+    assert table["true_positive"].tolist() == [4, 4, 0, 0]
+    assert table["false_positive"].tolist() == [4, 4, 0, 0]
+    np.testing.assert_allclose(table["precision"], [0.5, 0.5, np.nan, np.nan])
+    assert table["recall"].tolist() == [1.0, 1.0, 0.0, 0.0]
+    np.testing.assert_allclose(table["f1"], [2 / 3, 2 / 3, 0.0, 0.0])
+    # Approving everyone is right about the non-events only: an accuracy of one minus the rate.
+    assert table["accuracy"].tolist() == [0.5, 0.5, 0.5, 0.5]
+
+
+def test_confusion_table_rows_are_those_of_cutoff_table():
+    rng = np.random.default_rng(21)
+    score = rng.integers(0, 40, 300) / 8
+    target = (rng.random(300) < 0.15 + 0.03 * score).astype(int)
+    weights = rng.uniform(0, 3, 300)
+    cutoffs = [-1.0, 0.5, 1.75, 3.0, 4.9, 6.0]
+    for mass in (None, weights):
+        confusion = confusion_table(score, target, cutoffs=cutoffs, weights=mass)
+        cut = cutoff_table(score, target, cutoffs=cutoffs, weights=mass)
+        events = np.sum(target if mass is None else target * mass)
+        non_events = np.sum(1 - target if mass is None else (1 - target) * mass)
+        # recall divides the same sums as the share of cutoff_table, so it agrees exactly.
+        np.testing.assert_array_equal(confusion["recall"], cut["rejected_event_share"])
+        np.testing.assert_allclose(
+            confusion["false_positive"] / non_events, cut["rejected_non_event_share"]
+        )
+        np.testing.assert_array_equal(confusion["false_negative"], cut["approved_event"])
+        np.testing.assert_allclose(
+            confusion["true_negative"] + confusion["false_negative"], cut["approved"]
+        )
+        np.testing.assert_allclose(confusion["true_positive"] + confusion["false_negative"], events)
+        np.testing.assert_allclose(
+            confusion["false_positive"] + confusion["true_negative"], non_events
+        )
+        np.testing.assert_array_equal(confusion.index, cut.index)
+
+
+@pytest.mark.parametrize("weighted", [False, True])
+def test_confusion_table_rows_are_those_of_roc_table(weighted):
+    rng = np.random.default_rng(22)
+    score = rng.integers(0, 25, 200) / 5
+    target = (rng.random(200) < 0.2 + 0.05 * score).astype(int)
+    weights = rng.integers(0, 3, 200) if weighted else None
+    # Between and at the scores, and below and above all of them.
+    cutoffs = [-1.0, 0.0, 0.3, 1.0, 2.5, 3.9, 4.8, 5.0, 9.0]
+    confusion = confusion_table(score, target, cutoffs=cutoffs, weights=weights)
+    roc = roc_table(score, target, weights=weights)
+    for cutoff, row in confusion.iterrows():
+        # roc_table flags scores at or above its threshold, a cut-off declines those above it.
+        threshold = roc.index[roc.index > cutoff].min()
+        flagged = roc.loc[threshold]
+        assert row["true_positive"] == flagged["cum_event"]
+        assert row["false_positive"] == flagged["cum_non_event"]
+        assert row["recall"] == flagged["true_positive_rate"]
+        np.testing.assert_allclose(row["precision"], flagged["precision"])
+    assert threshold == np.inf
+
+
+def test_confusion_table_integer_weights_equal_repeated_rows():
+    rng = np.random.default_rng(11)
+    score = rng.integers(0, 12, 60) / 4
+    target = (rng.random(60) < 0.3).astype(int)
+    target[:2] = [0, 1]
+    weights = rng.integers(0, 4, 60)
+    weights[:2] = 1
+    repeat = np.repeat(np.arange(60), weights)
+    cutoffs = [0.5, 1.0, 1.75, 3.0]
+    weighted = confusion_table(score, target, cutoffs=cutoffs, weights=weights)
+    repeated = confusion_table(score[repeat], target[repeat], cutoffs=cutoffs)
+    pd.testing.assert_frame_equal(weighted, repeated, check_dtype=False)
+
+
+def test_confusion_table_fractional_weights_match_brute_force():
+    rng = np.random.default_rng(13)
+    score = rng.integers(0, 20, 300) / 5
+    target = (rng.random(300) < 0.25).astype(int)
+    weights = rng.uniform(0, 5, 300)
+    cutoffs = [-1.0, 0.7, 1.6, 2.4, 3.9, 8.0]
+    pd.testing.assert_frame_equal(
+        confusion_table(score, target, cutoffs=cutoffs, weights=weights),
+        brute_force_confusion(score, target, cutoffs, weights),
+        check_dtype=False,
+    )
+
+
+def test_confusion_table_without_declined_weight_has_no_precision():
+    # The declined scores 0.8 and 0.9 have no weight, so the highest cut-off declines no weight.
+    weights = [1, 1, 1, 1, 1, 1, 0, 0]
+    table = confusion_table(SCORE, TARGET, cutoffs=[0.5, 0.6], weights=weights)
+    assert table["true_positive"].tolist() == [1.0, 0.0]
+    assert table["false_positive"].tolist() == [0.0, 0.0]
+    assert table["precision"].iloc[0] == 1.0
+    assert np.isnan(table["precision"].iloc[1])
+    assert table["f1"].iloc[1] == 0.0
+
+
+def test_confusion_table_integer_uses_the_cutoffs_of_cutoff_table():
+    rng = np.random.default_rng(3)
+    score = rng.normal(size=400)
+    target = (rng.random(400) < 1 / (1 + np.exp(-score))).astype(int)
+    weights = rng.uniform(0.5, 2.0, 400)
+    for mass in (None, weights):
+        table = confusion_table(score, target, cutoffs=5, weights=mass)
+        np.testing.assert_array_equal(table.index, bin_edges(score, bins=5, weights=mass)[1:])
+        np.testing.assert_array_equal(
+            table.index, cutoff_table(score, target, cutoffs=5, weights=mass).index
+        )
+    # The default is ten cut-offs; the last, infinity, declines nobody.
+    default = confusion_table(score, target)
+    assert len(default) == 10
+    assert default.index[-1] == np.inf
+    assert default["true_positive"].iloc[-1] == 0
+
+
+def test_confusion_table_warns_when_ties_leave_fewer_cutoffs():
+    score = [1, 1, 1, 1, 1, 1, 2, 3]
+    message = "tied edges leave 2 of the 4 requested bins; .*pass fewer cutoffs or explicit"
+    with pytest.warns(UserWarning, match=message) as caught:
+        table = confusion_table(score, TARGET, cutoffs=4)
+    # confusion_table has no special argument, and the warning points at this call.
+    assert "special" not in str(caught[0].message)
+    assert caught[0].filename == __file__
+    assert table["true_positive"].iloc[-1] == 0
+
+
+def test_confusion_table_matches_series_by_index_and_arrays_by_position():
+    score = pd.Series(SCORE, index=list("abcdefgh"))
+    target = pd.Series(TARGET, index=list("abcdefgh"))
+    expected = confusion_table(SCORE, TARGET, cutoffs=[0.3, 1.0])
+    pd.testing.assert_frame_equal(confusion_table(score, target, cutoffs=[0.3, 1.0]), expected)
+    pd.testing.assert_frame_equal(confusion_table(score, TARGET, cutoffs=[0.3, 1.0]), expected)
+    with pytest.raises(ValueError, match="score and target must have identical indices"):
+        confusion_table(score, target.reset_index(drop=True), cutoffs=[0.3])
+    # Every pair of Series must match, also when score is a list.
+    with pytest.raises(ValueError, match="target and weights must have identical indices"):
+        confusion_table(SCORE, target, cutoffs=[0.3], weights=pd.Series(np.ones(8)))
+
+
+def test_confusion_table_does_not_mutate_inputs():
+    score, target, weights = pd.Series(SCORE), pd.Series(TARGET), pd.Series(np.arange(8.0) + 1)
+    confusion_table(score, target, cutoffs=[0.3], weights=weights)
+    pd.testing.assert_series_equal(score, pd.Series(SCORE))
+    pd.testing.assert_series_equal(target, pd.Series(TARGET))
+    pd.testing.assert_series_equal(weights, pd.Series(np.arange(8.0) + 1))
+
+
+@pytest.mark.parametrize(
+    "cutoffs",
+    [0, -2, True, 0.5, [], [0.5, 0.2], [0.2, 0.2], [0.1, np.nan], ["0.1"], [[0.1, 0.2]], [True]],
+)
+def test_confusion_table_rejects_invalid_cutoffs(cutoffs):
+    with pytest.raises(ValueError, match="cutoffs must be a positive integer or a sequence"):
+        confusion_table(SCORE, TARGET, cutoffs=cutoffs)
+
+
+@pytest.mark.parametrize(
+    ("score", "target", "weights", "message"),
+    [
+        ([0.1, np.nan, 0.3], [0, 1, 0], None, "score must be finite, got 1 missing or infinite"),
+        ([0.1, np.inf, 0.3], [0, 1, 0], None, "score must be finite, got 1 missing or infinite"),
+        (["a", "b"], [0, 1], None, "score must be numeric, got dtype (object|str)"),
+        ([0.1, 0.2], [0, 0], None, "target must contain both 0 and 1, got only 0"),
+        ([0.1, 0.2], [0, 2], None, "target must contain only 0 and 1, got 2"),
+        # A missing outcome is not a label, as in cutoff_table; swap_set takes missing outcomes.
+        ([0.1, 0.2, 0.3], [0, 1, np.nan], None, "target must contain only 0 and 1, got nan"),
+        ([0.1, 0.2, 0.3], [0, 1, None], None, "target must contain only 0 and 1, got nan"),
+        ([0.1, 0.2, 0.3], [0, 1], None, "score and target must have the same length, got 3 and 2"),
+        ([], [], None, "score and target must not be empty"),
+        ([0.1, 0.2], [0, 1], [1, 0], "weights must give both target classes a positive total"),
+        ([0.1, 0.2], [0, 1], [1, -1], "weights must be finite and non-negative, got -1.0"),
+        ([0.1, 0.2], [0, 1], [1, np.nan], "weights must be finite and non-negative, got nan"),
+        ([0.1, 0.2], [0, 1], [1], "weights must have one weight per value of score, got 1 for 2"),
+        ([0.1, 0.2], [0, 1], ["a", "b"], "weights must be numeric, got dtype (object|str)"),
+    ],
+)
+def test_confusion_table_rejects_invalid_inputs(score, target, weights, message):
+    with pytest.raises(ValueError, match=message):
+        confusion_table(score, target, cutoffs=[0.2], weights=weights)
+
+
+@pytest.mark.parametrize("weighted", [False, True])
+def test_confusion_table_matches_scikit_learn(weighted):
+    metrics = pytest.importorskip("sklearn.metrics")
+    rng = np.random.default_rng(31)
+    score = rng.integers(0, 40, 400) / 8
+    target = (rng.random(400) < 0.1 + 0.08 * score).astype(int)
+    weights = rng.uniform(0.2, 4.0, 400) if weighted else None
+    cutoffs = [-1.0, 0.5, 1.75, 3.0, 4.9, 5.0, 7.0]
+    table = confusion_table(score, target, cutoffs=cutoffs, weights=weights)
+    for cutoff, row in table.iterrows():
+        flagged = (score > cutoff).astype(int)
+        tn, fp, fn, tp = metrics.confusion_matrix(
+            target, flagged, labels=[0, 1], sample_weight=weights
+        ).ravel()
+        np.testing.assert_allclose(
+            row[["true_positive", "false_positive", "true_negative", "false_negative"]],
+            [tp, fp, tn, fn],
+        )
+        # scikit-learn gives 0 for a precision without flagged observations, kivi gives NaN.
+        precision = metrics.precision_score(target, flagged, sample_weight=weights, zero_division=0)
+        if flagged.any():
+            np.testing.assert_allclose(row["precision"], precision)
+        else:
+            assert np.isnan(row["precision"])
+        for name, metric in (
+            ("recall", metrics.recall_score),
+            ("f1", metrics.f1_score),
+            ("accuracy", metrics.accuracy_score),
+        ):
+            kwargs = {} if name == "accuracy" else {"zero_division": 0}
+            expected = metric(target, flagged, sample_weight=weights, **kwargs)
+            np.testing.assert_allclose(row[name], expected, err_msg=f"{name} at {cutoff}")
 
 
 def test_swap_set_matches_hand_calculation():
