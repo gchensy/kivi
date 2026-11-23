@@ -135,12 +135,12 @@ Synthetic transactions
 >>> from kivi.datasets import make_transactions
 >>> transactions, observations = make_transactions(applications, rng=0)
 >>> transactions.shape
-(433465, 5)
+(431711, 5)
 >>> transactions.head(3)
    applicant_id           timestamp  amount             kind merchant_category
-0             0 2023-01-01 23:25:57  193.29  cash_withdrawal               NaN
-1             0 2023-01-04 17:03:14  104.89         purchase            travel
-2             0 2023-01-05 07:34:06  220.53         purchase            dining
+0             0 2023-01-03 03:22:53   82.58         purchase           grocery
+1             0 2023-01-08 05:23:51  130.78         purchase            dining
+2             0 2023-01-16 18:23:05 1047.86        repayment               NaN
 >>> observations.head(3)
    applicant_id application_date
 0             0       2024-01-01
@@ -177,9 +177,9 @@ How the transactions are simulated
 
 The transactions of each month are drawn independently. In a year an applicant has on average about 26 purchases, 6 cash withdrawals and 12 repayments, 43 transactions in all. A purchase costs about 4.5% of the monthly income, a cash withdrawal about 3%, and a repayment is the instalment that ``income * debt_to_income`` implies, which varies by about 20% between applicants. Applicants with a higher ``income`` make a few more purchases and withdrawals, and purchases are more frequent in the months that start in November and December. An applicant whom the incumbent scorecard rates as riskier, by ``incumbent_pd``, withdraws more cash and misses more repayments.
 
-The outcome drives a stress that builds up before the application. For a defaulter it starts between three and nine months before the application and is strongest in the last month, and 25% of the other applicants have an episode of the same shape that is a little milder. Under stress, the cash withdrawals are more frequent and larger, the purchases a little rarer, and a repayment is more likely to be missed, or paid up to a tenth short. Applicants differ in their baseline and in the size of their stress, so no feature predicts the outcome well.
+The outcome drives a stress that builds up before the application. For a defaulter it starts between three and nine months before the application and is strongest in the last month, and 25% of the other applicants have an episode of the same shape that is a little milder. Under stress, the cash withdrawals are more frequent and larger, the purchases a little rarer, and a repayment is more likely to be missed, or paid up to a tenth short. Applicants differ in their baseline and in the size of their stress, which is capped at three times its typical size, so no feature predicts the outcome well.
 
-The number of cash withdrawals in the last three months shows the signal. It is counted here with pandas, on the transactions and observations above; the default rate rises from 8% of the applicants without a withdrawal to 42% of those with five or more:
+The number of cash withdrawals in the last three months shows the signal. It is counted here with pandas, on the transactions and observations above; the default rate rises from 9% of the applicants without a withdrawal to 41% of those with five or more:
 
 >>> merged = transactions.merge(observations, on="applicant_id")
 >>> last_3_months = merged["timestamp"] >= merged["application_date"] - pd.DateOffset(months=3)
@@ -190,22 +190,22 @@ The number of cash withdrawals in the last three months shows the signal. It is 
 >>> rate.round(3)
                      size   mean
 cash_withdrawals_3m
-0                    2793  0.084
-1                    2862  0.123
-2                    1867  0.171
-3                    1078  0.199
-4                     608  0.248
-5                     792  0.424
+0                    2750  0.090
+1                    2899  0.140
+2                    1981  0.148
+3                    1114  0.212
+4                     586  0.265
+5                     670  0.407
 
-The IV of this feature, which :func:`~kivi.univariate.profile_table` computes as in :doc:`univariate`, is a clear but modest 0.33:
+The IV of this feature, which :func:`~kivi.univariate.profile_table` computes as in :doc:`univariate`, is a clear but modest 0.25:
 
 >>> from kivi.univariate import profile_table
 >>> profile_table(cash_3m.to_frame(), applications["target"])[["iv"]].round(3)
                         iv
 variable
-cash_withdrawals_3m  0.326
+cash_withdrawals_3m  0.255
 
-Other window features of these transactions are weaker or stronger. Their IVs range from 0.04, for the number of purchases in the last three months, to 0.46, for the cash withdrawn in the last three months relative to income, and the repayments of the last three months relative to the three months before them have an IV of 0.32.
+Other window features are weaker or stronger. With the default five bins, the IV is 0.04 for the number of purchases in the last three months, 0.25 for the repayments of the last three months relative to the three months before them, and 0.30 for the cash withdrawn in the last three months relative to income.
 
 .. warning::
 

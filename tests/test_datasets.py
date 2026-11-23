@@ -12,6 +12,7 @@ STATUSES = ["current", "1-29", "30-59", "60-89", "90+"]
 COLUMNS = ["loan_id", "cohort", "month", "month_on_book", "term", "amount", "balance", "status"]
 TRANSACTION_COLUMNS = ["applicant_id", "timestamp", "amount", "kind", "merchant_category"]
 KINDS = ["purchase", "cash_withdrawal", "repayment"]
+OUT_OF_RANGE = "application_date must lie between the years 1678 and 2261, got "
 MERCHANT_CATEGORIES = [
     "grocery",
     "fuel",
@@ -428,6 +429,47 @@ def test_every_transaction_falls_in_the_months_before_the_application(months):
         assert ((merged["timestamp"] >= begin) & (merged["timestamp"] < end)).sum() > 500
 
 
+class ExtremeIntegers(np.random.Generator):
+    """A generator whose integers are always the lowest or the highest value that it may return."""
+
+    def __init__(self, highest):
+        super().__init__(np.random.PCG64(0))
+        self.highest = highest
+
+    def integers(self, low, high, size=None, **kwargs):
+        value = np.asarray(high) - 1 if self.highest else np.asarray(low)
+        return np.array(np.broadcast_to(value, np.shape(high) if size is None else size))
+
+
+def test_the_window_is_half_open_down_to_the_second():
+    applications = make_applications(n_applicants=300, rng=0)
+    date = pd.Timestamp("2024-03-31")
+    kwargs = {"application_date": date, "months": 2}
+    # The latest second a transaction can have is the one before the application date, and the
+    # earliest is the first second of the day two months before it.
+    latest, _ = make_transactions(applications, rng=ExtremeIntegers(True), **kwargs)
+    assert latest["timestamp"].max() == date - pd.Timedelta(seconds=1)
+    earliest, _ = make_transactions(applications, rng=ExtremeIntegers(False), **kwargs)
+    assert earliest["timestamp"].min() == pd.Timestamp("2024-01-31")
+    assert earliest["timestamp"].max() < date
+
+
+def test_no_applicant_has_an_outlandish_number_of_transactions():
+    # The stress of an applicant enters the rate of cash withdrawals exponentially, so a heavy
+    # tail of its size once gave one applicant millions of withdrawals.
+    for seed in range(3):
+        applications = make_applications(n_applicants=40000, rng=seed)
+        transactions, _ = make_transactions(applications, rng=seed)
+        per_applicant = transactions.groupby("applicant_id").size()
+        assert 35 < len(transactions) / len(applications) < 55
+        assert per_applicant.max() < 200
+        income = applications["income"].reindex(transactions["applicant_id"]).to_numpy()
+        assert (transactions["amount"].to_numpy() / income).max() < 4
+        cash = transactions[transactions["kind"] == "cash_withdrawal"]
+        yearly = cash.groupby("applicant_id")["amount"].sum()
+        assert (yearly / applications["income"].reindex(yearly.index)).max() < 6
+
+
 def test_the_window_follows_calendar_months_at_the_end_of_a_month():
     applications = make_applications(n_applicants=3000, rng=3)
     transactions, _ = make_transactions(
@@ -798,18 +840,14 @@ def test_rng_must_be_a_seed_or_generator(few):
             ["2024-01-01", "soon", "2024-01-03", "2024-01-04", "2024-01-05"],
             "application_date must hold dates, got 'soon'",
         ),
-        (
-            datetime.date(3000, 1, 1),
-            r"application_date must (hold dates|lie between the years 1678 and 2261), got",
-        ),
-        (
-            np.datetime64("1500-01-01"),
-            r"application_date must (hold dates|lie between the years 1678 and 2261), got",
-        ),
+        (datetime.date(3000, 1, 1), f"{OUT_OF_RANGE}datetime.date(3000, 1, 1)"),
+        ("2262-06-01", f"{OUT_OF_RANGE}'2262-06-01'"),
+        ("1500-01-01", f"{OUT_OF_RANGE}'1500-01-01'"),
+        (np.datetime64("1500-01-01"), OUT_OF_RANGE),
     ],
 )
 def test_application_dates_must_be_dates_for_every_application(few, date, message):
-    with pytest.raises(ValueError, match=re.escape(message) if "(" not in message else message):
+    with pytest.raises(ValueError, match=re.escape(message)):
         make_transactions(few, application_date=date)
 
 

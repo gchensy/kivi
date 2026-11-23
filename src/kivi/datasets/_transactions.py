@@ -26,6 +26,7 @@ REQUIRED_COLUMNS = ("income", "debt_to_income", "incumbent_pd", "target")
 FIRST_DEFAULT_DATE = pd.Timestamp("2024-01-01")
 
 _SECONDS_PER_DAY = 86_400
+_OUTSIDE = "lie between the years 1678 and 2261"
 # The dates that pandas holds as nanosecond timestamps, with a margin, as days and months since
 # 1970.
 _FIRST_DAY = int(np.datetime64("1678-01-01", "D").astype(np.int64))
@@ -68,6 +69,7 @@ _MIN_DEBT_TO_INCOME = 0.01
 # of the other applicants has a milder episode.
 _ONSET = (3, 10)
 _STRESS_SPREAD = 0.8
+_MAX_STRESS_SIZE = 3.0
 _DEFAULTER_STRESS = 0.45
 _EPISODE_SHARE = 0.25
 _EPISODE_STRESS = 0.35
@@ -184,8 +186,8 @@ def make_transactions(
     short. The number and sum of the cash withdrawals of the last months,
     the number of repayments and the change of their sum from the months
     before therefore carry a signal about ``target``. Applicants differ in
-    their baseline and in the size of their stress, so no feature predicts
-    the outcome well.
+    their baseline and in the size of their stress, which is capped at three
+    times its typical size, so no feature predicts the outcome well.
 
     The transactions are drawn from the outcome, which a lender learns only
     after the transactions. Use them to learn how window features work, not
@@ -319,7 +321,7 @@ def _stress(
     """Stress of each applicant in each month before the application, shape (n, months)."""
     n = len(target)
     onset = rng.integers(_ONSET[0], _ONSET[1], n)
-    size = rng.lognormal(0.0, _STRESS_SPREAD, n)
+    size = np.minimum(rng.lognormal(0.0, _STRESS_SPREAD, n), _MAX_STRESS_SIZE)
     episode = rng.random(n) < _EPISODE_SHARE
     level = np.where(target == 1, _DEFAULTER_STRESS, np.where(episode, _EPISODE_STRESS, 0.0))
     # Full stress in the last month, none from `onset` months before it.
@@ -406,15 +408,9 @@ def _application_days(
     if isinstance(application_date, str) and application_date in applications.columns:
         return _days(_column(applications, application_date))
     if np.ndim(application_date) == 0:
-        try:
-            return np.full(n, _days(pd.Series([application_date]))[0])
-        except ValueError:
-            if isinstance(application_date, str):
-                raise ValueError(
-                    "application_date must be a column of applications or a date, got "
-                    f"{_validation.shown(application_date)}"
-                ) from None
-            raise
+        # A string that is no date may be a mistyped column name.
+        one = _days(pd.Series([application_date]), name_hint=isinstance(application_date, str))
+        return np.full(n, one[0])
     dates = _validation.as_series(typing.cast(npt.ArrayLike, application_date), "application_date")
     if len(dates) != n:
         raise ValueError(
@@ -428,8 +424,11 @@ def _application_days(
     return _days(dates)
 
 
-def _days(values: pd.Series) -> npt.NDArray[np.int64]:
-    """Days since 1970-01-01 of dates or strings of dates, without the time of day."""
+def _days(values: pd.Series, *, name_hint: bool = False) -> npt.NDArray[np.int64]:
+    """Days since 1970-01-01 of dates or strings of dates, without the time of day.
+
+    With `name_hint`, a value that is not a date is also reported as a possible column name.
+    """
     if not len(values):
         return np.empty(0, dtype=np.int64)
     dtype = values.dtype
@@ -445,20 +444,25 @@ def _days(values: pd.Series) -> npt.NDArray[np.int64]:
         raise ValueError(f"application_date must not contain missing values, got {missing.sum()}")
     try:
         dates = pd.to_datetime(values)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError) as error:
         failed = pd.to_datetime(values, errors="coerce").isna()
-        value = values[failed] if failed.any() else values
-        raise ValueError(
-            f"application_date must hold dates, got {_validation.shown(value)}"
-        ) from None
+        value = _validation.shown(values[failed] if failed.any() else values)
+        # Before pandas 3, a date beyond the nanosecond range raises here instead of being read.
+        problem = (
+            _OUTSIDE
+            if isinstance(error, pd.errors.OutOfBoundsDatetime)
+            else "be a column of applications or a date"
+            if name_hint
+            else "hold dates"
+        )
+        raise ValueError(f"application_date must {problem}, got {value}") from None
     if dates.dt.tz is not None:
         dates = dates.dt.tz_localize(None)
     days = dates.to_numpy().astype("datetime64[D]").astype(np.int64)
     outside = (days < _FIRST_DAY) | (days > _LAST_DAY)
     if outside.any():
         raise ValueError(
-            "application_date must lie between the years 1678 and 2261, got "
-            f"{_validation.shown(values[outside])}"
+            f"application_date must {_OUTSIDE}, got {_validation.shown(values[outside])}"
         )
     return days
 
