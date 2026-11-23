@@ -191,6 +191,12 @@ Documentation
 
       Install kivi and walk through a complete analysis of the bundled bank marketing data.
 
+   .. grid-item-card:: Tutorial
+      :link: tutorial/index
+      :link-type: doc
+
+      A credit scorecard project from the applications to the IFRS 9 loss allowance of the loans, in ten chapters that use nearly every function of kivi.
+
    .. grid-item-card:: User guide
       :link: user_guide/index
       :link-type: doc
@@ -213,6 +219,7 @@ Documentation
    :hidden:
 
    getting_started/index
+   tutorial/index
    user_guide/index
    api
    release/index
