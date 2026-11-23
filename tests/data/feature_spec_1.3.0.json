@@ -1,0 +1,101 @@
+{
+  "format": "kivi.FeatureSpec",
+  "format_version": 1,
+  "kivi_version": "1.3.0",
+  "id": "customer",
+  "observation_time": "date",
+  "events": [
+    {
+      "table": "events",
+      "time": "time",
+      "windows": [
+        "1M",
+        "3M",
+        [
+          "6M",
+          "3M"
+        ],
+        "90D"
+      ],
+      "aggregations": [
+        {
+          "column": "amount",
+          "aggregations": [
+            "count",
+            "sum",
+            "mean",
+            "min",
+            "max",
+            "std",
+            "first",
+            "last",
+            "days_since_last"
+          ]
+        },
+        {
+          "column": "merchant",
+          "aggregations": [
+            "count",
+            "nunique"
+          ]
+        }
+      ],
+      "closed": "left",
+      "prefix": ""
+    },
+    {
+      "table": "cash",
+      "time": "time",
+      "windows": [
+        "3M"
+      ],
+      "aggregations": [
+        {
+          "column": "amount",
+          "aggregations": [
+            "sum"
+          ]
+        }
+      ],
+      "closed": "left",
+      "prefix": "cash_"
+    },
+    {
+      "table": "balances",
+      "time": "day",
+      "windows": [
+        "30D",
+        [
+          "60D",
+          "30D"
+        ]
+      ],
+      "aggregations": [
+        {
+          "column": "balance",
+          "aggregations": [
+            "mean",
+            "last"
+          ]
+        }
+      ],
+      "closed": "right",
+      "prefix": "daily_"
+    }
+  ],
+  "ratios": [
+    [
+      "amount_sum_3m",
+      "amount_sum_6m_3m"
+    ],
+    [
+      "cash_amount_sum_3m",
+      "amount_sum_3m"
+    ],
+    [
+      "daily_balance_mean_30d",
+      "daily_balance_mean_60d_30d"
+    ]
+  ],
+  "panel": null
+}
