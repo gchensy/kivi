@@ -24,6 +24,7 @@ from kivi.binning import (
     chimerge_edges,
     chimerge_groups,
     group_categories,
+    ks_edges,
     monotonic_edges,
     tree_edges,
 )
@@ -268,36 +269,33 @@ def _cumulative_share(values: pd.Series, points) -> np.ndarray:
     return np.searchsorted(observed, points, side="right") / len(observed)
 
 
-def tree_splits(
-    values: pd.Series, target: pd.Series, max_bins: int = 5, min_bin_share: float = 0.05
-):
-    """Information gain of every first cut (left) and the WOE of the tree's bins (right)."""
+def _first_cuts(values: pd.Series, target: pd.Series):
+    """The distinct values but the last, as first cuts, with the rows and events up to each."""
     frame = pd.DataFrame({"value": values, "event": target}).dropna()
     counts = frame.groupby("value")["event"].agg(["size", "sum"])
     n, events = counts["size"].cumsum().to_numpy()[:-1], counts["sum"].cumsum().to_numpy()[:-1]
-    total, total_events = len(frame), frame["event"].sum()
+    return counts.index.to_numpy()[:-1], n, events, len(frame), frame["event"].sum()
 
-    def entropy(rate):
-        with np.errstate(divide="ignore", invalid="ignore"):
-            return np.nan_to_num(-(rate * np.log(rate) + (1 - rate) * np.log(1 - rate)))
 
-    gain = (
-        entropy(total_events / total)
-        - n / total * entropy(events / n)
-        - (total - n) / total * entropy((total_events - events) / (total - n))
-    )
-    share = n / total
-    edges = tree_edges(values, target, max_bins=max_bins, min_bin_share=min_bin_share)
+def _split_order(fit, values: pd.Series, target: pd.Series, max_bins: int, min_bin_share: float):
+    """The interior edges of a best-first fit, numbered in the order in which they were made."""
     order = {}
-    for k in range(2, len(edges)):
-        for edge in tree_edges(values, target, max_bins=k, min_bin_share=min_bin_share)[1:-1]:
+    for k in range(2, max_bins + 1):
+        for edge in fit(values, target, max_bins=k, min_bin_share=min_bin_share)[1:-1]:
             order.setdefault(edge, len(order) + 1)
+    return order
+
+
+def _first_cut_panels(
+    values, target, share, curve, edges, order, min_bin_share: float, ylabel: str
+):
+    """A criterion over every first cut with the fitted cuts (left), and the WOE of the bins."""
     fig, (left, right) = _method_axes()
-    left.plot(share, gain, color=BLUE, linewidth=1.4)
+    left.plot(share, curve, color=BLUE, linewidth=1.4)
     for low, high in ((0, min_bin_share), (1 - min_bin_share, 1)):
         left.axvspan(low, high, color=GRID, zorder=0)
     left.fill_between([], [], color=GRID, label=f"min_bin_share = {min_bin_share:g}")
-    top = gain.max() * 1.3
+    top = curve.max() * 1.3
     for edge, rank in order.items():
         x = _cumulative_share(values, [edge])[0]
         right_side = x < 0.75
@@ -317,11 +315,46 @@ def tree_splits(
     left.set_xlim(0, 1)
     left.xaxis.set_major_formatter(PercentFormatter(1, decimals=0))
     left.set_xlabel(f"quantile ({values.name})")
-    left.set_ylabel(r"$\Delta$ entropy")
+    left.set_ylabel(ylabel)
     left.legend(loc="lower center", bbox_to_anchor=(0.5, 1.0), borderaxespad=0.2)
     _woe_bars(right, _grouped_woe(values, target, edges))
     fig.tight_layout()
     return fig
+
+
+def tree_splits(
+    values: pd.Series, target: pd.Series, max_bins: int = 5, min_bin_share: float = 0.05
+):
+    """Information gain of every first cut (left) and the WOE of the tree's bins (right)."""
+    _, n, events, total, total_events = _first_cuts(values, target)
+
+    def entropy(rate):
+        with np.errstate(divide="ignore", invalid="ignore"):
+            return np.nan_to_num(-(rate * np.log(rate) + (1 - rate) * np.log(1 - rate)))
+
+    gain = (
+        entropy(total_events / total)
+        - n / total * entropy(events / n)
+        - (total - n) / total * entropy((total_events - events) / (total - n))
+    )
+    edges = tree_edges(values, target, max_bins=max_bins, min_bin_share=min_bin_share)
+    order = _split_order(tree_edges, values, target, len(edges) - 1, min_bin_share)
+    return _first_cut_panels(
+        values, target, n / total, gain, edges, order, min_bin_share, r"$\Delta$ entropy"
+    )
+
+
+def ks_splits(values: pd.Series, target: pd.Series, max_bins: int = 5, min_bin_share: float = 0.05):
+    """The KS of every first cut (left) and the WOE of the Best-KS bins (right)."""
+    cuts, n, events, total, total_events = _first_cuts(values, target)
+    gap = np.abs(events / total_events - (n - events) / (total - total_events))
+    allowed = (n >= min_bin_share * total) & (total - n >= min_bin_share * total)
+    first = ks_edges(values, target, max_bins=2, min_bin_share=min_bin_share)[1]
+    if first != cuts[allowed][np.argmax(gap[allowed])]:
+        raise AssertionError("the largest drawn KS is not the first cut of ks_edges")
+    edges = ks_edges(values, target, max_bins=max_bins, min_bin_share=min_bin_share)
+    order = _split_order(ks_edges, values, target, len(edges) - 1, min_bin_share)
+    return _first_cut_panels(values, target, n / total, gap, edges, order, min_bin_share, "ks")
 
 
 def monotonic_pooling(
@@ -966,6 +999,11 @@ def figure_chimerge():
 def figure_tree():
     _, reference, _ = _samples()
     return tree_splits(reference["balance"], reference["target"])
+
+
+def figure_ks():
+    _, reference, _ = _samples()
+    return ks_splits(reference["balance"], reference["target"])
 
 
 def figure_monotonic():

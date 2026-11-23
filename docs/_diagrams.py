@@ -30,6 +30,7 @@ from matplotlib.ticker import FixedLocator
 from kivi.binning import bin_edges
 from kivi.calibration import isotonic_fit
 from kivi.datasets import load_bank, make_applications, make_loan_panel
+from kivi.expert import ahp_consistency, ahp_weights
 from kivi.lifetime import assign_stages, convert_pd, expected_credit_loss
 from kivi.metrics import roc_auc, roc_table
 from kivi.monitoring import monitoring_table
@@ -663,6 +664,238 @@ def figure_scorecard_points():
             f"       = {base:.2f} - {factor:.2f} * coef * woe",
         ],
     )
+    return canvas.fig
+
+
+# Expert scorecards
+
+
+def _expert_matrices():
+    """The comparison matrices of the two analysts in the expert guide."""
+    factors = ["leverage", "coverage", "liquidity", "profitability", "industry"]
+
+    def comparison(rows):
+        return pd.DataFrame(rows, index=factors, columns=factors)
+
+    first = comparison(
+        [
+            [1, 2, 4, 2, 5],
+            [1 / 2, 1, 2, 1, 3],
+            [1 / 4, 1 / 2, 1, 1 / 2, 2],
+            [1 / 2, 1, 2, 1, 3],
+            [1 / 5, 1 / 3, 1 / 2, 1 / 3, 1],
+        ]
+    )
+    second = comparison(
+        [
+            [1, 2, 4, 1 / 3, 5],
+            [1 / 2, 1, 2, 1, 3],
+            [1 / 4, 1 / 2, 1, 4, 2],
+            [3, 1, 1 / 4, 1, 3],
+            [1 / 5, 1 / 3, 1 / 2, 1 / 3, 1],
+        ]
+    )
+    return first, second
+
+
+def _principal_eigenvector(matrix: pd.DataFrame) -> np.ndarray:
+    """Power iteration, apart from the eigensolver that ahp_weights uses."""
+    values = matrix.to_numpy(dtype=float)
+    vector = np.full(len(values), 1 / len(values))
+    for _ in range(500):
+        vector = values @ vector
+        vector /= vector.sum()
+    return vector
+
+
+def _comparison_grid(canvas, x, top, matrix, cells, *, fill, color, edge, bold, width=2.0):
+    """A square matrix with the factors on its rows and, slanted, on its columns."""
+    labels = list(matrix.index)
+    rows = [top + HEADER + (i + 0.5) * ROW for i in range(len(labels))]
+    for j, name in enumerate(labels):
+        center = x + j * (width + GAP) + width / 2
+        canvas.ax.text(
+            center - 0.2,
+            top + HEADER - 0.25,
+            name,
+            fontsize=8.5,
+            color=INK,
+            fontweight="bold",
+            rotation=30,
+            rotation_mode="anchor",
+            ha="left",
+            va="bottom",
+            family=MONO,
+            zorder=4,
+        )
+    for i, name in enumerate(labels):
+        canvas.text(x - 0.4, rows[i], name, size=9, ha="right", bold=True)
+        for j in range(len(labels)):
+            left = x + j * (width + GAP)
+            canvas.box(
+                left,
+                rows[i] - CELL / 2,
+                width,
+                CELL,
+                fill=fill[i][j],
+                edge=edge[i][j] or (CELL_EDGE if fill[i][j] == CELL_FILL else fill[i][j]),
+                linewidth=1.3 if edge[i][j] else 0.8,
+            )
+            canvas.text(left + width / 2, rows[i], cells[i][j], color=color[i][j], bold=bold[i][j])
+    right = x + len(labels) * (width + GAP) - GAP
+    canvas.line(x, top + HEADER - 0.06, right, top + HEADER - 0.06)
+    return rows, right
+
+
+def figure_ahp_weights():
+    """The weights of the five factors are the principal eigenvector: A w = lambda_max w."""
+    matrix, _ = _expert_matrices()
+    weights = ahp_weights(matrix)
+    statistics = ahp_consistency(matrix)
+    product = matrix.to_numpy() @ weights.to_numpy()
+    ratio = product / weights.to_numpy()
+    if not np.allclose(_principal_eigenvector(matrix), weights, rtol=1e-9, atol=0):
+        raise AssertionError("the drawn weights do not match ahp_weights")
+    if not np.allclose(ratio, statistics["lambda_max"], rtol=1e-9, atol=0):
+        raise AssertionError("the drawn lambda_max does not match ahp_consistency")
+    n = len(matrix)
+    consistency = (statistics["lambda_max"] - n) / (n - 1)
+    if not np.isclose(consistency, statistics["ci"], rtol=1e-12, atol=1e-15) or not np.isclose(
+        consistency / statistics["ri"], statistics["cr"], rtol=1e-12, atol=1e-15
+    ):
+        raise AssertionError("the drawn ci and cr do not match ahp_consistency")
+
+    size = range(n)
+    cells = [[str(Fraction(matrix.iat[i, j]).limit_denominator(9)) for j in size] for i in size]
+    judged = [[j > i for j in size] for i in size]
+    canvas = Canvas(height=11.6)
+    x, top = 5.0, 2.2
+    canvas.call(x, 0.15, "ahp_weights(matrix)")
+    rows, right = _comparison_grid(
+        canvas,
+        x,
+        top,
+        matrix,
+        cells,
+        fill=[[CELL_FILL] * n for _ in size],
+        color=[[INK if judged[i][j] else FAINT if i == j else MUTED for j in size] for i in size],
+        edge=[[None] * n for _ in size],
+        bold=judged,
+        width=1.8,
+    )
+    out = canvas.table(
+        right + 0.65,
+        top,
+        [
+            result("weight", [number(w, 4) for w in weights], 2.4),
+            Column("(A w)_i", [number(v, 4) for v in product], 2.4),
+            Column("(A w)_i / w_i", [number(v, 4) for v in ratio], 4.0),
+        ],
+    )
+    canvas.call(31.6, 0.15, "ahp_consistency(matrix)", ha="right")
+    canvas.table(
+        out.right + 0.6,
+        top,
+        [
+            Column("statistic", list(statistics.index), 3.6, color=MUTED),
+            result("value", [number(v, 4) for v in statistics], 2.3),
+        ],
+    )
+    lam, ri = statistics["lambda_max"], statistics["ri"]
+    canvas.notes(
+        x,
+        rows[-1] + 1.15,
+        [
+            "a_ji = 1 / a_ij",
+            f"ci = (lambda_max - n) / (n - 1) = ({lam:.4f} - {n}) / {n - 1} = {consistency:.4f}",
+            f"cr = ci / ri = {consistency:.4f} / {ri:.2f} = {consistency / ri:.4f}",
+        ],
+    )
+    return canvas.fig
+
+
+def _box_exit(centre, towards, half_width, half_height):
+    """Where the line from a box's centre towards a point leaves the box."""
+    dx, dy = towards[0] - centre[0], towards[1] - centre[1]
+    scale = min(
+        half_width / abs(dx) if dx else np.inf,
+        half_height / abs(dy) if dy else np.inf,
+    )
+    return centre[0] + dx * scale, centre[1] + dy * scale
+
+
+def figure_ahp_ratios():
+    """Each judgment of the second analyst against the ratio of the weights it implies."""
+    _, second = _expert_matrices()
+    weights = ahp_weights(second)
+    if not np.allclose(weights, _principal_eigenvector(second), rtol=1e-9, atol=0):
+        raise AssertionError("the drawn weights do not match ahp_weights")
+    values = (second / np.outer(weights, 1 / weights)).to_numpy()
+    n = len(second)
+    size = range(n)
+    above_one = [(values[i, j], i, j) for i in size for j in size if values[i, j] > 1]
+    circle = [(i, j) for _, i, j in sorted(above_one, reverse=True)[:3]]
+    marked = set(circle) | {(j, i) for i, j in circle}
+    fill = [
+        [
+            CELL_FILL if i == j else _blend(CELL_FILL, RESULT_FILL, abs(np.log(values[i, j])) / 0.9)
+            for j in size
+        ]
+        for i in size
+    ]
+    canvas = Canvas(height=10.2)
+    x, top = 5.0, 2.6
+    canvas.call(x, 0.15, "second / np.outer(w, 1 / w)")
+    rows, right = _comparison_grid(
+        canvas,
+        x,
+        top,
+        second,
+        [[number(values[i, j], 2) for j in size] for i in size],
+        fill=fill,
+        color=[
+            [RESULT_TEXT if (i, j) in circle else FAINT if i == j else INK for j in size]
+            for i in size
+        ],
+        edge=[[AMBER if (i, j) in marked else None for j in size] for i in size],
+        bold=[[(i, j) in circle for j in size] for i in size],
+        width=2.2,
+    )
+    canvas.call(31.6, 0.15, "w = ahp_weights(second)", ha="right")
+    # The three judgments that run in a circle, each arrow from the factor judged more important.
+    labels = list(second.index)
+    first = circle[0][0]
+    order = [first, dict(circle)[first], dict(circle)[dict(circle)[first]]]
+    centre_x, centre_y = right + 7.4, (rows[0] + rows[-1]) / 2
+    places = [
+        (centre_x, centre_y - 2.3),
+        (centre_x + 3.7, centre_y + 1.9),
+        (centre_x - 3.7, centre_y + 1.9),
+    ]
+    nodes = {}
+    for k, (px, py) in zip(order, places, strict=True):
+        half = (text_width(labels[k], 9) + 0.8) / 2
+        canvas.box(px - half, py - 0.45, 2 * half, 0.9, fill=CHIP, radius=0.25, z=2)
+        canvas.text(px, py, labels[k], size=9, color=CHIP_TEXT, bold=True)
+        nodes[k] = (px, py, half)
+    for i, j in circle:
+        (x0, y0, h0), (x1, y1, h1) = nodes[i], nodes[j]
+        start = _box_exit((x0, y0), (x1, y1), h0 + 0.2, 0.65)
+        end = _box_exit((x1, y1), (x0, y0), h1 + 0.2, 0.65)
+        canvas.arrow(start, end, color=AMBER, linewidth=1.4)
+        mid_x, mid_y = (start[0] + end[0]) / 2, (start[1] + end[1]) / 2
+        out_x, out_y = mid_x - centre_x, mid_y - centre_y
+        length = np.hypot(out_x, out_y)
+        judgment = Fraction(second.iat[i, j]).limit_denominator(9)
+        canvas.text(
+            mid_x + 1.3 * out_x / length,
+            mid_y + 0.6 * out_y / length,
+            f"a_ij = {judgment}",
+            size=8.8,
+            color=RESULT_TEXT,
+            bold=True,
+        )
+    canvas.notes(x, rows[-1] + 1.15, ["a_ij / (w_i / w_j)"])
     return canvas.fig
 
 

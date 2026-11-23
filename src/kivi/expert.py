@@ -222,7 +222,7 @@ def ahp_weights(
     leverage    0.1429
     Name: weight, dtype: float64
     """
-    if method not in ("eigenvector", "geometric"):
+    if not isinstance(method, str) or method not in ("eigenvector", "geometric"):  # type: ignore[redundant-expr]  # rejects non-str values
         raise ValueError(
             f"method must be 'eigenvector' or 'geometric', got {_validation.shown_argument(method)}"
         )

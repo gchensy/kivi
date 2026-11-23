@@ -1,7 +1,7 @@
 User guide
 ==========
 
-The user guide follows the steps of a credit risk model in the order of a project: profile and bin the candidate variables, encode them with WOE, select the variables and fit the model, infer the outcomes of rejected applicants, scale the model to a scorecard, evaluate and calibrate it, set the cut-offs, save the binning for production, monitor the model period by period, follow the loans that it approves, and measure their expected credit loss under IFRS 9. :doc:`plotting` draws the tables of every step. :doc:`risk_workflow` runs the steps from the profile to the stability report on the bundled data, leaving out reject inference, and the :doc:`/tutorial/index` follows a whole project from the first applications to the loss allowance.
+The user guide follows the steps of a credit risk model in the order of a project: profile and bin the candidate variables, encode them with WOE, select the variables and fit the model, infer the outcomes of rejected applicants, scale the model to a scorecard, or weigh the factors of an expert scorecard where there are too few defaults to fit one, evaluate and calibrate it, set the cut-offs, save the binning for production, monitor the model period by period, follow the loans that it approves from their repayment schedules, and measure their expected credit loss under IFRS 9. :doc:`plotting` draws the tables of every step. :doc:`risk_workflow` runs the steps from the profile to the stability report on the bundled data, leaving out reject inference, and the :doc:`/tutorial/index` follows a whole project from the first applications to the loss allowance.
 
 kivi keeps fitting and applying apart. Bin edges, category groupings, WOE tables, master scales and cut-offs are fitted on the development sample and then applied unchanged to every later sample, so that counts and rates stay comparable. The tables take the groups as they are, so category labels can be passed directly.
 
@@ -26,7 +26,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: binning
       :link-type: doc
 
-      Quantile, uniform and custom edges, special values, merging fine bins, supervised binning, grouping the categories of categorical variables, and missing values.
+      Quantile, uniform and custom edges, special values, merging fine bins, supervised binning by ChiMerge, decision trees, Best-KS and monotonic WOE, grouping the categories of categorical variables, and missing values.
 
    .. grid-item-card:: Weight of evidence and information value
       :link: woe_iv
@@ -51,6 +51,12 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link-type: doc
 
       PDO scaling, points per group, scores for new data and reason codes.
+
+   .. grid-item-card:: Expert scorecards
+      :link: expert
+      :link-type: doc
+
+      Weigh the factors of a judgment-based scorecard with the analytic hierarchy process, check the consistency of the comparisons and combine factor and sub-factor weights.
 
    .. grid-item-card:: Model performance
       :link: metrics
@@ -92,7 +98,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: vintage
       :link-type: doc
 
-      Cumulative bad rates by cohort and month on book, roll rates and transition matrices between delinquency buckets.
+      Monthly delinquency panels from repayment schedules, cumulative bad rates by cohort and month on book, roll rates and transition matrices between delinquency buckets.
 
    .. grid-item-card:: Lifetime PD and expected credit loss
       :link: lifetime
@@ -123,6 +129,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
    selection
    reject_inference
    scorecard
+   expert
    metrics
    calibration
    strategy

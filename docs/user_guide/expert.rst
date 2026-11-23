@@ -138,6 +138,12 @@ dtype: float64
 
 The weights sum to 1, and a consistency ratio of 0.004 is far below 0.1. :func:`~kivi.expert.ahp_weights` takes the eigenvector method by default; ``method="geometric"`` gives almost the same weights here, because the matrix is nearly consistent.
 
+.. plot::
+   :alt: The comparison matrix of the five factors with the judgments above the diagonal, the weights, the matrix times the weights, which is 5.0182 times each weight, and the four statistics of ahp_consistency
+   :caption: How ``ahp_weights`` and ``ahp_consistency`` compute the example. The entries above the diagonal are the committee's judgments and those below them their reciprocals. The weights are the principal eigenvector of the matrix: the matrix times the weights gives ``lambda_max`` times each weight, and ``lambda_max`` gives ``ci`` and ``cr``.
+
+   kd.figure_ahp_weights()
+
 Revising judgments
 ------------------
 
@@ -170,6 +176,12 @@ profitability      3.75      0.77       0.24           1.00      0.72
 industry           1.04      1.07       1.97           1.39      1.00
 
 The largest entries, 4.23 for liquidity against profitability, 3.75 for profitability against leverage and 3.02 for leverage against liquidity, are the three comparisons that make the circle, and their reciprocals are the smallest, so these are the comparisons for the analysts to settle. The function does not raise for a ratio above 0.1, because the committee decides what to do with it.
+
+.. plot::
+   :alt: The ratio of each judgment of the second analyst to the ratio of the weights, with the three largest ratios and their reciprocals outlined, and the three judgments of leverage over liquidity, liquidity over profitability and profitability over leverage drawn as a circle of arrows
+   :caption: The ratios of the second analyst. The further a judgment lies from the ratio of the weights, the darker its cell. The three largest ratios, outlined with their reciprocals, are the judgments that run in a circle: leverage over liquidity, liquidity over profitability and profitability over leverage.
+
+   kd.figure_ahp_ratios()
 
 Scoring borrowers
 -----------------

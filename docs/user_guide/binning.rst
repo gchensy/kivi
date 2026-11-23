@@ -235,6 +235,12 @@ array([-inf,   1.,   3.,   4.,   7.,  inf])
 
 Like the tree, Best KS does not look for a trend: here too the customers above 6,046 subscribe less often than those just below them. Check the WOE of its bins before using them.
 
+.. plot::
+   :alt: KS of every possible first cut of balance, and the WOE of the five Best-KS bins
+   :caption: Left: the KS of every possible first cut. The first cut takes the largest KS outside the shaded areas, where a bin would hold less than min_bin_share of the customers. The dashed lines are the cuts of ``ks_edges``, numbered in the order they were made. Right: the WOE of the five bins rises, then falls in the top bin.
+
+   kp.figure_ks()
+
 Monotonic binning
 ^^^^^^^^^^^^^^^^^
 

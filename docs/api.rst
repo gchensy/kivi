@@ -16,6 +16,7 @@ Import each function from its module, as in ``from kivi.woe import woe_table``. 
    api/selection
    api/reject_inference
    api/scorecard
+   api/expert
    api/metrics
    api/calibration
    api/strategy

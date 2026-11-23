@@ -11,6 +11,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Accepts and rejects
       The applicants that a previous policy approved and declined. The outcome is known only for the accepts, so a model developed on them alone may misjudge the rejects; see :doc:`/user_guide/reject_inference`.
 
+   Analytic hierarchy process (AHP)
+      Saaty's method of weighing the factors of a decision, such as those of an expert scorecard, from comparisons of the factors two at a time. The weights are the principal eigenvector, or the geometric means of the rows, of the pairwise comparison matrix, and the consistency ratio checks that the comparisons agree with each other; see :doc:`/user_guide/expert`.
+
    Area under the ROC curve (AUC)
       The probability that a randomly chosen event scores higher than a randomly chosen non-event, with ties counted as one half. A score unrelated to the target has an AUC of about 0.5; see :doc:`/user_guide/metrics`.
 
@@ -32,6 +35,12 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Conditional PD
       The probability of a default in a period given that there was none before it, also called the hazard rate; see :doc:`/user_guide/lifetime`.
 
+   Consistency index (CI)
+      How far the judgments of a pairwise comparison matrix of :math:`n` factors contradict each other: :math:`(\lambda_{\max} - n) / (n - 1)`, where :math:`\lambda_{\max}` is the principal eigenvalue of the matrix. It is 0 when the judgments are consistent; see :doc:`/user_guide/expert`.
+
+   Consistency ratio (CR)
+      The consistency index of a pairwise comparison matrix divided by the random index for the same number of factors. Saaty's rule of thumb asks for at most 0.1 before the weights are used; see :doc:`/user_guide/expert`.
+
    Coverage ratio
       The loss allowance of a group of loans divided by their exposure; see :doc:`/user_guide/lifetime`.
 
@@ -45,7 +54,7 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       The score that separates approval from decline. kivi approves the scores at or below the cut-off, because its scores rise with the risk; see :doc:`/user_guide/strategy`.
 
    Days past due (DPD)
-      The number of days for which a contractual payment has been overdue. IFRS 9 rebuttably presumes a significant increase in credit risk when a payment is more than 30 days past due, and default no later than when it is 90 days past due; see :doc:`/user_guide/lifetime`.
+      The number of days for which a contractual payment has been overdue. IFRS 9 rebuttably presumes a significant increase in credit risk when a payment is more than 30 days past due, and default no later than when it is 90 days past due; see :doc:`/user_guide/lifetime`, and :doc:`/user_guide/vintage` for how they are counted from a repayment schedule.
 
    DeLong test
       A test of whether two scores have the same AUC on the same sample. It uses the variances and the covariance of the two AUCs that DeLong, DeLong and Clarke-Pearson (1988) derived from the placement values; see :doc:`/user_guide/metrics`.
@@ -71,6 +80,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Expected loss (EL)
       The loss that an exposure is expected to cause: its probability of default times its loss given default times its exposure at default; see :doc:`/user_guide/strategy`.
 
+   Expert scorecard
+      A scorecard whose weights are set by the judgment of credit analysts rather than fitted to outcomes, for portfolios with too few defaults to fit a model; see :doc:`/user_guide/expert`.
+
    Exposure at default (EAD)
       The amount owed when a borrower defaults, such as the outstanding balance of a loan; see :doc:`/user_guide/strategy`.
 
@@ -82,6 +94,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Gini coefficient
       Twice the AUC minus 1: 0 for a score unrelated to the target and 1 for a score that ranks every event above every non-event. Scorecard development reports it more often than the AUC itself; see :doc:`/user_guide/metrics`.
+
+   Grace period
+      The months after the origination of a loan in which nothing falls due, so that its first instalment falls due later than a month after origination. :func:`~kivi.vintage.delinquency_panel` puts a loan in the cohort of the month before its first due date unless ``origination`` gives the origination dates, which keep the loans with a grace period in the cohort of their origination month; see :doc:`/user_guide/vintage`.
 
    Grade
       One class of a rating system or master scale, with a PD of its own and bounds that decide which predicted PDs fall into it; see :doc:`/user_guide/calibration`.
@@ -116,6 +131,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Outcome window
       The time after which the outcome of an observation is known, such as twelve months after a loan was granted. Until it has passed, the target is missing and the outcome counts as unknown; see :doc:`/user_guide/monitoring`.
 
+   Pairwise comparison matrix
+      A square matrix whose entry :math:`a_{ij}` says how many times more important factor :math:`i` is than factor :math:`j`, on the Saaty scale. Its diagonal is 1 and :math:`a_{ji} = 1 / a_{ij}`; see :doc:`/user_guide/expert`.
+
    PD term structure
       The PD of each period after a starting point, such as the origination of a loan or the reporting date, given as cumulative, marginal or conditional PDs; see :doc:`/user_guide/lifetime`.
 
@@ -134,6 +152,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Probability of default (PD)
       The probability that a borrower defaults within a given horizon, usually twelve months. kivi calls a predicted PD, or any other predicted event probability, ``probability``; see :doc:`/user_guide/calibration`.
 
+   Random index (RI)
+      The average consistency index of pairwise comparison matrices filled with random judgments on the Saaty scale, which depends only on the number of factors. kivi uses the table of Tone (1986) for 3 to 15 factors; see :doc:`/user_guide/expert`.
+
    Reason codes
       The variables that lowered an applicant's score most, compared with the best group of each variable, as given to a declined applicant; see :doc:`/user_guide/scorecard`.
 
@@ -143,6 +164,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Reject inference
       Methods that supply outcomes for rejected applicants, as rows with weights or as weights for the accepts, so that a model can be refitted on all applicants; see :doc:`/user_guide/reject_inference`.
 
+   Repayment schedule
+      The instalments that a loan owes, each with its due date and its amount. Compared with the payments made, it gives the days past due of the loan at each month end; see :doc:`/user_guide/vintage`.
+
    Reporting date
       The date at which a loss allowance is measured. Period 1 of an expected credit loss is the first period after it; see :doc:`/user_guide/lifetime`.
 
@@ -151,6 +175,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Roll rate
       The share of the loans in a delinquency bucket at one month end that are in the next worse bucket at the next month end; see :doc:`/user_guide/vintage`.
+
+   Saaty scale
+      The scale of pairwise comparisons from 1, equally important, through 3, 5 and 7 to 9, extremely more important, with 2, 4, 6 and 8 in between and the reciprocals for the reverse comparisons; see :doc:`/user_guide/expert`.
 
    Significant increase in credit risk (SICR)
       The IFRS 9 criterion that moves a loan from stage 1 to stage 2: its risk of default has risen significantly since initial recognition. Each lender sets the test in its own policy, for example as relative and absolute increases of the PD; see :doc:`/user_guide/lifetime`.
