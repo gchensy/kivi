@@ -3,7 +3,7 @@ Scorecard
 
 A scorecard turns a logistic regression on WOE values into points. Every applicant receives the points of their group in each variable, and the points add up to a score that stands for the odds of a good outcome. kivi takes the coefficients and the intercept as plain numbers, so the model can come from any library.
 
-The scorecard follows :doc:`variable selection <selection>` and :doc:`reject_inference`, which give the coefficients, and comes before :doc:`metrics`, which evaluates the score. :func:`~kivi.scorecard.score_scaling`, :func:`~kivi.scorecard.pd_to_score` and :func:`~kivi.scorecard.score_to_pd` set the scale, :func:`~kivi.scorecard.points_table` and :func:`~kivi.scorecard.woe_to_points` give the points, and :func:`~kivi.scorecard.reason_codes` explains a score.
+The scorecard follows :doc:`variable selection <selection>` and :doc:`reject_inference`, which give the coefficients, and comes before :doc:`metrics`, which evaluates the score. Where there are too few defaults to fit a model, :doc:`expert` weighs the factors by judgment instead. :func:`~kivi.scorecard.score_scaling`, :func:`~kivi.scorecard.pd_to_score` and :func:`~kivi.scorecard.score_to_pd` set the scale, :func:`~kivi.scorecard.points_table` and :func:`~kivi.scorecard.woe_to_points` give the points, and :func:`~kivi.scorecard.reason_codes` explains a score.
 
 Scaling
 -------

@@ -44,6 +44,8 @@ The functions below replace the 0.2.x classes. The example data of ``Dataset.ban
      - ``special=[...]`` in ``bin_edges`` and ``kivi.binning.cut``
    * - ``ManuallyBins``
      - Explicit edges, such as ``[-inf, 20, 50, inf]``, with ``kivi.binning.cut`` and then ``woe_table``
+   * - ``KSBins``
+     - ``ks_edges(values, target)``, then ``kivi.binning.cut`` and ``woe_table``, from 1.2.0
    * - ``CategoryBins``
      - ``woe_table(labels, target)``, after ``category_groups`` or ``chimerge_groups`` and ``group_categories`` where the labels should be grouped, from 0.8.0
    * - ``WOEScore``
@@ -58,6 +60,8 @@ The functions below replace the 0.2.x classes. The example data of ``Dataset.ban
      - ``kivi.selection``: ``vif``, ``stepwise``, ``correlation_filter`` and ``logistic_regression``, from 0.5.0; ``correlation_filter(X, method="spearman")`` for ``Corr.spearmanr``, from 1.1.0
    * - ``PDToScore``, ``BaseScoreAndPDO``
      - ``kivi.scorecard``: ``pd_to_score``, ``score_to_pd``, ``score_scaling`` and ``points_table``, from 0.5.0
+   * - ``AHP``
+     - ``kivi.expert``: ``ahp_weights(matrix, method="geometric")`` for the legacy weights, ``ahp_consistency`` and ``combine_weights``, from 1.2.0
    * - ``get_omega``, ``BinomialTest``, ``herfindahl``
      - ``kivi.calibration``: ``prior_correction``, ``calibration_table``, ``binomial_test`` and ``herfindahl_index``, from 0.5.0
    * - ``MasterScale``, ``PDToRant``
@@ -69,7 +73,9 @@ The functions below replace the 0.2.x classes. The example data of ``Dataset.ban
    * - ``CSI``
      - ``kivi.stability.csi_table`` on groups formed with the same edges, from 0.6.0
    * - ``VintagePd``
-     - ``kivi.vintage.vintage_table`` on a loan panel, from 0.6.0
+     - ``kivi.vintage.vintage_table`` on a loan panel, from 0.6.0, which ``delinquency_panel`` builds from repayment schedules from 1.2.0
+   * - ``PortfolioAnalysis.Vintage``
+     - ``kivi.vintage.delinquency_panel`` on the repayment schedules and payments, then ``vintage_table``, from 1.2.0
    * - ``plot_bin``, ``DefaultAnalysis``, ``Calibration.CalibrationCurve``, ``BinaryMetrics.plot_*``, ``diagonal_corr``, ``structure_corr``
      - ``kivi.plotting``: ``woe_chart``, ``calibration_chart``, ``roc_chart``, ``gains_chart`` and ``correlation_chart``, from 1.1.0
    * - ``Dataset.bank_data()``
@@ -108,7 +114,7 @@ Version 0.6.0 replaces three more legacy classes. They are new implementations a
 
 * ``WOEBatch`` fitted the WOE of many columns at once, and ``ManualBinsTool`` merged bins by hand afterwards. ``fit_spec`` fits every column with the binning function chosen for it, and its ``BinningSpec`` saves the edges and WOE tables as versioned JSON. Nothing is re-binned automatically: to merge bins by hand, pass the merged edges for that column in ``bins``.
 * ``CSI`` matched the points to the bins by position and lost the missing group. ``csi_table`` matches the points to the groups by label, keeps the missing group, and raises for an observed group without points unless ``unseen_points`` gives them. Its contributions sum to the change of the variable's average points.
-* ``VintagePd`` built the vintage table from repayment schedules and observation dates. ``vintage_table`` takes a long panel with one row per loan and month on book and a bad flag that you define, for example ``status == "90+"``. Pass ``weights=amount`` for the amount-weighted rates of ``VintagePd``. Months that a cohort has not reached are NaN rather than 0.
+* ``VintagePd`` built the vintage table from repayment schedules and observation dates. ``vintage_table`` takes a long panel with one row per loan and month on book and a bad flag that you define, for example ``status == "90+"``, and from 1.2.0 ``delinquency_panel`` builds that panel from the schedules and the payments. Pass ``weights=amount`` for the amount-weighted rates of ``VintagePd``. Months that a cohort has not reached are NaN rather than 0.
 
 Master scales, variable profiles and strategy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -140,16 +146,67 @@ Version 1.1.0 draws charts and adds the measures of a classifier and more statis
 * The skewness, kurtosis and coefficient of variation of ``FeatureEvaluate`` are the ``skewness``, ``kurtosis`` and ``cv`` columns of ``profile_table``. ``cv`` is NaN when the mean is 0, where the legacy code gave -9999. ``ks`` is the KS statistic of the values themselves, which the legacy ``ks_test`` computed with SciPy, without its p-value. ``chi2_p_value`` tests the groups of the quick binning against the target, while the legacy chi-squared test was scikit-learn's ``chi2`` on the raw values, so the two p-values differ.
 * ``Corr.spearmanr`` gave the Spearman correlation of each pair of columns. ``correlation_filter(X, method="spearman")`` drops one variable of each pair whose Spearman correlation is too high; ``X.corr(method="spearman")`` gives the matrix itself.
 
+Delinquency panels, KS binning and expert weights
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Version 1.2.0 builds delinquency panels from repayment schedules, adds Best-KS binning and weighs the factors of expert scorecards. These are new implementations as well, so compare their output with the legacy code on a fixed reference sample before switching.
+
+* ``PortfolioAnalysis.Vintage`` and ``VintagePd`` derived the delinquency of each loan from its repayment schedule at month-end observation dates. ``delinquency_panel(loan, due_date, amount_due, payment_loan, payment_date, payment_amount, end=...)`` builds that panel from the schedule and the payments as they were made, and ``vintage_table`` turns it into vintage curves. The rules differ from the legacy code in the following ways:
+
+  * The legacy schedule had one row per instalment with its own payment date and remaining amounts, so the source system had already allocated the payments. ``delinquency_panel`` applies the payments to the oldest unpaid instalment first.
+  * The legacy code counted an instalment as unpaid only while its interest was unpaid, so unpaid principal alone did not make a loan delinquent. ``delinquency_panel`` counts the whole amount due, up to ``tolerance``.
+  * For a loan with nothing unpaid, the legacy code took the days from the due date to the payment date of its latest instalment, so a loan that paid its latest instalment late kept those days after catching up. ``delinquency_panel`` gives such a loan 0 days.
+  * ``VintagePd`` left out of an observation a loan whose first instalment was paid but a later one was not, while the Spark ``Vintage`` kept its earliest unpaid instalment. ``delinquency_panel`` keeps every loan from its first due month until it is repaid.
+  * The legacy buckets were M0 = 0, M1 = 1–30, M2 = 31–60, M3 = 61–90 and M4+ over 90 days. ``status`` has ``current``, ``1-29``, ``30-59``, ``60-89`` and ``90+`` (90 days or more), so a loan exactly 30, 60 or 90 days past due falls one bucket later. Use ``days_past_due > 90`` for the legacy M4+.
+  * The legacy cohort was the month of the origination date ``loan_date``. Pass the origination dates as ``origination`` for the same cohorts. ``month_on_book`` then counts the months from the origination month, 0 at its end, so it is one less than the legacy ``book_month``, which rounded the months from the first day of the origination month to the observation date; add 1 for the legacy numbering. Without ``origination``, ``cohort`` is the month before the first due date and ``month_on_book`` is 1 in the first due month, which counts from the origination month only when the first instalment falls due a month after origination.
+  * The legacy remaining principal subtracted only the principal paid on instalments due by the observation date. ``balance`` counts every payment made by the month end, including payments made ahead.
+  * The legacy code observed every loan at ``observe_period`` month ends from ``observe_date``. ``delinquency_panel`` observes each loan from the month of its first due date to ``end``, and drops it after the month end at which it is repaid.
+  * ``VintagePd`` reported, at each observation date, the remaining principal of the M4+ loans as a share of the cohort's amount lent. That is a point-in-time rate, which falls when loans cure or are repaid. ``vintage_table`` counts the loans that were ever bad, by number or by a weight such as the amount lent. For the legacy rate, sum ``balance`` where ``days_past_due > 90`` by cohort and month on book, and divide by the amount lent.
+
+* ``ks_edges`` replaces ``KSBins``. It is a new implementation, so the edges can differ. ``KSBins`` always split the largest bin, while ``ks_edges`` splits the bin whose cut ranks the most pairs of an event and a non-event apart, and stops when no bin has an allowed cut that separates the classes. ``KSBins`` raised an error instead when the largest bin had no allowed cut, for example when a special code such as ``pdays == -1`` filled it, or when it held one class only. ``min_sample_rate`` counted every row, missing values and ``abnormal_vals`` included, while ``min_bin_share`` counts only the fitted values, in weight; ``weight`` did not affect the cuts of ``KSBins``, while the cuts of ``ks_edges`` use sums of weights. Both put each edge at the largest value of the bin to its left and break ties towards the smallest value. Codes listed in ``abnormal_vals`` become the ``special`` argument, as for ``tree_edges``, and ``fit_spec`` fits a column with ``ks_edges`` when its ``method`` is ``"ks"``.
+* The ``AHP`` class took a long frame with the columns ``group``, ``experimental``, ``control`` and ``value``, weighed each group by the geometric means of the rows of its comparison matrix and estimated the principal eigenvalue as the mean of :math:`(A w)_i / w_i` for those weights. ``ahp_weights(matrix, method="geometric")`` gives the same weights for one comparison matrix, and ``ahp_consistency`` the CI and CR. kivi's default is the exact principal eigenvector. For up to three factors it gives the same weights, eigenvalue and CR as the legacy estimate; from four factors on they differ slightly when the judgments are inconsistent.
+* ``weight()`` returned one frame with the columns ``dst``, the factor, ``geo_mean``, the geometric mean of its row, and ``group_weight``, its weight within the group, with the groups one after the other in sorted order and no group column. ``group_ci`` and ``group_cr`` held the CI and CR of each group. Weigh each group on its own and join the results, as the example below shows; ``np.exp(np.log(matrix).mean(axis=1))`` gives ``geo_mean`` if it is needed, and ``combine_weights`` multiplies the weights of groups and of their factors into global weights.
+* The legacy random indices are the same for 3 to 11, 13 and 15 factors, but 1.54 for 12 and 1.58 for 14 factors, where ``ahp_consistency`` uses the 1.53 and 1.57 of Tone's table, and the legacy table went on to 1.60 for 16 factors, for which ``ahp_consistency`` raises an error. For one factor the legacy CI was NaN with a ``RuntimeWarning``; for one or two factors ``ahp_consistency`` returns 0 for ``ci``, ``ri`` and ``cr``. A CR above 0.1 is no error in either: the legacy class logged it in red, and ``ahp_consistency`` returns it for the reader to judge.
+
+A long frame of the legacy layout, with one group of three factors and one of two, becomes one matrix per group:
+
+>>> import numpy as np
+>>> import pandas as pd
+>>> from kivi.expert import ahp_consistency, ahp_weights
+>>> long = pd.DataFrame(
+...     {
+...         "group": ["finance"] * 9 + ["market"] * 4,
+...         "experimental": np.repeat(["coverage", "leverage", "margin", "position", "share"], [3, 3, 3, 2, 2]),
+...         "control": ["coverage", "leverage", "margin"] * 3 + ["position", "share"] * 2,
+...         "value": [1, 1 / 2, 3, 2, 1, 4, 1 / 3, 1 / 4, 1, 1, 3, 1 / 3, 1],
+...     }
+... )
+>>> weights, statistics = {}, {}
+>>> for name, group in long.groupby("group"):
+...     matrix = group.pivot(index="experimental", columns="control", values="value")
+...     weights[name] = ahp_weights(matrix, method="geometric")
+...     statistics[name] = ahp_consistency(matrix)
+>>> pd.concat(weights, names=["group"]).round(4)
+group    factor
+finance  coverage    0.3196
+         leverage    0.5584
+         margin      0.1220
+market   position    0.7500
+         share       0.2500
+Name: weight, dtype: float64
+>>> pd.DataFrame(statistics).T[["ci", "cr"]].round(4)
+statistic      ci      cr
+finance    0.0091  0.0158
+market     0.0000  0.0000
+
 Not ported
 ~~~~~~~~~~
 
 Spark, SQL, model wrappers and application code are out of scope and remain in the historical revisions: the Spark indicator jobs of ``index`` and ``FeatureToolsV2``, the wrappers of ``Model``, and the Excel, Markdown, logging and date helpers of ``utils``. These 0.2.x tools have no replacement either:
 
-* The analytic hierarchy process of ``ahp``, which weights the factors of an expert scorecard.
-* The binning classes ``KSBins``, which split at the largest KS, ``KmeansBins``, which cut at the boundaries of k-means clusters, and ``PearsonBins``, which lowered the number of quantile bins until their rank correlation with the bad rate reached a threshold. ``tree_edges`` and ``chimerge_edges`` are the closest supervised methods, and ``monotonic_edges`` reaches the monotonic WOE that ``PearsonBins`` aimed at.
+* The binning classes ``KmeansBins``, which cut at the boundaries of k-means clusters, and ``PearsonBins``, which lowered the number of quantile bins until their rank correlation with the bad rate reached a threshold. ``monotonic_edges`` reaches the monotonic WOE that ``PearsonBins`` aimed at, and the supervised methods of :doc:`/user_guide/binning` replace the clustering of ``KmeansBins``.
 * The sampling helpers ``sampling`` and ``upsampling``, the ratio and cross features of ``FeatureTools`` and its min-max and z-score scaling in ``Scale``. Use pandas.
 * The grading by the Beta distribution in ``BetaCalibration``, ``BetaDistribution`` and ``MasterScale.cal_quantile``, and ``model_score_by_weight``. ``master_scale`` and ``woe_to_points`` cover the same steps without them.
-* The repayment-schedule calculations of ``PortfolioAnalysis.Vintage``. Derive the delinquency status with pandas and pass the panel to ``vintage_table``.
 * The univariate logistic fit of ``FeatureEvaluate`` and the p-value of its KS test. The ``gini`` and ``ks`` of ``profile_table`` measure how well the values rank the target directly.
 * ``ODDS``, which computed a stability index of score bands, and ``StatsLogit``, a wrapper of statsmodels' logistic regression. Use ``psi_table`` and ``logistic_regression``.
 * ``Dataset.crime_data()``, a table of crime rates of US states that has nothing to do with credit risk, and the synthetic data of ``MakeData`` and ``fake_data``. ``make_applications`` and ``make_loan_panel`` simulate loan applications and a loan portfolio instead.

@@ -7,7 +7,7 @@ Credit risk modeling with pandas
 
 .. container:: kivi-lead
 
-   kivi is a pandas toolkit for credit risk and financial modeling. It profiles the candidate variables, bins them and groups their categories, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard, infers the outcomes of rejected applicants, scales the model to points, evaluates it and calibrates it on a master scale, and prices the cut-offs and the expected loss. Once the model is live, it monitors the score period by period, follows how the approved loans perform, and measures their expected credit loss under IFRS 9. Tables come back as pandas DataFrames with one row per bin, grade, cut-off, period or variable, and :mod:`kivi.plotting` draws them as charts.
+   kivi is a pandas toolkit for credit risk and financial modeling. It profiles the candidate variables, bins them and groups their categories, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard or weighs the factors of an expert scorecard, infers the outcomes of rejected applicants, scales the model to points, evaluates it and calibrates it on a master scale, and prices the cut-offs and the expected loss. Once the model is live, it monitors the score period by period, follows how the approved loans repay and perform, and measures their expected credit loss under IFRS 9. Tables come back as pandas DataFrames with one row per bin, grade, cut-off, period or variable, and :mod:`kivi.plotting` draws them as charts.
 
 .. container:: kivi-actions
 
@@ -74,7 +74,7 @@ Built for risk teams
       :link: user_guide/binning
       :link-type: doc
 
-      Fine and coarse classing, special values, monotonic WOE and grouped categories for logistic regression scorecards.
+      Fine and coarse classing, special values, ChiMerge, decision-tree, Best-KS and monotonic binning, and grouped categories for logistic regression scorecards.
 
    .. grid-item-card:: WOE and IV
       :link: user_guide/woe_iv
@@ -99,6 +99,12 @@ Built for risk teams
       :link-type: doc
 
       Turn the model into points with PDO scaling, score new applications and explain each score with reason codes.
+
+   .. grid-item-card:: Expert scorecards
+      :link: user_guide/expert
+      :link-type: doc
+
+      Weigh the factors of a scorecard set by judgment with the analytic hierarchy process, and check that the pairwise comparisons agree.
 
    .. grid-item-card:: Model performance
       :link: user_guide/metrics
@@ -140,7 +146,7 @@ Built for risk teams
       :link: user_guide/vintage
       :link-type: doc
 
-      Vintage curves by origination cohort, roll rates and transition matrices between delinquency buckets.
+      Monthly delinquency panels from repayment schedules, vintage curves by origination cohort, roll rates and transition matrices between delinquency buckets.
 
    .. grid-item-card:: Lifetime PD and expected credit loss
       :link: user_guide/lifetime
@@ -183,7 +189,7 @@ How it works
 
    .. grid-item-card:: Follow the loans
 
-      ``vintage_table`` and ``transition_matrix`` follow the approved loans. ``convert_pd`` and ``transition_pd`` turn them into PD term structures, and ``expected_credit_loss`` and ``assign_stages`` give the IFRS 9 loss allowance.
+      ``delinquency_panel`` builds the monthly delinquency of the approved loans from their repayment schedules and payments, and ``vintage_table`` and ``transition_matrix`` follow it. ``convert_pd`` and ``transition_pd`` turn the vintage curves and transition matrices into PD term structures, and ``expected_credit_loss`` and ``assign_stages`` give the IFRS 9 loss allowance.
 
 Documentation
 -------------

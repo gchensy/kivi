@@ -20,6 +20,7 @@ from kivi import (
     binning,
     calibration,
     datasets,
+    expert,
     lifetime,
     metrics,
     monitoring,
@@ -55,6 +56,11 @@ CASES = {
     ),
     "tree_edges": (
         binning.tree_edges,
+        {"values": VALUES, "target": TARGET, "weights": WEIGHTS},
+        {},
+    ),
+    "ks_edges": (
+        binning.ks_edges,
         {"values": VALUES, "target": TARGET, "weights": WEIGHTS},
         {},
     ),
@@ -162,6 +168,40 @@ CASES = {
             "exposure": [100.0] * ROWS,
             "allowance": [1.0] * ROWS,
             "weights": WEIGHTS,
+        },
+        {},
+    ),
+    # The four inputs of the schedule share one index; the payments describe other rows.
+    "delinquency_panel": (
+        vintage.delinquency_panel,
+        {
+            "loan": ["a"] * 4 + ["b"] * 4,
+            "due_date": ["2024-01-15", "2024-02-15", "2024-03-15", "2024-04-15"] * 2,
+            "amount_due": [100.0] * ROWS,
+            "principal": [90.0] * ROWS,
+        },
+        {
+            "payment_loan": ["a", "b"],
+            "payment_date": ["2024-01-15", "2024-03-01"],
+            "payment_amount": [100.0, 150.0],
+            "end": "2024-05",
+        },
+    ),
+    # The payments share one index too; a wrapper takes them as its positional arguments.
+    "delinquency_panel-payments": (
+        lambda payment_loan, payment_date, payment_amount: vintage.delinquency_panel(
+            ["a", "a", "b"],
+            ["2024-01-15", "2024-02-15", "2024-01-20"],
+            [100.0] * 3,
+            payment_loan,
+            payment_date,
+            payment_amount,
+            end="2024-04",
+        ),
+        {
+            "payment_loan": ["a", "b", "a", "b", "a", "b", "a", "b"],
+            "payment_date": ["2024-01-10"] * 4 + ["2024-02-10"] * 4,
+            "payment_amount": [10.0] * ROWS,
         },
         {},
     ),
@@ -370,7 +410,7 @@ SMOOTHED = {
 
 def test_every_public_smoothing_argument_is_checked():
     modules = (binning, calibration, lifetime, metrics, monitoring, reject_inference, scorecard)
-    modules += (selection, spec, stability, strategy, univariate, vintage, woe, datasets)
+    modules += (selection, spec, stability, strategy, univariate, vintage, woe, datasets, expert)
     names = set()
     for module in modules:
         for name in module.__all__:
@@ -439,6 +479,20 @@ def test_smoothing_true_raises(case, flag):
             lambda: strategy.confusion_table(SCORE, TARGET, cutoffs=np.array([0.5, 0.1])),
             r"cutoffs must be a positive integer or a sequence of increasing numbers, got "
             r"\[0.5, 0.1\]",
+        ),
+        (
+            lambda: binning.ks_edges(VALUES, TARGET, min_bin_share=np.float64(0.6)),
+            "min_bin_share must be between 0 and 0.5, got 0.6",
+        ),
+        (
+            lambda: expert.ahp_weights([[1.0, 2.0], [0.5, 1.0]], rtol=np.float64(-1)),
+            "rtol must be finite and non-negative, got -1.0",
+        ),
+        (
+            lambda: vintage.delinquency_panel(
+                ["a"], ["2024-01-15"], [1.0], [], [], [], end="2024-02", tolerance=np.float64(-1)
+            ),
+            "tolerance must be finite and non-negative, got -1.0",
         ),
         (
             lambda: metrics.roc_auc_interval(SCORE, TARGET, level=np.float64(2)),
@@ -533,6 +587,7 @@ def _option_cases():
     )
     matrix = pd.DataFrame([[0.9, 0.1], [0.0, 1.0]], index=["A", "D"], columns=["A", "D"])
     event, total, rates = [1, 2, 3], [10, 20, 30], [0.1, 0.1, 0.1]
+    comparison = [[1.0, 2.0], [0.5, 1.0]]
     return {
         # binning
         "bin_edges-bins": lambda o: binning.bin_edges(VALUES, bins=o),
@@ -545,6 +600,8 @@ def _option_cases():
         "tree_edges-max_bins": lambda o: binning.tree_edges(VALUES, TARGET, max_bins=o),
         "tree_edges-min_bin_share": lambda o: binning.tree_edges(VALUES, TARGET, min_bin_share=o),
         "tree_edges-criterion": lambda o: binning.tree_edges(VALUES, TARGET, criterion=o),
+        "ks_edges-max_bins": lambda o: binning.ks_edges(VALUES, TARGET, max_bins=o),
+        "ks_edges-min_bin_share": lambda o: binning.ks_edges(VALUES, TARGET, min_bin_share=o),
         "monotonic_edges-max_bins": lambda o: binning.monotonic_edges(VALUES, TARGET, max_bins=o),
         "monotonic_edges-direction": lambda o: binning.monotonic_edges(VALUES, TARGET, direction=o),
         "monotonic_edges-initial_bins": lambda o: binning.monotonic_edges(
@@ -642,6 +699,10 @@ def _option_cases():
         "stepwise-p_remove": lambda o: selection.stepwise(X, TARGET, p_remove=o),
         "stepwise-direction": lambda o: selection.stepwise(X, TARGET, direction=o),
         "stepwise-positive": lambda o: selection.stepwise(X, TARGET, positive=o),
+        # expert
+        "ahp_weights-method": lambda o: expert.ahp_weights(comparison, method=o),
+        "ahp_weights-rtol": lambda o: expert.ahp_weights(comparison, rtol=o),
+        "ahp_consistency-rtol": lambda o: expert.ahp_consistency(comparison, rtol=o),
         # spec
         "fit_spec-method": lambda o: spec.fit_spec(frame, TARGET, method=o),
         "fit_spec-bins": lambda o: spec.fit_spec(frame, TARGET, bins=o),
@@ -663,6 +724,12 @@ def _option_cases():
         ),
         "transition_matrix-normalize": lambda o: vintage.transition_matrix(
             GROUPS, GROUPS, normalize=o
+        ),
+        "delinquency_panel-end": lambda o: vintage.delinquency_panel(
+            GROUPS[:2], ["2024-01-15"] * 2, [1.0, 1.0], [], [], [], end=o
+        ),
+        "delinquency_panel-tolerance": lambda o: vintage.delinquency_panel(
+            GROUPS[:2], ["2024-01-15"] * 2, [1.0, 1.0], [], [], [], end="2024-02", tolerance=o
         ),
         # datasets
         "make_applications-n_applicants": lambda o: datasets.make_applications(n_applicants=o),

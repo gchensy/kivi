@@ -17,7 +17,7 @@ import pandas as pd
 import pytest
 
 from kivi import _stats
-from kivi.binning import chimerge_edges, chimerge_groups, tree_edges
+from kivi.binning import chimerge_edges, chimerge_groups, ks_edges, tree_edges
 from kivi.calibration import (
     binomial_test,
     fit_grade_pd,
@@ -242,6 +242,39 @@ def test_ks_with_integer_weights_matches_scipy_on_repeated_rows():
         repeated[labels == 1].to_numpy(), repeated[labels == 0].to_numpy(), method="asymp"
     ).statistic
     assert ks(score, target, weights=weights) == pytest.approx(expected, rel=1e-12, abs=0)
+
+
+def first_ks_cut(values, target):
+    """The first cut of ks_edges without a minimum share, and the gap between the classes there."""
+    edges = ks_edges(values, target, max_bins=2, min_bin_share=0)
+    assert len(edges) == 3
+    cut = edges[1]
+    gap = abs((values[target == 1] <= cut).mean() - (values[target == 0] <= cut).mean())
+    return cut, gap
+
+
+# Not previous: the exact p-value of some SciPy versions warns there, which fails the test.
+@pytest.mark.parametrize("column", ["age", "balance", "duration", "campaign", "day", "pdays"])
+def test_ks_edges_first_cut_is_where_scipy_finds_the_two_sample_statistic(bank, column):
+    stats = pytest.importorskip("scipy.stats")
+    values, target = bank[column].to_numpy(dtype=float), bank["target"].to_numpy()
+    result = stats.ks_2samp(values[target == 1], values[target == 0], method="asymp")
+    cut, gap = first_ks_cut(values, target)
+    # These columns have one largest gap, so the cut and SciPy's location are the same value.
+    assert cut == result.statistic_location
+    assert gap == pytest.approx(result.statistic, rel=1e-12, abs=0)
+
+
+@pytest.mark.parametrize("seed", [33, 34, 35])
+def test_ks_edges_first_cut_reaches_the_two_sample_statistic_with_tied_scores(seed):
+    stats = pytest.importorskip("scipy.stats")
+    score, _, target, _ = simulated_scores(n=400, seed=seed)
+    values, labels = score.to_numpy(), target.to_numpy()
+    result = stats.ks_2samp(values[labels == 1], values[labels == 0], method="asymp")
+    # With tied scores several cuts can share the largest gap: ks_edges takes the smallest and
+    # SciPy may report another, so only the gap is compared.
+    _, gap = first_ks_cut(values, labels)
+    assert gap == pytest.approx(result.statistic, rel=1e-12, abs=0)
 
 
 BETA_SHAPES = [0.5, 1.0, 2.0, 7.5, 30.0, 150.0, 1e3, 2e4, 1e5]

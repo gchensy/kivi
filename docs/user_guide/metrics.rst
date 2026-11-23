@@ -3,7 +3,7 @@ Model performance
 
 :mod:`kivi.metrics` measures how well a score separates events from non-events. :func:`~kivi.metrics.roc_auc`, :func:`~kivi.metrics.gini` and :func:`~kivi.metrics.ks` summarize the ranking in one number, and :func:`~kivi.metrics.roc_table` lists the points of the ROC curve behind them. :func:`~kivi.metrics.roc_auc_interval` gives the AUC a standard error and a confidence interval, and :func:`~kivi.metrics.delong_test` tests whether two scores of the same customers rank equally well. :func:`~kivi.metrics.gains_table` breaks the ranking down by score band, and :func:`~kivi.metrics.brier_score` checks predicted probabilities against the outcomes.
 
-Performance is measured once the model is scaled to a :doc:`scorecard`, and before its probabilities are checked in :doc:`calibration`.
+Performance is measured once the model is scaled to a :doc:`scorecard`, or once the outcomes of an :doc:`expert scorecard <expert>` are known, and before its probabilities are checked in :doc:`calibration`.
 
 Definitions
 -----------

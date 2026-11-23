@@ -24,7 +24,7 @@ kivi supports Python 3.10 or newer, NumPy 1.24 or newer and pandas 2.0 or newer,
 What is public
 --------------
 
-* The names that a public module lists in its ``__all__``: :mod:`kivi.binning`, :mod:`kivi.woe`, :mod:`kivi.stability`, :mod:`kivi.univariate`, :mod:`kivi.selection`, :mod:`kivi.scorecard`, :mod:`kivi.metrics`, :mod:`kivi.calibration`, :mod:`kivi.strategy`, :mod:`kivi.reject_inference`, :mod:`kivi.spec`, :mod:`kivi.monitoring`, :mod:`kivi.vintage`, :mod:`kivi.lifetime`, :mod:`kivi.plotting` and :mod:`kivi.datasets`. Each has a page in this reference that documents every such name. ``kivi.__version__`` is public too.
+* The names that a public module lists in its ``__all__``: :mod:`kivi.binning`, :mod:`kivi.woe`, :mod:`kivi.stability`, :mod:`kivi.univariate`, :mod:`kivi.selection`, :mod:`kivi.scorecard`, :mod:`kivi.expert`, :mod:`kivi.metrics`, :mod:`kivi.calibration`, :mod:`kivi.strategy`, :mod:`kivi.reject_inference`, :mod:`kivi.spec`, :mod:`kivi.monitoring`, :mod:`kivi.vintage`, :mod:`kivi.lifetime`, :mod:`kivi.plotting` and :mod:`kivi.datasets`. Each has a page in this reference that documents every such name. ``kivi.__version__`` is public too.
 * The documented members of :class:`~kivi.spec.BinningSpec`: its fields, ``FORMAT_VERSION``, ``format_version`` and ``columns``, its methods, and its equality, hashing, pickling and ``dataclasses.replace``. :exc:`~kivi.selection.SeparationError`, which :func:`~kivi.calibration.platt_fit` raises as well, stays in :mod:`kivi.selection`.
 * The names of the arguments. A keyword is part of a call, so renaming an argument needs a deprecation, even one that is usually passed by position.
 * Everything else is private: the modules and names that start with an underscore, and the modules that a public module imports, such as ``kivi.binning.np``. They can change in any release.
@@ -91,6 +91,15 @@ The index name, the column names and the order of the columns of every table are
    * - :func:`~kivi.scorecard.reason_codes`
      - The index of ``points``
      - ``reason_1`` to ``reason_<top>``
+   * - :func:`~kivi.expert.ahp_weights`
+     - A Series named ``weight`` with the index ``factor``
+     -
+   * - :func:`~kivi.expert.ahp_consistency`
+     - A Series with the index ``statistic``: ``lambda_max``, ``ci``, ``ri``, ``cr``
+     -
+   * - :func:`~kivi.expert.combine_weights`
+     - A Series named ``weight`` with the index ``factor``, ``sub_factor``
+     -
    * - :func:`~kivi.calibration.master_scale`
      - ``grade``
      - ``lower``, ``probability``, ``upper``
@@ -118,6 +127,9 @@ The index name, the column names and the order of the columns of every table are
    * - :func:`~kivi.monitoring.stability_table`
      - ``period``
      - One per column of ``groups``, in columns named ``variable``
+   * - :func:`~kivi.vintage.delinquency_panel`
+     - A range, one row per loan and month
+     - ``loan_id``, ``cohort``, ``month``, ``month_on_book``, ``days_past_due``, ``overdue_amount``, ``outstanding``, with ``principal`` ``balance``, and ``status``
    * - :func:`~kivi.vintage.vintage_table`
      - ``cohort``
      - One per month on book, in columns named ``month_on_book``
@@ -144,6 +156,8 @@ The index name, the column names and the order of the columns of every table are
      - The 16 columns of the UCI data and ``target``
 
 :func:`~kivi.datasets.load_bank` always returns the same data. :func:`~kivi.datasets.make_loan_panel` and :func:`~kivi.datasets.make_applications` keep their columns and dtypes, but the values that they simulate for a given ``rng`` stay the same only within a minor version, so that a minor release can improve the simulation.
+
+The random indices of :func:`~kivi.expert.ahp_consistency`, the table of Tone (1986) for 3 to 15 factors, are constants. A release changes them only to correct a wrong value, as a fix that the release notes list under Fixed, so the consistency ratio of a matrix stays the same from release to release.
 
 Charts
 ------
