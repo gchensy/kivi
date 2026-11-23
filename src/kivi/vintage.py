@@ -10,6 +10,8 @@ to the next worse one.
 
 import math
 import numbers
+import typing
+from collections import abc
 
 import numpy as np
 import numpy.typing as npt
@@ -36,6 +38,7 @@ def delinquency_panel(
     payment_amount: npt.ArrayLike,
     *,
     end: object,
+    origination: pd.Series | abc.Mapping[typing.Any, typing.Any] | None = None,
     principal: npt.ArrayLike | None = None,
     tolerance: float = 0.0,
 ) -> pd.DataFrame:
@@ -73,6 +76,12 @@ def delinquency_panel(
         or a `pandas.Period`. A string is read as `pandas.Period` reads it,
         and a period longer than a month, such as ``"2025Q4"``, ends in its
         last month. The payments must be complete up to its last day.
+    origination : pandas.Series or mapping, optional
+        Origination date of each loan, as a Series indexed by loan or a
+        mapping from loan to date, read like `due_date`. It must give a date
+        for every loan of the schedule and may hold other loans too. The
+        cohorts are then the origination months, and the months on book
+        count from them. By default, both come from the first due dates.
     principal : array_like, optional
         Principal part of each instalment, between 0 and its amount due,
         matched to the schedule like `amount_due`. The panel then gets a
@@ -86,7 +95,9 @@ def delinquency_panel(
     -------
     pandas.DataFrame
         One row per loan and month end, sorted by loan and then by month,
-        with the columns described in the Notes.
+        with the columns described in the Notes: those of
+        `kivi.datasets.make_loan_panel` that a schedule gives, in the same
+        order, and the days past due and the amounts owed.
 
     Raises
     ------
@@ -97,8 +108,10 @@ def delinquency_panel(
         missing, a date cannot be read, an amount is missing, negative,
         infinite or not a number, `principal` exceeds `amount_due`, a payment
         belongs to a loan that is not in the schedule, `end` is not a date or
-        a month or comes before the month of every due date, or `tolerance`
-        is not a finite, non-negative number.
+        a month or comes before the month of every due date, `origination`
+        is not a Series or a mapping, repeats a loan, lacks a loan of the
+        schedule or its date, or comes after the first due date of its loan,
+        or `tolerance` is not a finite, non-negative number.
 
     See Also
     --------
@@ -110,8 +123,11 @@ def delinquency_panel(
     -----
     A loan has a row at the end of every month from the month of its first
     due date to `end`. It leaves the panel after the month end at which all
-    its instalments are paid, also when it is repaid early, while a loan
-    that is still behind after its last due date keeps rolling until `end`.
+    its instalments count as paid, also when it is repaid early, while a
+    loan that is still behind after its last due date keeps rolling until
+    `end`. Payments after `end` are not used, and neither are amounts paid
+    beyond the total due, such as an overpayment or a payment after the loan
+    was repaid: there is no credit balance.
 
     At each month end :math:`t`, only the payments made on or before
     :math:`t` count. They go to the instalments in the order of their due
@@ -128,9 +144,13 @@ def delinquency_panel(
     that is, once at most `tolerance` remains unpaid of it and the
     instalments before it together. A partial payment leaves an instalment
     unpaid until then, and an unpaid remainder within `tolerance` is still
-    owed: the next payments go to it first. Amounts within a relative
-    :math:`10^{-10}` of :math:`C_k` count as paid, so that the rounding of
-    sums does not leave unpaid an instalment paid in parts.
+    owed: the next payments go to it first. A loan therefore leaves the
+    panel once at most `tolerance` of it is unpaid, so a `tolerance` of at
+    least its total due makes a loan that pays nothing leave in its first
+    month. Amounts within a relative :math:`10^{-10}` of :math:`C_k` count
+    as paid, so that the rounding of sums does not leave unpaid an
+    instalment paid in parts. Instalments due on the same day add up, so a
+    schedule row that a faulty join repeats doubles the amount due.
 
     If :math:`d` is the due date of the oldest instalment that is not paid
     at :math:`t`, the loan is :math:`t - d` days past due when :math:`d` is
@@ -139,24 +159,34 @@ def delinquency_panel(
 
     The columns are:
 
-    - ``loan``: the loan, with the labels of `loan`;
+    - ``loan_id``: the loan, with the labels of `loan`;
+    - ``cohort``: the origination month of the loan with `origination`, and
+      otherwise the month before its first due date, a monthly
+      `pandas.Period`;
     - ``month``: the month, a monthly `pandas.Period`, observed on its last
       day;
-    - ``month_on_book``: months since the month before the loan's first due
-      date, so 1 in the month of the first due date. This is the month on
-      book of `kivi.datasets.make_loan_panel`, whose first instalment falls
-      due one month after origination;
+    - ``month_on_book``: ``month - cohort`` in months. Without
+      `origination`, it is 1 in the month of the first due date, as in
+      `kivi.datasets.make_loan_panel`, whose first instalment falls due one
+      month after origination. With `origination`, a loan whose first
+      instalment falls due later, after a grace period, has its first row
+      at a later month on book;
     - ``days_past_due``: the days past due, as defined above;
-    - ``status``: the days past due as an ordered categorical with the
-      categories ``current`` (0 days), ``1-29``, ``30-59``, ``60-89`` and
-      ``90+`` (90 days or more), the statuses of
-      `kivi.datasets.make_loan_panel`;
     - ``overdue_amount``: the unpaid amount of the instalments due before
       the month end;
     - ``outstanding``: the unpaid amount of all instalments, past due or not;
     - ``balance``, only with `principal`: the unpaid principal of all
       instalments. A payment pays the interest of an instalment, its amount
-      due less its principal, before its principal.
+      due less its principal, before its principal;
+    - ``status``: the days past due as an ordered categorical with the
+      categories ``current`` (0 days), ``1-29``, ``30-59``, ``60-89`` and
+      ``90+`` (90 days or more), the statuses of
+      `kivi.datasets.make_loan_panel`.
+
+    Without `origination`, loans originated in the same month but with
+    grace periods of different lengths fall into different cohorts. With
+    it, a cohort whose loans all have a grace period starts at a later month
+    on book in `vintage_table`, which leaves the earlier ones NaN.
 
     Days past due at month ends do not always move one bucket a month. An
     instalment due on 31 January and still unpaid is 29 days past due at the
@@ -174,16 +204,16 @@ def delinquency_panel(
     >>> panel = delinquency_panel(
     ...     loan, due_date, amount_due, payment_loan, payment_date, payment_amount, end="2024-05"
     ... )
-    >>> panel.drop(columns="month_on_book")
-      loan    month  days_past_due   status  overdue_amount  outstanding
-    0    A  2024-01              0  current             0.0        200.0
-    1    A  2024-02             14     1-29           100.0        200.0
-    2    A  2024-03              0  current             0.0          0.0
-    3    B  2024-01              0  current             0.0        100.0
-    4    B  2024-02              0  current             0.0        100.0
-    5    B  2024-03             16     1-29           100.0        100.0
-    6    B  2024-04             46    30-59           100.0        100.0
-    7    B  2024-05             77    60-89           100.0        100.0
+    >>> panel.drop(columns=["cohort", "month_on_book"])
+      loan_id    month  days_past_due  overdue_amount  outstanding   status
+    0       A  2024-01              0             0.0        200.0  current
+    1       A  2024-02             14           100.0        200.0     1-29
+    2       A  2024-03              0             0.0          0.0  current
+    3       B  2024-01              0             0.0        100.0  current
+    4       B  2024-02              0             0.0        100.0  current
+    5       B  2024-03             16           100.0        100.0     1-29
+    6       B  2024-04             46           100.0        100.0    30-59
+    7       B  2024-05             77           100.0        100.0    60-89
 
     Loan A missed its February instalment and paid it with the March one on
     20 March, after the end of February, so it was 14 days past due at the
@@ -248,6 +278,7 @@ def delinquency_panel(
         )
     pay_day = _days(paid["payment_date"], "payment_date")
     pay_amount = _amounts(paid["payment_amount"], "payment_amount")
+    origin_day = None if origination is None else _origination_days(origination, loan_label)
 
     # Instalments by loan and due date, and the total due by each instalment within its loan.
     n_loans = len(loan_label)
@@ -270,7 +301,21 @@ def delinquency_panel(
 
     # Each loan has a row at every month end from the month of its first due date to end, or
     # to the month of the payment after which all its instalments count as paid.
-    first_month = _months(inst_day[inst_start])
+    first_day = inst_day[inst_start]
+    first_month = _months(first_day)
+    if origin_day is None:
+        cohort = first_month - 1
+    else:
+        early = np.flatnonzero(first_day < origin_day)
+        if len(early):
+            first = early[0]
+            shown = _validation.shown(loan_label[first])
+            raise ValueError(
+                f"due_date must not be before the origination of its loan, got "
+                f"{_day_label(first_day[first])!r} for loan {shown}, originated on "
+                f"{_day_label(origin_day[first])!r}"
+            )
+        cohort = _months(origin_day)
     last_month = np.full(n_loans, end_month)
     repaid_at = exact[inst_last] - tolerance
     short = _count_at_most(
@@ -323,13 +368,11 @@ def delinquency_panel(
     outstanding[open_] = cumulative_due[inst_last[row_loan][open_]] - total_paid[open_]
     status = np.searchsorted(_BUCKET_DAYS, days_past_due, side="right")
     panel = {
-        "loan": loan_label[row_loan],
+        "loan_id": loan_label[row_loan],
+        "cohort": _month_periods(cohort[row_loan]),
         "month": _month_periods(row_month),
-        "month_on_book": row_month - first_month[row_loan] + 1,
+        "month_on_book": row_month - cohort[row_loan],
         "days_past_due": days_past_due,
-        "status": pd.Categorical.from_codes(
-            status, dtype=pd.CategoricalDtype(list(_STATUSES), ordered=True)
-        ),
         "overdue_amount": overdue,
         "outstanding": outstanding,
     }
@@ -347,6 +390,9 @@ def delinquency_panel(
             + np.minimum(part[first], remainder)
         )
         panel["balance"] = balance
+    panel["status"] = pd.Categorical.from_codes(
+        status, dtype=pd.CategoricalDtype(list(_STATUSES), ordered=True)
+    )
     return pd.DataFrame(panel)
 
 
@@ -904,6 +950,38 @@ def _end_month(end: object) -> int:
     if _validation.is_missing(period):
         raise ValueError(message)
     return int(period.asfreq("M").ordinal)
+
+
+def _origination_days(
+    origination: pd.Series | abc.Mapping[typing.Any, typing.Any], loans: pd.Index
+) -> npt.NDArray[np.int64]:
+    """Origination day of each of ``loans``, from a Series indexed by loan or a mapping."""
+    if isinstance(origination, pd.Series):
+        dates = origination
+        if dates.index.has_duplicates:
+            repeated = _validation.shown(dates.index[dates.index.duplicated()])
+            raise ValueError(f"origination must have one date per loan, got {repeated} twice")
+    elif isinstance(origination, abc.Mapping):
+        dates = pd.Series(list(origination.values()))
+        dates.index = _validation.object_index(origination.keys())
+    else:
+        raise ValueError(
+            "origination must be a Series indexed by loan or a mapping from loan to date, got "
+            f"{type(origination).__name__}"
+        )
+    position = dates.index.get_indexer(loans)
+    absent = position < 0
+    if absent.any():
+        raise ValueError(
+            "origination must give the date of every loan of the schedule, got none for "
+            f"{_validation.shown(loans[absent])}"
+        )
+    return _days(dates.iloc[position].reset_index(drop=True), "origination")
+
+
+def _day_label(day: int) -> str:
+    """Return a day counted from 1 January 1970 as a string such as ``"2024-01-31"``."""
+    return str(np.datetime64(int(day), "D"))
 
 
 def _month_label(month: int) -> str:
