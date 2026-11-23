@@ -9,11 +9,10 @@ from importlib import resources
 
 import pandas as pd
 
-from .. import _deprecation
 from ._applications import make_applications
 from ._loan_panel import make_loan_panel
 
-__all__ = ["load_bank", "make_applications", "make_loan_panel", "Dataset"]
+__all__ = ["load_bank", "make_applications", "make_loan_panel"]
 
 
 def load_bank() -> pd.DataFrame:
@@ -56,47 +55,3 @@ def load_bank() -> pd.DataFrame:
         data = pd.read_csv(source, sep=";")
     data["target"] = data.pop("y").map({"yes": 1, "no": 0})
     return data
-
-
-class Dataset:
-    """Example datasets bundled with kivi.
-
-    Call the functions of `kivi.datasets` instead. This class is deprecated
-    and is removed in kivi 1.0.
-    """
-
-    @staticmethod
-    def bank_data() -> pd.DataFrame:
-        """Load 4,521 observations from UCI Bank Marketing.
-
-        .. deprecated:: 0.9.0
-           Use `load_bank`, which returns the same frame. ``bank_data``
-           warns with a ``FutureWarning`` and is removed in kivi 1.0.
-
-        Returns
-        -------
-        pandas.DataFrame
-            Sixteen features and the integer target. A value of 1 indicates a
-            term deposit subscription.
-
-        See Also
-        --------
-        load_bank : The same data.
-
-        Examples
-        --------
-        >>> import warnings
-        >>> from kivi.datasets import Dataset, load_bank
-        >>> with warnings.catch_warnings(record=True) as caught:
-        ...     warnings.simplefilter("always")
-        ...     data = Dataset.bank_data()
-        >>> caught[0].category.__name__
-        'FutureWarning'
-        >>> data.equals(load_bank())
-        True
-        """
-        _deprecation.warn(
-            "Dataset.bank_data() is deprecated and is removed in kivi 1.0; "
-            "use kivi.datasets.load_bank(), which returns the same frame"
-        )
-        return load_bank()

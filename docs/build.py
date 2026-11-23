@@ -35,7 +35,7 @@ editions = (("en", "en"), ("zh", "zh_CN"))
 package = docs.parent / "src" / "kivi"
 readmes = ("README.md", "README.zh-CN.md")
 # Public names that the README tables leave out on purpose. Exceptions are left out too.
-not_in_readme = {"kivi.datasets.Dataset": "the 0.2.x loader, kept for old code; see load_bank"}
+not_in_readme: dict[str, str] = {}
 api_entry = re.compile(
     r"^\s*\.\. auto(?:function|class|exception|method|data|attribute)::\s+([\w.]+)", re.MULTILINE
 )
@@ -189,7 +189,7 @@ def check_api_pages(modules: dict[str, list[str]]) -> None:
         if not page.exists():
             problems.append(f"kivi.{module} has no API page docs/api/{module}.rst")
             continue
-        # ``automethod:: Dataset.bank_data`` documents the class Dataset through its method.
+        # An entry for a method, such as ``automethod:: Class.method``, documents its class.
         documented = {
             target.removeprefix(f"kivi.{module}.").split(".")[0]
             for target in api_entry.findall(page.read_text(encoding="utf-8"))

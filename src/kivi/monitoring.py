@@ -192,7 +192,7 @@ def monitoring_table(
         {"score": score, "period": period, "target": target, "weights": weights}, frames=True
     )
     _one_reference(reference_period, reference_score, "reference_score")
-    smoothing = _validation.check_smoothing(smoothing, booleans=True)
+    smoothing = _validation.check_smoothing(smoothing)
     raw_score = score
     score, period = _validation.as_series(score, "score"), _validation.as_series(period, "period")
     if len(score) != len(period):
@@ -359,7 +359,7 @@ def stability_table(
         raise ValueError("groups must have at least one row")
     _validation.shared_index({"groups": groups, "period": period, "weights": weights}, frames=True)
     _one_reference(reference_period, reference_groups, "reference_groups")
-    smoothing = _validation.check_smoothing(smoothing, booleans=True)
+    smoothing = _validation.check_smoothing(smoothing)
     period = _validation.as_series(period, "period")
     if len(period) != len(groups):
         raise ValueError(

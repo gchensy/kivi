@@ -17,7 +17,7 @@ Bank marketing data
 >>> data["target"].value_counts().to_dict()
 {0: 4000, 1: 521}
 
-The examples in this documentation split the rows by position only to demonstrate two samples; the split is not chronological. The 0.2.x loader :meth:`Dataset.bank_data() <kivi.datasets.Dataset.bank_data>` returns the same frame with a ``FutureWarning`` and is removed in kivi 1.0.
+The examples in this documentation split the rows by position only to demonstrate two samples; the split is not chronological.
 
 Synthetic loan panel
 --------------------

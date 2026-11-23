@@ -207,7 +207,7 @@ Documentation
       :link: release/index
       :link-type: doc
 
-      What changed in each release and how to migrate code written for 0.2.x.
+      What changed in each release, and how to migrate code written for 0.9 or 0.2.x.
 
 .. toctree::
    :hidden:
