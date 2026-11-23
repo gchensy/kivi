@@ -188,6 +188,22 @@ def test_ks_splits_the_bin_that_ranks_the_most_pairs_apart():
     np.testing.assert_equal(ks_edges(KS_VALUES, KS_TARGET, max_bins=4), [-np.inf, 1, 2, 3, np.inf])
 
 
+def test_ks_tie_between_bins_goes_to_the_first_bin():
+    values, target = range(1, 9), [0, 1, 0, 0, 1, 1, 0, 1]
+    # The first cut, after 4, ranks 4 |e - n| = 8 pairs apart. (-inf, 4] holds 1 event and
+    # 3 non-events and its cut after 2 ranks |3 e - n| = 2 pairs apart; (4, inf] holds 3 events
+    # and 1 non-event and its cut after 6 ranks |e - 3 n| = 2 pairs apart as well.
+    np.testing.assert_equal(
+        ks_edges(values, target, max_bins=2, min_bin_share=0), [-np.inf, 4, np.inf]
+    )
+    np.testing.assert_equal(
+        ks_edges(values, target, max_bins=3, min_bin_share=0), [-np.inf, 2, 4, np.inf]
+    )
+    np.testing.assert_equal(
+        ks_edges(values, target, max_bins=4, min_bin_share=0), [-np.inf, 2, 4, 6, np.inf]
+    )
+
+
 def test_ks_stops_at_pure_bins_and_at_zero_gaps():
     values = pd.Series([1, 2, 3, 4])
     np.testing.assert_equal(
@@ -201,11 +217,44 @@ def test_ks_stops_at_pure_bins_and_at_zero_gaps():
     np.testing.assert_equal(
         ks_edges([1, 1, 2, 2], [1, 0, 1, 0], weights=weights), [-np.inf, np.inf]
     )
+    # Weights of 0.1 leave the right bin of events only with non-event weight 0, not -1e-16
+    # as totals minus events would, so it is not cut either.
+    for weights in ([0.1] * 6, [1] * 6, None):
+        edges = ks_edges(
+            [1, 2, 3, 4, 5, 6], [0, 0, 0, 1, 1, 1], max_bins=4, min_bin_share=0, weights=weights
+        )
+        np.testing.assert_equal(edges, [-np.inf, 3, np.inf])
     # A single value, or a minimum share no cut can meet, leaves one bin.
     np.testing.assert_equal(ks_edges([5, 5, 5], [0, 1, 1]), [-np.inf, np.inf])
     np.testing.assert_equal(
         ks_edges([1, 2, 2, 2], [0, 1, 1, 1], min_bin_share=0.5), [-np.inf, np.inf]
     )
+
+
+@pytest.mark.parametrize("min_bin_share", [0, 0.05, 0.1, 0.2])
+@pytest.mark.parametrize("scale", [0.1, 1 / 7, 3.7])
+def test_ks_edges_do_not_change_when_the_weights_are_scaled(min_bin_share, scale):
+    rng = np.random.default_rng(3)
+    for _ in range(25):
+        values = rng.integers(0, 8, 20).astype(float)
+        target = np.r_[0, 1, rng.integers(0, 2, 18)]
+        weights = rng.integers(1, 5, 20)
+        expected = ks_edges(
+            np.repeat(values, weights), np.repeat(target, weights), min_bin_share=min_bin_share
+        )
+        scaled = ks_edges(values, target, weights=weights * scale, min_bin_share=min_bin_share)
+        np.testing.assert_equal(scaled, expected)
+
+
+def test_ks_side_at_exactly_the_minimum_share_is_allowed():
+    # 0.07 * 100 is 7.000000000000001 in floating point; the 7 events are still 7% of the rows.
+    values, target = np.arange(1, 101), np.r_[np.ones(7, int), np.zeros(93, int)]
+    np.testing.assert_equal(ks_edges(values, target, min_bin_share=0.07), [-np.inf, 7, np.inf])
+    np.testing.assert_equal(
+        ks_edges(values, target, min_bin_share=0.07, weights=np.full(100, 0.1)),
+        [-np.inf, 7, np.inf],
+    )
+    np.testing.assert_equal(ks_edges(values, target, min_bin_share=0.08), [-np.inf, 8, np.inf])
 
 
 def test_ks_with_min_bin_share_measured_in_weight():

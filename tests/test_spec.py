@@ -344,9 +344,15 @@ def test_ks_method_matches_ks_edges(bank):
         table = woe_table(cut(frame[column], edges, special=special), target)
         assert spec.tables[column].index.tolist() == list(table.index)
         np.testing.assert_array_equal(spec.tables[column].to_numpy(), table.to_numpy())
-    by_column = fit_spec(frame, target, method={"balance": "ks"}, special={"pdays": [-1]})
+    by_column = fit_spec(
+        frame, target, method={"balance": "ks", "pdays": "ks"}, special={"pdays": [-1]}
+    )
     np.testing.assert_array_equal(by_column.edges["balance"], ks_edges(frame["balance"], target))
+    np.testing.assert_array_equal(by_column.edges["pdays"], expected["pdays"])
     np.testing.assert_array_equal(by_column.edges["age"], bin_edges(frame["age"]))
+    pdays = woe_table(cut(frame["pdays"], expected["pdays"], special=[-1]), target)
+    assert by_column.tables["pdays"].index.tolist() == list(pdays.index)
+    assert by_column.tables["pdays"].index[0] == -1
     # The specification stores the edges, not the method, so the file keeps format version 1.
     assert spec.format_version == 1 and spec.to_dict()["format_version"] == 1
     loaded = BinningSpec.from_json(spec.to_json())

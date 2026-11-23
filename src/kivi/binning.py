@@ -466,7 +466,7 @@ def tree_edges(
             f"criterion must be 'entropy' or 'gini', got {_validation.shown_argument(criterion)}"
         )
     observed, labels, mass = _labeled(values, target, special, weights)
-    unique, totals, events = _cumulative(observed, labels, mass)
+    unique, totals, events, _ = _cumulative(observed, labels, mass)
     min_count = min_bin_share * totals[-1]
     impurity = _entropy if criterion == "entropy" else _gini
 
@@ -623,9 +623,10 @@ def ks_edges(
     _validation.check_count(max_bins, "max_bins")
     _check_share(min_bin_share, "min_bin_share", 0.5)
     observed, labels, mass = _labeled(values, target, special, weights)
-    unique, totals, events = _cumulative(observed, labels, mass)
-    non_events = totals - events
-    min_count = min_bin_share * totals[-1]
+    unique, totals, events, non_events = _cumulative(observed, labels, mass)
+    # A side within rounding of the minimum share reaches it, so that 7 of 100 rows are 7% and
+    # scaling the weights leaves the edges unchanged.
+    min_count = min_bin_share * totals[-1] * (1 - _TIE)
 
     def best_cut(start: int, stop: int) -> tuple[float, int | None]:
         # Cut points between unique values start..stop-1; left part is start..cut-1.
@@ -1426,17 +1427,20 @@ def _labeled(
 
 def _cumulative(
     observed: np.ndarray, labels: np.ndarray, mass: np.ndarray | None
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Distinct values, and the counts and events of the values before each of them.
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Distinct values, and the counts, events and non-events of the values before each of them.
 
-    ``totals[i]`` and ``events[i]`` count the rows of the first ``i`` distinct values, as sums
-    of weights with `mass`, so the values ``start..stop-1`` hold ``totals[stop] - totals[start]``.
+    ``totals[i]``, ``events[i]`` and ``non_events[i]`` count the rows of the first ``i``
+    distinct values, as sums of weights with `mass`, so the values ``start..stop-1`` hold
+    ``totals[stop] - totals[start]``. Events and non-events are summed separately rather than
+    subtracted from the totals, so a range without one class holds exactly zero of it.
     """
     unique, position = np.unique(observed, return_inverse=True)
-    event_mass = labels if mass is None else labels * mass
+    weight = np.ones(len(labels)) if mass is None else mass
     totals = np.cumsum(np.r_[0, np.bincount(position, weights=mass)])
-    events = np.cumsum(np.r_[0, np.bincount(position, weights=event_mass)])
-    return unique, totals, events
+    events = np.cumsum(np.r_[0, np.bincount(position, weights=labels * weight)])
+    non_events = np.cumsum(np.r_[0, np.bincount(position, weights=(1 - labels) * weight)])
+    return unique, totals, events, non_events
 
 
 def _fine_bins(
