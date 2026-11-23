@@ -907,14 +907,6 @@ def state_term_structures(cumulative: pd.DataFrame, vintage: pd.Series, state: s
     return fig
 
 
-# The old names of three helpers, which kivi.plotting now uses for its public
-# functions. docs/_tutorial.py still calls them; remove these aliases once it
-# calls woe_rate_panels, lift_gains_panels and monitoring_panels.
-woe_chart = woe_rate_panels
-gains_chart = lift_gains_panels
-monitoring_chart = monitoring_panels
-
-
 # Recipes for the documentation pages ---------------------------------------
 
 

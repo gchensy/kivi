@@ -94,7 +94,7 @@ def figure_binning_methods():
 
 
 def figure_incumbent_woe():
-    return kp.woe_chart(_project().spec.tables["incumbent_pd"], "incumbent_pd")
+    return kp.woe_rate_panels(_project().spec.tables["incumbent_pd"], "incumbent_pd")
 
 
 def figure_roc():
@@ -114,7 +114,7 @@ def figure_gains():
     p = _project()
     edges = bin_edges(p.predict(p.model, p.development), bins=5).round(3)
     probability = p.predict(p.model, p.validation)
-    return kp.gains_chart(gains_table(probability, p.validation["target"], bins=edges))
+    return kp.lift_gains_panels(gains_table(probability, p.validation["target"], bins=edges))
 
 
 def figure_calibration():
@@ -160,7 +160,7 @@ def _production() -> SimpleNamespace:
 def figure_monitoring():
     p = _project()
     development_gini = gini(p.predict(p.model, p.development), p.development["target"])
-    return kp.monitoring_chart(_production().report, development_gini)
+    return kp.monitoring_panels(_production().report, development_gini)
 
 
 def figure_stability():
