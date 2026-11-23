@@ -42,6 +42,8 @@ The functions below replace the 0.2.x classes. The example data of ``Dataset.ban
      - ``bin_edges(values, method="quantile")``, then ``pandas.cut`` and ``woe_table``
    * - ``abnormal_vals=[...]``
      - ``special=[...]`` in ``bin_edges`` and ``kivi.binning.cut``
+   * - ``ManuallyBins``
+     - Explicit edges, such as ``[-inf, 20, 50, inf]``, with ``kivi.binning.cut`` and then ``woe_table``
    * - ``CategoryBins``
      - ``woe_table(labels, target)``, after ``category_groups`` or ``chimerge_groups`` and ``group_categories`` where the labels should be grouped, from 0.8.0
    * - ``WOEScore``
@@ -49,11 +51,11 @@ The functions below replace the 0.2.x classes. The example data of ``Dataset.ban
    * - ``PSI.fit()``
      - ``psi_table(before, after)`` on groups formed with the same edges
    * - ``BinaryMetrics``, ``ModelEvaluate``, ``ScoreEvaluate``
-     - ``kivi.metrics``: ``roc_auc``, ``gini``, ``ks``, ``gains_table`` and ``brier_score``, from 0.5.0, and ``roc_table``, ``roc_auc_interval`` and ``delong_test``, from 0.8.0
+     - ``kivi.metrics``: ``roc_auc``, ``gini``, ``ks``, ``gains_table`` and ``brier_score``, from 0.5.0, and ``roc_table``, ``roc_auc_interval`` and ``delong_test``, from 0.8.0; ``kivi.strategy.confusion_table`` for the confusion matrix and F1, from 1.1.0
    * - ``ScoreEvaluate.score_psi``, ``add_psi``
      - ``kivi.monitoring``: ``monitoring_table`` and ``stability_table``, from 0.8.0
    * - ``VIF``, ``StepWise``, ``feature.Corr``
-     - ``kivi.selection``: ``vif``, ``stepwise``, ``correlation_filter`` and ``logistic_regression``, from 0.5.0
+     - ``kivi.selection``: ``vif``, ``stepwise``, ``correlation_filter`` and ``logistic_regression``, from 0.5.0; ``correlation_filter(X, method="spearman")`` for ``Corr.spearmanr``, from 1.1.0
    * - ``PDToScore``, ``BaseScoreAndPDO``
      - ``kivi.scorecard``: ``pd_to_score``, ``score_to_pd``, ``score_scaling`` and ``points_table``, from 0.5.0
    * - ``get_omega``, ``BinomialTest``, ``herfindahl``
@@ -68,6 +70,8 @@ The functions below replace the 0.2.x classes. The example data of ``Dataset.ban
      - ``kivi.stability.csi_table`` on groups formed with the same edges, from 0.6.0
    * - ``VintagePd``
      - ``kivi.vintage.vintage_table`` on a loan panel, from 0.6.0
+   * - ``plot_bin``, ``DefaultAnalysis``, ``Calibration.CalibrationCurve``, ``BinaryMetrics.plot_*``, ``diagonal_corr``, ``structure_corr``
+     - ``kivi.plotting``: ``woe_chart``, ``calibration_chart``, ``roc_chart``, ``gains_chart`` and ``correlation_chart``, from 1.1.0
    * - ``Dataset.bank_data()``
      - ``kivi.datasets.load_bank()``, from 0.6.0. ``Dataset.bank_data()`` warned with a ``FutureWarning`` in 0.9.0 and was removed in 1.0
 
@@ -126,14 +130,26 @@ Version 0.8.0 groups categorical variables, adds the ROC table and the uncertain
 * ``ScoreEvaluate.score_psi`` and ``add_psi`` compared the band totals of two lift tables. ``monitoring_table`` compares every period with one reference sample on score bands fitted once, adds the known outcomes, the AUC, the Gini and the KS of each period, and counts an observation without a known outcome in the population only. ``stability_table`` gives the PSI of every variable in every period.
 * Lifetime PD term structures, the IFRS 9 expected credit loss and the allocation to stages have no 0.2.x counterpart; see ``kivi.lifetime``.
 
+Charts, classification measures and variable statistics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Version 1.1.0 draws charts and adds the measures of a classifier and more statistics to the variable profile.
+
+* ``plot_bin`` and ``DefaultAnalysis`` drew the bins of a variable from raw data, ``Calibration.CalibrationCurve`` the predicted against the observed rate, the ``plot_*`` methods of ``BinaryMetrics`` the ROC and KS curves, and ``diagonal_corr`` and ``structure_corr`` correlation heatmaps. The functions of ``kivi.plotting`` draw the tables that kivi returns instead: ``woe_chart`` a ``woe_table``, ``calibration_chart`` a ``calibration_table``, ``roc_chart`` and ``gains_chart`` a ``roc_table`` and a ``gains_table`` with the KS, and ``correlation_chart`` a correlation matrix such as ``X.corr()``. They return the matplotlib Axes rather than saving image files, and they need matplotlib, which ``pip install "kivi[plot]"`` installs.
+* The F1 score and the confusion matrix of ``BinaryMetrics`` judged labels that the caller had predicted. ``confusion_table(score, target, cutoffs=...)`` takes a score and the cut-offs of ``cutoff_table`` instead: a score above the cut-off is declined, and a declined event is a true positive. Pass labels already predicted as the score with ``cutoffs=[0]`` to get the legacy counts. Where nothing is declined, the precision is NaN, where the legacy code gave 0 with a warning, and the table has no ``lift`` column; divide ``precision`` by the event rate for it.
+* The skewness, kurtosis and coefficient of variation of ``FeatureEvaluate`` are the ``skewness``, ``kurtosis`` and ``cv`` columns of ``profile_table``. ``cv`` is NaN when the mean is 0, where the legacy code gave -9999. ``ks`` is the KS statistic of the values themselves, which the legacy ``ks_test`` computed with SciPy, without its p-value. ``chi2_p_value`` tests the groups of the quick binning against the target, while the legacy chi-squared test was scikit-learn's ``chi2`` on the raw values, so the two p-values differ.
+* ``Corr.spearmanr`` gave the Spearman correlation of each pair of columns. ``correlation_filter(X, method="spearman")`` drops one variable of each pair whose Spearman correlation is too high; ``X.corr(method="spearman")`` gives the matrix itself.
+
 Not ported
 ~~~~~~~~~~
 
-Spark, SQL, AHP, model wrappers and application code are out of scope and remain in the historical revisions. These 0.2.x tools have no replacement either:
+Spark, SQL, model wrappers and application code are out of scope and remain in the historical revisions: the Spark indicator jobs of ``index`` and ``FeatureToolsV2``, the wrappers of ``Model``, and the Excel, Markdown, logging and date helpers of ``utils``. These 0.2.x tools have no replacement either:
 
-* The charts of ``DefaultAnalysis``, ``plot_bin``, ``Calibration.CalibrationCurve`` and the ``plot_*`` methods of ``BinaryMetrics``, and the correlation heatmaps ``diagonal_corr`` and ``structure_corr`` of ``evaluate/Heatmap.py``. kivi returns tables, which any plotting library can draw; for the heatmaps, draw ``X.corr()`` of the WOE-encoded candidates, which ``correlation_filter`` uses as well.
-* The F1 score and the confusion matrix of ``BinaryMetrics``. They judge predicted labels at one threshold, which a scorecard sets with a cut-off: ``cutoff_table`` gives the events that each cut-off approves and the shares of events and non-events that it rejects, and each row of ``roc_table`` gives the counts of the flagged events and non-events at its threshold. Use scikit-learn's ``f1_score`` and ``confusion_matrix`` where they are needed.
-* The sampling helpers ``sampling`` and ``upsampling``, and the ratio and cross features of ``FeatureTools``. Use pandas.
+* The analytic hierarchy process of ``ahp``, which weights the factors of an expert scorecard.
+* The binning classes ``KSBins``, which split at the largest KS, ``KmeansBins``, which cut at the boundaries of k-means clusters, and ``PearsonBins``, which lowered the number of quantile bins until their rank correlation with the bad rate reached a threshold. ``tree_edges`` and ``chimerge_edges`` are the closest supervised methods, and ``monotonic_edges`` reaches the monotonic WOE that ``PearsonBins`` aimed at.
+* The sampling helpers ``sampling`` and ``upsampling``, the ratio and cross features of ``FeatureTools`` and its min-max and z-score scaling in ``Scale``. Use pandas.
 * The grading by the Beta distribution in ``BetaCalibration``, ``BetaDistribution`` and ``MasterScale.cal_quantile``, and ``model_score_by_weight``. ``master_scale`` and ``woe_to_points`` cover the same steps without them.
 * The repayment-schedule calculations of ``PortfolioAnalysis.Vintage``. Derive the delinquency status with pandas and pass the panel to ``vintage_table``.
-* The skewness, kurtosis, coefficient of variation, KS test, univariate logistic fit and chi-squared test of ``FeatureEvaluate``. Compute them with pandas or scipy where they are needed.
+* The univariate logistic fit of ``FeatureEvaluate`` and the p-value of its KS test. The ``gini`` and ``ks`` of ``profile_table`` measure how well the values rank the target directly.
+* ``ODDS``, which computed a stability index of score bands, and ``StatsLogit``, a wrapper of statsmodels' logistic regression. Use ``psi_table`` and ``logistic_regression``.
+* ``Dataset.crime_data()``, a table of crime rates of US states that has nothing to do with credit risk, and the synthetic data of ``MakeData`` and ``fake_data``. ``make_applications`` and ``make_loan_panel`` simulate loan applications and a loan portfolio instead.

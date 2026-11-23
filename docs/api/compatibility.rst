@@ -19,12 +19,12 @@ Before 1.0 a shorter rule applied: what 0.9 deprecated changed in 1.0, as :doc:`
 Supported versions
 ------------------
 
-kivi supports Python 3.10 or newer, NumPy 1.24 or newer and pandas 2.0 or newer, and its tests run on these oldest versions and on the newest releases. From 1.0, a minimum version rises only in a minor release, and the notes of the release before it announce the change. A patch release never raises a minimum.
+kivi supports Python 3.10 or newer, NumPy 1.24 or newer and pandas 2.0 or newer, and its tests run on these oldest versions and on the newest releases. The charts of :mod:`kivi.plotting` also need matplotlib 3.7 or newer, which ``pip install "kivi[plot]"`` installs; no other module imports it. From 1.0, a minimum version rises only in a minor release, and the notes of the release before it announce the change. A patch release never raises a minimum.
 
 What is public
 --------------
 
-* The names that a public module lists in its ``__all__``: :mod:`kivi.binning`, :mod:`kivi.woe`, :mod:`kivi.stability`, :mod:`kivi.univariate`, :mod:`kivi.selection`, :mod:`kivi.scorecard`, :mod:`kivi.metrics`, :mod:`kivi.calibration`, :mod:`kivi.strategy`, :mod:`kivi.reject_inference`, :mod:`kivi.spec`, :mod:`kivi.monitoring`, :mod:`kivi.vintage`, :mod:`kivi.lifetime` and :mod:`kivi.datasets`. Each has a page in this reference that documents every such name. ``kivi.__version__`` is public too.
+* The names that a public module lists in its ``__all__``: :mod:`kivi.binning`, :mod:`kivi.woe`, :mod:`kivi.stability`, :mod:`kivi.univariate`, :mod:`kivi.selection`, :mod:`kivi.scorecard`, :mod:`kivi.metrics`, :mod:`kivi.calibration`, :mod:`kivi.strategy`, :mod:`kivi.reject_inference`, :mod:`kivi.spec`, :mod:`kivi.monitoring`, :mod:`kivi.vintage`, :mod:`kivi.lifetime`, :mod:`kivi.plotting` and :mod:`kivi.datasets`. Each has a page in this reference that documents every such name. ``kivi.__version__`` is public too.
 * The documented members of :class:`~kivi.spec.BinningSpec`: its fields, ``FORMAT_VERSION``, ``format_version`` and ``columns``, its methods, and its equality, hashing, pickling and ``dataclasses.replace``. :exc:`~kivi.selection.SeparationError`, which :func:`~kivi.calibration.platt_fit` raises as well, stays in :mod:`kivi.selection`.
 * The names of the arguments. A keyword is part of a call, so renaming an argument needs a deprecation, even one that is usually passed by position.
 * Everything else is private: the modules and names that start with an underscore, and the modules that a public module imports, such as ``kivi.binning.np``. They can change in any release.
@@ -75,7 +75,7 @@ The index name, the column names and the order of the columns of every table are
      -
    * - :func:`~kivi.univariate.profile_table`
      - ``variable``
-     - ``kind``, ``count``, ``missing``, ``missing_share``, ``distinct``, ``top``, ``top_share``, ``special``, ``special_share``, ``mean``, ``std``, ``min``, ``q01``, ``q50``, ``q99``, ``max``, and with a target ``event_rate``, ``missing_event_rate``, ``non_missing_event_rate``, ``missing_lift``, ``non_missing_lift``, ``iv``, ``tied_bins``, ``gini``
+     - ``kind``, ``count``, ``missing``, ``missing_share``, ``distinct``, ``top``, ``top_share``, ``special``, ``special_share``, ``mean``, ``std``, ``min``, ``q01``, ``q50``, ``q99``, ``max``, with a target ``event_rate``, ``missing_event_rate``, ``non_missing_event_rate``, ``missing_lift``, ``non_missing_lift``, ``iv``, ``tied_bins``, ``gini``, then ``skewness``, ``kurtosis``, ``cv``, and with a target ``ks``, ``chi2_p_value``
    * - :func:`~kivi.selection.logistic_regression`
      - ``variable``: ``intercept``, then the columns of ``X``
      - ``coef``, ``se``, ``z``, ``p_value``
@@ -97,6 +97,9 @@ The index name, the column names and the order of the columns of every table are
    * - :func:`~kivi.strategy.cutoff_table`
      - ``cutoff``
      - ``approved``, ``approval_rate``, ``approved_event``, ``approved_event_rate``, ``rejected_event_share``, ``rejected_non_event_share``, and with ``loss`` ``approved_loss``
+   * - :func:`~kivi.strategy.confusion_table`
+     - ``cutoff``
+     - ``true_positive``, ``false_positive``, ``true_negative``, ``false_negative``, ``precision``, ``recall``, ``f1``, ``accuracy``
    * - :func:`~kivi.strategy.swap_set`
      - ``current`` and ``new``, four rows
      - ``total``, ``share``, and with a target ``known``, ``event``, ``event_rate``
@@ -141,6 +144,11 @@ The index name, the column names and the order of the columns of every table are
      - The 16 columns of the UCI data and ``target``
 
 :func:`~kivi.datasets.load_bank` always returns the same data. :func:`~kivi.datasets.make_loan_panel` and :func:`~kivi.datasets.make_applications` keep their columns and dtypes, but the values that they simulate for a given ``rng`` stay the same only within a minor version, so that a minor release can improve the simulation.
+
+Charts
+------
+
+The functions of :mod:`kivi.plotting` keep the data that they draw from each table, which column goes on which axis, their arguments, the errors they raise and what they return: every function returns the ``matplotlib.axes.Axes`` it drew on, except :func:`~kivi.plotting.woe_chart`, the one chart with two y-axes, which returns the pair of Axes of its bars and its line. Colors, line styles, figure sizes, the placement of legends and annotations, tick formats and the number of matplotlib artists that make up a chart may change in any release, so that a release can improve how the charts look. Code that styles a chart further should work on the returned Axes rather than on the artists inside it.
 
 Errors and warnings
 -------------------

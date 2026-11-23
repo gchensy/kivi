@@ -40,7 +40,9 @@ screen and bin the variables, fit and scale the model, calibrate it, price the c
 - 🧩 **Nothing silently dropped.** Missing values, special codes such as `-1` and categories seen in only one sample get their own group, and a category that a fitted grouping or WOE table does not know raises an error unless you say where it belongs.
 - ⚖️ **Sample weights throughout.** Binning, WOE, PSI, the metrics, calibration, the model fits, the strategy tables, the monitoring report, vintage tables and the stage table take sample weights, and integer weights count like repeated rows: the same counts, rates and coefficients. Only quantile edges differ, because weighted quantiles do not interpolate.
 - 🧊 **Honest smoothing.** Empty cells are replaced by `smoothing` (default 0.5) before normalizing, and the reported counts are never altered.
-- 🐼 **Just pandas and NumPy.** No Spark, no database drivers and no global random state in the core.
+- 📊 **Charts from the tables.** `kivi.plotting` draws WOE, ROC, gains, calibration, cut-off, PSI, monitoring and vintage charts straight from the tables kivi returns, with matplotlib.
+- 🐼 **Just pandas and NumPy at runtime.** matplotlib is needed only for the optional charts (`pip install "kivi[plot]"`). No Spark, no database drivers and no global random state in the core.
+- 🧪 **Checked against reference libraries.** CI compares the re-implemented algorithms, such as the decision-tree splits, the isotonic and Platt calibrations, the logistic fits and the DeLong variance, with scikit-learn, SciPy and statsmodels.
 - 🌏 **Bilingual, tested docs.** Every example in the English and Chinese manuals runs in CI.
 
 ## 📊 Gallery
@@ -105,9 +107,10 @@ Every step fits on the development sample and applies the result unchanged to la
 | Select and fit | `kivi.selection`, `kivi.reject_inference` | `stepwise`, `logistic_regression`, `fuzzy_augmentation` |
 | Scale and evaluate | `kivi.scorecard`, `kivi.metrics` | `points_table`, `roc_auc`, `roc_auc_interval`, `gains_table` |
 | Calibrate | `kivi.calibration` | `master_scale`, `assign_grades`, `jeffreys_test` |
-| Decide | `kivi.strategy` | `cutoff_table`, `swap_set`, `expected_loss_table` |
+| Decide | `kivi.strategy` | `cutoff_table`, `confusion_table`, `swap_set`, `expected_loss_table` |
 | Deploy and monitor | `kivi.spec`, `kivi.monitoring`, `kivi.stability` | `fit_spec`, `monitoring_table`, `stability_table`, `csi_table` |
 | Follow the loans | `kivi.vintage`, `kivi.lifetime` | `vintage_table`, `transition_pd`, `expected_credit_loss`, `assign_stages` |
+| Draw the results | `kivi.plotting` | `woe_chart`, `roc_chart`, `gains_chart`, `monitoring_chart`, `vintage_chart` |
 
 Binning shows the pattern: fit the edges once, cut every sample with them, then measure.
 
@@ -122,6 +125,8 @@ pip install kivi
 ```
 
 Requires Python 3.10+, NumPy 1.24+ and pandas 2.0+. For the latest development version, use `pip install "git+https://github.com/gchensy/kivi"`.
+
+The charts of `kivi.plotting` also need matplotlib 3.7+: install them with `pip install "kivi[plot]"`.
 
 > **Upgrading from 0.2.x?** The API changed in 0.3. Read the [migration guide](https://gchensy.github.io/kivi/en/release/migration.html) before upgrading existing code.
 
@@ -170,7 +175,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 
 | Function | What it does |
 | --- | --- |
-| [`kivi.univariate.profile_table`](https://gchensy.github.io/kivi/en/api/univariate.html#kivi.univariate.profile_table) | One row per candidate: missing values, distribution, event rates, the IV of a quick binning and the Gini of numeric values |
+| [`kivi.univariate.profile_table`](https://gchensy.github.io/kivi/en/api/univariate.html#kivi.univariate.profile_table) | One row per candidate: missing values, distribution and shape, event rates, the IV and chi-squared test of a quick binning, and the Gini and KS of numeric values |
 | [`kivi.binning.bin_edges`](https://gchensy.github.io/kivi/en/api/binning.html#kivi.binning.bin_edges) | Fit quantile or uniform edges on a reference sample, with infinite outer edges |
 | [`kivi.binning.cut`](https://gchensy.github.io/kivi/en/api/binning.html#kivi.binning.cut) | Assign values to bins, with a separate group for each special value such as `-1` |
 | [`kivi.binning.chimerge_edges`](https://gchensy.github.io/kivi/en/api/binning.html#kivi.binning.chimerge_edges) | Merge fine quantile bins with ChiMerge until neighbours differ significantly |
@@ -180,7 +185,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | [`kivi.woe.woe_table`](https://gchensy.github.io/kivi/en/api/woe.html#kivi.woe.woe_table) | Counts, shares, WOE and IV for every group |
 | [`kivi.woe.woe_transform`](https://gchensy.github.io/kivi/en/api/woe.html#kivi.woe.woe_transform) | Replace each group with its development WOE, with an explicit policy for unseen groups |
 | [`kivi.woe.woe`](https://gchensy.github.io/kivi/en/api/woe.html#kivi.woe.woe), [`kivi.woe.iv`](https://gchensy.github.io/kivi/en/api/woe.html#kivi.woe.iv), [`kivi.stability.psi`](https://gchensy.github.io/kivi/en/api/stability.html#kivi.stability.psi) | WOE, IV and PSI from counts that are already aggregated |
-| [`kivi.selection.correlation_filter`](https://gchensy.github.io/kivi/en/api/selection.html#kivi.selection.correlation_filter), [`kivi.selection.vif`](https://gchensy.github.io/kivi/en/api/selection.html#kivi.selection.vif) | Drop correlated variables by IV, and variance inflation factors |
+| [`kivi.selection.correlation_filter`](https://gchensy.github.io/kivi/en/api/selection.html#kivi.selection.correlation_filter), [`kivi.selection.vif`](https://gchensy.github.io/kivi/en/api/selection.html#kivi.selection.vif) | Drop correlated variables by IV, with Pearson or Spearman correlation, and variance inflation factors |
 | [`kivi.selection.logistic_regression`](https://gchensy.github.io/kivi/en/api/selection.html#kivi.selection.logistic_regression), [`kivi.selection.stepwise`](https://gchensy.github.io/kivi/en/api/selection.html#kivi.selection.stepwise) | NumPy logistic regression and stepwise selection that keeps every coefficient positive, with frequency weights |
 | [`kivi.reject_inference.fuzzy_augmentation`](https://gchensy.github.io/kivi/en/api/reject_inference.html#kivi.reject_inference.fuzzy_augmentation), [`kivi.reject_inference.parceling`](https://gchensy.github.io/kivi/en/api/reject_inference.html#kivi.reject_inference.parceling), [`kivi.reject_inference.reweighting`](https://gchensy.github.io/kivi/en/api/reject_inference.html#kivi.reject_inference.reweighting) | Infer the outcomes of declined applicants, as weighted rows or as weights of the approved ones |
 | [`kivi.scorecard.score_scaling`](https://gchensy.github.io/kivi/en/api/scorecard.html#kivi.scorecard.score_scaling), [`kivi.scorecard.pd_to_score`](https://gchensy.github.io/kivi/en/api/scorecard.html#kivi.scorecard.pd_to_score), [`kivi.scorecard.score_to_pd`](https://gchensy.github.io/kivi/en/api/scorecard.html#kivi.scorecard.score_to_pd) | PDO scaling factor and offset, and conversion between PD and score |
@@ -192,7 +197,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | [`kivi.calibration.calibration_table`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.calibration_table), [`kivi.calibration.binomial_test`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.binomial_test), [`kivi.calibration.jeffreys_test`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.jeffreys_test), [`kivi.calibration.hosmer_lemeshow`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.hosmer_lemeshow) | Event rate against predicted PD per grade, with binomial, Jeffreys and Hosmer-Lemeshow tests |
 | [`kivi.calibration.prior_correction`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.prior_correction), [`kivi.calibration.corrected_intercept`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.corrected_intercept), [`kivi.calibration.herfindahl_index`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.herfindahl_index) | Correct PDs for an oversampled sample, and measure grade concentration |
 | [`kivi.calibration.platt_fit`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.platt_fit), [`kivi.calibration.platt_predict`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.platt_predict), [`kivi.calibration.isotonic_fit`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.isotonic_fit), [`kivi.calibration.isotonic_predict`](https://gchensy.github.io/kivi/en/api/calibration.html#kivi.calibration.isotonic_predict) | Recalibrate a score to probabilities with Platt scaling or isotonic regression |
-| [`kivi.strategy.cutoff_table`](https://gchensy.github.io/kivi/en/api/strategy.html#kivi.strategy.cutoff_table), [`kivi.strategy.swap_set`](https://gchensy.github.io/kivi/en/api/strategy.html#kivi.strategy.swap_set) | Approval and bad rates of each cut-off, and the swap set between a current and a new score |
+| [`kivi.strategy.cutoff_table`](https://gchensy.github.io/kivi/en/api/strategy.html#kivi.strategy.cutoff_table), [`kivi.strategy.swap_set`](https://gchensy.github.io/kivi/en/api/strategy.html#kivi.strategy.swap_set), [`kivi.strategy.confusion_table`](https://gchensy.github.io/kivi/en/api/strategy.html#kivi.strategy.confusion_table) | Approval and bad rates of each cut-off, its confusion matrix, precision, recall and F1, and the swap set between a current and a new score |
 | [`kivi.strategy.expected_loss`](https://gchensy.github.io/kivi/en/api/strategy.html#kivi.strategy.expected_loss), [`kivi.strategy.expected_loss_table`](https://gchensy.github.io/kivi/en/api/strategy.html#kivi.strategy.expected_loss_table) | Expected loss, PD × LGD × EAD, of each exposure and by grade |
 | [`kivi.spec.fit_spec`](https://gchensy.github.io/kivi/en/api/spec.html#kivi.spec.fit_spec), [`kivi.spec.BinningSpec`](https://gchensy.github.io/kivi/en/api/spec.html#kivi.spec.BinningSpec) | Bin and WOE-encode a whole data frame, and save the specification as versioned JSON |
 | [`kivi.stability.psi_table`](https://gchensy.github.io/kivi/en/api/stability.html#kivi.stability.psi_table) | Per-group PSI contributions between two samples |
@@ -202,6 +207,8 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | [`kivi.vintage.transition_matrix`](https://gchensy.github.io/kivi/en/api/vintage.html#kivi.vintage.transition_matrix), [`kivi.vintage.roll_rates`](https://gchensy.github.io/kivi/en/api/vintage.html#kivi.vintage.roll_rates) | Movements between delinquency buckets and the forward roll rate of each bucket |
 | [`kivi.lifetime.convert_pd`](https://gchensy.github.io/kivi/en/api/lifetime.html#kivi.lifetime.convert_pd), [`kivi.lifetime.transition_pd`](https://gchensy.github.io/kivi/en/api/lifetime.html#kivi.lifetime.transition_pd) | Convert PD term structures between cumulative, marginal and conditional PDs, and project them from a transition matrix |
 | [`kivi.lifetime.expected_credit_loss`](https://gchensy.github.io/kivi/en/api/lifetime.html#kivi.lifetime.expected_credit_loss), [`kivi.lifetime.significant_increase`](https://gchensy.github.io/kivi/en/api/lifetime.html#kivi.lifetime.significant_increase), [`kivi.lifetime.assign_stages`](https://gchensy.github.io/kivi/en/api/lifetime.html#kivi.lifetime.assign_stages), [`kivi.lifetime.stage_table`](https://gchensy.github.io/kivi/en/api/lifetime.html#kivi.lifetime.stage_table) | IFRS 9: 12-month and lifetime expected credit loss, significant increase in credit risk, stages 1 to 3 and the loss allowance by stage |
+| [`kivi.plotting.woe_chart`](https://gchensy.github.io/kivi/en/api/plotting.html#kivi.plotting.woe_chart), [`kivi.plotting.psi_chart`](https://gchensy.github.io/kivi/en/api/plotting.html#kivi.plotting.psi_chart), [`kivi.plotting.correlation_chart`](https://gchensy.github.io/kivi/en/api/plotting.html#kivi.plotting.correlation_chart) | Charts of the variables: WOE and event rate per bin, reference and current shares, and a correlation heatmap |
+| [`kivi.plotting.roc_chart`](https://gchensy.github.io/kivi/en/api/plotting.html#kivi.plotting.roc_chart), [`kivi.plotting.gains_chart`](https://gchensy.github.io/kivi/en/api/plotting.html#kivi.plotting.gains_chart), [`kivi.plotting.calibration_chart`](https://gchensy.github.io/kivi/en/api/plotting.html#kivi.plotting.calibration_chart), [`kivi.plotting.cutoff_chart`](https://gchensy.github.io/kivi/en/api/plotting.html#kivi.plotting.cutoff_chart), [`kivi.plotting.monitoring_chart`](https://gchensy.github.io/kivi/en/api/plotting.html#kivi.plotting.monitoring_chart), [`kivi.plotting.vintage_chart`](https://gchensy.github.io/kivi/en/api/plotting.html#kivi.plotting.vintage_chart) | Charts of a score and a portfolio: ROC and gains curves with the KS, calibration, cut-offs, monitoring by period and vintage curves |
 | [`kivi.datasets.load_bank`](https://gchensy.github.io/kivi/en/api/datasets.html#kivi.datasets.load_bank), [`kivi.datasets.make_loan_panel`](https://gchensy.github.io/kivi/en/api/datasets.html#kivi.datasets.make_loan_panel), [`kivi.datasets.make_applications`](https://gchensy.github.io/kivi/en/api/datasets.html#kivi.datasets.make_applications) | The bundled bank marketing data, and seeded synthetic loan panels and loan applications |
 
 ## 📚 Documentation
@@ -209,6 +216,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | | English | 中文 |
 | --- | --- | --- |
 | Quickstart | [Read](https://gchensy.github.io/kivi/en/getting_started/quickstart.html) | [阅读](https://gchensy.github.io/kivi/zh/getting_started/quickstart.html) |
+| Tutorial: a credit scorecard project in ten chapters | [Read](https://gchensy.github.io/kivi/en/tutorial/index.html) | [阅读](https://gchensy.github.io/kivi/zh/tutorial/index.html) |
 | Risk modeling workflow | [Read](https://gchensy.github.io/kivi/en/user_guide/risk_workflow.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/risk_workflow.html) |
 | Univariate profile | [Read](https://gchensy.github.io/kivi/en/user_guide/univariate.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/univariate.html) |
 | Binning | [Read](https://gchensy.github.io/kivi/en/user_guide/binning.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/binning.html) |
@@ -224,6 +232,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | Model monitoring | [Read](https://gchensy.github.io/kivi/en/user_guide/monitoring.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/monitoring.html) |
 | Vintage and roll-rate analysis | [Read](https://gchensy.github.io/kivi/en/user_guide/vintage.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/vintage.html) |
 | Lifetime PD and expected credit loss | [Read](https://gchensy.github.io/kivi/en/user_guide/lifetime.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/lifetime.html) |
+| Charts | [Read](https://gchensy.github.io/kivi/en/user_guide/plotting.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/plotting.html) |
 | Example data | [Read](https://gchensy.github.io/kivi/en/user_guide/datasets.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/datasets.html) |
 | Conventions | [Read](https://gchensy.github.io/kivi/en/api/conventions.html) | [阅读](https://gchensy.github.io/kivi/zh/api/conventions.html) |
 | Compatibility | [Read](https://gchensy.github.io/kivi/en/api/compatibility.html) | [阅读](https://gchensy.github.io/kivi/zh/api/compatibility.html) |
@@ -251,6 +260,10 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 - ✅ Lifetime PD term structures, IFRS 9 expected credit loss and stage allocation
 - ✅ Type hints checked in CI, test coverage, and an API review: the 0.9 deprecations and the compatibility promise for 1.0
 - ✅ 1.0: a stable API under semantic versioning, with the 0.9 deprecations removed
+- ✅ Diagrams of how kivi computes its results, and a tutorial that follows one credit risk project
+- ✅ 1.1: charts of every result table (`kivi[plot]`), the confusion matrix and F1 of a cut-off, shape statistics, KS and a chi-squared test in the variable profile, Spearman correlation filtering, and cross-checks against scikit-learn, SciPy and statsmodels in CI
+- 🔜 1.2: Best-KS binning, delinquency panels from repayment schedules, and AHP weights for expert scorecards
+- 🔜 1.3: batch time-window features with a saved feature specification
 
 ## 🤝 Contributing
 
