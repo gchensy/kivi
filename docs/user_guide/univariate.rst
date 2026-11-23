@@ -106,7 +106,7 @@ previous       numeric  0.000       True  0.199
 
 These are the IVs of the screening step of :doc:`risk_workflow`, which bins every candidate in the same way. ``bin_edges`` warns about tied quantiles; :func:`~kivi.univariate.profile_table` records them in ``tied_bins`` instead, so profiling many columns raises no warnings. Most values of ``pdays`` and ``previous`` are -1 and 0, so their tied quantiles merge into a single bin, and their IV of 0 understates them until they are binned with care: ``pdays`` with its special code, as below, and ``previous`` with custom edges.
 
-Two more columns measure the separation in other ways. ``ks`` is the KS statistic of the values of a numeric column used as a score, the largest gap between the cumulative distributions of events and non-events, as :func:`~kivi.metrics.ks` computes it; unlike ``gini``, it is positive whichever way the values run. ``chi2_p_value`` is the p-value of the chi-squared test of independence between the target and the groups of the quick binning, the same groups as ``iv``, with one degree of freedom fewer than there are groups:
+Two more columns measure the separation in other ways. ``ks`` is the KS statistic of the values of a numeric column used as a score, the largest gap between the cumulative distributions of events and non-events, as :func:`~kivi.metrics.ks` computes it; unlike ``gini``, it has no sign and lies between 0 and 1 whichever way the values run. ``chi2_p_value`` is the p-value of the chi-squared test of independence between the target and the groups of the quick binning, the same groups as ``iv``, with one degree of freedom fewer than there are groups:
 
 >>> ranking[["iv", "chi2_p_value", "ks"]].round(3)
               iv  chi2_p_value     ks

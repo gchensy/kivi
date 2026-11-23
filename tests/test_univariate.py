@@ -325,6 +325,11 @@ def test_shape_needs_enough_values_and_a_spread():
     assert np.isnan(weighted["skewness"]) and np.isnan(weighted["kurtosis"])
     weighted = profile_table(frame[["four"]], weights=[1, 1, 0.25, 0.25]).loc["four"]
     assert np.isfinite(weighted["skewness"]) and np.isnan(weighted["kurtosis"])
+    # A total weight of exactly 3 is still too little for the kurtosis, as 3 values are.
+    weighted = profile_table(frame[["four"]], weights=[1, 1, 0.5, 0.5]).loc["four"]
+    assert np.isfinite(weighted["skewness"]) and np.isnan(weighted["kurtosis"])
+    weighted = profile_table(frame[["four"]], weights=[1, 1, 1, 0.5]).loc["four"]
+    assert np.isfinite(weighted["kurtosis"])
 
 
 def test_shape_does_not_depend_on_the_scale():
@@ -370,8 +375,15 @@ def test_profile_matches_scipy():
     # The test runs on the groups of the quick binning, the special code and the missing
     # values included; codes rather than intervals, which old NumPy cannot hash quietly.
     edges = bin_edges(frame["code"], bins=5, special=[-1])
-    groups = cut(frame["code"], edges, special=[-1]).cat.codes
-    for name, grouped in [("code", groups), ("label", frame["label"].fillna("missing"))]:
+    coded = cut(frame["code"], edges, special=[-1]).cat.codes
+    # The missing values of x stay missing in cut, and their code -1 forms a group.
+    binned = cut(frame["x"], bin_edges(frame["x"], bins=5)).cat.codes
+    assert (binned == -1).sum() == frame["x"].isna().sum() > 0
+    for name, grouped in [
+        ("code", coded),
+        ("x", binned),
+        ("label", frame["label"].fillna("missing")),
+    ]:
         result = stats.chi2_contingency(pd.crosstab(grouped, target), correction=False)
         assert profile.loc[name, "chi2_p_value"] == pytest.approx(result.pvalue, rel=1e-10)
     # With weights the counts are sums of weights.
