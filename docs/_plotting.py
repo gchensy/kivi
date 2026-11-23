@@ -118,7 +118,7 @@ def _ticks(ax, x, labels) -> None:
         ax.set_xticks(x, labels)
 
 
-def woe_chart(table: pd.DataFrame, title: str = ""):
+def woe_rate_panels(table: pd.DataFrame, title: str = ""):
     """Population share and event rate per bin (top) and WOE per bin (bottom)."""
     share, event_rate = table["total_share"], table["event_rate"]
     x = np.arange(len(table))
@@ -485,7 +485,7 @@ def psi_monitor(psi: pd.Series, sizes: pd.Series):
     return fig
 
 
-def gains_chart(table: pd.DataFrame):
+def lift_gains_panels(table: pd.DataFrame):
     """Event rate per score band (left) and the cumulative gains curve (right)."""
     fig, (left, right) = plt.subplots(
         1, 2, figsize=(9, 3.6), gridspec_kw={"width_ratios": [1.25, 1]}
@@ -796,7 +796,7 @@ def roc_curves(tables: dict[str, pd.DataFrame], mark_ks: bool = False):
     return fig
 
 
-def monitoring_chart(report: pd.DataFrame, development_gini: float):
+def monitoring_panels(report: pd.DataFrame, development_gini: float):
     """Counts, Gini and PSI of a ``monitoring_table`` report, one panel each."""
     x = np.arange(len(report))
     fig, (top, middle, bottom) = plt.subplots(3, 1, figsize=(8, 6.4), sharex=True)
@@ -907,6 +907,14 @@ def state_term_structures(cumulative: pd.DataFrame, vintage: pd.Series, state: s
     return fig
 
 
+# The old names of three helpers, which kivi.plotting now uses for its public
+# functions. docs/_tutorial.py still calls them; remove these aliases once it
+# calls woe_rate_panels, lift_gains_panels and monitoring_panels.
+woe_chart = woe_rate_panels
+gains_chart = lift_gains_panels
+monitoring_chart = monitoring_panels
+
+
 # Recipes for the documentation pages ---------------------------------------
 
 
@@ -918,7 +926,7 @@ def _samples():
 def figure_quickstart_woe():
     _, reference, _ = _samples()
     groups = pd.cut(reference["age"], bin_edges(reference["age"], bins=5))
-    return woe_chart(woe_table(groups, reference["target"]).sort_index(), "age")
+    return woe_rate_panels(woe_table(groups, reference["target"]).sort_index(), "age")
 
 
 def figure_binning_methods():
@@ -997,7 +1005,7 @@ def figure_category_groups():
 def figure_woe_job():
     _, reference, _ = _samples()
     table = woe_table(reference["job"], reference["target"]).sort_values("woe")
-    return woe_chart(table, "job")
+    return woe_rate_panels(table, "job")
 
 
 def figure_iv_ranking():
@@ -1071,7 +1079,7 @@ def _woe_score_samples():
 def figure_gains():
     dev_score, val_score, target = _woe_score_samples()
     edges = bin_edges(dev_score, bins=5).round(2)
-    return gains_chart(gains_table(val_score, target, bins=edges))
+    return lift_gains_panels(gains_table(val_score, target, bins=edges))
 
 
 def figure_roc_curve():
@@ -1250,7 +1258,7 @@ def figure_monitoring_report():
         reference_score=development["incumbent_pd"],
     )
     approved = development[development["approved"]]
-    return monitoring_chart(report, gini(approved["incumbent_pd"], approved["target"]))
+    return monitoring_panels(report, gini(approved["incumbent_pd"], approved["target"]))
 
 
 def figure_stability_heatmap():

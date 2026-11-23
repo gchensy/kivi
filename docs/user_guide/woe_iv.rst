@@ -149,7 +149,7 @@ student         15         44       0.254  0.955
    The documentation draws its WOE charts with this matplotlib function. It takes a :func:`~kivi.woe.woe_table` result.
 
    .. literalinclude:: ../_plotting.py
-      :pyobject: woe_chart
+      :pyobject: woe_rate_panels
 
 To compare many variables at once, rank them by IV; see :doc:`risk_workflow`.
 
