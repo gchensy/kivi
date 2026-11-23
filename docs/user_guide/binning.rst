@@ -269,6 +269,12 @@ array([-inf,  35.,  inf])
 dtype: category
 Categories (2, interval[float64, right]): [(-inf, 35.0] < (35.0, inf]]
 
+.. plot::
+   :alt: Six reference values with the fitted edge at 35, and the sample values 5, 35, 99 and a missing value with the groups that pandas.cut gives them
+   :caption: ``bin_edges`` fits the edge at 35 on the reference values (dots), and ``pandas.cut`` applies it to the sample (diamonds). 5 and 99 lie outside the reference range but fall into the infinite end bins, 35 lies on the edge and goes to the lower bin, and the missing value stays missing.
+
+   kd.figure_bin_edges_cut()
+
 Intervals are closed on the right, so a value equal to an edge belongs to the lower bin. Pass ``labels=False`` to ``pandas.cut`` for integer bin numbers instead of intervals.
 
 Pass categorical labels directly to the metric functions. A missing label is a separate group. Only observed groups appear. Categorical groups, including the result of ``pandas.cut``, follow the order of their categories with missing values last; other labels follow the order in which they first appear. For WOE, group and target series must have identical indices; arrays and lists are matched by position. :doc:`/api/conventions` describes these rules for every function.

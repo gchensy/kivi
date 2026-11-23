@@ -62,6 +62,12 @@ inf                    0          0                0.000               0.000
 
 The trapezoids under the curve have the areas 1/9 from 0.9 to 0.8, 5/18 from 0.7 to 0.4 and 1/3 from 0.4 to 0.1, which add up to the AUC of 13/18. The largest gap between the two rates is the KS of 1/3.
 
+.. plot::
+   :alt: The six scores and targets, their ROC table, and the ROC curve with the areas under it and the largest gap between the two rates
+   :caption: The ROC table of the example and its curve. The three areas under the curve add up to the AUC. The outlined rows and the amber segments mark the largest gap between the two rates, the KS.
+
+   kd.figure_roc_table()
+
 Score direction
 ---------------
 

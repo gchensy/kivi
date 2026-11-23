@@ -74,6 +74,12 @@ array([9.52])
 
 The first year contributes 0.02 × 0.5 × 1,000 / 1.05 = 9.52, which is the 12-month ECL. The second contributes 0.03 × 0.5 × 700 / 1.05² = 9.52 and the third 0.03 × 0.5 × 400 / 1.05³ = 5.18, so the lifetime ECL is 24.23. Each row of the PDs is one account, so a portfolio is computed in one call.
 
+.. plot::
+   :alt: The three years of the worked example with their cumulative, marginal and conditional PDs, LGD, EAD, discount factors and discounted losses
+   :caption: The worked example year by year. ``convert_pd`` gives the marginal and conditional PDs, and ``expected_credit_loss`` adds up the discounted losses: the first year with ``horizon=1``, all three by default.
+
+   kd.figure_expected_credit_loss()
+
 Term structures from vintage curves
 -----------------------------------
 
@@ -297,6 +303,12 @@ The wording of the two presumptions sets the boundaries. Like the PD thresholds,
 
 >>> assign_stages([False] * 5, days_past_due=[0, 30, 31, 89, 90])
 array([1, 1, 2, 2, 3])
+
+.. plot::
+   :alt: A days-past-due axis with the thresholds 30 and 90, and the stages of 0, 30, 31, 89 and 90 days
+   :caption: The days-past-due backstops of ``assign_stages``. More than 30 days past due is at least stage 2, and 90 days or more is stage 3.
+
+   kd.figure_stage_rules()
 
 Loss allowance by stage
 -----------------------
