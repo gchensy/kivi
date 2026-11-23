@@ -13,10 +13,14 @@ from . import _validation
 __all__ = ["ahp_consistency", "ahp_weights", "combine_weights"]
 
 #: Saaty's random consistency index for matrices of order 1 to 15: the average consistency index
-#: of random reciprocal matrices on Saaty's 1-9 scale. T. L. Saaty, *The Analytic Hierarchy
-#: Process*, McGraw-Hill, 1980; the values are those listed by T. Obata and S. Shiraishi, *Size
-#: independence of consistency index for pairwise comparison matrices in analytic hierarchy
-#: process*, arXiv:2607.07950 (2026), Table 2. Some references print 1.48 for order 12.
+#: of random reciprocal matrices on Saaty's 1-9 scale. The table is K. Tone's, *The Analytic
+#: Hierarchy Process: Decision Making* (in Japanese), Japanese Science and Technology Press, 1986,
+#: as T. Obata and S. Shiraishi list it in Table 2 of *Size independence of consistency index for
+#: pairwise comparison matrices in analytic hierarchy process*, arXiv:2607.07950 (2026). Saaty's
+#: books (*The Analytic Hierarchy Process*, McGraw-Hill, 1980, and 2nd ed., RWS Publications, 1996)
+#: print 1.48 for order 12 instead of 1.53, which is generally taken for a typographical error.
+#: Larger simulations give about 1.54 (T. L. Saaty and L. T. Tran, 2007, as listed in
+#: arXiv:2011.05376).
 _RANDOM_INDEX = (
     0.0,
     0.0,
@@ -35,8 +39,21 @@ _RANDOM_INDEX = (
     1.59,
 )
 
-#: Relative tolerance of the checks that a matrix is reciprocal and that weights sum to 1.
-_TOLERANCE = 1e-6
+#: Relative tolerance of the check that weights sum to 1.
+_SUM_RTOL = 1e-6
+
+
+def _check_rtol(rtol: object) -> float:
+    """Require a finite, non-negative real number that is not a boolean, and return it."""
+    if (
+        isinstance(rtol, (bool, np.bool_))
+        or not _validation.is_real(rtol)
+        or not (math.isfinite(rtol) and rtol >= 0)
+    ):
+        raise ValueError(
+            f"rtol must be finite and non-negative, got {_validation.shown_argument(rtol)}"
+        )
+    return float(rtol)
 
 
 def _eigen(matrix: npt.NDArray[np.float64]) -> tuple[float, npt.NDArray[np.float64]]:
@@ -50,10 +67,14 @@ def _eigen(matrix: npt.NDArray[np.float64]) -> tuple[float, npt.NDArray[np.float
 
 
 def _comparison_matrix(
-    matrix: pd.DataFrame | npt.ArrayLike,
+    matrix: pd.DataFrame | npt.ArrayLike, rtol: object
 ) -> tuple[npt.NDArray[np.float64], pd.Index]:
     """Validate a pairwise comparison matrix; return it as floats with its factor labels."""
+    tolerance = _check_rtol(rtol)
+    source: object = matrix
     if isinstance(matrix, pd.DataFrame):
+        if isinstance(matrix.index, pd.MultiIndex):
+            raise ValueError("matrix must have a flat index of factor labels, got a MultiIndex")
         if not matrix.index.equals(matrix.columns):
             raise ValueError(
                 "matrix must have the same labels on its index and columns, got "
@@ -65,9 +86,17 @@ def _comparison_matrix(
             raise ValueError(
                 f"matrix must name each factor once, got {_validation.shown(repeated)} twice"
             )
-    elif np.ndim(matrix) != 2:
-        raise ValueError(f"matrix must be two-dimensional, got {np.ndim(matrix)} dimensions")
-    values = _validation.as_real(matrix, "matrix")
+    else:
+        try:
+            source = np.asarray(matrix)
+        except ValueError:  # NumPy refuses rows of different lengths
+            raise ValueError(
+                "matrix must be a rectangular array of numbers, got "
+                f"{_validation.shown_argument(matrix)}"
+            ) from None
+        if np.ndim(source) != 2:
+            raise ValueError(f"matrix must be two-dimensional, got {np.ndim(source)} dimensions")
+    values = _validation.as_real(source, "matrix")  # type: ignore[arg-type]  # array or frame
     rows, columns = values.shape
     if rows != columns:
         raise ValueError(f"matrix must be square, got {rows} rows and {columns} columns")
@@ -89,14 +118,15 @@ def _comparison_matrix(
             "matrix must hold finite, positive numbers, got "
             f"{_validation.shown(values[row, column])} at {where(row, column)}"
         )
-    off_one = ~np.isclose(np.diag(values), 1.0, rtol=_TOLERANCE, atol=0.0)
+    off_one = ~np.isclose(np.diag(values), 1.0, rtol=tolerance, atol=0.0)
     if off_one.any():
         position = int(np.argmax(off_one))
         raise ValueError(
             "matrix must have 1 on its diagonal, got "
             f"{_validation.shown(values[position, position])} at {where(position, position)}"
         )
-    off_reciprocal = ~np.isclose(values * values.T, 1.0, rtol=_TOLERANCE, atol=0.0)
+    off_reciprocal = ~np.isclose(values * values.T, 1.0, rtol=tolerance, atol=0.0)
+    np.fill_diagonal(off_reciprocal, False)  # the diagonal has its own check and tolerance
     if off_reciprocal.any():
         row, column = (int(position) for position in np.argwhere(off_reciprocal)[0])
         raise ValueError(
@@ -111,6 +141,7 @@ def ahp_weights(
     matrix: pd.DataFrame | npt.ArrayLike,
     *,
     method: typing.Literal["eigenvector", "geometric"] = "eigenvector",
+    rtol: float = 1e-3,
 ) -> pd.Series:
     r"""Weigh factors from a pairwise comparison matrix, as the analytic hierarchy process does.
 
@@ -125,13 +156,21 @@ def ahp_weights(
     ----------
     matrix : DataFrame or array_like
         A square matrix of pairwise comparisons with a diagonal of 1 and
-        reciprocal entries, :math:`a_{ij} a_{ji} = 1` to a relative tolerance
-        of 1e-6. A DataFrame names the factors by its index, which must equal
-        its columns; an array numbers them from 0.
+        reciprocal entries, :math:`a_{ij} a_{ji} = 1`, to the relative
+        tolerance `rtol`. A DataFrame names the factors by its index, which
+        must equal its columns; an array numbers them from 0.
     method : {"eigenvector", "geometric"}, default "eigenvector"
         ``"eigenvector"`` is Saaty's principal eigenvector. ``"geometric"``
         takes the geometric mean of each row, which gives the same weights
         for a consistent matrix and needs no eigenvalue computation.
+    rtol : float, default 1e-3
+        The relative tolerance of the checks that the diagonal is 1 and that
+        :math:`a_{ij} a_{ji}` is 1. The default accepts reciprocals rounded
+        to four decimals, such as 0.3333 for 1 / 3 or 0.1429 for 1 / 7;
+        entries rounded to two decimals, such as 0.14, need a larger value,
+        or write the fractions. Must be finite and non-negative. The matrix is
+        used as it is given, so entries that are not exact reciprocals move the
+        weights by about as much as they differ from them.
 
     Returns
     -------
@@ -144,7 +183,8 @@ def ahp_weights(
     ValueError
         If `matrix` is not a square matrix of finite, positive numbers with a
         diagonal of 1 and reciprocal entries, a DataFrame's index and columns
-        differ or repeat a label, or `method` is not one of the two names.
+        differ, repeat a label or form a MultiIndex, `method` is not one of
+        the two names, or `rtol` is not a finite, non-negative number.
 
     See Also
     --------
@@ -186,7 +226,7 @@ def ahp_weights(
         raise ValueError(
             f"method must be 'eigenvector' or 'geometric', got {_validation.shown_argument(method)}"
         )
-    values, index = _comparison_matrix(matrix)
+    values, index = _comparison_matrix(matrix, rtol)
     if method == "eigenvector":
         weights = _eigen(values)[1]
     else:
@@ -196,7 +236,7 @@ def ahp_weights(
     return pd.Series(weights, index=index, name="weight")
 
 
-def ahp_consistency(matrix: pd.DataFrame | npt.ArrayLike) -> pd.Series:
+def ahp_consistency(matrix: pd.DataFrame | npt.ArrayLike, *, rtol: float = 1e-3) -> pd.Series:
     r"""Measure how consistent the judgments of a pairwise comparison matrix are.
 
     Judgments are consistent when they agree with each other: if factor A is
@@ -209,12 +249,15 @@ def ahp_consistency(matrix: pd.DataFrame | npt.ArrayLike) -> pd.Series:
     matrix : DataFrame or array_like
         A square matrix that compares at most 15 factors, as for
         `ahp_weights`.
+    rtol : float, default 1e-3
+        The relative tolerance of the checks that the diagonal is 1 and that
+        reciprocal entries multiply to 1, as for `ahp_weights`.
 
     Returns
     -------
     pandas.Series
-        The statistics, named ``value`` and indexed by ``lambda_max``, ``ci``, ``ri`` and ``cr``
-        in an index named ``statistic``:
+        The statistics, indexed by ``lambda_max``, ``ci``, ``ri`` and ``cr`` in an
+        index named ``statistic``:
 
         * ``lambda_max``, the principal eigenvalue of the matrix, at least
           the number of factors :math:`n`;
@@ -225,9 +268,9 @@ def ahp_consistency(matrix: pd.DataFrame | npt.ArrayLike) -> pd.Series:
     Raises
     ------
     ValueError
-        If `matrix` is not a valid comparison matrix, as for `ahp_weights`, or
-        compares more than 15 factors, the largest order with a tabulated random
-        index.
+        If `matrix` is not a valid comparison matrix or `rtol` is not a finite,
+        non-negative number, as for `ahp_weights`, or `matrix` compares more
+        than 15 factors, the largest order with a tabulated random index.
 
     See Also
     --------
@@ -242,21 +285,23 @@ def ahp_consistency(matrix: pd.DataFrame | npt.ArrayLike) -> pd.Series:
        \mathrm{CI} = \frac{\lambda_{\max} - n}{n - 1}, \qquad
        \mathrm{CR} = \frac{\mathrm{CI}}{\mathrm{RI}}.
 
-    Saaty suggested that judgments with a CR above 0.1 should be reviewed.
-    That is a rule of thumb, not a test, and the function does not raise for a
-    larger CR. Every matrix of one or two factors is consistent, so its
-    ``ci``, ``ri`` and ``cr`` are 0. For a reciprocal matrix
+    Saaty suggested that judgments with a CR above 0.1 should be reviewed,
+    and later (1994) tightened the limit to 0.05 for three factors and 0.08
+    for four. These are rules of thumb, not tests, and the function does not
+    raise for a larger CR. Every matrix of one or two factors is consistent,
+    so its ``ci``, ``ri`` and ``cr`` are 0. For a reciprocal matrix
     :math:`\lambda_{\max} \ge n`; a computed value below :math:`n`, from
     rounding, is set to :math:`n`.
 
     The random index is the average CI of random reciprocal matrices on
-    Saaty's scale, tabulated by T. L. Saaty, *The Analytic Hierarchy
-    Process*, McGraw-Hill, 1980, for orders 1 to 15 (the values are those
-    listed by T. Obata and S. Shiraishi, arXiv:2607.07950, Table 2). The
-    legacy 0.2.x class estimated :math:`\lambda_{\max}` as the mean of
-    :math:`(A w)_i / w_i` for the geometric-mean weights, which equals the
-    exact value for up to three factors, and used almost the same random
-    indices.
+    Saaty's scale. The table, for 3 to 15 factors, is K. Tone's,
+    *The Analytic Hierarchy Process: Decision Making* (in Japanese, 1986), as
+    T. Obata and S. Shiraishi list it in Table 2 of arXiv:2607.07950. Saaty's
+    books print 1.48 for 12 factors instead of 1.53, which is generally taken
+    for a typographical error. The legacy 0.2.x class estimated
+    :math:`\lambda_{\max}` as the mean of :math:`(A w)_i / w_i` for the
+    geometric-mean weights, which equals the exact value for up to three
+    factors, and used almost the same random indices.
 
     Examples
     --------
@@ -269,9 +314,9 @@ def ahp_consistency(matrix: pd.DataFrame | npt.ArrayLike) -> pd.Series:
     ci            0.0193
     ri            0.5800
     cr            0.0332
-    Name: value, dtype: float64
+    dtype: float64
     """
-    values, _ = _comparison_matrix(matrix)
+    values, _ = _comparison_matrix(matrix, rtol)
     order = len(values)
     if order > len(_RANDOM_INDEX):
         raise ValueError(
@@ -289,7 +334,6 @@ def ahp_consistency(matrix: pd.DataFrame | npt.ArrayLike) -> pd.Series:
     return pd.Series(
         [lambda_max, consistency, _RANDOM_INDEX[order - 1], ratio],
         index=pd.Index(["lambda_max", "ci", "ri", "cr"], name="statistic"),
-        name="value",
     )
 
 
@@ -311,14 +355,15 @@ def combine_weights(parent: pd.Series, children: abc.Mapping[abc.Hashable, pd.Se
         For each factor of `parent`, a Series of the weights of its
         sub-factors, indexed by their labels, such as the result of
         `ahp_weights`. Each must be finite and non-negative, sum to 1 and
-        name each sub-factor once. A factor without sub-factors takes a
+        name each sub-factor once. Every factor of `parent` needs an entry,
+        and no other key is allowed: a factor without sub-factors takes a
         Series of one label with the weight 1.
 
     Returns
     -------
     pandas.Series
         The global weights, named ``weight`` and indexed by ``factor`` and
-        ``subfactor``, in the order of `parent` and then of each factor's
+        ``sub_factor``, in the order of `parent` and then of each factor's
         sub-factors.
 
     Raises
@@ -332,6 +377,15 @@ def combine_weights(parent: pd.Series, children: abc.Mapping[abc.Hashable, pd.Se
     --------
     ahp_weights : Weigh the factors and the sub-factors of each factor.
 
+    Notes
+    -----
+    The function joins two levels, the factors and their sub-factors. For a
+    hierarchy of more levels, combine them level by level: pass the global
+    weights with the ``factor`` level dropped, ``weights.droplevel("factor")``,
+    as `parent` of the next call, whose result then names the last two levels.
+    This needs sub-factors of different factors to have different names,
+    because the labels of `parent` must be distinct.
+
     Examples
     --------
     >>> import pandas as pd
@@ -342,7 +396,7 @@ def combine_weights(parent: pd.Series, children: abc.Mapping[abc.Hashable, pd.Se
     ...     "market": pd.Series({"position": 1.0}),
     ... }
     >>> combine_weights(parent, children)
-    factor   subfactor
+    factor   sub_factor
     finance  leverage     0.45
              margin       0.30
     market   position     0.25
@@ -372,9 +426,9 @@ def combine_weights(parent: pd.Series, children: abc.Mapping[abc.Hashable, pd.Se
         _check_weights(local, f"children[{_validation.shown(factor)}]")
     for factor, share in parent.items():
         local = children[factor]
-        labels.extend((factor, subfactor) for subfactor in local.index)
+        labels.extend((factor, sub_factor) for sub_factor in local.index)
         weights.extend(float(share) * local.to_numpy(dtype=float))
-    index = pd.MultiIndex.from_tuples(labels, names=["factor", "subfactor"])
+    index = pd.MultiIndex.from_tuples(labels, names=["factor", "sub_factor"])
     return pd.Series(weights, index=index, name="weight")
 
 
@@ -396,5 +450,5 @@ def _check_weights(weights: object, name: str) -> None:
             f"{name} must be finite and non-negative, got {_validation.shown(values[invalid][0])}"
         )
     total = float(values.sum())
-    if not math.isclose(total, 1.0, rel_tol=_TOLERANCE):
+    if not math.isclose(total, 1.0, rel_tol=_SUM_RTOL):
         raise ValueError(f"{name} must sum to 1, got {total!r}")

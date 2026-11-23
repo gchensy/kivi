@@ -159,7 +159,7 @@ def test_the_consistency_index_is_never_negative():
 def test_consistency_of_a_three_factor_matrix_is_hand_calculated():
     statistics = ahp_consistency(THREE)
     assert statistics.index.tolist() == ["lambda_max", "ci", "ri", "cr"]
-    assert statistics.index.name == "statistic" and statistics.name == "value"
+    assert statistics.index.name == "statistic" and statistics.name is None
     lambda_max = statistics["lambda_max"]
     assert statistics["ci"] == pytest.approx((lambda_max - 3) / 2, rel=1e-14)
     assert statistics["ri"] == 0.58
@@ -266,12 +266,71 @@ def test_exact_fractions_and_integer_matrices_are_read():
     )
 
 
-def test_reciprocal_entries_are_checked_to_a_relative_tolerance():
-    close = [[1, 3], [0.33333333333, 1]]
-    assert ahp_weights(close).tolist() == pytest.approx([0.75, 0.25], abs=1e-9)
+def test_reciprocal_entries_are_checked_to_the_relative_tolerance_rtol():
+    third = 1 / 3
+    # Products within rtol of 1 are accepted and products further away raise, on both sides.
+    for rtol in (1e-3, 1e-6, 0.05):
+        for product in (1 - 0.9 * rtol, 1, 1 + 0.9 * rtol):
+            weights = ahp_weights([[1, 3], [product * third, 1]], rtol=rtol)
+            assert weights.sum() == pytest.approx(1)
+            assert ahp_consistency([[1, 3], [product * third, 1]], rtol=rtol)["cr"] == 0
+        for product in (1 - 1.1 * rtol, 1 + 1.1 * rtol):
+            with pytest.raises(ValueError, match="matrix must be reciprocal"):
+                ahp_weights([[1, 3], [product * third, 1]], rtol=rtol)
+            with pytest.raises(ValueError, match="matrix must be reciprocal"):
+                ahp_consistency([[1, 3], [product * third, 1]], rtol=rtol)
+    # The default is 1e-3.
     with pytest.raises(ValueError, match="matrix must be reciprocal"):
-        ahp_weights([[1, 3], [0.33, 1]])
-    assert ahp_weights([[1 + 1e-9, 3], [1 / 3, 1]]).sum() == pytest.approx(1)
+        ahp_weights([[1, 3], [(1 + 1.1e-3) * third, 1]])
+    assert ahp_weights([[1, 3], [(1 + 0.9e-3) * third, 1]]).sum() == pytest.approx(1)
+    # An exact check accepts exact reciprocals only.
+    assert ahp_weights([[1, 3], [third, 1]], rtol=0).sum() == pytest.approx(1)
+    with pytest.raises(ValueError, match="matrix must be reciprocal"):
+        ahp_weights([[1, 3], [third * (1 + 1e-12), 1]], rtol=0)
+
+
+def test_entries_rounded_to_four_decimals_pass_by_default_and_two_decimals_need_a_larger_rtol():
+    four = [[1, 3, 7], [0.3333, 1, 2], [0.1429, 0.5, 1]]
+    exact = [[1, 3, 7], [1 / 3, 1, 2], [1 / 7, 1 / 2, 1]]
+    np.testing.assert_allclose(ahp_weights(four), ahp_weights(exact), rtol=1e-3)
+    assert ahp_consistency(four)["cr"] == pytest.approx(ahp_consistency(exact)["cr"], abs=1e-3)
+    two = [[1, 3, 7], [0.33, 1, 2], [0.14, 0.5, 1]]
+    with pytest.raises(
+        ValueError, match=r"the entries at \[0, 1\] and \[1, 0\].*got 3\.0 and 0\.33"
+    ):
+        ahp_weights(two)
+    # The matrix is used as given, so the weights follow the entries.
+    np.testing.assert_allclose(ahp_weights(two, rtol=0.05), ahp_weights(exact), rtol=0.02)
+
+
+def test_the_diagonal_is_checked_to_rtol_apart_from_reciprocity():
+    # An entry on the diagonal within the tolerance does not fail the reciprocity check as well.
+    for rtol in (1e-3, 1e-6):
+        for diagonal in (1 - 0.9 * rtol, 1 + 0.9 * rtol):
+            weights = ahp_weights([[diagonal, 3], [1 / 3, 1]], rtol=rtol)
+            np.testing.assert_allclose(weights, [0.75, 0.25], rtol=2 * rtol)
+        for diagonal in (1 - 1.1 * rtol, 1 + 1.1 * rtol):
+            match = r"matrix must have 1 on its diagonal, got .* at \[0, 0\]"
+            with pytest.raises(ValueError, match=match):
+                ahp_weights([[diagonal, 3], [1 / 3, 1]], rtol=rtol)
+
+
+@pytest.mark.parametrize("rtol", [-1e-9, -1, math.nan, math.inf, True, np.True_, "0.1", None])
+def test_rtol_must_be_finite_and_non_negative(rtol):
+    with pytest.raises(ValueError, match="rtol must be finite and non-negative, got"):
+        ahp_weights(THREE, rtol=rtol)
+    with pytest.raises(ValueError, match="rtol must be finite and non-negative, got"):
+        ahp_consistency(THREE, rtol=rtol)
+
+
+def test_rtol_is_keyword_only_and_the_message_shows_the_value():
+    with pytest.raises(TypeError):
+        ahp_weights(THREE, "geometric", 0.1)
+    with pytest.raises(TypeError):
+        ahp_consistency(THREE, 0.1)
+    with pytest.raises(ValueError, match="rtol must be finite and non-negative, got -0.5"):
+        ahp_weights(THREE, rtol=-0.5)
+    assert ahp_weights(THREE, rtol=np.float32(0.01)).sum() == pytest.approx(1)
 
 
 @pytest.mark.parametrize(
@@ -289,6 +348,10 @@ def test_reciprocal_entries_are_checked_to_a_relative_tolerance():
         ([[1, np.nan], [np.nan, 1]], r"positive numbers, got nan at \[0, 1\]"),
         ([[1, np.inf], [0, 1]], r"positive numbers, got inf at \[0, 1\]"),
         ([[1, 2, 3], [0.5, 1, 6]], r"matrix must be square, got 2 rows and 3 columns"),
+        (
+            [[1, 2], [0.5]],
+            r"matrix must be a rectangular array of numbers, got \[\[1, 2\], \[0\.5\]\]",
+        ),
         ([1, 2, 3], r"matrix must be two-dimensional, got 1 dimensions"),
         (3, r"matrix must be two-dimensional, got 0 dimensions"),
         (np.ones((2, 2, 2)), r"matrix must be two-dimensional, got 3 dimensions"),
@@ -343,7 +406,7 @@ def test_combined_weights_multiply_the_weight_of_the_factor_and_of_the_sub_facto
         "finance": pd.Series({"leverage": 0.6, "margin": 0.4}),
     }
     combined = combine_weights(parent, children)
-    assert combined.index.names == ["factor", "subfactor"] and combined.name == "weight"
+    assert combined.index.names == ["factor", "sub_factor"] and combined.name == "weight"
     # The order is that of the parent and then of each factor's sub-factors.
     assert combined.index.tolist() == [
         ("finance", "leverage"),
@@ -365,7 +428,7 @@ def test_combined_weights_of_ahp_results_sum_to_one_and_allow_repeated_sub_facto
     }
     combined = combine_weights(parent, children)
     assert combined.sum() == pytest.approx(1, rel=1e-12)
-    assert combined.index.get_level_values("subfactor").tolist().count("margin") == 2
+    assert combined.index.get_level_values("sub_factor").tolist().count("margin") == 2
     assert combined[(0, "sales")] == pytest.approx(parent[0] * 4 / 7, rel=1e-12)
     # Dropping the factor level indexes a score frame by sub-factor.
     assert combined.droplevel("factor").index.tolist()[:3] == ["sales", "margin", "leverage"]
@@ -417,7 +480,55 @@ def test_combine_weights_validates_its_arguments(parent, children, message):
         combine_weights(parent, children)
 
 
-def test_sums_are_checked_to_a_relative_tolerance():
-    parent = pd.Series({"a": 0.5, "b": 0.5 + 1e-9})
-    children = {"a": pd.Series([1.0 + 1e-9]), "b": pd.Series([1.0])}
-    assert math.isclose(combine_weights(parent, children).sum(), 1, rel_tol=1e-8)
+def test_sums_of_weights_are_checked_to_a_relative_tolerance_of_one_millionth():
+    parent = pd.Series({"a": 0.5, "b": 0.5})
+    children = {"a": pd.Series([1.0]), "b": pd.Series([1.0])}
+    # Just inside the tolerance the sums are accepted, just outside they raise.
+    inside = pd.Series({"a": 0.5, "b": 0.5 + 0.9e-6})
+    assert math.isclose(combine_weights(inside, children).sum(), 1, abs_tol=1e-6)
+    inside_child = {"a": pd.Series([1.0 - 0.9e-6]), "b": pd.Series([1.0])}
+    assert math.isclose(combine_weights(parent, inside_child).sum(), 1, abs_tol=1e-6)
+    for outside in (1 + 1.1e-6, 1 - 1.1e-6):
+        with pytest.raises(ValueError, match="parent must sum to 1"):
+            combine_weights(pd.Series({"a": 0.5, "b": outside - 0.5}), children)
+        with pytest.raises(ValueError, match=r"children\['a'\] must sum to 1"):
+            combine_weights(parent, {"a": pd.Series([outside]), "b": pd.Series([1.0])})
+
+
+def test_a_dataframe_needs_a_flat_index():
+    labels = pd.MultiIndex.from_tuples([("a", 1), ("a", 2)])
+    frame = pd.DataFrame([[1, 3], [1 / 3, 1]], index=labels, columns=labels)
+    with pytest.raises(ValueError, match="matrix must have a flat index of factor labels"):
+        ahp_weights(frame)
+    with pytest.raises(ValueError, match="matrix must have a flat index of factor labels"):
+        ahp_consistency(frame)
+
+
+def test_a_deeper_hierarchy_is_combined_level_by_level():
+    groups = pd.Series({"financial": 0.6, "business": 0.4})
+    factors = {
+        "financial": pd.Series({"leverage": 0.5, "liquidity": 0.5}),
+        "business": pd.Series({"industry": 1.0}),
+    }
+    items = {
+        "leverage": pd.Series({"debt_to_equity": 0.75, "debt_to_ebitda": 0.25}),
+        "liquidity": pd.Series({"current_ratio": 1.0}),
+        "industry": pd.Series({"outlook": 0.2, "cyclicality": 0.8}),
+    }
+    factor_weights = combine_weights(groups, factors)
+    item_weights = combine_weights(factor_weights.droplevel("factor"), items)
+    assert item_weights.index.names == ["factor", "sub_factor"]
+    assert item_weights.index.tolist()[:2] == [
+        ("leverage", "debt_to_equity"),
+        ("leverage", "debt_to_ebitda"),
+    ]
+    np.testing.assert_allclose(
+        item_weights, [0.6 * 0.5 * 0.75, 0.6 * 0.5 * 0.25, 0.3, 0.4 * 0.2, 0.4 * 0.8], rtol=1e-12
+    )
+    assert item_weights.sum() == pytest.approx(1, rel=1e-14)
+    # Sub-factors that share a name across factors cannot be passed on as the next parent.
+    shared = combine_weights(
+        pd.Series({"a": 0.5, "b": 0.5}), {"a": pd.Series({"x": 1.0}), "b": pd.Series({"x": 1.0})}
+    )
+    with pytest.raises(ValueError, match="parent must name each label once, got 'x' twice"):
+        combine_weights(shared.droplevel("factor"), {"x": pd.Series({"y": 1.0})})

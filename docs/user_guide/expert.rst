@@ -48,7 +48,7 @@ For a reciprocal matrix, :math:`\lambda_{\max} \ge n`, with equality exactly whe
    \mathrm{CI} = \frac{\lambda_{\max} - n}{n - 1}, \qquad
    \mathrm{CR} = \frac{\mathrm{CI}}{\mathrm{RI}}.
 
-The ratio :math:`\mathrm{CR}` is the consistency ratio. Saaty's rule of thumb is that judgments with a ratio of 0.1 or less are consistent enough to use. For three to fifteen factors the random index is 0.58, 0.90, 1.12, 1.24, 1.32, 1.41, 1.45, 1.49, 1.51, 1.53, 1.56, 1.57 and 1.59. Every comparison of one or two factors is consistent, so their ratio is 0.
+The ratio :math:`\mathrm{CR}` is the consistency ratio. Saaty's rule of thumb is that judgments with a ratio of 0.1 or less are consistent enough to use, and Saaty (1994) later tightened the limit to 0.05 for three factors and 0.08 for four. For three to fifteen factors the random index, in the table of Tone (1986) that Obata and Shiraishi list, is 0.58, 0.90, 1.12, 1.24, 1.32, 1.41, 1.45, 1.49, 1.51, 1.53, 1.56, 1.57 and 1.59. Saaty's books print 1.48 for twelve factors, which is generally taken for a typographical error. Every comparison of one or two factors is consistent, so their ratio is 0.
 
 A worked example
 ----------------
@@ -77,7 +77,7 @@ lambda_max    3.00
 ci            0.00
 ri            0.58
 cr            0.00
-Name: value, dtype: float64
+dtype: float64
 
 If the analyst judges margin to be four times as important as leverage instead, the judgments contradict each other, because sales would then have to be eight times as important as leverage and not four:
 
@@ -91,7 +91,7 @@ lambda_max    3.0536
 ci            0.0268
 ri            0.5800
 cr            0.0462
-Name: value, dtype: float64
+dtype: float64
 
 Here :math:`\mathrm{CI} = (3.0536 - 3) / 2 = 0.0268` and :math:`\mathrm{CR} = 0.0268 / 0.58 = 0.0462`: the judgments are still consistent enough to use. The weights shift towards margin:
 
@@ -134,7 +134,7 @@ lambda_max    5.0182
 ci            0.0046
 ri            1.1200
 cr            0.0041
-Name: value, dtype: float64
+dtype: float64
 
 The weights sum to 1, and a consistency ratio of 0.004 is far below 0.1. :func:`~kivi.expert.ahp_weights` takes the eigenvector method by default; ``method="geometric"`` gives almost the same weights here, because the matrix is nearly consistent.
 
@@ -156,7 +156,7 @@ lambda_max    6.481
 ci            0.370
 ri            1.120
 cr            0.331
-Name: value, dtype: float64
+dtype: float64
 
 The statistics do not say which judgment to revise. Dividing each entry by the ratio of the weights that it should equal, :math:`w_i / w_j`, shows it: a ratio near 1 means that the judgment agrees with the weights, and the judgments that are furthest from 1 are the ones to discuss first.
 
@@ -169,7 +169,7 @@ liquidity          0.33      0.41       1.00           4.23      0.51
 profitability      3.75      0.77       0.24           1.00      0.72
 industry           1.04      1.07       1.97           1.39      1.00
 
-The entries furthest from 1, such as 4.23 for liquidity against profitability and 3.02 for leverage against liquidity, compare the three factors of the circle with each other, so these are the comparisons for the analysts to settle. The function does not raise for a ratio above 0.1, because the committee decides what to do with it.
+The largest entries, 4.23 for liquidity against profitability, 3.75 for profitability against leverage and 3.02 for leverage against liquidity, are the three comparisons that make the circle, and their reciprocals are the smallest, so these are the comparisons for the analysts to settle. The function does not raise for a ratio above 0.1, because the committee decides what to do with it.
 
 Scoring borrowers
 -----------------
@@ -210,7 +210,7 @@ A hierarchy compares the factors of each level on their own: first the groups of
 >>> business = ahp_weights(compare(["industry", "management"], [[1, 2], [1 / 2, 1]]))
 >>> global_weights = combine_weights(groups, {"financial": finance, "business": business})
 >>> global_weights.round(4)
-factor     subfactor
+factor     sub_factor
 financial  leverage      0.4286
            coverage      0.2143
            liquidity     0.1071
@@ -218,26 +218,28 @@ business   industry      0.1667
            management    0.0833
 Name: weight, dtype: float64
 
-Financial factors weigh 0.75 against 0.25 for business factors, and leverage carries 4 / 7 of the financial weight, so its global weight is 0.75 × 4 / 7 = 0.4286. The index has two levels, ``factor`` and ``subfactor``, so the same sub-factor name may appear under two factors. Dropping the first level indexes a frame of scores by sub-factor name, if the names are distinct:
+Financial factors weigh 0.75 against 0.25 for business factors, and leverage carries 4 / 7 of the financial weight, so its global weight is 0.75 × 4 / 7 = 0.4286. The index has two levels, ``factor`` and ``sub_factor``, so the same sub-factor name may appear under two factors. Dropping the first level indexes a frame of scores by sub-factor name, if the names are distinct:
 
->>> subfactor_scores = pd.DataFrame(
+>>> sub_factor_scores = pd.DataFrame(
 ...     {
 ...         "leverage": [80, 40], "coverage": [70, 50], "liquidity": [60, 30],
 ...         "industry": [50, 60], "management": [90, 20],
 ...     },
 ...     index=["Acme", "Borel"],
 ... )
->>> (subfactor_scores @ global_weights.droplevel("factor")).round(1)
+>>> (sub_factor_scores @ global_weights.droplevel("factor")).round(1)
 Acme     71.5
 Borel    42.7
 dtype: float64
 
-A factor without sub-factors takes a Series with one label and the weight 1 in ``children``.
+Every factor of the first argument needs an entry in ``children``, and ``children`` has no other keys. A factor without sub-factors takes a Series with one label and the weight 1, such as ``pd.Series({"cash_flow": 1.0})``.
+
+:func:`~kivi.expert.combine_weights` joins two levels, the factors and their sub-factors. For a hierarchy of three levels, combine them level by level: pass the global weights with their first index level dropped, ``global_weights.droplevel("factor")``, as the first argument of a second call, together with the weights of the items of each sub-factor. That needs the sub-factors of different factors to have different names, because the labels of the first argument must be distinct.
 
 Several experts
 ---------------
 
-When several experts compare the factors, a common choice is to combine their judgments entry by entry with the geometric mean, which keeps the diagonal at 1 and the matrix reciprocal, and then to weigh the combined matrix. The weights of the group lie between those of the experts:
+When several experts compare the factors, a common choice is to combine their judgments entry by entry with the geometric mean, which keeps the diagonal at 1 and the matrix reciprocal, and then to weigh the combined matrix. Here the weight of each factor in the group lies between the weights of the two experts, although that does not hold in general:
 
 >>> combined = comparison(np.exp(np.mean([np.log(matrix), np.log(second)], axis=0)))
 >>> pd.DataFrame(
@@ -271,7 +273,7 @@ Reading the result
    * - ``ri``
      - Saaty's random index for ``n`` factors: the average ``ci`` of random judgments. It is 0 for one or two factors.
    * - ``cr``
-     - The consistency ratio ``ci / ri``. At most 0.1 is the usual threshold; above it, review the judgments, for example with the table of ratios above. It is 0 for one or two factors.
+     - The consistency ratio ``ci / ri``. At most 0.1 is the usual threshold, or 0.05 for three factors and 0.08 for four; above it, review the judgments, for example with the table of ratios above. It is 0 for one or two factors.
 
 A ratio below the threshold does not make the weights right. It says that the judgments do not contradict each other, not that they describe the borrowers correctly.
 
@@ -286,18 +288,32 @@ Limits
 - The weights are as subjective as the judgments. The process makes them explicit and checkable, and it does not make them right. Different committees give different weights, and the weights can be tested only once outcomes exist.
 - A consistency ratio at or below 0.1 shows that the comparisons agree with each other. Judgments can agree and still be wrong, for example when every comparison repeats the same bias.
 - The scale stops at 9 and its reciprocals, so a factor cannot count more than nine times as much as another in a single comparison. Large matrices are hard to judge: more than about nine factors are better split into a hierarchy, as in the section on sub-factors.
-- The random index is tabulated for up to 15 factors, and :func:`~kivi.expert.ahp_consistency` raises an error for more. Published tables differ slightly in their random indices, because they come from simulations of different sizes.
+- The random index is tabulated for up to 15 factors, and :func:`~kivi.expert.ahp_consistency` raises an error for more. Published tables differ slightly in their random indices, because they come from simulations of different sizes, and Saaty's books print 1.48 for 12 factors where the table of the function, Tone's, has 1.53.
+- :func:`~kivi.expert.combine_weights` joins two levels at a time and needs a ``children`` entry for every factor; deeper hierarchies are combined level by level, as the section on sub-factors describes.
 - The functions cover the weights. kivi does not score factors, set the scale of a factor score, calibrate the score to default rates or aggregate the judgments of a group beyond the example above.
 
 Errors and warnings
 -------------------
 
-The comparisons of two factors must be exact reciprocals, within a relative tolerance of 1e-6. A rounded reciprocal such as 0.33 for 1 / 3 raises an error that shows the two entries; write ``1 / 3`` instead.
+The comparison of a factor with another must be the reciprocal of the reverse comparison, within the relative tolerance ``rtol``, which is 1e-3 by default; the 1 on the diagonal is checked to the same tolerance. Entries rounded to four decimals, such as 0.3333 for 1 / 3 and 0.1429 for 1 / 7, pass. Entries rounded to two decimals, such as 0.33, raise an error that shows the two entries:
 
 >>> ahp_weights([[1, 3], [0.33, 1]])
 Traceback (most recent call last):
 ...
 ValueError: matrix must be reciprocal: the entries at [0, 1] and [1, 0] must multiply to 1, got 3.0 and 0.33
+
+Write ``1 / 3`` instead, or pass a larger ``rtol`` if two decimals are what the analysts meant. The matrix is used as it is given, so the weights follow the rounded entries:
+
+>>> pd.DataFrame({
+...     "rounded": ahp_weights([[1, 7], [0.14, 1]], rtol=0.05),
+...     "exact": ahp_weights([[1, 7], [1 / 7, 1]]),
+... }).round(4)
+        rounded  exact
+factor
+0        0.8761  0.875
+1        0.1239  0.125
+
+``rtol`` must be finite and non-negative; ``rtol=0`` accepts exact reciprocals only.
 
 The diagonal must be 1, and every entry must be finite and positive; a DataFrame names the offending factors, and an array numbers them from 0:
 
@@ -308,4 +324,4 @@ Traceback (most recent call last):
 ...
 ValueError: matrix must have 1 on its diagonal, got 2.0 at ['coverage', 'coverage']
 
-The index and the columns of a DataFrame must hold the same labels in the same order, and :func:`~kivi.expert.combine_weights` needs weights that sum to 1 and one set of children for each factor of its first argument.
+The index of a DataFrame must be flat, and it and the columns must hold the same labels in the same order. :func:`~kivi.expert.combine_weights` needs weights that sum to 1 and an entry in ``children`` for each factor of its first argument.
