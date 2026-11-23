@@ -10,7 +10,7 @@ import pytest
 from pandas.testing import assert_frame_equal
 
 import kivi
-from kivi.binning import bin_edges, chimerge_edges, cut, monotonic_edges, tree_edges
+from kivi.binning import bin_edges, chimerge_edges, cut, ks_edges, monotonic_edges, tree_edges
 from kivi.datasets import load_bank
 from kivi.spec import BinningSpec, fit_spec
 from kivi.woe import woe_table, woe_transform
@@ -321,6 +321,39 @@ def test_options_reach_the_binning_function(bank):
     )
 
 
+def test_ks_method_matches_ks_edges(bank):
+    development, _ = bank
+    frame, target = development[["age", "balance", "pdays"]], development["target"]
+    spec = fit_spec(
+        frame,
+        target,
+        method="ks",
+        bins={"balance": 4},
+        special={"pdays": [-1]},
+        options={"balance": {"min_bin_share": 0.1}},
+    )
+    expected = {
+        "age": ks_edges(frame["age"], target),
+        "balance": ks_edges(frame["balance"], target, max_bins=4, min_bin_share=0.1),
+        "pdays": ks_edges(frame["pdays"], target, special=[-1]),
+    }
+    np.testing.assert_array_equal(expected["balance"], [-INF, 99, 259, 888, INF])
+    for column, edges in expected.items():
+        np.testing.assert_array_equal(spec.edges[column], edges)
+        special = [-1] if column == "pdays" else None
+        table = woe_table(cut(frame[column], edges, special=special), target)
+        assert spec.tables[column].index.tolist() == list(table.index)
+        np.testing.assert_array_equal(spec.tables[column].to_numpy(), table.to_numpy())
+    by_column = fit_spec(frame, target, method={"balance": "ks"}, special={"pdays": [-1]})
+    np.testing.assert_array_equal(by_column.edges["balance"], ks_edges(frame["balance"], target))
+    np.testing.assert_array_equal(by_column.edges["age"], bin_edges(frame["age"]))
+    # The specification stores the edges, not the method, so the file keeps format version 1.
+    assert spec.format_version == 1 and spec.to_dict()["format_version"] == 1
+    loaded = BinningSpec.from_json(spec.to_json())
+    assert loaded == spec
+    assert_frame_equal(loaded.woe_transform(frame), spec.woe_transform(frame))
+
+
 def test_monotonic_binning_uses_the_spec_smoothing(bank):
     development, _ = bank
     target = development["target"]
@@ -396,15 +429,16 @@ def test_column_without_values_to_fit_gets_one_interval():
         spec.woe_transform(frame.assign(empty=3.0))
 
 
-def test_integer_weights_match_repeated_rows():
+@pytest.mark.parametrize("method", ["tree", "ks"])
+def test_integer_weights_match_repeated_rows(method):
     weights = np.array([1, 2, 1, 3, 1, 1, 2, 1, 1, 2])
-    weighted = _fit(method="tree", weights=weights)
+    weighted = _fit(method=method, weights=weights)
     repeated = fit_spec(
         FRAME.loc[FRAME.index.repeat(weights)],
         TARGET.loc[TARGET.index.repeat(weights)].rename(None),
         bins=2,
         special={"x": [-1]},
-        method="tree",
+        method=method,
     )
     np.testing.assert_array_equal(weighted.edges["x"], repeated.edges["x"])
     for column in ("x", "c"):
@@ -856,6 +890,14 @@ def test_repr_names_the_columns():
             r"tree_edges other than .* \(criterion, min_bin_share\), got \['alpha'\]",
         ),
         ({"method": "tree", "options": {"x": {"max_bins": 1}}}, r"got \['max_bins'\]"),
+        (
+            {"method": "ks", "options": {"x": {"criterion": "gini"}}},
+            r"ks_edges other than .* \(min_bin_share\), got \['criterion'\]",
+        ),
+        (
+            {"method": "ks", "options": {"x": {"min_bin_share": 0.6}}},
+            "column 'x': min_bin_share must be between 0 and 0.5, got 0.6",
+        ),
         ({"method": "monotonic", "options": {"x": {"smoothing": 1}}}, r"got \['smoothing'\]"),
         ({"method": "tree", "options": {"x": 1}}, "options of column 'x' must be a dict, got int"),
         ({"options": [1]}, "options must be a dict by column, got list"),

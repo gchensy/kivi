@@ -4,8 +4,17 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from kivi.binning import _pair_chi2, chimerge_edges, cut, monotonic_edges, tree_edges
+from kivi.binning import (
+    _pair_chi2,
+    bin_edges,
+    chimerge_edges,
+    cut,
+    ks_edges,
+    monotonic_edges,
+    tree_edges,
+)
 from kivi.datasets import load_bank
+from kivi.metrics import gini, ks
 from kivi.woe import woe_table
 
 
@@ -116,6 +125,104 @@ def test_tree_stops_at_pure_bins():
     )
 
 
+def cumulative_gaps(values, target):
+    """KS of every cut, after each distinct value but the last, as in ``metrics.ks``."""
+    events = target.groupby(values).sum().cumsum() / target.sum()
+    non_events = (1 - target).groupby(values).sum().cumsum() / (1 - target).sum()
+    return (events - non_events).abs().iloc[:-1]
+
+
+def test_ks_first_split_matches_hand_calculation():
+    # Cumulative events after 1..11: 0 0 0 0 1 1 2 3 3 4 5, non-events 1 2 3 4 4 5 5 5 6 6 6,
+    # of 6 each, so the KS of a cut is |events - non-events| / 6.
+    gaps = cumulative_gaps(TREE_VALUES, TREE_TARGET)
+    np.testing.assert_allclose(gaps, np.array([1, 2, 3, 4, 3, 4, 3, 2, 3, 2, 1]) / 6)
+    assert ks(TREE_VALUES, TREE_TARGET) == pytest.approx(4 / 6)
+    # The largest gap, 4/6, is reached after 4 and after 6; the tie goes to the smaller value.
+    np.testing.assert_equal(ks_edges(TREE_VALUES, TREE_TARGET, max_bins=2), [-np.inf, 4, np.inf])
+    # With 40% (4.8 rows) on each side, the cuts after 5, 6 and 7 remain: 3/6, 4/6 and 3/6.
+    np.testing.assert_equal(
+        ks_edges(TREE_VALUES, TREE_TARGET, min_bin_share=0.4), [-np.inf, 6, np.inf]
+    )
+    np.testing.assert_equal(
+        ks_edges(TREE_VALUES, TREE_TARGET, min_bin_share=0.5), [-np.inf, 6, np.inf]
+    )
+
+
+def test_ks_splits_each_bin_at_its_own_largest_gap():
+    # (5, 12] holds 6 events and 2 non-events; |2 e - 6 n| for e events and n non-events
+    # left of each cut is 2, 4, 2, 0, 6, 4, 2 after 5..11, largest after 9 (KS 6/12).
+    np.testing.assert_equal(ks_edges(TREE_VALUES, TREE_TARGET, max_bins=3), [-np.inf, 4, 9, np.inf])
+    # (4, 9] holds 3 events and 2 non-events: |2 e - 3 n| is 2, 1, 1, 3 after 5..8.
+    np.testing.assert_equal(
+        ks_edges(TREE_VALUES, TREE_TARGET, max_bins=4), [-np.inf, 4, 8, 9, np.inf]
+    )
+    # A 10% minimum (1.2 rows) leaves (4, 9] only the cuts after 6 and 7, tied at 1.
+    np.testing.assert_equal(
+        ks_edges(TREE_VALUES, TREE_TARGET, max_bins=4, min_bin_share=0.1),
+        [-np.inf, 4, 6, 9, np.inf],
+    )
+    edges = ks_edges(TREE_VALUES, TREE_TARGET, max_bins=12, min_bin_share=0)
+    np.testing.assert_equal(edges, [-np.inf, 4, 5, 6, 8, 9, np.inf])
+
+
+# (non_event, event) counts at 1..4: 9 non-events and 6 events in all.
+KS_VALUES, KS_TARGET = repeated([(1, 0, 3), (2, 2, 2), (3, 2, 1), (4, 5, 0)])
+
+
+def test_ks_splits_the_bin_that_ranks_the_most_pairs_apart():
+    # The first cut, after 2, has the largest |9 e - 6 n|: 27, 33 and 30 after 1, 2 and 3.
+    np.testing.assert_equal(ks_edges(KS_VALUES, KS_TARGET, max_bins=2), [-np.inf, 2, np.inf])
+    # (-inf, 2] has 5 events and 2 non-events in 7 rows; its cut after 1 has KS
+    # |3/5 - 0/2| = 0.6 and ranks 0.6 * 5 * 2 = 6 pairs of an event and a non-event apart.
+    # (2, inf] has 1 event and 7 non-events in 8 rows; its cut after 3 has the larger KS
+    # |1/1 - 2/7| = 5/7 but ranks only 5/7 * 1 * 7 = 5 pairs apart.
+    left, right = [-np.inf, 1, 2, np.inf], [-np.inf, 2, 3, np.inf]
+    np.testing.assert_equal(ks_edges(KS_VALUES, KS_TARGET, max_bins=3), left)
+    # Each pair adds 1 / (6 * 9) to the Gini of the bins ranked by event rate: 33/54 for
+    # the two bins, 39/54 after the split on the left and 38/54 after the one on the right.
+    for edges, expected in ((left, 39), (right, 38), ([-np.inf, 2, np.inf], 33)):
+        codes = pd.cut(KS_VALUES, edges, labels=False)
+        rate = KS_TARGET.groupby(codes).transform("mean")
+        assert gini(rate, KS_TARGET) == pytest.approx(expected / 54)
+    np.testing.assert_equal(ks_edges(KS_VALUES, KS_TARGET, max_bins=4), [-np.inf, 1, 2, 3, np.inf])
+
+
+def test_ks_stops_at_pure_bins_and_at_zero_gaps():
+    values = pd.Series([1, 2, 3, 4])
+    np.testing.assert_equal(
+        ks_edges(values, pd.Series([0, 0, 1, 1]), max_bins=5), [-np.inf, 2, np.inf]
+    )
+    # Both values have the same event rate, so no cut separates the classes.
+    np.testing.assert_equal(ks_edges([1, 1, 2, 2], [0, 1, 0, 1]), [-np.inf, np.inf])
+    # Event shares 0.2 / 0.7 and non-event shares 0.6 / 2.1 are both 2/7, but the sums of
+    # weights leave a gap of about 1e-16, which gives no cut either.
+    weights = [0.2, 0.6, 0.5, 1.5]
+    np.testing.assert_equal(
+        ks_edges([1, 1, 2, 2], [1, 0, 1, 0], weights=weights), [-np.inf, np.inf]
+    )
+    # A single value, or a minimum share no cut can meet, leaves one bin.
+    np.testing.assert_equal(ks_edges([5, 5, 5], [0, 1, 1]), [-np.inf, np.inf])
+    np.testing.assert_equal(
+        ks_edges([1, 2, 2, 2], [0, 1, 1, 1], min_bin_share=0.5), [-np.inf, np.inf]
+    )
+
+
+def test_ks_with_min_bin_share_measured_in_weight():
+    values = np.arange(1, 11)
+    target = np.array([1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    weights = np.r_[10, np.ones(9)]
+    # The first value carries 10 of the 19 units of weight, enough for a bin of its own.
+    edges = ks_edges(values, target, weights=weights, min_bin_share=0.3)
+    np.testing.assert_equal(edges, [-np.inf, 1, np.inf])
+    repeated = ks_edges(
+        np.repeat(values, [10] + [1] * 9), np.repeat(target, [10] + [1] * 9), min_bin_share=0.3
+    )
+    np.testing.assert_equal(edges, repeated)
+    # Counted in rows, the first bin needs three of the ten values.
+    np.testing.assert_equal(ks_edges(values, target, min_bin_share=0.3), [-np.inf, 3, np.inf])
+
+
 # Event rates 0.1, 0.3, 0.2 and 0.4: the pair (0.3, 0.2) breaks an increasing trend.
 MONO_VALUES, MONO_TARGET = repeated([(1, 9, 1), (2, 7, 3), (3, 8, 2), (4, 6, 4)])
 
@@ -154,7 +261,7 @@ def test_monotonic_uses_the_smoothed_woe():
     assert woe_table(pd.cut(values, edges), target).sort_index().woe.is_monotonic_increasing
 
 
-@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, monotonic_edges])
+@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, ks_edges, monotonic_edges])
 def test_missing_values_are_omitted_and_inputs_are_kept(fit):
     values = pd.concat([TREE_VALUES, pd.Series([np.nan, np.nan], index=[20, 21])])
     target = pd.concat([TREE_TARGET, pd.Series([1, 1], index=[20, 21])])
@@ -164,7 +271,7 @@ def test_missing_values_are_omitted_and_inputs_are_kept(fit):
     pd.testing.assert_series_equal(target, before[1])
 
 
-@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, monotonic_edges])
+@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, ks_edges, monotonic_edges])
 def test_special_values_are_left_out_with_their_labels(fit):
     # Codes at both ends of the range would change every fit if they were counted.
     values = pd.concat([TREE_VALUES, pd.Series([-1, -1, -9, 999, np.nan], index=range(20, 25))])
@@ -247,11 +354,12 @@ def test_monotonic_trend_excludes_the_special_group():
 PDAYS_EDGES = {
     chimerge_edges: [-np.inf, 105, 175.6, 188, 371, np.inf],
     tree_edges: [-np.inf, 100, 177, 192, 370, np.inf],
+    ks_edges: [-np.inf, 100, 177, 192, 370, np.inf],
     monotonic_edges: [-np.inf, 97, 105, 188, 211.2, np.inf],
 }
 
 
-@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, monotonic_edges])
+@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, ks_edges, monotonic_edges])
 def test_bank_pdays_code_is_fitted_separately(reference, fit):
     pdays, target = reference["pdays"], reference["target"]
     is_special = pdays == -1
@@ -261,7 +369,7 @@ def test_bank_pdays_code_is_fitted_separately(reference, fit):
     np.testing.assert_allclose(edges, PDAYS_EDGES[fit])
     np.testing.assert_equal(edges, fit(pdays[~is_special], target[~is_special]))
     contacted = pdays[~is_special]
-    if fit is tree_edges:
+    if fit in (tree_edges, ks_edges):
         assert set(edges[1:-1]) <= set(contacted)
     else:
         assert set(edges[1:-1]) <= set(np.quantile(contacted, np.linspace(0, 1, 21)))
@@ -285,7 +393,7 @@ def test_without_special_the_bank_pdays_code_shares_a_bin(reference, fit):
     assert (first == -1).sum() == 2475 and (first > -1).sum() == 78
 
 
-@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, monotonic_edges])
+@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, ks_edges, monotonic_edges])
 @pytest.mark.parametrize("column", ["age", "balance", "duration", "campaign", "pdays"])
 def test_edges_on_bank_data_have_infinite_ends_and_at_most_max_bins(reference, fit, column):
     edges = fit(reference[column], reference["target"], max_bins=4)
@@ -325,6 +433,42 @@ def test_monotonic_on_bank_data_gives_a_strict_woe_trend(reference, column):
     assert (steps > 0).all() or (steps < 0).all() or len(woe) == 1
 
 
+@pytest.mark.parametrize("column", ["age", "balance", "duration", "day"])
+def test_ks_on_bank_data_respects_the_minimum_share(reference, column):
+    edges = ks_edges(reference[column], reference["target"], max_bins=6, min_bin_share=0.1)
+    assert len(edges) - 1 == 6
+    counts = pd.cut(reference[column], edges).value_counts()
+    assert counts.min() >= 0.1 * len(reference)
+    assert set(edges[1:-1]) <= set(reference[column])
+
+
+@pytest.mark.parametrize("column", ["age", "balance", "duration", "campaign", "day"])
+def test_ks_first_cut_keeps_the_ks_of_the_variable(reference, column):
+    values, target = reference[column], reference["target"]
+    edges = ks_edges(values, target, max_bins=2, min_bin_share=0)
+    two_bins = pd.cut(values, edges, labels=False)
+    # Two bins have a Gini equal to their KS, and the cut keeps the KS of the values.
+    assert ks(two_bins, target) == pytest.approx(ks(values, target), rel=1e-12)
+    assert abs(gini(two_bins, target)) == pytest.approx(ks(values, target), rel=1e-12)
+
+
+def test_ks_bins_of_bank_balance(reference):
+    balance, target = reference["balance"], reference["target"]
+    edges = ks_edges(balance, target)
+    np.testing.assert_equal(edges, [-np.inf, 99, 888, 3276, 6046, np.inf])
+    # 888 is the KS cut of the whole sample, and the next cuts follow by the pairs ranked apart.
+    np.testing.assert_equal(ks_edges(balance, target, max_bins=2), [-np.inf, 888, np.inf])
+    np.testing.assert_equal(ks_edges(balance, target, max_bins=3), [-np.inf, 99, 888, np.inf])
+    table = woe_table(pd.cut(balance, edges), target).sort_index()
+    assert table.total.min() >= 0.05 * len(balance)
+    assert table.event.tolist() == [56, 123, 106, 47, 16]
+    assert table.non_event.tolist() == [767, 996, 587, 168, 134]
+    # Not monotonic: the WOE rises over the first four bins and falls in the top one.
+    assert table.woe.iloc[:4].is_monotonic_increasing and table.woe.iloc[4] < table.woe.iloc[3]
+    quantile = woe_table(pd.cut(balance, bin_edges(balance, bins=5)), target)
+    assert table.iv.sum() > quantile.iv.sum()
+
+
 def test_balance_woe_rises_under_every_method(reference):
     balance, target = reference["balance"], reference["target"]
     for edges in (chimerge_edges(balance, target), monotonic_edges(balance, target)):
@@ -333,7 +477,7 @@ def test_balance_woe_rises_under_every_method(reference):
     assert len(tree_edges(balance, target)) - 1 == 5
 
 
-@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, monotonic_edges])
+@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, ks_edges, monotonic_edges])
 def test_array_like_inputs_are_matched_by_position(fit):
     expected = fit(TREE_VALUES, TREE_TARGET)
     np.testing.assert_equal(fit(TREE_VALUES.tolist(), TREE_TARGET.to_numpy()), expected)
@@ -344,7 +488,7 @@ def test_array_like_inputs_are_matched_by_position(fit):
     np.testing.assert_equal(fit(with_missing, [*TREE_TARGET, 1]), expected)
 
 
-@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, monotonic_edges])
+@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, ks_edges, monotonic_edges])
 @pytest.mark.parametrize(
     "values,target,message",
     [
@@ -374,7 +518,7 @@ def test_invalid_supervised_inputs(fit, values, target, message):
         fit(values, target)
 
 
-@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, monotonic_edges])
+@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, ks_edges, monotonic_edges])
 @pytest.mark.parametrize(
     "values,target,special,message",
     [
@@ -414,6 +558,13 @@ def test_invalid_special_values(fit, values, target, special, message):
         (tree_edges, {"min_bin_share": -0.1}, "min_bin_share must be between 0 and 0.5, got -0.1"),
         (tree_edges, {"min_bin_share": 0.6}, "min_bin_share must be between 0 and 0.5, got 0.6"),
         (tree_edges, {"criterion": "log_loss"}, "'entropy' or 'gini', got 'log_loss'"),
+        (ks_edges, {"max_bins": 0}, "max_bins must be a positive integer, got 0"),
+        (ks_edges, {"max_bins": 2.0}, "max_bins must be a positive integer, got 2.0"),
+        (ks_edges, {"min_bin_share": -0.1}, "min_bin_share must be between 0 and 0.5, got -0.1"),
+        (ks_edges, {"min_bin_share": 0.6}, "min_bin_share must be between 0 and 0.5, got 0.6"),
+        (ks_edges, {"min_bin_share": True}, "min_bin_share must be between 0 and 0.5, got True"),
+        (ks_edges, {"min_bin_share": "0.1"}, "min_bin_share must be between 0 and 0.5, got '0.1'"),
+        (ks_edges, {"min_bin_share": np.nan}, "min_bin_share must be between 0 and 0.5, got nan"),
         (monotonic_edges, {"max_bins": 0}, "max_bins must be a positive integer, got 0"),
         (monotonic_edges, {"initial_bins": 0}, "initial_bins must be a positive integer, got 0"),
         (monotonic_edges, {"direction": "up"}, "'increasing' or 'decreasing', got 'up'"),
@@ -425,7 +576,7 @@ def test_invalid_supervised_options(fit, options, message):
         fit(TREE_VALUES, TREE_TARGET, **options)
 
 
-@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, monotonic_edges])
+@pytest.mark.parametrize("fit", [chimerge_edges, tree_edges, ks_edges, monotonic_edges])
 def test_integer_weights_match_repeated_rows(fit):
     values = np.arange(1, 13)
     target = np.array([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1])
@@ -439,7 +590,7 @@ def test_zero_weight_rows_are_left_out_with_their_labels():
     target = np.array([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1])
     weights = np.r_[np.ones(12), 0.0]
     padded_values, padded_target = np.r_[values, 1000], np.r_[target, 1]
-    for fit in (chimerge_edges, tree_edges, monotonic_edges):
+    for fit in (chimerge_edges, tree_edges, ks_edges, monotonic_edges):
         np.testing.assert_equal(
             fit(padded_values, padded_target, weights=weights), fit(values, target)
         )
@@ -474,7 +625,7 @@ def test_special_codes_and_weights_in_supervised_binning():
     values = np.r_[np.arange(1, 13), -1, -1]
     target = np.r_[[0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1], 1, 0]
     weights = np.r_[[1, 2, 1, 3, 1, 1, 2, 1, 1, 2, 1, 1], 7, 7]
-    for fit in (chimerge_edges, tree_edges, monotonic_edges):
+    for fit in (chimerge_edges, tree_edges, ks_edges, monotonic_edges):
         np.testing.assert_equal(
             fit(values, target, special=[-1], weights=weights),
             fit(values[:12], target[:12], weights=weights[:12]),

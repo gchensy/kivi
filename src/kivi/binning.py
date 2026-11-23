@@ -1,8 +1,8 @@
 """Numeric bin boundaries, category groups and their assignment.
 
 ``bin_edges`` fits edges from the values alone. ``chimerge_edges``,
-``tree_edges`` and ``monotonic_edges`` also use a binary target. All of them
-return increasing edges with infinite endpoints for ``pandas.cut``, or for
+``tree_edges``, ``ks_edges`` and ``monotonic_edges`` also use a binary
+target. All of them return increasing edges with infinite endpoints for ``pandas.cut``, or for
 ``cut``, which also gives each special value its own group.
 
 ``category_groups`` pools rare categories and ``chimerge_groups`` merges
@@ -25,6 +25,7 @@ __all__ = [
     "cut",
     "chimerge_edges",
     "tree_edges",
+    "ks_edges",
     "monotonic_edges",
     "category_groups",
     "chimerge_groups",
@@ -465,10 +466,7 @@ def tree_edges(
             f"criterion must be 'entropy' or 'gini', got {_validation.shown_argument(criterion)}"
         )
     observed, labels, mass = _labeled(values, target, special, weights)
-    unique, position = np.unique(observed, return_inverse=True)
-    event_mass = labels if mass is None else labels * mass
-    totals = np.cumsum(np.r_[0, np.bincount(position, weights=mass)])
-    events = np.cumsum(np.r_[0, np.bincount(position, weights=event_mass)])
+    unique, totals, events = _cumulative(observed, labels, mass)
     min_count = min_bin_share * totals[-1]
     impurity = _entropy if criterion == "entropy" else _gini
 
@@ -505,6 +503,160 @@ def tree_edges(
             (cut, stop, *best_split(cut, stop)),
         ]
     interior = [unique[stop - 1] for _, stop, _, _ in leaves[:-1]]
+    return np.r_[-np.inf, interior, np.inf]
+
+
+def ks_edges(
+    values: npt.ArrayLike,
+    target: npt.ArrayLike,
+    *,
+    max_bins: int = 5,
+    min_bin_share: float = 0.05,
+    special: npt.ArrayLike | None = None,
+    weights: npt.ArrayLike | None = None,
+) -> npt.NDArray[np.float64]:
+    r"""Fit edges by splitting the values where the classes separate most (Best-KS).
+
+    Each split cuts a bin at the value where the cumulative shares of its
+    events and of its non-events differ most, the KS of the bin, among the
+    cuts that leave at least ``min_bin_share`` of the observations on each
+    side. The bins are split best first, by the KS of their cut weighted by
+    the shares of the events and the non-events that they hold, until there
+    are ``max_bins`` bins or no bin has an allowed cut with a positive KS.
+
+    Parameters
+    ----------
+    values : array_like
+        One-dimensional numeric values, such as a list, a NumPy array or a
+        pandas Series. Missing values and their labels are omitted.
+    target : array_like
+        Binary labels, with 1 indicating the event. If `values` and `target`
+        are both pandas Series, they must have identical indices; otherwise
+        they are matched by position.
+    max_bins : int, default 5
+        Maximum number of bins.
+    min_bin_share : float, default 0.05
+        Minimum share of the fitted values in every bin, from 0 to 0.5, or of
+        their total weight when `weights` is given. Missing and special values
+        do not count towards it.
+    special : array_like, optional
+        Special values, such as codes for "not applicable", that are omitted
+        with their labels when the edges are fitted. Pass the same values to
+        `cut` so that each one forms its own group.
+    weights : array_like, optional
+        Non-negative weight of each observation, for example the inverse of
+        its sampling rate, matched like `target`. Observations with zero
+        weight are left out, and the counts in each bin are sums of weights.
+
+    Returns
+    -------
+    numpy.ndarray
+        Increasing edges with infinite endpoints, suitable for pandas.cut.
+        Every interior edge is an observed value, the largest one in the bin
+        to its left.
+
+    Raises
+    ------
+    ValueError
+        If `max_bins` is not a positive integer, `min_bin_share` is not between
+        0 and 0.5, `values` and `target` are not one-dimensional or their
+        indices or lengths do not match, `special` is not one-dimensional or
+        contains a missing value or a boolean, `values` is not numeric or has
+        no finite observations apart from missing and special values, or
+        `target` has labels other than 0 and 1 or lacks one of them in the rows
+        that are fitted.
+        Also if `weights` is not numeric, does not give each value one finite,
+        non-negative weight with a positive total, or has an index other than
+        that of `values`.
+
+    See Also
+    --------
+    tree_edges : Split where the impurity falls most instead.
+    chimerge_edges : Merge fine bins instead of splitting.
+    kivi.metrics.ks : The KS statistic of a score.
+    cut : Assign values to bins, with a separate group for each special value.
+
+    Notes
+    -----
+    Let a bin hold :math:`E_b` events and :math:`N_b` non-events (their total
+    weights, with `weights`), and let a cut leave :math:`e` events and
+    :math:`n` non-events on its left. The bin is cut where
+
+    .. math::
+
+       \mathrm{KS}_b = \left| \frac{e}{E_b} - \frac{n}{N_b} \right|
+
+    is largest; ties go to the smallest value. With :math:`E` events and
+    :math:`N` non-events in all the fitted values, the bin split next is the
+    one whose cut has the largest
+
+    .. math::
+
+       \frac{E_b}{E} \frac{N_b}{N} \mathrm{KS}_b
+       = \frac{\left| e (N_b - n) - (E_b - e) n \right|}{E N}
+
+    The numerator counts the pairs of an event and a non-event that the cut
+    puts into different bins, the event in the bin with the higher event
+    rate, less the pairs it puts the other way round. The split therefore
+    raises the Gini coefficient of the bins, ranked by event rate, by at
+    least this amount, and by exactly this amount when no other bin has an
+    event rate between those of the two new bins. Ranking the bins by their
+    KS alone would split a bin with a handful of customers as readily as
+    one with thousands, and ranking them by size would spend splits on large
+    bins whose classes barely separate. The first cut is at the KS of the
+    whole sample, among the allowed cuts, and two bins have a Gini
+    coefficient equal to their KS.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from kivi.binning import ks_edges
+    >>> values = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+    >>> target = pd.Series([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1])
+    >>> ks_edges(values, target, max_bins=2)
+    array([-inf,   4.,  inf])
+    >>> ks_edges(values, target, max_bins=4)
+    array([-inf,   4.,   8.,   9.,  inf])
+    >>> ks_edges(values, target, min_bin_share=0.5)
+    array([-inf,   6.,  inf])
+    """
+    _validation.check_count(max_bins, "max_bins")
+    _check_share(min_bin_share, "min_bin_share", 0.5)
+    observed, labels, mass = _labeled(values, target, special, weights)
+    unique, totals, events = _cumulative(observed, labels, mass)
+    non_events = totals - events
+    min_count = min_bin_share * totals[-1]
+
+    def best_cut(start: int, stop: int) -> tuple[float, int | None]:
+        # Cut points between unique values start..stop-1; left part is start..cut-1.
+        cuts = np.arange(start + 1, stop)
+        n_left = totals[cuts] - totals[start]
+        n_right = totals[stop] - totals[cuts]
+        cuts = cuts[(n_left >= min_count) & (n_right >= min_count)]
+        if not len(cuts):
+            return 0.0, None
+        e, n = events[stop] - events[start], non_events[stop] - non_events[start]
+        # |e_left n - e n_left| = e n KS: the pairs that the cut ranks apart, net of the others.
+        pairs = np.abs(
+            (events[cuts] - events[start]) * n - e * (non_events[cuts] - non_events[start])
+        )
+        best = _first_max(pairs)
+        # A KS within rounding of zero, as in a bin of one class, gives no cut.
+        if pairs[best] <= 1e-10 * e * n:
+            return 0.0, None
+        return float(pairs[best]), int(cuts[best])
+
+    bins = [(0, len(unique), *best_cut(0, len(unique)))]
+    while len(bins) < max_bins:
+        split = _first_max(np.array([pairs for _, _, pairs, _ in bins]))
+        start, stop, _, cut = bins[split]
+        if cut is None:
+            break
+        bins[split : split + 1] = [
+            (start, cut, *best_cut(start, cut)),
+            (cut, stop, *best_cut(cut, stop)),
+        ]
+    interior = [unique[stop - 1] for _, stop, _, _ in bins[:-1]]
     return np.r_[-np.inf, interior, np.inf]
 
 
@@ -1202,6 +1354,12 @@ def _first_min(values: np.ndarray) -> int:
     return int(np.flatnonzero(values <= smallest + _TIE * abs(smallest))[0])
 
 
+def _first_max(values: np.ndarray) -> int:
+    """Position of the first value within a relative `_TIE` of the largest."""
+    largest = values.max()
+    return int(np.flatnonzero(values >= largest - _TIE * abs(largest))[0])
+
+
 def _odds(counts: np.ndarray, smoothing: float) -> np.ndarray:
     """Smoothed event to non-event ratio of each row, which orders the rows like their WOE.
 
@@ -1264,6 +1422,21 @@ def _labeled(
             rows += " with a positive weight"
         raise ValueError(f"target must contain both 0 and 1 where values are {rows}")
     return observed, labels, mass
+
+
+def _cumulative(
+    observed: np.ndarray, labels: np.ndarray, mass: np.ndarray | None
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Distinct values, and the counts and events of the values before each of them.
+
+    ``totals[i]`` and ``events[i]`` count the rows of the first ``i`` distinct values, as sums
+    of weights with `mass`, so the values ``start..stop-1`` hold ``totals[stop] - totals[start]``.
+    """
+    unique, position = np.unique(observed, return_inverse=True)
+    event_mass = labels if mass is None else labels * mass
+    totals = np.cumsum(np.r_[0, np.bincount(position, weights=mass)])
+    events = np.cumsum(np.r_[0, np.bincount(position, weights=event_mass)])
+    return unique, totals, events
 
 
 def _fine_bins(

@@ -5,7 +5,7 @@ Binning
 
 In credit scoring, binning is the classing step of scorecard development: a continuous variable becomes a handful of groups whose WOE can be read, explained to the business and monitored over time. This page compares the ways to choose the edges.
 
-Binning follows the :doc:`univariate profile <univariate>`, which ranks the candidates by a quick binning, and comes before the :doc:`weight of evidence <woe_iv>`, which measures and encodes the groups. ``bin_edges`` chooses the edges from the values alone; :func:`~kivi.binning.chimerge_edges`, :func:`~kivi.binning.tree_edges` and :func:`~kivi.binning.monotonic_edges` also use the target, and :func:`~kivi.binning.cut` groups a sample, with a group of its own for each special code.
+Binning follows the :doc:`univariate profile <univariate>`, which ranks the candidates by a quick binning, and comes before the :doc:`weight of evidence <woe_iv>`, which measures and encodes the groups. ``bin_edges`` chooses the edges from the values alone; :func:`~kivi.binning.chimerge_edges`, :func:`~kivi.binning.tree_edges`, :func:`~kivi.binning.ks_edges` and :func:`~kivi.binning.monotonic_edges` also use the target, and :func:`~kivi.binning.cut` groups a sample, with a group of its own for each special code.
 
 Categorical variables are grouped in the same two steps: :func:`~kivi.binning.category_groups` pools rare categories, :func:`~kivi.binning.chimerge_groups` merges categories with similar event rates, and :func:`~kivi.binning.group_categories` applies the grouping to a sample.
 
@@ -136,6 +136,9 @@ Quantile and uniform edges ignore the target. The supervised methods use it to p
    * - :func:`~kivi.binning.tree_edges`
      - Splits the values where a decision tree gains the most purity.
      - ``max_bins``, ``min_bin_share``, ``criterion``
+   * - :func:`~kivi.binning.ks_edges`
+     - Splits the values where the cumulative shares of events and non-events differ most.
+     - ``max_bins``, ``min_bin_share``
    * - :func:`~kivi.binning.monotonic_edges`
      - Merges adjacent fine bins until the WOE rises or falls steadily.
      - ``max_bins``, ``direction``
@@ -197,6 +200,40 @@ The tree separates the classes best, but it does not look for a trend: customers
    :caption: Left: the entropy reduction of every possible first cut. Cuts in the shaded areas would leave less than min_bin_share of the customers in a bin. The dashed lines are the tree's cuts, numbered in the order they were made. Right: the WOE of the five bins rises, then falls in the top bin.
 
    kp.figure_tree()
+
+Best KS
+^^^^^^^
+
+:func:`~kivi.binning.ks_edges` splits the values too, but it measures a cut by the KS of :doc:`metrics`: the gap between the cumulative shares of the events and of the non-events up to the cut. The first cut is where that gap is largest in the whole sample, so two bins keep the KS that :func:`~kivi.metrics.ks` measures on the raw values:
+
+>>> from kivi.binning import ks_edges
+>>> from kivi.metrics import ks
+>>> two_bins = ks_edges(balance, target, max_bins=2)
+>>> two_bins
+array([-inf, 888.,  inf])
+>>> print(f"KS = {ks(balance, target):.3f}")
+KS = 0.150
+>>> print(f"KS = {ks(pd.cut(balance, two_bins, labels=False), target):.3f}")
+KS = 0.150
+
+Each bin is then cut where its own KS is largest, among the cuts that leave at least ``min_bin_share`` of the observations, 5% by default, on each side. The bin split next is the one whose cut ranks the most pairs of a subscriber and a non-subscriber apart: its KS times the numbers of subscribers and non-subscribers in the bin. Each such pair adds the same amount to the Gini coefficient of the bins, so a sharp cut in a bin of a few customers does not take a split from a larger bin, and neither does a large bin whose classes barely separate. Splitting stops at ``max_bins`` bins, or when no bin has an allowed cut with a positive KS.
+
+>>> best_ks = ks_edges(balance, target)
+>>> best_ks
+array([ -inf,   99.,  888., 3276., 6046.,   inf])
+>>> by_ks = woe_table(pd.cut(balance, best_ks), target).sort_index()
+>>> print(f"IV = {by_ks['iv'].sum():.3f}")
+IV = 0.158
+
+On the account balance, Best KS finds the five bins of the decision tree, cut in the same order. The criteria still differ: the gain of a tree also depends on how many customers each side holds, while the KS depends only on the gap between the two classes. On ``campaign``, the number of contacts in the campaign, the tree sets apart the 5% of customers contacted more than seven times, while Best KS divides those contacted up to four times:
+
+>>> campaign = reference["campaign"]
+>>> ks_edges(campaign, target)
+array([-inf,   1.,   2.,   3.,   4.,  inf])
+>>> tree_edges(campaign, target)
+array([-inf,   1.,   3.,   4.,   7.,  inf])
+
+Like the tree, Best KS does not look for a trend: here too the customers above 6,046 subscribe less often than those just below them. Check the WOE of its bins before using them.
 
 Monotonic binning
 ^^^^^^^^^^^^^^^^^
@@ -461,7 +498,7 @@ bin
 >>> print(f"IV = {by_pdays['iv'].sum():.3f}")
 IV = 0.352
 
-Fitted on the contacted customers alone, the WOE falls steadily: the more recent the previous contact, the more likely a customer is to subscribe. ``max_bins`` and the trend apply to the intervals only, so each special group comes on top of them with a WOE of its own. :func:`~kivi.binning.chimerge_edges` and :func:`~kivi.binning.tree_edges` take ``special`` in the same way, and ``min_bin_share`` counts only the values that are fitted.
+Fitted on the contacted customers alone, the WOE falls steadily: the more recent the previous contact, the more likely a customer is to subscribe. ``max_bins`` and the trend apply to the intervals only, so each special group comes on top of them with a WOE of its own. :func:`~kivi.binning.chimerge_edges`, :func:`~kivi.binning.tree_edges` and :func:`~kivi.binning.ks_edges` take ``special`` in the same way, and ``min_bin_share`` counts only the values that are fitted.
 
 Special values in category groups
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -544,7 +581,7 @@ Invalid input
 
 :func:`~kivi.binning.cut` raises ``ValueError`` for an infinite value that is not a special value, because ``pandas.cut`` would count ``-inf`` as missing and put ``inf`` in the last interval. Pass infinite codes in ``special`` to give each one its own group.
 
-:func:`~kivi.binning.chimerge_edges`, :func:`~kivi.binning.tree_edges` and :func:`~kivi.binning.monotonic_edges` raise ``ValueError`` for the same problems with the values, for an option outside its range, and when:
+:func:`~kivi.binning.chimerge_edges`, :func:`~kivi.binning.tree_edges`, :func:`~kivi.binning.ks_edges` and :func:`~kivi.binning.monotonic_edges` raise ``ValueError`` for the same problems with the values, for an option outside its range, and when:
 
 * ``values`` and ``target`` are Series without identical indices, or have different lengths;
 * ``target`` contains a label other than 0 and 1, or a missing label;
