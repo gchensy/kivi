@@ -22,8 +22,7 @@ MERCHANT_CATEGORIES = (
     "health",
     "utilities",
 )
-REQUIRED_COLUMNS = ("income", "debt_to_income", "incumbent_pd", "target")
-FIRST_DEFAULT_DATE = pd.Timestamp("2024-01-01")
+REQUIRED_COLUMNS = ("income", "debt_to_income", "incumbent_pd", "risk")
 
 _SECONDS_PER_DAY = 86_400
 _OUTSIDE = "lie between the years 1678 and 2261"
@@ -32,7 +31,6 @@ _OUTSIDE = "lie between the years 1678 and 2261"
 _FIRST_DAY = int(np.datetime64("1678-01-01", "D").astype(np.int64))
 _LAST_DAY = int(np.datetime64("2261-12-31", "D").astype(np.int64))
 _FIRST_MONTH = int(np.datetime64("1678-01", "M").astype(np.int64))
-_DAYS_IN_MONTH_2024 = np.array([31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
 
 # Purchases: a Poisson count scaled by income, by a trait of the applicant and by the season,
 # a little lower under stress.
@@ -46,13 +44,14 @@ _PURCHASE_SPREAD = 0.7
 # January first.
 _SEASON = np.array([0.90, 0.88, 0.95, 0.98, 1.00, 1.00, 1.02, 1.00, 0.98, 1.00, 1.12, 1.37])
 _MERCHANT_SHARES = np.array([0.26, 0.14, 0.14, 0.04, 0.16, 0.18, 0.04, 0.04])
-# Cash withdrawals: a Poisson count that rises with the stress and with the incumbent's view of
-# the applicant's risk.
+# Cash withdrawals: a Poisson count that rises with the stress, with the hidden risk and with the
+# incumbent's view of the applicant's risk.
 _CASH_RATE = 0.4
 _CASH_INCOME_EXPONENT = 0.2
-_CASH_TRAIT = 0.5
+_CASH_TRAIT = 0.3
 _CASH_VIEW = 0.25
-_CASH_STRESS = 0.9
+_CASH_RISK = 0.2
+_CASH_STRESS = 1.0
 _CASH_SHARE = 0.03
 _CASH_SPREAD = 0.3
 _CASH_AMOUNT_STRESS = 0.25
@@ -60,19 +59,19 @@ _CASH_AMOUNT_STRESS = 0.25
 # rises with the stress and paid short under stress.
 _MISS_LOGIT = float(np.log(0.03 / (1 - 0.03)))
 _MISS_VIEW = 0.3
-_MISS_STRESS = 1.8
+_MISS_RISK = 0.3
+_MISS_STRESS = 2.2
 _SHORT_MAX = 0.1
 _INSTALMENT_SPREAD = 0.02
 _INSTALMENT_TRAIT = 0.2
 _MIN_DEBT_TO_INCOME = 0.01
-# Stress: it builds up over the months before the application; defaulters have it, and a share
-# of the other applicants has a milder episode.
+# Stress: it builds up over the months before the application. Its level rises with the hidden risk
+# plus noise, so that the behaviour reflects the risk imperfectly, and is bounded by _STRESS_MAX.
 _ONSET = (3, 10)
-_STRESS_SPREAD = 0.8
-_MAX_STRESS_SIZE = 3.0
-_DEFAULTER_STRESS = 0.45
-_EPISODE_SHARE = 0.25
-_EPISODE_STRESS = 0.35
+_STRESS_NOISE = 0.4
+_STRESS_CENTRE = 0.3
+_STRESS_SLOPE = 2.0
+_STRESS_MAX = 2.0
 # The incumbent PD enters through its logit, centred and scaled as make_applications draws it.
 _VIEW_CENTRE = -2.13
 _VIEW_SCALE = 0.77
@@ -83,40 +82,42 @@ _MIN_AMOUNT = 1.0
 def make_transactions(
     applications: pd.DataFrame,
     *,
-    application_date: str | datetime.date | np.datetime64 | npt.ArrayLike | None = None,
-    months: int = 12,
+    application_date: str | datetime.date | np.datetime64 | npt.ArrayLike,
+    n_months: int = 12,
     rng: int | np.random.Generator | None = None,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+) -> pd.DataFrame:
     """Generate synthetic account transactions before the application dates.
 
-    Every applicant has transactions on an account in each of the `months`
+    Every applicant has transactions on an account in each of the `n_months`
     months before the application: card purchases, cash withdrawals and
-    instalment repayments. Defaulters withdraw more cash as the application
-    nears and repay less, and the volumes scale with income, so features of
-    the transactions in time windows carry a clear but imperfect signal about
-    ``target``. The data is simulated, not drawn from a real portfolio.
+    instalment repayments. They depend on the hidden risk factor of the
+    applicant and on the income, not on the outcome. Applicants at risk build
+    up stress, withdraw more cash as the application nears and repay less,
+    and the volumes scale with income, so that features of the transactions
+    in time windows carry a clear but imperfect signal about ``target``. The
+    data is simulated, not drawn from a real portfolio.
 
     Parameters
     ----------
     applications : pandas.DataFrame
         One row per applicant with the columns ``income``,
-        ``debt_to_income``, ``incumbent_pd`` and ``target`` of
-        `kivi.datasets.make_applications` and unique index labels. Other
-        columns are ignored.
-    application_date : {None, str, date, array_like}, optional
+        ``debt_to_income``, ``incumbent_pd`` and ``risk`` of
+        `kivi.datasets.make_applications`, called with ``include_risk=True``,
+        and unique index labels. Other columns, ``target`` included, are
+        ignored.
+    application_date : {str, date, array_like}
         The date of each application. A string that names a column of
         `applications` reads the dates from that column. Any other string, a
         `datetime.date`, a `numpy.datetime64` or a `pandas.Timestamp` is
         one date for every application. A Series with the index of
         `applications`, or an array_like with one date per row, gives each
-        application its own. A time of day is ignored and a time zone is
-        dropped, as in `kivi.vintage.delinquency_panel`. By default the
-        applications are spread evenly over the twelve months of 2024 in the
-        order of their rows: the first twelfth of the rows in January, the
-        next in February and so on, and within a month evenly over its days.
-    months : int, default 12
+        application its own. The dates are read as `pandas.to_datetime`
+        reads them, as in `kivi.vintage.delinquency_panel`: a time of day is
+        ignored and a time zone is dropped, and numbers and periods raise an
+        error, so convert a period column with ``.dt.to_timestamp()``.
+    n_months : int, default 12
         Number of months before the application date that the transactions
-        cover. The transactions of an applicant lie from `months` calendar
+        cover. The transactions of an applicant lie from `n_months` calendar
         months before the application date, counted as `pandas.DateOffset`
         counts them, up to but not including the application date.
     rng : {None, int, numpy.random.Generator}, optional
@@ -126,25 +127,21 @@ def make_transactions(
 
     Returns
     -------
-    transactions : pandas.DataFrame
-        One row per transaction, sorted by applicant and then by time, with
-        the columns described in the Notes and a RangeIndex.
-    observations : pandas.DataFrame
-        One row per application, in the order and with the index of
-        `applications`, with the columns ``applicant_id`` (the index label)
-        and ``application_date`` (a datetime at midnight). It is the table of
-        observations for the time windows, and its index joins the features
-        back to `applications`.
+    pandas.DataFrame
+        One row per transaction, sorted by applicant, in the order of
+        `applications`, and then by time, with the columns described in the
+        Notes and a RangeIndex.
 
     Raises
     ------
     ValueError
-        If `applications` is not a DataFrame, lacks a required column, has
-        repeated or non-flat index labels, or holds a missing, non-numeric or
+        If `applications` is not a DataFrame, lacks a required column (the
+        message names ``include_risk`` when it is ``risk``), has repeated or
+        non-flat index labels, or holds a missing, non-numeric or
         out-of-range value in a required column. If `application_date` is
         not a column name, a date or dates with one value per application,
         holds a missing value, or is a Series with an index different from
-        that of `applications`. If `months` is not a positive integer or
+        that of `applications`. If `n_months` is not a positive integer or
         reaches back before the year 1678, or `rng` is not a seed or
         generator that `numpy.random.default_rng` accepts.
 
@@ -155,7 +152,7 @@ def make_transactions(
 
     Notes
     -----
-    The columns of `transactions` are:
+    The columns of the result are:
 
     - ``applicant_id``: the index label of the applicant in `applications`;
     - ``timestamp``: the time of the transaction, to the second, on a day
@@ -167,65 +164,90 @@ def make_transactions(
       ``grocery`` and ``travel`` for a purchase, missing for the other kinds.
 
     The transactions of each month are drawn independently. In a year an
-    applicant has on average about 26 purchases, 6 cash withdrawals and 12
-    repayments, 43 transactions in all. A purchase costs about 4.5% of the
+    applicant has on average about 25 purchases, 8 cash withdrawals and 11
+    repayments, 44 transactions in all. A purchase costs about 4.5% of the
     monthly income, a cash withdrawal about 3%, and a repayment is the
     instalment that ``income * debt_to_income`` implies, which varies by
     about 20% between applicants. Applicants with a higher ``income`` make
     a few more purchases and withdrawals, and purchases are more frequent in
     the months that start in November and December. An applicant whom the
-    incumbent scorecard rates as riskier withdraws more cash and misses
-    more repayments.
+    incumbent scorecard rates as riskier withdraws more cash and misses more
+    repayments, and so does an applicant with a higher ``risk``.
 
-    The outcome drives a stress that builds up before the application. For a
-    defaulter it starts between three and nine months before it and is
-    strongest in the last month, and 25% of the other applicants have an
-    episode of the same shape that is a little milder. Under stress, the
-    cash withdrawals are more frequent and larger, the purchases a little
-    rarer, and a repayment is more likely to be missed, or paid up to a tenth
+    The ``risk`` also drives a stress that builds up before the application.
+    It starts between three and nine months before the application and is
+    strongest in the last month. Its level rises with the risk plus noise,
+    from almost none to a bounded maximum. Under stress, the cash
+    withdrawals are more frequent and larger, the purchases a little rarer,
+    and a repayment is more likely to be missed, or paid up to a tenth
     short. The number and sum of the cash withdrawals of the last months,
     the number of repayments and the change of their sum from the months
-    before therefore carry a signal about ``target``. Applicants differ in
-    their baseline and in the size of their stress, which is capped at three
-    times its typical size, so no feature predicts the outcome well.
+    before therefore carry a signal about ``risk`` and, through it, about
+    ``target``, which the same risk raises. The incumbent scorecard sees only
+    part of the risk, so the signal remains within bands of
+    ``incumbent_pd``. The noise and the other differences between
+    applicants keep every feature far from a perfect predictor.
 
-    The transactions are drawn from the outcome, which a lender learns only
-    after the transactions. Use them to learn how window features work, not
-    to estimate how well behaviour predicts default.
+    The transactions do not depend on ``target``: they are drawn from the
+    risk before the outcome, as a lender would observe them. ``risk`` is
+    information that no lender has, so it exists only in simulated
+    applications.
+
+    The observations that the windows end at, one row per application with
+    its date, follow from the applications and their dates, as the examples
+    show.
 
     Examples
     --------
+    >>> import numpy as np
     >>> import pandas as pd
     >>> from kivi.datasets import make_applications, make_transactions
-    >>> applications = make_applications(n_applicants=1000, rng=0)
-    >>> transactions, observations = make_transactions(applications, rng=0)
+    >>> applications = make_applications(n_applicants=1000, include_risk=True, rng=0)
+    >>> days = np.arange(1000) * 366 // 1000
+    >>> applications["application_date"] = pd.Timestamp("2024-01-01") + pd.to_timedelta(
+    ...     days, unit="D"
+    ... )
+    >>> transactions = make_transactions(
+    ...     applications, application_date="application_date", rng=0
+    ... )
     >>> list(transactions.columns)  # doctest: +NORMALIZE_WHITESPACE
     ['applicant_id', 'timestamp', 'amount', 'kind', 'merchant_category']
+
+    The observations have one row per application, with its id and date, and
+    the index of the applications, to which the features computed for them
+    join back:
+
+    >>> observations = pd.DataFrame(
+    ...     {
+    ...         "applicant_id": applications.index,
+    ...         "application_date": applications["application_date"],
+    ...     },
+    ...     index=applications.index,
+    ... )
     >>> observations.head(2)
        applicant_id application_date
     0             0       2024-01-01
     1             1       2024-01-01
 
-    The dates of the applications that the data holds are passed as the name
-    of a column, as one date or as a Series:
+    The dates may also be one date for every application, or a Series with
+    the index of the applications:
 
-    >>> applications["decided"] = pd.Timestamp("2024-06-30")
-    >>> transactions, observations = make_transactions(
-    ...     applications, application_date="decided", months=6, rng=0
+    >>> transactions = make_transactions(
+    ...     applications, application_date="2024-06-30", n_months=6, rng=0
     ... )
     >>> transactions["timestamp"].max() < pd.Timestamp("2024-06-30")
     True
     """
-    months = _validation.check_count(months, "months")
+    n_months = _validation.check_count(n_months, "n_months")
     rng = _validation.as_generator(rng)
-    income, debt_to_income, incumbent_pd, target = _drivers(applications)
+    income, debt_to_income, incumbent_pd, risk = _drivers(applications)
     n = len(applications)
     days = _application_days(application_date, applications)
-    bounds = _month_bounds(days, months)
+    bounds = _month_bounds(days, n_months)
 
     # Month j before the application (0 for the last) holds the days [bounds[:, j + 1],
     # bounds[:, j]).
-    stress = _stress(target, months, rng)
+    stress = _stress(risk, n_months, rng)
     pd_clipped = np.clip(incumbent_pd, _MIN_PD, 1 - _MIN_PD)
     view = (np.log(pd_clipped / (1 - pd_clipped)) - _VIEW_CENTRE) / _VIEW_SCALE
     relative_income = income / _applications._MEDIAN_INCOME
@@ -238,10 +260,15 @@ def make_transactions(
     cash_rate = (
         _CASH_RATE
         * relative_income**_CASH_INCOME_EXPONENT
-        * np.exp(_CASH_TRAIT * rng.standard_normal(n) + _CASH_VIEW * view)
+        * np.exp(_CASH_TRAIT * rng.standard_normal(n) + _CASH_VIEW * view + _CASH_RISK * risk)
     )[:, None] * np.exp(_CASH_STRESS * stress)
-    miss = _applications._logistic(_MISS_LOGIT + _MISS_VIEW * view[:, None] + _MISS_STRESS * stress)
-    shortfall = _SHORT_MAX * np.minimum(stress, 1.0) * rng.random((n, months))
+    miss = _applications._logistic(
+        _MISS_LOGIT
+        + _MISS_VIEW * view[:, None]
+        + _MISS_RISK * risk[:, None]
+        + _MISS_STRESS * stress
+    )
+    shortfall = _SHORT_MAX * np.minimum(stress, 1.0) * rng.random((n, n_months))
     instalment = (
         income
         * np.maximum(debt_to_income, _MIN_DEBT_TO_INCOME)
@@ -252,15 +279,15 @@ def make_transactions(
         [
             rng.poisson(purchase_rate),
             rng.poisson(cash_rate),
-            (rng.random((n, months)) >= miss).astype(np.int64),
+            (rng.random((n, n_months)) >= miss).astype(np.int64),
         ],
         axis=-1,
     )
     # One row per transaction: its kind, the month before the application and the applicant.
     cell = np.repeat(np.arange(counts.size), counts.ravel())
     kind = cell % len(KINDS)
-    month = (cell // len(KINDS)) % months
-    applicant = cell // (len(KINDS) * months)
+    month = (cell // len(KINDS)) % n_months
+    applicant = cell // (len(KINDS) * n_months)
 
     amount = np.empty(len(cell))
     purchase = kind == 0
@@ -305,28 +332,20 @@ def make_transactions(
             ),
         }
     )
-    observations = pd.DataFrame(
-        {
-            "applicant_id": applications.index,
-            "application_date": days.astype("datetime64[D]").astype("datetime64[ns]"),
-        },
-        index=applications.index.rename(None),
-    )
-    return transactions, observations
+    return transactions
 
 
 def _stress(
-    target: npt.NDArray[np.intp], months: int, rng: np.random.Generator
+    risk: npt.NDArray[np.float64], n_months: int, rng: np.random.Generator
 ) -> npt.NDArray[np.float64]:
-    """Stress of each applicant in each month before the application, shape (n, months)."""
-    n = len(target)
+    """Stress of each applicant in each month before the application, shape (n, n_months)."""
+    n = len(risk)
     onset = rng.integers(_ONSET[0], _ONSET[1], n)
-    size = np.minimum(rng.lognormal(0.0, _STRESS_SPREAD, n), _MAX_STRESS_SIZE)
-    episode = rng.random(n) < _EPISODE_SHARE
-    level = np.where(target == 1, _DEFAULTER_STRESS, np.where(episode, _EPISODE_STRESS, 0.0))
+    fragility = risk + _STRESS_NOISE * rng.standard_normal(n)
+    level = _STRESS_MAX * _applications._logistic(_STRESS_SLOPE * (fragility - _STRESS_CENTRE))
     # Full stress in the last month, none from `onset` months before it.
-    build_up = np.maximum(0.0, 1.0 - np.arange(months) / onset[:, None])
-    return (level * size)[:, None] * build_up
+    build_up = np.maximum(0.0, 1.0 - np.arange(n_months) / onset[:, None])
+    return level[:, None] * build_up
 
 
 def _calendar_month(days: npt.NDArray[np.int64]) -> npt.NDArray[np.int64]:
@@ -337,16 +356,20 @@ def _calendar_month(days: npt.NDArray[np.int64]) -> npt.NDArray[np.int64]:
 def _drivers(
     applications: pd.DataFrame,
 ) -> tuple[
-    npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.intp]
+    npt.NDArray[np.float64],
+    npt.NDArray[np.float64],
+    npt.NDArray[np.float64],
+    npt.NDArray[np.float64],
 ]:
-    """Income, debt-to-income ratio, incumbent PD and target of the applications, checked."""
+    """Income, debt-to-income ratio, incumbent PD and hidden risk of the applications, checked."""
     if not isinstance(applications, pd.DataFrame):
         raise ValueError(f"applications must be a DataFrame, got {type(applications).__name__}")
     absent = [name for name in REQUIRED_COLUMNS if name not in applications.columns]
     if absent:
+        hint = "; make_applications(include_risk=True) adds it" if "risk" in absent else ""
         raise ValueError(
             f"applications must have the columns {_validation.shown_list(REQUIRED_COLUMNS)}, "
-            f"got no column {_validation.shown_list(absent)}"
+            f"got no column {_validation.shown_list(absent)}{hint}"
         )
     if isinstance(applications.index, pd.MultiIndex):
         raise ValueError("applications must have a flat index, got a MultiIndex")
@@ -367,8 +390,8 @@ def _drivers(
     incumbent_pd = _real_column(
         applications, "incumbent_pd", lambda v: (v >= 0) & (v <= 1), "between 0 and 1"
     )
-    target = _validation.binary_labels(_column(applications, "target"), both_classes=False)
-    return income, debt_to_income, incumbent_pd, target
+    risk = _real_column(applications, "risk", np.isfinite, "finite")
+    return income, debt_to_income, incumbent_pd, risk
 
 
 def _column(frame: pd.DataFrame, name: str) -> pd.Series:
@@ -403,8 +426,6 @@ def _application_days(
 ) -> npt.NDArray[np.int64]:
     """Days since 1970-01-01 of the application dates, one per row of the applications."""
     n = len(applications)
-    if application_date is None:
-        return _default_days(n)
     if isinstance(application_date, str) and application_date in applications.columns:
         return _days(_column(applications, application_date))
     if np.ndim(application_date) == 0:
@@ -432,11 +453,12 @@ def _days(values: pd.Series, *, name_hint: bool = False) -> npt.NDArray[np.int64
     if not len(values):
         return np.empty(0, dtype=np.int64)
     dtype = values.dtype
-    if (
-        pd.api.types.is_numeric_dtype(dtype)
-        or pd.api.types.is_bool_dtype(dtype)
-        or isinstance(dtype, pd.PeriodDtype)
-    ):
+    if isinstance(dtype, pd.PeriodDtype):
+        raise ValueError(
+            f"application_date must hold dates, got dtype {dtype}; convert periods with "
+            ".dt.to_timestamp()"
+        )
+    if pd.api.types.is_numeric_dtype(dtype) or pd.api.types.is_bool_dtype(dtype):
         # pandas.to_datetime reads numbers as nanoseconds since 1970.
         raise ValueError(f"application_date must hold dates, got dtype {dtype}")
     missing = values.isna().to_numpy(dtype=bool)
@@ -467,30 +489,17 @@ def _days(values: pd.Series, *, name_hint: bool = False) -> npt.NDArray[np.int64
     return days
 
 
-def _default_days(n: int) -> npt.NDArray[np.int64]:
-    """Days of the default dates: the rows spread evenly over the months of 2024."""
-    row = np.arange(n)
-    month = row * 12 // n if n else row
-    # The first row of a month is the first with row * 12 >= month * n.
-    first = (month * n + 11) // 12
-    size = ((month + 1) * n + 11) // 12 - first
-    day = (row - first) * _DAYS_IN_MONTH_2024[month] // np.maximum(size, 1)
-    month_start = np.concatenate([[0], np.cumsum(_DAYS_IN_MONTH_2024)])[month]
-    first_day = FIRST_DEFAULT_DATE.to_datetime64().astype("datetime64[D]").astype(np.int64)
-    return (first_day + month_start + day).astype(np.int64)
-
-
-def _month_bounds(days: npt.NDArray[np.int64], months: int) -> npt.NDArray[np.int64]:
-    """Days of the dates 0 to `months` months before each date, shape (n, months + 1).
+def _month_bounds(days: npt.NDArray[np.int64], n_months: int) -> npt.NDArray[np.int64]:
+    """Days of the dates 0 to `n_months` months before each date, shape (n, n_months + 1).
 
     A month before a date is the same day of the previous month, or its last day when that
     month is shorter, as in ``pandas.DateOffset(months=...)``.
     """
     month = days.astype("datetime64[D]").astype("datetime64[M]")
-    if len(days) and month.astype(np.int64).min() - months < _FIRST_MONTH:
-        raise ValueError(f"months must not reach back before the year 1678, got {months}")
+    if len(days) and month.astype(np.int64).min() - n_months < _FIRST_MONTH:
+        raise ValueError(f"n_months must not reach back before the year 1678, got {n_months}")
     day_of_month = days - month.astype("datetime64[D]").astype(np.int64)
-    earlier = month.astype(np.int64)[:, None] - np.arange(months + 1)
+    earlier = month.astype(np.int64)[:, None] - np.arange(n_months + 1)
     first = earlier.astype("datetime64[M]").astype("datetime64[D]").astype(np.int64)
     following = (earlier + 1).astype("datetime64[M]").astype("datetime64[D]").astype(np.int64)
     return (first + np.minimum(day_of_month[:, None], following - first - 1)).astype(np.int64)
