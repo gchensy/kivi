@@ -3,7 +3,7 @@ Vintage and roll-rate analysis
 
 Once a scorecard is in use, the loans it approves are monitored as they age. :mod:`kivi.vintage` covers the two standard views of a loan portfolio: vintage curves, which follow the bad rate of each origination cohort by month on book, and roll rates and transition matrices, which show how loans move between delinquency buckets from one month end to the next.
 
-Vintage analysis complements :doc:`monitoring` and the :doc:`population stability index <psi>`, which monitor the applicants, by following the loans themselves. Its curves and matrices then give the PD term structures of :doc:`lifetime`, the last step of the user guide. :func:`~kivi.vintage.vintage_table` gives the vintage curves, and :func:`~kivi.vintage.transition_matrix` and :func:`~kivi.vintage.roll_rates` the movements between buckets.
+Vintage analysis complements :doc:`monitoring` and the :doc:`population stability index <psi>`, which monitor the applicants, by following the loans themselves. Its curves and matrices then give the PD term structures of :doc:`lifetime`, the last step of the user guide. :func:`~kivi.vintage.delinquency_panel` builds the monthly loan panel from the instalment schedules and the payments of the loans, :func:`~kivi.vintage.vintage_table` gives the vintage curves, and :func:`~kivi.vintage.transition_matrix` and :func:`~kivi.vintage.roll_rates` the movements between buckets.
 
 The loan panel
 --------------
@@ -22,7 +22,133 @@ Vintage curves and roll rates both work on a loan panel in long format, with one
 >>> panel["status"].cat.categories.tolist()
 ['current', '1-29', '30-59', '60-89', '90+']
 
-The status is an ordered categorical of days past due, so a comparison such as ``panel["status"] >= "60-89"`` follows the order of the buckets. :doc:`datasets` describes how the panel is simulated.
+The status is an ordered categorical of days past due, so a comparison such as ``panel["status"] >= "60-89"`` follows the order of the buckets. :doc:`datasets` describes how the panel is simulated, and the next section how to build such a panel from repayment schedules.
+
+From a repayment schedule
+-------------------------
+
+A loan system records the instalments that each loan owes and the payments that it receives, rather than a status at every month end. :func:`~kivi.vintage.delinquency_panel` builds the panel from them. It takes the schedule, with the loan, the due date and the amount due of each instalment, and the payments, with the loan, the date and the amount of each payment. Neither needs to be sorted. Here four loans each owe three instalments of 100, due on the 15th of January, February and March 2024:
+
+>>> from kivi.vintage import delinquency_panel
+>>> schedule = pd.DataFrame(
+...     {
+...         "loan": np.repeat(["A", "B", "C", "D"], 3),
+...         "due_date": pd.to_datetime(["2024-01-15", "2024-02-15", "2024-03-15"] * 4),
+...         "amount_due": 100.0,
+...         "principal": [94.0, 96.0, 98.0] * 4,
+...     }
+... )
+>>> payments = pd.DataFrame(
+...     {
+...         "loan": ["A", "A", "A", "B", "B", "C", "C", "D", "D"],
+...         "date": pd.to_datetime(
+...             ["2024-01-15", "2024-02-15", "2024-03-14", "2024-01-15", "2024-03-20",
+...              "2024-01-10", "2024-03-15", "2024-01-15", "2024-02-15"]
+...         ),
+...         "amount": [100.0, 100.0, 100.0, 100.0, 200.0, 200.0, 100.0, 100.0, 99.99],
+...     }
+... )
+>>> instalments = schedule["loan"], schedule["due_date"], schedule["amount_due"]
+>>> paid = payments["loan"], payments["date"], payments["amount"]
+>>> book = delinquency_panel(*instalments, *paid, end="2024-06")
+>>> book.drop(columns="month_on_book")
+   loan    month  days_past_due   status  past_due_amount  outstanding
+0     A  2024-01              0  current             0.00       200.00
+1     A  2024-02              0  current             0.00       100.00
+2     A  2024-03              0  current             0.00         0.00
+3     B  2024-01              0  current             0.00       200.00
+4     B  2024-02             14     1-29           100.00       200.00
+5     B  2024-03              0  current             0.00         0.00
+6     C  2024-01              0  current             0.00       100.00
+7     C  2024-02              0  current             0.00       100.00
+8     C  2024-03              0  current             0.00         0.00
+9     D  2024-01              0  current             0.00       200.00
+10    D  2024-02             14     1-29             0.01       100.01
+11    D  2024-03             45    30-59           100.01       100.01
+12    D  2024-04             75    60-89           100.01       100.01
+13    D  2024-05            106      90+           100.01       100.01
+14    D  2024-06            136      90+           100.01       100.01
+
+Each loan has a row at the end of every month from the month of its first due date, here January, to ``end``. The rows follow the rules that loan servicing usually applies:
+
+* Payments go to the oldest unpaid instalment first. A pays every instalment by its due date and stays current. B misses its February instalment and pays it with the March one on 20 March: it is 14 days past due at the end of February, counted from 15 February, and current again at the end of March.
+* A month end counts only the payments made on or before that day, so B's payment of 20 March does not count at the end of February.
+* An amount paid before an instalment falls due counts towards it. C pays two instalments on 10 January, which keeps it current in February although it pays nothing that month.
+* A partial payment leaves the instalment unpaid. D pays 99.99 in February, so its February instalment remains unpaid by 0.01 and the loan is past due from 15 February.
+* A loan leaves the panel after the month end at which all its instalments are paid, also before its last due date, while a loan that is still behind after its last due date keeps rolling until ``end``: D is 136 days past due at the end of June. :func:`~kivi.datasets.make_loan_panel` treats its loans in the same way.
+
+``days_past_due`` counts the days from the due date of the oldest unpaid instalment to the month end, and is 0 while nothing is past due; an instalment is not past due on its due date. ``status`` puts the days in the buckets of the simulated panel, and ``past_due_amount`` and ``outstanding`` are the unpaid amounts of the instalments due before the month end and of all instalments. ``month_on_book`` is 1 in the month of the first due date, as in the simulated panel, whose first instalment falls due a month after origination.
+
+Payments of a loan that is not in the schedule raise an error, and so do missing loans, dates and amounts and negative amounts; net a reversal against the payment that it reverses:
+
+>>> delinquency_panel(*instalments, ["Z"], ["2024-01-15"], [100.0], end="2024-06")
+Traceback (most recent call last):
+    ...
+ValueError: payment_loan must contain only loans of the schedule, got 'Z'
+
+Tolerance
+^^^^^^^^^
+
+A cent short should not usually make a loan delinquent. ``tolerance`` is the largest unpaid amount that still counts as paid: an instalment counts as paid once at most ``tolerance`` remains unpaid of it and the older instalments together. The amounts in the panel stay exact, and the cent left over is still owed, so the next payment goes to it first. With a tolerance of 0.01, D's February instalment counts as paid, and its days past due count from its March instalment instead:
+
+>>> lenient = delinquency_panel(*instalments, *paid, end="2024-06", tolerance=0.01)
+>>> def days_of_d(panel):
+...     return panel[panel["loan"] == "D"].set_index("month")["days_past_due"]
+>>> pd.DataFrame({"exact": days_of_d(book), "tolerance": days_of_d(lenient)})
+         exact  tolerance
+month
+2024-01      0          0
+2024-02     14          0
+2024-03     45         16
+2024-04     75         46
+2024-05    106         77
+2024-06    136        107
+
+Principal and balance
+^^^^^^^^^^^^^^^^^^^^^
+
+With the principal part of each instalment in ``principal``, the panel gets a ``balance`` column, the principal that remains unpaid, like the ``balance`` of the simulated panel. A payment pays the interest of an instalment, its amount due less its principal, before its principal, so D's missing cent is principal. At the end of February:
+
+>>> with_balance = delinquency_panel(
+...     *instalments, *paid, end="2024-06", principal=schedule["principal"]
+... )
+>>> with_balance.loc[with_balance["month"] == "2024-02", ["loan", "outstanding", "balance"]]
+   loan  outstanding  balance
+1     A       100.00    98.00
+4     B       200.00   194.00
+7     C       100.00    98.00
+10    D       100.01    98.01
+
+The panel has no ``weights``: it has one row per loan and month, and the functions that count the rows take the weights, such as the amount lent in :func:`~kivi.vintage.vintage_table` or the balance in :func:`~kivi.vintage.roll_rates`.
+
+From the panel to a vintage table
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The panel is what the rest of this guide takes. The cohort of a loan is the month before its first due date, ``month - month_on_book``, and the bad definition is a condition on ``status``:
+
+>>> from kivi.vintage import vintage_table
+>>> cohort = book["month"] - book["month_on_book"]
+>>> vintage_table(book["loan"], cohort, book["month_on_book"], book["status"] >= "30-59")
+month_on_book    1    2     3     4     5     6
+cohort
+2023-12        0.0  0.0  0.25  0.25  0.25  0.25
+
+D reaches ``30-59`` at month on book 3, when it is 45 days past due. A, B and C leave the panel after month on book 3, but they stay in the cohort, so the rate remains one loan in four.
+
+Days past due at month ends
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The buckets count days, while month ends are 28 to 31 days apart, so a loan does not always move one bucket a month. An instalment due on 31 January is not yet past due at the end of January, 29 days past due at the end of February and 60 days at the end of March, so the loan skips ``30-59``:
+
+>>> skipped = delinquency_panel(["E"], ["2024-01-31"], [100.0], [], [], [], end="2024-04")
+>>> skipped[["month", "days_past_due", "status"]]
+     month  days_past_due   status
+0  2024-01              0  current
+1  2024-02             29     1-29
+2  2024-03             60    60-89
+3  2024-04             90      90+
+
+Roll rates of such a panel then show loans that move two buckets in a month, which never happens in the simulated panel, because it counts months rather than days. The jumps come from due dates near the start or the end of a month.
 
 Vintage curves
 --------------
