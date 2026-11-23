@@ -17,20 +17,26 @@ __all__ = ["SeparationError", "correlation_filter", "logistic_regression", "step
 def correlation_filter(
     X: pd.DataFrame | npt.ArrayLike,
     *,
+    method: typing.Literal["pearson", "spearman"] = "pearson",
     threshold: float = 0.7,
     priority: npt.ArrayLike | None = None,
 ) -> pd.Index:
     """Drop one variable of each strongly correlated pair.
 
     Variables are visited from the highest `priority` to the lowest. A
-    variable is kept unless its absolute Pearson correlation with a variable
-    that is already kept exceeds `threshold`.
+    variable is kept unless its absolute correlation with a variable that is
+    already kept exceeds `threshold`.
 
     Parameters
     ----------
     X : pandas.DataFrame or array_like
         Two-dimensional numeric values with one column per variable, such as
         WOE values from `kivi.woe.woe_transform`.
+    method : {"pearson", "spearman"}, default "pearson"
+        The correlation: Pearson's linear correlation, or Spearman's rank
+        correlation, the Pearson correlation of the ranks of the values with
+        ties given their average rank, as ``pandas.DataFrame.corr``
+        computes it.
     threshold : float, default 0.7
         Largest absolute correlation allowed between two kept variables,
         between 0 and 1.
@@ -52,7 +58,8 @@ def correlation_filter(
     ValueError
         If `X` is not two-dimensional, has fewer than 2 rows or no columns,
         repeats a column label, or has a column that is not numeric, contains
-        missing or infinite values or is constant; if `threshold` is not between 0 and
+        missing or infinite values or is constant; if `method` is not
+        ``"pearson"`` or ``"spearman"``; if `threshold` is not between 0 and
         1; or if `priority` does not give one number for every column.
 
     See Also
@@ -66,6 +73,12 @@ def correlation_filter(
     ``a`` is correlated with ``b`` and ``b`` with ``c``, but ``a`` not with
     ``c``, and the priorities decrease from ``a`` to ``c``, then ``b`` is
     dropped and ``c`` is kept.
+
+    Pearson's correlation measures how close two variables are to a straight
+    line. It suits WOE values, which the logistic regression combines
+    linearly. Spearman's correlation measures how close they are to a
+    monotone relation and is not moved by a few extreme values, which suits
+    raw variables before binning, such as amounts with a long right tail.
 
     Examples
     --------
@@ -86,7 +99,30 @@ def correlation_filter(
     >>> iv = pd.Series({"a": 0.12, "b": 0.31, "c": 0.05})
     >>> correlation_filter(X, priority=iv).tolist()
     ['b', 'c']
+
+    A relation that is strictly monotone but not linear is perfect by rank:
+
+    >>> growth = pd.DataFrame({
+    ...     "x": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
+    ...     "y": [1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0],
+    ... })
+    >>> growth.corr().round(2)
+          x     y
+    x  1.00  0.85
+    y  0.85  1.00
+    >>> growth.corr(method="spearman").round(2)
+         x    y
+    x  1.0  1.0
+    y  1.0  1.0
+    >>> correlation_filter(growth, threshold=0.9).tolist()
+    ['x', 'y']
+    >>> correlation_filter(growth, method="spearman", threshold=0.9).tolist()
+    ['x']
     """
+    if not isinstance(method, str) or method not in ("pearson", "spearman"):  # type: ignore[redundant-expr]  # rejects non-str values
+        raise ValueError(
+            f"method must be 'pearson' or 'spearman', got {_validation.shown_argument(method)}"
+        )
     if isinstance(threshold, bool) or not _validation.is_real(threshold) or not 0 <= threshold <= 1:
         raise ValueError(
             f"threshold must be between 0 and 1, got {_validation.shown_argument(threshold)}"
@@ -94,7 +130,11 @@ def correlation_filter(
     frame, values = _as_frame(X)
     _check_not_constant(frame, values, "its correlation is undefined")
     order = np.argsort(-_priority(priority, frame.columns), kind="stable")
-    correlation = np.abs(np.corrcoef(values, rowvar=False).reshape(len(order), len(order)))
+    if method == "pearson":
+        matrix = np.corrcoef(values, rowvar=False)
+    else:
+        matrix = pd.DataFrame(values).corr(method="spearman").to_numpy()
+    correlation = np.abs(matrix.reshape(len(order), len(order)))
     kept: list[int] = []
     for column in order:
         if not (correlation[column, kept] > threshold).any():

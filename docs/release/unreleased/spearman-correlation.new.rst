@@ -1,0 +1,1 @@
+* :func:`~kivi.selection.correlation_filter` takes ``method="spearman"`` for Spearman's rank correlation, as ``pandas.DataFrame.corr`` computes it, which suits raw variables with monotone but not linear relations and long tails. The default ``"pearson"`` keeps the previous results and remains the choice for WOE-encoded variables.
