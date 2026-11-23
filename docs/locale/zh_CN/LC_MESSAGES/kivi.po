@@ -5670,6 +5670,464 @@ msgstr ""
 msgid "One value of the February region is missing, a group that January does not have."
 msgstr "2 月有一个 region 值缺失，这是 1 月没有的一组。"
 
+msgid "Charts"
+msgstr "图表"
+
+msgid ""
+"Draw the result tables of the other modules with matplotlib, one function per table, such as "
+":func:`~kivi.plotting.woe_chart` for a WOE table, :func:`~kivi.plotting.roc_chart` for a ROC "
+"table and :func:`~kivi.plotting.monitoring_chart` for a monitoring report. Each function draws on"
+" the Axes passed as ``ax``, or on a new figure, and returns the Axes it drew on. matplotlib is an"
+" optional dependency: install it with ``pip install \"kivi[plot]\"``."
+msgstr ""
+"用 matplotlib 绘制其他模块的结果表，每种表对应一个函数，例如 WOE 表用 :func:`~kivi.plotting.woe_chart` ，ROC 表用 "
+":func:`~kivi.plotting.roc_chart` ，监控报告用 :func:`~kivi.plotting.monitoring_chart` 。每个函数在 ``ax`` 传入的"
+" Axes 上作图，未传入时新建一个图形，并返回所用的 Axes。matplotlib 是可选依赖，用 ``pip install \"kivi[plot]\"`` 安装。"
+
+msgid "See :doc:`/user_guide/plotting` for examples on the bundled data."
+msgstr "基于内置数据的示例见 :doc:`/user_guide/plotting` 。"
+
+msgid ":py:obj:`woe_chart <kivi.plotting.woe_chart>`\\ \\(table\\, \\*\\[\\, line\\, ax\\]\\)"
+msgstr ":py:obj:`woe_chart <kivi.plotting.woe_chart>`\\ \\(table\\, \\*\\[\\, line\\, ax\\]\\)"
+
+msgid "Draw the population share of each group with its event rate or WOE."
+msgstr "绘制每个分组的样本占比，以及其事件率或 WOE。"
+
+msgid ":py:obj:`correlation_chart <kivi.plotting.correlation_chart>`\\ \\(matrix\\, \\*\\[\\, ax\\]\\)"
+msgstr ":py:obj:`correlation_chart <kivi.plotting.correlation_chart>`\\ \\(matrix\\, \\*\\[\\, ax\\]\\)"
+
+msgid "Draw a correlation matrix as a heatmap with the value in each cell."
+msgstr "把相关系数矩阵绘制成热力图，并在每个单元格中标出数值。"
+
+msgid ":py:obj:`roc_chart <kivi.plotting.roc_chart>`\\ \\(table\\, \\*\\[\\, ks\\, label\\, ax\\]\\)"
+msgstr ":py:obj:`roc_chart <kivi.plotting.roc_chart>`\\ \\(table\\, \\*\\[\\, ks\\, label\\, ax\\]\\)"
+
+msgid "Draw the ROC curve, with the largest gap between the two rates marked."
+msgstr "绘制 ROC 曲线，并标出两个比率之间的最大差距。"
+
+msgid ":py:obj:`gains_chart <kivi.plotting.gains_chart>`\\ \\(table\\, \\*\\[\\, ax\\]\\)"
+msgstr ":py:obj:`gains_chart <kivi.plotting.gains_chart>`\\ \\(table\\, \\*\\[\\, ax\\]\\)"
+
+msgid "Draw the cumulative shares of events and non-events by score band."
+msgstr "按评分段绘制事件与非事件的累计占比。"
+
+msgid ""
+":py:obj:`calibration_chart <kivi.plotting.calibration_chart>`\\ \\(table\\, \\*\\[\\, label\\, "
+"ax\\]\\)"
+msgstr ""
+":py:obj:`calibration_chart <kivi.plotting.calibration_chart>`\\ \\(table\\, \\*\\[\\, label\\, "
+"ax\\]\\)"
+
+msgid "Draw the observed event rate of each group against its mean predicted PD."
+msgstr "绘制每个分组的观测事件率与其平均预测 PD 的对比。"
+
+msgid ":py:obj:`cutoff_chart <kivi.plotting.cutoff_chart>`\\ \\(table\\, \\*\\[\\, label\\, ax\\]\\)"
+msgstr ":py:obj:`cutoff_chart <kivi.plotting.cutoff_chart>`\\ \\(table\\, \\*\\[\\, label\\, ax\\]\\)"
+
+msgid "Draw the event rate of the approved book against the approval rate."
+msgstr "绘制通过客群的事件率随通过率的变化。"
+
+msgid ":py:obj:`psi_chart <kivi.plotting.psi_chart>`\\ \\(table\\, \\*\\[\\, ax\\]\\)"
+msgstr ":py:obj:`psi_chart <kivi.plotting.psi_chart>`\\ \\(table\\, \\*\\[\\, ax\\]\\)"
+
+msgid "Draw the reference and the current share of each group side by side."
+msgstr "并排绘制每个分组的基准占比和当前占比。"
+
+msgid ""
+":py:obj:`monitoring_chart <kivi.plotting.monitoring_chart>`\\ \\(table\\, \\*\\[\\, column\\, "
+"levels\\, ax\\]\\)"
+msgstr ""
+":py:obj:`monitoring_chart <kivi.plotting.monitoring_chart>`\\ \\(table\\, \\*\\[\\, column\\, "
+"levels\\, ax\\]\\)"
+
+msgid "Draw one column of a monitoring report period by period."
+msgstr "逐期绘制监控报告中的一列。"
+
+msgid ":py:obj:`vintage_chart <kivi.plotting.vintage_chart>`\\ \\(table\\, \\*\\[\\, ax\\]\\)"
+msgstr ":py:obj:`vintage_chart <kivi.plotting.vintage_chart>`\\ \\(table\\, \\*\\[\\, ax\\]\\)"
+
+msgid "Draw one curve per cohort of its cumulative bad rate by month on book."
+msgstr "为每个批次绘制一条按账龄变化的累计坏账率曲线。"
+
+msgid ""
+"The bars show ``total_share``, the share of the sample in each group, and a line on a second "
+"y-axis shows ``event_rate`` or ``woe``. The groups keep the order of the table, and the legend "
+"gives the IV of the whole table."
+msgstr "柱形表示 ``total_share`` ，即每个分组在样本中的占比；第二个 y 轴上的折线表示 ``event_rate`` 或 ``woe`` 。各分组保持表中的顺序，图例给出整张表的 IV。"
+
+msgid "**table**"
+msgstr "**table**"
+
+msgid ""
+"A table from `kivi.woe.woe_table`, or one of the tables of a `kivi.spec.BinningSpec`. It needs "
+"the columns ``total_share``, ``iv`` and the column named by `line`."
+msgstr ""
+"由 `kivi.woe.woe_table` 得到的表，或 `kivi.spec.BinningSpec` 中的某张表。需要包含 ``total_share`` 、 ``iv`` 列以及 "
+"`line` 指定的列。"
+
+msgid "**line**"
+msgstr "**line**"
+
+#, python-brace-format
+msgid "{'event_rate', 'woe'}, default 'event_rate'"
+msgstr "{'event_rate', 'woe'}，默认 'event_rate'"
+
+msgid "Column drawn as the line."
+msgstr "绘制为折线的列。"
+
+msgid "**ax**"
+msgstr "**ax**"
+
+msgid "matplotlib.axes.Axes, optional"
+msgstr "matplotlib.axes.Axes，可选"
+
+msgid "Axes of the bars. A new figure is created when it is not given."
+msgstr "绘制柱形的 Axes。未给出时新建一个图形。"
+
+msgid "**bars**"
+msgstr "**bars**"
+
+msgid "matplotlib.axes.Axes"
+msgstr "matplotlib.axes.Axes"
+
+msgid "Axes of the bars, `ax` when it is given."
+msgstr "绘制柱形的 Axes；给出 `ax` 时即为 `ax` 。"
+
+msgid "Axes of the line, a twin of `bars` that shares its x-axis."
+msgstr "绘制折线的 Axes，是与 `bars` 共用 x 轴的孪生坐标轴。"
+
+msgid "ImportError"
+msgstr "ImportError"
+
+msgid "If matplotlib is not installed."
+msgstr "如果未安装 matplotlib。"
+
+msgid ""
+"If `table` is not a DataFrame, lacks a column it needs or has no rows, a column it needs is not "
+"numeric, `line` is neither ``'event_rate'`` nor ``'woe'``, or `ax` is not a matplotlib Axes."
+msgstr ""
+"如果 `table` 不是 DataFrame、缺少所需的列或没有任何行，所需的列不是数值， `line` 既不是 ``'event_rate'`` 也不是 ``'woe'`` ，或者 `ax`"
+" 不是 matplotlib 的 Axes。"
+
+msgid "The table that this chart draws."
+msgstr "此图表所绘制的表。"
+
+msgid ":obj:`psi_chart`"
+msgstr ":obj:`psi_chart`"
+
+msgid "Compare the shares of two samples in the same groups."
+msgstr "比较两个样本在相同分组中的占比。"
+
+msgid ""
+"The tick labels are the group labels of the index, with ``NaN`` for the group of missing values. "
+"Sort the table first, for example with ``table.sort_index()`` or ``table.sort_values(\"woe\")``, "
+"to draw the groups in another order."
+msgstr ""
+"刻度标签是索引中的分组标签，缺失值分组标为 ``NaN`` 。要按其他顺序绘制各分组，请先对表排序，例如使用 ``table.sort_index()`` 或 "
+"``table.sort_values(\"woe\")`` 。"
+
+msgid ""
+"Positive correlations are blue and negative ones amber, darker as they approach 1 or -1, so that "
+"pairs of variables that carry the same information stand out before a model is fitted."
+msgstr "正相关显示为蓝色，负相关显示为琥珀色，越接近 1 或 -1 颜色越深，这样在拟合模型之前就能看出哪些变量对携带相同的信息。"
+
+msgid ""
+"Square matrix of correlations with the same labels, in the same order, in its index and columns, "
+"such as ``X.corr()`` or ``X.corr(method=\"spearman\")`` of the WOE-encoded candidates ``X``."
+msgstr "相关系数方阵，其索引和列具有相同的标签且顺序相同，例如 WOE 编码后的候选变量 ``X`` 的 ``X.corr()`` 或 ``X.corr(method=\"spearman\")`` 。"
+
+msgid "Axes to draw on. A new figure, sized to the number of variables, is created when it is not given."
+msgstr "用于作图的 Axes。未给出时新建一个图形，其尺寸随变量个数而定。"
+
+msgid "The Axes drawn on, `ax` when it is given."
+msgstr "所绘制的 Axes；给出 `ax` 时即为 `ax` 。"
+
+msgid ""
+"If `matrix` is not a DataFrame, has no rows, does not have the same labels in its index and "
+"columns, or has a column that is not numeric, or `ax` is not a matplotlib Axes."
+msgstr "如果 `matrix` 不是 DataFrame、没有任何行、索引与列的标签不同或有非数值的列，或者 `ax` 不是 matplotlib 的 Axes。"
+
+msgid ":obj:`kivi.selection.correlation_filter`"
+msgstr ":obj:`kivi.selection.correlation_filter`"
+
+msgid "Drop one variable of each highly correlated pair."
+msgstr "对每一对高度相关的变量，剔除其中一个。"
+
+msgid ":obj:`kivi.selection.vif`"
+msgstr ":obj:`kivi.selection.vif`"
+
+msgid "Variance inflation factor of each variable."
+msgstr "每个变量的方差膨胀因子。"
+
+msgid ""
+"The colors run from -1 to 1 whatever the values, and a missing value, such as the correlation of "
+"a constant column, leaves its cell empty. The heatmap is ``ax.images[0]``, so "
+"``ax.figure.colorbar(ax.images[0], ax=ax)`` adds a color bar."
+msgstr ""
+"无论取值如何，颜色都从 -1 覆盖到 1；缺失值（例如常数列的相关系数）所在的单元格留空。热力图即 ``ax.images[0]`` ，因此 "
+"``ax.figure.colorbar(ax.images[0], ax=ax)`` 可以加上颜色条。"
+
+msgid ""
+"The curve plots ``true_positive_rate`` against ``false_positive_rate`` from the strictest "
+"threshold to the loosest, next to the diagonal of a score that ranks at random. With `ks`, a "
+"vertical segment marks the KS statistic: the largest distance between the curve and the diagonal."
+msgstr ""
+"曲线从最严格的阈值到最宽松的阈值，绘制 ``true_positive_rate`` 相对于 ``false_positive_rate`` 的变化，旁边是随机排序评分对应的对角线。设置 "
+"`ks` 时，一条竖直线段标出 KS 统计量，即曲线与对角线之间的最大距离。"
+
+msgid ""
+"A table from `kivi.metrics.roc_table`. It needs the columns ``false_positive_rate`` and "
+"``true_positive_rate``."
+msgstr "由 `kivi.metrics.roc_table` 得到的表。需要包含 ``false_positive_rate`` 和 ``true_positive_rate`` 列。"
+
+msgid "**ks**"
+msgstr "**ks**"
+
+msgid "Whether to mark the KS statistic."
+msgstr "是否标出 KS 统计量。"
+
+msgid "**label**"
+msgstr "**label**"
+
+msgid "str, optional"
+msgstr "str，可选"
+
+msgid "Legend entry of the curve. A legend is drawn only when a curve has a label."
+msgstr "曲线在图例中的名称。只有当某条曲线带有标签时才绘制图例。"
+
+msgid "Axes to draw on. A new figure is created when it is not given."
+msgstr "用于作图的 Axes。未给出时新建一个图形。"
+
+msgid ""
+"If `table` is not a DataFrame, lacks a column it needs or has no rows, a column it needs is not "
+"numeric, `ks` is not True or False, or `ax` is not a matplotlib Axes."
+msgstr "如果 `table` 不是 DataFrame、缺少所需的列或没有任何行，所需的列不是数值， `ks` 不是 True 或 False，或者 `ax` 不是 matplotlib 的 Axes。"
+
+msgid ":obj:`kivi.metrics.roc_table`"
+msgstr ":obj:`kivi.metrics.roc_table`"
+
+msgid "Area under the curve."
+msgstr "曲线下面积。"
+
+msgid ":obj:`gains_chart`"
+msgstr ":obj:`gains_chart`"
+
+msgid "The same separation against the share of the sample."
+msgstr "以样本占比为横轴展示同样的区分能力。"
+
+msgid ""
+"The curve takes the next color of the Axes' color cycle, so that ROC curves of several scores "
+"drawn on the same `ax` are told apart by color and by `label`. The KS segment and its value share"
+" the color of their curve."
+msgstr "曲线使用 Axes 颜色循环中的下一种颜色，因此在同一个 `ax` 上绘制多个评分的 ROC 曲线时，可以通过颜色和 `label` 区分它们。KS 线段及其数值与所属曲线颜色相同。"
+
+msgid ""
+"Reviewing the bands from the highest scores down, the curves show the share of all events and of "
+"all non-events captured against the share of the sample reviewed, ``cum_total_share``. A vertical"
+" segment marks the band with the largest ``ks``, the gap between the two curves."
+msgstr ""
+"从评分最高的评分段开始逐段向下审视，两条曲线分别表示已覆盖的事件和非事件占全部事件和全部非事件的比例，横轴是已审视的样本占比 ``cum_total_share`` 。一条竖直线段标出 "
+"``ks`` （两条曲线之间的差距）最大的评分段。"
+
+msgid ""
+"A table from `kivi.metrics.gains_table`, with the highest band first. It needs the columns "
+"``cum_total_share``, ``cum_event_share``, ``cum_non_event_share`` and ``ks``."
+msgstr ""
+"由 `kivi.metrics.gains_table` 得到的表，评分最高的评分段在前。需要包含 ``cum_total_share`` 、 ``cum_event_share`` 、 "
+"``cum_non_event_share`` 和 ``ks`` 列。"
+
+msgid ""
+"If `table` is not a DataFrame, lacks a column it needs or has no rows, a column it needs is not "
+"numeric, or `ax` is not a matplotlib Axes."
+msgstr "如果 `table` 不是 DataFrame、缺少所需的列或没有任何行，所需的列不是数值，或者 `ax` 不是 matplotlib 的 Axes。"
+
+msgid ":obj:`kivi.metrics.gains_table`"
+msgstr ":obj:`kivi.metrics.gains_table`"
+
+msgid ":obj:`roc_chart`"
+msgstr ":obj:`roc_chart`"
+
+msgid "The same separation over all thresholds."
+msgstr "在所有阈值上展示同样的区分能力。"
+
+msgid ""
+"Both curves start at the origin, before the first band is reviewed, and each band adds one point."
+" The diagonal is the ``cum_event_share`` of a score that ranks at random."
+msgstr "两条曲线都从原点出发（此时尚未审视任何评分段），每个评分段增加一个点。对角线是随机排序评分的 ``cum_event_share`` 。"
+
+msgid ""
+"Each group of the table, such as a grade or a PD band, is one point with ``mean_probability`` on "
+"the x-axis and ``event_rate`` on the y-axis. Points on the diagonal are calibrated, points above "
+"it have more events than predicted and points below it fewer."
+msgstr ""
+"表中的每个分组（例如一个等级或一个 PD 区间）是一个点，x 轴为 ``mean_probability`` ，y 轴为 ``event_rate`` "
+"。位于对角线上的点是校准良好的，位于对角线上方的点事件多于预测，位于下方的点事件少于预测。"
+
+msgid ""
+"A table from `kivi.calibration.calibration_table`. It needs the columns ``mean_probability`` and "
+"``event_rate``."
+msgstr "由 `kivi.calibration.calibration_table` 得到的表。需要包含 ``mean_probability`` 和 ``event_rate`` 列。"
+
+msgid "Legend entry of the points. A legend is drawn only when a line has a label."
+msgstr "这些点在图例中的名称。只有当某条线带有标签时才绘制图例。"
+
+msgid ":obj:`kivi.calibration.calibration_table`"
+msgstr ":obj:`kivi.calibration.calibration_table`"
+
+msgid ":obj:`kivi.calibration.binomial_test`"
+msgstr ":obj:`kivi.calibration.binomial_test`"
+
+msgid "Test the default rate of each grade."
+msgstr "检验每个等级的违约率。"
+
+msgid ""
+"Both axes run from 0 to just above the largest rate drawn on `ax`, so that the diagonal stays at "
+"45 degrees. The points are joined in the order of the table and take the next color of the Axes' "
+"color cycle, so that the PDs of several models, or the same PDs before and after a correction, "
+"can be compared on one `ax`."
+msgstr ""
+"两个坐标轴都从 0 延伸到略高于 `ax` 上所绘的最大比率，使对角线保持 45 度。各点按表中的顺序连接，并使用 Axes 颜色循环中的下一种颜色，因此可以在同一个 `ax` 上比较多个模型的"
+" PD，或同一组 PD 校正前后的结果。"
+
+msgid ""
+"Each cut-off of the table is one point, with ``approval_rate`` on the x-axis and "
+"``approved_event_rate``, the bad rate of the approved book, on the y-axis. A higher cut-off "
+"approves more applicants and lets more events through, so the curve shows the price in risk of "
+"each extra point of approval rate."
+msgstr ""
+"表中的每个截断点是一个点，x 轴为 ``approval_rate`` ，y 轴为通过客群的坏账率 ``approved_event_rate`` "
+"。截断点越高，通过的申请人越多，放进来的事件也越多，因此这条曲线展示了通过率每提高一个百分点所付出的风险代价。"
+
+msgid ""
+"A table from `kivi.strategy.cutoff_table`. It needs the columns ``approval_rate`` and "
+"``approved_event_rate``."
+msgstr "由 `kivi.strategy.cutoff_table` 得到的表。需要包含 ``approval_rate`` 和 ``approved_event_rate`` 列。"
+
+msgid ":obj:`kivi.strategy.cutoff_table`"
+msgstr ":obj:`kivi.strategy.cutoff_table`"
+
+msgid "Compare the decisions of two scores."
+msgstr "比较两个评分的审批决策。"
+
+msgid ""
+"A cut-off below every score approves nothing and has a missing ``approved_event_rate``, so it is "
+"left out of the curve. The curve takes the next color of the Axes' color cycle, so that the "
+"curves of a current and a new score can be compared on one `ax`. The y-axis runs from 0 to just "
+"above the largest rate drawn on `ax`."
+msgstr ""
+"低于所有评分的截断点不通过任何申请人，其 ``approved_event_rate`` 缺失，因此不出现在曲线上。曲线使用 Axes 颜色循环中的下一种颜色，因此可以在同一个 `ax` "
+"上比较现行评分与新评分的曲线。y 轴从 0 延伸到略高于 `ax` 上所绘的最大比率。"
+
+msgid ""
+"Each group of the table gets a pair of bars, ``reference_share`` and ``current_share``, and the "
+"legend gives the PSI of the whole table, so that the groups whose shares moved most can be read "
+"off directly."
+msgstr "表中的每个分组对应一对柱形，即 ``reference_share`` 和 ``current_share`` ，图例给出整张表的 PSI，因此可以直接看出哪些分组的占比变化最大。"
+
+msgid ""
+"A table from `kivi.stability.psi_table`. It needs the columns ``reference_share``, "
+"``current_share`` and ``psi``."
+msgstr "由 `kivi.stability.psi_table` 得到的表。需要包含 ``reference_share`` 、 ``current_share`` 和 ``psi`` 列。"
+
+msgid ":obj:`monitoring_chart`"
+msgstr ":obj:`monitoring_chart`"
+
+msgid "The PSI of a score in each period."
+msgstr "评分在每一期的 PSI。"
+
+msgid ""
+"The shares are those of the table, so with smoothing a group that is empty in one sample shows "
+"the small share that smoothing gave it. The tick labels are the group labels of the index, with "
+"``NaN`` for the group of missing values."
+msgstr "图中的占比就是表中的占比，因此在平滑之下，某个样本中为空的分组会显示平滑赋予它的微小占比。刻度标签是索引中的分组标签，缺失值分组标为 ``NaN`` 。"
+
+msgid ""
+"The periods of the table run along the x-axis in its order. The counts ``total``, ``known`` and "
+"``event`` and the ``psi`` are drawn as bars, and the rates and measures of discrimination, such "
+"as ``event_rate`` and ``gini``, as a line. Dashed lines can mark the `levels` that the column is "
+"compared with."
+msgstr ""
+"表中的各期按表的顺序沿 x 轴排列。计数 ``total`` 、 ``known`` 、 ``event`` 以及 ``psi`` 绘制为柱形，比率和区分能力指标（例如 "
+"``event_rate`` 和 ``gini`` ）绘制为折线。可以用虚线标出与该列比较的 `levels` 。"
+
+msgid ""
+"A table from `kivi.monitoring.monitoring_table`, or another table with one row per period, such "
+"as one from `kivi.monitoring.stability_table`. It needs the column named by `column`."
+msgstr ""
+"由 `kivi.monitoring.monitoring_table` 得到的表，或其他每期一行的表，例如 `kivi.monitoring.stability_table` 的结果。需要包含"
+" `column` 指定的列。"
+
+msgid "**column**"
+msgstr "**column**"
+
+msgid "str, default 'psi'"
+msgstr "str，默认 'psi'"
+
+msgid "Column to draw."
+msgstr "要绘制的列。"
+
+msgid "**levels**"
+msgstr "**levels**"
+
+msgid "float or sequence of float, default ()"
+msgstr "float 或 float 序列，默认 ()"
+
+msgid ""
+"Values of `column` to mark with dashed horizontal lines, such as the PSI thresholds ``[0.1, "
+"0.25]`` or the Gini of the development sample. Each line is labeled with its value."
+msgstr "用水平虚线标出的 `column` 取值，例如 PSI 阈值 ``[0.1, 0.25]`` 或开发样本的 Gini。每条虚线旁标有其数值。"
+
+msgid ""
+"If `table` is not a DataFrame, has no rows or has no numeric column named `column`, a level is "
+"not a finite number, or `ax` is not a matplotlib Axes."
+msgstr "如果 `table` 不是 DataFrame、没有任何行或没有名为 `column` 的数值列，某个水平值不是有限数，或者 `ax` 不是 matplotlib 的 Axes。"
+
+msgid ":obj:`kivi.monitoring.monitoring_table`"
+msgstr ":obj:`kivi.monitoring.monitoring_table`"
+
+msgid "The shares behind the PSI of one period."
+msgstr "某一期 PSI 背后的各分组占比。"
+
+msgid ""
+"A missing value, such as the ``gini`` of a period whose outcomes are not known yet, leaves a gap "
+"in the line and no bar. To draw several columns, call the function once for each, on the panels "
+"of one figure."
+msgstr "缺失值（例如结果尚未可知的某一期的 ``gini`` ）会在折线上留下缺口，也不画柱形。要绘制多列，请对每一列各调用一次此函数，画在同一图形的不同子图上。"
+
+msgid ""
+"Each row of the table is a cohort and each column a month on book. Later cohorts are drawn in "
+"darker blue, so that a cohort whose curve rises faster than those before it stands out."
+msgstr "表中的每一行是一个批次，每一列是一个账龄月。越晚的批次蓝色越深，因此曲线比之前各批次上升得更快的批次会很醒目。"
+
+msgid ""
+"A table from `kivi.vintage.vintage_table`, with one row per cohort and one numeric column per "
+"month on book, or another table of the same shape, such as cumulative PDs from "
+"`kivi.lifetime.convert_pd`."
+msgstr ""
+"由 `kivi.vintage.vintage_table` 得到的表，每个批次一行、每个账龄月一个数值列；也可以是形状相同的其他表，例如 `kivi.lifetime.convert_pd` "
+"给出的累计 PD。"
+
+msgid ""
+"If `table` is not a DataFrame or has no rows, its columns are not numbers, it holds a value that "
+"is not numeric, or `ax` is not a matplotlib Axes."
+msgstr "如果 `table` 不是 DataFrame 或没有任何行、列名不是数字、含有非数值的值，或者 `ax` 不是 matplotlib 的 Axes。"
+
+msgid ":obj:`kivi.lifetime.convert_pd`"
+msgstr ":obj:`kivi.lifetime.convert_pd`"
+
+msgid "Turn the curves into marginal or conditional PDs."
+msgstr "把这些曲线转换为边际 PD 或条件 PD。"
+
+msgid ""
+"The missing months of a cohort, those it has not reached or that come before its first observed "
+"month on book, are left out of its curve. The legend names every cohort, titled with the name of "
+"the index, and the x-axis is labeled with the name of the columns. Select fewer cohorts first, "
+"for example every third one with ``table.iloc[::3]``, when there are too many curves to tell "
+"apart."
+msgstr ""
+"批次缺失的月份（尚未到达的账龄月，或首个观测账龄月之前的月份）不画入其曲线。图例列出每个批次，以索引的名称为标题；x 轴以列的名称为标签。曲线太多难以区分时，请先选取较少的批次，例如用 "
+"``table.iloc[::3]`` 每三个批次取一个。"
+
 msgid ""
 "Supply outcomes for rejected applicants, so that a model developed on the approved applicants can"
 " be refitted on all of them. :func:`~kivi.reject_inference.fuzzy_augmentation` and "
@@ -5890,9 +6348,6 @@ msgstr "根据每个拒绝申请人自己的 PD 推断结果。"
 
 msgid "Weight the accepted applicants of each band instead."
 msgstr "改为给各评分段的获批申请人加权。"
-
-msgid ":obj:`kivi.metrics.gains_table`"
-msgstr ":obj:`kivi.metrics.gains_table`"
 
 msgid "Bad rates by score band."
 msgstr "各评分段的坏账率。"
@@ -6327,9 +6782,6 @@ msgstr "**points**"
 
 msgid "Points of each applicant, as returned by `woe_to_points`."
 msgstr "每个申请人的分值，即 `woe_to_points` 的返回结果。"
-
-msgid "**table**"
-msgstr "**table**"
 
 msgid "The `points_table` result for the same model and scaling."
 msgstr "相同模型和刻度下 `points_table` 的结果。"
@@ -7126,9 +7578,6 @@ msgstr "计算 WOE 表时所用的平滑参数。"
 
 msgid "**kivi_version**"
 msgstr "**kivi_version**"
-
-msgid "str, optional"
-msgstr "str，可选"
 
 msgid "Version of kivi that fitted the specification. By default, or if None, the installed version."
 msgstr "拟合该分箱方案的 kivi 版本。默认或为 None 时取已安装的版本。"
@@ -8147,9 +8596,6 @@ msgstr ""
 
 msgid "Expected loss of each exposure."
 msgstr "每笔敞口的预期损失。"
-
-msgid ":obj:`kivi.calibration.calibration_table`"
-msgstr ":obj:`kivi.calibration.calibration_table`"
 
 msgid "Observed and predicted default rates by grade."
 msgstr "按等级比较实际与预测的违约率。"
@@ -9185,9 +9631,6 @@ msgid ""
 "defined. When sections move, check that every name is still defined before it is used."
 msgstr "同一页面的所有示例共享一个命名空间，因此后面的小节可以使用前面小节定义的名称。移动小节时，请检查每个名称在使用之前仍有定义。"
 
-msgid "Charts"
-msgstr "图表"
-
 msgid ""
 "Charts are drawn when the documentation is built. A ``plot`` directive calls a ``figure_*`` "
 "function in ``docs/_plotting.py``, which recomputes the example shown just above the chart, so "
@@ -9964,6 +10407,33 @@ msgstr "未发布"
 msgid "Changes merged since the last release."
 msgstr "上次发布以来合并的改动。"
 
+msgid "New"
+msgstr "新增"
+
+msgid ""
+"The new module ``kivi.plotting`` draws the result tables of the other modules with matplotlib, an"
+" optional dependency installed with ``pip install \"kivi[plot]\"``. ``woe_chart`` draws the share"
+" and the event rate or WOE of each group of a WOE table, ``correlation_chart`` a correlation "
+"matrix, ``roc_chart`` the ROC curve with its KS, ``gains_chart`` the cumulative shares of a gains"
+" table, ``calibration_chart`` the observed against the predicted event rate of each group, "
+"``cutoff_chart`` the event rate of the approved book against the approval rate, ``psi_chart`` the"
+" reference and current shares of a PSI table, ``monitoring_chart`` one column of a monitoring "
+"report by period and ``vintage_chart`` the curve of each cohort of a vintage table."
+msgstr ""
+"新增模块 ``kivi.plotting`` ，用 matplotlib 绘制其他模块的结果表；matplotlib 是可选依赖，用 ``pip install \"kivi[plot]\"``"
+" 安装。 ``woe_chart`` 绘制 WOE 表中每个分组的占比以及事件率或 WOE， ``correlation_chart`` 绘制相关系数矩阵， ``roc_chart`` 绘制 "
+"ROC 曲线及其 KS， ``gains_chart`` 绘制增益表的累计占比， ``calibration_chart`` 绘制每个分组的观测事件率与预测事件率， "
+"``cutoff_chart`` 绘制通过客群的事件率随通过率的变化， ``psi_chart`` 绘制 PSI 表的基准占比与当前占比， ``monitoring_chart`` "
+"逐期绘制监控报告中的一列， ``vintage_chart`` 绘制 Vintage 表中每个批次的曲线。"
+
+msgid ""
+"Each chart draws on the matplotlib Axes passed as ``ax``, or on a new figure, and returns the "
+"Axes it drew on. It never shows the figure, never changes ``matplotlib.rcParams`` and never "
+"modifies the table, and the text inside it is limited to column names and data values."
+msgstr ""
+"每个图表函数在 ``ax`` 传入的 matplotlib Axes 上作图，未传入时新建一个图形，并返回所用的 Axes。它不会显示图形，不会修改 "
+"``matplotlib.rcParams`` ，也不会修改传入的表；图中的文字只有列名和数据值。"
+
 msgid "1.0.0 (2026-11-22)"
 msgstr "1.0.0（2026-11-22）"
 
@@ -10025,9 +10495,6 @@ msgstr "移除 ``kivi.calibration.isotonic_predict`` 的 ``probabilities`` 参�
 
 msgid "0.9.0 (2026-11-22)"
 msgstr "0.9.0（2026-11-22）"
-
-msgid "New"
-msgstr "新增"
 
 msgid ""
 "A new page, :doc:`/api/compatibility`, states what kivi promises from 1.0: semantic versioning, "
@@ -14368,6 +14835,407 @@ msgid ""
 msgstr "标签列表不是期的标签，基准行的布尔掩码也不是评分样本，因此二者同样会报错。应把基准行的评分（例如 ``score[mask]`` ）作为 ``reference_score`` 传入。"
 
 msgid ""
+"A risk report shows its tables as charts: the event rate of each bin, the ROC curve of a score, "
+"the shares that moved since development. :mod:`kivi.plotting` draws the result tables of the "
+"other modules with matplotlib, one function per table: :func:`~kivi.plotting.woe_chart` for a WOE"
+" table, :func:`~kivi.plotting.correlation_chart` for a correlation matrix, "
+":func:`~kivi.plotting.roc_chart` and :func:`~kivi.plotting.gains_chart` for the ROC and gains "
+"tables, :func:`~kivi.plotting.calibration_chart` for a calibration table, "
+":func:`~kivi.plotting.cutoff_chart` for a cut-off table, :func:`~kivi.plotting.psi_chart` for a "
+"PSI table, :func:`~kivi.plotting.monitoring_chart` for a monitoring report and "
+":func:`~kivi.plotting.vintage_chart` for a vintage table."
+msgstr ""
+"风险报告用图表展示各种表：每个分箱的事件率、评分的 ROC 曲线、自开发以来发生变化的占比。 :mod:`kivi.plotting` 用 matplotlib "
+"绘制其他模块的结果表，每种表对应一个函数：WOE 表用 :func:`~kivi.plotting.woe_chart` ，相关系数矩阵用 "
+":func:`~kivi.plotting.correlation_chart` ，ROC 表和增益表用 :func:`~kivi.plotting.roc_chart` 和 "
+":func:`~kivi.plotting.gains_chart` ，校准表用 :func:`~kivi.plotting.calibration_chart` ，截断点表用 "
+":func:`~kivi.plotting.cutoff_chart` ，PSI 表用 :func:`~kivi.plotting.psi_chart` ，监控报告用 "
+":func:`~kivi.plotting.monitoring_chart` ，Vintage 表用 :func:`~kivi.plotting.vintage_chart` 。"
+
+msgid ""
+"The charts draw the tables of the earlier guides, from :doc:`woe_iv` to :doc:`vintage`, so this "
+"page comes last in the user guide, after :doc:`lifetime`."
+msgstr "这些图表绘制的是前面各篇指南中的表，从 :doc:`woe_iv` 到 :doc:`vintage` ，因此本页放在用户指南的最后，位于 :doc:`lifetime` 之后。"
+
+msgid "matplotlib is an optional dependency of kivi. Install it with the ``plot`` extra:"
+msgstr "matplotlib 是 kivi 的可选依赖。通过 ``plot`` 可选依赖组安装："
+
+msgid "The other modules do not need it, and :mod:`kivi.plotting` imports it only when a chart is drawn."
+msgstr "其他模块不需要它， :mod:`kivi.plotting` 也只在绘制图表时才导入它。"
+
+msgid ""
+"A chart draws the values of its table and nothing else. Ten observations, nine in three groups "
+"and one missing, give this WOE table:"
+msgstr "图表只绘制其表中的数值，别无其他。十个观测值，其中九个分属三个分组，一个缺失，得到如下 WOE 表："
+
+msgid ""
+":func:`~kivi.plotting.woe_chart` returns two Axes: one for the bars and one for the line, which "
+"shares the x-axis of the bars and has a y-axis of its own on the right. The bars are the "
+"``total_share`` column, the line is the ``event_rate`` column, the tick labels are the groups of "
+"the index, and the legend gives the sum of the ``iv`` column:"
+msgstr ""
+":func:`~kivi.plotting.woe_chart` 返回两个 Axes：一个用于柱形，一个用于折线；后者与柱形共用 x 轴，并在右侧有自己的 y 轴。柱形是 "
+"``total_share`` 列，折线是 ``event_rate`` 列，刻度标签是索引中的分组，图例给出 ``iv`` 列之和："
+
+msgid "Bars of the share of groups a, b, c and NaN with a line of their event rates"
+msgstr "分组 a、b、c 和 NaN 的占比柱形及其事件率折线"
+
+#, python-format
+msgid ""
+"The bars read 20%, 40%, 30% and 10% on the left axis, and the line 50%, 25%, 67% and 0% on the "
+"right axis."
+msgstr "柱形在左轴上分别为 20%、40%、30% 和 10%，折线在右轴上分别为 50%、25%、67% 和 0%。"
+
+msgid "Figures and axes"
+msgstr "图形与坐标轴"
+
+msgid ""
+"Every function takes an optional ``ax``. Without it, the function creates a figure of its own, "
+"sized for the chart and with matplotlib's constrained layout. With it, the function draws on that"
+" Axes, so that several charts can share one figure:"
+msgstr ""
+"每个函数都接受可选参数 ``ax`` 。不传入时，函数自行新建一个图形，尺寸适合该图表，并使用 matplotlib 的 constrained 布局；传入时，函数在该 Axes "
+"上作图，这样多个图表可以共用一个图形："
+
+msgid ""
+"Each function returns the Axes it drew on, ``ax`` when it is given, so that titles, limits and "
+"labels can be changed afterwards with matplotlib, as in ``right.set_title(\"woe\")``. "
+":func:`~kivi.plotting.woe_chart` returns the Axes of the bars and that of the line, which is why "
+"the figure above has four Axes."
+msgstr ""
+"每个函数都返回所绘制的 Axes（给出 ``ax`` 时即为 ``ax`` ），以便之后用 matplotlib 修改标题、坐标范围和标签，例如 "
+"``right.set_title(\"woe\")`` 。 :func:`~kivi.plotting.woe_chart` 返回柱形的 Axes 和折线的 Axes，所以上面的图形有四个 "
+"Axes。"
+
+msgid ""
+"The functions never call ``matplotlib.pyplot.show``, never change ``matplotlib.rcParams`` and "
+"never modify the table. Save a figure with ``figure.savefig(\"woe.png\")``, or show it with "
+"``plt.show()`` outside a notebook. The colors of the bars and the lines are fixed, but fonts, "
+"grids and spines follow the active matplotlib style, so a style set with ``plt.style.context`` "
+"applies to the charts drawn inside it."
+msgstr ""
+"这些函数从不调用 ``matplotlib.pyplot.show`` ，从不修改 ``matplotlib.rcParams`` ，也从不修改传入的表。用 "
+"``figure.savefig(\"woe.png\")`` 保存图形，在 notebook 之外用 ``plt.show()`` "
+"显示图形。柱形和折线的颜色是固定的，但字体、网格线和坐标轴边框遵循当前的 matplotlib 样式，因此用 ``plt.style.context`` 设置的样式会作用于其中绘制的图表。"
+
+msgid ""
+"Text inside a chart is limited to column names, such as ``total_share`` and ``event_rate``, and "
+"data values, such as the group labels and the IV. The same chart therefore suits a report in any "
+"language; add titles in the language of the report."
+msgstr "图表中的文字只有列名（例如 ``total_share`` 和 ``event_rate`` ）和数据值（例如分组标签和 IV），因此同一张图表适用于任何语言的报告；标题请用报告的语言另行添加。"
+
+msgid "WOE and event rate"
+msgstr "WOE 与事件率"
+
+msgid ""
+"The examples from here on use the bundled bank data, split as in :doc:`risk_workflow` into a "
+"development sample of 3,000 rows and a validation sample of 1,521 rows. A "
+":class:`~kivi.spec.BinningSpec` bins five columns on the development sample:"
+msgstr ""
+"从这里开始，示例使用内置的银行数据，并像 :doc:`risk_workflow` 中那样分为 3,000 行的开发样本和 1,521 行的验证样本。一个 "
+":class:`~kivi.spec.BinningSpec` 在开发样本上对五列分箱："
+
+msgid ""
+":func:`~kivi.plotting.woe_chart` draws one of its tables in the order of the table. The bins of a"
+" numeric column are already in order; sort the groups of a categorical column, for example by "
+"WOE, and draw the WOE as the line with ``line=\"woe\"``:"
+msgstr ""
+":func:`~kivi.plotting.woe_chart` 按表中的顺序绘制其中一张表。数值列的分箱本身已经有序；类别列的分组可以先排序（例如按 WOE），再用 "
+"``line=\"woe\"`` 把 WOE 画成折线："
+
+msgid "Share and event rate of the age bins, and share and WOE of the poutcome groups"
+msgstr "age 各分箱的占比与事件率，以及 poutcome 各分组的占比与 WOE"
+
+msgid ""
+"Left: the event rate of age is lowest in the middle bins. Right: four fifths of the customers "
+"have an unknown previous outcome, and the few with a previous success have by far the highest "
+"WOE."
+msgstr "左：age 的事件率在中间几个分箱最低。右：五分之四的客户上次营销结果未知，而少数上次营销成功的客户 WOE 远高于其他分组。"
+
+msgid ""
+"Read the bars and the line together: a bin with a high event rate matters more when it holds many"
+" customers. The bars use the left axis and the line the right axis, which starts at 0 for "
+"``event_rate`` and includes 0 for ``woe``."
+msgstr "柱形和折线要结合起来看：事件率高的分箱，客户越多就越重要。柱形使用左轴，折线使用右轴；右轴对 ``event_rate`` 从 0 开始，对 ``woe`` 则包含 0。"
+
+msgid "Correlation"
+msgstr "相关性"
+
+msgid ""
+"Before :doc:`selection`, :func:`~kivi.plotting.correlation_chart` shows which WOE-encoded "
+"candidates carry the same information. It takes a correlation matrix, such as the result of "
+"``DataFrame.corr``, rather than the data, so that any method of correlation can be drawn:"
+msgstr ""
+"在 :doc:`selection` 之前， :func:`~kivi.plotting.correlation_chart` 展示哪些 WOE "
+"编码后的候选变量携带相同的信息。它接受的是相关系数矩阵（例如 ``DataFrame.corr`` 的结果）而不是原始数据，因此可以绘制任何一种相关系数："
+
+msgid "Heatmap of the correlations between the WOE values of five columns"
+msgstr "五列 WOE 值之间相关系数的热力图"
+
+msgid "The largest correlation between two different columns is 0.21, between housing and contact."
+msgstr "不同两列之间最大的相关系数是 housing 与 contact 之间的 0.21。"
+
+msgid ""
+"Each cell shows its value, blue for a positive correlation and amber for a negative one, darker "
+"towards 1 and -1. The colors always span -1 to 1, so charts of different samples compare "
+"directly. For Spearman's rank correlation, pass ``woe.corr(method=\"spearman\")``."
+msgstr ""
+"每个单元格标出其数值，正相关为蓝色，负相关为琥珀色，越接近 1 和 -1 颜色越深。颜色总是覆盖 -1 到 1，因此不同样本的图表可以直接比较。要使用 Spearman 秩相关系数，请传入 "
+"``woe.corr(method=\"spearman\")`` 。"
+
+msgid ""
+":func:`~kivi.plotting.roc_chart` draws a :func:`~kivi.metrics.roc_table`. The score below adds up"
+" the WOE values of the five columns, so that it is higher for a higher risk, as :doc:`metrics` "
+"requires. A second call with the same ``ax`` adds the curve of ``poutcome`` alone, and ``label`` "
+"names both curves in the legend:"
+msgstr ""
+":func:`~kivi.plotting.roc_chart` 绘制 :func:`~kivi.metrics.roc_table` 的结果。下面的评分把五列的 WOE "
+"值相加，因此风险越高评分越高，符合 :doc:`metrics` 的要求。用同一个 ``ax`` 再调用一次，加上只用 ``poutcome`` 的曲线， ``label`` "
+"在图例中为两条曲线命名："
+
+msgid "ROC curves of the WOE score and of poutcome alone, with the KS of the score marked"
+msgstr "WOE 评分与单独 poutcome 的 ROC 曲线，并标出评分的 KS"
+
+msgid ""
+"The score lies above the curve of poutcome alone at most false positive rates. The dotted segment"
+" marks its KS of 0.299."
+msgstr "在大多数假正率下，评分的曲线都高于单独 poutcome 的曲线。点线段标出评分的 KS，为 0.299。"
+
+msgid ""
+"The dotted segment marks the KS statistic, the largest gap between ``true_positive_rate`` and "
+"``false_positive_rate``, which equals :func:`~kivi.metrics.ks` of the score. Each curve takes the"
+" next color of the Axes, and its KS segment shares its color; pass ``ks=False`` for the curves "
+"whose KS is not needed."
+msgstr ""
+"点线段标出 KS 统计量，即 ``true_positive_rate`` 与 ``false_positive_rate`` 之间的最大差距，它等于该评分的 "
+":func:`~kivi.metrics.ks` 。每条曲线使用 Axes 的下一种颜色，其 KS 线段与曲线同色；不需要 KS 的曲线请传入 ``ks=False`` 。"
+
+msgid "Gains and KS"
+msgstr "增益与 KS"
+
+msgid ""
+":func:`~kivi.plotting.gains_chart` draws a :func:`~kivi.metrics.gains_table`: the shares of all "
+"events and of all non-events in the bands reviewed so far, from the highest band down, against "
+"the share of the sample reviewed:"
+msgstr ""
+":func:`~kivi.plotting.gains_chart` 绘制 :func:`~kivi.metrics.gains_table` "
+"的结果：从最高的评分段向下，到目前为止已审视的评分段中的事件和非事件分别占全部事件和全部非事件的比例，横轴是已审视的样本占比："
+
+msgid "Cumulative event and non-event shares of ten score bands, with the largest gap marked"
+msgstr "十个评分段的累计事件占比与非事件占比，并标出最大差距"
+
+#, python-format
+msgid ""
+"The riskiest 30% of the validation sample holds 54% of its events and 27% of its non-events, the "
+"largest gap of the ten bands."
+msgstr "验证样本中风险最高的 30% 包含了 54% 的事件和 27% 的非事件，这是十个评分段中最大的差距。"
+
+msgid ""
+"The ``cum_event_share`` curve lies above the diagonal and the ``cum_non_event_share`` curve below"
+" it when the score ranks well. The red segment marks the band with the largest ``ks``. The KS of "
+"the bands is at most that of :func:`~kivi.plotting.roc_chart`, which compares every score rather "
+"than the band edges."
+msgstr ""
+"评分排序良好时， ``cum_event_share`` 曲线位于对角线上方， ``cum_non_event_share`` 曲线位于下方。红色线段标出 ``ks`` 最大的评分段。各评分段的"
+" KS 至多等于 :func:`~kivi.plotting.roc_chart` 中的 KS，后者比较的是每个评分而不只是评分段的边界。"
+
+msgid ""
+":func:`~kivi.plotting.calibration_chart` draws a :func:`~kivi.calibration.calibration_table`. "
+"Below, :func:`~kivi.calibration.platt_fit` turns the score into PDs on the development sample, "
+"and the validation PDs are grouped into the grades of a :func:`~kivi.calibration.master_scale`, "
+"as in :doc:`calibration`:"
+msgstr ""
+":func:`~kivi.plotting.calibration_chart` 绘制 :func:`~kivi.calibration.calibration_table` "
+"的结果。下面先在开发样本上用 :func:`~kivi.calibration.platt_fit` 把评分转换为 PD，再像 :doc:`calibration` 中那样，把验证样本的 PD "
+"分入 :func:`~kivi.calibration.master_scale` 的各个等级："
+
+msgid "Event rate against mean predicted probability of grades A to E, next to the diagonal"
+msgstr "等级 A 到 E 的事件率与平均预测概率，以及对角线"
+
+msgid "The five grades lie close to the diagonal; grade D has fewer events than predicted."
+msgstr "五个等级都贴近对角线；等级 D 的事件少于预测。"
+
+msgid ""
+"Points above the diagonal have more events than predicted, and points below it fewer. Both axes "
+"run from 0 to just above the largest rate, so that the diagonal stays at 45 degrees. The chart "
+"shows how far each grade lies from its prediction, not whether the difference is significant; "
+":func:`~kivi.calibration.binomial_test` answers that."
+msgstr ""
+"位于对角线上方的点事件多于预测，位于下方的点事件少于预测。两个坐标轴都从 0 延伸到略高于最大比率，使对角线保持 45 度。图表展示每个等级偏离预测的程度，但不说明差异是否显著；这个问题由 "
+":func:`~kivi.calibration.binomial_test` 回答。"
+
+msgid "Cut-offs"
+msgstr "截断点"
+
+msgid ""
+":func:`~kivi.plotting.cutoff_chart` draws a :func:`~kivi.strategy.cutoff_table`: the bad rate of "
+"the approved book against the share of applicants approved, one point per cut-off of the PD:"
+msgstr ""
+":func:`~kivi.plotting.cutoff_chart` 绘制 :func:`~kivi.strategy.cutoff_table` "
+"的结果：通过客群的坏账率随通过申请人占比的变化，PD 的每个截断点对应一个点："
+
+msgid "Event rate of the approved book against the approval rate for twenty PD cut-offs"
+msgstr "二十个 PD 截断点下通过客群的事件率与通过率"
+
+#, python-format
+msgid ""
+"Approving more applicants raises the event rate of the approved book, from about 1% for the "
+"safest 5% of applicants to 11% when all of them are approved."
+msgstr "通过的申请人越多，通过客群的事件率越高：只通过最安全的 5% 申请人时约为 1%，全部通过时为 11%。"
+
+msgid ""
+"The slope of the curve is the price in risk of a higher approval rate. Draw the tables of a "
+"current and a new score on the same ``ax``, each with a ``label``, to compare them at the same "
+"approval rate, as :doc:`strategy` does."
+msgstr "曲线的斜率就是提高通过率所付出的风险代价。把现行评分和新评分的表画在同一个 ``ax`` 上并各自给出 ``label`` ，就能像 :doc:`strategy` 那样在相同通过率下比较二者。"
+
+msgid ""
+":func:`~kivi.plotting.psi_chart` draws a :func:`~kivi.stability.psi_table` as pairs of bars, the "
+"reference share and the current share of each group. Single customers, as in :doc:`psi`, are much"
+" younger than the development sample:"
+msgstr ""
+":func:`~kivi.plotting.psi_chart` 把 :func:`~kivi.stability.psi_table` 的结果画成成对的柱形，即每个分组的基准占比和当前占比。与"
+" :doc:`psi` 中一样，单身客户比开发样本年轻得多："
+
+msgid "Reference and current shares of five age bins for single customers"
+msgstr "单身客户在五个 age 分箱中的基准占比与当前占比"
+
+msgid ""
+"Half of the single customers fall into the youngest bin, against less than a quarter of the "
+"development sample."
+msgstr "一半的单身客户落在最年轻的分箱中，而开发样本中这一比例不到四分之一。"
+
+msgid ""
+"The groups whose bars differ most contribute most of the PSI, which the legend gives for the "
+"whole table."
+msgstr "两根柱形相差最大的分组对 PSI 的贡献最大；图例给出整张表的 PSI。"
+
+msgid "Monitoring"
+msgstr "监控"
+
+msgid ""
+":func:`~kivi.plotting.monitoring_chart` draws one column of a "
+":func:`~kivi.monitoring.monitoring_table` period by period. The applications below are simulated "
+"as in :doc:`monitoring`; the outcomes of the last three months are not known yet:"
+msgstr ""
+":func:`~kivi.plotting.monitoring_chart` 逐期绘制 :func:`~kivi.monitoring.monitoring_table` "
+"中的一列。下面的申请数据像 :doc:`monitoring` 中那样模拟生成；最后三个月的结果尚未可知："
+
+msgid ""
+"Call the function once for each column, on the panels of one figure. ``levels`` marks the values "
+"that a column is compared with, such as the PSI thresholds 0.1 and 0.25:"
+msgstr "对每一列各调用一次此函数，画在同一图形的不同子图上。 ``levels`` 标出与该列比较的数值，例如 PSI 阈值 0.1 和 0.25："
+
+msgid "Gini and PSI of the incumbent PD for each month of 2025, with the PSI thresholds 0.1 and 0.25"
+msgstr "现行 PD 在 2025 年每个月的 Gini 和 PSI，以及 PSI 阈值 0.1 和 0.25"
+
+msgid ""
+"The Gini stops in September, the last month with known outcomes. The PSI stays far below 0.1 in "
+"every month."
+msgstr "Gini 止于 9 月，这是最后一个结果已知的月份。每个月的 PSI 都远低于 0.1。"
+
+msgid ""
+"The counts ``total``, ``known`` and ``event`` and the ``psi`` are drawn as bars, the rates and "
+"the measures of discrimination as a line. Any other table with one row per period works as well, "
+"such as a column of :func:`~kivi.monitoring.stability_table`."
+msgstr ""
+"计数 ``total`` 、 ``known`` 、 ``event`` 以及 ``psi`` 绘制为柱形，比率和区分能力指标绘制为折线。其他每期一行的表同样适用，例如 "
+":func:`~kivi.monitoring.stability_table` 的某一列。"
+
+msgid "Vintage curves"
+msgstr "vintage 曲线"
+
+msgid ""
+":func:`~kivi.plotting.vintage_chart` draws a :func:`~kivi.vintage.vintage_table` with one curve "
+"per cohort, later cohorts in darker blue. Twenty-four cohorts are too many to tell apart, so the "
+"example draws every third:"
+msgstr ""
+":func:`~kivi.plotting.vintage_chart` 为 :func:`~kivi.vintage.vintage_table` "
+"的每个批次绘制一条曲线，越晚的批次蓝色越深。二十四个批次太多，难以区分，因此示例每三个批次取一个："
+
+msgid "Cumulative 90+ rate of eight cohorts by month on book"
+msgstr "八个批次按账龄的累计 90+ 比率"
+
+msgid ""
+"No cohort has a loan 90 days past due before its fourth month on book, and the curves of the "
+"later cohorts end where their observation ends."
+msgstr "在第四个账龄月之前，没有任何批次出现逾期 90 天的贷款；较晚批次的曲线在其观测结束处终止。"
+
+msgid ""
+"A cohort whose curve rises above those of the cohorts before it is worth a closer look. The "
+"function takes any table of the same shape, such as the cumulative PDs of "
+":func:`~kivi.lifetime.convert_pd`."
+msgstr "如果某个批次的曲线升到之前各批次的曲线之上，就值得仔细查看。此函数接受任何形状相同的表，例如 :func:`~kivi.lifetime.convert_pd` 给出的累计 PD。"
+
+msgid ""
+"A special value keeps the group that :func:`~kivi.binning.cut` gave it, and the chart labels it "
+"with its code. For ``pdays``, where -1 means that the customer was not contacted before:"
+msgstr "特殊值保留 :func:`~kivi.binning.cut` 赋予它的分组，图表用其编码作为标签。以 ``pdays`` 为例，-1 表示此前没有联系过该客户："
+
+#, python-format
+msgid ""
+"The bar of ``-1`` holds 82.5% of the sample. Charts do not reorder groups, so the special group "
+"stays where the table has it, ahead of the intervals."
+msgstr "``-1`` 的柱形占样本的 82.5%。图表不会重排分组，因此特殊值分组保持在表中的位置，即各区间之前。"
+
+msgid ""
+"The group of missing values is labeled ``NaN``, as in the worked example. A missing value in a "
+"column, such as the ``gini`` of a month without known outcomes or a month on book that a cohort "
+"has not reached, leaves a gap in a line and no bar. A cut-off that approves nothing has a missing"
+" ``approved_event_rate`` and no point on the curve of :func:`~kivi.plotting.cutoff_chart`."
+msgstr ""
+"与计算示例中一样，缺失值分组标为 ``NaN`` 。列中的缺失值（例如没有已知结果的月份的 ``gini`` "
+"，或某个批次尚未到达的账龄月）会在折线上留下缺口，也不画柱形。不通过任何申请人的截断点，其 ``approved_event_rate`` 缺失，在 "
+":func:`~kivi.plotting.cutoff_chart` 的曲线上没有对应的点。"
+
+msgid ""
+"The charts draw a table as it is. They have no ``weights`` argument: draw a table computed with "
+"weights to show weighted shares and rates."
+msgstr "图表按原样绘制表。它们没有 ``weights`` 参数：要展示加权的占比和比率，请绘制用权重计算的表。"
+
+msgid ""
+"The functions choose the size of a new figure, the colors and the labels, and pass no other "
+"matplotlib properties through; change them on the returned Axes."
+msgstr "新图形的尺寸、颜色和标签由函数决定，函数也不转发其他 matplotlib 属性；请在返回的 Axes 上修改它们。"
+
+msgid "A chart has no title, so that it fits a report in any language. Add one with ``ax.set_title``."
+msgstr "图表不带标题，以便适用于任何语言的报告。可以用 ``ax.set_title`` 添加标题。"
+
+msgid ""
+":func:`~kivi.plotting.monitoring_chart` draws one column per call, and "
+":func:`~kivi.plotting.correlation_chart` one matrix without a color bar; add one with "
+"``figure.colorbar(ax.images[0], ax=ax)``."
+msgstr ""
+":func:`~kivi.plotting.monitoring_chart` 每次调用只绘制一列， :func:`~kivi.plotting.correlation_chart` "
+"绘制的矩阵不带颜色条；可以用 ``figure.colorbar(ax.images[0], ax=ax)`` 添加颜色条。"
+
+msgid "The charts are static matplotlib figures, not interactive ones."
+msgstr "这些图表是静态的 matplotlib 图形，不支持交互。"
+
+msgid ""
+"Without matplotlib, every chart raises an ``ImportError`` that asks for ``pip install "
+"\"kivi[plot]\"``."
+msgstr "未安装 matplotlib 时，每个图表函数都会抛出 ``ImportError`` ，提示运行 ``pip install \"kivi[plot]\"`` 。"
+
+msgid ""
+"A table that lacks a column a chart needs raises a ``ValueError`` that names the columns of the "
+"table it expects and those that are missing, as when a PSI table is passed to "
+":func:`~kivi.plotting.woe_chart`:"
+msgstr ""
+"如果表缺少图表所需的列，会抛出 ``ValueError`` ，其中列出所期望的表应有的列以及缺少的列，例如把 PSI 表传给 :func:`~kivi.plotting.woe_chart` "
+"时："
+
+msgid ""
+"An ``ax`` that is not a matplotlib Axes, an empty table and a column that is not numeric raise a "
+"``ValueError`` as well. A chart that raises does not leave an empty figure behind."
+msgstr "不是 matplotlib Axes 的 ``ax`` 、空表以及非数值的列同样会抛出 ``ValueError`` 。抛出错误的图表函数不会留下空白图形。"
+
+msgid ""
+"matplotlib warns when more than 20 figures are open. When a report draws a chart for each of many"
+" variables, save each figure and close it with ``plt.close(ax.figure)``."
+msgstr "打开的图形超过 20 个时，matplotlib 会发出警告。如果报告要为许多变量各画一张图，请保存每个图形后用 ``plt.close(ax.figure)`` 关闭它。"
+
+msgid ""
 ":func:`~kivi.stability.psi_table` compares the distribution of a variable in two samples, "
 "typically the development sample and a later monitoring sample. Group both samples with the same "
 "edges or labels before calling it. :func:`~kivi.stability.csi_table` measures how much such a "
@@ -16354,9 +17222,6 @@ msgid ""
 msgstr ""
 "状态是按逾期天数排列的有序分类变量，因此像 ``panel[\"status\"] >= \"60-89\"`` 这样的比较会遵循档位的顺序。 :doc:`datasets` "
 "介绍了面板的模拟方式。"
-
-msgid "Vintage curves"
-msgstr "vintage 曲线"
 
 msgid ""
 "A loan is *ever bad* by month on book :math:`k` if it was bad at any month on book up to "
