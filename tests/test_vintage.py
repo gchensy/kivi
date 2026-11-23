@@ -1037,11 +1037,22 @@ def test_delinquency_panel_leaves_out_loans_first_due_after_end():
         pd.Period("2024-03", freq="M"),
         pd.Period("2024-03-15", freq="D"),
         pd.Period("2024Q1", freq="Q"),
+        # Strings are read as pandas.Period reads them, without warnings: a quarter ends in its
+        # last month, and a time zone is dropped.
+        "2024Q1",
+        "March 2024",
+        "2024-03-15T10:00:00+08:00",
+        datetime.datetime(2024, 3, 2, tzinfo=datetime.timezone.utc),
     ],
 )
 def test_delinquency_panel_end_is_a_month_or_a_date_in_it(end):
     panel = delinquency_panel(*one_loan(), [], [], [], end=end)
     assert panel["month"].astype(str).tolist() == ["2024-01", "2024-02", "2024-03"]
+
+
+def test_delinquency_panel_end_of_a_year_is_its_december():
+    panel = delinquency_panel(*one_loan(), [], [], [], end="2024")
+    assert panel["month"].astype(str).tolist() == [f"2024-{month:02d}" for month in range(1, 13)]
 
 
 def test_delinquency_panel_reads_dates_of_any_type():
@@ -1245,6 +1256,12 @@ def test_delinquency_panel_matches_the_series_of_each_input_by_index():
         ("soon", "'soon'"),
         ([2024, 1], r"\[2024, 1\]"),
         (np.timedelta64(3, "D"), r"datetime.timedelta\(days=3\)"),
+        # pandas reads these as NaT instead of raising.
+        ("", "''"),
+        ("NaT", "'NaT'"),
+        (np.datetime64("NaT", "D"), "NaT"),
+        (" ", "' '"),
+        ("2024-W11", "'2024-W11'"),
     ],
 )
 def test_delinquency_panel_end_must_be_a_date_or_a_month(end, shown):

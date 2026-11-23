@@ -70,8 +70,9 @@ def delinquency_panel(
         against the payment that it reverses.
     end : date or month
         Last month of the panel, such as ``"2026-01"``, a date in that month
-        or a `pandas.Period`. The payments must be complete up to its last
-        day.
+        or a `pandas.Period`. A string is read as `pandas.Period` reads it,
+        and a period longer than a month, such as ``"2025Q4"``, ends in its
+        last month. The payments must be complete up to its last day.
     principal : array_like, optional
         Principal part of each instalment, between 0 and its amount due,
         matched to the schedule like `amount_due`. The panel then gets a
@@ -878,19 +879,31 @@ def _whole_numbers(values: pd.Series, name: str) -> npt.NDArray[np.int64]:
 
 def _end_month(end: object) -> int:
     """Return the month of ``end`` as months since January 1970, raising a ValueError."""
-    message = f"end must be a date or a month, got {_validation.shown_argument(end)}"
+    # NumPy shows a missing datetime64 as None.
+    missing_date = isinstance(end, np.datetime64) and np.isnat(end)
+    shown = "NaT" if missing_date else _validation.shown_argument(end)
+    message = f"end must be a date or a month, got {shown}"
     if isinstance(end, (numbers.Number, np.bool_)) or _validation.is_missing(end):
         # pandas.Timestamp reads a number as nanoseconds since 1970.
         raise ValueError(message)
-    if isinstance(end, pd.Period):
-        return int(end.asfreq("M").ordinal)
     try:
-        timestamp = pd.Timestamp(end)  # type: ignore[arg-type]  # checked by pandas
+        if isinstance(end, str):
+            # pandas.Period reads "2024Q1" as a quarter, where pandas.Timestamp warns on
+            # pandas 3 and reads it as the first day of the quarter.
+            period = pd.Period(end)
+        elif isinstance(end, pd.Period):
+            period = end
+        else:
+            timestamp = pd.Timestamp(end)  # type: ignore[arg-type]  # checked by pandas
+            if timestamp.tz is not None:
+                timestamp = timestamp.tz_localize(None)
+            period = pd.Period(timestamp, freq="M")
     except (TypeError, ValueError):
         raise ValueError(message) from None
-    if timestamp.tz is not None:
-        timestamp = timestamp.tz_localize(None)
-    return int(timestamp.to_period("M").ordinal)
+    # An empty string and "NaT" give NaT.
+    if _validation.is_missing(period):
+        raise ValueError(message)
+    return int(period.asfreq("M").ordinal)
 
 
 def _month_label(month: int) -> str:
