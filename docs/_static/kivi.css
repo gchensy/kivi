@@ -200,3 +200,17 @@ html[data-theme="dark"] .bd-content figure.align-default img {
   color: var(--pst-color-text-muted);
   font-size: 0.9rem;
 }
+
+/* Simulation checks of the tutorial: information that a real project does not have. */
+.bd-content .admonition.kivi-check {
+  border-color: var(--pst-color-secondary);
+}
+
+.bd-content .admonition.kivi-check > .admonition-title {
+  background-color: var(--pst-color-secondary-bg);
+}
+
+.bd-content .admonition.kivi-check > .admonition-title::after {
+  color: var(--pst-color-secondary);
+  content: "\f0c3";
+}

@@ -16,7 +16,7 @@ Apart from the home page and the index page of each section, every page is one o
      - Pages
      - Contents
    * - Tutorial
-     - The pages of the getting started section, and :doc:`/user_guide/risk_workflow`
+     - The pages of the getting started section and of the tutorial section, and :doc:`/user_guide/risk_workflow`
      - The installation, and worked examples on the bundled data from start to finish. They link to the topic guides for the details instead of repeating them.
    * - Topic guide
      - The other pages of the user guide
@@ -35,6 +35,7 @@ Where pages live
 ----------------
 
 * A public module ``kivi.<module>`` has an API page ``docs/api/<module>.rst`` and usually a topic guide ``docs/user_guide/<topic>.rst``. The toctrees of the API reference and of the user guide list their pages in the order of a project and end with a glob, so a new page appears at the end without editing them. The integration moves it to its place, as Entry points below describes.
+* The tutorial section, ``docs/tutorial``, follows one project over several chapters, listed in the order of the project by the toctree of its index page. Each chapter starts with a collapsed ``dropdown`` that repeats the code of the earlier chapters that it needs, so that the page runs on its own. Results that only simulated data can give, such as the outcomes of rejected applicants, go in an ``admonition`` titled ``Simulation check`` with the class ``kivi-check``, and the steps of the project never depend on them.
 * The conventions, the compatibility promises and the glossary are ``docs/api/conventions.rst``, ``docs/api/compatibility.rst`` and ``docs/api/glossary.rst``. They come first in the API reference, and the index of the user guide links to the conventions and the glossary.
 * Page names are part of the URLs, and the language switch links each page to the page of the same name in the other edition. Change the title of a page rather than renaming or removing it.
 * The API page of a module and its topic guide have the same title. Its cards and its rows in the README use that title or a short form of it, such as WOE and IV.
@@ -81,15 +82,38 @@ Examples
 * Examples are doctests, and the ``build`` check runs them. Their output is real: when a change alters a printed table, run the code again and paste the new output instead of editing the numbers.
 * Examples use the data described in :doc:`/user_guide/datasets`, or a few values that readers can check by hand. Random data comes from a generator with a fixed seed.
 * Import each function from its module, as in ``from kivi.woe import woe_table``.
-* Examples must not warn: a warning raised by a doctest or by a chart recipe in docs/_plotting.py fails the build. When an example is about a warning, catch it with ``warnings.catch_warnings(record=True)`` and print the message.
+* Examples must not warn: a warning raised by a doctest, or by a chart or diagram recipe in docs/_plotting.py, docs/_diagrams.py or docs/_tutorial.py, fails the build. When an example is about a warning, catch it with ``warnings.catch_warnings(record=True)`` and print the message.
 * All the examples of a page share one namespace, so a section can use what an earlier section defined. When sections move, check that every name is still defined before it is used.
 
 Charts
 ------
 
-Charts are drawn when the documentation is built. A ``plot`` directive calls a ``figure_*`` function in ``docs/_plotting.py``, which recomputes the example shown just above the chart, so change the two together. Text inside a chart is limited to kivi's column and parameter names and to data values, so that one image serves both editions. The caption and the alternative text are translated.
+Charts and diagrams are drawn when the documentation is built. A ``plot`` directive calls a ``figure_*`` function, which recomputes the example shown just above it, so change the two together:
 
-A pull request that adds a module describes the charts for its page in its description. They are added to ``docs/_plotting.py`` when the page is integrated, together with the entry points.
+* A chart, from ``docs/_plotting.py`` and called as ``kp.figure_*()``, plots a result on the bundled data, such as the WOE of each group or the vintage curves.
+* A chart of the tutorial, from ``docs/_tutorial.py`` and called as ``kt.figure_*()``, rebuilds the state of the project once and draws it with the functions of ``docs/_plotting.py``.
+* A diagram, from ``docs/_diagrams.py`` and called as ``kd.figure_*()``, shows how a function computes its result: the input rows, the call and the result table, with the numbers that kivi returns. A topic guide shows its main computation in a diagram right after the worked example, or after the first example of the body section that the computation belongs to.
+
+Text inside a chart or a diagram is limited to kivi's column and parameter names, data values and formulas written with them, so that one image serves both editions. The caption explains the image and the alternative text describes it; both are translated. A recipe that computes numbers apart from the function it shows checks them against that function, so that a change of the function fails the build instead of leaving the image out of date.
+
+Every diagram gives a color the same meaning:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 60
+
+   * - Color
+     - Meaning
+   * - One tint per category, a blue ramp from light to dark for intervals, gray for missing values
+     - Groups and bins, in the input and in the result
+   * - Red
+     - Events, the rows with target 1
+   * - Amber
+     - The result that the diagram is about, and the edges and thresholds
+   * - Blue and teal
+     - The reference sample and the current sample
+
+A pull request that adds a module describes the charts and diagrams for its page in its description. They are added when the page is integrated, together with the entry points.
 
 Names and links
 ---------------

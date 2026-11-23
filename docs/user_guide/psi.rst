@@ -33,6 +33,12 @@ A            2        0           0.5714         0.1429  0.5941
 NaN          1        2           0.2857         0.5714  0.1980
 B            0        1           0.1429         0.2857  0.0990
 
+.. plot::
+   :alt: The reference and current samples, and the psi_table result with counts, shares and PSI per group
+   :caption: How ``psi_table`` computes the example. Missing values form a group of their own. A group that is empty in one sample (outlined) counts as 0.5 before the shares are taken, so that its contribution stays finite.
+
+   kd.figure_psi_table()
+
 When only the counts per group are available, for example from a monitoring report, :func:`~kivi.stability.psi` gives the total from the counts of each sample in the same group order:
 
 >>> from kivi.stability import psi
