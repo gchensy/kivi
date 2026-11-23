@@ -75,6 +75,26 @@ previous      0.67   0.71      1.00
 
 ``previous`` is dropped for ``pdays``, which has a higher IV. ``poutcome`` and ``pdays`` stay together because their correlation of 0.68 is below the threshold. Thresholds between 0.6 and 0.8 are common; a lower one gives a shorter list.
 
+``method`` chooses the correlation. The default, ``"pearson"``, measures how close two variables are to a straight line. ``"spearman"`` is Spearman's rank correlation, the Pearson correlation of the ranks of the values, as ``pandas.DataFrame.corr`` computes it: it counts any strictly monotone relation as a perfect one and is not moved by a few extreme values. That suits raw variables screened before binning, whose relations are often monotone but not linear and whose tails are long:
+
+>>> raw = development[["age", "balance", "day", "campaign", "pdays", "previous"]]
+>>> correlations = {
+...     method: raw.corr(method=method).loc["pdays", ["previous", "campaign"]]
+...     for method in ("pearson", "spearman")
+... }
+>>> pd.DataFrame(correlations).round(2)
+          pearson  spearman
+previous      0.6      0.99
+campaign     -0.1     -0.15
+>>> correlation_filter(raw, priority=iv).tolist()
+['age', 'balance', 'day', 'campaign', 'pdays', 'previous']
+>>> correlation_filter(raw, method="spearman", priority=iv).tolist()
+['age', 'balance', 'day', 'campaign', 'pdays']
+
+Most customers have ``pdays`` -1 and ``previous`` 0, the codes of a customer who was never contacted before, so the ranks of the two variables agree almost everywhere, while the long right tails of the other customers hold their Pearson correlation down to 0.60. By rank, ``previous`` repeats ``pdays`` and is dropped.
+
+Keep the default for WOE values. The logistic regression combines them linearly, and their linear correlation is what inflates the standard errors of its coefficients, as the VIF below measures. Ranks see only the order of the groups: ``poutcome``, ``pdays`` and ``previous`` all put the customers who were never contacted before in one group, so their Spearman correlations are 0.99, and the filter would keep ``poutcome`` alone.
+
 Variance inflation factor
 -------------------------
 

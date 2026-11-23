@@ -517,9 +517,79 @@ def test_correlation_filter_rejects_priority(priority, message):
         correlation_filter(CHAIN, priority=priority)
 
 
+def test_spearman_equals_pearson_on_the_ranks():
+    rng = np.random.default_rng(3)
+    base = rng.normal(size=200)
+    X = pd.DataFrame(
+        {
+            "a": base,
+            "b": np.exp(base + rng.normal(scale=0.5, size=200)),
+            "c": rng.integers(0, 4, 200).astype(float),  # many ties, ranked by their average
+            "d": base**3 + rng.normal(scale=2.0, size=200),
+            "e": rng.normal(size=200),
+        }
+    )
+    priority = [0.1, 0.5, 0.2, 0.4, 0.3]
+    ranks = X.rank()
+    for threshold in np.linspace(0, 1, 41):
+        options = {"threshold": threshold, "priority": priority}
+        spearman = correlation_filter(X, method="spearman", **options)
+        assert spearman.tolist() == correlation_filter(ranks, **options).tolist()
+    # Arrays are ranked in the same way.
+    spearman = correlation_filter(X.to_numpy(), method="spearman", threshold=0.5)
+    assert spearman.tolist() == correlation_filter(ranks.to_numpy(), threshold=0.5).tolist()
+
+
+def test_pearson_and_spearman_keep_different_variables():
+    # A monotone relation that is not linear: Pearson 0.85, Spearman 1.
+    growth = pd.DataFrame({"x": np.arange(1.0, 9.0), "y": 2.0 ** np.arange(8)})
+    assert growth.corr().loc["x", "y"] == pytest.approx(0.85, abs=0.005)
+    assert correlation_filter(growth, threshold=0.9).tolist() == ["x", "y"]
+    assert correlation_filter(growth, method="pearson", threshold=0.9).tolist() == ["x", "y"]
+    assert correlation_filter(growth, method="spearman", threshold=0.9).tolist() == ["x"]
+    # One extreme value shared by two weakly related variables pulls Pearson above 0.9. The rank
+    # differences square to 108, so Spearman is 1 - 6 * 108 / (10 * 99) = 38 / 110.
+    outlier = pd.DataFrame(
+        {
+            "u": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 100.0],
+            "v": [5.0, 3.0, 8.0, 1.0, 9.0, 2.0, 7.0, 4.0, 6.0, 100.0],
+        }
+    )
+    assert outlier.corr().loc["u", "v"] > 0.9
+    assert outlier.corr(method="spearman").loc["u", "v"] == pytest.approx(38 / 110)
+    assert correlation_filter(outlier).tolist() == ["u"]
+    assert correlation_filter(outlier, method="spearman").tolist() == ["u", "v"]
+
+
+def test_spearman_on_the_raw_bank_variables():
+    # Most customers have pdays -1 and previous 0, so their ranks agree almost everywhere, while
+    # the long right tails of the others keep their Pearson correlation lower.
+    raw = load_bank().iloc[:3000][["campaign", "pdays", "previous"]]
+    assert raw.corr().loc["pdays", "previous"] == pytest.approx(0.60, abs=0.005)
+    assert raw.corr(method="spearman").loc["pdays", "previous"] == pytest.approx(0.99, abs=0.005)
+    assert correlation_filter(raw).tolist() == ["campaign", "pdays", "previous"]
+    assert correlation_filter(raw, method="spearman").tolist() == ["campaign", "pdays"]
+
+
+@pytest.mark.parametrize("method", ["kendall", "Pearson", "", None, 1, True])
+def test_correlation_filter_rejects_method(method):
+    with pytest.raises(
+        ValueError, match=re.escape(f"method must be 'pearson' or 'spearman', got {method!r}")
+    ):
+        correlation_filter(CHAIN, method=method)
+
+
+def test_correlation_filter_does_not_mutate_inputs():
+    X = CHAIN.copy()
+    correlation_filter(X, method="spearman", priority=[1.0, 2.0, 3.0])
+    pd.testing.assert_frame_equal(X, CHAIN)
+
+
 def test_correlation_filter_rejects_constant_column():
     with pytest.raises(ValueError, match="X column 'k' is constant; its correlation is undefined"):
         correlation_filter(CHAIN.assign(k=1.0))
+    with pytest.raises(ValueError, match="X column 'k' is constant; its correlation is undefined"):
+        correlation_filter(CHAIN.assign(k=1.0), method="spearman")
 
 
 # --- stepwise -----------------------------------------------------------------------------
