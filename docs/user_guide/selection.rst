@@ -73,6 +73,12 @@ previous      0.67   0.71      1.00
 >>> X.columns.difference(kept).tolist()
 ['previous']
 
+.. plot::
+   :alt: The eleven candidates in IV order with their largest absolute correlation with a variable kept before them, and previous dropped for pdays
+   :caption: ``correlation_filter`` visits the variables from the highest IV to the lowest and keeps each one unless its absolute correlation with a variable already kept exceeds 0.7. ``previous`` is correlated at 0.71 with ``pdays``, which comes first, and is dropped.
+
+   kd.figure_correlation_filter()
+
 ``previous`` is dropped for ``pdays``, which has a higher IV. ``poutcome`` and ``pdays`` stay together because their correlation of 0.68 is below the threshold. Thresholds between 0.6 and 0.8 are common; a lower one gives a shorter list.
 
 ``method`` chooses the correlation. The default, ``"pearson"``, measures how close two variables are to a straight line. ``"spearman"`` is Spearman's rank correlation, the Pearson correlation of the ranks of the values, as ``pandas.DataFrame.corr`` computes it: it counts any strictly monotone relation as a perfect one and is not moved by a few extreme values. That suits raw variables screened before binning, whose relations are often monotone but not linear and whose tails are long:
@@ -163,6 +169,12 @@ housing    0.572  0.191   2.992    0.003
 balance    0.692  0.199   3.479    0.001
 loan       0.679  0.275   2.469    0.014
 marital    1.005  0.275   3.657    0.000
+
+.. plot::
+   :alt: The z statistic of every variable outside the model in each forward step of stepwise, with the variable that enters in each step highlighted
+   :caption: The forward steps of ``stepwise`` on the ten kept variables. Each step tries every variable outside the model, and the one with the largest absolute z statistic enters, provided its p-value is below ``p_enter`` and every coefficient stays positive. No variable is removed on the way, and in step 9 neither ``education`` nor ``campaign`` passes, so the selection stops.
+
+   kd.figure_stepwise_path()
 
 ``education`` and ``campaign`` were left out because their p-values stay above 0.05.
 

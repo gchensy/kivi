@@ -148,6 +148,12 @@ cutoff
 0.20        0.477   0.306  0.373     0.883
 1.00          NaN   0.000  0.000     0.886
 
+.. plot::
+   :alt: Two-by-two table of the applicants approved and declined at a cut-off of 0.10 against their outcome, with the columns of cutoff_table and confusion_table derived from its counts
+   :caption: The four counts of ``confusion_table`` at the cut-off of 0.10, with an event as the positive class and a decline as the positive prediction. They make up the columns of ``cutoff_table`` at the same cut-off: the approved applicants are the true negatives and the false negatives, and the false negatives are its ``approved_event``.
+
+   kd.figure_confusion_cutoff()
+
 .. list-table::
    :header-rows: 1
    :widths: 30 70
@@ -203,6 +209,12 @@ approve approve    679  0.446    679     33       0.049
         decline    105  0.069    105     16       0.152
 decline approve    118  0.078    118      8       0.068
         decline    619  0.407    619    116       0.187
+
+.. plot::
+   :alt: Two two-by-two tables of the current and the new decisions with the count and the event rate of each group, once with every outcome known and once with only the outcomes of the applicants that the current score approves
+   :caption: The four groups of ``swap_set``: the swap-outs, in red, that only the current score approves, and the swap-ins, in teal, that only the new one approves. With the observed outcomes, right, the applicants that the current score declines have no known outcome.
+
+   kd.figure_swap_set()
 
 The new score swaps out 105 applicants with a bad rate of 15.2% and swaps in 118 with a bad rate of 6.8%. Because of tied scores, its cut-off approves 797 applicants, 13 more than the current one, and the bad rate of the approved book falls from 6.25% to 5.1%:
 
