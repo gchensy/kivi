@@ -2,6 +2,7 @@
 
 import math
 import numbers
+import typing
 from collections import abc
 
 import numpy as np
@@ -87,6 +88,22 @@ def score_scaling(*, pdo: float, base_score: float, base_odds: float) -> tuple[f
     return factor, float(base_score) - factor * math.log(float(base_odds))
 
 
+@typing.overload
+def pd_to_score(
+    probability: pd.Series, *, pdo: float, base_score: float, base_odds: float
+) -> pd.Series: ...
+@typing.overload
+def pd_to_score(
+    probability: float, *, pdo: float, base_score: float, base_odds: float
+) -> float: ...
+@typing.overload
+def pd_to_score(
+    probability: _validation.ListLike, *, pdo: float, base_score: float, base_odds: float
+) -> npt.NDArray[np.float64]: ...
+@typing.overload
+def pd_to_score(
+    probability: npt.ArrayLike, *, pdo: float, base_score: float, base_odds: float
+) -> float | pd.Series | npt.NDArray[np.float64]: ...
 def pd_to_score(
     probability: npt.ArrayLike, *, pdo: float, base_score: float, base_odds: float
 ) -> float | pd.Series | npt.NDArray[np.float64]:
@@ -150,6 +167,20 @@ def pd_to_score(
     )
 
 
+@typing.overload
+def score_to_pd(
+    score: pd.Series, *, pdo: float, base_score: float, base_odds: float
+) -> pd.Series: ...
+@typing.overload
+def score_to_pd(score: float, *, pdo: float, base_score: float, base_odds: float) -> float: ...
+@typing.overload
+def score_to_pd(
+    score: _validation.ListLike, *, pdo: float, base_score: float, base_odds: float
+) -> npt.NDArray[np.float64]: ...
+@typing.overload
+def score_to_pd(
+    score: npt.ArrayLike, *, pdo: float, base_score: float, base_odds: float
+) -> float | pd.Series | npt.NDArray[np.float64]: ...
 def score_to_pd(
     score: npt.ArrayLike, *, pdo: float, base_score: float, base_odds: float
 ) -> float | pd.Series | npt.NDArray[np.float64]:

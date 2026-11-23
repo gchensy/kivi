@@ -13,6 +13,7 @@ weights, in a form that the ``weights`` arguments of kivi accept:
 """
 
 import math
+import typing
 import warnings
 
 import numpy as np
@@ -286,6 +287,18 @@ def parceling(
     )
 
 
+@typing.overload
+def reweighting(
+    score: pd.Series, reject_score: npt.ArrayLike, *, bins: int | npt.ArrayLike = ...
+) -> pd.Series: ...
+@typing.overload
+def reweighting(
+    score: _validation.ListLike, reject_score: npt.ArrayLike, *, bins: int | npt.ArrayLike = ...
+) -> npt.NDArray[np.float64]: ...
+@typing.overload
+def reweighting(
+    score: npt.ArrayLike, reject_score: npt.ArrayLike, *, bins: int | npt.ArrayLike = ...
+) -> pd.Series | npt.NDArray[np.float64]: ...
 def reweighting(
     score: npt.ArrayLike, reject_score: npt.ArrayLike, *, bins: int | npt.ArrayLike = 10
 ) -> pd.Series | npt.NDArray[np.float64]:
