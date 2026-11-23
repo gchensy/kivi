@@ -13,7 +13,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from . import _edges, _special, _validation, binning, metrics, woe
+from . import _edges, _special, _stats, _validation, binning, metrics, woe
 
 __all__ = ["profile_table"]
 
@@ -33,10 +33,11 @@ def profile_table(
     r"""Summarize each column of a data frame in one row.
 
     Every column gets its kind, its number of missing values and its most
-    frequent value; numeric columns also get their range, quantiles, mean
-    and standard deviation. With a binary target, each column also gets the
-    event rates of its missing and non-missing rows, the information value
-    of a quick binning and, for numeric columns, the Gini coefficient of its
+    frequent value; numeric columns also get their range, quantiles, mean,
+    standard deviation and shape. With a binary target, each column also
+    gets the event rates of its missing and non-missing rows, the
+    information value and the chi-squared test of a quick binning and, for
+    numeric columns, the Gini coefficient and the KS statistic of its
     values.
 
     Parameters
@@ -66,7 +67,9 @@ def profile_table(
         such as the inverse of its sampling rate. Counts become sums of
         weights and every statistic is weighted, so integer weights give the
         same result as repeating rows with unit weights. Rows with zero
-        weight count for nothing, so their values are not checked.
+        weight count for nothing, so their values are not checked. The
+        chi-squared test treats them as frequency weights: a row of weight
+        :math:`w` counts as :math:`w` observations.
 
     Returns
     -------
@@ -92,6 +95,7 @@ def profile_table(
     kivi.spec.fit_spec : Bin and encode the columns chosen after profiling.
     kivi.woe.woe_table : The WOE and IV of one grouped column.
     kivi.metrics.gini : The Gini coefficient of a score.
+    kivi.metrics.ks : The KS statistic of a score.
     kivi.binning.bin_edges : The quantile edges of the quick binning.
 
     Notes
@@ -115,9 +119,9 @@ def profile_table(
     The quantiles interpolate linearly, as ``numpy.quantile`` does; with
     `weights` they are weighted quantiles by the inverted CDF, as the edges
     of `kivi.binning.bin_edges`. Weights, even unit weights, therefore
-    change the quantiles and, through the edges, ``iv`` and ``tied_bins``;
-    with integer weights every other column equals that of the repeated
-    rows without weights. The
+    change the quantiles and, through the edges, ``iv``, ``chi2_p_value``
+    and ``tied_bins``; with integer weights every other column equals that
+    of the repeated rows without weights. The
     standard deviation divides by the total weight minus 1, as it divides
     by the number of rows minus 1 without weights, so it is NaN when the
     weights of a column's values sum to 1 or less.
@@ -147,9 +151,56 @@ def profile_table(
       events have higher values, negative when they have lower ones, and NaN
       for categorical columns or when the values leave out a class.
 
+    After these, or after ``max`` without `target`, every column gets
+    three statistics of the shape of the distribution, computed from the
+    same values as the summary, without missing values and special codes.
+    Categorical columns get NaN.
+
+    * ``skewness``: the bias-corrected sample skewness :math:`G_1`, as
+      ``pandas.Series.skew`` computes it;
+    * ``kurtosis``: the bias-corrected sample excess kurtosis :math:`G_2`,
+      as ``pandas.Series.kurt`` computes it, 0 for a normal distribution;
+    * ``cv``: the coefficient of variation ``std / mean``, with the sign of
+      the mean, NaN when the mean is 0.
+
+    With :math:`n` values :math:`x_i`, their mean :math:`\bar x` and
+    :math:`M_k = \sum_i (x_i - \bar x)^k`,
+
+    .. math::
+
+       G_1 = \frac{n \sqrt{n - 1}}{n - 2} \frac{M_3}{M_2^{3/2}},
+       \qquad
+       G_2 = \frac{n (n + 1) (n - 1)}{(n - 2)(n - 3)} \frac{M_4}{M_2^2}
+       - \frac{3 (n - 1)^2}{(n - 2)(n - 3)}.
+
+    :math:`G_1` is NaN for 2 values or fewer, :math:`G_2` for 3 or fewer,
+    and both when all values are equal. With `weights`, :math:`n` is the
+    total weight and every sum is weighted, so integer weights equal
+    repeated rows, and the total weight must exceed 2 and 3.
+
+    With `target`, these are followed by
+
+    * ``ks``: the KS statistic of the same values, the largest gap between
+      the cumulative distributions of the values of events and of
+      non-events, from 0 to 1 whichever way the values run, as
+      `kivi.metrics.ks` defines it. NaN where ``gini`` is NaN;
+    * ``chi2_p_value``: the p-value of the chi-squared test of independence
+      between the target and the groups of the quick binning that gives
+      ``iv``, missing values and special codes included. With :math:`O` the
+      counts of events and non-events in each of the :math:`k` groups and
+      :math:`E` the counts expected if the event rate were the same in every
+      group, the statistic :math:`\sum (O - E)^2 / E` is compared with a
+      chi-squared distribution with :math:`k - 1` degrees of freedom. The
+      p-value is 1 when there is a single group.
+
     The quick binning gives a first ranking, not a final one: an IV from
     five quantile bins can miss a pattern that other edges would show, and
-    a categorical column with many rare labels gets an inflated IV.
+    a categorical column with many rare labels gets an inflated IV. The
+    chi-squared test asks only whether the event rate differs between the
+    groups: with thousands of rows a weak relation already gives a p-value
+    close to 0, so rank by ``iv`` and read a large p-value as a column with
+    no evidence of a relation. Weights from sampling rates inflate the
+    number of observations and make the p-value too small.
 
     Examples
     --------
@@ -167,6 +218,8 @@ def profile_table(
     housing   categorical      7        1         2  yes   0.571429
     >>> profile.loc["age", ["min", "q50", "max"]].tolist()
     [23.0, 38.0, 61.0]
+    >>> profile.loc["age", ["skewness", "kurtosis", "cv"]].round(4).tolist()
+    [0.2736, -1.51, 0.3536]
 
     With a target, the event rates and the separation of each column:
 
@@ -177,6 +230,11 @@ def profile_table(
     variable
     age                      1.0                  0.4286  1.5607 -0.8333
     housing                  0.0                  0.5714  0.7466     NaN
+    >>> profile[["ks", "chi2_p_value"]].round(4)
+                ks  chi2_p_value
+    variable
+    age       0.75        0.0821
+    housing    NaN        0.3114
     """
     if not isinstance(frame, pd.DataFrame):
         raise ValueError(f"frame must be a pandas DataFrame, got {type(frame).__name__}")
@@ -238,8 +296,9 @@ def _profile(
     regular = ~missing & ~is_special & (weight > 0)
     x = values.to_numpy(dtype=float, na_value=np.nan)[regular] if numeric else np.empty(0)
     row.update(_summary(x, None if mass is None else weight[regular]))
+    shape = _shape(x, weight[regular] if numeric else np.empty(0), row["mean"], row["std"])
     if labels is None:
-        return row
+        return {**row, **shape}
     event_rate = _rate(labels, weight, np.ones(len(labels), dtype=bool))
     missing_rate = _rate(labels, weight, missing)
     present_rate = _rate(labels, weight, ~missing)
@@ -264,13 +323,17 @@ def _profile(
         tied = len(edges) - 1 < bins
     else:
         groups, tied = values, False
-    row["iv"] = float(woe.woe_table(groups, labels, weights=mass)["iv"].sum())
+    table = woe.woe_table(groups, labels, weights=mass)
+    row["iv"] = float(table["iv"].sum())
     row["tied_bins"] = tied
-    row["gini"] = np.nan
+    row["gini"] = ks = np.nan
     if numeric and len(np.unique(labels[regular])) == 2:
-        row["gini"] = metrics.gini(
-            x, labels[regular], weights=None if mass is None else weight[regular]
-        )
+        scored = {"weights": None if mass is None else weight[regular]}
+        row["gini"] = metrics.gini(x, labels[regular], **scored)
+        ks = metrics.ks(x, labels[regular], **scored)
+    row.update(shape)
+    row["ks"] = ks
+    row["chi2_p_value"] = _chi2_p_value(table[["non_event", "event"]].to_numpy(dtype=float))
     return row
 
 
@@ -309,6 +372,49 @@ def _summary(x: np.ndarray, weight: np.ndarray | None) -> dict:
     return dict(
         zip(names, [mean, std, x.min(), *quantiles, x.max()], strict=True),
     )
+
+
+def _shape(x: np.ndarray, weight: np.ndarray, mean: float, std: float) -> dict:
+    """Skewness, excess kurtosis and coefficient of variation of the regular values.
+
+    ``weight`` holds the frequency weight of each value of ``x``, ones without weights, so
+    that ``n`` is the total weight and integer weights equal repeated rows.
+    """
+    n = weight.sum()
+    cv = std / mean if len(x) and mean != 0 else np.nan
+    if not len(x) or x.min() == x.max():
+        # Without spread the moment ratios are 0 / 0, as pandas >= 3 and SciPy report.
+        return {"skewness": np.nan, "kurtosis": np.nan, "cv": cv}
+    # The ratios do not depend on the scale; dividing by the largest deviation keeps the
+    # fourth powers of very large or very small values from overflowing or underflowing.
+    deviation = x - mean
+    deviation = deviation / np.abs(deviation).max()
+    squares = deviation * deviation
+    m2 = np.dot(weight, squares)
+    m3 = np.dot(weight, squares * deviation)
+    m4 = np.dot(weight, squares * squares)
+    skewness = n * np.sqrt(n - 1) / (n - 2) * m3 / m2**1.5 if n > 2 else np.nan
+    kurtosis = (
+        n * (n + 1) * (n - 1) / ((n - 2) * (n - 3)) * m4 / m2**2
+        - 3 * (n - 1) ** 2 / ((n - 2) * (n - 3))
+        if n > 3
+        else np.nan
+    )
+    return {"skewness": skewness, "kurtosis": kurtosis, "cv": cv}
+
+
+def _chi2_p_value(counts: np.ndarray) -> float:
+    """P-value of the chi-squared test of independence of a (groups, 2) count table.
+
+    Every group and both classes have a positive total, because ``woe_table`` drops the
+    groups without weight and ``profile_table`` requires both classes.
+    """
+    if len(counts) < 2:
+        return 1.0
+    total = counts.sum()
+    expected = np.outer(counts.sum(axis=1), counts.sum(axis=0)) / total
+    statistic = float(np.sum((counts - expected) ** 2 / expected))
+    return _stats.chi2_sf(statistic, len(counts) - 1)
 
 
 def _rate(labels: np.ndarray, weight: np.ndarray, rows: np.ndarray) -> float:
