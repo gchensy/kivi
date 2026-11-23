@@ -1,6 +1,6 @@
 # kivi 1.3 设计稿：批量时间窗特征（`kivi.features`）
 
-2026-11-22 · 待评审
+2026-11-22 起草 · 2026-11-23 审定：第 8 节的 9 项全部采用推荐
 
 ## 目标与范围
 
@@ -169,7 +169,7 @@ FeatureSpec.from_json(spec.to_json())
 
 ## 文档与实施计划
 
-1. 本设计稿审定：你确认下一节的问题。
+1. 本设计稿审定：2026-11-23 已确认，下一节的 9 项全部采用推荐。
 2. 并行两个会话：
     - **A：** `kivi.features` 的 `window_features` 和 `FeatureSpec`，包括新模块、测试、指南 `features.rst` 和 API 页。
     - **B：** `kivi.datasets.make_transactions`，为 `make_applications` 的申请人模拟申请日之前的交易流水。流水与隐藏的风险因子相关，供指南演示 IV。
@@ -180,9 +180,11 @@ FeatureSpec.from_json(spec.to_json())
     - CLAUDE.md。
 5. 发布 1.3.0，需要你的确认。
 
-## 需要你决定的问题
+## 决定
 
-| # | 问题 | 推荐 | 其他选项 |
+2026-11-23，以下 9 项全部采用推荐方案。
+
+| # | 问题 | 决定 | 未采用的选项 |
 | --- | --- | --- | --- |
 | 1 | 输入形式 | DataFrame 加列名 | 一维数组，与 `vintage_table` 一致，但多列聚合要传很多参数 |
 | 2 | 窗口边界 | 默认 [t − k, t)，可用 `closed="right"` | 默认 (t − k, t] |
