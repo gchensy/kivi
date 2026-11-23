@@ -40,7 +40,9 @@
 - 🧩 **不悄悄丢数据。** 缺失值、`-1` 这类特殊编码、只在一个样本中出现的类别，都会单独成组；拟合好的分组或 WOE 表不认识的类别会报错，除非明确指定它的归属。
 - ⚖️ **全面支持样本权重。** 分箱、WOE、PSI、评估指标、校准、模型拟合、策略表、监控报告、vintage 表和阶段汇总表都支持样本权重，整数权重相当于重复相应的行：计数、比率和系数都相同。只有分位数边界不同，因为加权分位数不做插值。
 - 🧊 **平滑口径清楚。** 空单元格先按 `smoothing`（默认 0.5）替换再归一化，结果中的计数始终是实际观测数。
-- 🐼 **只依赖 pandas 和 NumPy。** 核心不依赖 Spark 和数据库驱动，也不修改全局随机状态。
+- 📊 **由结果表直接出图。** `kivi.plotting` 用 matplotlib 直接根据 kivi 返回的表绘制 WOE、ROC、增益、校准、截断点、PSI、监控和 vintage 图表。
+- 🐼 **运行时只依赖 pandas 和 NumPy。** 只有可选的图表需要 matplotlib（`pip install "kivi[plot]"`）。核心不依赖 Spark 和数据库驱动，也不修改全局随机状态。
+- 🧪 **与参考库交叉验证。** CI 将重新实现的算法（如决策树切分、保序回归与 Platt 校准、逻辑回归拟合和 DeLong 方差）与 scikit-learn、SciPy 和 statsmodels 的结果对照。
 - 🌏 **中英双语文档，示例全部经过测试。** 两种语言文档中的每个示例都会在 CI 中运行。
 
 ## 📊 图表示例
@@ -105,9 +107,10 @@
 | 筛选与拟合 | `kivi.selection`、`kivi.reject_inference` | `stepwise`、`logistic_regression`、`fuzzy_augmentation` |
 | 刻度与评估 | `kivi.scorecard`、`kivi.metrics` | `points_table`、`roc_auc`、`roc_auc_interval`、`gains_table` |
 | 校准 | `kivi.calibration` | `master_scale`、`assign_grades`、`jeffreys_test` |
-| 决策 | `kivi.strategy` | `cutoff_table`、`swap_set`、`expected_loss_table` |
+| 决策 | `kivi.strategy` | `cutoff_table`、`confusion_table`、`swap_set`、`expected_loss_table` |
 | 部署与监控 | `kivi.spec`、`kivi.monitoring`、`kivi.stability` | `fit_spec`、`monitoring_table`、`stability_table`、`csi_table` |
 | 跟踪贷款 | `kivi.vintage`、`kivi.lifetime` | `vintage_table`、`transition_pd`、`expected_credit_loss`、`assign_stages` |
+| 绘制结果 | `kivi.plotting` | `woe_chart`、`roc_chart`、`gains_chart`、`monitoring_chart`、`vintage_chart` |
 
 以分箱为例：拟合一次边界，用它对每个样本分箱，再计算指标。
 
@@ -122,6 +125,8 @@ pip install kivi
 ```
 
 需要 Python 3.10+、NumPy 1.24+ 和 pandas 2.0+。如需最新开发版，可使用 `pip install "git+https://github.com/gchensy/kivi"`。
+
+`kivi.plotting` 的图表还需要 matplotlib 3.7+，可用 `pip install "kivi[plot]"` 安装。
 
 > **从 0.2.x 升级？** 0.3 的 API 有较大变化，升级已有代码前请先阅读[迁移指南](https://gchensy.github.io/kivi/zh/release/migration.html)。
 
@@ -170,7 +175,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 
 | 函数 | 用途 |
 | --- | --- |
-| [`kivi.univariate.profile_table`](https://gchensy.github.io/kivi/zh/api/univariate.html#kivi.univariate.profile_table) | 每个候选变量一行：缺失值、分布、事件率、快速分箱的 IV 以及数值变量的 Gini |
+| [`kivi.univariate.profile_table`](https://gchensy.github.io/kivi/zh/api/univariate.html#kivi.univariate.profile_table) | 每个候选变量一行：缺失值、分布及其形态、事件率、快速分箱的 IV 与卡方检验，以及数值变量的 Gini 和 KS |
 | [`kivi.binning.bin_edges`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.bin_edges) | 在基准样本上拟合等频或等距边界，两端边界为无穷 |
 | [`kivi.binning.cut`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.cut) | 把取值分配到各箱，`-1` 等特殊值各自单独成组 |
 | [`kivi.binning.chimerge_edges`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.chimerge_edges) | 用 ChiMerge 合并等频细分箱，直到相邻箱差异显著 |
@@ -180,7 +185,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | [`kivi.woe.woe_table`](https://gchensy.github.io/kivi/zh/api/woe.html#kivi.woe.woe_table) | 每组的计数、占比、WOE 与 IV |
 | [`kivi.woe.woe_transform`](https://gchensy.github.io/kivi/zh/api/woe.html#kivi.woe.woe_transform) | 用开发样本的 WOE 替换每个分组，未见过的分组需明确处理方式 |
 | [`kivi.woe.woe`](https://gchensy.github.io/kivi/zh/api/woe.html#kivi.woe.woe), [`kivi.woe.iv`](https://gchensy.github.io/kivi/zh/api/woe.html#kivi.woe.iv), [`kivi.stability.psi`](https://gchensy.github.io/kivi/zh/api/stability.html#kivi.stability.psi) | 直接从已汇总的计数计算 WOE、IV 和 PSI |
-| [`kivi.selection.correlation_filter`](https://gchensy.github.io/kivi/zh/api/selection.html#kivi.selection.correlation_filter), [`kivi.selection.vif`](https://gchensy.github.io/kivi/zh/api/selection.html#kivi.selection.vif) | 按 IV 剔除高度相关的变量，并计算方差膨胀因子 |
+| [`kivi.selection.correlation_filter`](https://gchensy.github.io/kivi/zh/api/selection.html#kivi.selection.correlation_filter), [`kivi.selection.vif`](https://gchensy.github.io/kivi/zh/api/selection.html#kivi.selection.vif) | 按 IV 剔除高度相关的变量（Pearson 或 Spearman 相关），并计算方差膨胀因子 |
 | [`kivi.selection.logistic_regression`](https://gchensy.github.io/kivi/zh/api/selection.html#kivi.selection.logistic_regression), [`kivi.selection.stepwise`](https://gchensy.github.io/kivi/zh/api/selection.html#kivi.selection.stepwise) | 基于 NumPy 的逻辑回归，以及保证系数全为正的逐步回归，支持频数权重 |
 | [`kivi.reject_inference.fuzzy_augmentation`](https://gchensy.github.io/kivi/zh/api/reject_inference.html#kivi.reject_inference.fuzzy_augmentation), [`kivi.reject_inference.parceling`](https://gchensy.github.io/kivi/zh/api/reject_inference.html#kivi.reject_inference.parceling), [`kivi.reject_inference.reweighting`](https://gchensy.github.io/kivi/zh/api/reject_inference.html#kivi.reject_inference.reweighting) | 推断被拒绝申请人的结果，以带权重的行或获批申请人的权重给出 |
 | [`kivi.scorecard.score_scaling`](https://gchensy.github.io/kivi/zh/api/scorecard.html#kivi.scorecard.score_scaling), [`kivi.scorecard.pd_to_score`](https://gchensy.github.io/kivi/zh/api/scorecard.html#kivi.scorecard.pd_to_score), [`kivi.scorecard.score_to_pd`](https://gchensy.github.io/kivi/zh/api/scorecard.html#kivi.scorecard.score_to_pd) | PDO 刻度的因子与偏移量，以及 PD 与分数互相换算 |
@@ -192,7 +197,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | [`kivi.calibration.calibration_table`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.calibration_table), [`kivi.calibration.binomial_test`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.binomial_test), [`kivi.calibration.jeffreys_test`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.jeffreys_test), [`kivi.calibration.hosmer_lemeshow`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.hosmer_lemeshow) | 按评级比较事件率与预测 PD，并做二项、Jeffreys 和 Hosmer-Lemeshow 检验 |
 | [`kivi.calibration.prior_correction`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.prior_correction), [`kivi.calibration.corrected_intercept`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.corrected_intercept), [`kivi.calibration.herfindahl_index`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.herfindahl_index) | 对过采样样本校正 PD，并度量评级集中度 |
 | [`kivi.calibration.platt_fit`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.platt_fit), [`kivi.calibration.platt_predict`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.platt_predict), [`kivi.calibration.isotonic_fit`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.isotonic_fit), [`kivi.calibration.isotonic_predict`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.isotonic_predict) | 用 Platt 缩放或保序回归把分数重新校准为概率 |
-| [`kivi.strategy.cutoff_table`](https://gchensy.github.io/kivi/zh/api/strategy.html#kivi.strategy.cutoff_table), [`kivi.strategy.swap_set`](https://gchensy.github.io/kivi/zh/api/strategy.html#kivi.strategy.swap_set) | 每个截断点的通过率与坏账率，以及现行评分与新评分之间的交换集 |
+| [`kivi.strategy.cutoff_table`](https://gchensy.github.io/kivi/zh/api/strategy.html#kivi.strategy.cutoff_table), [`kivi.strategy.swap_set`](https://gchensy.github.io/kivi/zh/api/strategy.html#kivi.strategy.swap_set), [`kivi.strategy.confusion_table`](https://gchensy.github.io/kivi/zh/api/strategy.html#kivi.strategy.confusion_table) | 每个截断点的通过率与坏账率、混淆矩阵、精确率、召回率与 F1，以及现行评分与新评分之间的交换集 |
 | [`kivi.strategy.expected_loss`](https://gchensy.github.io/kivi/zh/api/strategy.html#kivi.strategy.expected_loss), [`kivi.strategy.expected_loss_table`](https://gchensy.github.io/kivi/zh/api/strategy.html#kivi.strategy.expected_loss_table) | 每笔敞口及各等级的预期损失 PD × LGD × EAD |
 | [`kivi.spec.fit_spec`](https://gchensy.github.io/kivi/zh/api/spec.html#kivi.spec.fit_spec), [`kivi.spec.BinningSpec`](https://gchensy.github.io/kivi/zh/api/spec.html#kivi.spec.BinningSpec) | 对整个数据框分箱并做 WOE 编码，把分箱方案保存为带版本号的 JSON |
 | [`kivi.stability.psi_table`](https://gchensy.github.io/kivi/zh/api/stability.html#kivi.stability.psi_table) | 两个样本逐组的 PSI 贡献 |
@@ -202,6 +207,8 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | [`kivi.vintage.transition_matrix`](https://gchensy.github.io/kivi/zh/api/vintage.html#kivi.vintage.transition_matrix), [`kivi.vintage.roll_rates`](https://gchensy.github.io/kivi/zh/api/vintage.html#kivi.vintage.roll_rates) | 逾期档位之间的迁移，以及每个档位向下一档的滚动率 |
 | [`kivi.lifetime.convert_pd`](https://gchensy.github.io/kivi/zh/api/lifetime.html#kivi.lifetime.convert_pd), [`kivi.lifetime.transition_pd`](https://gchensy.github.io/kivi/zh/api/lifetime.html#kivi.lifetime.transition_pd) | 在累计、边际和条件 PD 之间转换 PD 期限结构，并由转移矩阵推算期限结构 |
 | [`kivi.lifetime.expected_credit_loss`](https://gchensy.github.io/kivi/zh/api/lifetime.html#kivi.lifetime.expected_credit_loss), [`kivi.lifetime.significant_increase`](https://gchensy.github.io/kivi/zh/api/lifetime.html#kivi.lifetime.significant_increase), [`kivi.lifetime.assign_stages`](https://gchensy.github.io/kivi/zh/api/lifetime.html#kivi.lifetime.assign_stages), [`kivi.lifetime.stage_table`](https://gchensy.github.io/kivi/zh/api/lifetime.html#kivi.lifetime.stage_table) | IFRS 9：12 个月与整个存续期的预期信用损失、信用风险显著增加、第 1 至 3 阶段以及各阶段的损失准备 |
+| [`kivi.plotting.woe_chart`](https://gchensy.github.io/kivi/zh/api/plotting.html#kivi.plotting.woe_chart), [`kivi.plotting.psi_chart`](https://gchensy.github.io/kivi/zh/api/plotting.html#kivi.plotting.psi_chart), [`kivi.plotting.correlation_chart`](https://gchensy.github.io/kivi/zh/api/plotting.html#kivi.plotting.correlation_chart) | 变量的图表：各分箱的 WOE 与事件率、基准与当前占比，以及相关性热力图 |
+| [`kivi.plotting.roc_chart`](https://gchensy.github.io/kivi/zh/api/plotting.html#kivi.plotting.roc_chart), [`kivi.plotting.gains_chart`](https://gchensy.github.io/kivi/zh/api/plotting.html#kivi.plotting.gains_chart), [`kivi.plotting.calibration_chart`](https://gchensy.github.io/kivi/zh/api/plotting.html#kivi.plotting.calibration_chart), [`kivi.plotting.cutoff_chart`](https://gchensy.github.io/kivi/zh/api/plotting.html#kivi.plotting.cutoff_chart), [`kivi.plotting.monitoring_chart`](https://gchensy.github.io/kivi/zh/api/plotting.html#kivi.plotting.monitoring_chart), [`kivi.plotting.vintage_chart`](https://gchensy.github.io/kivi/zh/api/plotting.html#kivi.plotting.vintage_chart) | 评分与组合的图表：带 KS 的 ROC 与增益曲线、校准、截断点、逐期监控和 vintage 曲线 |
 | [`kivi.datasets.load_bank`](https://gchensy.github.io/kivi/zh/api/datasets.html#kivi.datasets.load_bank), [`kivi.datasets.make_loan_panel`](https://gchensy.github.io/kivi/zh/api/datasets.html#kivi.datasets.make_loan_panel), [`kivi.datasets.make_applications`](https://gchensy.github.io/kivi/zh/api/datasets.html#kivi.datasets.make_applications) | 随包的银行营销数据，以及按种子生成的合成贷款面板和贷款申请数据 |
 
 ## 📚 文档
@@ -209,6 +216,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | | 中文 | English |
 | --- | --- | --- |
 | 快速上手 | [阅读](https://gchensy.github.io/kivi/zh/getting_started/quickstart.html) | [Read](https://gchensy.github.io/kivi/en/getting_started/quickstart.html) |
+| 教程：分十章展开的信用评分卡项目 | [阅读](https://gchensy.github.io/kivi/zh/tutorial/index.html) | [Read](https://gchensy.github.io/kivi/en/tutorial/index.html) |
 | 风控建模流程 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/risk_workflow.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/risk_workflow.html) |
 | 单变量概况 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/univariate.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/univariate.html) |
 | 分箱 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/binning.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/binning.html) |
@@ -224,6 +232,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | 模型监控 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/monitoring.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/monitoring.html) |
 | Vintage 与滚动率分析 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/vintage.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/vintage.html) |
 | 存续期 PD 与预期信用损失 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/lifetime.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/lifetime.html) |
+| 图表 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/plotting.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/plotting.html) |
 | 示例数据 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/datasets.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/datasets.html) |
 | 约定 | [阅读](https://gchensy.github.io/kivi/zh/api/conventions.html) | [Read](https://gchensy.github.io/kivi/en/api/conventions.html) |
 | 兼容性 | [阅读](https://gchensy.github.io/kivi/zh/api/compatibility.html) | [Read](https://gchensy.github.io/kivi/en/api/compatibility.html) |
@@ -251,6 +260,10 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 - ✅ 存续期 PD 期限结构、IFRS 9 预期信用损失与阶段划分
 - ✅ 在 CI 中检查类型标注、测试覆盖率，以及 API 审查：0.9 的弃用与面向 1.0 的兼容性承诺
 - ✅ 1.0：稳定的 API，采用语义化版本，移除 0.9 中弃用的内容
+- ✅ 展示 kivi 如何计算结果的示意图，以及贯穿一个信用风险项目的教程
+- ✅ 1.1：所有结果表的图表（`kivi[plot]`）、截断点的混淆矩阵与 F1、单变量概况中的形态统计量、KS 与卡方检验、Spearman 相关筛选，以及在 CI 中与 scikit-learn、SciPy 和 statsmodels 的交叉验证
+- 🔜 1.2：Best-KS 分箱、由还款计划生成逾期面板、专家评分卡的 AHP 权重
+- 🔜 1.3：批量时间窗特征，以及可保存的特征规格
 
 ## 🤝 参与贡献
 

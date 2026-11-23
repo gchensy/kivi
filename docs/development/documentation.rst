@@ -92,6 +92,7 @@ Charts and diagrams are drawn when the documentation is built. A ``plot`` direct
 
 * A chart, from ``docs/_plotting.py`` and called as ``kp.figure_*()``, plots a result on the bundled data, such as the WOE of each group or the vintage curves.
 * A chart of the tutorial, from ``docs/_tutorial.py`` and called as ``kt.figure_*()``, rebuilds the state of the project once and draws it with the functions of ``docs/_plotting.py``.
+* A chart of :doc:`/user_guide/plotting`, the guide to :mod:`kivi.plotting`, calls the public chart function in the ``plot`` directive itself, after the lines that recompute its table, because the code a reader would write is what that guide shows.
 * A diagram, from ``docs/_diagrams.py`` and called as ``kd.figure_*()``, shows how a function computes its result: the input rows, the call and the result table, with the numbers that kivi returns. A topic guide shows its main computation in a diagram right after the worked example, or after the first example of the body section that the computation belongs to.
 
 Text inside a chart or a diagram is limited to kivi's column and parameter names, data values and formulas written with them, so that one image serves both editions. The caption explains the image and the alternative text describes it; both are translated. A recipe that computes numbers apart from the function it shows checks them against that function, so that a change of the function fails the build instead of leaving the image out of date.

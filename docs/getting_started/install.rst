@@ -37,6 +37,12 @@ Check the installed version:
 
    python -c "import kivi; print(kivi.__version__)"
 
+The charts of :mod:`kivi.plotting` need matplotlib 3.7 or newer. Install it together with kivi through the ``plot`` extra; the other modules never import matplotlib.
+
+.. code-block:: bash
+
+   python -m pip install "kivi[plot]"
+
 To work on kivi itself, use an editable install with the test and documentation dependencies. See :doc:`/development/index`.
 
 .. note::

@@ -1,0 +1,2 @@
+* The migration guide maps the charts, the confusion matrix and F1 score, the skewness, kurtosis and coefficient of variation, and the Spearman correlation of 0.2.x to their replacements in 1.1, and it lists the 0.2.x tools that have no replacement, such as ``KSBins``, ``KmeansBins``, ``PearsonBins`` and ``Dataset.crime_data()``.
+* The installation page explains the ``plot`` extra, and the conventions and compatibility pages state the rules and the promises of the charts.
