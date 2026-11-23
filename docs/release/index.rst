@@ -8,6 +8,26 @@ Changes merged since the last release.
 
 .. release-fragments::
 
+1.2.0 (2026-11-22)
+------------------
+
+New
+^^^
+
+* ``kivi.vintage.delinquency_panel`` builds the monthly loan panel that ``vintage_table``, ``transition_matrix`` and ``roll_rates`` take from the instalment schedules and the payments of the loans. It applies the payments of each loan to its oldest unpaid instalment first, so that an amount paid early counts towards the next instalment, and at every month end up to ``end`` counts only the payments made by then. Each row has the columns of ``make_loan_panel`` that a schedule gives, with the same names and in the same order: ``loan_id``, ``cohort``, ``month``, ``month_on_book``, with ``principal`` the unpaid principal as ``balance``, and ``status`` in the buckets of ``make_loan_panel``. It adds the days past due since the oldest unpaid instalment fell due and the amounts overdue and outstanding. The cohort is the month before the first due date, or with ``origination`` the origination month of each loan. ``tolerance`` lets an instalment count as paid when a small amount of it remains unpaid. A loan leaves the panel once it is repaid, and keeps rolling after its last due date while it is not.
+
+* The new module ``kivi.expert`` weighs the factors of an expert scorecard, the kind of scorecard that credit analysts set by judgment where there are too few defaults to fit a model, with the analytic hierarchy process. ``ahp_weights`` turns a pairwise comparison matrix into weights that sum to 1, by Saaty's principal eigenvector or by the geometric mean of the rows, and ``ahp_consistency`` returns the principal eigenvalue, the consistency index, Saaty's random index and the consistency ratio, so that judgments with a ratio above the 0.1 rule of thumb can be reviewed. ``combine_weights`` multiplies the weights of factors and of their sub-factors into global weights. The matrix is a DataFrame whose index and columns name the factors, or an array, and it must have a diagonal of 1 and reciprocal entries, which the functions check. They replace the geometric-mean weights and the consistency check of the ``AHP`` class of the 0.2.x series, which is not part of kivi 1.
+
+* :func:`~kivi.binning.ks_edges` fits edges by Best-KS binning. It cuts each bin where the cumulative shares of its events and of its non-events differ most, the KS of the bin, among the cuts that leave ``min_bin_share`` of the observations on each side, and splits the bins best first, by the pairs of an event and a non-event that a cut ranks apart: its KS times the numbers of events and non-events in the bin. It takes ``max_bins``, ``special`` and ``weights`` as ``tree_edges`` does and returns edges of the same form, with observed values as interior edges.
+* :func:`~kivi.spec.fit_spec` fits a column with ``ks_edges`` when ``method`` is ``"ks"``. The saved specification stores the edges, so its format version does not change.
+
+Changed
+^^^^^^^
+
+* The migration guide maps ``KSBins``, ``PortfolioAnalysis.Vintage`` and the ``AHP`` class of 0.2.x to ``ks_edges``, ``delinquency_panel`` and the functions of ``kivi.expert``, and states how each one differs from the legacy code. It no longer lists the analytic hierarchy process and the repayment-schedule calculations among the tools without a replacement.
+* The conventions page describes the comparison matrices of ``kivi.expert`` and the dates of ``delinquency_panel``, the compatibility page lists the results of the new functions and keeps the random indices of ``ahp_consistency`` constant, and the glossary defines the terms of the analytic hierarchy process, the grace period and the repayment schedule.
+* The binning guide gains a chart of the Best-KS cuts, and the guide to expert scorecards two diagrams: how the weights and the consistency ratio follow from a comparison matrix, and which judgments of an inconsistent matrix to discuss first.
+
 1.1.0 (2026-11-22)
 ------------------
 
