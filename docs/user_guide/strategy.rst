@@ -1,7 +1,7 @@
 Credit strategy
 ===============
 
-A scorecard ranks applicants; a credit strategy decides whom to approve. :mod:`kivi.strategy` supports the decisions that follow: :func:`~kivi.strategy.cutoff_table` shows what each candidate cut-off approves and how many bad outcomes it lets through, :func:`~kivi.strategy.swap_set` compares the decisions of a current and a new score, and :func:`~kivi.strategy.expected_loss` and :func:`~kivi.strategy.expected_loss_table` turn PDs, LGDs and exposures into the expected loss of each applicant and of each grade.
+A scorecard ranks applicants; a credit strategy decides whom to approve. :mod:`kivi.strategy` supports the decisions that follow: :func:`~kivi.strategy.cutoff_table` shows what each candidate cut-off approves and how many bad outcomes it lets through, :func:`~kivi.strategy.confusion_table` counts the right and the wrong decisions of each cut-off, :func:`~kivi.strategy.swap_set` compares the decisions of a current and a new score, and :func:`~kivi.strategy.expected_loss` and :func:`~kivi.strategy.expected_loss_table` turn PDs, LGDs and exposures into the expected loss of each applicant and of each grade.
 
 The strategy follows :doc:`calibration`, which gives PDs and grades, and comes before the :doc:`binning specifications <spec>` that take the model to production.
 
@@ -121,6 +121,71 @@ cutoff
 0.120298       931          0.612                0.064
 0.133431      1255          0.825                0.080
 inf           1521          1.000                0.114
+
+Confusion matrix
+----------------
+
+A cut-off is also a classifier: it predicts an event for every applicant it declines. :func:`~kivi.strategy.confusion_table` counts, at each cut-off, how those predictions match the outcomes, with an event as the positive class and a decline as the positive prediction:
+
+>>> from kivi.strategy import confusion_table
+>>> confusion = confusion_table(current, y, cutoffs=cutoffs)
+>>> confusion[["true_positive", "false_positive", "true_negative", "false_negative"]]
+        true_positive  false_positive  true_negative  false_negative
+cutoff
+0.05              160            1033            315              13
+0.08              147             812            536              26
+0.10              124             613            735              49
+0.15               63             129           1219             110
+0.20               53              58           1290             120
+1.00                0               0           1348             173
+>>> confusion[["precision", "recall", "f1", "accuracy"]].round(3)
+        precision  recall     f1  accuracy
+cutoff
+0.05        0.134   0.925  0.234     0.312
+0.08        0.153   0.850  0.260     0.449
+0.10        0.168   0.717  0.273     0.565
+0.15        0.328   0.364  0.345     0.843
+0.20        0.477   0.306  0.373     0.883
+1.00          NaN   0.000  0.000     0.886
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Column
+     - Meaning
+   * - ``true_positive``
+     - Events with a score above the cut-off: the bad outcomes it avoids.
+   * - ``false_positive``
+     - Non-events with a score above the cut-off: the good business it gives up.
+   * - ``true_negative``
+     - Non-events at or below the cut-off: the good business it keeps.
+   * - ``false_negative``
+     - Events at or below the cut-off: the bad outcomes it lets through.
+   * - ``precision``
+     - ``true_positive`` divided by the declined applicants, the event rate among them. It is NaN when the cut-off declines nobody.
+   * - ``recall``
+     - Share of all events that the cut-off declines.
+   * - ``f1``
+     - The harmonic mean of ``precision`` and ``recall``; 0 when no event is declined.
+   * - ``accuracy``
+     - Share of applicants whose decision matches the outcome: declined events and approved non-events.
+
+A cut-off of 0.10 declines 737 applicants, 124 of them events. It declines 71.7% of the events, and 16.8% of the declined applicants are events, 1.5 times the 11.4% of all applicants. The rows are those of :func:`~kivi.strategy.cutoff_table`: ``recall`` is its ``rejected_event_share``, ``false_negative`` its ``approved_event``, and the share of non-events in ``false_positive`` its ``rejected_non_event_share``. The table adds the counts that these shares are made of, and the measures of a classifier:
+
+>>> confusion["recall"].equals(table["rejected_event_share"])
+True
+
+:func:`~kivi.metrics.roc_table` has the same counts at every distinct score, but its rows flag the scores at or above a threshold, while a cut-off declines only those above it. A row of ``confusion_table`` equals the ``roc_table`` row with the lowest threshold above the cut-off:
+
+>>> from kivi.metrics import roc_table
+>>> roc = roc_table(current, y)
+>>> roc.loc[roc.index[roc.index > 0.1].min(), ["cum_event", "cum_non_event"]].tolist()
+[124, 613]
+
+These measures depend on the share of events. Approving everyone, the last row, is right about 88.6% of the applicants, one minus the event rate, so among these cut-offs the accuracy is highest for the one that declines nobody. Precision stays low for the same reason. The F1 score is highest at 0.20, which declines 111 applicants, 7.3%, but it counts a declined good applicant and an approved bad one as equally costly. With the margin of 1 and the loss of 10 above, the second error costs ten times the first, and the cut-off of 0.08 that pays most there has an F1 of 0.26. Use these measures to compare scores or to report a classification at a chosen cut-off, and choose the cut-off from the marginal bad rate and the costs, as above.
+
+Unlike :func:`~kivi.strategy.swap_set`, ``confusion_table`` takes no missing outcomes: remove the applicants whose outcome is unknown, or fill it in with reject inference, before counting.
 
 Swap sets
 ---------
@@ -260,4 +325,4 @@ Grades E and F hold under a tenth of the exposure but almost 30% of the expected
 Sample weights
 --------------
 
-:func:`~kivi.strategy.cutoff_table`, :func:`~kivi.strategy.swap_set` and :func:`~kivi.strategy.expected_loss_table` take ``weights``, one non-negative weight per applicant, as the functions of :mod:`kivi.metrics` do. Counts, exposures and losses become sums of weights, and integer weights give the same counts and sums as repeating rows. For ``cutoff_table`` this holds on explicit cut-offs: an integer ``cutoffs`` uses the weighted quantiles of :func:`~kivi.binning.bin_edges`, which can differ from the quantiles of repeated rows. Use the weights of an outcome-based sample, which keeps all bad outcomes but only some of the good ones, to report approval and bad rates for the whole population.
+:func:`~kivi.strategy.cutoff_table`, :func:`~kivi.strategy.confusion_table`, :func:`~kivi.strategy.swap_set` and :func:`~kivi.strategy.expected_loss_table` take ``weights``, one non-negative weight per applicant, as the functions of :mod:`kivi.metrics` do. Counts, exposures and losses become sums of weights, and integer weights give the same counts and sums as repeating rows. For ``cutoff_table`` and ``confusion_table`` this holds on explicit cut-offs: an integer ``cutoffs`` uses the weighted quantiles of :func:`~kivi.binning.bin_edges`, which can differ from the quantiles of repeated rows. Use the weights of an outcome-based sample, which keeps all bad outcomes but only some of the good ones, to report approval and bad rates for the whole population.
