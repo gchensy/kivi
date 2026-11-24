@@ -8,7 +8,11 @@ fraction is computed from Stirling's series around the mean, as in DiDonato
 and Morris (ACM TOMS 18, 1992), instead of from differences of log-gamma
 values, which lose about ``log10(a + b)`` digits. The normal quantile starts
 from the rational approximation of P. J. Acklam (2003), whose relative error
-is below 1.2e-9, and refines it with a step of Halley's method.
+is below 1.2e-9, and refines it with a step of Halley's method. The normal
+distribution function is ``0.5 erfc(-x / sqrt(2))``. The tail of Student's t
+distribution with ``df`` degrees of freedom beyond ``|t|`` is ``I_x(df / 2, 1 / 2) / 2``
+at ``x = df / (df + t**2)``, and near the centre ``1 / 2 - I_y(1 / 2, df / 2) / 2`` at
+``y = 1 - x`` (Abramowitz and Stegun, 26.5.27 and 26.7.1).
 """
 
 import math
@@ -25,6 +29,7 @@ _HALF_LOG_2PI = 0.5 * math.log(2 * math.pi)
 _STIRLING_FROM = 10.0
 
 _lgamma = np.vectorize(math.lgamma, otypes=[float])
+_erfc = np.vectorize(math.erfc, otypes=[float])
 
 
 def betainc(a: npt.ArrayLike, b: npt.ArrayLike, x: npt.ArrayLike) -> npt.NDArray[np.float64]:
@@ -136,6 +141,42 @@ def _beta_fraction(
         if not active.any():
             return h
     raise ArithmeticError("the incomplete beta function did not converge")
+
+
+def normal_cdf(x: npt.ArrayLike) -> npt.NDArray[np.float64]:
+    """Return the distribution function of the standard normal distribution, elementwise.
+
+    A missing ``x`` gives NaN. The lower tail keeps its relative accuracy far
+    from the mean, so compute an upper tail ``1 - Phi(x)`` as ``normal_cdf(-x)``.
+    """
+    values = np.asarray(x, dtype=float)
+    return np.asarray(0.5 * _erfc(-values / math.sqrt(2)), dtype=float)
+
+
+def student_t_sf(t: npt.ArrayLike, dof: npt.ArrayLike) -> npt.NDArray[np.float64]:
+    """Return the upper tail P(T > t) of Student's t distribution, elementwise.
+
+    ``dof`` must be finite and positive and may be fractional; ``t`` may be
+    infinite, and a missing ``t`` gives NaN.
+    """
+    t, dof = np.broadcast_arrays(np.asarray(t, dtype=float), np.asarray(dof, dtype=float))
+    if not (np.isfinite(dof) & (dof > 0)).all():
+        raise ValueError("the degrees of freedom must be finite and positive")
+    with np.errstate(over="ignore", invalid="ignore"):  # t**2 overflows for huge t
+        ratio = t * t / dof
+        # x + y = 1, each computed without cancellation.
+        x = 1 / (1 + ratio)
+        y = np.where(np.isinf(ratio), 1.0, ratio / (1 + ratio))
+    a = dof / 2
+    # Pass betainc the argument that lies below the mean of its distribution, so that it is not
+    # recomputed as 1 minus the other one, which loses the digits of a t close to 0.
+    central = y < 1.5 / (a + 2.5)
+    # The other entries get x = 0, which betainc does not evaluate.
+    within = betainc(0.5, np.where(central, a, 1.0), np.where(central, y, 0))
+    tail = 0.5 * betainc(np.where(central, 1.0, a), 0.5, np.where(central, 0, x))
+    # P(|T| < |t|) = I_y(1/2, df/2) near the centre; P(T > |t|) = I_x(df/2, 1/2) / 2 in the tails.
+    upper = np.where(central, 0.5 - 0.5 * within, tail)
+    return np.where(t > 0, upper, 1 - upper)
 
 
 def chi2_sf(statistic: float, dof: int) -> float:

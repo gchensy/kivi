@@ -5,7 +5,9 @@ schedules and the payments of the loans. ``vintage_table`` follows the
 cumulative bad rate of each cohort as it ages. ``transition_matrix`` counts
 the movements of loans or obligors between delinquency buckets or rating
 grades, and ``roll_rates`` reduces it to the share of each bucket that rolls
-to the next worse one.
+to the next worse one. ``migration_bandwidth`` and ``migration_test`` summarize
+and test the migrations between rating grades as the European Central Bank asks
+in the validation of PD models.
 """
 
 import math
@@ -17,9 +19,16 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from . import _validation
+from . import _stats, _validation
 
-__all__ = ["delinquency_panel", "vintage_table", "transition_matrix", "roll_rates"]
+__all__ = [
+    "delinquency_panel",
+    "vintage_table",
+    "transition_matrix",
+    "roll_rates",
+    "migration_bandwidth",
+    "migration_test",
+]
 
 # The delinquency buckets of make_loan_panel and the days past due at which each one starts.
 _STATUSES = ("current", "1-29", "30-59", "60-89", "90+")
@@ -818,6 +827,253 @@ def roll_rates(
     return pd.Series(rate, index=labels[:-1].rename("before"), name="roll_rate")
 
 
+def migration_bandwidth(
+    before: npt.ArrayLike,
+    after: npt.ArrayLike,
+    *,
+    grades: npt.ArrayLike,
+    weights: npt.ArrayLike | None = None,
+) -> pd.Series:
+    r"""Measure how far customers migrate between rating grades, upwards and downwards.
+
+    The matrix weighted bandwidth (MWB) of the European Central Bank [1]_
+    summarizes a migration matrix in two numbers: how far the customers who
+    moved to worse grades moved, and how far those who moved to better
+    grades moved, each relative to the furthest move from their grade in
+    either direction. A stable rating system has small values.
+
+    Parameters
+    ----------
+    before : array_like
+        Grade of each customer at the beginning of the observation period.
+        Every value must be one of `grades`.
+    after : array_like
+        Status of each customer at the end of the period: a grade, or any
+        other label, such as ``"default"`` or ``"closed"``, for a customer
+        who left the grades. If `before` and `after` are both Series, they
+        must have identical indices; otherwise they are matched by
+        position. Neither may contain missing values.
+    grades : array_like
+        The :math:`K` grades of the rating scale for non-defaulted
+        customers, from the best to the worst, at least two.
+    weights : array_like, optional
+        Non-negative frequency weight of each customer, matched like
+        `after`: integer weights give the same result as repeating rows.
+
+    Returns
+    -------
+    pandas.Series
+        ``upper``, the MWB of the migrations to worse grades, above the
+        diagonal of the migration matrix, and ``lower``, that of the
+        migrations to better grades, below it, in an index named
+        ``statistic``. Each is between 0 and 1, and NaN when no customer
+        moved in its direction.
+
+    Raises
+    ------
+    ValueError
+        If the inputs are empty, not one-dimensional, of different lengths
+        or Series with different indices, or have a missing value, if
+        `before` has a value that is not one of `grades`, or if `weights`
+        is not valid. Also if `grades` is not one-dimensional, has fewer
+        than two grades, duplicates or missing values.
+
+    See Also
+    --------
+    migration_test : Test the monotonicity of the migration matrix.
+    transition_matrix : The migration matrix itself.
+
+    Notes
+    -----
+    Number the grades from 1, the best, to :math:`K`. With :math:`N_i`
+    customers in grade :math:`i` at the beginning and :math:`N_{ij}` of
+    them in grade :math:`j` at the end, :math:`p_{ij} = N_{ij} / N_i`, and
+
+    .. math::
+
+       \mathrm{MWB}_\mathrm{upper} = \frac{1}{M_u} \sum_{i=1}^{K-1}
+       \sum_{j=i+1}^{K} |i - j| \, N_i \, p_{ij}, \qquad
+       M_u = \sum_{i=1}^{K-1} \max(|i - K|, |i - 1|) \, N_i
+       \sum_{j=i+1}^{K} p_{ij},
+
+    with :math:`\mathrm{MWB}_\mathrm{lower}` and :math:`M_l` defined in
+    the same way over :math:`j < i`, for :math:`i` from 2 to :math:`K`.
+    :math:`N_i` counts the customers who defaulted or left as well, but
+    :math:`N_i \, p_{ij} = N_{ij}` counts only those who reached a grade, so
+    the customers who left change neither bandwidth. With weights, the
+    counts are sums of weights.
+
+    References
+    ----------
+    .. [1] European Central Bank, "Instructions for reporting the
+       validation results of internal models: IRB Pillar I models for
+       credit risk", February 2019, section 2.5.5.1.
+
+    Examples
+    --------
+    >>> from kivi.vintage import migration_bandwidth
+    >>> before = ["A", "A", "A", "B", "B", "B", "C", "C"]
+    >>> after = ["A", "B", "C", "A", "B", "default", "B", "C"]
+    >>> migration_bandwidth(before, after, grades=["A", "B", "C"]).round(4)
+    statistic
+    upper    0.7500
+    lower    0.6667
+    dtype: float64
+
+    Of grade A, one customer moved one grade down and one two grades,
+    where each could have moved two, so the upper MWB is (1 + 2) / (2 + 2).
+    The customer of grade B who defaulted counts in neither bandwidth.
+    """
+    labels, counts, _ = _migrations(before, after, grades, weights)
+    size = len(labels)
+    grade, other = np.indices((size, size))
+    distance = np.abs(grade - other)
+    furthest = np.maximum(size - 1 - grade, grade)
+    result = {}
+    for name, side in (("upper", other > grade), ("lower", other < grade)):
+        moved = np.where(side, counts, 0)
+        numerator = float(np.sum(distance * moved))
+        denominator = float(np.sum(furthest * moved))
+        result[name] = numerator / denominator if denominator > 0 else math.nan
+    return pd.Series(list(result.values()), index=pd.Index(list(result), name="statistic"))
+
+
+def migration_test(
+    before: npt.ArrayLike,
+    after: npt.ArrayLike,
+    *,
+    grades: npt.ArrayLike,
+    weights: npt.ArrayLike | None = None,
+) -> pd.DataFrame:
+    r"""Test whether the migration frequencies fall away from the diagonal of the matrix.
+
+    In a stable rating system, few customers move far: the share of a grade
+    that moves to another grade should fall the further that grade lies
+    from it. The z tests of the European Central Bank [1]_ compare each
+    off-diagonal cell of the migration matrix with its neighbour towards the
+    diagonal. A small p-value means that more customers reached the cell
+    than its neighbour, a sign that the portfolio or the rating system
+    shifted.
+
+    Parameters
+    ----------
+    before : array_like
+        Grade of each customer at the beginning of the observation period.
+        Every value must be one of `grades`.
+    after : array_like
+        Status of each customer at the end of the period: a grade, or any
+        other label, such as ``"default"`` or ``"closed"``, for a customer
+        who left the grades. If `before` and `after` are both Series, they
+        must have identical indices; otherwise they are matched by
+        position. Neither may contain missing values.
+    grades : array_like
+        The :math:`K` grades of the rating scale for non-defaulted
+        customers, from the best to the worst, at least two.
+    weights : array_like, optional
+        Non-negative frequency weight of each customer, matched like
+        `after`: integer weights give the same result as repeating rows.
+
+    Returns
+    -------
+    pandas.DataFrame
+        One row for each of the :math:`K (K - 1)` off-diagonal cells, in
+        the order of `grades`, indexed by the grades ``before`` and
+        ``after``. ``total`` is the number of customers in the grade before,
+        those who left included; ``share`` the share of them in the grade
+        after; ``statistic`` the z statistic; and ``p_value`` its one-sided
+        p-value.
+
+    Raises
+    ------
+    ValueError
+        In the same cases as `migration_bandwidth`.
+
+    See Also
+    --------
+    migration_bandwidth : How far the customers migrate.
+    transition_matrix : The migration matrix itself.
+
+    Notes
+    -----
+    With :math:`N_i` customers in grade :math:`i` at the beginning, those
+    who defaulted or left included, and the shares :math:`p_{ij}` of them in
+    grade :math:`j` at the end, each cell is compared with its neighbour
+    :math:`n` towards the diagonal, :math:`n = j + 1` below the diagonal
+    (:math:`j < i`) and :math:`n = j - 1` above it (:math:`j > i`):
+
+    .. math::
+
+       z_{ij} = \frac{p_{in} - p_{ij}}
+       {\sqrt{\left[p_{ij} (1 - p_{ij}) + p_{in} (1 - p_{in})
+       + 2 p_{ij} p_{in}\right] / N_i}},
+
+    whose denominator is the standard deviation of :math:`p_{in} - p_{ij}`
+    when the customers of grade :math:`i` migrate independently. Under the
+    null hypothesis :math:`p_{ij} \le p_{in}`, the p-value is
+    :math:`\Phi(z_{ij})`, so the cells that are fuller than their
+    neighbour get small p-values. As the European Central Bank asks, the
+    statistic and the p-value are NaN where they are not defined: for a
+    grade without customers, and where both shares are 0 or one of them is
+    1. With weights, the counts are sums of weights, so weights that are
+    not frequencies, such as exposures, do not give standard normal
+    statistics.
+
+    References
+    ----------
+    .. [1] European Central Bank, "Instructions for reporting the
+       validation results of internal models: IRB Pillar I models for
+       credit risk", February 2019, section 2.5.5.2.
+
+    Examples
+    --------
+    >>> from kivi.vintage import migration_test
+    >>> before = ["A", "A", "A", "B", "B", "B", "C", "C"]
+    >>> after = ["A", "B", "C", "A", "B", "default", "B", "C"]
+    >>> migration_test(before, after, grades=["A", "B", "C"]).round(4)
+                  total   share  statistic  p_value
+    before after
+    A      B          3  0.3333     0.0000   0.5000
+           C          3  0.3333     0.0000   0.5000
+    B      A          3  0.3333     0.0000   0.5000
+           C          3  0.0000     1.2247   0.8897
+    C      A          2  0.0000     1.4142   0.9214
+           B          2  0.5000     0.0000   0.5000
+
+    The customer of grade B who defaulted counts in its ``total``. No cell
+    holds more customers than its neighbour towards the diagonal, so no
+    p-value is small.
+    """
+    labels, counts, total = _migrations(before, after, grades, weights)
+    size = len(labels)
+    grade, other = (codes.ravel() for codes in np.indices((size, size)))
+    off = grade != other
+    grade, other = grade[off], other[off]
+    neighbour = np.where(other < grade, other + 1, other - 1)
+    share = np.divide(
+        counts, total[:, None], out=np.full((size, size), np.nan), where=total[:, None] > 0
+    )
+    cell, near = share[grade, other], share[grade, neighbour]
+    spread = cell * (1 - cell) + near * (1 - near) + 2 * cell * near
+    defined = (total[grade] > 0) & (spread > 0)
+    statistic = np.full(len(grade), np.nan)
+    statistic[defined] = (near - cell)[defined] / np.sqrt(spread[defined] / total[grade][defined])
+    return pd.DataFrame(
+        {
+            "total": total[grade],
+            "share": cell,
+            "statistic": statistic,
+            "p_value": _stats.normal_cdf(statistic),
+        },
+        # Levels and codes, unlike from_arrays, do not hash the labels, which warns for
+        # intervals on NumPy < 2.2.
+        index=pd.MultiIndex(
+            levels=[labels, labels],  # type: ignore[list-item]  # an Index is a sequence
+            codes=[grade, other],
+            names=["before", "after"],
+        ),
+    )
+
+
 def _transitions(
     before: npt.ArrayLike,
     after: npt.ArrayLike,
@@ -850,19 +1106,7 @@ def _transitions(
 def _state_labels(before: pd.Series, after: pd.Series, states: npt.ArrayLike | None) -> pd.Index:
     """Return the states in order: as given, the shared categories or the sorted values."""
     if states is not None:
-        if np.ndim(states) != 1:
-            raise ValueError(
-                f"states must be one-dimensional, got {_validation.shown_argument(states)}"
-            )
-        labels = pd.Index(states)  # type: ignore[arg-type]  # takes any array_like
-        if labels.hasnans:
-            raise ValueError(
-                f"states must not contain missing values, got {np.count_nonzero(labels.isna())}"
-            )
-        if labels.has_duplicates:
-            repeated = _validation.shown(labels[labels.duplicated()])
-            raise ValueError(f"states must not contain duplicates, got {repeated} more than once")
-        return labels
+        return _ordered_labels(states, "states")
     categories = [
         values.dtype.categories
         for values in (before, after)
@@ -886,19 +1130,90 @@ def _state_labels(before: pd.Series, after: pd.Series, states: npt.ArrayLike | N
         ) from None
 
 
-def _state_codes(values: pd.Series, labels: pd.Index, name: str) -> npt.NDArray[np.intp]:
-    """Position of each value in ``labels``; a value that is not a state raises."""
+def _ordered_labels(values: npt.ArrayLike, name: str) -> pd.Index:
+    """Return the states or grades given in ``values``, in order, as an Index."""
+    if np.ndim(values) != 1:
+        raise ValueError(
+            f"{name} must be one-dimensional, got {_validation.shown_argument(values)}"
+        )
+    labels = pd.Index(values)  # type: ignore[arg-type]  # takes any array_like
+    if labels.hasnans:
+        raise ValueError(
+            f"{name} must not contain missing values, got {np.count_nonzero(labels.isna())}"
+        )
+    if labels.has_duplicates:
+        repeated = _validation.shown(labels[labels.duplicated()])
+        raise ValueError(f"{name} must not contain duplicates, got {repeated} more than once")
+    return labels
+
+
+def _positions(values: pd.Series, labels: pd.Index) -> npt.NDArray[np.intp]:
+    """Position of each value in ``labels``, or -1 for a value that is not one of them."""
     # Categorical codes avoid hashing the labels, which warns for intervals on NumPy < 2.2.
     if isinstance(values.dtype, pd.CategoricalDtype) and values.dtype.categories.equals(labels):
-        codes = values.cat.codes.to_numpy()
-    else:
-        codes = labels.get_indexer(values)  # type: ignore[arg-type]  # takes any array_like
+        return values.cat.codes.to_numpy().astype(np.intp)
+    return labels.get_indexer(values).astype(np.intp)  # type: ignore[arg-type]  # any array_like
+
+
+def _state_codes(
+    values: pd.Series, labels: pd.Index, name: str, of: str = "states"
+) -> npt.NDArray[np.intp]:
+    """Position of each value in ``labels``, the argument ``of``; another value raises."""
+    codes = _positions(values, labels)
     unknown = codes < 0
     if unknown.any():
         raise ValueError(
-            f"{name} must contain only values in states, got {_validation.shown(values[unknown])}"
+            f"{name} must contain only values in {of}, got {_validation.shown(values[unknown])}"
         )
-    return codes.astype(np.intp)
+    return codes
+
+
+def _migrations(
+    before: npt.ArrayLike,
+    after: npt.ArrayLike,
+    grades: npt.ArrayLike,
+    weights: npt.ArrayLike | None,
+) -> tuple[pd.Index, np.ndarray, np.ndarray]:
+    """Return the grades, the counts between the grades and the count of each grade before.
+
+    The counts are integers without weights and sums of weights with them.
+
+    Entry (i, j) of the counts holds the customers that moved from grade i to grade j; the
+    count of grade i also holds those whose status after is not a grade.
+    """
+    _validation.shared_index({"before": before, "after": after, "weights": weights})
+    raw_after = after
+    before, after = _validation.as_series(before, "before"), _validation.as_series(after, "after")
+    if len(before) != len(after):
+        raise ValueError(
+            f"before and after must have the same length, got {len(before)} and {len(after)}"
+        )
+    if not len(before):
+        raise ValueError("before and after must not be empty")
+    mass = _validation.as_weights(weights, raw_after, "weights", "after")
+    for values, name in ((before, "before"), (after, "after")):
+        missing = values.isna().to_numpy(dtype=bool)
+        if missing.any():
+            raise ValueError(
+                f"{name} must not contain missing values, got {missing.sum()}; give the customers "
+                "that left the grades a status of their own, such as 'default' or 'closed'"
+            )
+    labels = _ordered_labels(grades, "grades")
+    size = len(labels)
+    if size < 2:
+        raise ValueError(
+            f"grades must hold at least two grades, got {_validation.shown_argument(grades)}"
+        )
+    before_code = _state_codes(before, labels, "before", "grades")
+    after_code = _positions(after, labels)
+    total = np.bincount(before_code, weights=mass, minlength=size)
+    graded = after_code >= 0
+    counts = np.bincount(
+        before_code[graded] * size + after_code[graded],
+        weights=None if mass is None else mass[graded],
+        minlength=size * size,
+    )
+    return labels, counts.reshape(size, size), total
 
 
 def _check_not_missing(codes: np.ndarray, name: str) -> None:

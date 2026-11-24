@@ -3,7 +3,7 @@ Vintage and roll-rate analysis
 
 Once a scorecard is in use, the loans it approves are monitored as they age. :mod:`kivi.vintage` covers the two standard views of a loan portfolio: vintage curves, which follow the bad rate of each origination cohort by month on book, and roll rates and transition matrices, which show how loans move between delinquency buckets from one month end to the next.
 
-Vintage analysis complements :doc:`monitoring` and the :doc:`population stability index <psi>`, which monitor the applicants, by following the loans themselves. Its curves and matrices then give the PD term structures of :doc:`lifetime`, the last step of the user guide. :func:`~kivi.vintage.delinquency_panel` builds the monthly loan panel from the instalment schedules and the payments of the loans, :func:`~kivi.vintage.vintage_table` gives the vintage curves, and :func:`~kivi.vintage.transition_matrix` and :func:`~kivi.vintage.roll_rates` the movements between buckets.
+Vintage analysis complements :doc:`monitoring` and the :doc:`population stability index <psi>`, which monitor the applicants, by following the loans themselves. Its curves and matrices then give the PD term structures of :doc:`lifetime`, the last step of the user guide. :func:`~kivi.vintage.delinquency_panel` builds the monthly loan panel from the instalment schedules and the payments of the loans, :func:`~kivi.vintage.vintage_table` gives the vintage curves, and :func:`~kivi.vintage.transition_matrix` and :func:`~kivi.vintage.roll_rates` the movements between buckets. :func:`~kivi.vintage.migration_bandwidth` and :func:`~kivi.vintage.migration_test` summarize and test the migrations between rating grades, as the European Central Bank asks in the validation of PD models.
 
 The loan panel
 --------------
@@ -373,3 +373,91 @@ current      0.011     0.011
 90+          1.000     1.000
 
 The projection is of the right size but not exact: loans differ in risk, and the chance of missing an instalment depends on the month on book, so the movements are not a time-homogeneous Markov chain. Few loans are 30 to 89 days past due in June, so those rows are also uncertain.
+
+Migration tests
+---------------
+
+A rating system is stable when most customers keep their grade from one year to the next and those who move do not move far. The European Central Bank asks for two summaries of the migration matrix of a PD model. The data are the grade of each customer at the beginning of the observation period and the status at its end: a grade, or a label such as ``"default"`` or ``"closed"`` for the customers who left the grades. Here 2,200 customers in five grades, from A, the best, to E, migrate for a year by a simulated migration matrix:
+
+>>> rng = np.random.default_rng(0)
+>>> grades = ["A", "B", "C", "D", "E"]
+>>> statuses = grades + ["default", "closed"]
+>>> yearly = np.array([
+...     [0.86, 0.07, 0.02, 0.01, 0.00, 0.00, 0.04],
+...     [0.06, 0.80, 0.06, 0.01, 0.03, 0.01, 0.03],
+...     [0.01, 0.07, 0.78, 0.07, 0.02, 0.02, 0.03],
+...     [0.00, 0.01, 0.08, 0.76, 0.08, 0.04, 0.03],
+...     [0.00, 0.00, 0.02, 0.09, 0.73, 0.13, 0.03],
+... ])
+>>> counts = [300, 600, 700, 400, 200]
+>>> start = np.repeat(grades, counts)
+>>> end = np.concatenate([
+...     rng.choice(statuses, size=count, p=row) for count, row in zip(counts, yearly)
+... ])
+>>> transition_matrix(start, end, states=statuses, normalize=True).loc[grades].round(3)
+after       A      B      C      D      E  default  closed
+before
+A       0.807  0.093  0.027  0.013  0.000    0.000   0.060
+B       0.045  0.835  0.057  0.008  0.020    0.003   0.032
+C       0.014  0.084  0.761  0.071  0.019    0.020   0.030
+D       0.000  0.020  0.080  0.772  0.060    0.045   0.022
+E       0.000  0.000  0.015  0.145  0.660    0.140   0.040
+
+The matrix of the simulation sends more customers from grade B to grade E than to grade D, a jump that a stable rating system should not make.
+
+Migration bandwidth
+^^^^^^^^^^^^^^^^^^^
+
+Number the grades from 1 to :math:`K`, and let :math:`N_{ij}` customers move from grade :math:`i` to grade :math:`j`. The upper matrix weighted bandwidth (MWB) adds up how far the customers moved to worse grades, above the diagonal, relative to the furthest move from each customer's grade in either direction:
+
+.. math::
+
+   \mathrm{MWB}_\mathrm{upper} = \frac{\sum_{i < j} |i - j| \, N_{ij}}
+   {\sum_{i < j} \max(|i - K|, |i - 1|) \, N_{ij}},
+
+and the lower MWB does the same for the moves to better grades, below the diagonal. Both lie between 0 and 1, and smaller values mean shorter migrations. :func:`~kivi.vintage.migration_bandwidth` takes the grades from the best to the worst in ``grades``; the customers who defaulted or left change neither bandwidth:
+
+>>> from kivi.vintage import migration_bandwidth, migration_test
+>>> migration_bandwidth(start, end, grades=grades).round(4)
+statistic
+upper    0.4618
+lower    0.4047
+dtype: float64
+
+The furthest move from the middle grade C is two grades and that from grade A four, so a move of one grade weighs half the furthest move from C but a quarter of it from A. The furthest move counts in either direction, so an upgrade of one grade from grade B, as far as B can rise, is measured against the three grades that B could fall.
+
+Monotonicity of the migration matrix
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In each row of the matrix, the shares should fall away from the diagonal. :func:`~kivi.vintage.migration_test` compares each off-diagonal share :math:`p_{ij}` with the share :math:`p_{in}` of its neighbour towards the diagonal, :math:`n = j - 1` above it and :math:`n = j + 1` below it. With :math:`N_i` customers in grade :math:`i` at the beginning, those who defaulted or left included,
+
+.. math::
+
+   z_{ij} = \frac{p_{in} - p_{ij}}
+   {\sqrt{\left[p_{ij} (1 - p_{ij}) + p_{in} (1 - p_{in}) + 2 p_{ij} p_{in}\right] / N_i}},
+
+and the p-value is :math:`\Phi(z_{ij})`. A small p-value means that the cell holds more customers than its neighbour. Here only the jump from B to E stands out:
+
+>>> migration = migration_test(start, end, grades=grades)
+>>> migration.loc["B"].round(4)
+       total   share  statistic  p_value
+after
+A        600  0.0450    38.2532   1.0000
+C        600  0.0567    35.6584   1.0000
+D        600  0.0083     4.7295   1.0000
+E        600  0.0200    -1.7018   0.0444
+>>> migration[migration["p_value"] < 0.05].round(4)
+              total  share  statistic  p_value
+before after
+B      E        600   0.02    -1.7018   0.0444
+
+``total`` counts every customer of the grade at the beginning, so the shares of a row add up to less than 1 when customers defaulted or left. The cells next to the diagonal are compared with the diagonal, so their statistics are large. A statistic is NaN where the test is not defined, as for the cell from E to A, whose share and whose neighbour's share are both 0:
+
+>>> migration.loc[("E", "A")]
+total        200.0
+share          0.0
+statistic      NaN
+p_value        NaN
+Name: (E, A), dtype: float64
+
+The table has a row for each of the 20 off-diagonal cells, so some p-values fall below 5% by chance alone; read a small p-value together with the size of the cell. With ``weights``, the counts are sums of weights, and integer weights give the same result as repeating rows. The tests count the weights as customers, so weights such as exposures do not give standard normal statistics.

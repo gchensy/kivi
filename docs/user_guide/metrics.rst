@@ -1,7 +1,7 @@
 Model performance
 =================
 
-:mod:`kivi.metrics` measures how well a score separates events from non-events. :func:`~kivi.metrics.roc_auc`, :func:`~kivi.metrics.gini` and :func:`~kivi.metrics.ks` summarize the ranking in one number, and :func:`~kivi.metrics.roc_table` lists the points of the ROC curve behind them. :func:`~kivi.metrics.roc_auc_interval` gives the AUC a standard error and a confidence interval, and :func:`~kivi.metrics.delong_test` tests whether two scores of the same customers rank equally well. :func:`~kivi.metrics.gains_table` breaks the ranking down by score band, and :func:`~kivi.metrics.brier_score` checks predicted probabilities against the outcomes.
+:mod:`kivi.metrics` measures how well a score separates events from non-events. :func:`~kivi.metrics.roc_auc`, :func:`~kivi.metrics.gini` and :func:`~kivi.metrics.ks` summarize the ranking in one number, and :func:`~kivi.metrics.roc_table` lists the points of the ROC curve behind them. :func:`~kivi.metrics.roc_auc_interval` gives the AUC a standard error and a confidence interval, and :func:`~kivi.metrics.delong_test` tests whether two scores of the same customers rank equally well. :func:`~kivi.metrics.generalized_auc` extends the AUC to outcomes in ordered segments, such as realized LGDs. :func:`~kivi.metrics.gains_table` breaks the ranking down by score band, and :func:`~kivi.metrics.brier_score` checks predicted probabilities against the outcomes.
 
 Performance is measured once the model is scaled to a :doc:`scorecard`, or once the outcomes of an :doc:`expert scorecard <expert>` are known, and before its probabilities are checked in :doc:`calibration`.
 
@@ -237,6 +237,38 @@ p_value      0.0187  0.1332
 
 ``difference`` is ``new_auc`` minus ``current_auc``, ``lower`` and ``upper`` bound it at the confidence ``level``, and ``p_value`` is the two-sided p-value of ``z``. Adding ``month`` raises the AUC by 0.025, and the interval of the gain excludes 0. The gain of 0.010 from ``loan`` could be chance (p = 0.13), although its standard error of 0.006 is a third of that of either AUC on its own. For a one-sided test that the new score ranks better, halve ``p_value`` when ``z`` is positive.
 
+Generalized AUC
+---------------
+
+An LGD or CCF model is judged by how well its estimates rank realized values that are not binary. The European Central Bank cuts both into ordered segments and generalizes the AUC to their contingency table: of two observations in different estimated segments, the gAUC is the probability that the one estimated higher also realized higher, a tie in the realized segments counting as one half. It is a rescaled Somers' D of the realized segments on the estimated ones,
+
+.. math::
+
+   D(C|R) = \frac{P - Q}{w_r}, \qquad \mathrm{gAUC} = \frac{D(C|R) + 1}{2},
+
+where :math:`P` and :math:`Q` count the pairs that the two segmentations order in the same and in opposite ways, and :math:`w_r` the pairs in different estimated segments, each pair twice. :func:`~kivi.metrics.generalized_auc` takes the estimated segments first and the realized ones second, and returns both measures with a standard error and an interval at the confidence ``level``, like :func:`~kivi.metrics.roc_auc_interval`. Of these eight facilities, 21 pairs lie in different estimated segments: 13 of them are ordered the same way by the realized segments, 2 the opposite way and 6 are tied, so Somers' D is :math:`(13 - 2) / 21`:
+
+>>> from kivi.metrics import generalized_auc
+>>> estimated = [1, 1, 1, 2, 2, 2, 3, 3]
+>>> realized = [1, 1, 2, 1, 2, 3, 2, 3]
+>>> generalized_auc(estimated, realized).round(4)
+           estimate      se   lower   upper
+statistic
+gauc         0.7619  0.0902  0.5852  0.9386
+somers_d     0.5238  0.1803  0.1704  0.8772
+
+The segments are ordered categoricals, such as the intervals of ``pandas.cut`` in the order of their categories, or numbers in the order of their values. The standard error of the gAUC is half the asymptotic standard error of Somers' D of Brown and Benedetti (1977), because the gAUC is half of Somers' D plus one half, and that of ``somers_d`` is twice as large.
+
+Pairs in the same estimated segment do not count in the gAUC, while the AUC leaves out the pairs with the same target instead. With the target in the place of the estimated segments, the gAUC is therefore the AUC of the worked example, though with an asymptotic standard error that differs from DeLong's:
+
+>>> generalized_auc(target, score).round(4)
+           estimate      se   lower  upper
+statistic
+gauc         0.7222  0.2029  0.3246    1.0
+somers_d     0.4444  0.4057 -0.3508    1.0
+
+:doc:`validation` measures the gAUC of a simulated LGD model and compares it with the gAUC of the initial validation.
+
 Gains table
 -----------
 
@@ -352,7 +384,7 @@ Without weights the sample has twice as many events per non-event as the populat
 
 Weights that differ within a class, such as the inverse sampling rates of a stratified sample, do change them.
 
-:func:`~kivi.metrics.roc_auc_interval` and :func:`~kivi.metrics.delong_test` read ``weights`` as frequency weights: an observation of weight :math:`w` counts as :math:`w` observations. Integer weights therefore give the same standard error as repeating rows, which suits data aggregated into counts. The weights above stand for the non-events left out of the sample, so they give a standard error as small as that of all customers, although the sample holds only half of the non-events:
+:func:`~kivi.metrics.roc_auc_interval`, :func:`~kivi.metrics.delong_test` and :func:`~kivi.metrics.generalized_auc` read ``weights`` as frequency weights: an observation of weight :math:`w` counts as :math:`w` observations. Integer weights therefore give the same standard error as repeating rows, which suits data aggregated into counts. The weights above stand for the non-events left out of the sample, so they give a standard error as small as that of all customers, although the sample holds only half of the non-events:
 
 >>> pd.DataFrame({
 ...     "sample": roc_auc_interval(sample_score, sample_y).loc["auc"],
@@ -372,4 +404,5 @@ Limits
 * The intervals and the test rest on a normal approximation, which is poor for an AUC close to 0 or 1 and for a class with few observations. The standard error is 0 whenever the placement values are constant within each class, as they are for a score that separates the classes perfectly, one that reverses them and a constant score, so the interval collapses to the estimate. Without weights, both functions need at least two events and two non-events, and with weights a total weight above 1 in each class.
 * :func:`~kivi.metrics.delong_test` needs both scores on the same observations. For the AUCs of different samples, combine the standard errors of the two intervals, as in the comparison of the development and validation samples above.
 * The standard errors measure the noise of sampling customers from one population. A shift of the population over time is a separate question, which :doc:`psi` answers.
+* :func:`~kivi.metrics.generalized_auc` builds the contingency table of every distinct estimated and realized value, so cut continuous values into segments first; the twelve LGD segments of the European Central Bank are one choice.
 * kivi gives no p-value for the KS statistic and no confidence bands for the ROC curve or the gains table.

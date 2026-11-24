@@ -1,12 +1,21 @@
 import datetime
+import math
 import re
+import warnings
 
 import numpy as np
 import pandas as pd
 import pytest
 
 from kivi.datasets import make_loan_panel
-from kivi.vintage import delinquency_panel, roll_rates, transition_matrix, vintage_table
+from kivi.vintage import (
+    delinquency_panel,
+    migration_bandwidth,
+    migration_test,
+    roll_rates,
+    transition_matrix,
+    vintage_table,
+)
 
 # Cohort 2024-01: loan 1 is bad at month on book 2 and cures at 3; loan 2 is never bad.
 # Cohort 2024-02: loan 3 is bad from month on book 1; loan 4 is never bad. 2024-02 is observed
@@ -1462,3 +1471,216 @@ def test_delinquency_panel_tolerance_must_be_finite_and_non_negative(tolerance, 
     message = f"^tolerance must be finite and non-negative, got {shown}$"
     with pytest.raises(ValueError, match=message):
         delinquency_panel(*SCHEDULE, *NO_PAYMENTS, end="2024-06", tolerance=tolerance)
+
+
+# The migration tests of the ECB validation report.
+
+GRADES = ["A", "B", "C"]
+MIGRATION_BEFORE = ["A", "A", "A", "B", "B", "B", "C", "C"]
+MIGRATION_AFTER = ["A", "B", "C", "A", "B", "default", "B", "C"]
+
+
+def bandwidths_by_hand(before, after, grades):
+    """Upper and lower MWB by the formulas of the ECB, adding up N_i p_ij customer by customer."""
+    number = {grade: position + 1 for position, grade in enumerate(grades)}
+    size = len(grades)
+    sums = {"upper": [0.0, 0.0], "lower": [0.0, 0.0]}
+    for start, end in zip(before, after, strict=True):
+        if end not in number:
+            continue
+        i, j = number[start], number[end]
+        side = "upper" if j > i else "lower" if j < i else None
+        if side:
+            sums[side][0] += abs(i - j)
+            sums[side][1] += max(abs(i - size), abs(i - 1))
+    return {side: num / den if den else math.nan for side, (num, den) in sums.items()}
+
+
+def migration_z_by_hand(before, after, grades):
+    total = {grade: sum(start == grade for start in before) for grade in grades}
+    share = {
+        (i, j): sum(s == i and e == j for s, e in zip(before, after, strict=True)) / total[i]
+        for i in grades
+        for j in grades
+        if total[i]
+    }
+    result = {}
+    for a, i in enumerate(grades):
+        for b, j in enumerate(grades):
+            if a == b:
+                continue
+            if not total[i]:
+                result[i, j] = math.nan
+                continue
+            near = grades[b + 1] if b < a else grades[b - 1]
+            p, q = share[i, j], share[i, near]
+            spread = p * (1 - p) + q * (1 - q) + 2 * p * q
+            result[i, j] = (q - p) / math.sqrt(spread / total[i]) if spread else math.nan
+    return result
+
+
+def test_migration_bandwidth_matches_the_hand_calculation():
+    result = migration_bandwidth(MIGRATION_BEFORE, MIGRATION_AFTER, grades=GRADES)
+    assert list(result.index) == ["upper", "lower"]
+    assert result.index.name == "statistic"
+    assert result["upper"] == pytest.approx(3 / 4, rel=1e-15)
+    assert result["lower"] == pytest.approx(2 / 3, rel=1e-15)
+
+
+@pytest.mark.parametrize("seed", [0, 1, 2])
+def test_migration_bandwidth_matches_the_formulas_on_random_migrations(seed):
+    rng = np.random.default_rng(seed)
+    grades = list("ABCDEF")
+    before = rng.choice(grades, size=300)
+    after = rng.choice(grades + ["default", "closed"], size=300)
+    result = migration_bandwidth(before, after, grades=grades)
+    expected = bandwidths_by_hand(before, after, grades)
+    assert result["upper"] == pytest.approx(expected["upper"], rel=1e-13)
+    assert result["lower"] == pytest.approx(expected["lower"], rel=1e-13)
+
+
+def test_migration_bandwidth_ignores_customers_who_left():
+    stayed = migration_bandwidth(MIGRATION_BEFORE, MIGRATION_AFTER, grades=GRADES)
+    left = migration_bandwidth(
+        MIGRATION_BEFORE + ["A", "C"], MIGRATION_AFTER + ["closed", "default"], grades=GRADES
+    )
+    pd.testing.assert_series_equal(left, stayed)
+
+
+def test_migration_bandwidth_without_migrations_in_one_direction():
+    result = migration_bandwidth(["A", "B", "B"], ["B", "B", "default"], grades=GRADES)
+    assert result["upper"] == pytest.approx(1 / 2)
+    assert math.isnan(result["lower"])
+    # From the middle of five grades the furthest move is two grades in either direction.
+    result = migration_bandwidth(["C", "C"], ["D", "B"], grades=list("ABCDE"))
+    assert result.tolist() == [0.5, 0.5]
+
+
+def test_migration_test_matches_the_hand_calculation():
+    table = migration_test(MIGRATION_BEFORE, MIGRATION_AFTER, grades=GRADES)
+    assert list(table.columns) == ["total", "share", "statistic", "p_value"]
+    assert table.index.names == ["before", "after"]
+    assert table.index.tolist() == [
+        ("A", "B"),
+        ("A", "C"),
+        ("B", "A"),
+        ("B", "C"),
+        ("C", "A"),
+        ("C", "B"),
+    ]
+    # The customer of grade B who defaulted counts in its total.
+    assert table["total"].tolist() == [3, 3, 3, 3, 2, 2]
+    assert table["total"].dtype == np.int64
+    np.testing.assert_allclose(table["share"], [1 / 3, 1 / 3, 1 / 3, 0, 0, 1 / 2], rtol=1e-15)
+    # B to C against B to B: (1/3 - 0) / sqrt((1/3)(2/3) / 3).
+    assert table.loc[("B", "C"), "statistic"] == pytest.approx(math.sqrt(1.5), rel=1e-14)
+    # C to A against C to B: (1/2 - 0) / sqrt((1/2)(1/2) / 2).
+    assert table.loc[("C", "A"), "statistic"] == pytest.approx(math.sqrt(2), rel=1e-14)
+    p_value = [0.5 * math.erfc(-z / math.sqrt(2)) for z in table["statistic"]]
+    np.testing.assert_allclose(table["p_value"], p_value, rtol=1e-14)
+
+
+@pytest.mark.parametrize("seed", [3, 4])
+def test_migration_test_matches_the_formulas_on_random_migrations(seed):
+    rng = np.random.default_rng(seed)
+    grades = list("ABCDE")
+    before = rng.choice(grades[:4], size=200)
+    after = rng.choice(grades + ["default"], size=200, p=[0.3, 0.25, 0.2, 0.1, 0.1, 0.05])
+    table = migration_test(before, after, grades=grades)
+    expected = migration_z_by_hand(list(before), list(after), grades)
+    assert len(table) == 20
+    for cell, value in expected.items():
+        assert table.loc[cell, "statistic"] == pytest.approx(value, rel=1e-12, nan_ok=True)
+    # Grade E has no customers before, so its row is undefined.
+    assert table.loc["E", "statistic"].isna().all()
+    assert (table.loc["E", "total"] == 0).all()
+
+
+def test_migration_test_is_undefined_where_the_ecb_leaves_it_empty():
+    with np.errstate(all="raise"):
+        # Every customer of A stayed: A to B has shares 1 and 0, and A to C shares 0 and 0.
+        table = migration_test(["A", "A", "B"], ["A", "A", "B"], grades=GRADES)
+    assert table.loc[[("A", "B"), ("A", "C")], ["statistic", "p_value"]].isna().all(axis=None)
+    assert table.loc["C", "total"].tolist() == [0, 0]
+
+
+def test_migration_test_flags_a_cell_fuller_than_its_neighbour():
+    # Of 100 customers in A, 30 skipped grade B and 5 moved to it.
+    before = ["A"] * 100 + ["B"] * 10
+    after = ["A"] * 60 + ["B"] * 5 + ["C"] * 30 + ["default"] * 5 + ["B"] * 10
+    table = migration_test(before, after, grades=GRADES)
+    p, q = 0.30, 0.05
+    z = (q - p) / math.sqrt((p * (1 - p) + q * (1 - q) + 2 * p * q) / 100)
+    assert table.loc[("A", "C"), "statistic"] == pytest.approx(z, rel=1e-13)
+    assert table.loc[("A", "C"), "p_value"] < 1e-5
+
+
+def test_migration_tests_integer_weights_equal_repeated_rows():
+    rng = np.random.default_rng(5)
+    before = rng.choice(GRADES, size=40)
+    after = rng.choice(GRADES + ["closed"], size=40)
+    weights = rng.integers(0, 4, size=40)
+    rows = np.repeat(np.arange(40), weights)
+    pd.testing.assert_series_equal(
+        migration_bandwidth(before, after, grades=GRADES, weights=weights),
+        migration_bandwidth(before[rows], after[rows], grades=GRADES),
+        rtol=1e-13,
+    )
+    pd.testing.assert_frame_equal(
+        migration_test(before, after, grades=GRADES, weights=weights),
+        migration_test(before[rows], after[rows], grades=GRADES),
+        check_dtype=False,
+        rtol=1e-13,
+    )
+
+
+def test_migration_tests_take_categoricals_and_interval_grades():
+    grades = pd.IntervalIndex.from_breaks([0, 0.01, 0.05, 1])
+    before = pd.cut(pd.Series([0.005, 0.02, 0.5, 0.03]), grades)
+    after = pd.cut(pd.Series([0.02, 0.02, 0.04, 0.6]), grades)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        table = migration_test(before, after, grades=grades)
+        result = migration_bandwidth(before, after, grades=grades)
+    assert table.loc[(grades[0], grades[1]), "share"] == 1.0
+    # Up one grade from the best grade, which could move two, and from the middle one.
+    assert result["upper"] == pytest.approx(2 / 3, rel=1e-15)
+    assert result["lower"] == pytest.approx(1 / 2, rel=1e-15)
+
+
+def test_migration_matches_the_scipy_normal_distribution():
+    stats = pytest.importorskip("scipy.stats")
+    before = ["A"] * 50 + ["B"] * 40 + ["C"] * 30
+    after = ["A"] * 40 + ["B"] * 6 + ["C"] * 4 + ["A"] * 5 + ["B"] * 30 + ["C"] * 5
+    after += ["A"] * 2 + ["B"] * 6 + ["C"] * 20 + ["default"] * 2
+    table = migration_test(before, after, grades=GRADES)
+    np.testing.assert_allclose(table["p_value"], stats.norm.cdf(table["statistic"]), rtol=1e-12)
+
+
+@pytest.mark.parametrize(
+    "before,after,grades,message",
+    [
+        (["A", "D"], ["A", "B"], GRADES, "before must contain only values in grades, got 'D'"),
+        (["A", None], ["A", "B"], GRADES, "before must not contain missing values, got 1"),
+        (["A", "B"], ["A", np.nan], GRADES, "after must not contain missing values, got 1"),
+        (["A"], ["A"], ["A"], "grades must hold at least two grades, got ['A']"),
+        (["A"], ["A"], pd.Series([], dtype=object), "grades must hold at least two grades, got []"),
+        (["A"], ["A"], ["A", "A"], "grades must not contain duplicates, got 'A' more than once"),
+        (["A"], ["A"], ["A", None], "grades must not contain missing values, got 1"),
+        (["A"], ["A"], "AB", "grades must be one-dimensional, got 'AB'"),
+        (["A", "B"], ["A"], GRADES, "before and after must have the same length, got 2 and 1"),
+        ([], [], GRADES, "before and after must not be empty"),
+    ],
+)
+def test_invalid_migration_inputs(before, after, grades, message):
+    for function in (migration_bandwidth, migration_test):
+        with pytest.raises(ValueError, match=re.escape(message)):
+            function(before, after, grades=grades)
+
+
+def test_migration_inputs_must_share_an_index():
+    before, after = pd.Series(["A", "B"]), pd.Series(["A", "B"], index=[3, 4])
+    with pytest.raises(ValueError, match="before and after must have identical indices"):
+        migration_test(before, after, grades=GRADES)
+    with pytest.raises(ValueError, match="weights must be finite and non-negative"):
+        migration_bandwidth(["A", "B"], ["B", "A"], grades=GRADES, weights=[1, -1])

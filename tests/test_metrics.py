@@ -1,3 +1,6 @@
+import math
+import re
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -9,6 +12,7 @@ from kivi.metrics import (
     brier_score,
     delong_test,
     gains_table,
+    generalized_auc,
     gini,
     ks,
     roc_auc,
@@ -944,3 +948,181 @@ def test_level_is_checked_as_a_float():
 def test_normal_quantile_far_in_the_tail():
     # scipy.stats.norm.ppf(1e-310); the approximation alone is accurate to about 1e-9.
     assert normal_quantile(1e-310) == pytest.approx(-37.663060331949524, rel=1e-8)
+
+
+# The generalized AUC of ordered segments.
+
+SEGMENT_ESTIMATED = [1, 1, 1, 2, 2, 2, 3, 3]
+SEGMENT_REALIZED = [1, 1, 2, 1, 2, 3, 2, 3]
+
+
+def pair_counts(estimated, realized):
+    """Concordant, discordant and tied-on-realized pairs among pairs untied on estimated."""
+    counts = [0, 0, 0]
+    for i in range(len(estimated)):
+        for j in range(i + 1, len(estimated)):
+            if estimated[i] == estimated[j]:
+                continue
+            order = np.sign(estimated[i] - estimated[j]) * np.sign(realized[i] - realized[j])
+            counts[0 if order > 0 else 1 if order < 0 else 2] += 1
+    return counts
+
+
+def brute_force_gauc(estimated, realized):
+    """Somers' D(C|R) and the ECB standard error from comparisons of every pair of rows."""
+    x, y = np.asarray(estimated, dtype=float), np.asarray(realized, dtype=float)
+    d = np.sum(np.sign(x[:, None] - x[None, :]) * np.sign(y[:, None] - y[None, :]), axis=1)
+    rows = np.sum(x[:, None] == x[None, :], axis=1)
+    total = len(x)
+    _, row_totals = np.unique(x, return_counts=True)
+    pairs = total**2 - np.sum(row_totals**2)
+    difference = d.sum()
+    se = math.sqrt(np.sum((pairs * d - difference * (total - rows)) ** 2)) / pairs**2
+    return difference / pairs, se
+
+
+def test_generalized_auc_counts_the_pairs_of_the_docstring():
+    assert pair_counts(SEGMENT_ESTIMATED, SEGMENT_REALIZED) == [13, 2, 6]
+    result = generalized_auc(SEGMENT_ESTIMATED, SEGMENT_REALIZED)
+    assert list(result.index) == ["gauc", "somers_d"]
+    assert result.index.name == "statistic"
+    assert list(result.columns) == ["estimate", "se", "lower", "upper"]
+    assert result.loc["somers_d", "estimate"] == pytest.approx(11 / 21, rel=1e-14)
+    assert result.loc["gauc", "estimate"] == pytest.approx(16 / 21, rel=1e-14)
+    _, se = brute_force_gauc(SEGMENT_ESTIMATED, SEGMENT_REALIZED)
+    assert result.loc["gauc", "se"] == pytest.approx(se, rel=1e-13)
+    assert result.loc["somers_d", "se"] == pytest.approx(2 * se, rel=1e-13)
+    z = -normal_quantile(0.025)
+    gauc = 16 / 21
+    np.testing.assert_allclose(
+        result.loc["gauc", ["lower", "upper"]], [gauc - z * se, gauc + z * se], rtol=1e-12
+    )
+    np.testing.assert_allclose(
+        result.loc["somers_d", ["lower", "upper"]],
+        [2 * (gauc - z * se) - 1, 2 * (gauc + z * se) - 1],
+        rtol=1e-12,
+    )
+
+
+@pytest.mark.parametrize("seed", [0, 1, 2, 3])
+def test_generalized_auc_matches_pairwise_comparisons(seed):
+    rng = np.random.default_rng(seed)
+    estimated = rng.integers(0, 5, size=120)
+    realized = np.clip(estimated + rng.integers(-2, 3, size=120), 0, 6)
+    somers_d, se = brute_force_gauc(estimated, realized)
+    result = generalized_auc(estimated, realized)
+    assert result.loc["somers_d", "estimate"] == pytest.approx(somers_d, rel=1e-13)
+    assert result.loc["gauc", "se"] == pytest.approx(se, rel=1e-12)
+
+
+def test_generalized_auc_standard_error_matches_its_sampling_spread():
+    # 4 estimated and 3 realized segments, 400 facilities per sample.
+    rng = np.random.default_rng(7)
+    gaucs, errors = [], []
+    for _ in range(1500):
+        estimated = rng.integers(0, 4, size=400)
+        realized = np.clip(np.round(estimated / 1.5 + rng.normal(0, 0.8, size=400)), 0, 2)
+        result = generalized_auc(estimated, realized)
+        gaucs.append(result.loc["gauc", "estimate"])
+        errors.append(result.loc["gauc", "se"])
+    assert np.mean(errors) == pytest.approx(np.std(gaucs), rel=0.06)
+
+
+def test_generalized_auc_with_the_target_in_the_rows_is_the_auc():
+    score = [0.1, 0.4, 0.4, 0.8, 0.7, 0.9]
+    target = [0, 0, 1, 0, 1, 1]
+    result = generalized_auc(target, score)
+    assert result.loc["gauc", "estimate"] == pytest.approx(roc_auc(score, target), rel=1e-14)
+    assert result.loc["somers_d", "estimate"] == pytest.approx(gini(score, target), rel=1e-13)
+
+
+def test_generalized_auc_integer_weights_equal_repeated_rows():
+    rng = np.random.default_rng(8)
+    estimated = rng.integers(0, 4, size=50)
+    realized = rng.integers(0, 3, size=50)
+    weights = rng.integers(0, 4, size=50)
+    rows = np.repeat(np.arange(50), weights)
+    pd.testing.assert_frame_equal(
+        generalized_auc(estimated, realized, weights=weights),
+        generalized_auc(estimated[rows], realized[rows]),
+        rtol=1e-13,
+    )
+
+
+def test_generalized_auc_orders_categoricals_by_their_categories():
+    lgd = pd.Series([0.02, 0.3, 0.07, 0.55, 0.15, 0.95, 0.4, 0.6])
+    realized = pd.Series([0.0, 0.5, 0.2, 0.3, 0.1, 1.0, 0.8, 0.45])
+    edges = [0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, np.inf]
+    estimated_segments = pd.cut(lgd, edges, right=False)
+    realized_segments = pd.cut(realized, edges, right=False)
+    by_segment = generalized_auc(estimated_segments, realized_segments)
+    by_code = generalized_auc(estimated_segments.cat.codes, realized_segments.cat.codes)
+    pd.testing.assert_frame_equal(by_segment, by_code)
+    # Reversing the order of the categories reverses the ranking.
+    reversed_segments = realized_segments.cat.reorder_categories(
+        realized_segments.cat.categories[::-1]
+    )
+    reversed_result = generalized_auc(estimated_segments, reversed_segments)
+    assert reversed_result.loc["somers_d", "estimate"] == pytest.approx(
+        -by_segment.loc["somers_d", "estimate"]
+    )
+
+
+def test_generalized_auc_of_perfect_and_uninformative_rankings():
+    perfect = generalized_auc([1, 1, 2, 2, 3], [5, 5, 6, 6, 9])
+    assert perfect["estimate"].tolist() == [1.0, 1.0]
+    assert perfect["se"].tolist() == [0.0, 0.0]
+    assert perfect.loc["gauc", ["lower", "upper"]].tolist() == [1.0, 1.0]
+    flat = generalized_auc([1, 2, 3, 3], [0.5, 0.5, 0.5, 0.5])
+    assert flat["estimate"].tolist() == [0.5, 0.0]
+    assert flat["se"].tolist() == [0.0, 0.0]
+
+
+def test_generalized_auc_matches_scipy_somersd():
+    stats = pytest.importorskip("scipy.stats")
+    rng = np.random.default_rng(9)
+    estimated = rng.integers(0, 6, size=500)
+    realized = np.clip(estimated + rng.integers(-3, 3, size=500), 0, 7)
+    expected = stats.somersd(estimated, realized).statistic
+    result = generalized_auc(estimated, realized)
+    assert result.loc["somers_d", "estimate"] == pytest.approx(expected, rel=1e-12)
+    table = stats.contingency.crosstab(estimated, realized).count
+    assert stats.somersd(table).statistic == pytest.approx(expected, rel=1e-12)
+
+
+@pytest.mark.parametrize(
+    "estimated,realized,options,message",
+    [
+        (
+            pd.Categorical(["a", "b"]),
+            [1, 2],
+            {},
+            "estimated must be numbers or an ordered categorical, got an unordered categorical",
+        ),
+        ([True, False], [1, 2], {}, "estimated must be real and numeric, got dtype bool"),
+        ([1, 2], ["low", "high"], {}, "realized must be real and numeric"),
+        ([1, np.nan], [1, 2], {}, "estimated must not have missing values, got 1"),
+        (
+            [1, 2],
+            pd.Categorical([None, "x"], categories=["x"], ordered=True),
+            {},
+            "realized must not have missing values, got 1",
+        ),
+        ([2, 2, 2], [1, 2, 3], {}, "estimated must have at least two distinct values"),
+        ([1, 2, 2], [1, 2, 3], {"weights": [0, 1, 1]}, "at least two distinct values"),
+        ([1, 2], [1, 2, 3], {}, "estimated and realized must have the same length, got 2 and 3"),
+        ([], [], {}, "estimated and realized must not be empty"),
+        ([1, 2], [1, 2], {"level": 1.0}, "level must be a number between 0 and 1, got 1.0"),
+        ([1, 2], [1, 2], {"weights": [1, -1]}, "weights must be finite and non-negative"),
+    ],
+)
+def test_invalid_generalized_auc_inputs(estimated, realized, options, message):
+    with pytest.raises(ValueError, match=re.escape(message)):
+        generalized_auc(estimated, realized, **options)
+
+
+def test_generalized_auc_requires_identical_indices():
+    with pytest.raises(ValueError, match="estimated and realized must have identical indices"):
+        generalized_auc(pd.Series([1, 2]), pd.Series([1, 2], index=[5, 6]))
+    with pytest.raises(ValueError, match="realized and weights must have identical indices"):
+        generalized_auc([1, 2], pd.Series([1, 2]), weights=pd.Series([1, 1], index=[5, 6]))

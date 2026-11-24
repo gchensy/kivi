@@ -22,6 +22,7 @@ __all__ = [
     "roc_table",
     "roc_auc_interval",
     "delong_test",
+    "generalized_auc",
     "gains_table",
     "brier_score",
 ]
@@ -683,6 +684,181 @@ def delong_test(
     )
 
 
+def generalized_auc(
+    estimated: npt.ArrayLike,
+    realized: npt.ArrayLike,
+    *,
+    level: float = 0.95,
+    weights: npt.ArrayLike | None = None,
+) -> pd.DataFrame:
+    r"""Measure how well estimated segments rank realized ones, with a standard error.
+
+    The generalized AUC (gAUC) of the European Central Bank [1]_ extends the
+    AUC from a binary target to an ordered one, such as the realized LGD of
+    a facility in segments. It is the probability that, of two facilities
+    in different estimated segments, the one estimated higher also
+    realized higher, ties counting as one half. Its rescaled form is
+    Somers' D.
+
+    The estimates come first and the realized values second, as the score
+    and the target do in `roc_auc_interval`.
+
+    Parameters
+    ----------
+    estimated : array_like
+        Estimated segment of each observation, such as the facility grade
+        of an LGD model or its LGD estimate cut into segments: an ordered
+        categorical, such as the result of ``pandas.cut``, whose order is
+        that of its categories, or numbers, which are ordered by their
+        value. Each distinct value is one row of the contingency table.
+    realized : array_like
+        Realized segment of each observation, such as its realized LGD cut
+        into segments, in the same forms as `estimated`. If `estimated` and
+        `realized` are both Series, they must have identical indices;
+        otherwise they are matched by position.
+    level : float, default 0.95
+        Confidence level of the interval, between 0 and 1.
+    weights : array_like, optional
+        Non-negative frequency weight of each observation, matched like
+        `realized`: integer weights give the same result as repeating rows,
+        standard error included.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Two rows, ``gauc`` and ``somers_d``, in an index named
+        ``statistic``, and the columns ``estimate``, ``se`` for the
+        standard error, and ``lower`` and ``upper`` for the bounds of the
+        interval.
+
+    Raises
+    ------
+    ValueError
+        If the inputs are empty or not one-dimensional, their indices or
+        lengths do not match, have missing values, or are neither real
+        numbers nor ordered categoricals, or if `estimated` has fewer than
+        two distinct values with a positive weight. Also if `level` is not
+        a number between 0 and 1, or if `weights` is not numeric, does not
+        give each observation one finite, non-negative weight with a
+        positive total, or has an index other than that of `estimated`.
+
+    See Also
+    --------
+    roc_auc_interval : The AUC of a binary target, with its standard error.
+    kivi.calibration.backtest_table : Back-test the level of continuous
+        estimates.
+
+    Notes
+    -----
+    Let :math:`a_{ij}` be the number of observations in estimated segment
+    :math:`i` and realized segment :math:`j`, with row totals :math:`r_i`
+    and the total :math:`F`. For each cell, :math:`A_{ij}` counts the
+    observations that agree with it in order, :math:`D_{ij}` those that
+    disagree:
+
+    .. math::
+
+       A_{ij} = \sum_{k<i}\sum_{l<j} a_{kl} + \sum_{k>i}\sum_{l>j} a_{kl},
+       \qquad
+       D_{ij} = \sum_{k>i}\sum_{l<j} a_{kl} + \sum_{k<i}\sum_{l>j} a_{kl}.
+
+    With :math:`P = \sum_{ij} a_{ij} A_{ij}`, :math:`Q = \sum_{ij} a_{ij}
+    D_{ij}` and :math:`w_r = F^2 - \sum_i r_i^2`, Somers' D of the realized
+    segments on the estimated ones is
+
+    .. math::
+
+       D(C|R) = \frac{P - Q}{w_r}, \qquad
+       \mathrm{gAUC} = \frac{D(C|R) + 1}{2},
+
+    and the standard error of the gAUC is
+
+    .. math::
+
+       s = \frac{1}{w_r^2} \sqrt{\sum_{ij} a_{ij}
+       \left(w_r d_{ij} - (P - Q)(F - r_i)\right)^2},
+       \qquad d_{ij} = A_{ij} - D_{ij},
+
+    half the asymptotic standard error of Somers' D of Brown and
+    Benedetti [2]_, because the gAUC is half of Somers' D plus one half.
+    The standard error of ``somers_d`` is therefore :math:`2 s`. The
+    interval is :math:`\mathrm{gAUC} \pm z s`, cut off at 0 and 1, where
+    :math:`z` is the quantile of the standard normal distribution at
+    :math:`(1 + \mathrm{level}) / 2`, and the bounds of Somers' D follow
+    from it.
+
+    Pairs in the same estimated segment do not count, so a gAUC of 1 means
+    that every pair in different estimated segments is ordered the same
+    way by its realized segments. The AUC leaves out the pairs with the
+    same target instead, so ``generalized_auc(target, score)``, with the
+    binary target in the rows, gives the AUC of a score, though with
+    another standard error than the DeLong standard error of
+    `roc_auc_interval`. The table has one cell for each pair of distinct
+    values, so cut continuous values into segments first, as the European
+    Central Bank does with twelve LGD segments.
+
+    With weights, the cells of the table are sums of weights, so the
+    standard error counts the total weight as the number of observations.
+
+    References
+    ----------
+    .. [1] European Central Bank, "Instructions for reporting the
+       validation results of internal models: IRB Pillar I models for
+       credit risk", February 2019, sections 2.6.3.1 and 3.2.
+    .. [2] M. B. Brown and J. K. Benedetti, "Sampling behavior of tests
+       for correlation in two-way contingency tables", Journal of the
+       American Statistical Association, 72(358), pp. 309-315, 1977.
+
+    Examples
+    --------
+    >>> from kivi.metrics import generalized_auc
+    >>> estimated = [1, 1, 1, 2, 2, 2, 3, 3]
+    >>> realized = [1, 1, 2, 1, 2, 3, 2, 3]
+    >>> generalized_auc(estimated, realized).round(4)
+               estimate      se   lower   upper
+    statistic
+    gauc         0.7619  0.0902  0.5852  0.9386
+    somers_d     0.5238  0.1803  0.1704  0.8772
+
+    Of the 21 pairs in different estimated segments, 13 are ordered the
+    same way by the realized segments, 2 the other way and 6 are tied, so
+    Somers' D is (13 - 2) / 21.
+    """
+    _validation.shared_index({"estimated": estimated, "realized": realized})
+    raw_estimated, raw_realized = estimated, realized
+    estimated = _validation.as_series(estimated, "estimated")
+    realized = _validation.as_series(realized, "realized")
+    if len(estimated) != len(realized):
+        raise ValueError(
+            "estimated and realized must have the same length, "
+            f"got {len(estimated)} and {len(realized)}"
+        )
+    if not len(estimated):
+        raise ValueError("estimated and realized must not be empty")
+    row = _ordinal_codes(estimated, "estimated")
+    column = _ordinal_codes(realized, "realized")
+    mass = _validation.as_weights(
+        weights, raw_estimated, of="estimated", others={"realized": raw_realized}
+    )
+    z = _critical_value(level)
+    shape = (int(row.max()) + 1, int(column.max()) + 1)
+    table = np.bincount(
+        row * shape[1] + column, weights=mass, minlength=shape[0] * shape[1]
+    ).reshape(shape)
+    somers_d, se = _somers_d(table.astype(float))
+    gauc = (somers_d + 1) / 2
+    lower, upper = np.clip([gauc - z * se, gauc + z * se], 0.0, 1.0).tolist()
+    return pd.DataFrame(
+        {
+            "estimate": [gauc, somers_d],
+            "se": [se, 2 * se],
+            "lower": [lower, 2 * lower - 1],
+            "upper": [upper, 2 * upper - 1],
+        },
+        index=pd.Index(["gauc", "somers_d"], name="statistic"),
+    )
+
+
 def gains_table(
     score: npt.ArrayLike,
     target: npt.ArrayLike,
@@ -969,6 +1145,51 @@ def _check_class_totals(labels: np.ndarray, weights: np.ndarray | None) -> None:
             "weights must give each target class a total above 1 for a standard error, got "
             f"{float(totals[0])!r} for 0 and {float(totals[1])!r} for 1"
         )
+
+
+def _ordinal_codes(values: pd.Series, name: str) -> npt.NDArray[np.intp]:
+    """Rank of each value among the distinct values observed, from 0 for the lowest.
+
+    Ordered categoricals are ranked by their categories and numbers by their value.
+    """
+    if isinstance(values.dtype, pd.CategoricalDtype):
+        if not values.dtype.ordered:
+            raise ValueError(
+                f"{name} must be numbers or an ordered categorical, got an unordered categorical"
+            )
+        order: np.ndarray = values.cat.codes.to_numpy()
+        missing = order < 0
+    else:
+        order = _validation.as_real(values, name)
+        missing = np.isnan(order)
+    if missing.any():
+        raise ValueError(f"{name} must not have missing values, got {int(missing.sum())}")
+    return np.unique(order, return_inverse=True)[1].ravel().astype(np.intp)
+
+
+def _somers_d(table: npt.NDArray[np.float64]) -> tuple[float, float]:
+    """Somers' D(C|R) of a contingency table and the ECB's standard error of the gAUC."""
+    agree = _before(table) + _before(table[::-1, ::-1])[::-1, ::-1]
+    disagree = _before(table[::-1, :])[::-1, :] + _before(table[:, ::-1])[:, ::-1]
+    row = table.sum(axis=1)
+    total = row.sum()
+    # With one estimated segment, every pair is tied on the estimate and D(C|R) is undefined.
+    pairs = total**2 - np.sum(row**2)
+    if not pairs > 0:
+        raise ValueError(
+            "estimated must have at least two distinct values with a positive weight, got "
+            f"{np.count_nonzero(row)}"
+        )
+    difference = np.sum(table * agree) - np.sum(table * disagree)
+    spread = pairs * (agree - disagree) - difference * (total - row)[:, None]
+    return float(difference / pairs), float(np.sqrt(np.sum(table * spread**2)) / pairs**2)
+
+
+def _before(table: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+    """Sum of the cells in the rows above and the columns left of each cell."""
+    result = np.zeros_like(table)
+    result[1:, 1:] = table.cumsum(axis=0).cumsum(axis=1)[:-1, :-1]
+    return result
 
 
 def _critical_value(level: float) -> float:

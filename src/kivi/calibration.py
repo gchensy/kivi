@@ -12,8 +12,11 @@ from . import _counts, _logit, _stats, _validation
 
 __all__ = [
     "assign_grades",
+    "backtest_table",
     "binomial_test",
+    "brier_decomposition",
     "calibration_table",
+    "concentration_test",
     "corrected_intercept",
     "fit_grade_pd",
     "herfindahl_index",
@@ -25,6 +28,7 @@ __all__ = [
     "platt_fit",
     "platt_predict",
     "prior_correction",
+    "spiegelhalter_test",
 ]
 
 
@@ -648,35 +652,11 @@ def calibration_table(
     A        2      0    0.000000       0.15
     B        3      2    0.666667       0.40
     """
-    inputs = {"groups": groups, "target": target, "probability": probability}
-    indexed = [values.index for values in inputs.values() if isinstance(values, pd.Series)]
-    if any(not index.equals(indexed[0]) for index in indexed[1:]):
-        raise ValueError(
-            "groups, target and probability must have identical indices when they are Series"
-        )
-    raw_groups = groups
-    groups, target, probability = (
-        _validation.as_series(values, name) for name, values in inputs.items()
+    _, probabilities, mass, counts, rows = _grouped_probabilities(
+        groups, target, probability, weights
     )
-    if len({len(groups), len(target), len(probability)}) > 1:
-        raise ValueError(
-            "groups, target and probability must have the same length, "
-            f"got {len(groups)}, {len(target)} and {len(probability)}"
-        )
-    if groups.empty:
-        raise ValueError("groups, target and probability must contain observations")
-    _validation.binary_labels(target, both_classes=False)
-    probabilities = _validation.as_real(probability, "probability", booleans=True)
-    if np.isnan(probabilities).any():
-        raise ValueError("probability must not have missing values")
-    _check_unit_interval(probabilities, "probability")
-    others = {name: inputs[name] for name in ("target", "probability")}
-    mass = _validation.as_weights(weights, raw_groups, of="groups", others=others)
-    counts = _counts.group_counts(groups, target.to_numpy(dtype=np.intp), mass)
-    rows = _counts.group_rows(groups, counts.index)
     total = counts.to_numpy().sum(axis=1)
     event = counts.to_numpy()[:, 1]
-    # Only observations of zero weight lie in a group that group_counts left out.
     weighted = probabilities if mass is None else mass * probabilities
     kept = rows >= 0
     prob_sum = np.bincount(rows[kept], weights=weighted[kept], minlength=len(counts))
@@ -977,6 +957,254 @@ def hosmer_lemeshow(
     return statistic, _stats.chi2_sf(statistic, dof)
 
 
+def spiegelhalter_test(
+    probability: npt.ArrayLike, target: npt.ArrayLike, *, weights: npt.ArrayLike | None = None
+) -> tuple[float, float]:
+    r"""Test the calibration of individual probabilities with Spiegelhalter's z statistic.
+
+    The test compares the Brier score of the probabilities with the score
+    they would have if they were the true event probabilities. Unlike the
+    tests of grouped counts, it needs no groups. A small p-value means that
+    the probabilities do not match the outcomes, in either direction.
+
+    Parameters
+    ----------
+    probability : array_like
+        Predicted event probability of each observation, between 0 and 1.
+    target : array_like
+        Binary labels, with 1 indicating the event. The sample may have no
+        events. If `probability` and `target` are both pandas Series, they
+        must have identical indices; otherwise they are matched by position.
+    weights : array_like, optional
+        Non-negative frequency weight of each observation, matched like
+        `target`: integer weights give the same result as repeating rows.
+
+    Returns
+    -------
+    statistic : float
+        The z statistic, approximately standard normal when the
+        probabilities are the true ones. It is positive when the
+        probabilities are less accurate than they would be if they were
+        true.
+    pvalue : float
+        Its two-sided p-value.
+
+    Raises
+    ------
+    ValueError
+        If the inputs are empty or not one-dimensional, their indices or
+        lengths do not match, `target` has a label other than 0 and 1, or
+        `probability` is not real and numeric, has a missing value or a
+        value outside [0, 1]. Also if `weights` is not numeric, does not
+        give each observation one finite, non-negative weight with a
+        positive total, or has an index other than that of `probability`.
+
+    See Also
+    --------
+    hosmer_lemeshow : Test grouped counts against their mean probabilities.
+    brier_decomposition : Split the Brier score into calibration and
+        resolution.
+    kivi.metrics.brier_score : The Brier score itself.
+
+    Notes
+    -----
+    For probabilities :math:`p_i` and outcomes :math:`y_i` of :math:`N`
+    observations, the Brier score :math:`B = \sum_i (y_i - p_i)^2 / N` has
+    the expectation :math:`\sum_i p_i (1 - p_i) / N` and the variance
+    :math:`\sum_i (1 - 2 p_i)^2 p_i (1 - p_i) / N^2` when each :math:`y_i`
+    is an independent Bernoulli draw with probability :math:`p_i`.
+    Spiegelhalter [1]_ standardizes the score with them:
+
+    .. math::
+
+       z = \frac{\sum_i (y_i - p_i)(1 - 2 p_i)}
+       {\sqrt{\sum_i (1 - 2 p_i)^2 \, p_i (1 - p_i)}},
+
+    and the p-value is :math:`2 (1 - \Phi(|z|))`. With weights, every sum
+    weighs its terms with the weights of the observations.
+
+    The denominator is 0 when every probability is 0, 1/2 or 1. ``z`` is
+    then infinite, with a p-value of 0, when an event has a probability of
+    0 or a non-event one of 1, and NaN otherwise.
+
+    The test weighs observations with probabilities near 0 or 1 most, so a
+    few confident mistakes can decide it. Like the other calibration
+    tests, it assumes independent outcomes.
+
+    References
+    ----------
+    .. [1] D. J. Spiegelhalter, "Probabilistic prediction in patient
+       management and clinical trials", Statistics in Medicine, 5(5),
+       pp. 421-433, 1986.
+
+    Examples
+    --------
+    Two events among the three lowest probabilities make the probabilities
+    look too confident:
+
+    >>> from kivi.calibration import spiegelhalter_test
+    >>> probability = [0.1, 0.2, 0.2, 0.4, 0.7, 0.9]
+    >>> statistic, pvalue = spiegelhalter_test(probability, [0, 1, 1, 0, 0, 1])
+    >>> print(f"z = {statistic:.3f}, p = {pvalue:.3f}")
+    z = 1.912, p = 0.056
+
+    Outcomes that follow the probabilities closely give a negative ``z``:
+
+    >>> statistic, pvalue = spiegelhalter_test(probability, [0, 0, 0, 1, 1, 1])
+    >>> print(f"z = {statistic:.3f}, p = {pvalue:.3f}")
+    z = -0.765, p = 0.444
+    """
+    values, labels, mass = _validation.scores_and_labels(
+        probability, target, "probability", both_classes=False, weights=weights
+    )
+    _check_unit_interval(values, "probability")
+    if mass is None:
+        mass = np.ones(len(values))
+    slope = 1 - 2 * values
+    numerator = float(np.sum(mass * (labels - values) * slope))
+    variance = float(np.sum(mass * slope**2 * values * (1 - values)))
+    with np.errstate(divide="ignore", invalid="ignore"):
+        statistic = float(np.float64(numerator) / math.sqrt(variance))
+    pvalue = math.nan if math.isnan(statistic) else math.erfc(abs(statistic) / math.sqrt(2))
+    return statistic, pvalue
+
+
+def brier_decomposition(
+    groups: npt.ArrayLike,
+    target: npt.ArrayLike,
+    probability: npt.ArrayLike,
+    *,
+    weights: npt.ArrayLike | None = None,
+) -> pd.Series:
+    r"""Split the Brier score into reliability, resolution, uncertainty and two within-group terms.
+
+    The decomposition shows why a model scores as it does. Reliability
+    measures how far the mean probability of each group lies from its event
+    rate, resolution how far the event rates of the groups lie from the
+    overall event rate, and uncertainty how hard the outcomes are to
+    predict at all. The two within-group terms account for the
+    probabilities that vary within a group.
+
+    Parameters
+    ----------
+    groups : array_like
+        Grade or group labels, such as the grades of a master scale.
+        Missing values form a group.
+    target : array_like
+        Binary labels, with 1 indicating the event. A group, or the whole
+        sample, may have no events.
+    probability : array_like
+        Predicted event probabilities between 0 and 1. Series inputs must
+        have identical indices; otherwise the inputs are matched by
+        position.
+    weights : array_like, optional
+        Non-negative frequency weight of each observation, matched like
+        `target`: integer weights give the same result as repeating rows.
+
+    Returns
+    -------
+    pandas.Series
+        ``brier``, the Brier score, and its five terms ``reliability``,
+        ``resolution``, ``uncertainty``, ``within_variance`` and
+        ``within_covariance``, in an index named ``statistic``.
+
+    Raises
+    ------
+    ValueError
+        In the same cases as `calibration_table`.
+
+    See Also
+    --------
+    calibration_table : The event rate and mean probability of each group.
+    kivi.metrics.brier_score : The Brier score alone.
+    spiegelhalter_test : Test whether the Brier score is as low as the
+        probabilities predict.
+
+    Notes
+    -----
+    Let group :math:`k` hold :math:`n_k` of the :math:`N` observations,
+    with mean probability :math:`\bar f_k` and event rate :math:`\bar o_k`,
+    and let :math:`\bar o` be the overall event rate. The Brier score of
+    probabilities :math:`f_i` and outcomes :math:`o_i` is
+
+    .. math::
+
+       \mathrm{BS} = \frac{1}{N} \sum_i (f_i - o_i)^2
+       = \mathrm{REL} - \mathrm{RES} + \mathrm{UNC} + \mathrm{WBV} - \mathrm{WBC},
+
+    with
+
+    .. math::
+
+       \mathrm{REL} = \frac{1}{N} \sum_k n_k (\bar f_k - \bar o_k)^2, \qquad
+       \mathrm{RES} = \frac{1}{N} \sum_k n_k (\bar o_k - \bar o)^2, \qquad
+       \mathrm{UNC} = \bar o (1 - \bar o),
+
+       \mathrm{WBV} = \frac{1}{N} \sum_k \sum_{i \in k} (f_i - \bar f_k)^2, \qquad
+       \mathrm{WBC} = \frac{2}{N} \sum_k \sum_{i \in k}
+       (f_i - \bar f_k)(o_i - \bar o_k).
+
+    The identity holds exactly for any grouping, up to rounding. When all
+    observations of a group have the same probability, as on a master
+    scale whose grades each have one PD, the two within-group terms are 0
+    and the decomposition is the three-term partition of Murphy [1]_; the
+    within-group terms are those of Stephenson, Coelho and Jolliffe [2]_.
+
+    A lower reliability is better and a higher resolution is better.
+    Uncertainty depends on the outcomes alone. With weights, :math:`n_k`
+    and :math:`N` are sums of weights and every sum weighs its terms.
+
+    References
+    ----------
+    .. [1] A. H. Murphy, "A new vector partition of the probability score",
+       Journal of Applied Meteorology, 12(4), pp. 595-600, 1973.
+    .. [2] D. B. Stephenson, C. A. S. Coelho and I. T. Jolliffe, "Two extra
+       components in the Brier score decomposition", Weather and
+       Forecasting, 23(4), pp. 752-757, 2008.
+
+    Examples
+    --------
+    >>> from kivi.calibration import brier_decomposition
+    >>> grades = ["A", "A", "A", "B", "B", "B"]
+    >>> target = [0, 0, 1, 0, 1, 1]
+    >>> brier_decomposition(grades, target, [0.2, 0.2, 0.2, 0.6, 0.6, 0.6]).round(4)
+    statistic
+    brier                0.2333
+    reliability          0.0111
+    resolution           0.0278
+    uncertainty          0.2500
+    within_variance      0.0000
+    within_covariance    0.0000
+    dtype: float64
+
+    Each grade has one probability, so the within-group terms are 0 and
+    0.0111 - 0.0278 + 0.25 is the Brier score.
+    """
+    labels, probabilities, mass, counts, rows = _grouped_probabilities(
+        groups, target, probability, weights
+    )
+    kept = rows >= 0
+    rows, forecast, outcome = rows[kept], probabilities[kept], labels[kept].astype(float)
+    mass = np.ones(len(rows)) if mass is None else mass[kept]
+    total = counts.to_numpy().sum(axis=1).astype(float)
+    size = float(total.sum())
+    event_rate = counts.to_numpy()[:, 1] / total
+    overall = float(counts.to_numpy()[:, 1].sum()) / size
+    mean_forecast, deviation = _group_means(forecast, rows, mass, total)
+    terms = {
+        "brier": np.sum(mass * (forecast - outcome) ** 2) / size,
+        "reliability": np.sum(total * (mean_forecast - event_rate) ** 2) / size,
+        "resolution": np.sum(total * (event_rate - overall) ** 2) / size,
+        "uncertainty": overall * (1 - overall),
+        "within_variance": np.sum(mass * deviation**2) / size,
+        "within_covariance": 2 * np.sum(mass * deviation * (outcome - event_rate[rows])) / size,
+    }
+    return pd.Series(
+        [float(value) for value in terms.values()],
+        index=pd.Index(list(terms), name="statistic"),
+    )
+
+
 def herfindahl_index(counts: npt.ArrayLike, *, normalize: bool = False) -> float:
     r"""Measure how concentrated a portfolio is across grades.
 
@@ -1033,20 +1261,335 @@ def herfindahl_index(counts: npt.ArrayLike, *, normalize: bool = False) -> float
         raise ValueError(
             f"normalize must be True or False, got {_validation.shown_argument(normalize)}"
         )
-    if np.ndim(counts) != 1:
-        raise ValueError(f"counts must be one-dimensional, got {np.ndim(counts)} dimensions")
-    values = _validation.as_real(counts, "counts")
-    invalid = ~np.isfinite(values) | (values < 0)
-    if invalid.any():
-        raise ValueError(f"counts must be finite and non-negative, got {_first(values, invalid)}")
-    if not values.sum() > 0:
-        raise ValueError(f"counts must have a positive sum, got {float(values.sum())!r}")
-    index = float(np.sum((values / values.sum()) ** 2))
+    shares = _grade_shares(counts, "counts")
+    index = float(np.sum(shares**2))
     if not normalize:
         return index
-    if len(values) < 2:
-        raise ValueError(f"normalize requires at least two grades, got {len(values)}")
-    return (index - 1 / len(values)) / (1 - 1 / len(values))
+    if len(shares) < 2:
+        raise ValueError(f"normalize requires at least two grades, got {len(shares)}")
+    return (index - 1 / len(shares)) / (1 - 1 / len(shares))
+
+
+def concentration_test(
+    counts: npt.ArrayLike,
+    *,
+    initial_counts: npt.ArrayLike | None = None,
+    initial_cv: float | None = None,
+) -> pd.Series:
+    r"""Test whether the grades of a rating scale are more concentrated than at development.
+
+    The European Central Bank asks for this test to check that a rating
+    scale still spreads its customers over the grades [1]_. It compares the
+    coefficient of variation of the grade shares with its value at the
+    initial validation of the model. A small p-value means that the grades
+    are now more concentrated.
+
+    Parameters
+    ----------
+    counts : array_like
+        Number of customers, or exposure, in each of the grades of the
+        scale, empty grades included, such as
+        ``grades.value_counts(sort=False)``. At least two grades.
+    initial_counts : array_like, optional
+        Number of customers in each grade at the initial validation, for
+        the same grades in the same order. If `counts` and `initial_counts`
+        are both Series, they must have identical indices.
+    initial_cv : float, optional
+        The coefficient of variation at the initial validation, when only
+        that is known. Pass `initial_counts` or `initial_cv`, or neither to
+        compute only the HI, as the European Central Bank asks for the
+        exposure-weighted shares.
+
+    Returns
+    -------
+    pandas.Series
+        ``hi`` and ``cv``, the HI and the coefficient of variation of
+        `counts`; ``initial_hi`` and ``initial_cv``, those at the initial
+        validation; ``statistic``, the test statistic; and ``p_value``, its
+        one-sided p-value. The last four are NaN without `initial_counts`
+        and `initial_cv`. The index is named ``statistic``.
+
+    Raises
+    ------
+    ValueError
+        If `counts` or `initial_counts` is not one-dimensional, has
+        negative or non-finite values or sums to zero, if `counts` has
+        fewer than two grades or `initial_counts` another number of grades
+        or another index, if `initial_cv` is not a finite, non-negative
+        number or exceeds :math:`\sqrt{K - 1}`, or if both `initial_counts`
+        and `initial_cv` are given.
+
+    See Also
+    --------
+    herfindahl_index : The Herfindahl-Hirschman index of the shares.
+    calibration_table : The number of observations in each grade.
+
+    Notes
+    -----
+    For the shares :math:`R_i` of the :math:`K` grades, the coefficient of
+    variation and the HI are
+
+    .. math::
+
+       \mathrm{CV} = \sqrt{K \sum_{i=1}^{K} \left(R_i - \frac{1}{K}\right)^2},
+       \qquad
+       \mathrm{HI} = 1 + \frac{\ln\left((\mathrm{CV}^2 + 1) / K\right)}{\ln K}
+       = 1 + \frac{\ln \mathrm{HHI}}{\ln K},
+
+    where :math:`\mathrm{HHI} = \sum_i R_i^2` is the result of
+    `herfindahl_index`. The HI is 0 when every grade has the same share
+    and 1 when one grade holds every customer, and the CV runs from 0 to
+    :math:`\sqrt{K - 1}`. The test statistic
+
+    .. math::
+
+       S = \frac{\sqrt{K - 1}\,(\mathrm{CV} - \mathrm{CV}_\mathrm{init})}
+       {\sqrt{\mathrm{CV}^2 (0.5 + \mathrm{CV}^2)}}
+
+    is approximately standard normal under the null hypothesis that the
+    current concentration is not above the initial one, which is taken as
+    known, and the p-value is :math:`1 - \Phi(S)`. The variance in the
+    denominator is the asymptotic variance of a coefficient of variation in
+    Miller [2]_. A CV of 0, for equally full grades, gives a statistic of
+    minus infinity and a p-value of 1, or NaN for an initial CV of 0.
+
+    References
+    ----------
+    .. [1] European Central Bank, "Instructions for reporting the
+       validation results of internal models: IRB Pillar I models for
+       credit risk", February 2019, section 2.5.5.3.
+    .. [2] G. E. Miller, "Asymptotic test statistics for coefficients of
+       variation", Communications in Statistics - Theory and Methods,
+       20(10), pp. 3351-3363, 1991.
+
+    Examples
+    --------
+    >>> from kivi.calibration import concentration_test
+    >>> concentration_test([400, 250, 200, 150], initial_counts=[300, 300, 250, 150]).round(4)
+    statistic
+    hi            0.0945
+    cv            0.3742
+    initial_hi    0.0420
+    initial_cv    0.2449
+    statistic     0.7477
+    p_value       0.2273
+    dtype: float64
+
+    The scale is more concentrated than at development, but not
+    significantly so.
+    """
+    shares = _grade_shares(counts, "counts")
+    grades = len(shares)
+    if grades < 2:
+        raise ValueError(f"counts must have at least two grades, got {grades}")
+    if initial_counts is not None and initial_cv is not None:
+        raise ValueError("pass initial_counts or initial_cv, not both")
+    _validation.shared_index({"counts": counts, "initial_counts": initial_counts})
+    hi, cv = _concentration(shares)
+    initial_hi = start_cv = math.nan
+    if initial_counts is not None:
+        initial = _grade_shares(initial_counts, "initial_counts")
+        if len(initial) != grades:
+            raise ValueError(
+                f"initial_counts must give one count for each of the {grades} grades of counts, "
+                f"got {len(initial)}"
+            )
+        initial_hi, start_cv = _concentration(initial)
+    elif initial_cv is not None:
+        if (
+            isinstance(initial_cv, (bool, np.bool_))
+            or not _validation.is_real(initial_cv)
+            or not (math.isfinite(initial_cv) and initial_cv >= 0)
+        ):
+            raise ValueError(
+                "initial_cv must be a finite, non-negative number, got "
+                f"{_validation.shown_argument(initial_cv)}"
+            )
+        start_cv = float(initial_cv)
+        # A share of 1 in one grade gives the largest CV, sqrt(K - 1).
+        if start_cv > math.sqrt(grades - 1) * (1 + 1e-12):
+            raise ValueError(
+                f"initial_cv must be at most {math.sqrt(grades - 1):.6g}, the coefficient of "
+                f"variation of one full grade among {grades}, got {start_cv!r}"
+            )
+        initial_hi = 1 + math.log((start_cv**2 + 1) / grades) / math.log(grades)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        statistic = float(
+            np.float64(math.sqrt(grades - 1) * (cv - start_cv)) / (cv * math.sqrt(0.5 + cv**2))
+        )
+    values = {
+        "hi": hi,
+        "cv": cv,
+        "initial_hi": initial_hi,
+        "initial_cv": start_cv,
+        "statistic": statistic,
+        "p_value": float(_stats.normal_cdf(-statistic)),
+    }
+    return pd.Series(list(values.values()), index=pd.Index(list(values), name="statistic"))
+
+
+def backtest_table(
+    groups: npt.ArrayLike,
+    realized: npt.ArrayLike,
+    estimated: npt.ArrayLike,
+    *,
+    weights: npt.ArrayLike | None = None,
+) -> pd.DataFrame:
+    r"""Back-test continuous estimates, such as LGDs or CCFs, against realized values.
+
+    For each group, the one-sample t-test for paired observations of the
+    European Central Bank [1]_ compares the realized values with their
+    estimates. It tests the hypothesis that the estimates are not too
+    low, so a small p-value means that the group's estimates understate
+    its realized values.
+
+    Parameters
+    ----------
+    groups : array_like
+        Grade, pool or segment labels, such as the facility grades of an
+        LGD model or the ECB's LGD segments cut from the estimates. Missing
+        values form a group. For the whole portfolio, pass one label for
+        every observation.
+    realized : array_like
+        Realized value of each observation, such as the realized LGD of a
+        closed default. Finite real numbers, which may lie outside [0, 1].
+    estimated : array_like
+        Estimate of each observation, such as its estimated LGD, ELBE or
+        CCF. Finite real numbers. Series inputs must have identical
+        indices; otherwise the inputs are matched by position.
+    weights : array_like, optional
+        Non-negative frequency weight of each observation, matched like
+        `realized`: integer weights give the same result as repeating rows.
+        Groups whose weights sum to zero are left out.
+
+    Returns
+    -------
+    pandas.DataFrame
+        One row per group, in an index named ``bin``, with the number of
+        observations ``total``; the means ``estimated`` and ``realized``;
+        ``difference``, the mean of realized minus estimated; ``variance``,
+        the sample variance of that difference; ``statistic``, the t
+        statistic; and ``p_value``, its one-sided p-value.
+
+    Raises
+    ------
+    ValueError
+        If the inputs are not one-dimensional, are empty, or their indices
+        or lengths do not match, or `realized` or `estimated` is not real
+        and numeric or has a missing or infinite value. Also if `weights`
+        is not numeric, does not give each observation one finite,
+        non-negative weight with a positive total, or has an index other
+        than that of `groups`.
+
+    See Also
+    --------
+    calibration_table : The same comparison for event probabilities.
+    jeffreys_test : The back-test of PDs.
+    kivi.metrics.generalized_auc : The ranking of continuous estimates.
+
+    Notes
+    -----
+    For the :math:`N` observations of a group with differences
+    :math:`d_i = r_i - e_i` between realized and estimated values,
+
+    .. math::
+
+       T = \frac{\sqrt{N}\,\bar d}{s}, \qquad
+       s^2 = \frac{1}{N - 1} \sum_{i=1}^{N} (d_i - \bar d)^2,
+
+    which follows Student's t distribution with :math:`N - 1` degrees of
+    freedom under the null hypothesis, and the p-value is
+    :math:`1 - S_{N-1}(T)`. This is the test of sections 2.6.2.1, 2.8.2.1,
+    2.9.3.1 and 2.9.3.2 of [1]_ for LGDs, LGDs in default, CCFs and the
+    EAD estimates of facilities with an EAD approach, whose realized
+    value is the amount drawn at default. Section 2.7.2.1 tests the ELBE
+    two-sided; its p-value is ``2 * min(p_value, 1 - p_value)``.
+
+    A group of one observation has no variance, and its ``variance``,
+    ``statistic`` and ``p_value`` are NaN. A group whose differences are
+    all equal has a variance of 0 and an infinite statistic, or a NaN one
+    when the differences are all 0. With weights, :math:`N` is the sum of
+    the weights, the means are weighted, and so is the variance, with the
+    denominator :math:`N - 1`; a group with a total weight of 1 or less has
+    NaN in the last three columns.
+
+    Groups are counted as in `calibration_table`: categorical groups, such
+    as the result of ``pandas.cut``, follow the order of their categories,
+    with missing values last, and other groups the order in which they
+    first appear.
+
+    References
+    ----------
+    .. [1] European Central Bank, "Instructions for reporting the
+       validation results of internal models: IRB Pillar I models for
+       credit risk", February 2019, sections 2.6.2.1, 2.7.2.1, 2.8.2.1,
+       2.9.3.1 and 2.9.3.2.
+
+    Examples
+    --------
+    >>> from kivi.calibration import backtest_table
+    >>> grades = ["F1", "F1", "F1", "F2", "F2", "F2", "F2"]
+    >>> realized = [0.05, 0.35, 0.20, 0.55, 0.20, 0.90, 0.75]
+    >>> estimated = [0.15, 0.15, 0.15, 0.45, 0.45, 0.45, 0.45]
+    >>> backtest_table(grades, realized, estimated).round(4)
+         total  estimated  realized  difference  variance  statistic  p_value
+    bin
+    F1       3       0.15       0.2        0.05    0.0225     0.5774   0.3110
+    F2       4       0.45       0.6        0.15    0.0917     0.9909   0.1974
+
+    In grade F1, the differences -0.1, 0.2 and 0.05 have the mean 0.05 and
+    the variance 0.0225, so :math:`T = \sqrt{3} \cdot 0.05 / 0.15`.
+    """
+    inputs = {"groups": groups, "realized": realized, "estimated": estimated}
+    _validation.shared_index(inputs)
+    raw_groups = groups
+    groups, realized, estimated = (
+        _validation.as_series(values, name) for name, values in inputs.items()
+    )
+    if len({len(groups), len(realized), len(estimated)}) > 1:
+        raise ValueError(
+            "groups, realized and estimated must have the same length, "
+            f"got {len(groups)}, {len(realized)} and {len(estimated)}"
+        )
+    if groups.empty:
+        raise ValueError("groups, realized and estimated must contain observations")
+    realized_values = _finite_values(realized, "realized")
+    estimated_values = _finite_values(estimated, "estimated")
+    others = {name: inputs[name] for name in ("realized", "estimated")}
+    mass = _validation.as_weights(weights, raw_groups, of="groups", others=others)
+    counts = _counts.group_counts(groups, np.zeros(len(groups), dtype=np.intp), mass)
+    rows = _counts.group_rows(groups, counts.index)
+    kept = rows >= 0
+    rows = rows[kept]
+    mass = np.ones(len(rows)) if mass is None else mass[kept]
+    total = counts.to_numpy()[:, 0]
+    means = {
+        name: np.bincount(rows, weights=mass * values[kept], minlength=len(total)) / total
+        for name, values in (("estimated", estimated_values), ("realized", realized_values))
+    }
+    difference, deviation = _group_means(
+        realized_values[kept] - estimated_values[kept], rows, mass, total.astype(float)
+    )
+    squares = np.bincount(rows, weights=mass * deviation**2, minlength=len(total))
+    enough = total > 1
+    variance = np.divide(squares, total - 1, out=np.full(len(total), np.nan), where=enough)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        statistic = difference / np.sqrt(variance / total)
+    p_value = np.full(len(total), np.nan)
+    known = ~np.isnan(statistic)
+    p_value[known] = _stats.student_t_sf(statistic[known], total[known] - 1)
+    return pd.DataFrame(
+        {
+            "total": total,
+            "estimated": means["estimated"],
+            "realized": means["realized"],
+            "difference": difference,
+            "variance": variance,
+            "statistic": statistic,
+            "p_value": p_value,
+        },
+        index=counts.index,
+    )
 
 
 def master_scale(
@@ -1436,6 +1979,105 @@ def assign_grades(probability: npt.ArrayLike, scale: pd.DataFrame) -> pd.Series 
     if isinstance(probability, pd.Series):
         return pd.Series(grades, index=series.index, name=series.name)
     return grades
+
+
+def _grouped_probabilities(
+    groups: npt.ArrayLike,
+    target: npt.ArrayLike,
+    probability: npt.ArrayLike,
+    weights: npt.ArrayLike | None,
+) -> tuple[
+    npt.NDArray[np.intp],
+    npt.NDArray[np.float64],
+    npt.NDArray[np.float64] | None,
+    pd.DataFrame,
+    npt.NDArray[np.intp],
+]:
+    """Check the groups, labels, probabilities and weights of one sample, and count the groups.
+
+    Returns the 0/1 labels, the probabilities and the weights of the observations, the
+    (non_event, event) counts of `kivi._counts.group_counts` and the row of each observation in
+    them. Only an observation of zero weight lies in a group that the counts leave out, and its
+    row is -1.
+    """
+    inputs = {"groups": groups, "target": target, "probability": probability}
+    indexed = [values.index for values in inputs.values() if isinstance(values, pd.Series)]
+    if any(not index.equals(indexed[0]) for index in indexed[1:]):
+        raise ValueError(
+            "groups, target and probability must have identical indices when they are Series"
+        )
+    raw_groups = groups
+    groups, target, probability = (
+        _validation.as_series(values, name) for name, values in inputs.items()
+    )
+    if len({len(groups), len(target), len(probability)}) > 1:
+        raise ValueError(
+            "groups, target and probability must have the same length, "
+            f"got {len(groups)}, {len(target)} and {len(probability)}"
+        )
+    if groups.empty:
+        raise ValueError("groups, target and probability must contain observations")
+    labels = _validation.binary_labels(target, both_classes=False)
+    probabilities = _validation.as_real(probability, "probability", booleans=True)
+    if np.isnan(probabilities).any():
+        raise ValueError("probability must not have missing values")
+    _check_unit_interval(probabilities, "probability")
+    others = {name: inputs[name] for name in ("target", "probability")}
+    mass = _validation.as_weights(weights, raw_groups, of="groups", others=others)
+    counts = _counts.group_counts(groups, labels, mass)
+    return labels, probabilities, mass, counts, _counts.group_rows(groups, counts.index)
+
+
+def _group_means(
+    values: npt.NDArray[np.float64],
+    rows: npt.NDArray[np.intp],
+    mass: npt.NDArray[np.float64],
+    total: npt.NDArray[np.float64],
+) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+    """Weighted mean of each group, and the deviation of each observation from its group's mean.
+
+    ``rows`` gives the group of each observation, and every group has an observation of positive
+    weight. The values are shifted by the first value of positive weight in their group before
+    they are averaged, so that a group whose weighted values are equal has that value as its mean
+    and deviations of exactly 0 where the weights are positive.
+    """
+    weighted = np.flatnonzero(mass > 0)
+    _, first = np.unique(rows[weighted], return_index=True)
+    shift = values[weighted[first]]
+    shifted = values - shift[rows]
+    mean_shift = np.bincount(rows, weights=mass * shifted, minlength=len(total)) / total
+    return shift + mean_shift, shifted - mean_shift[rows]
+
+
+def _grade_shares(counts: npt.ArrayLike, name: str) -> npt.NDArray[np.float64]:
+    """Check the counts or exposures of the grades and return the share of each grade."""
+    if np.ndim(counts) != 1:
+        raise ValueError(f"{name} must be one-dimensional, got {np.ndim(counts)} dimensions")
+    values = _validation.as_real(counts, name)
+    invalid = ~np.isfinite(values) | (values < 0)
+    if invalid.any():
+        raise ValueError(f"{name} must be finite and non-negative, got {_first(values, invalid)}")
+    if not values.sum() > 0:
+        raise ValueError(f"{name} must have a positive sum, got {float(values.sum())!r}")
+    return values / values.sum()
+
+
+def _concentration(shares: npt.NDArray[np.float64]) -> tuple[float, float]:
+    """Return the HI and the coefficient of variation of the shares of the grades."""
+    grades = len(shares)
+    cv = math.sqrt(grades * float(np.sum((shares - 1 / grades) ** 2)))
+    return 1 + math.log(float(np.sum(shares**2))) / math.log(grades), cv
+
+
+def _finite_values(values: pd.Series, name: str) -> npt.NDArray[np.float64]:
+    """Finite real values as floats; booleans, missing values and infinities raise."""
+    array = _validation.as_real(values, name)
+    if np.isnan(array).any():
+        raise ValueError(f"{name} must not have missing values")
+    infinite = np.isinf(array)
+    if infinite.any():
+        raise ValueError(f"{name} must be finite, got {_first(array, infinite)}")
+    return array
 
 
 def _pool_adjacent_violators(

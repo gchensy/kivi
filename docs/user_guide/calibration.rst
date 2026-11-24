@@ -3,7 +3,7 @@ Calibration
 
 A PD model is calibrated when its probabilities match the default rates that are later observed. Calibration is a separate question from ranking: a model can order applicants well and still predict default rates that are too low for the whole portfolio. :mod:`kivi.calibration` corrects probabilities for the sampling of the development data, builds a master scale, summarizes its grades and tests them, and maps a score to probabilities with Platt scaling or isotonic regression.
 
-Calibration follows :doc:`metrics`, which measures the ranking, and comes before the :doc:`credit strategy <strategy>`, which sets cut-offs on the calibrated PDs. :func:`~kivi.calibration.prior_correction` and :func:`~kivi.calibration.corrected_intercept` correct for the sampling; :func:`~kivi.calibration.master_scale`, :func:`~kivi.calibration.fit_grade_pd` and :func:`~kivi.calibration.assign_grades` build and apply a master scale; :func:`~kivi.calibration.calibration_table`, :func:`~kivi.calibration.binomial_test`, :func:`~kivi.calibration.jeffreys_test`, :func:`~kivi.calibration.hosmer_lemeshow` and :func:`~kivi.calibration.herfindahl_index` count and test the grades; and :func:`~kivi.calibration.platt_fit`, :func:`~kivi.calibration.platt_predict`, :func:`~kivi.calibration.isotonic_fit` and :func:`~kivi.calibration.isotonic_predict` recalibrate a score.
+Calibration follows :doc:`metrics`, which measures the ranking, and comes before the :doc:`credit strategy <strategy>`, which sets cut-offs on the calibrated PDs. :func:`~kivi.calibration.prior_correction` and :func:`~kivi.calibration.corrected_intercept` correct for the sampling; :func:`~kivi.calibration.master_scale`, :func:`~kivi.calibration.fit_grade_pd` and :func:`~kivi.calibration.assign_grades` build and apply a master scale; :func:`~kivi.calibration.calibration_table`, :func:`~kivi.calibration.binomial_test`, :func:`~kivi.calibration.jeffreys_test`, :func:`~kivi.calibration.hosmer_lemeshow`, :func:`~kivi.calibration.spiegelhalter_test`, :func:`~kivi.calibration.brier_decomposition`, :func:`~kivi.calibration.herfindahl_index` and :func:`~kivi.calibration.concentration_test` count and test the grades; :func:`~kivi.calibration.backtest_table` back-tests continuous estimates such as LGDs; and :func:`~kivi.calibration.platt_fit`, :func:`~kivi.calibration.platt_predict`, :func:`~kivi.calibration.isotonic_fit` and :func:`~kivi.calibration.isotonic_predict` recalibrate a score. :doc:`validation` collects the tests that the European Central Bank asks for in a validation report.
 
 Correcting for oversampling
 ---------------------------
@@ -269,6 +269,69 @@ H = 5.60, p = 0.470
 >>> print(f"H = {statistic:.1f}, p = {pvalue:.1e}")
 H = 74.1, p = 6.0e-14
 
+The Hosmer-Lemeshow statistic depends on how the groups are formed. Spiegelhalter's test needs no groups: it compares the Brier score of the probabilities with the score that they would have if they were the true probabilities, and standardizes the difference:
+
+.. math::
+
+   z = \frac{\sum_i (y_i - p_i)(1 - 2 p_i)}{\sqrt{\sum_i (1 - 2 p_i)^2 \, p_i (1 - p_i)}}.
+
+:func:`~kivi.calibration.spiegelhalter_test` returns :math:`z` and its two-sided p-value. The PDs of the monitoring sample pass, and the scaled-down PDs fail clearly:
+
+>>> from kivi.calibration import spiegelhalter_test
+>>> for pds in (probability, low):
+...     statistic, pvalue = spiegelhalter_test(pds, monitoring["target"])
+...     print(f"z = {statistic:.2f}, p = {pvalue:.3f}")
+z = -0.95, p = 0.343
+z = 7.38, p = 0.000
+
+A positive :math:`z` means that the outcomes lie further from the probabilities than chance allows, and a negative one that they lie closer. The test weighs the observations with probabilities close to 0 or 1 most, so a few confident mistakes can decide it.
+
+Decomposing the Brier score
+---------------------------
+
+The Brier score of :func:`~kivi.metrics.brier_score` mixes calibration with discrimination. :func:`~kivi.calibration.brier_decomposition` splits it by groups, such as the grades of a scale. With :math:`n_k` of the :math:`N` observations in group :math:`k`, their mean probability :math:`\bar f_k`, their event rate :math:`\bar o_k` and the overall event rate :math:`\bar o`,
+
+.. math::
+
+   \mathrm{BS} = \mathrm{REL} - \mathrm{RES} + \mathrm{UNC} + \mathrm{WBV} - \mathrm{WBC}, \qquad
+   \mathrm{REL} = \frac{1}{N} \sum_k n_k (\bar f_k - \bar o_k)^2, \qquad
+   \mathrm{RES} = \frac{1}{N} \sum_k n_k (\bar o_k - \bar o)^2.
+
+The reliability ``REL`` is lower for better calibrated groups, and the resolution ``RES`` is higher for groups whose event rates differ more. The uncertainty :math:`\mathrm{UNC} = \bar o (1 - \bar o)` depends on the outcomes alone. The within-group variance ``WBV`` and covariance ``WBC`` account for probabilities that vary within a group, and are 0 when every observation of a group has the same probability. The scaled-down PDs score worse than the PDs of the model because their reliability is nine times as high, while their resolution and uncertainty are almost the same:
+
+>>> from kivi.calibration import brier_decomposition
+>>> pd.DataFrame({
+...     "model": brier_decomposition(grades, monitoring["target"], probability),
+...     "scaled_down": brier_decomposition(low_grades, monitoring["target"], low),
+... }).round(4)
+                    model  scaled_down
+statistic
+brier              0.0877       0.0915
+reliability        0.0005       0.0045
+resolution         0.0134       0.0135
+uncertainty        0.1008       0.1008
+within_variance    0.0004       0.0003
+within_covariance  0.0006       0.0006
+
+On a master scale, every customer of a grade gets the PD of the grade, so the within-group terms vanish and the three terms of Murphy remain. Compare the PDs of the model with the PDs of the fitted scale, on the grades of that scale:
+
+>>> fitted_grades = assign_grades(probability, fitted)
+>>> grade_pd = fitted_grades.map(fitted["probability"]).astype(float)
+>>> pd.DataFrame({
+...     "model": brier_decomposition(fitted_grades, monitoring["target"], probability),
+...     "grade_pd": brier_decomposition(fitted_grades, monitoring["target"], grade_pd),
+... }).round(4)
+                    model  grade_pd
+statistic
+brier              0.0877    0.0896
+reliability        0.0005    0.0017
+resolution         0.0129    0.0129
+uncertainty        0.1008    0.1008
+within_variance    0.0004    0.0000
+within_covariance  0.0011    0.0000
+
+The resolution is the same, because it depends only on the grades and the outcomes. The grade PDs lose the within-group covariance, which rewards the PDs of the model for rising with the default rate within a grade, and their reliability is three times as high, mostly from grade F, whose PD of 47% falls short of its default rate of 66%.
+
 Concentration of the grades
 ---------------------------
 
@@ -281,6 +344,67 @@ A master scale differentiates risk poorly when most obligors fall into a few gra
 0.097
 
 :func:`~kivi.calibration.calibration_table` leaves out empty grades. To count them, pass the counts of every grade of the scale, for example ``grades.value_counts(sort=False)``.
+
+The European Central Bank measures the concentration with the HI instead, a logarithmic rescaling of the index for :math:`K` grades, :math:`\mathrm{HI} = 1 + \ln \mathrm{HHI} / \ln K`, which is also 0 for equally full grades and 1 for a single full grade. :func:`~kivi.calibration.concentration_test` computes it together with the coefficient of variation of the shares :math:`R_i` of the grades, and tests whether the coefficient has risen since the initial validation of the model:
+
+.. math::
+
+   \mathrm{CV} = \sqrt{K \sum_{i=1}^{K} \left(R_i - \frac{1}{K}\right)^2}, \qquad
+   S = \frac{\sqrt{K - 1}\,(\mathrm{CV} - \mathrm{CV}_\mathrm{init})}{\sqrt{\mathrm{CV}^2 (0.5 + \mathrm{CV}^2)}}, \qquad
+   p = 1 - \Phi(S).
+
+Take the development sample as the initial validation, and count every grade of both samples, empty or not. The grades of the monitoring sample are as concentrated as at development, while the scaled-down PDs crowd into the low grades and more than double the HI:
+
+>>> from kivi.calibration import concentration_test
+>>> dev_grades = pd.cut(dev_prob, pd_edges, labels=list("ABCDEF"), include_lowest=True)
+>>> initial = dev_grades.value_counts(sort=False)
+>>> pd.DataFrame({
+...     "model": concentration_test(grades.value_counts(sort=False), initial_counts=initial),
+...     "scaled_down": concentration_test(
+...         low_grades.value_counts(sort=False), initial_counts=initial
+...     ),
+... }).round(4)
+             model  scaled_down
+statistic
+hi          0.2202       0.4876
+cv          0.6954       1.1814
+initial_hi  0.2244       0.2244
+initial_cv  0.7036       0.7036
+statistic  -0.0264       0.6569
+p_value     0.5105       0.2556
+
+Yet the test does not reject the scaled-down grades: its variance depends on the number of grades, not on the number of customers, so a scale of six grades leaves it little power. Read the HI and its change as well as the p-value. When only the coefficient of variation of the initial validation is known, pass it as ``initial_cv``. The European Central Bank also asks for the HI of the exposures, without a test; pass the exposure of each grade alone, here with the account balance standing in for the exposure:
+
+>>> exposure = monitoring["balance"].clip(lower=0).groupby(grades, observed=False).sum()
+>>> concentration_test(exposure)[["hi", "cv", "p_value"]].round(4)
+statistic
+hi         0.2306
+cv         0.7152
+p_value       NaN
+dtype: float64
+
+Back-testing continuous estimates
+---------------------------------
+
+LGD and CCF models estimate amounts rather than probabilities, so the counts of a calibration table do not apply to them. :func:`~kivi.calibration.backtest_table` compares the realized value :math:`r_i` of each observation with its estimate :math:`e_i` by the one-sample t-test for paired observations that the European Central Bank asks for. For the :math:`N` observations of a group, with the differences :math:`d_i = r_i - e_i`,
+
+.. math::
+
+   T = \frac{\sqrt{N}\,\bar d}{s}, \qquad s^2 = \frac{1}{N - 1} \sum_{i=1}^{N} (d_i - \bar d)^2,
+
+and the p-value is the upper tail of Student's t distribution with :math:`N - 1` degrees of freedom. The test is one-sided: a small p-value means that the estimates of the group are too low. Here two facility grades of an LGD model are tested on seven closed defaults:
+
+>>> from kivi.calibration import backtest_table
+>>> lgd_grades = ["F1", "F1", "F1", "F2", "F2", "F2", "F2"]
+>>> realized = [0.05, 0.35, 0.20, 0.55, 0.20, 0.90, 0.75]
+>>> estimated = [0.15, 0.15, 0.15, 0.45, 0.45, 0.45, 0.45]
+>>> backtest_table(lgd_grades, realized, estimated).round(4)
+     total  estimated  realized  difference  variance  statistic  p_value
+bin
+F1       3       0.15       0.2        0.05    0.0225     0.5774   0.3110
+F2       4       0.45       0.6        0.15    0.0917     0.9909   0.1974
+
+In grade F1, the differences -0.1, 0.2 and 0.05 have the mean 0.05 and the variance 0.0225, so :math:`T = \sqrt{3} \cdot 0.05 / 0.15 = 0.577`. Both grades realize more than they estimate, but seven defaults are too few to reject either. For the whole portfolio, pass one group for every observation, such as ``["all"] * 7``. The realized values may lie outside [0, 1], as LGDs do after recovery costs or when the recoveries exceed the exposure. :doc:`validation` back-tests a simulated LGD portfolio, also in the twelve LGD segments of the European Central Bank.
 
 Calibrating a score
 -------------------
@@ -370,3 +494,5 @@ Sample weights
 --------------
 
 A development sample that keeps every bad but only some of the goods can be weighted back to the portfolio, with each observation weighted by the inverse of its sampling rate. :func:`~kivi.calibration.calibration_table`, :func:`~kivi.calibration.platt_fit` and :func:`~kivi.calibration.isotonic_fit` take such weights in ``weights``: counts become sums of weights, and integer weights give the same result as repeating rows. The binomial, Jeffreys and Hosmer-Lemeshow tests need whole numbers of observations and events, so run them on an unweighted table.
+
+:func:`~kivi.calibration.spiegelhalter_test`, :func:`~kivi.calibration.brier_decomposition` and :func:`~kivi.calibration.backtest_table` take ``weights`` too, as frequency weights: integer weights give the same result as repeating rows, and the tests count the total weight as the number of observations, so inverse sampling rates make their p-values too small. :func:`~kivi.calibration.concentration_test` takes the counts or the exposures of the grades instead of weights.
