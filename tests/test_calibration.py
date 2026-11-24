@@ -6,11 +6,14 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from kivi._stats import betainc, chi2_sf, gammaincc
+from kivi._stats import betainc, chi2_sf, gammaincc, normal_cdf, student_t_sf
 from kivi.calibration import (
     assign_grades,
+    backtest_table,
     binomial_test,
+    brier_decomposition,
     calibration_table,
+    concentration_test,
     corrected_intercept,
     fit_grade_pd,
     herfindahl_index,
@@ -22,8 +25,10 @@ from kivi.calibration import (
     platt_fit,
     platt_predict,
     prior_correction,
+    spiegelhalter_test,
 )
 from kivi.datasets import load_bank
+from kivi.metrics import brier_score
 from kivi.selection import SeparationError
 
 INF = np.inf
@@ -1260,3 +1265,448 @@ def test_invalid_assign_grades_probability(probability, message):
 def test_invalid_assign_grades_scale(scale, message):
     with pytest.raises(ValueError, match=message):
         assign_grades([0.1], scale)
+
+
+# The distribution functions of the 1.4 validation tests.
+
+
+def test_normal_cdf_at_tabulated_points_and_in_the_tails():
+    x = np.array([0.0, 1.0, 1.959963984540054, -1.959963984540054, -10.0, np.inf, -np.inf])
+    expected = [0.5, 0.8413447460685429, 0.975, 0.025, 7.619853024160527e-24, 1.0, 0.0]
+    np.testing.assert_allclose(normal_cdf(x), expected, rtol=1e-14, atol=0)
+    assert np.isnan(normal_cdf([np.nan])).all()
+    assert normal_cdf(0.3).shape == ()
+    assert normal_cdf([]).shape == (0,)
+
+
+@pytest.mark.parametrize("t", [-30.0, -2.5, -1.0, -1e-9, 0.0, 1e-9, 0.4, 1.0, 3.0, 50.0])
+def test_student_t_tail_matches_closed_forms(t):
+    # One degree of freedom is the Cauchy distribution and two have an algebraic tail.
+    assert student_t_sf(t, 1) == pytest.approx(0.5 - math.atan(t) / math.pi, rel=1e-13, abs=0)
+    two = 0.5 - t / (2 * math.sqrt(2 + t * t))
+    assert student_t_sf(t, 2) == pytest.approx(two, rel=1e-12, abs=0)
+
+
+def test_student_t_tail_at_its_limits():
+    np.testing.assert_array_equal(student_t_sf([np.inf, -np.inf, 0.0], 3.5), [0.0, 1.0, 0.5])
+    assert np.isnan(student_t_sf(np.nan, 4))
+    # A huge statistic overflows t**2 without a warning.
+    assert student_t_sf(1e200, 10) == 0.0
+    # Many degrees of freedom approach the normal distribution.
+    assert student_t_sf(2.0, 1e9) == pytest.approx(normal_cdf(-2.0), rel=1e-7)
+    for dof in (0, -1, np.inf, np.nan):
+        with pytest.raises(ValueError, match="degrees of freedom must be finite and positive"):
+            student_t_sf(1.0, dof)
+
+
+def test_normal_and_t_match_scipy():
+    stats = pytest.importorskip("scipy.stats")
+    x = np.linspace(-12, 12, 97)
+    np.testing.assert_allclose(normal_cdf(x), stats.norm.cdf(x), rtol=1e-13, atol=0)
+    rng = np.random.default_rng(0)
+    t = np.concatenate([rng.normal(scale=4, size=400), [-1e-7, 1e-7, 0.0, 40.0]])
+    dof = np.concatenate([rng.uniform(0.5, 2000, size=400), [3.0, 1e4, 7.0, 15.0]])
+    np.testing.assert_allclose(student_t_sf(t, dof), stats.t.sf(t, dof), rtol=1e-10, atol=0)
+
+
+# Spiegelhalter's test.
+
+SPIEGEL_PROBABILITY = [0.1, 0.2, 0.2, 0.4, 0.7, 0.9]
+
+
+def spiegelhalter_by_hand(probability, target):
+    numerator = sum((y - p) * (1 - 2 * p) for p, y in zip(probability, target, strict=True))
+    variance = sum((1 - 2 * p) ** 2 * p * (1 - p) for p in probability)
+    return numerator / math.sqrt(variance)
+
+
+@pytest.mark.parametrize("target", [[0, 1, 1, 0, 0, 1], [0, 0, 0, 1, 1, 1], [1, 1, 1, 1, 1, 1]])
+def test_spiegelhalter_matches_the_hand_calculation(target):
+    statistic, pvalue = spiegelhalter_test(SPIEGEL_PROBABILITY, target)
+    z = spiegelhalter_by_hand(SPIEGEL_PROBABILITY, target)
+    assert statistic == pytest.approx(z, rel=1e-13)
+    assert pvalue == pytest.approx(math.erfc(abs(z) / math.sqrt(2)), rel=1e-13)
+
+
+def test_spiegelhalter_standardizes_the_brier_score():
+    p = np.array(SPIEGEL_PROBABILITY)
+    y = np.array([0, 1, 1, 0, 0, 1])
+    brier = np.mean((y - p) ** 2)
+    expected = np.mean(p * (1 - p))
+    sd = math.sqrt(np.sum((1 - 2 * p) ** 2 * p * (1 - p))) / len(p)
+    statistic, _ = spiegelhalter_test(p, y)
+    assert statistic == pytest.approx((brier - expected) / sd, rel=1e-12)
+
+
+def test_spiegelhalter_is_standard_normal_for_true_probabilities():
+    rng = np.random.default_rng(1)
+    statistics = []
+    for _ in range(400):
+        probability = rng.uniform(0.01, 0.6, size=300)
+        statistics.append(spiegelhalter_test(probability, rng.random(300) < probability)[0])
+    assert np.mean(statistics) == pytest.approx(0, abs=0.15)
+    assert np.std(statistics) == pytest.approx(1, abs=0.1)
+
+
+def test_spiegelhalter_integer_weights_equal_repeated_rows():
+    weights = np.array([1, 3, 0, 2, 1, 4])
+    target = np.array([0, 1, 1, 0, 0, 1])
+    weighted = spiegelhalter_test(SPIEGEL_PROBABILITY, target, weights=weights)
+    rows = np.repeat(np.arange(6), weights)
+    repeated = spiegelhalter_test(np.array(SPIEGEL_PROBABILITY)[rows], target[rows])
+    assert weighted == pytest.approx(repeated, rel=1e-13)
+
+
+def test_spiegelhalter_without_variance():
+    with np.errstate(all="raise"):
+        statistic, pvalue = spiegelhalter_test([0.5, 0.5, 0.5], [0, 1, 1])
+        assert math.isnan(statistic) and math.isnan(pvalue)
+        # An event at a probability of 0, or a non-event at 1, is impossible under the
+        # probabilities, and makes the Brier score worse than it can be.
+        assert spiegelhalter_test([0.0, 1.0, 0.0], [1, 1, 0]) == (math.inf, 0.0)
+        assert spiegelhalter_test([0.0, 1.0, 0.5], [0, 0, 1]) == (math.inf, 0.0)
+        # Certain probabilities that come true are perfect, and there is nothing to test.
+        statistic, pvalue = spiegelhalter_test([0.0, 1.0], [0, 1])
+        assert math.isnan(statistic) and math.isnan(pvalue)
+
+
+def test_spiegelhalter_matches_scipy_normal_tail():
+    stats = pytest.importorskip("scipy.stats")
+    statistic, pvalue = spiegelhalter_test(SPIEGEL_PROBABILITY, [1, 1, 0, 1, 0, 1])
+    assert pvalue == pytest.approx(2 * stats.norm.sf(abs(statistic)), rel=1e-12)
+
+
+@pytest.mark.parametrize(
+    "probability,target,weights,message",
+    [
+        ([0.1, 1.2], [0, 1], None, "probability must be between 0 and 1, got 1.2"),
+        ([0.1, np.nan], [0, 1], None, "probability must be finite"),
+        ([0.1, 0.2], [0, 2], None, "target must contain only 0 and 1, got 2"),
+        ([0.1, 0.2], [0, 1, 1], None, "probability and target must have the same length"),
+        ([0.1, 0.2], [0, 1], [1, -1], "weights must be finite and non-negative, got -1.0"),
+    ],
+)
+def test_invalid_spiegelhalter_inputs(probability, target, weights, message):
+    with pytest.raises(ValueError, match=re.escape(message)):
+        spiegelhalter_test(probability, target, weights=weights)
+
+
+# The Brier decomposition.
+
+
+def brier_terms(groups, target, probability, weights=None):
+    frame = pd.DataFrame({"g": groups, "o": target, "f": probability})
+    frame["w"] = 1.0 if weights is None else weights
+    size = frame["w"].sum()
+    overall = np.average(frame["o"], weights=frame["w"])
+    terms = dict.fromkeys(
+        ["reliability", "resolution", "within_variance", "within_covariance"], 0.0
+    )
+    for _, group in frame.groupby("g", sort=False):
+        n = group["w"].sum()
+        f_bar = np.average(group["f"], weights=group["w"])
+        o_bar = np.average(group["o"], weights=group["w"])
+        terms["reliability"] += n * (f_bar - o_bar) ** 2 / size
+        terms["resolution"] += n * (o_bar - overall) ** 2 / size
+        terms["within_variance"] += np.sum(group["w"] * (group["f"] - f_bar) ** 2) / size
+        deviation = (group["f"] - f_bar) * (group["o"] - o_bar)
+        terms["within_covariance"] += 2 * np.sum(group["w"] * deviation) / size
+    terms["uncertainty"] = overall * (1 - overall)
+    terms["brier"] = np.average((frame["f"] - frame["o"]) ** 2, weights=frame["w"])
+    return terms
+
+
+def random_grades(seed, n=500):
+    rng = np.random.default_rng(seed)
+    probability = rng.beta(1, 6, size=n)
+    target = (rng.random(n) < probability * 1.2).astype(int)
+    grades = pd.cut(probability, [0, 0.05, 0.1, 0.2, 0.4, 1], include_lowest=True)
+    return grades, target, probability
+
+
+@pytest.mark.parametrize("seed", [0, 1, 2])
+def test_brier_decomposition_matches_its_definitions_and_adds_up(seed):
+    grades, target, probability = random_grades(seed)
+    result = brier_decomposition(grades, target, probability)
+    assert list(result.index) == [
+        "brier",
+        "reliability",
+        "resolution",
+        "uncertainty",
+        "within_variance",
+        "within_covariance",
+    ]
+    assert result.index.name == "statistic"
+    expected = brier_terms(np.asarray(grades.codes), target, probability)
+    for name, value in expected.items():
+        assert result[name] == pytest.approx(value, rel=1e-12, abs=1e-15)
+    total = (
+        result["reliability"]
+        - result["resolution"]
+        + result["uncertainty"]
+        + result["within_variance"]
+        - result["within_covariance"]
+    )
+    assert total == pytest.approx(result["brier"], rel=1e-12)
+    assert result["brier"] == pytest.approx(brier_score(probability, target), rel=1e-13)
+
+
+def test_brier_decomposition_with_one_probability_per_grade_is_murphys():
+    # Grades A and B: probabilities 0.2 and 0.6, event rates 1/3 and 2/3, overall rate 1/2.
+    grades = ["A", "A", "A", "B", "B", "B"]
+    target = [0, 0, 1, 0, 1, 1]
+    result = brier_decomposition(grades, target, [0.1 + 0.1] * 3 + [0.6] * 3)
+    assert result["within_variance"] == 0.0
+    assert result["within_covariance"] == 0.0
+    reliability = ((0.2 - 1 / 3) ** 2 + (0.6 - 2 / 3) ** 2) / 2
+    assert result["reliability"] == pytest.approx(reliability, rel=1e-13)
+    assert result["resolution"] == pytest.approx((1 / 6) ** 2, rel=1e-13)
+    assert result["uncertainty"] == 0.25
+    brier = (2 * 0.2**2 + 0.8**2 + 0.6**2 + 2 * 0.4**2) / 6
+    assert result["brier"] == pytest.approx(brier, rel=1e-13)
+
+
+def test_brier_decomposition_of_one_group_and_one_class():
+    probability = [0.1, 0.3, 0.2, 0.4]
+    result = brier_decomposition(["all"] * 4, [0, 0, 0, 0], probability)
+    assert result["resolution"] == 0.0
+    assert result["uncertainty"] == 0.0
+    assert result["reliability"] == pytest.approx(0.25**2, rel=1e-13)
+    # Without events the outcomes do not vary, so the covariance is 0.
+    assert result["within_covariance"] == 0.0
+    assert result["within_variance"] == pytest.approx(np.var(probability), rel=1e-12)
+
+
+def test_brier_decomposition_integer_weights_equal_repeated_rows():
+    grades, target, probability = random_grades(3, n=60)
+    weights = np.random.default_rng(4).integers(0, 4, size=60)
+    weighted = brier_decomposition(grades, target, probability, weights=weights)
+    rows = np.repeat(np.arange(60), weights)
+    repeated = brier_decomposition(grades[rows], target[rows], probability[rows])
+    pd.testing.assert_series_equal(weighted, repeated, rtol=1e-12)
+    expected = brier_terms(np.asarray(grades.codes), target, probability, weights)
+    for name, value in expected.items():
+        assert weighted[name] == pytest.approx(value, rel=1e-12, abs=1e-15)
+
+
+def test_brier_decomposition_checks_inputs_like_calibration_table():
+    with pytest.raises(ValueError, match="probability must not have missing values"):
+        brier_decomposition(["a", "b"], [0, 1], [0.2, np.nan])
+    with pytest.raises(ValueError, match="identical indices"):
+        brier_decomposition(pd.Series(["a", "b"]), pd.Series([0, 1], index=[1, 2]), [0.2, 0.3])
+    with pytest.raises(ValueError, match="target must contain only 0 and 1, got 2"):
+        brier_decomposition(["a", "b"], [0, 2], [0.2, 0.3])
+
+
+# The concentration test.
+
+
+def test_concentration_test_matches_the_hand_calculation():
+    result = concentration_test([400, 250, 200, 150], initial_counts=[300, 300, 250, 150])
+    assert list(result.index) == ["hi", "cv", "initial_hi", "initial_cv", "statistic", "p_value"]
+    assert result.index.name == "statistic"
+    # Shares 0.4, 0.25, 0.2 and 0.15 deviate from 1/4 by 0.15, 0, -0.05 and -0.1.
+    cv = math.sqrt(4 * (0.15**2 + 0.05**2 + 0.1**2))
+    initial_cv = math.sqrt(4 * (0.05**2 + 0.05**2 + 0.1**2))
+    assert result["cv"] == pytest.approx(cv, rel=1e-13)
+    assert result["initial_cv"] == pytest.approx(initial_cv, rel=1e-13)
+    hhi = 0.4**2 + 0.25**2 + 0.2**2 + 0.15**2
+    assert result["hi"] == pytest.approx(1 + math.log(hhi) / math.log(4), rel=1e-13)
+    # The two forms of the HI agree.
+    assert result["hi"] == pytest.approx(1 + math.log((cv**2 + 1) / 4) / math.log(4), rel=1e-13)
+    statistic = math.sqrt(3) * (cv - initial_cv) / math.sqrt(cv**2 * (0.5 + cv**2))
+    assert result["statistic"] == pytest.approx(statistic, rel=1e-13)
+    p_value = 0.5 * math.erfc(statistic / math.sqrt(2))
+    assert result["p_value"] == pytest.approx(p_value, rel=1e-13)
+
+
+def test_concentration_test_from_an_initial_cv_and_without_one():
+    counts = [400, 250, 200, 150]
+    from_counts = concentration_test(counts, initial_counts=[300, 300, 250, 150])
+    from_cv = concentration_test(counts, initial_cv=from_counts["initial_cv"])
+    pd.testing.assert_series_equal(from_cv, from_counts, rtol=1e-13)
+    alone = concentration_test(counts)
+    assert alone[["hi", "cv"]].tolist() == from_counts[["hi", "cv"]].tolist()
+    assert alone[["initial_hi", "initial_cv", "statistic", "p_value"]].isna().all()
+    # The shares count, not their scale, so exposures work as well as numbers of customers.
+    pd.testing.assert_series_equal(concentration_test(np.array(counts) * 1e6), alone, rtol=1e-13)
+
+
+def test_concentration_hi_runs_from_equal_grades_to_one_full_grade():
+    equal = concentration_test([5, 5, 5, 5, 5])
+    assert equal["hi"] == pytest.approx(0, abs=1e-15)
+    assert equal["cv"] == 0.0
+    full = concentration_test([0, 0, 12, 0, 0])
+    assert full["hi"] == pytest.approx(1, rel=1e-15)
+    assert full["cv"] == pytest.approx(2, rel=1e-15)
+    # The HI rescales the logarithm of the Herfindahl-Hirschman index.
+    counts = [10, 3, 7, 0]
+    hhi = herfindahl_index(counts)
+    assert concentration_test(counts)["hi"] == pytest.approx(1 + math.log(hhi) / math.log(4))
+
+
+def test_concentration_test_with_equally_full_grades():
+    with np.errstate(all="raise"):
+        result = concentration_test([2, 2, 2], initial_cv=0.4)
+        assert result["statistic"] == -math.inf
+        assert result["p_value"] == 1.0
+        result = concentration_test([2, 2, 2], initial_cv=0.0)
+        assert math.isnan(result["statistic"]) and math.isnan(result["p_value"])
+
+
+def test_concentration_test_matches_scipy_normal_tail():
+    stats = pytest.importorskip("scipy.stats")
+    result = concentration_test([600, 200, 100, 50, 50], initial_cv=0.6)
+    assert result["p_value"] == pytest.approx(stats.norm.sf(result["statistic"]), rel=1e-12)
+
+
+@pytest.mark.parametrize(
+    "counts,options,message",
+    [
+        ([5], {}, "counts must have at least two grades, got 1"),
+        ([[1, 2]], {}, "counts must be one-dimensional, got 2 dimensions"),
+        ([1, -2], {}, "counts must be finite and non-negative, got -2.0"),
+        ([0, 0], {}, "counts must have a positive sum, got 0.0"),
+        ([True, False], {}, "counts must be real and numeric, got dtype bool"),
+        ([1, 2], {"initial_counts": [1, 2, 3]}, "initial_counts must give one count for each"),
+        ([1, 2], {"initial_counts": [1, np.inf]}, "initial_counts must be finite"),
+        ([1, 2], {"initial_cv": -0.1}, "initial_cv must be a finite, non-negative number"),
+        ([1, 2], {"initial_cv": True}, "initial_cv must be a finite, non-negative number"),
+        ([1, 2], {"initial_cv": "0.3"}, "got '0.3'"),
+        ([1, 2], {"initial_cv": 0.2, "initial_counts": [1, 1]}, "not both"),
+    ],
+)
+def test_invalid_concentration_inputs(counts, options, message):
+    with pytest.raises(ValueError, match=re.escape(message)):
+        concentration_test(counts, **options)
+
+
+# The back-test of continuous estimates.
+
+BACKTEST_GRADES = ["F1", "F1", "F1", "F2", "F2", "F2", "F2"]
+BACKTEST_REALIZED = [0.05, 0.35, 0.20, 0.55, 0.20, 0.90, 0.75]
+BACKTEST_ESTIMATED = [0.15, 0.15, 0.15, 0.45, 0.45, 0.45, 0.45]
+
+
+def test_backtest_table_matches_the_hand_calculation():
+    table = backtest_table(BACKTEST_GRADES, BACKTEST_REALIZED, BACKTEST_ESTIMATED)
+    assert list(table.columns) == [
+        "total",
+        "estimated",
+        "realized",
+        "difference",
+        "variance",
+        "statistic",
+        "p_value",
+    ]
+    assert table.index.name == "bin"
+    assert table["total"].tolist() == [3, 4]
+    assert table["total"].dtype == np.int64
+    # F1: differences -0.1, 0.2, 0.05; F2: 0.1, -0.25, 0.45, 0.3.
+    np.testing.assert_allclose(table["estimated"], [0.15, 0.45], rtol=1e-14)
+    np.testing.assert_allclose(table["realized"], [0.2, 0.6], rtol=1e-14)
+    np.testing.assert_allclose(table["difference"], [0.05, 0.15], rtol=1e-13)
+    np.testing.assert_allclose(table["variance"], [0.045 / 2, 0.275 / 3], rtol=1e-13)
+    statistic = [math.sqrt(3) * 0.05 / math.sqrt(0.0225), 2 * 0.15 / math.sqrt(0.275 / 3)]
+    np.testing.assert_allclose(table["statistic"], statistic, rtol=1e-13)
+    # Two degrees of freedom have the closed-form tail 1/2 - t / (2 sqrt(2 + t^2)).
+    t = statistic[0]
+    assert table["p_value"].iloc[0] == pytest.approx(0.5 - t / (2 * math.sqrt(2 + t * t)))
+
+
+def test_backtest_table_matches_scipy_paired_t_tests():
+    stats = pytest.importorskip("scipy.stats")
+    rng = np.random.default_rng(5)
+    estimated = rng.choice([0.1, 0.25, 0.4, 0.7], size=300)
+    realized = np.clip(estimated + rng.normal(0.02, 0.2, size=300), -0.1, 1.2)
+    table = backtest_table(estimated, realized, estimated)
+    for grade, row in table.iterrows():
+        mine = estimated == grade
+        result = stats.ttest_1samp(realized[mine] - estimated[mine], 0, alternative="greater")
+        assert row["statistic"] == pytest.approx(result.statistic, rel=1e-11)
+        assert row["p_value"] == pytest.approx(result.pvalue, rel=1e-9)
+        assert row["variance"] == pytest.approx(np.var(realized[mine] - estimated[mine], ddof=1))
+    paired = stats.ttest_rel(realized, estimated, alternative="greater")
+    portfolio = backtest_table(np.zeros(300), realized, estimated)
+    assert portfolio["statistic"].iloc[0] == pytest.approx(paired.statistic, rel=1e-11)
+    assert portfolio["p_value"].iloc[0] == pytest.approx(paired.pvalue, rel=1e-9)
+
+
+def test_backtest_table_integer_weights_equal_repeated_rows():
+    weights = np.array([2, 0, 1, 3, 1, 1, 2])
+    weighted = backtest_table(
+        BACKTEST_GRADES, BACKTEST_REALIZED, BACKTEST_ESTIMATED, weights=weights
+    )
+    rows = np.repeat(np.arange(7), weights)
+    repeated = backtest_table(
+        np.array(BACKTEST_GRADES)[rows],
+        np.array(BACKTEST_REALIZED)[rows],
+        np.array(BACKTEST_ESTIMATED)[rows],
+    )
+    pd.testing.assert_frame_equal(weighted, repeated, check_dtype=False, rtol=1e-12)
+
+
+def test_backtest_table_without_a_variance():
+    with np.errstate(all="raise"):
+        table = backtest_table(
+            ["one", "same", "same", "zero", "zero", "below", "below"],
+            [0.4, 0.3, 0.3, 0.1, 0.1, 0.1, 0.1],
+            [0.2, 0.1, 0.1, 0.1, 0.1, 0.3, 0.3],
+        )
+    one, same, zero, below = (table.loc[name] for name in ("one", "same", "zero", "below"))
+    assert one[["variance", "statistic", "p_value"]].isna().all()
+    assert one["difference"] == pytest.approx(0.2)
+    # Equal differences have a variance of exactly 0.
+    assert same["variance"] == 0.0
+    assert (same["statistic"], same["p_value"]) == (math.inf, 0.0)
+    assert zero["variance"] == 0.0
+    assert math.isnan(zero["statistic"]) and math.isnan(zero["p_value"])
+    assert (below["statistic"], below["p_value"]) == (-math.inf, 1.0)
+    # A total weight of 1 or less leaves no degrees of freedom either.
+    weighted = backtest_table(["a"] * 3, [0.1, 0.5, 0.3], [0.2, 0.2, 0.2], weights=[0.5, 0.5, 0])
+    assert weighted[["variance", "statistic", "p_value"]].isna().all(axis=None)
+
+
+def test_backtest_table_counts_groups_like_calibration_table():
+    groups = pd.Categorical(["b", None, "a", "b", "a"], categories=["c", "b", "a"])
+    table = backtest_table(groups, [0.1, 0.2, 0.3, 0.4, 0.5], [0.2] * 5, weights=[1, 1, 1, 1, 0])
+    # Category order, missing last, unused and weightless categories left out.
+    assert table.index.tolist()[:2] == ["b", "a"]
+    assert pd.isna(table.index[2])
+    assert table["total"].tolist() == [2.0, 1.0, 1.0]
+    assert table.loc["a", "realized"] == pytest.approx(0.3)
+
+
+def test_backtest_table_keeps_values_outside_the_unit_interval_and_inputs():
+    realized = pd.Series([-0.2, 1.3, 0.5], index=[7, 8, 9])
+    estimated = pd.Series([0.1, 0.9, 0.4], index=[7, 8, 9])
+    before = realized.copy()
+    table = backtest_table(pd.Series(["x"] * 3, index=[7, 8, 9]), realized, estimated)
+    assert table.loc["x", "realized"] == pytest.approx(1.6 / 3)
+    pd.testing.assert_series_equal(realized, before)
+
+
+@pytest.mark.parametrize(
+    "groups,realized,estimated,weights,message",
+    [
+        (["a", "a"], [0.1, np.nan], [0.2, 0.2], None, "realized must not have missing values"),
+        (["a", "a"], [0.1, 0.2], [0.2, np.inf], None, "estimated must be finite, got inf"),
+        (["a", "a"], [True, False], [0.2, 0.2], None, "realized must be real and numeric"),
+        (["a", "a"], ["0.1", "0.2"], [0.2, 0.2], None, "realized must be real and numeric"),
+        (["a"], [0.1, 0.2], [0.2, 0.2], None, "must have the same length, got 1, 2 and 2"),
+        ([], [], [], None, "must contain observations"),
+        (["a", "a"], [0.1, 0.2], [0.2, 0.2], [1, -1], "weights must be finite and non-negative"),
+    ],
+)
+def test_invalid_backtest_inputs(groups, realized, estimated, weights, message):
+    with pytest.raises(ValueError, match=re.escape(message)):
+        backtest_table(groups, realized, estimated, weights=weights)
+
+
+def test_backtest_table_requires_identical_indices():
+    with pytest.raises(ValueError, match="groups and estimated must have identical indices"):
+        backtest_table(pd.Series(["a", "a"]), [0.1, 0.2], pd.Series([0.2, 0.2], index=[3, 4]))
+    with pytest.raises(ValueError, match="realized and weights must have identical indices"):
+        backtest_table(
+            ["a", "a"], pd.Series([0.1, 0.2]), [0.2, 0.2], weights=pd.Series([1, 1], index=[1, 2])
+        )
