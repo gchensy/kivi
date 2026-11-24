@@ -1,6 +1,6 @@
 # kivi 1.4 设计稿：补齐 0.2.x 的遗留功能
 
-2026-11-23 起草，待审定。
+2026-11-23 起草 · 2026-11-23 审定：最后一节的 10 项全部采用推荐
 
 ## 目标与范围
 
@@ -150,7 +150,7 @@ woe_trend(table) -> str
 
 ## 文档与实施计划
 
-1. 审定本稿，即下一节的决定。
+1. 本稿审定：2026-11-23 已确认，下一节的 10 项全部采用推荐。
 2. 两个功能会话并行：
     - **A：** `selection.py`，包括 `vif_filter` 和 `selection_path`，及测试、`selection.rst` 中的两个新小节和 API 页。
     - **B：** `plotting.py`，包括 `distribution_chart` 和 `precision_recall_chart`，及测试、`plotting.rst` 和 API 页。合并后，同一会话再开第二个 PR 做 `woe.py` 的 `woe_trend` 和 `woe_iv.rst` 的一个小节。
@@ -167,9 +167,11 @@ woe_trend(table) -> str
     - 视需要在 `risk_workflow.rst` 或教程里用上 `vif_filter` 和 `selection_path`。
 4. 发布 1.4.0，需要你的确认。master 上已有的三个文档片段一起发布。
 
-## 决定（待你确认）
+## 决定
 
-| # | 问题 | 推荐 | 其他选项 |
+2026-11-23，以下 10 项全部采用推荐方案。
+
+| # | 问题 | 决定 | 未采用的选项 |
 | --- | --- | --- | --- |
 | 1 | `vif_filter` 每轮剔除谁 | 剔除 VIF 最大的变量（教科书做法）。并列时，比如几个变量同为无穷大，剔除 `priority` 最低的 | B：旧版规则，剔除后其余 VIF 之和最小的那个；C：在超过阈值的变量中剔除 `priority` 最低的，即优先保 IV 高的变量，但不一定先降最大的 VIF |
 | 2 | `threshold` 默认值 | 5，与旧版相同，也是两个常见经验值中较严的 | 10 |
