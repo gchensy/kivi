@@ -534,8 +534,11 @@ def test_precision_recall_chart_draws_the_rows_that_flag_observations():
     assert np.isinf(table.index[0]) and np.isnan(table["precision"].iloc[0])
     ax = plotting.precision_recall_chart(table)
     baseline, curve = ax.get_lines()
-    np.testing.assert_allclose(curve.get_xdata(), table["true_positive_rate"].iloc[1:])
-    np.testing.assert_allclose(curve.get_ydata(), table["precision"].iloc[1:])
+    recall, precision = table["true_positive_rate"].iloc[1:], table["precision"].iloc[1:]
+    # Steps from a recall of 0, each at the precision of the row it ends on.
+    assert curve.get_drawstyle() == "steps-pre"
+    np.testing.assert_allclose(curve.get_xdata(), np.r_[0, recall])
+    np.testing.assert_allclose(curve.get_ydata(), np.r_[precision.iloc[0], precision])
     rate = TARGET.mean()
     np.testing.assert_allclose(baseline.get_ydata(), [rate, rate])
     assert baseline.get_linestyle() == "--"
@@ -548,6 +551,23 @@ def test_precision_recall_chart_draws_the_rows_that_flag_observations():
     assert (ax.get_xlabel(), ax.get_ylabel()) == ("true_positive_rate", "precision")
     assert ax.yaxis.get_major_formatter()(0.125) == "12.5%"
     assert ax.get_legend() is None
+
+
+def test_precision_recall_chart_steps_enclose_the_average_precision():
+    rng = np.random.default_rng(0)
+    # Few distinct scores, so that rows add events and non-events together.
+    score = rng.integers(0, 8, size=200)
+    target = rng.binomial(1, 0.1 + 0.08 * score)
+    table = roc_table(score, target).iloc[1:]
+    recall, precision = table["true_positive_rate"], table["precision"]
+    average_precision = float(np.sum(np.diff(np.r_[0, recall]) * precision))
+    (curve,) = plotting.precision_recall_chart(roc_table(score, target)).get_lines()[1:]
+    x, y = matplotlib.cbook.pts_to_prestep(curve.get_xdata(), curve.get_ydata())
+    # Vertical steps have no width, so each horizontal step adds its width times its height.
+    assert np.sum(np.diff(x) * y[1:]) == pytest.approx(average_precision, rel=1e-12)
+    # Straight lines between the rows would enclose more.
+    linear = np.sum(np.diff(curve.get_xdata()) * (curve.get_ydata()[1:] + curve.get_ydata()[:-1]))
+    assert linear / 2 > average_precision
 
 
 def test_precision_recall_chart_draws_the_line_of_each_event_rate_once():

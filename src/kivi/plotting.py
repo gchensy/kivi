@@ -383,13 +383,14 @@ def precision_recall_chart(
     label: str | None = None,
     ax: "matplotlib.axes.Axes | None" = None,
 ) -> "matplotlib.axes.Axes":
-    """Draw the precision against the recall of every threshold of a score.
+    r"""Draw the precision against the recall of every threshold of a score.
 
     Flagging the observations from the highest score down, the curve plots
     ``precision``, the event rate of the flagged observations, against
     ``true_positive_rate``, the share of all events flagged, also called
-    the recall. A dashed line marks the event rate of the sample, the
-    precision of a score that ranks at random.
+    the recall, as steps whose area is the average precision. A dashed line
+    marks the event rate of the sample, the precision of a score that ranks
+    at random.
 
     Parameters
     ----------
@@ -426,16 +427,32 @@ def precision_recall_chart(
     Notes
     -----
     The first row of a roc table, at the threshold ``inf``, flags nobody
-    and has no precision, so the curve starts at the second row, the
-    highest score. The last row flags every observation, so its precision
-    is the event rate: the curve ends on the dashed line, which is labeled
-    with that rate at its left end.
+    and has no precision. From a recall of 0, the curve steps through the
+    other rows: from the recall of one row to that of the next, it stays at
+    the precision of the next row. Straight lines between the rows would
+    overstate the precision between them [1]_. With :math:`R_n` and
+    :math:`P_n` the recall and the precision of the n-th row, and
+    :math:`R_0 = 0`, the area under the steps is the average precision
+
+    .. math::
+
+       \mathrm{AP} = \sum_n (R_n - R_{n-1})\, P_n.
+
+    The last row flags every observation, so its precision is the event
+    rate: the curve ends on the dashed line, which is labeled with that
+    rate at its left end.
 
     The curve takes the next color of the Axes' color cycle, so that the
     curves of several scores drawn on the same `ax` are told apart by
     color and by `label`. The dashed line is gray, as the diagonal of
     `roc_chart`, and is drawn once for each event rate shown, so that the
     scores of one sample share it and two samples get one line each.
+
+    References
+    ----------
+    .. [1] J. Davis and M. Goadrich, "The Relationship Between
+       Precision-Recall and ROC Curves", Proceedings of the 23rd
+       International Conference on Machine Learning, 233-240, 2006.
 
     Examples
     --------
@@ -473,7 +490,14 @@ def precision_recall_chart(
             fontsize="small",
             color=_GRAY,
         )
-    ax.plot(recall, precision, linewidth=2, label=label)
+    # Steps from a recall of 0, each at the precision of the row it ends on.
+    ax.plot(
+        np.r_[0.0, recall],
+        np.r_[precision[0], precision],
+        drawstyle="steps-pre",
+        linewidth=2,
+        label=label,
+    )
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     _percent(ax.xaxis)

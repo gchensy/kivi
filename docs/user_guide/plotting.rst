@@ -195,14 +195,14 @@ Precision and recall
 
 .. plot::
    :context: close-figs
-   :alt: Precision against recall of the WOE score and of poutcome alone, above the event rate of the validation sample
-   :caption: The highest scores flag events with a precision of about 85% until 14% of the events are flagged. The precision then falls towards the event rate of 11.4%, which the curve reaches when every customer is flagged. The four points of poutcome lie close to the curve of the score.
+   :alt: Step curves of the precision against the recall of the WOE score and of poutcome alone, above the event rate of the validation sample
+   :caption: The highest scores flag events with a precision of about 85% until 14% of the events are flagged. The precision then falls towards the event rate of 11.4%, which the curve reaches when every customer is flagged. poutcome alone takes one step for each of its four groups; its last group holds most customers, so from 37% of the events on its precision is the event rate.
 
    from kivi.plotting import precision_recall_chart
    ax = precision_recall_chart(roc_table(score, y), label="score")
    precision_recall_chart(roc_table(validation_woe["poutcome"], y), label="poutcome", ax=ax)
 
-The first row of a ROC table flags nobody and has no precision, so each curve starts at the highest score. The last row flags every customer, so each curve ends on the dashed line. The line is drawn once for each event rate, so the two scores of the validation sample share it, while a curve of the development sample would get a line of its own. The chart suits samples with few events, such as fraud, where the ROC curves of good scores crowd into the upper left corner: the precision shows how many of the flagged customers are events at each recall. :func:`~kivi.strategy.confusion_table` gives the precision and the recall at chosen cut-offs.
+The first row of a ROC table flags nobody and has no precision. Each curve steps from a recall of 0 through the other rows: up to the recall of a row, it stays at the precision of that row, because straight lines between the rows would overstate the precision between them. The area under the steps is therefore the average precision of the score. The last row flags every customer, so each curve ends on the dashed line. The line is drawn once for each event rate, so the two scores of the validation sample share it, while a curve of the development sample would get a line of its own. The chart suits samples with few events, such as fraud, where the ROC curves of good scores crowd into the upper left corner: the precision shows how many of the flagged customers are events at each recall. :func:`~kivi.strategy.confusion_table` gives the precision and the recall at chosen cut-offs.
 
 Gains and KS
 ------------
