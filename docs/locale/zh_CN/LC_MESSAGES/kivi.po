@@ -3965,6 +3965,585 @@ msgstr ""
 "该函数合并两层，即因子及其子因子。对于更多层的层次结构，请逐层合并：把去掉 ``factor`` 层的全局权重 ``weights.droplevel(\"factor\")`` "
 "作为下一次调用的 `parent` ，其结果则给出最后两层的名称。这要求不同因子的子因子名称互不相同，因为 `parent` 的标签必须互不重复。"
 
+msgid "Time-window features"
+msgstr "时间窗特征"
+
+msgid ""
+"Aggregate event data, such as transactions, over windows that end at an observation time, using "
+"only the events before it. :func:`~kivi.features.window_features` computes the number of events, "
+"sums, means, extremes and other aggregations of each window, and "
+":class:`~kivi.features.FeatureSpec` keeps the definitions of the features, computes them again on"
+" any sample and saves them as versioned JSON."
+msgstr ""
+"在截止于观察时间的窗口内聚合事件数据（如交易），只使用该时间之前的事件。 :func:`~kivi.features.window_features` "
+"计算每个窗口的事件数、和、均值、极值等聚合， :class:`~kivi.features.FeatureSpec` 保存特征的定义，可在任何样本上重新计算，并保存为带版本号的 JSON。"
+
+msgid "See :doc:`/user_guide/features` for examples and the rules of the windows."
+msgstr "示例和窗口的规则见 :doc:`/user_guide/features` 。"
+
+msgid ""
+":py:obj:`window_features <kivi.features.window_features>`\\ \\(events\\, observations\\, \\*\\, "
+"id\\, ...\\)"
+msgstr ""
+":py:obj:`window_features <kivi.features.window_features>`\\ \\(events\\, observations\\, \\*\\, "
+"id\\, ...\\)"
+
+msgid "Aggregate the events of each entity over windows before an observation time."
+msgstr "在观察时间之前的窗口内聚合每个主体的事件。"
+
+msgid ""
+":py:obj:`FeatureSpec <kivi.features.FeatureSpec>`\\ \\(id\\, observation\\_time\\, events\\[\\, "
+"...\\]\\)"
+msgstr ""
+":py:obj:`FeatureSpec <kivi.features.FeatureSpec>`\\ \\(id\\, observation\\_time\\, events\\[\\, "
+"...\\]\\)"
+
+msgid "Definitions of time-window features, to compute them the same way again."
+msgstr "时间窗特征的定义，用于以相同的方式再次计算。"
+
+msgid ""
+"For each row of `observations`, an entity and a time :math:`t`, every window collects the events "
+"of that entity in an interval that ends at or before :math:`t`, such as the last three months "
+":math:`[t - 3M, t)`, and aggregates the values of the chosen columns: their number, sum, mean, "
+"extremes and so on. Events at or after :math:`t` are never used, so the features are known at the"
+" observation time."
+msgstr ""
+"对 `observations` 的每一行，即一个主体和一个时间 :math:`t` ，每个窗口收集该主体在一个截止于 :math:`t` 或更早的区间内的事件，例如最近三个月 "
+":math:`[t - 3M, t)` ，并聚合所选列的值：个数、和、均值、极值等。 :math:`t` 当时及之后的事件从不使用，因此这些特征在观察时间已经可知。"
+
+msgid "**events**"
+msgstr "**events**"
+
+msgid ""
+"One row per event, such as a transaction, in any order, with the columns `id` and `time` and the "
+"columns to aggregate. Several events of an entity may share one time."
+msgstr "每行一个事件，例如一笔交易，顺序任意，包含 `id` 和 `time` 列以及待聚合的列。同一主体的多个事件可以有相同的时间。"
+
+msgid "**observations**"
+msgstr "**observations**"
+
+msgid ""
+"One row per entity and observation time, with the columns `id` and `observation_time`, such as "
+"the applicants and their application dates. An entity may appear in several rows, for example "
+"once a month to compute its features over time, and two rows may be equal."
+msgstr "每行一个主体和观察时间，包含 `id` 和 `observation_time` 列，例如申请人及其申请日期。一个主体可以出现在多行中，例如每月一行以计算其特征随时间的变化，两行也可以完全相同。"
+
+msgid "**id**"
+msgstr "**id**"
+
+msgid "str"
+msgstr "str"
+
+msgid ""
+"Column of both tables that names the entity, such as a customer number. Values are matched by "
+"equality, so ``1`` and ``\"1\"`` are different entities."
+msgstr "两张表中标识主体的列，例如客户号。按相等匹配，因此 ``1`` 和 ``\"1\"`` 是不同的主体。"
+
+msgid "**time**"
+msgstr "**time**"
+
+msgid "Column of `events` with the time of each event, of a datetime dtype."
+msgstr "`events` 中记录每个事件时间的列，dtype 为 datetime。"
+
+msgid "**observation_time**"
+msgstr "**observation_time**"
+
+msgid ""
+"Column of `observations` with the time of each observation, of a datetime dtype, tz-naive or in "
+"the time zone of `time`."
+msgstr "`observations` 中记录每个观察时间的列，dtype 为 datetime，无时区或与 `time` 处于同一时区。"
+
+msgid "**windows**"
+msgstr "**windows**"
+
+msgid "sequence, default (\"3M\", \"6M\", \"12M\")"
+msgstr "序列，默认 (\"3M\", \"6M\", \"12M\")"
+
+msgid ""
+"Windows before the observation time. ``\"3M\"`` is the last three calendar months and ``\"90D\"``"
+" the last 90 days. A pair such as ``(\"6M\", \"3M\")`` is the earlier period from six to three "
+"months before the observation time; its two bounds must have the same unit and the first must be "
+"further back. A pair is one window only as an item of the list, as in ``windows=[(\"6M\", "
+"\"3M\")]``: ``windows=(\"6M\", \"3M\")`` is the two windows ``\"6M\"`` and ``\"3M\"``."
+msgstr ""
+"观察时间之前的窗口。 ``\"3M\"`` 是最近三个自然月， ``\"90D\"`` 是最近 90 天。 ``(\"6M\", \"3M\")`` "
+"这样的一对表示观察时间之前六个月到三个月之间的较早时期；两个边界的单位必须相同，且第一个更早。一对边界只有作为列表中的一项时才是一个窗口，如 ``windows=[(\"6M\", "
+"\"3M\")]`` ； ``windows=(\"6M\", \"3M\")`` 是 ``\"6M\"`` 和 ``\"3M\"`` 两个窗口。"
+
+msgid "**aggregations**"
+msgstr "**aggregations**"
+
+msgid "dict, optional"
+msgstr "dict，可选"
+
+#, python-brace-format
+msgid ""
+"The aggregations of each column of `events`, such as ``{\"amount\": [\"count\", \"sum\", "
+"\"max\"]}``, among ``\"count\"``, ``\"sum\"``, ``\"mean\"``, ``\"min\"``, ``\"max\"``, "
+"``\"std\"``, ``\"nunique\"``, ``\"first\"``, ``\"last\"`` and ``\"days_since_last\"``; see the "
+"Notes. By default, only the number of events of each window is computed."
+msgstr ""
+"`events` 每一列的聚合，例如 ``{\"amount\": [\"count\", \"sum\", \"max\"]}`` ，可选 ``\"count\"`` 、 "
+"``\"sum\"`` 、 ``\"mean\"`` 、 ``\"min\"`` 、 ``\"max\"`` 、 ``\"std\"`` 、 ``\"nunique\"`` 、 "
+"``\"first\"`` 、 ``\"last\"`` 和 ``\"days_since_last\"`` ；见“说明”。默认只计算每个窗口的事件数。"
+
+msgid "**ratios**"
+msgstr "**ratios**"
+
+msgid "sequence of pairs of str, optional"
+msgstr "str 对的序列，可选"
+
+msgid ""
+"Ratios of two features, each a pair of column names of the result such as ``(\"amount_sum_3m\", "
+"\"amount_sum_12m\")``. A ratio of a recent window to an earlier one, such as "
+"``(\"amount_sum_3m\", \"amount_sum_6m_3m\")``, measures the change from one period to the next."
+msgstr ""
+"两个特征之比，每个比率是结果中的一对列名，例如 ``(\"amount_sum_3m\", \"amount_sum_12m\")`` 。近期窗口与较早窗口之比，例如 "
+"``(\"amount_sum_3m\", \"amount_sum_6m_3m\")`` ，衡量相邻两期之间的变化。"
+
+msgid "**closed**"
+msgstr "**closed**"
+
+#, python-brace-format
+msgid "{\"left\", \"right\"}, default \"left\""
+msgstr "{\"left\", \"right\"}，默认 \"left\""
+
+msgid ""
+"``\"left\"`` takes the windows as :math:`[t - k, t)`, without the events at the observation time."
+" ``\"right\"`` takes them as :math:`(t - k, t]`, for events that are known at their own time, "
+"such as balances at the end of a day; whether they are known at the observation time is the "
+"caller's judgment. A pair of windows is closed on the same side."
+msgstr ""
+"``\"left\"`` 把窗口取为 :math:`[t - k, t)` ，不含观察时间当时的事件。 ``\"right\"`` 把窗口取为 :math:`(t - k, t]` "
+"，适用于在发生时即已可知的事件，例如日终余额；这些事件在观察时间是否已经可知，由调用者判断。窗口对也在同一侧闭合。"
+
+msgid "**prefix**"
+msgstr "**prefix**"
+
+msgid "str, default \"\""
+msgstr "str，默认 \"\""
+
+msgid ""
+"Text put in front of every column name, as given, such as ``\"cash_\"`` for the features of cash "
+"withdrawals. Ratios name columns with the prefix."
+msgstr "按原样加在每个列名前面的文字，例如取现交易特征的 ``\"cash_\"`` 。比率使用带前缀的列名。"
+
+#, python-brace-format
+msgid ""
+"One row per row of `observations`, on its index and in its order. For each window in turn, the "
+"column ``{prefix}events_{window}`` and then, column by column and aggregation by aggregation, the"
+" columns ``{prefix}{column}_{aggregation}_{window}``, such as ``amount_sum_3m`` or "
+"``amount_sum_6m_3m``. The prefix and the column names are kept as given, and only kivi's own "
+"parts, the aggregations and the windows, are in lower case, so ``Amount`` and ``amount`` give "
+"different columns. The ratios follow, named ``{numerator}_over_{window}`` when the numerator and "
+"the denominator differ only in their windows, such as ``amount_sum_3m_over_12m``, and "
+"``{numerator}_over_{denominator}`` otherwise. ``events``, ``count`` and ``nunique`` are integers "
+"and all other columns floats."
+msgstr ""
+"每行对应 `observations` 的一行，使用其索引并保持其行序。依次对每个窗口先给出列 ``{prefix}events_{window}`` ，再逐列、逐个聚合给出列 "
+"``{prefix}{column}_{aggregation}_{window}`` ，例如 ``amount_sum_3m`` 或 ``amount_sum_6m_3m`` "
+"。前缀和列名保持原样，只有 kivi 自己的部分，即聚合和窗口，用小写书写，因此 ``Amount`` 和 ``amount`` 给出不同的列。比率列在其后：分子与分母只有窗口不同时命名为 "
+"``{numerator}_over_{window}`` ，例如 ``amount_sum_3m_over_12m`` ，否则命名为 "
+"``{numerator}_over_{denominator}`` 。 ``events`` 、 ``count`` 和 ``nunique`` 为整数，其余列为浮点数。"
+
+msgid ""
+"If `events` or `observations` is not a DataFrame, if `id`, `time` or `observation_time` is not "
+"the name of a single column of its table, if an id or a time is missing, if a time column does "
+"not hold datetimes, or if the two time columns are not both tz-naive or in one time zone. Also if"
+" a window, an aggregation, a ratio, `closed` or `prefix` is invalid or repeated, if "
+"`aggregations` names a column that `events` lacks, if a column with an aggregation other than "
+"``count``, ``nunique`` and ``days_since_last`` holds values that are not numbers or are infinite,"
+" or if two columns of the result would have one name."
+msgstr ""
+"如果 `events` 或 `observations` 不是 DataFrame，如果 `id` 、 `time` 或 `observation_time` "
+"不是所在表中唯一一列的名称，如果主体或时间有缺失，如果时间列不是 datetime，或者两个时间列不是同为无时区或处于同一时区。另外，如果某个窗口、聚合、比率、 `closed` 或 "
+"`prefix` 无效或重复，如果 `aggregations` 指定了 `events` 中没有的列，如果某列使用了 ``count`` 、 ``nunique`` 和 "
+"``days_since_last`` 以外的聚合但含有非数值或无穷值，或者结果中会有两列同名。"
+
+msgid ":obj:`FeatureSpec`"
+msgstr ":obj:`FeatureSpec`"
+
+msgid "Keep the definitions and compute them again."
+msgstr "保存定义并再次计算。"
+
+msgid ":obj:`kivi.univariate.profile_table`"
+msgstr ":obj:`kivi.univariate.profile_table`"
+
+msgid "Screen the features against a target."
+msgstr "对照目标变量筛查特征。"
+
+msgid ":obj:`kivi.datasets.make_applications`"
+msgstr ":obj:`kivi.datasets.make_applications`"
+
+msgid "Applications with dates to observe."
+msgstr "带日期、可作为观察表的申请样本。"
+
+msgid ""
+"A window of :math:`k` months starts :math:`k` calendar months before the observation time, as "
+"``pandas.DateOffset(months=k)`` counts them: one month before 31 March is 29 February in a leap "
+"year, and the time of day is kept. A window of :math:`k` days starts :math:`k` days before. With "
+"time zones, the bounds are computed on the local calendar and the events compared as instants. A "
+"bound that falls into the hour skipped when clocks go forward moves to the end of that hour, and "
+"one in the hour repeated when they go back takes its first occurrence."
+msgstr ""
+"长度为 :math:`k` 个月的窗口从观察时间之前 :math:`k` 个自然月开始，按 ``pandas.DateOffset(months=k)`` 的方式计算：闰年 3 月 31 "
+"日之前一个月是 2 月 29 日，且保留一天中的时间。长度为 :math:`k` 天的窗口从 :math:`k` "
+"天之前开始。有时区时，边界按当地日历计算，事件按绝对时刻比较。落在时钟拨快时跳过的那一小时内的边界移到该小时结束时，落在时钟拨回时重复的那一小时内的边界取其第一次出现。"
+
+msgid ""
+"The aggregations leave out the missing values of their column; the ``events`` columns count every"
+" event of the window. In a window without values, ``count``, ``sum`` and ``nunique`` are 0 and "
+"the other aggregations NaN:"
+msgstr "聚合会略去所在列的缺失值； ``events`` 列统计窗口内的每个事件。在没有值的窗口中， ``count`` 、 ``sum`` 和 ``nunique`` 为 0，其余聚合为 NaN："
+
+msgid "``count``: the number of values;"
+msgstr "``count`` ：值的个数；"
+
+msgid "``sum`` and ``mean``: their sum and mean;"
+msgstr "``sum`` 和 ``mean`` ：值的和与均值；"
+
+msgid "``min`` and ``max``: the smallest and the largest value;"
+msgstr "``min`` 和 ``max`` ：最小值和最大值；"
+
+msgid "``std``: the sample standard deviation, as ``pandas.Series.std`` gives it;"
+msgstr "``std`` ：样本标准差，与 ``pandas.Series.std`` 的结果相同；"
+
+msgid "``nunique``: the number of distinct values;"
+msgstr "``nunique`` ：不同取值的个数；"
+
+msgid "``first`` and ``last``: the value of the earliest and of the latest event;"
+msgstr "``first`` 和 ``last`` ：最早和最晚一个事件的值；"
+
+msgid "``days_since_last``: the days from the latest event to the observation time."
+msgstr "``days_since_last`` ：从最后一个事件到观察时间的天数。"
+
+msgid ""
+"``std`` is NaN for fewer than two values. ``first`` and ``last`` take events of one time in the "
+"order of the rows of `events`. ``days_since_last`` counts fractions of a day, so an event twelve "
+"hours before the observation is 0.5 days old; for a pair of windows it is still measured from the"
+" observation time. It is the time that has passed, so with a time zone it can differ by the hour "
+"that clocks change from the local calendar days that windows such as ``\"90D\"`` count. "
+"``count``, ``nunique`` and ``days_since_last`` take columns of any dtype, such as the type of a "
+"merchant; the other aggregations need numbers, and booleans count as 0 and 1. A ratio is NaN "
+"where its denominator is 0 or NaN."
+msgstr ""
+"少于两个值时 ``std`` 为 NaN。 ``first`` 和 ``last`` 对同一时刻的多个事件按 `events` 的行序取值。 ``days_since_last`` "
+"计入不足一天的部分，因此观察时间之前十二小时的事件距今 0.5 天；对窗口对，它仍从观察时间算起。它是经过的时间，因此有时区时，它与 ``\"90D\"`` "
+"这类窗口按当地日历计的天数可能相差时钟调整的那一小时。 ``count`` 、 ``nunique`` 和 ``days_since_last`` 接受任何 dtype "
+"的列，例如商户类型；其余聚合需要数值，布尔值按 0 和 1 计。分母为 0 或 NaN 时比率为 NaN。"
+
+msgid ""
+"Entities of `observations` without events get the values of empty windows, and events of entities"
+" that `observations` lacks are ignored. The events are sorted once, and the bounds of every "
+"window are found by binary search. Counts, sums, means, first and last values and "
+"``days_since_last`` then take a time that grows with the number of rows of the two tables, and a "
+"sum adds only values inside its window, so a large earlier value does not round away the small "
+"ones in it. ``min``, ``max``, ``std`` and ``nunique`` visit each event once for every window that"
+" contains it, so their time grows with the events of all windows together; they are expanded a "
+"bounded number at a time, so memory does not."
+msgstr ""
+"`observations` 中没有事件的主体得到空窗口的取值， `observations` "
+"中没有的主体的事件被忽略。事件只排序一次，每个窗口的边界用二分查找确定。于是计数、和、均值、第一个和最后一个值以及 ``days_since_last`` "
+"的耗时随两张表的行数增长；每个和只累加其窗口内的值，因此之前的较大值不会把窗口内的较小值舍入掉。 ``min`` 、 ``max`` 、 ``std`` 和 ``nunique`` "
+"会在包含某个事件的每个窗口中各访问该事件一次，因此其耗时随所有窗口的事件总数增长；这些窗口每次只展开有限的一部分，因此内存不会随之增长。"
+
+msgid ""
+"The event of 31 March is on the observation date, so no window uses it, and the month before 31 "
+"March starts on 29 February."
+msgstr "3 月 31 日的事件恰在观察日，因此任何窗口都不使用它；3 月 31 日之前一个月从 2 月 29 日开始。"
+
+msgid ""
+"A pair of bounds is one window only as an item of the list of windows; on its own, it is two "
+"windows:"
+msgstr "一对边界只有作为窗口列表中的一项时才是一个窗口；单独给出时，它是两个窗口："
+
+msgid ""
+"A specification records the columns that identify the entities and the observation times, and one"
+" or more groups of window features. A group holds the arguments of one call of `window_features`:"
+" the event table it reads, its time column, its windows, its aggregations, the side on which its "
+"windows are closed and the prefix of its column names. Groups that read filtered events, such as "
+"only the cash withdrawals, use their own table and prefix. `compute` gives the features of any "
+"sample, and `to_json` and `from_json` save and load the definitions. Nothing is fitted to data, "
+"so a specification can be written by hand."
+msgstr ""
+"特征方案记录标识主体的列和观察时间的列，以及一组或多组时间窗特征。每组包含一次 `window_features` "
+"调用的参数：它读取的事件表、时间列、窗口、聚合、窗口闭合的一侧以及列名的前缀。读取筛选后事件的组，例如只读取取现交易的组，使用自己的表和前缀。 `compute` 计算任何样本的特征， "
+"`to_json` 和 `from_json` 保存和加载这些定义。方案不从数据拟合任何东西，因此可以手工编写。"
+
+msgid ""
+"A specification is immutable: its groups are read-only mappings with tuples for lists. To change "
+"a field, use `dataclasses.replace`, which validates the result again."
+msgstr "特征方案不可变：它的各组是只读映射，列表以 tuple 表示。要修改某个字段，请使用 `dataclasses.replace` ，它会重新验证结果。"
+
+msgid "Column of the observations and of every event table that names the entity; all groups share it."
+msgstr "观察表和每张事件表中标识主体的列；所有组共用这一列。"
+
+msgid "Column of the observations with the observation times."
+msgstr "观察表中记录观察时间的列。"
+
+msgid "sequence of dict"
+msgstr "dict 序列"
+
+msgid ""
+"One dict per group, with the keys ``time`` (required), ``windows``, ``aggregations``, ``closed`` "
+"and ``prefix``, which mean and default to what the arguments of `window_features` do, and "
+"``table``, the name of the event table that the group reads, ``\"events\"`` by default."
+msgstr ""
+"每组一个 dict，键为 ``time`` （必需）、 ``windows`` 、 ``aggregations`` 、 ``closed`` 和 ``prefix`` ，其含义和默认值与 "
+"`window_features` 的同名参数相同，以及 ``table`` ，即该组读取的事件表的名称，默认为 ``\"events\"`` 。"
+
+msgid "sequence of pairs of str, default ()"
+msgstr "str 对的序列，默认 ()"
+
+msgid "Ratios of two features of any groups, named by their columns, as in `window_features`."
+msgstr "任意组中两个特征之比，按列名指定，与 `window_features` 相同。"
+
+msgid "**panel**"
+msgstr "**panel**"
+
+msgid "None, default None"
+msgstr "None，默认 None"
+
+msgid ""
+"Reserved for the features of monthly status panels, which ``panel_features`` adds before kivi "
+"1.3.0 is released, completing version 1 of the JSON format; until then it must be None."
+msgstr "保留给月度状态面板的特征， ``panel_features`` 会在 kivi 1.3.0 发布之前加入它，届时 JSON 格式的版本 1 定稿；在此之前必须为 None。"
+
+msgid "**kivi_version**"
+msgstr "**kivi_version**"
+
+msgid "str, optional"
+msgstr "str，可选"
+
+msgid "Version of kivi that wrote the specification. By default, or if None, the installed version."
+msgstr "写出该特征方案的 kivi 版本。默认或为 None 时取已安装的版本。"
+
+msgid "Attributes"
+msgstr "属性"
+
+msgid "**FORMAT_VERSION**"
+msgstr "**FORMAT_VERSION**"
+
+msgid "int"
+msgstr "int"
+
+msgid "Version of the JSON format that `to_json` writes and the newest that `from_json` reads."
+msgstr "`to_json` 写出的 JSON 格式的版本，也是 `from_json` 能读取的最新版本。"
+
+msgid ""
+"If `id` or `observation_time` is not a string, if `events` is not a non-empty list of dicts with "
+"valid entries, if two features of the groups have one name, if a ratio is invalid, if `panel` is "
+"not None or if `kivi_version` is not a string. The checks of each entry are those of the "
+"arguments of `window_features`."
+msgstr ""
+"如果 `id` 或 `observation_time` 不是字符串，如果 `events` 不是由有效条目组成的非空 dict 列表，如果各组中有两个特征同名，如果某个比率无效，如果 "
+"`panel` 不是 None，或者 `kivi_version` 不是字符串。每个条目的检查与 `window_features` 的参数相同。"
+
+msgid ":obj:`window_features`"
+msgstr ":obj:`window_features`"
+
+msgid "Compute the features of one group directly."
+msgstr "直接计算一组特征。"
+
+msgid ":obj:`kivi.spec.BinningSpec`"
+msgstr ":obj:`kivi.spec.BinningSpec`"
+
+msgid "The binning of the features, saved the same way."
+msgstr "特征的分箱，以同样的方式保存。"
+
+msgid ""
+"Two specifications are equal when `to_json` gives the same text for both, which includes "
+"`kivi_version`."
+msgstr "当 `to_json` 为两个特征方案给出相同的文本时，二者相等；文本中包含 `kivi_version` 。"
+
+msgid "Names of the columns that `compute` returns, in their order."
+msgstr "`compute` 返回的列的名称，按其顺序排列。"
+
+msgid ""
+"The features of each group come in the order of the groups, and the ratios last, so the names can"
+" select or check the columns of a result before any data is read."
+msgstr "各组的特征按组的顺序排列，比率排在最后，因此在读取任何数据之前，就可以用这些名称选择或检查结果的列。"
+
+msgid ":obj:`compute`"
+msgstr ":obj:`compute`"
+
+msgid "Compute the columns."
+msgstr "计算这些列。"
+
+msgid "Compute the features of every observation."
+msgstr "计算每个观察的特征。"
+
+msgid ""
+"Each group gives the columns that `window_features` gives for its definitions and its event "
+"table, without ratios, and the ratios of the specification follow."
+msgstr "每组给出 `window_features` 按其定义和事件表给出的列（不含比率），随后是方案中的比率。"
+
+msgid ""
+"One row per entity and observation time, with the columns `id` and `observation_time` of the "
+"specification."
+msgstr "每行一个主体和观察时间，包含方案的 `id` 和 `observation_time` 列。"
+
+msgid "pandas.DataFrame or dict of pandas.DataFrame"
+msgstr "pandas.DataFrame 或由 pandas.DataFrame 组成的 dict"
+
+msgid ""
+"The event table, or a dict from the ``table`` name of every group to its event table. A single "
+"table is allowed when all groups read the same table."
+msgstr "事件表，或由每组的 ``table`` 名称到其事件表的 dict。所有组读取同一张表时，可以只传一张表。"
+
+msgid "The columns of `columns`, one row per row of `observations`, on its index and in its order."
+msgstr "`columns` 中的列，每行对应 `observations` 的一行，使用其索引并保持其行序。"
+
+msgid ""
+"If `events` is neither a DataFrame nor a dict of DataFrames with one entry per table of the "
+"groups, or for the reasons that `window_features` gives."
+msgstr "如果 `events` 既不是 DataFrame，也不是为各组的每张表各提供一项的 DataFrame dict，或者出于 `window_features` 列出的原因。"
+
+msgid "The features of one group."
+msgstr "一组特征。"
+
+msgid ":obj:`columns`"
+msgstr ":obj:`columns`"
+
+msgid "The names of the columns."
+msgstr "列的名称。"
+
+msgid "Return the feature specification as a dict of JSON types."
+msgstr "以由 JSON 类型构成的 dict 返回特征方案。"
+
+msgid ""
+"The dict holds the arguments of the constructor as the constructor takes them, with lists for "
+"tuples, so they rebuild the specification. It holds only dicts, lists, strings and None, so "
+"``json.dumps`` can write it without further conversion, and its keys are always in the same "
+"order. `to_json` writes this dict."
+msgstr ""
+"该 dict 以构造函数接受的形式包含构造函数的参数，元组写成列表，因此可以用它们重建方案。它只包含 dict、list、字符串和 None，因此 ``json.dumps`` "
+"无需进一步转换就能写出，其键的顺序始终相同。 `to_json` 写出的就是这个 dict。"
+
+msgid ""
+"The keys ``format``, ``format_version`` and ``kivi_version``, then the arguments ``id``, "
+"``observation_time``, ``events``, ``ratios`` and ``panel``. Each group of ``events`` has all its "
+"keys: ``table``, ``time``, ``windows``, ``aggregations``, a dict from each column to the list of "
+"its aggregations in the order of the columns of the result, ``closed`` and ``prefix``."
+msgstr ""
+"键 ``format`` 、 ``format_version`` 和 ``kivi_version`` ，然后是参数 ``id`` 、 ``observation_time`` 、 "
+"``events`` 、 ``ratios`` 和 ``panel`` 。 ``events`` 的每组包含全部键： ``table`` 、 ``time`` 、 ``windows`` 、 "
+"``aggregations`` （由每列到其聚合列表的 dict，按结果中列的顺序）、 ``closed`` 和 ``prefix`` 。"
+
+msgid ":obj:`from_dict`"
+msgstr ":obj:`from_dict`"
+
+msgid "Rebuild the feature specification."
+msgstr "重建特征方案。"
+
+msgid ":obj:`to_json`"
+msgstr ":obj:`to_json`"
+
+msgid "Write the dict as JSON."
+msgstr "把该 dict 写成 JSON。"
+
+msgid "Rebuild a feature specification from the result of `to_dict`."
+msgstr "由 `to_dict` 的结果重建特征方案。"
+
+msgid ""
+"The dict is checked before the specification is built, so that a damaged or hand-edited file "
+"fails with a message that names the problem."
+msgstr "构建方案之前会先检查该 dict，因此损坏或被手工改动的文件会报错并指明问题。"
+
+msgid "**data**"
+msgstr "**data**"
+
+msgid ""
+"A dict in the format of `to_dict`, for example from ``json.load``. Every key that `to_dict` "
+"writes must be present, also in each group."
+msgstr "符合 `to_dict` 格式的 dict，例如来自 ``json.load`` 。 `to_dict` 写出的每个键都必须存在，每组中也是如此。"
+
+msgid "FeatureSpec"
+msgstr "FeatureSpec"
+
+msgid "The feature specification, equal to the one that wrote `data`."
+msgstr "特征方案，与写出 `data` 的那个相等。"
+
+msgid ""
+"If `data` is not a kivi feature specification, has a ``format_version`` newer than this version "
+"of kivi reads, lacks a key or has an unknown one, or holds an invalid value."
+msgstr "如果 `data` 不是 kivi 特征方案、其 ``format_version`` 比当前 kivi 版本能读取的更新、缺少某个键或含有未知的键，或含有无效的值。"
+
+msgid ":obj:`to_dict`"
+msgstr ":obj:`to_dict`"
+
+msgid "The dict format."
+msgstr "dict 格式。"
+
+msgid ":obj:`from_json`"
+msgstr ":obj:`from_json`"
+
+msgid "Read the feature specification from JSON text."
+msgstr "从 JSON 文本读取特征方案。"
+
+msgid "Return the feature specification as JSON text."
+msgstr "以 JSON 文本返回特征方案。"
+
+msgid ""
+"The text is the dict of `to_dict` written by ``json.dumps``. The same specification always gives "
+"the same text, so saved specifications can be compared and kept under version control. Non-ASCII "
+"names are written as they are, so save the text as UTF-8."
+msgstr ""
+"该文本就是由 ``json.dumps`` 写出的 `to_dict` 的 dict。同一个方案总是给出相同的文本，因此保存的方案可以相互比较，也可以纳入版本控制。非 ASCII "
+"的名称按原样写出，因此请以 UTF-8 保存文本。"
+
+msgid "**indent**"
+msgstr "**indent**"
+
+msgid "int, optional"
+msgstr "int，可选"
+
+msgid "Indentation of nested values, as in ``json.dumps``. By default the text is a single line."
+msgstr "嵌套值的缩进，含义与 ``json.dumps`` 相同。默认文本只有一行。"
+
+msgid "JSON text that `from_json` reads back into an equal feature specification."
+msgstr "JSON 文本， `from_json` 可将其读回为相等的特征方案。"
+
+msgid "Read the feature specification back."
+msgstr "读回特征方案。"
+
+msgid "The same content as a dict."
+msgstr "以 dict 表示的相同内容。"
+
+msgid "Write the text to a file with ``Path(\"features.json\").write_text(text, encoding=\"utf-8\")``."
+msgstr "用 ``Path(\"features.json\").write_text(text, encoding=\"utf-8\")`` 把文本写入文件。"
+
+msgid "Read a feature specification from the JSON text of `to_json`."
+msgstr "从 `to_json` 写出的 JSON 文本读取特征方案。"
+
+msgid ""
+"A file written by a newer version of the format is rejected rather than read in part, and so is a"
+" JSON object that repeats a key, which ``json.loads`` would otherwise read as its last value."
+msgstr "由更新版本的格式写出的文件会被拒绝，而不会只读取其中一部分；重复某个键的 JSON 对象也会被拒绝，否则 ``json.loads`` 只会读到其最后一个值。"
+
+msgid "**text**"
+msgstr "**text**"
+
+msgid "str or bytes"
+msgstr "str 或 bytes"
+
+msgid "JSON text, for example from ``Path(...).read_text(encoding=\"utf-8\")``."
+msgstr "JSON 文本，例如来自 ``Path(...).read_text(encoding=\"utf-8\")`` 。"
+
+msgid "The feature specification, equal to the one that wrote `text`."
+msgstr "特征方案，与写出 `text` 的那个相等。"
+
+msgid ""
+"If `text` is neither a str nor bytes, is not valid JSON, repeats a key of an object, or does not "
+"describe a valid specification; see `from_dict`."
+msgstr "如果 `text` 既不是 str 也不是 bytes、不是有效的 JSON、某个对象重复了键，或没有描述一个有效的方案；参见 `from_dict` 。"
+
+msgid "Write the feature specification."
+msgstr "写出特征方案。"
+
+msgid "Rebuild the feature specification from a dict."
+msgstr "由 dict 重建特征方案。"
+
 msgid "Glossary"
 msgstr "术语表"
 
@@ -4978,9 +5557,6 @@ msgstr ""
 
 msgid "**horizon**"
 msgstr "**horizon**"
-
-msgid "int, optional"
-msgstr "int，可选"
 
 msgid ""
 "Number of periods to add up, starting from period 1: 12 for monthly periods, or 1 for annual "
@@ -6683,9 +7259,6 @@ msgstr "是否标出 KS 统计量。"
 msgid "**label**"
 msgstr "**label**"
 
-msgid "str, optional"
-msgstr "str，可选"
-
 msgid "Legend entry of the curve. A legend is drawn only when a curve has a label."
 msgstr "曲线在图例中的名称。只有当某条曲线带有标签时才绘制图例。"
 
@@ -8281,9 +8854,6 @@ msgstr ""
 "``\"monotonic\"`` ，None 表示只合并到 WOE 单调为止。dict 中未列出的数值列和 ``\"chimerge\"`` 列分为 5 箱。用 ``\"rare\"`` "
 "分组的列不接受箱数。"
 
-msgid "dict, optional"
-msgstr "dict，可选"
-
 #, python-brace-format
 msgid ""
 "Special codes of numeric and grouped categorical columns, such as ``{\"pdays\": [-1], \"job\": "
@@ -8452,9 +9022,6 @@ msgstr ""
 msgid "Smoothing with which the tables were computed."
 msgstr "计算 WOE 表时所用的平滑参数。"
 
-msgid "**kivi_version**"
-msgstr "**kivi_version**"
-
 msgid "Version of kivi that fitted the specification. By default, or if None, the installed version."
 msgstr "拟合该分箱方案的 kivi 版本。默认或为 None 时取已安装的版本。"
 
@@ -8468,15 +9035,6 @@ msgid ""
 msgstr ""
 "每个已分组类别列的分组映射：从类别到组的 dict，与 `kivi.binning.category_groups` 或 `kivi.binning.chimerge_groups` "
 "的返回值相同。没有对应项的类别列以自身标签作为分组。默认不对任何列分组。"
-
-msgid "Attributes"
-msgstr "属性"
-
-msgid "**FORMAT_VERSION**"
-msgstr "**FORMAT_VERSION**"
-
-msgid "int"
-msgstr "int"
 
 msgid ""
 "Newest version of the JSON format, which `from_json` reads and `to_json` writes for a "
@@ -8541,9 +9099,6 @@ msgid ""
 " columns is written as version 1, which earlier versions of kivi read as well. `FORMAT_VERSION` "
 "is the newest version."
 msgstr "版本 2 在版本 1 的基础上增加了类别列的分组映射。没有已分组列的分箱方案按版本 1 写出，早期版本的 kivi 也能读取。 `FORMAT_VERSION` 是最新的版本。"
-
-msgid ":obj:`to_json`"
-msgstr ":obj:`to_json`"
 
 msgid "Write the specification."
 msgstr "写出分箱方案。"
@@ -8684,9 +9239,6 @@ msgid ""
 "specification."
 msgstr "如果 `columns` 是字符串、为空、重复某一列，或指定了分箱方案中没有的列。"
 
-msgid ":obj:`columns`"
-msgstr ":obj:`columns`"
-
 msgid "The columns of the specification."
 msgstr "分箱方案中的列。"
 
@@ -8709,14 +9261,8 @@ msgstr ""
 "包含键 ``format`` 、 ``format_version`` 、 ``kivi_version`` 、 ``smoothing`` 和 ``variables`` ；后者是每列一个 "
 "dict 的列表。格式说明见用户指南。"
 
-msgid ":obj:`from_dict`"
-msgstr ":obj:`from_dict`"
-
 msgid "Rebuild the specification."
 msgstr "重建分箱方案。"
-
-msgid "Write the dict as JSON."
-msgstr "把该 dict 写成 JSON。"
 
 msgid "Rebuild a specification from the result of `to_dict`."
 msgstr "由 `to_dict` 的结果重建分箱方案。"
@@ -8725,9 +9271,6 @@ msgid ""
 "The dict is checked before the specification is built, so that a damaged or hand-edited file "
 "fails with a message that names the problem instead of encoding wrong values."
 msgstr "构建分箱方案之前会先检查该 dict，因此损坏或被手工改动的文件会报错并指明问题，而不会编码出错误的值。"
-
-msgid "**data**"
-msgstr "**data**"
 
 msgid "A dict in the format of `to_dict`, for example from ``json.load``."
 msgstr "符合 `to_dict` 格式的 dict，例如来自 ``json.load`` 。"
@@ -8740,15 +9283,6 @@ msgid ""
 "of kivi reads, lacks a key or has an unknown one, or holds an invalid value. The message names "
 "the column."
 msgstr "如果 `data` 不是 kivi 分箱方案、其 ``format_version`` 比当前 kivi 能读取的版本更新、缺少某个键或含有未知的键，或含有无效的值。错误信息会指明相应的列。"
-
-msgid ":obj:`to_dict`"
-msgstr ":obj:`to_dict`"
-
-msgid "The dict format."
-msgstr "dict 格式。"
-
-msgid ":obj:`from_json`"
-msgstr ":obj:`from_json`"
 
 msgid "Read the specification from JSON text."
 msgstr "从 JSON 文本读取分箱方案。"
@@ -8764,23 +9298,11 @@ msgstr ""
 "该文本就是由 ``json.dumps`` 写出的 `to_dict` 的 dict。同一个分箱方案总是得到相同的文本，因此保存的分箱方案可以相互比较，并纳入版本控制。非 ASCII "
 "标签按原样写出，因此请以 UTF-8 保存文本。"
 
-msgid "**indent**"
-msgstr "**indent**"
-
-msgid "Indentation of nested values, as in ``json.dumps``. By default the text is a single line."
-msgstr "嵌套值的缩进，含义与 ``json.dumps`` 相同。默认文本只有一行。"
-
-msgid "str"
-msgstr "str"
-
 msgid "JSON text that `from_json` reads back into an equal specification."
 msgstr "JSON 文本， `from_json` 可将其读回为相等的分箱方案。"
 
 msgid "Read the specification back."
 msgstr "读回分箱方案。"
-
-msgid "The same content as a dict."
-msgstr "以 dict 表示的相同内容。"
 
 msgid "Write the text to a file with ``Path(\"spec.json\").write_text(text, encoding=\"utf-8\")``."
 msgstr "用 ``Path(\"spec.json\").write_text(text, encoding=\"utf-8\")`` 把文本写入文件。"
@@ -8792,15 +9314,6 @@ msgid ""
 "The loaded specification groups and encodes every sample exactly as the one that was saved. A "
 "file written by a newer version of the format is rejected rather than read in part."
 msgstr "加载的分箱方案对每个样本的分组和编码，与保存时的分箱方案完全相同。由更新版本格式写出的文件会被拒绝，而不会只读取其中一部分。"
-
-msgid "**text**"
-msgstr "**text**"
-
-msgid "str or bytes"
-msgstr "str 或 bytes"
-
-msgid "JSON text, for example from ``Path(...).read_text(encoding=\"utf-8\")``."
-msgstr "JSON 文本，例如来自 ``Path(...).read_text(encoding=\"utf-8\")`` 。"
 
 msgid "The specification, equal to the one that wrote `text`."
 msgstr "分箱方案，与写出 `text` 的那个相等。"
@@ -11845,6 +12358,43 @@ msgstr "上次发布以来合并的改动。"
 
 msgid "New"
 msgstr "新增"
+
+#, python-brace-format
+msgid ""
+"The new module ``kivi.features`` computes time-window features of event data, such as "
+"transactions, point in time. ``window_features`` aggregates the events of each entity over "
+"windows that end at the observation time of each row of an observation table, such as the "
+"application date, and never uses an event at or after that time. Windows count calendar months, "
+"as ``\"3M\"``, or days, as ``\"90D\"``, and a pair such as ``(\"6M\", \"3M\")`` is the period "
+"before the most recent one; ``closed=\"right\"`` includes the events at the observation time "
+"instead. The aggregations are ``count``, ``sum``, ``mean``, ``min``, ``max``, ``std``, "
+"``nunique``, ``first``, ``last`` and ``days_since_last``, ``ratios`` divides two features, and "
+"``prefix`` names the features of filtered events. The columns are named "
+"``{prefix}{column}_{aggregation}_{window}`` next to ``{prefix}events_{window}``, the number of "
+"events of each window. The events are sorted once and the bounds of every window found by binary "
+"search, so counts, sums, means and first and last values take a time that grows with the number "
+"of rows, while ``min``, ``max``, ``std`` and ``nunique`` look at every event of every window."
+msgstr ""
+"新模块 ``kivi.features`` 以时点正确的方式计算事件数据（如交易）的时间窗特征。 ``window_features`` "
+"在截止于观察表每一行的观察时间（如申请日期）的窗口内聚合每个主体的事件，从不使用该时间当时及之后的事件。窗口可以按自然月计，如 ``\"3M\"`` ，也可以按天计，如 ``\"90D\"`` "
+"； ``(\"6M\", \"3M\")`` 这样的一对表示最近一期之前的那一期； ``closed=\"right\"`` 则把观察时间当时的事件计入。聚合有 ``count`` 、 "
+"``sum`` 、 ``mean`` 、 ``min`` 、 ``max`` 、 ``std`` 、 ``nunique`` 、 ``first`` 、 ``last`` 和 "
+"``days_since_last`` ， ``ratios`` 计算两个特征之比， ``prefix`` 为筛选后事件的特征命名。列名为 "
+"``{prefix}{column}_{aggregation}_{window}`` ，另有每个窗口的事件数 ``{prefix}events_{window}`` "
+"。事件只排序一次，每个窗口的边界用二分查找确定，因此计数、和、均值以及第一个和最后一个值的耗时随行数增长，而 ``min`` 、 ``max`` 、 ``std`` 和 ``nunique`` "
+"要查看每个窗口中的每个事件。"
+
+msgid ""
+"``kivi.features.FeatureSpec`` keeps the definitions of one or more groups of window features and "
+"their ratios, computes them on any sample with ``compute`` and saves them as versioned JSON with "
+"``to_json`` and ``from_json``, so that development and production compute the same features. "
+"Nothing in it is fitted to data."
+msgstr ""
+"``kivi.features.FeatureSpec`` 保存一组或多组时间窗特征及其比率的定义，用 ``compute`` 在任何样本上计算这些特征，并用 ``to_json`` 和 "
+"``from_json`` 保存和加载带版本号的 JSON，使开发和生产计算出相同的特征。它不从数据拟合任何东西。"
+
+msgid "1.2.0 (2026-11-22)"
+msgstr "1.2.0（2026-11-22）"
 
 msgid ""
 "``kivi.datasets.make_transactions`` simulates the account transactions that precede the "
@@ -17138,6 +17688,482 @@ msgstr ""
 "1，并且第一个参数中的每个因子在 ``children`` 中都有一个条目。"
 
 msgid ""
+"Most behavioural variables of a scorecard summarize a history of events: the number of "
+"transactions in the last three months, the largest withdrawal in a year, the days since the last "
+"payment. Each is computed for an entity, such as a customer, at an observation time, such as the "
+"date of an application, and may only use what was known then. Code that filters and groups the "
+"events by hand easily lets a later event slip in, and code written again for production rarely "
+"gives the same numbers. :func:`~kivi.features.window_features` computes such variables for many "
+"observations at once and never uses an event at or after the observation time, and a "
+":class:`~kivi.features.FeatureSpec` keeps their definitions so that production computes them in "
+"the same way."
+msgstr ""
+"评分卡的行为类变量大多是对事件历史的汇总：最近三个月的交易笔数、一年内最大的一笔取现、距上次还款的天数。每个变量都针对一个主体（如客户）在一个观察时间（如申请日期）计算，只能使用当时已知的信息。手工筛选和分组事件的代码很容易混入之后发生的事件，为生产环境重写的代码也很少能给出相同的数。"
+" :func:`~kivi.features.window_features` 一次为大量观察计算这些变量，从不使用观察时间当时及之后的事件； "
+":class:`~kivi.features.FeatureSpec` 保存它们的定义，使生产环境以同样的方式计算。"
+
+msgid ""
+"Window features come first in a project. :doc:`univariate` profiles the features that they give "
+"against the target, and :doc:`binning` bins the ones that are kept."
+msgstr "时间窗特征是项目的第一步。 :doc:`univariate` 对照目标变量分析它们给出的特征， :doc:`binning` 对保留下来的特征分箱。"
+
+msgid ""
+"An *observation* is an entity :math:`i` and a time :math:`t`, and a *window* of :math:`k` months "
+"is the interval :math:`[t - k, t)` before it. A feature aggregates the values :math:`v_e` of one "
+"column over the events :math:`e` of the entity whose times :math:`\\tau_e` lie in the window:"
+msgstr ""
+"一个 *观察* 是一个主体 :math:`i` 和一个时间 :math:`t` ，长度为 :math:`k` 个月的 *窗口* 是它之前的区间 :math:`[t - k, t)` "
+"。一个特征对该主体时间 :math:`\\tau_e` 落在窗口内的事件 :math:`e` ，聚合某一列的值 :math:`v_e` ："
+
+#, python-brace-format
+msgid "x_{i, t} = \\operatorname{agg} \\{\\, v_e : \\mathrm{id}_e = i,\\ t - k \\le \\tau_e < t \\,\\}."
+msgstr "x_{i, t} = \\operatorname{agg} \\{\\, v_e : \\mathrm{id}_e = i,\\ t - k \\le \\tau_e < t \\,\\}."
+
+msgid ""
+"The aggregation is a count, a sum, a mean, an extreme value or another of the aggregations below."
+" The window ends just before :math:`t`, so events at the observation time and after it never "
+"count: the features are *point in time*. A pair of windows, such as from six to three months "
+"before :math:`t`, is the interval :math:`[t - 6, t - 3)`, the period before the most recent one."
+msgstr ""
+"聚合可以是计数、求和、均值、极值或下文中的其他聚合。窗口截止于 :math:`t` 之前，因此观察时间当时及之后的事件从不计入：这些特征是 *时点正确* 的（point in "
+"time）。窗口对，例如从 :math:`t` 之前六个月到三个月，是区间 :math:`[t - 6, t - 3)` ，即最近一期之前的那一期。"
+
+msgid ""
+"Months are calendar months, counted as ``pandas.DateOffset(months=k)`` counts them: three months "
+"before 31 May is 28 February, or 29 February in a leap year, and the time of day is kept. A "
+"window of :math:`k` days starts :math:`k` days before :math:`t`."
+msgstr ""
+"月份按自然月计算，与 ``pandas.DateOffset(months=k)`` 的计法相同：5 月 31 日之前三个月是 2 月 28 日，闰年为 2 月 29 "
+"日，且保留一天中的时间。长度为 :math:`k` 天的窗口从 :math:`t` 之前 :math:`k` 天开始。"
+
+msgid ""
+"Two customers have made a few card payments and cash withdrawals, and three customers apply for a"
+" loan on 31 March 2024. Customer ``c`` has no history:"
+msgstr "两位客户有几笔刷卡消费和取现，三位客户在 2024 年 3 月 31 日申请贷款。客户 ``c`` 没有任何历史："
+
+msgid ""
+"The month before 31 March starts on 29 February, so for customer ``a`` the window ``1m`` holds "
+"the withdrawal of 80 on that day and the payment of 50 on 15 March: two events with a sum of 130."
+" The payment of 200 on 31 March is on the application date and counts in no window. The three "
+"months start on 31 December 2023 and add the payment of 120 on 10 January, while the payment of "
+"300 in November is older than every window. Customer ``c`` has no events, so its counts and sums "
+"are 0; its mean or largest amount would be NaN."
+msgstr ""
+"3 月 31 日之前一个月从 2 月 29 日开始，因此对客户 ``a`` ，窗口 ``1m`` 包含当天 80 的取现和 3 月 15 日 50 的消费：两个事件，合计 130。3 月 31 "
+"日 200 的消费恰在申请日，不计入任何窗口。三个月的窗口从 2023 年 12 月 31 日开始，加上 1 月 10 日 120 的消费，而 11 月 300 的消费早于所有窗口。客户 "
+"``c`` 没有事件，因此其计数和求和为 0；其均值或最大金额会是 NaN。"
+
+msgid ""
+"The result has one row per application, on the index of ``applications``, so it can be put next "
+"to the applications with ``pd.concat([applications, features], axis=1)``."
+msgstr "结果每个申请一行，使用 ``applications`` 的索引，因此可以用 ``pd.concat([applications, features], axis=1)`` 与申请样本拼在一起。"
+
+msgid "Windows"
+msgstr "窗口"
+
+msgid ""
+"``windows`` lists the windows as strings: ``\"3M\"`` for three calendar months and ``\"90D\"`` "
+"for 90 days. The default is ``(\"3M\", \"6M\", \"12M\")``. A pair such as ``(\"3M\", \"1M\")`` is"
+" the period from three months to one month before the observation; its bounds must have the same "
+"unit, and the first must reach further back. In the column names the windows are written in lower"
+" case, such as ``3m``, ``90d`` and ``3m_1m``:"
+msgstr ""
+"``windows`` 以字符串列出窗口： ``\"3M\"`` 表示三个自然月， ``\"90D\"`` 表示 90 天。默认值为 ``(\"3M\", \"6M\", \"12M\")`` "
+"。 ``(\"3M\", \"1M\")`` 这样的一对表示观察之前三个月到一个月之间的时期；两个边界的单位必须相同，且第一个更早。列名中的窗口用小写书写，例如 ``3m`` 、 ``90d``"
+" 和 ``3m_1m`` ："
+
+msgid ""
+"Thirty days before 31 March is 1 March, so the withdrawal of 29 February is outside the window "
+"``30d`` but inside ``1m``. The window ``3m_1m`` ends where ``1m`` begins, so the two together are"
+" the window ``3m``."
+msgstr ""
+"3 月 31 日之前三十天是 3 月 1 日，因此 2 月 29 日的取现在窗口 ``30d`` 之外，但在 ``1m`` 之内。窗口 ``3m_1m`` 截止于 ``1m`` "
+"开始的地方，所以两者合起来就是窗口 ``3m`` 。"
+
+msgid ""
+"A pair is one window only as an item of the list of windows. ``windows=[(\"3M\", \"1M\")]`` is "
+"the window ``3m_1m``, while ``windows=(\"3M\", \"1M\")`` is the two windows ``3m`` and ``1m``:"
+msgstr ""
+"一对边界只有作为窗口列表中的一项时才是一个窗口。 ``windows=[(\"3M\", \"1M\")]`` 是窗口 ``3m_1m`` ，而 ``windows=(\"3M\", "
+"\"1M\")`` 是 ``3m`` 和 ``1m`` 两个窗口："
+
+msgid ""
+"By default every window is closed on the left, :math:`[t - k, t)`. With ``closed=\"right\"`` the "
+"windows are :math:`(t - k, t]` instead, and events at the observation time count, for events that"
+" are known at their own time, such as balances at the end of a day. Whether such an event is "
+"known at the observation time is the caller's judgment, because kivi cannot tell. Here the "
+"payment of 31 March counts, and the withdrawal on the lower bound of the window, 29 February, "
+"does not:"
+msgstr ""
+"默认每个窗口左闭右开，即 :math:`[t - k, t)` 。使用 ``closed=\"right\"`` 时窗口改为 :math:`(t - k, t]` "
+"，观察时间当时的事件计入，适用于在发生时即已可知的事件，例如日终余额。这样的事件在观察时间是否已经可知，由调用者判断，kivi 无法得知。这里 3 月 31 日的消费计入，而位于窗口下界 2 月"
+" 29 日的取现不计入："
+
+msgid ""
+"Time columns must hold datetimes. Both may be tz-naive, or both in one time zone. With a time "
+"zone, the bounds are computed on the local calendar and the events compared as instants. A bound "
+"in the hour that clocks skip in spring moves to the end of that hour, and one in the hour that "
+"they repeat in autumn takes its first occurrence."
+msgstr ""
+"时间列必须是 "
+"datetime。两列可以都无时区，也可以处于同一时区。有时区时，边界按当地日历计算，事件按绝对时刻比较。落在春季时钟跳过的那一小时内的边界移到该小时结束时，落在秋季时钟重复的那一小时内的边界取其第一次出现。"
+
+msgid "Aggregations"
+msgstr "聚合"
+
+msgid ""
+"``aggregations`` maps each column of the events to its aggregations. A missing value is left out "
+"of the aggregations of its column, while the ``events`` columns count every event of the window:"
+msgstr "``aggregations`` 把事件表的每一列映射到它的聚合。缺失值不参与所在列的聚合，而 ``events`` 列统计窗口内的每个事件："
+
+msgid "Aggregation"
+msgstr "聚合"
+
+msgid "Value"
+msgstr "取值"
+
+msgid "Empty window"
+msgstr "空窗口"
+
+msgid "``count``"
+msgstr "``count``"
+
+msgid "Number of values"
+msgstr "值的个数"
+
+msgid "0"
+msgstr "0"
+
+msgid "``sum``"
+msgstr "``sum``"
+
+msgid "Sum of the values"
+msgstr "值的和"
+
+msgid "``mean``"
+msgstr "``mean``"
+
+msgid "Mean of the values"
+msgstr "值的均值"
+
+msgid "NaN"
+msgstr "NaN"
+
+msgid "``min``, ``max``"
+msgstr "``min`` 、 ``max``"
+
+msgid "Smallest and largest value"
+msgstr "最小值与最大值"
+
+msgid "``std``"
+msgstr "``std``"
+
+msgid "Sample standard deviation, as ``pandas.Series.std`` gives it; NaN for a single value"
+msgstr "样本标准差，与 ``pandas.Series.std`` 的结果相同；只有一个值时为 NaN"
+
+msgid "``nunique``"
+msgstr "``nunique``"
+
+msgid "Number of distinct values"
+msgstr "不同取值的个数"
+
+msgid "``first``, ``last``"
+msgstr "``first`` 、 ``last``"
+
+msgid ""
+"Value of the earliest and of the latest event; events of one time are taken in the order of the "
+"rows"
+msgstr "最早和最晚一个事件的值；同一时刻的多个事件按行序排列"
+
+msgid "``days_since_last``"
+msgstr "``days_since_last``"
+
+msgid "Days from the latest event to the observation time, with fractions of a day"
+msgstr "从最后一个事件到观察时间的天数，含不足一天的部分"
+
+msgid ""
+"``count``, ``nunique`` and ``days_since_last`` take columns of any dtype, such as the kind of "
+"each event; the other aggregations need numbers, and booleans count as 0 and 1, so the ``sum`` of"
+" a flag counts the events that have it. Counts are integers and all other columns floats. The "
+"table is transposed to fit the page:"
+msgstr ""
+"``count`` 、 ``nunique`` 和 ``days_since_last`` 接受任何 dtype 的列，例如每个事件的类型；其余聚合需要数值，布尔值按 0 和 1 "
+"计，因此标志列的 ``sum`` 就是带该标志的事件数。计数为整数，其余列为浮点数。下表经过转置以适应页面宽度："
+
+msgid ""
+"Customer ``b`` made two transactions on 20 March, a withdrawal of 40 and a payment of 25; "
+"``last`` takes the payment, which comes later in the rows. Both are eleven days before the "
+"application. For a pair of windows ``days_since_last`` is still measured from the observation "
+"time. It is the time that has passed, so with a time zone it can differ by the hour that clocks "
+"change from the local calendar days that windows such as ``\"90D\"`` count."
+msgstr ""
+"客户 ``b`` 在 3 月 20 日有两笔交易：40 的取现和 25 的消费； ``last`` 取消费，因为它在行序中靠后。两者都在申请日之前十一天。对窗口对， "
+"``days_since_last`` 仍从观察时间算起。它是经过的时间，因此有时区时，它与 ``\"90D\"`` 这类窗口按当地日历计的天数可能相差时钟调整的那一小时。"
+
+msgid "Ratios and changes"
+msgstr "比率与变化"
+
+#, python-brace-format
+msgid ""
+"``ratios`` divides two features, named by their columns. A ratio is NaN where its denominator is "
+"0. It is named ``{numerator}_over_{window}`` when the two features differ only in their windows, "
+"and ``{numerator}_over_{denominator}`` otherwise. The share of the last month in the last three "
+"months shows whether activity is recent, and the ratio of the last month to the two months before"
+" it measures the change from one period to the next:"
+msgstr ""
+"``ratios`` 计算两个特征之比，按列名指定。分母为 0 时比率为 NaN。两个特征只有窗口不同时，比率命名为 ``{numerator}_over_{window}`` ，否则命名为 "
+"``{numerator}_over_{denominator}`` 。最近一个月在最近三个月中的占比反映活动是否集中在近期，最近一个月与之前两个月之比衡量相邻两期之间的变化："
+
+msgid ""
+"The change from the same quarter a year earlier is the ratio of the window ``3M`` to the pair "
+"``(\"15M\", \"12M\")``, such as ``(\"amount_sum_3m\", \"amount_sum_15m_12m\")``. A difference "
+"needs no option of its own: subtract the two columns with pandas."
+msgstr ""
+"与去年同一季度相比的变化，是窗口 ``3M`` 与窗口对 ``(\"15M\", \"12M\")`` 之比，例如 ``(\"amount_sum_3m\", "
+"\"amount_sum_15m_12m\")`` 。差值不需要单独的选项：用 pandas 把两列相减即可。"
+
+msgid "Filtered events"
+msgstr "筛选后的事件"
+
+msgid ""
+"kivi has no expressions to filter events. To compute features of some of the events only, such as"
+" the cash withdrawals, select them with pandas and give their features a ``prefix``:"
+msgstr "kivi 没有用于筛选事件的表达式。要只对部分事件计算特征，例如取现，先用 pandas 选出这些事件，再给它们的特征加上 ``prefix`` ："
+
+msgid "The prefix is put in front of every column, and ratios name the columns with it."
+msgstr "前缀加在每一列前面，比率使用带前缀的列名。"
+
+msgid "Observations over time"
+msgstr "多个时间点的观察"
+
+msgid ""
+"An entity may appear in several rows of the observations, such as one row per month end to follow"
+" its features over time, or the same row twice. Each row gets the features of its own time:"
+msgstr "一个主体可以在观察表中出现多次，例如每个月末一行以跟踪其特征随时间的变化，或者同一行出现两次。每一行得到其自身时间的特征："
+
+msgid ""
+"Three months before 29 February is 29 November, after the payment of 20 November, which therefore"
+" counts only at the end of January. One call computes the features of every date, which is how "
+"past samples are rebuilt. The events are sorted once and the bounds of every window are found by "
+"binary search, so counts, sums, means, first and last values and ``days_since_last`` take a time "
+"that grows with the number of rows of the two tables. ``min``, ``max``, ``std`` and ``nunique`` "
+"look at every event of every window instead, so their time grows with the number of observation "
+"dates of an entity times its events per window."
+msgstr ""
+"2 月 29 日之前三个月是 11 月 29 日，晚于 11 月 20 日的消费，因此这笔消费只在 1 "
+"月底计入。一次调用就能计算所有日期的特征，回溯历史样本就是这样做的。事件只排序一次，每个窗口的边界用二分查找确定，因此计数、和、均值、第一个和最后一个值以及 "
+"``days_since_last`` 的耗时随两张表的行数增长。 ``min`` 、 ``max`` 、 ``std`` 和 ``nunique`` "
+"则要查看每个窗口中的每个事件，因此其耗时随一个主体的观察日期数乘以每个窗口的事件数增长。"
+
+msgid "Type and empty window"
+msgstr "类型与空窗口取值"
+
+#, python-brace-format
+msgid "``{prefix}events_{window}``"
+msgstr "``{prefix}events_{window}``"
+
+msgid "Number of events in the window, with or without values"
+msgstr "窗口内的事件数，不论是否有值"
+
+msgid "Integer, 0"
+msgstr "整数，0"
+
+#, python-brace-format
+msgid "``{prefix}{column}_count_{window}``, ``…_nunique_{window}``"
+msgstr "``{prefix}{column}_count_{window}`` 、 ``…_nunique_{window}``"
+
+msgid "Number of values, and of distinct values, of the column"
+msgstr "该列的值的个数，以及不同取值的个数"
+
+#, python-brace-format
+msgid "``{prefix}{column}_sum_{window}``"
+msgstr "``{prefix}{column}_sum_{window}``"
+
+msgid "Float, 0"
+msgstr "浮点数，0"
+
+#, python-brace-format
+msgid "``{prefix}{column}_{aggregation}_{window}``"
+msgstr "``{prefix}{column}_{aggregation}_{window}``"
+
+msgid "The other aggregations"
+msgstr "其余聚合"
+
+msgid "Float, NaN"
+msgstr "浮点数，NaN"
+
+#, python-brace-format
+msgid "``{numerator}_over_{window}``, ``{numerator}_over_{denominator}``"
+msgstr "``{numerator}_over_{window}`` 、 ``{numerator}_over_{denominator}``"
+
+msgid "Ratios, last"
+msgstr "比率，排在最后"
+
+msgid "Float, NaN for a denominator of 0"
+msgstr "浮点数，分母为 0 时为 NaN"
+
+msgid ""
+"The columns come window by window, then column by column in the order of ``aggregations``, then "
+"aggregation by aggregation, and the ratios last. Column names and prefixes keep their case: only "
+"kivi's own parts of the names, the aggregations and the windows, are in lower case, so the "
+"features of ``Amount`` and ``amount`` stay apart. A NaN means that the window had no value to "
+"aggregate, which is information in its own right: profile the features with "
+":func:`~kivi.univariate.profile_table` to see how often they are missing and how well they "
+"separate the classes, and bin them with :doc:`binning`, where missing values form their own "
+"group."
+msgstr ""
+"各列先按窗口，再按 ``aggregations`` 中列的顺序，再按聚合排列，比率排在最后。列名和前缀保持原有的大小写：名称中只有 kivi 自己的部分，即聚合和窗口，用小写书写，因此 "
+"``Amount`` 和 ``amount`` 的特征不会混在一起。NaN 表示窗口内没有可聚合的值，这本身就是信息：用 "
+":func:`~kivi.univariate.profile_table` 分析这些特征，查看它们缺失的频率以及区分两类的能力，再用 :doc:`binning` 分箱，缺失值在那里自成一组。"
+
+msgid "Feature specifications"
+msgstr "特征方案"
+
+msgid ""
+"A :class:`~kivi.features.FeatureSpec` holds the definitions of the features: the column of the "
+"entities, the column of the observation times, and one or more groups of window features, each "
+"with the keyword arguments of one call of :func:`~kivi.features.window_features`. A group that "
+"reads other events, such as the cash withdrawals, names its event table with ``table``. Ratios "
+"may divide features of different groups:"
+msgstr ""
+"一个 :class:`~kivi.features.FeatureSpec` 保存特征的定义：主体列、观察时间列，以及一组或多组时间窗特征，每组包含一次 "
+":func:`~kivi.features.window_features` 调用的关键字参数。读取其他事件（例如取现）的组用 ``table`` 指定其事件表。比率可以是不同组的特征之比："
+
+msgid ""
+":meth:`~kivi.features.FeatureSpec.compute` takes the observations and the event tables by name. A"
+" single DataFrame serves when every group reads the same table:"
+msgstr ":meth:`~kivi.features.FeatureSpec.compute` 接受观察表以及按名称给出的事件表。所有组读取同一张表时，只传一个 DataFrame 即可："
+
+msgid ""
+"Each group gives the columns that :func:`~kivi.features.window_features` gives for its "
+"definitions, so the specification reproduces the calls of development exactly. A specification "
+"holds definitions only: nothing in it is fitted to data, so it can be written by hand or read "
+"from a configuration file."
+msgstr ""
+"每组给出 :func:`~kivi.features.window_features` "
+"按其定义给出的列，因此特征方案能精确地重现开发时的调用。特征方案只保存定义：其中没有任何从数据拟合的内容，因此可以手工编写，也可以从配置文件读取。"
+
+msgid ""
+":meth:`~kivi.features.FeatureSpec.to_json` writes the specification as JSON text, and "
+":meth:`~kivi.features.FeatureSpec.from_json` reads it back into an equal specification. Two "
+"specifications are equal when their JSON text is the same, which includes the version of kivi "
+"that wrote them:"
+msgstr ""
+":meth:`~kivi.features.FeatureSpec.to_json` 把特征方案写成 JSON 文本， "
+":meth:`~kivi.features.FeatureSpec.from_json` 将其读回为相等的方案。两个方案的 JSON 文本相同时二者相等，文本中包含写出它们的 kivi 版本："
+
+msgid ""
+"The file has the keys below. After ``kivi_version`` they are the arguments of "
+":class:`~kivi.features.FeatureSpec` as it takes them, with lists for tuples and every key of each"
+" group, so :meth:`~kivi.features.FeatureSpec.to_dict` gives what the constructor takes:"
+msgstr ""
+"文件包含以下键。 ``kivi_version`` 之后的键就是 :class:`~kivi.features.FeatureSpec` "
+"的参数，形式与构造函数接受的相同，元组写成列表，每组写出全部键，因此 :meth:`~kivi.features.FeatureSpec.to_dict` 给出的正是构造函数接受的参数："
+
+msgid "Key"
+msgstr "键"
+
+msgid "Content"
+msgstr "内容"
+
+msgid "``format``"
+msgstr "``format``"
+
+msgid "Always ``\"kivi.FeatureSpec\"``."
+msgstr "始终为 ``\"kivi.FeatureSpec\"`` 。"
+
+msgid "``format_version``"
+msgstr "``format_version``"
+
+msgid ""
+"Version of the format, 1. ``FeatureSpec.FORMAT_VERSION`` is the newest version that kivi reads. A"
+" file with a newer version raises an error that asks for a newer kivi, instead of being read in "
+"part."
+msgstr "格式的版本，为 1。 ``FeatureSpec.FORMAT_VERSION`` 是 kivi 能读取的最新版本。格式版本较新的文件会引发错误，提示升级 kivi，而不会只读取其中一部分。"
+
+msgid "``kivi_version``"
+msgstr "``kivi_version``"
+
+msgid "Version of kivi that wrote the specification."
+msgstr "写出该方案的 kivi 版本。"
+
+msgid "``id`` and ``observation_time``"
+msgstr "``id`` 和 ``observation_time``"
+
+msgid "The columns of the entities and of the observation times."
+msgstr "主体列和观察时间列。"
+
+msgid "``events``"
+msgstr "``events``"
+
+msgid ""
+"One dict per group, in order, with ``table``, ``time``, ``windows`` (strings and pairs of "
+"strings), ``aggregations`` (a dict from each column to the list of its aggregations, in the order"
+" of the columns of the result), ``closed`` and ``prefix``. A JSON object that repeats a key "
+"raises an error, because it would otherwise lose a value."
+msgstr ""
+"每组一个 dict，按顺序排列，包含 ``table`` 、 ``time`` 、 ``windows`` （字符串和字符串对）、 ``aggregations`` （由每列到其聚合列表的 "
+"dict，按结果中列的顺序）、 ``closed`` 和 ``prefix`` 。重复某个键的 JSON 对象会引发错误，否则会丢失一个值。"
+
+msgid "``ratios``"
+msgstr "``ratios``"
+
+msgid "The pairs of column names of the ratios."
+msgstr "各比率的列名对。"
+
+msgid "``panel``"
+msgstr "``panel``"
+
+msgid ""
+"``null``; reserved for the features of monthly status panels, which ``panel_features`` adds "
+"before kivi 1.3.0 is released, completing version 1 of the format."
+msgstr "``null`` ；保留给月度状态面板的特征， ``panel_features`` 会在 kivi 1.3.0 发布之前加入它，届时格式的版本 1 定稿。"
+
+msgid ""
+"Missing values of an aggregated column are left out of its aggregations, so ``count`` counts the "
+"values and ``events`` the rows:"
+msgstr "被聚合列的缺失值不参与该列的聚合，因此 ``count`` 统计值的个数， ``events`` 统计行数："
+
+msgid "A missing entity or time raises an error, because the event could not be placed in a window."
+msgstr "主体或时间缺失会引发错误，因为该事件无法放入任何窗口。"
+
+msgid ""
+"The windows compare times only. Events that are recorded late, such as transactions booked days "
+"after they were made, are known later than their time says; shift their times, or the observation"
+" times, before computing the features."
+msgstr "窗口只比较时间。延迟入账的事件，例如交易发生几天后才记账，其可知的时间晚于记录的时间；请在计算特征之前平移这些事件的时间，或者平移观察时间。"
+
+msgid ""
+"kivi has no expressions to filter events and no ranks of an entity within a population; filter "
+"with pandas and rank the features afterwards."
+msgstr "kivi 没有用于筛选事件的表达式，也不计算主体在群体内的排名；请用 pandas 筛选，并在之后对特征排名。"
+
+msgid "The features are not weighted: each event counts once."
+msgstr "特征不加权：每个事件计一次。"
+
+msgid ""
+"An entity has one id column. To combine several keys, such as a customer and a product, join them"
+" into one column first."
+msgstr "一个主体只有一个标识列。要组合多个键，例如客户和产品，请先把它们合并成一列。"
+
+msgid "Time columns must hold datetimes; convert strings first:"
+msgstr "时间列必须是 datetime；请先转换字符串："
+
+msgid "A single window is still a list:"
+msgstr "单个窗口也要写成列表："
+
+msgid ""
+"A time column with a time zone and one without, or two time zones, raise an error that names "
+"both; convert them to one zone with ``Series.dt.tz_convert`` or remove the zones with "
+"``Series.dt.tz_localize(None)``. The aggregations other than ``count``, ``nunique`` and "
+"``days_since_last`` raise an error for a column of text, and every aggregation of numbers raises "
+"one for infinite values."
+msgstr ""
+"一个有时区、一个无时区的时间列，或者两个不同的时区，会引发同时列出两者的错误；用 ``Series.dt.tz_convert`` 把它们转换到同一时区，或用 "
+"``Series.dt.tz_localize(None)`` 去掉时区。 ``count`` 、 ``nunique`` 和 ``days_since_last`` "
+"以外的聚合遇到文本列会引发错误，所有数值聚合遇到无穷值也会引发错误。"
+
+msgid ""
 "The user guide follows the steps of a credit risk model in the order of a project: profile and "
 "bin the candidate variables, encode them with WOE, select the variables and fit the model, infer "
 "the outcomes of rejected applicants, scale the model to a scorecard, or weigh the factors of an "
@@ -20584,20 +21610,8 @@ msgstr ""
 msgid "The format"
 msgstr "格式"
 
-msgid "Key"
-msgstr "键"
-
-msgid "Content"
-msgstr "内容"
-
-msgid "``format``"
-msgstr "``format``"
-
 msgid "Always ``\"kivi.BinningSpec\"``."
 msgstr "始终为 ``\"kivi.BinningSpec\"`` 。"
-
-msgid "``format_version``"
-msgstr "``format_version``"
 
 msgid ""
 "Version of the format: 2 when a column is grouped, otherwise 1, which earlier versions of kivi "
@@ -20606,9 +21620,6 @@ msgid ""
 msgstr ""
 "格式的版本：有已分组的列时为 2，否则为 1，早期版本的 kivi 也能读取版本 1。 ``BinningSpec.FORMAT_VERSION`` "
 "是最新的版本。版本更新的文件会引发错误，提示升级 kivi，而不会只读取其中一部分。"
-
-msgid "``kivi_version``"
-msgstr "``kivi_version``"
 
 msgid "Version of kivi that fitted the specification."
 msgstr "拟合该分箱方案的 kivi 版本。"
@@ -20657,9 +21668,6 @@ msgid ""
 "JSON has no infinite numbers and does not keep the types of labels apart in every language, so "
 "labels and edges are written as follows:"
 msgstr "JSON 没有无穷数值，在某些语言中也无法区分标签的类型，因此标签和边界按以下方式写出："
-
-msgid "Value"
-msgstr "取值"
 
 msgid "JSON"
 msgstr "JSON"
