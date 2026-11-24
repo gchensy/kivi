@@ -1,15 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 870 240" width="870" height="240" role="img" aria-label="kivi 工作流程：用 bin_edges 拟合一次边界，用 pandas.cut 对每个样本分箱，再用 woe_table 和 psi_table 计算指标">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 240" width="960" height="240" role="img" aria-label="kivi 工作流程：用 FeatureSpec 一次定义特征并为每个样本计算，用 bin_edges 拟合一次边界，用 pandas.cut 对每个样本分箱，再用 woe_table 和 psi_table 计算指标">
   <style>
     .card { fill: #f7f9ff; stroke: #d5def5; }
-    .title { fill: #111827; font: 600 16px system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; }
+    .title { fill: #111827; font: 600 14px system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; }
     .desc { fill: #4b5563; font: 400 12.5px system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; }
     .small { fill: #6b7280; font: 500 10.5px ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+    .count { fill: #111827; font: 700 13px system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
     .chip { fill: #e6edfc; }
-    .code { fill: #1d3d9e; font: 500 12.5px ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+    .code { fill: #1d3d9e; font: 500 12px ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
     .badge { fill: #2f5bd3; }
     .num { fill: #fff; font: 700 13px system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
     .bar { fill: #2f5bd3; }
     .bar2 { fill: #14a397; }
+    .dot { fill: #9ca3af; }
+    .win { fill: #2f5bd3; fill-opacity: 0.14; }
+    .win2 { fill: #14a397; fill-opacity: 0.16; }
     .edge { stroke: #d97706; stroke-width: 1.5; stroke-dasharray: 4 3; }
     .axis { stroke: #9ca3af; stroke-width: 1; }
     .arrow { stroke: #94a3b8; stroke-width: 2; fill: none; }
@@ -19,12 +23,16 @@
       .title { fill: #e5e7eb; }
       .desc { fill: #9ca3af; }
       .small { fill: #9ca3af; }
+      .count { fill: #e5e7eb; }
       .chip { fill: #1f2a44; }
       .code { fill: #a9bcff; }
       .badge { fill: #8aa8ff; }
       .num { fill: #14181e; }
       .bar { fill: #8aa8ff; }
       .bar2 { fill: #4fd1c5; }
+      .dot { fill: #6b7280; }
+      .win { fill: #8aa8ff; fill-opacity: 0.18; }
+      .win2 { fill: #4fd1c5; fill-opacity: 0.16; }
       .edge { stroke: #fbbf24; }
       .axis { stroke: #4b5563; }
       .arrow { stroke: #64748b; }
@@ -32,84 +40,120 @@
     }
   </style>
 
-  <!-- 1. 拟合一次边界 -->
-  <g transform="translate(15 20)">
-    <rect class="card" width="260" height="200" rx="14"/>
-    <circle class="badge" cx="30" cy="32" r="13"/>
-    <text class="num" x="30" y="36.5" text-anchor="middle">1</text>
-    <text class="title" x="52" y="37.5">拟合一次边界</text>
-    <rect class="chip" x="20" y="54" width="220" height="26" rx="6"/>
-    <text class="code" x="30" y="71.5">bin_edges(reference)</text>
-    <line class="axis" x1="36" y1="150" x2="228" y2="150"/>
-    <rect class="bar" x="40" y="138" width="18" height="12" rx="2"/>
-    <rect class="bar" x="64" y="128" width="18" height="22" rx="2"/>
-    <rect class="bar" x="88" y="116" width="18" height="34" rx="2"/>
-    <rect class="bar" x="112" y="106" width="18" height="44" rx="2"/>
-    <rect class="bar" x="136" y="112" width="18" height="38" rx="2"/>
-    <rect class="bar" x="160" y="124" width="18" height="26" rx="2"/>
-    <rect class="bar" x="184" y="134" width="18" height="16" rx="2"/>
-    <rect class="bar" x="208" y="142" width="18" height="8" rx="2"/>
-    <line class="edge" x1="85" y1="96" x2="85" y2="154"/>
-    <line class="edge" x1="133" y1="96" x2="133" y2="154"/>
-    <line class="edge" x1="181" y1="96" x2="181" y2="154"/>
-    <text class="small" x="20" y="154">−∞</text>
-    <text class="small" x="230" y="154">+∞</text>
-    <text class="desc" x="20" y="174">等频或等距边界，</text>
-    <text class="desc" x="20" y="190">两端延伸至无穷。</text>
+  <!-- 1. 一次定义特征 -->
+  <g transform="translate(12 20)">
+    <rect class="card" width="216" height="200" rx="14"/>
+    <circle class="badge" cx="28" cy="32" r="13"/>
+    <text class="num" x="28" y="36.5" text-anchor="middle">1</text>
+    <text class="title" x="48" y="37">一次定义特征</text>
+    <rect class="chip" x="16" y="54" width="184" height="26" rx="6"/>
+    <text class="code" x="26" y="71.5">spec.compute(sample, …)</text>
+    <rect class="win2" x="68" y="110" width="56" height="38"/>
+    <rect class="win" x="124" y="110" width="56" height="38"/>
+    <text class="small" x="96" y="105" text-anchor="middle">6m_3m</text>
+    <text class="small" x="152" y="105" text-anchor="middle">3m</text>
+    <text class="count" x="96" y="134" text-anchor="middle">3</text>
+    <text class="count" x="152" y="134" text-anchor="middle">5</text>
+    <line class="axis" x1="18" y1="148" x2="180" y2="148"/>
+    <circle class="dot" cx="24" cy="148" r="3.2"/>
+    <circle class="dot" cx="37" cy="148" r="3.2"/>
+    <circle class="dot" cx="49" cy="148" r="3.2"/>
+    <circle class="dot" cx="60" cy="148" r="3.2"/>
+    <circle class="bar2" cx="79" cy="148" r="3.2"/>
+    <circle class="bar2" cx="97" cy="148" r="3.2"/>
+    <circle class="bar2" cx="113" cy="148" r="3.2"/>
+    <circle class="bar" cx="132" cy="148" r="3.2"/>
+    <circle class="bar" cx="142" cy="148" r="3.2"/>
+    <circle class="bar" cx="152" cy="148" r="3.2"/>
+    <circle class="bar" cx="162" cy="148" r="3.2"/>
+    <circle class="bar" cx="172" cy="148" r="3.2"/>
+    <line class="edge" x1="180" y1="96" x2="180" y2="154"/>
+    <text class="small" x="185" y="154">t</text>
+    <text class="desc" x="16" y="174">时点正确的时间窗，</text>
+    <text class="desc" x="16" y="190">每个样本按同一定义计算。</text>
   </g>
 
-  <path class="arrow" d="M281 120 H 300"/>
-  <path class="head" d="M300 114 L 308 120 L 300 126 Z"/>
+  <path class="arrow" d="M231 120 H 242"/>
+  <path class="head" d="M242 114 L 250 120 L 242 126 Z"/>
 
-  <!-- 2. 对每个样本分箱 -->
-  <g transform="translate(305 20)">
-    <rect class="card" width="260" height="200" rx="14"/>
-    <circle class="badge" cx="30" cy="32" r="13"/>
-    <text class="num" x="30" y="36.5" text-anchor="middle">2</text>
-    <text class="title" x="52" y="37.5">对每个样本分箱</text>
-    <rect class="chip" x="20" y="54" width="220" height="26" rx="6"/>
-    <text class="code" x="30" y="71.5">pd.cut(sample, edges)</text>
-    <text class="small" x="20" y="122">基准</text>
-    <line class="axis" x1="48" y1="122" x2="240" y2="122"/>
-    <rect class="bar" x="53" y="102" width="28" height="20" rx="2"/>
-    <rect class="bar" x="91" y="107" width="28" height="15" rx="2"/>
-    <rect class="bar" x="129" y="105" width="28" height="17" rx="2"/>
-    <rect class="bar" x="167" y="104" width="28" height="18" rx="2"/>
-    <rect class="bar" x="205" y="107" width="28" height="15" rx="2"/>
-    <text class="small" x="20" y="152">当前</text>
-    <line class="axis" x1="48" y1="152" x2="240" y2="152"/>
-    <rect class="bar2" x="53" y="132" width="28" height="20" rx="2"/>
-    <rect class="bar2" x="91" y="138" width="28" height="14" rx="2"/>
-    <rect class="bar2" x="129" y="136" width="28" height="16" rx="2"/>
-    <rect class="bar2" x="167" y="133" width="28" height="19" rx="2"/>
-    <rect class="bar2" x="205" y="135" width="28" height="17" rx="2"/>
-    <line class="edge" x1="86" y1="96" x2="86" y2="156"/>
-    <line class="edge" x1="124" y1="96" x2="124" y2="156"/>
-    <line class="edge" x1="162" y1="96" x2="162" y2="156"/>
-    <line class="edge" x1="200" y1="96" x2="200" y2="156"/>
-    <text class="desc" x="20" y="174">开发样本与监测样本</text>
-    <text class="desc" x="20" y="190">共用同一组边界。</text>
+  <!-- 2. 拟合一次边界 -->
+  <g transform="translate(252 20)">
+    <rect class="card" width="216" height="200" rx="14"/>
+    <circle class="badge" cx="28" cy="32" r="13"/>
+    <text class="num" x="28" y="36.5" text-anchor="middle">2</text>
+    <text class="title" x="48" y="37">拟合一次边界</text>
+    <rect class="chip" x="16" y="54" width="184" height="26" rx="6"/>
+    <text class="code" x="26" y="71.5">bin_edges(reference)</text>
+    <line class="axis" x1="34" y1="150" x2="182" y2="150"/>
+    <rect class="bar" x="38" y="138" width="14" height="12" rx="2"/>
+    <rect class="bar" x="56" y="128" width="14" height="22" rx="2"/>
+    <rect class="bar" x="74" y="116" width="14" height="34" rx="2"/>
+    <rect class="bar" x="92" y="106" width="14" height="44" rx="2"/>
+    <rect class="bar" x="110" y="112" width="14" height="38" rx="2"/>
+    <rect class="bar" x="128" y="124" width="14" height="26" rx="2"/>
+    <rect class="bar" x="146" y="134" width="14" height="16" rx="2"/>
+    <rect class="bar" x="164" y="142" width="14" height="8" rx="2"/>
+    <line class="edge" x1="72" y1="96" x2="72" y2="154"/>
+    <line class="edge" x1="108" y1="96" x2="108" y2="154"/>
+    <line class="edge" x1="144" y1="96" x2="144" y2="154"/>
+    <text class="small" x="16" y="154">−∞</text>
+    <text class="small" x="185" y="154">+∞</text>
+    <text class="desc" x="16" y="174">等频或等距边界，</text>
+    <text class="desc" x="16" y="190">两端延伸至无穷。</text>
   </g>
 
-  <path class="arrow" d="M571 120 H 590"/>
-  <path class="head" d="M590 114 L 598 120 L 590 126 Z"/>
+  <path class="arrow" d="M471 120 H 482"/>
+  <path class="head" d="M482 114 L 490 120 L 482 126 Z"/>
 
-  <!-- 3. 计算指标 -->
-  <g transform="translate(595 20)">
-    <rect class="card" width="260" height="200" rx="14"/>
-    <circle class="badge" cx="30" cy="32" r="13"/>
-    <text class="num" x="30" y="36.5" text-anchor="middle">3</text>
-    <text class="title" x="52" y="37.5">计算指标</text>
-    <rect class="chip" x="20" y="54" width="220" height="26" rx="6"/>
-    <text class="code" x="30" y="71.5">woe_table · psi_table</text>
-    <text class="small" x="20" y="130">WOE</text>
-    <line class="axis" x1="52" y1="126" x2="240" y2="126"/>
-    <rect class="bar" x="60" y="112" width="26" height="14" rx="2"/>
-    <rect class="bar2" x="96" y="126" width="26" height="15" rx="2"/>
-    <rect class="bar2" x="132" y="126" width="26" height="22" rx="2"/>
-    <rect class="bar2" x="168" y="126" width="26" height="6" rx="2"/>
-    <rect class="bar" x="204" y="103" width="26" height="23" rx="2"/>
-    <text class="desc" x="20" y="174">每箱一行：计数、占比、</text>
-    <text class="desc" x="20" y="190">WOE、IV 与 PSI。</text>
+  <!-- 3. 对每个样本分箱 -->
+  <g transform="translate(492 20)">
+    <rect class="card" width="216" height="200" rx="14"/>
+    <circle class="badge" cx="28" cy="32" r="13"/>
+    <text class="num" x="28" y="36.5" text-anchor="middle">3</text>
+    <text class="title" x="48" y="37">对每个样本分箱</text>
+    <rect class="chip" x="16" y="54" width="184" height="26" rx="6"/>
+    <text class="code" x="26" y="71.5">pd.cut(sample, edges)</text>
+    <text class="small" x="16" y="122">基准</text>
+    <line class="axis" x1="44" y1="122" x2="200" y2="122"/>
+    <rect class="bar" x="49" y="102" width="22" height="20" rx="2"/>
+    <rect class="bar" x="79" y="107" width="22" height="15" rx="2"/>
+    <rect class="bar" x="109" y="105" width="22" height="17" rx="2"/>
+    <rect class="bar" x="139" y="104" width="22" height="18" rx="2"/>
+    <rect class="bar" x="169" y="107" width="22" height="15" rx="2"/>
+    <text class="small" x="16" y="152">当前</text>
+    <line class="axis" x1="44" y1="152" x2="200" y2="152"/>
+    <rect class="bar2" x="49" y="132" width="22" height="20" rx="2"/>
+    <rect class="bar2" x="79" y="138" width="22" height="14" rx="2"/>
+    <rect class="bar2" x="109" y="136" width="22" height="16" rx="2"/>
+    <rect class="bar2" x="139" y="133" width="22" height="19" rx="2"/>
+    <rect class="bar2" x="169" y="135" width="22" height="17" rx="2"/>
+    <line class="edge" x1="75" y1="96" x2="75" y2="156"/>
+    <line class="edge" x1="105" y1="96" x2="105" y2="156"/>
+    <line class="edge" x1="135" y1="96" x2="135" y2="156"/>
+    <line class="edge" x1="165" y1="96" x2="165" y2="156"/>
+    <text class="desc" x="16" y="174">开发样本与监测样本</text>
+    <text class="desc" x="16" y="190">共用同一组边界。</text>
+  </g>
+
+  <path class="arrow" d="M711 120 H 722"/>
+  <path class="head" d="M722 114 L 730 120 L 722 126 Z"/>
+
+  <!-- 4. 计算指标 -->
+  <g transform="translate(732 20)">
+    <rect class="card" width="216" height="200" rx="14"/>
+    <circle class="badge" cx="28" cy="32" r="13"/>
+    <text class="num" x="28" y="36.5" text-anchor="middle">4</text>
+    <text class="title" x="48" y="37">计算指标</text>
+    <rect class="chip" x="16" y="54" width="184" height="26" rx="6"/>
+    <text class="code" x="26" y="71.5">woe_table · psi_table</text>
+    <text class="small" x="16" y="130">WOE</text>
+    <line class="axis" x1="50" y1="126" x2="200" y2="126"/>
+    <rect class="bar" x="56" y="112" width="22" height="14" rx="2"/>
+    <rect class="bar2" x="86" y="126" width="22" height="15" rx="2"/>
+    <rect class="bar2" x="116" y="126" width="22" height="22" rx="2"/>
+    <rect class="bar2" x="146" y="126" width="22" height="6" rx="2"/>
+    <rect class="bar" x="176" y="103" width="22" height="23" rx="2"/>
+    <text class="desc" x="16" y="174">每箱一行：计数、占比、</text>
+    <text class="desc" x="16" y="190">WOE、IV 与 PSI。</text>
   </g>
 </svg>
