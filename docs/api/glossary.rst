@@ -17,6 +17,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Area under the ROC curve (AUC)
       The probability that a randomly chosen event scores higher than a randomly chosen non-event, with ties counted as one half. A score unrelated to the target has an AUC of about 0.5; see :doc:`/user_guide/metrics`.
 
+   Bad month
+      A month whose status at its end is ``bad`` or worse in the order of an ordered status column, such as 30 days past due or more with the default ``bad="30-59"`` of :func:`~kivi.features.panel_features`; see :doc:`/user_guide/features`.
+
    Binning
       Dividing the values of a numeric variable into intervals, the bins, whose edges are fitted on a reference sample and then applied to every other sample. Scorecard development calls it classing: fine classing forms many small bins, and coarse classing merges them into a few that are large enough to be stable. A categorical variable is binned by grouping its categories instead; see :doc:`/user_guide/binning`.
 
@@ -65,6 +68,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Effective interest rate
       The rate that discounts the estimated future cash flows of a loan over its expected life to its gross carrying amount at initial recognition. IFRS 9 discounts expected credit losses at this rate; see :doc:`/user_guide/lifetime`.
 
+   Entity
+      The customer, account or loan that events, monthly statuses and observations belong to, named by the ``id`` column of :mod:`kivi.features`; see :doc:`/user_guide/features`.
+
    Event and non-event
       The two outcomes of a binary target: an event has target 1, such as a default or another bad outcome, and a non-event has target 0. The guides read the subscription of the bundled bank data as the event; see :doc:`/user_guide/woe_iv`.
 
@@ -86,8 +92,11 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Exposure at default (EAD)
       The amount owed when a borrower defaults, such as the outstanding balance of a loan; see :doc:`/user_guide/strategy`.
 
+   Feature specification
+      The definitions of the window and repayment features of a model: the columns of the entities and of the observation times, groups of features with their tables, windows and aggregations, and ratios. Saved as versioned JSON, it lets production compute the same features as development. Unlike a binning specification, it is not fitted to data; see :doc:`/user_guide/features`.
+
    Format version
-      The version of the JSON format of a binning specification, stored in each file. A release reads every format version up to its own and rejects a newer one; see :doc:`compatibility`.
+      The version of the JSON format of a binning or feature specification, stored in each file. A release reads every format version up to its own and rejects a newer one; see :doc:`compatibility`.
 
    Gains table
       A table of score bands from the riskiest to the safest, with the event rate and lift of each band and the cumulative shares of events and non-events; see :doc:`/user_guide/metrics`.
@@ -128,6 +137,18 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Month on book
       The number of months since a loan was originated. A vintage table compares cohorts at the same month on book; see :doc:`/user_guide/vintage`.
 
+   Monthly status panel
+      A table with one row per loan and month and the status of the loan at the month end, such as its delinquency bucket. :func:`~kivi.vintage.delinquency_panel` builds one from repayment schedules and payments, and :func:`~kivi.features.panel_features` summarizes it before each observation time; see :doc:`/user_guide/vintage`.
+
+   Observation
+      In :mod:`kivi.features`, an entity and an observation time, such as an applicant and the date of the application: one row of the table ``observations``, for which every window is computed. An entity may have several observations, such as one per month end; see :doc:`/user_guide/features`.
+
+   Observation month
+      The calendar month of an observation time. Its month-end status is not known at the observation time, so :func:`~kivi.features.panel_features` uses only the months before it; see :doc:`/user_guide/features`.
+
+   Observation time
+      The time at which a feature is computed, such as the date of an application. Events at or after it are not used, unless ``closed="right"`` admits those at that very time; see :doc:`/user_guide/features`.
+
    Outcome window
       The time after which the outcome of an observation is known, such as twelve months after a loan was granted. Until it has passed, the target is missing and the outcome counts as unknown; see :doc:`/user_guide/monitoring`.
 
@@ -139,6 +160,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Placement value
       For an event, the share of non-events that score below it, and for a non-event, the share of events that score above it, with ties counted as one half. The average over either class is the AUC, and their variances give its DeLong standard error; see :doc:`/user_guide/metrics`.
+
+   Point in time
+      A feature is point in time when it uses only what was known at its observation time, so that it is computed in development as it would have been at the time of the decision, and no later event leaks into the model; see :doc:`/user_guide/features`.
 
    Points to double the odds (PDO)
       The number of scorecard points by which the score rises when the good:bad odds double. Together with a base score and the odds at that score, it sets the scale of a scorecard; see :doc:`/user_guide/scorecard`.
@@ -176,6 +200,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Roll rate
       The share of the loans in a delinquency bucket at one month end that are in the next worse bucket at the next month end; see :doc:`/user_guide/vintage`.
 
+   Run
+      A stretch of consecutive months with bad statuses, or with good ones. A month without a status ends a run, and a window counts only the months of a run that lie inside it; see :doc:`/user_guide/features`.
+
    Saaty scale
       The scale of pairwise comparisons from 1, equally important, through 3, 5 and 7 to 9, extremely more important, with 2, 4, 6 and 8 in between and the reciprocals for the reverse comparisons; see :doc:`/user_guide/expert`.
 
@@ -211,3 +238,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Weight of evidence (WOE)
       The logarithm of a group's share of all events over its share of all non-events. A positive WOE marks a group that is relatively more common among events; see :doc:`/user_guide/woe_iv`.
+
+   Window
+      The period before an observation time :math:`t` over which a feature aggregates the events: :math:`[t - k, t)` for :math:`k` calendar months or days, or :math:`(t - k, t]` with ``closed="right"``. For monthly statuses, the :math:`k` months before the observation month; see :doc:`/user_guide/features`.
+
+   Window pair
+      Two bounds of the same unit, such as ``("6M", "3M")``, that make one window from the first to the second, here :math:`[t - 6M, t - 3M)`, the period before the most recent one. Its features are named with both bounds, as ``6m_3m``; see :doc:`/user_guide/features`.

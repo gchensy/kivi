@@ -1,7 +1,7 @@
 Compatibility
 =============
 
-This page states what a release of kivi may change and what it keeps: the versions it supports, the public names, the layout of the tables it returns, its exception types and the files of :class:`~kivi.spec.BinningSpec`. The rules that every function follows, such as the order of the arguments, are on :doc:`conventions`, and they are part of the API too.
+This page states what a release of kivi may change and what it keeps: the versions it supports, the public names, the layout of the tables it returns, its exception types and the files of :class:`~kivi.spec.BinningSpec` and :class:`~kivi.features.FeatureSpec`. The rules that every function follows, such as the order of the arguments, are on :doc:`conventions`, and they are part of the API too.
 
 Releases and deprecations
 -------------------------
@@ -24,8 +24,8 @@ kivi supports Python 3.10 or newer, NumPy 1.24 or newer and pandas 2.0 or newer,
 What is public
 --------------
 
-* The names that a public module lists in its ``__all__``: :mod:`kivi.binning`, :mod:`kivi.woe`, :mod:`kivi.stability`, :mod:`kivi.univariate`, :mod:`kivi.selection`, :mod:`kivi.scorecard`, :mod:`kivi.expert`, :mod:`kivi.metrics`, :mod:`kivi.calibration`, :mod:`kivi.strategy`, :mod:`kivi.reject_inference`, :mod:`kivi.spec`, :mod:`kivi.monitoring`, :mod:`kivi.vintage`, :mod:`kivi.lifetime`, :mod:`kivi.plotting` and :mod:`kivi.datasets`. Each has a page in this reference that documents every such name. ``kivi.__version__`` is public too.
-* The documented members of :class:`~kivi.spec.BinningSpec`: its fields, ``FORMAT_VERSION``, ``format_version`` and ``columns``, its methods, and its equality, hashing, pickling and ``dataclasses.replace``. :exc:`~kivi.selection.SeparationError`, which :func:`~kivi.calibration.platt_fit` raises as well, stays in :mod:`kivi.selection`.
+* The names that a public module lists in its ``__all__``: :mod:`kivi.features`, :mod:`kivi.binning`, :mod:`kivi.woe`, :mod:`kivi.stability`, :mod:`kivi.univariate`, :mod:`kivi.selection`, :mod:`kivi.scorecard`, :mod:`kivi.expert`, :mod:`kivi.metrics`, :mod:`kivi.calibration`, :mod:`kivi.strategy`, :mod:`kivi.reject_inference`, :mod:`kivi.spec`, :mod:`kivi.monitoring`, :mod:`kivi.vintage`, :mod:`kivi.lifetime`, :mod:`kivi.plotting` and :mod:`kivi.datasets`. Each has a page in this reference that documents every such name. ``kivi.__version__`` is public too.
+* The documented members of :class:`~kivi.spec.BinningSpec`: its fields, ``FORMAT_VERSION``, ``format_version`` and ``columns``, its methods, and its equality, hashing, pickling and ``dataclasses.replace``. The same holds for :class:`~kivi.features.FeatureSpec`, which has ``FORMAT_VERSION`` and ``columns`` but no ``format_version``, because its format has one version so far. :exc:`~kivi.selection.SeparationError`, which :func:`~kivi.calibration.platt_fit` raises as well, stays in :mod:`kivi.selection`.
 * The names of the arguments. A keyword is part of a call, so renaming an argument needs a deprecation, even one that is usually passed by position.
 * Everything else is private: the modules and names that start with an underscore, and the modules that a public module imports, such as ``kivi.binning.np``. They can change in any release.
 
@@ -43,6 +43,15 @@ The index name, the column names and the order of the columns of every table are
    * - Function
      - Index
      - Columns
+   * - :func:`~kivi.features.window_features`
+     - The index of ``observations``, in its order
+     - For each window in turn ``{prefix}events_{window}``, then ``{prefix}{column}_{aggregation}_{window}`` column by column and aggregation by aggregation, and the ratios last, ``{numerator}_over_{window}`` or ``{numerator}_over_{denominator}``
+   * - :func:`~kivi.features.panel_features`
+     - The index of ``observations``, in its order
+     - For each window in turn ``{prefix}months_{window}``, ``{prefix}bad_months_{window}``, ``{prefix}longest_bad_run_{window}``, ``{prefix}longest_good_run_{window}``, ``{prefix}worst_status_{window}``, then ``{prefix}months_since_bad``
+   * - :meth:`FeatureSpec.compute <kivi.features.FeatureSpec.compute>`
+     - The index of ``observations``, in its order
+     - The columns of each group of ``events``, then of each group of ``panel``, as the two functions above give them, and the ratios last; ``FeatureSpec.columns`` lists them
    * - :func:`~kivi.woe.woe_table`, ``BinningSpec.tables``
      - ``bin``
      - ``non_event``, ``event``, ``total``, ``non_event_share``, ``event_share``, ``total_share``, ``event_rate``, ``woe``, ``iv``
@@ -150,12 +159,17 @@ The index name, the column names and the order of the columns of every table are
      - ``loan_id``, ``cohort``, ``month``, ``month_on_book``, ``term``, ``amount``, ``balance``, ``status``
    * - :func:`~kivi.datasets.make_applications`
      - A range
-     - ``age``, ``income``, ``debt_to_income``, ``inquiries``, ``housing``, ``employment``, ``incumbent_pd``, ``policy_decline``, ``approved``, ``target``
+     - ``age``, ``income``, ``debt_to_income``, ``inquiries``, ``housing``, ``employment``, ``incumbent_pd``, ``policy_decline``, ``approved``, ``target``, and with ``include_risk=True`` ``risk``
+   * - :func:`~kivi.datasets.make_transactions`
+     - A range, sorted by applicant and time
+     - ``applicant_id``, ``timestamp``, ``amount``, ``kind``, ``merchant_category``
    * - :func:`~kivi.datasets.load_bank`
      - A range
      - The 16 columns of the UCI data and ``target``
 
-:func:`~kivi.datasets.load_bank` always returns the same data. :func:`~kivi.datasets.make_loan_panel` and :func:`~kivi.datasets.make_applications` keep their columns and dtypes, but the values that they simulate for a given ``rng`` stay the same only within a minor version, so that a minor release can improve the simulation.
+The feature names follow from the arguments. Column names and prefixes are kept as given, and kivi's own parts of the names, the aggregations, the windows and the names of the panel features, are in lower case, with windows written as ``3m``, ``90d`` or ``6m_3m``. The dtypes are public too: the ``events``, ``count`` and ``nunique`` features and the counts of :func:`~kivi.features.panel_features` are int64, ``worst_status`` has the dtype of the status column, and the other features are float64. A window without values gives 0 for these counts and for ``sum``, a missing status for ``worst_status``, and NaN for the other features.
+
+:func:`~kivi.datasets.load_bank` always returns the same data. :func:`~kivi.datasets.make_loan_panel`, :func:`~kivi.datasets.make_applications` and :func:`~kivi.datasets.make_transactions` keep their columns and dtypes, including the categories of ``kind`` and ``merchant_category``, but the values that they simulate for a given ``rng`` stay the same only within a minor version, so that a minor release can improve the simulation.
 
 The random indices of :func:`~kivi.expert.ahp_consistency`, the table of Tone (1986) for 3 to 15 factors, are constants. A release changes them only to correct a wrong value, as a fix that the release notes list under Fixed, so the consistency ratio of a matrix stays the same from release to release.
 
@@ -174,13 +188,13 @@ Errors and warnings
 Saved specifications
 --------------------
 
-:meth:`BinningSpec.to_json <kivi.spec.BinningSpec.to_json>` writes a file that later releases read; :doc:`/user_guide/spec` describes its format.
+:meth:`BinningSpec.to_json <kivi.spec.BinningSpec.to_json>` and :meth:`FeatureSpec.to_json <kivi.features.FeatureSpec.to_json>` write files that later releases read; :doc:`/user_guide/spec` and :doc:`/user_guide/features` describe their formats.
 
-* ``format`` is always ``"kivi.BinningSpec"``, and ``format_version`` is an integer: 1 for a specification without category groupings, 2 for one that groups a column.
-* Every 1.x release reads every format version written by kivi 0.6.0 or later.
+* ``format`` is always ``"kivi.BinningSpec"`` or ``"kivi.FeatureSpec"``, and ``format_version`` is an integer. A binning specification has version 1 without category groupings and 2 when it groups a column. A feature specification has version 1, the format of kivi 1.3.0, whose keys after ``kivi_version`` are the arguments of :class:`~kivi.features.FeatureSpec` as it takes them: ``id``, ``observation_time``, ``events``, ``ratios`` and ``panel``, with every key of each group.
+* Every 1.x release reads every format version of a binning specification written by kivi 0.6.0 or later, and of a feature specification written by kivi 1.3.0 or later.
 * A specification is written in the lowest format version that can hold it, so a file that uses no newer feature stays readable by older releases. A new format version only adds content, and within a major version the meaning of an existing key never changes.
-* A file with a newer format version raises ``ValueError`` and names the version, instead of being read in part. Unknown keys raise as well, so a new key always comes with a new format version.
-* ``kivi_version`` records the release that fitted the specification and never changes how a file is read. Equality and hashing include it, as they include every field, so a specification saved by an earlier release differs from the same fit today; :ref:`spec-saving` shows how to compare their content.
-* Encoding reads only the ``bin`` and ``woe`` of each table row. The other columns describe the fit and are loaded as written.
+* A file with a newer format version raises ``ValueError`` and names the version, instead of being read in part. Unknown keys raise as well, so a new key always comes with a new format version. A feature specification also raises for a missing key and for a key repeated within one JSON object.
+* ``kivi_version`` records the release that wrote the specification and never changes how a file is read. Equality and hashing include it, as they include every field, so a specification saved by an earlier release differs from the same fit today; :ref:`spec-saving` shows how to compare their content.
+* Encoding with a binning specification reads only the ``bin`` and ``woe`` of each table row. The other columns describe the fit and are loaded as written.
 
-The tests of kivi keep files written by 0.6.0, in format version 1, and by 0.8.0, in format version 2, and check that each loads and encodes a fixed sample exactly as the release that wrote it did, and that it matches a fresh fit apart from ``kivi_version`` and the rounding of the last digits.
+The tests of kivi keep binning specifications written by 0.6.0, in format version 1, and by 0.8.0, in format version 2, and check that each loads and encodes a fixed sample exactly as the release that wrote it did, and that it matches a fresh fit apart from ``kivi_version`` and the rounding of the last digits. They keep a feature specification of 1.3.0 in the same way, with window and panel groups and ratios, and check that it loads, writes the same JSON again and computes the same features of a fixed sample.

@@ -177,6 +177,8 @@ cohort
 
 D reaches ``30-59`` at month on book 3, when it is 45 days past due. A, B and C leave the panel after month on book 3, but they stay in the cohort, so the rate remains one loan in four.
 
+The same panel also tells how each loan has been repaid so far. With a column that names the borrower of each loan, :func:`~kivi.features.panel_features` turns it into features of a scorecard for the borrower's next application, such as the bad months and the longest run of bad months in the year before the month of that application, as the section :ref:`repayment-behaviour` of :doc:`features` shows.
+
 Days past due at month ends
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -3,7 +3,7 @@ Univariate profile
 
 Before any variable is binned with care, look at all of them at once: how complete each one is, how its values are distributed, and how strongly it separates events from non-events on its own. :func:`kivi.univariate.profile_table` summarizes every column of a data frame in one row, so the whole list of candidates fits in one table.
 
-The profile is the first step of a model. The candidates that pass its screening are binned with care next, as :doc:`binning` describes, and :doc:`risk_workflow` follows them through the remaining steps.
+The profile is the first look at the candidates of a model: the columns of the applications, and the features that :doc:`features` computes from transactions and repayment histories. The candidates that pass its screening are binned with care next, as :doc:`binning` describes, and :doc:`risk_workflow` follows them through the remaining steps.
 
 Profiling the candidates
 ------------------------

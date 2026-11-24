@@ -53,6 +53,12 @@ The month before 31 March starts on 29 February, so for customer ``a`` the windo
 
 The result has one row per application, on the index of ``applications``, so it can be put next to the applications with ``pd.concat([applications, features], axis=1)``.
 
+.. plot::
+   :alt: The events of customers a and b on a time line from November 2023 to April 2024, the windows of one and three months that end at the application date of 31 March 2024, and the number and the sum of the amounts of the events in each window
+   :caption: The worked example. Each window starts one or three calendar months before the application date and ends just before it. The payment of 200 on the application date and the payment of 300 in November, drawn hollow, count in no window.
+
+   kd.figure_window_features()
+
 Windows
 -------
 
@@ -228,6 +234,8 @@ Reading the result
 
 The columns come window by window, then column by column in the order of ``aggregations``, then aggregation by aggregation, and the ratios last. Column names and prefixes keep their case: only kivi's own parts of the names, the aggregations and the windows, are in lower case, so the features of ``Amount`` and ``amount`` stay apart. A NaN means that the window had no value to aggregate, which is information in its own right: profile the features with :func:`~kivi.univariate.profile_table` to see how often they are missing and how well they separate the classes, and bin them with :doc:`binning`, where missing values form their own group.
 
+.. _repayment-behaviour:
+
 Repayment behaviour
 -------------------
 
@@ -269,6 +277,12 @@ worst_status_6m      30-59  60-89  NaN
 months_since_bad       2.0    1.0  NaN
 
 The applications are dated 31 March, but the status at the end of March is not known then, so the windows end with February: the three months are December to February and the six months September to February. The 90 days behind of customer ``b`` in March therefore count nowhere. In January customer ``b`` has two loans, and the worse status, ``1-29``, counts for the month. Its six months hold only five months with a status, because its first loan began in October: only months with a status count, so the columns ``months_*`` show how much of a window the panel covers. A month without a status also ends a run, so a bad month, a month without a loan and a bad month are two runs of one month. A run that began before a window counts only with its months inside it, and ``months_since_bad`` looks at all the months before the observation, whatever the windows.
+
+.. plot::
+   :alt: The monthly statuses of customers a, b and c from September 2023 to March 2024 as tinted cells, with the bad months outlined, March hatched, the windows of three and six months that end at the start of March, and the result of panel_features for each customer
+   :caption: The repayment example. The windows end where the month of the application date begins, so the statuses of March, hatched, count nowhere. In January customer ``b`` has two loans, and the worse status counts. The bad months, from ``30-59`` on, are outlined.
+
+   kd.figure_panel_features()
 
 .. list-table::
    :header-rows: 1
@@ -406,6 +420,82 @@ The file has the keys below. After ``kivi_version`` they are the arguments of :c
      - The pairs of column names of the ratios.
    * - ``panel``
      - One dict per group of panel features, in order, with ``table``, ``month``, ``status``, ``windows``, ``bad`` and ``prefix``. ``bad`` is written as the string or integer of its category.
+
+Features of synthetic transactions
+----------------------------------
+
+:func:`~kivi.datasets.make_transactions` simulates the card purchases, cash withdrawals and instalment repayments of the twelve months before each application of :func:`~kivi.datasets.make_applications`, as :doc:`datasets` describes. The transactions depend on a risk factor of the applicants that no lender sees, which ``include_risk=True`` adds to the applications as the column ``risk``. The applications have no dates, so they are spread over 2024 in the order of the rows, and the observations are the applicants and their application dates, on the index of the applications:
+
+>>> from kivi.datasets import make_applications, make_transactions
+>>> sample = make_applications(n_applicants=10000, include_risk=True, rng=0)
+>>> days = pd.to_timedelta(np.arange(10000) * 366 // 10000, unit="D")
+>>> sample["application_date"] = pd.Timestamp("2024-01-01") + days
+>>> transactions = make_transactions(sample, application_date="application_date", rng=0)
+>>> observations = pd.DataFrame(
+...     {"applicant_id": sample.index, "application_date": sample["application_date"]},
+...     index=sample.index,
+... )
+
+A :class:`~kivi.features.FeatureSpec` with one group for each kind of transaction gives the cash withdrawals and the repayments of the last three months and of the three months before them, and the purchases of the last three months with the number of their merchant categories. Two ratios compare the last three months with the three months before them:
+
+>>> two_periods = {
+...     "time": "timestamp", "windows": ["3M", ("6M", "3M")], "aggregations": {"amount": ["sum"]},
+... }
+>>> transaction_spec = FeatureSpec(
+...     id="applicant_id",
+...     observation_time="application_date",
+...     events=[
+...         {"table": "cash", "prefix": "cash_", **two_periods},
+...         {"table": "repayments", "prefix": "repayment_", **two_periods},
+...         {
+...             "table": "purchases",
+...             "prefix": "purchase_",
+...             "time": "timestamp",
+...             "windows": ["3M"],
+...             "aggregations": {"amount": ["sum"], "merchant_category": ["nunique"]},
+...         },
+...     ],
+...     ratios=[
+...         ("cash_events_3m", "cash_events_6m_3m"),
+...         ("repayment_amount_sum_3m", "repayment_amount_sum_6m_3m"),
+...     ],
+... )
+>>> kind = transactions["kind"]
+>>> transaction_features = transaction_spec.compute(
+...     observations,
+...     events={
+...         "cash": transactions[kind == "cash_withdrawal"],
+...         "repayments": transactions[kind == "repayment"],
+...         "purchases": transactions[kind == "purchase"],
+...     },
+... )
+>>> transaction_features.shape
+(10000, 13)
+
+The features are candidates like the columns of the applications, so :func:`~kivi.univariate.profile_table` screens them against the outcome, as :doc:`univariate` describes:
+
+>>> from kivi.univariate import profile_table
+>>> screening = profile_table(transaction_features, sample["target"])
+>>> screening[["missing_share", "iv", "gini"]].sort_values("iv", ascending=False).round(3)
+                                       missing_share     iv   gini
+variable
+cash_events_3m                                 0.000  0.310  0.316
+repayment_events_3m                            0.000  0.199 -0.257
+cash_amount_sum_3m                             0.000  0.192  0.249
+cash_events_3m_over_6m_3m                      0.241  0.185  0.185
+repayment_amount_sum_3m_over_6m_3m             0.004  0.185 -0.218
+cash_events_6m_3m                              0.000  0.180  0.247
+purchase_amount_sum_3m                         0.000  0.104 -0.181
+cash_amount_sum_6m_3m                          0.000  0.085  0.177
+repayment_events_6m_3m                         0.000  0.082 -0.123
+purchase_events_3m                             0.000  0.048 -0.121
+repayment_amount_sum_3m                        0.000  0.031 -0.089
+purchase_merchant_category_nunique_3m          0.000  0.030 -0.094
+repayment_amount_sum_6m_3m                     0.000  0.005  0.037
+
+The number of cash withdrawals in the last three months separates the classes best, and more withdrawals mean more defaults, as the positive ``gini`` shows. The repayments of the last three months come next with the opposite sign: applicants at risk miss more of them, so fewer repayments, and a smaller sum than in the three months before, mean more defaults. Both follow from how the transactions are simulated, with a stress that builds up before the application, and both are stronger in the last three months than in the three months before them. The purchases say little. The ratio of the cash withdrawals is missing for the 24% of applicants who withdrew no cash in the three months before the last three, because its denominator is 0. The profile counts them as a group of their own, which defaults less often than the others: a missing value is information too.
+
+The signal is clear but modest, and only simulated data can tie it to a factor that no lender sees: the transactions show how window features work, not how well behaviour predicts default in a real portfolio. Bin the features that are kept as :doc:`binning` describes and select them with the rest of the candidates, as :doc:`selection` describes.
 
 Missing values
 --------------

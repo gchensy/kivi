@@ -1,7 +1,7 @@
 User guide
 ==========
 
-The user guide follows the steps of a credit risk model in the order of a project: profile and bin the candidate variables, encode them with WOE, select the variables and fit the model, infer the outcomes of rejected applicants, scale the model to a scorecard, or weigh the factors of an expert scorecard where there are too few defaults to fit one, evaluate and calibrate it, set the cut-offs, save the binning for production, monitor the model period by period, follow the loans that it approves from their repayment schedules, and measure their expected credit loss under IFRS 9. :doc:`plotting` draws the tables of every step. :doc:`risk_workflow` runs the steps from the profile to the stability report on the bundled data, leaving out reject inference, and the :doc:`/tutorial/index` follows a whole project from the first applications to the loss allowance.
+The user guide follows the steps of a credit risk model in the order of a project: compute features of the applicants from their transactions and repayment histories, profile and bin the candidate variables, encode them with WOE, select the variables and fit the model, infer the outcomes of rejected applicants, scale the model to a scorecard, or weigh the factors of an expert scorecard where there are too few defaults to fit one, evaluate and calibrate it, set the cut-offs, save the binning for production, monitor the model period by period, follow the loans that it approves from their repayment schedules, and measure their expected credit loss under IFRS 9. :doc:`plotting` draws the tables of every step. :doc:`risk_workflow` runs the steps from the profile to the stability report on the bundled data, leaving out the features of event data and reject inference, and the :doc:`/tutorial/index` follows a whole project from the first applications to the loss allowance.
 
 kivi keeps fitting and applying apart. Bin edges, category groupings, WOE tables, master scales and cut-offs are fitted on the development sample and then applied unchanged to every later sample, so that counts and rates stay comparable. The tables take the groups as they are, so category labels can be passed directly.
 
@@ -15,6 +15,12 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link-type: doc
 
       An end-to-end example: profile and screen the variables, bin and encode the shortlist, fit and scale a scorecard, evaluate and calibrate it, set a cut-off and report stability.
+
+   .. grid-item-card:: Time-window features
+      :link: features
+      :link-type: doc
+
+      Point-in-time features of transactions and other events over windows of months or days, repayment behaviour from monthly status panels, and feature specifications saved as versioned JSON.
 
    .. grid-item-card:: Univariate profile
       :link: univariate
@@ -116,13 +122,14 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: datasets
       :link-type: doc
 
-      The bundled bank marketing data, a synthetic loan panel for portfolio analysis and synthetic applications for reject inference.
+      The bundled bank marketing data, a synthetic loan panel for portfolio analysis, synthetic applications for reject inference and the account transactions before them.
 
 .. toctree::
    :hidden:
    :glob:
 
    risk_workflow
+   features
    univariate
    binning
    woe_iv

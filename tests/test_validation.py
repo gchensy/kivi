@@ -21,6 +21,7 @@ from kivi import (
     calibration,
     datasets,
     expert,
+    features,
     lifetime,
     metrics,
     monitoring,
@@ -411,6 +412,7 @@ SMOOTHED = {
 def test_every_public_smoothing_argument_is_checked():
     modules = (binning, calibration, lifetime, metrics, monitoring, reject_inference, scorecard)
     modules += (selection, spec, stability, strategy, univariate, vintage, woe, datasets, expert)
+    modules += (features,)
     names = set()
     for module in modules:
         for name in module.__all__:
@@ -515,12 +517,14 @@ def test_messages_show_numpy_scalars_as_python_numbers(call, message):
 
 @pytest.mark.parametrize("rng", [1.5, "a", -1, [1.5]])
 def test_rng_must_be_accepted_by_default_rng(rng):
-    from kivi.datasets import make_applications, make_loan_panel
+    from kivi.datasets import make_applications, make_loan_panel, make_transactions
 
+    applications = make_applications(n_applicants=10, include_risk=True, rng=0)
     message = "^rng must be None, an integer, a SeedSequence or a Generator, got "
     for call in (
         lambda: make_applications(n_applicants=10, rng=rng),
         lambda: make_loan_panel(n_loans=10, n_months=2, rng=rng),
+        lambda: make_transactions(applications, application_date="2024-06-30", rng=rng),
     ):
         with pytest.raises(ValueError, match=message):
             call()
@@ -588,6 +592,21 @@ def _option_cases():
     matrix = pd.DataFrame([[0.9, 0.1], [0.0, 1.0]], index=["A", "D"], columns=["A", "D"])
     event, total, rates = [1, 2, 3], [10, 20, 30], [0.1, 0.1, 0.1]
     comparison = [[1.0, 2.0], [0.5, 1.0]]
+    events = pd.DataFrame(
+        {"c": [1, 1], "t": pd.to_datetime(["2024-01-10", "2024-02-10"]), "a": [1.0, 2.0]}
+    )
+    observations = pd.DataFrame({"c": [1, 2], "d": pd.to_datetime(["2024-03-31"] * 2)})
+    keys = {"id": "c", "time": "t", "observation_time": "d"}
+    panel = pd.DataFrame(
+        {
+            "c": [1, 1],
+            "m": pd.PeriodIndex(["2024-01", "2024-02"], freq="M"),
+            "s": pd.Categorical(["current", "30-59"], ["current", "30-59"], ordered=True),
+        }
+    )
+    panel_keys = {"id": "c", "month": "m", "status": "s", "observation_time": "d"}
+    group = {"time": "t"}
+    applications = datasets.make_applications(n_applicants=2, include_risk=True, rng=0)
     return {
         # binning
         "bin_edges-bins": lambda o: binning.bin_edges(VALUES, bins=o),
@@ -703,6 +722,60 @@ def _option_cases():
         "ahp_weights-method": lambda o: expert.ahp_weights(comparison, method=o),
         "ahp_weights-rtol": lambda o: expert.ahp_weights(comparison, rtol=o),
         "ahp_consistency-rtol": lambda o: expert.ahp_consistency(comparison, rtol=o),
+        # features
+        "window_features-id": lambda o: features.window_features(
+            events, observations, **(keys | {"id": o})
+        ),
+        "window_features-time": lambda o: features.window_features(
+            events, observations, **(keys | {"time": o})
+        ),
+        "window_features-observation_time": lambda o: features.window_features(
+            events, observations, **(keys | {"observation_time": o})
+        ),
+        "window_features-windows": lambda o: features.window_features(
+            events, observations, **keys, windows=o
+        ),
+        "window_features-aggregations": lambda o: features.window_features(
+            events, observations, **keys, aggregations=o
+        ),
+        "window_features-ratios": lambda o: features.window_features(
+            events, observations, **keys, ratios=o
+        ),
+        "window_features-closed": lambda o: features.window_features(
+            events, observations, **keys, closed=o
+        ),
+        "window_features-prefix": lambda o: features.window_features(
+            events, observations, **keys, prefix=o
+        ),
+        "panel_features-id": lambda o: features.panel_features(
+            panel, observations, **(panel_keys | {"id": o})
+        ),
+        "panel_features-month": lambda o: features.panel_features(
+            panel, observations, **(panel_keys | {"month": o})
+        ),
+        "panel_features-status": lambda o: features.panel_features(
+            panel, observations, **(panel_keys | {"status": o})
+        ),
+        "panel_features-observation_time": lambda o: features.panel_features(
+            panel, observations, **(panel_keys | {"observation_time": o})
+        ),
+        "panel_features-windows": lambda o: features.panel_features(
+            panel, observations, **panel_keys, windows=o
+        ),
+        "panel_features-bad": lambda o: features.panel_features(
+            panel, observations, **panel_keys, bad=o
+        ),
+        "panel_features-prefix": lambda o: features.panel_features(
+            panel, observations, **panel_keys, prefix=o
+        ),
+        "FeatureSpec-id": lambda o: features.FeatureSpec(o, "d", events=[group]),
+        "FeatureSpec-observation_time": lambda o: features.FeatureSpec("c", o, events=[group]),
+        "FeatureSpec-events": lambda o: features.FeatureSpec("c", "d", events=o),
+        "FeatureSpec-ratios": lambda o: features.FeatureSpec("c", "d", events=[group], ratios=o),
+        "FeatureSpec-panel": lambda o: features.FeatureSpec("c", "d", panel=o),
+        "FeatureSpec-kivi_version": lambda o: features.FeatureSpec(
+            "c", "d", events=[group], kivi_version=o
+        ),
         # spec
         "fit_spec-method": lambda o: spec.fit_spec(frame, TARGET, method=o),
         "fit_spec-bins": lambda o: spec.fit_spec(frame, TARGET, bins=o),
@@ -734,6 +807,15 @@ def _option_cases():
         # datasets
         "make_applications-n_applicants": lambda o: datasets.make_applications(n_applicants=o),
         "make_applications-rng": lambda o: datasets.make_applications(n_applicants=10, rng=o),
+        "make_applications-include_risk": lambda o: datasets.make_applications(
+            n_applicants=10, include_risk=o
+        ),
+        "make_transactions-n_months": lambda o: datasets.make_transactions(
+            applications, application_date="2024-06-30", n_months=o
+        ),
+        "make_transactions-rng": lambda o: datasets.make_transactions(
+            applications, application_date="2024-06-30", rng=o
+        ),
         "make_loan_panel-n_loans": lambda o: datasets.make_loan_panel(n_loans=o),
         "make_loan_panel-n_months": lambda o: datasets.make_loan_panel(n_loans=10, n_months=o),
         "make_loan_panel-rng": lambda o: datasets.make_loan_panel(n_loans=10, rng=o),

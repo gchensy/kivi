@@ -228,7 +228,7 @@ cash_withdrawals_3m
 3                    0.201  0.073
 4                    0.310  0.098
 
-Other window features are weaker or stronger. With the default five bins, the IV is 0.05 for the number of purchases in the last three months, 0.18 for the repayments of the last three months relative to the three months before them, and 0.31 for the cash withdrawn in the last three months relative to income.
+Other window features are weaker or stronger. With the default five bins, the IV is 0.05 for the number of purchases in the last three months, 0.18 for the repayments of the last three months relative to the three months before them, and 0.31 for the cash withdrawn in the last three months relative to income. :func:`~kivi.features.window_features` computes such features without the merge, for many windows and columns at once, as :doc:`features` shows.
 
 .. warning::
 

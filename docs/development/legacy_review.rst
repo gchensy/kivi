@@ -16,4 +16,4 @@ Findings from the legacy implementation
 Outcome
 -------
 
-The rewrite began with binning, WOE and PSI and then rebuilt the rest of the scorecard workflow, checking each part against the legacy outputs or reference implementations on fixed samples. :doc:`/release/index` lists the parts release by release. Spark, SQL and the model wrappers were not rebuilt. They are out of scope and remain in the repository history before the rewrite. The analytic hierarchy process of the expert scorecards was rebuilt later, in 1.2.0, as :mod:`kivi.expert`.
+The rewrite began with binning, WOE and PSI and then rebuilt the rest of the scorecard workflow, checking each part against the legacy outputs or reference implementations on fixed samples. :doc:`/release/index` lists the parts release by release. Spark, SQL and the model wrappers were not rebuilt. They are out of scope and remain in the repository history before the rewrite. The analytic hierarchy process of the expert scorecards was rebuilt later, in 1.2.0, as :mod:`kivi.expert`, and the features that the Spark feature tools computed in 1.3.0, on pandas, as :mod:`kivi.features`.
