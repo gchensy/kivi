@@ -8,6 +8,28 @@ Changes merged since the last release.
 
 .. release-fragments::
 
+1.3.0 (2026-11-23)
+------------------
+
+New
+^^^
+
+* The new module ``kivi.features`` computes time-window features of event data, such as transactions, point in time. ``window_features`` aggregates the events of each entity over windows that end at the observation time of each row of an observation table, such as the application date, and never uses an event at or after that time. Windows count calendar months, as ``"3M"``, or days, as ``"90D"``, and a pair such as ``("6M", "3M")`` is the period before the most recent one; ``closed="right"`` includes the events at the observation time instead. The aggregations are ``count``, ``sum``, ``mean``, ``min``, ``max``, ``std``, ``nunique``, ``first``, ``last`` and ``days_since_last``, ``ratios`` divides two features, and ``prefix`` names the features of filtered events. The columns are named ``{prefix}{column}_{aggregation}_{window}`` next to ``{prefix}events_{window}``, the number of events of each window. The events are sorted once and the bounds of every window found by binary search, so counts, sums, means and first and last values take a time that grows with the number of rows, while ``min``, ``max``, ``std`` and ``nunique`` look at every event of every window.
+* ``kivi.features.FeatureSpec`` keeps the definitions of one or more groups of window features and their ratios, computes them on any sample with ``compute`` and saves them as versioned JSON with ``to_json`` and ``from_json``, so that development and production compute the same features. Nothing in it is fitted to data.
+
+* ``kivi.datasets.make_transactions`` simulates the account transactions that precede the applications of ``make_applications``: card purchases, cash withdrawals and instalment repayments over the twelve months (or ``n_months``) before each application date, as a long table with the applicant id, the timestamp, the amount, the kind and the merchant category. The transactions depend on the hidden risk factor and on the income, not on the outcome: applicants at risk build up stress, withdraw more cash as the application nears and repay less, so that features of time windows carry a clear but imperfect signal about ``target``, also within bands of ``incumbent_pd``. The dates of the applications, required, come from a column, as one date or as a Series. The same ``rng`` seed always gives the same transactions.
+* ``kivi.datasets.make_applications`` takes ``include_risk=True`` to append the hidden risk factor as the last column ``risk``. The default output is unchanged.
+
+* ``kivi.features.panel_features`` summarizes a monthly panel of repayment statuses, such as the result of ``kivi.vintage.delinquency_panel`` or ``kivi.datasets.make_loan_panel``, before each observation time. For every window of months it gives the number of months with a status, the bad months, the longest runs of consecutive bad and good months and the worst status, and it adds the months since the latest bad month. A status is bad from ``bad`` on, ``"30-59"`` by default, in the order of the ordered categorical status column. Only the month ends before the month of the observation time count, an entity with several loans takes the worst status of each month, and a month without a status counts in no window and ends a run.
+* ``kivi.features.FeatureSpec`` holds groups of panel features in ``panel``, next to the groups of window features in ``events``, and ``compute`` takes the panels as ``panel``. Ratios may divide features of both kinds. Version 1 of its JSON format is final.
+
+Changed
+^^^^^^^
+
+* The migration guide maps ``FeatureTools``, ``FeatureToolsV2`` and ``index/collect.py`` of 0.2.x to ``window_features``, ``panel_features`` and ``FeatureSpec`` of ``kivi.features``, and states how their windows, aggregations, ratios and runs of months differ from the legacy code. It no longer lists the ratios of ``FeatureTools`` among the tools without a replacement, and it names ``make_transactions`` next to the synthetic data of 0.2.x.
+* The conventions page describes the tables, time columns, column names and windows of ``kivi.features``, the compatibility page lists the columns of its functions and of ``make_transactions`` and the JSON format of ``FeatureSpec``, and the glossary defines point in time, observations, windows and window pairs, and the bad months, runs and monthly status panels of repayment behaviour.
+* The guide to time-window features comes first among the topic guides, before the univariate profile. It gains two diagrams, of the windows of ``window_features`` and of the months of ``panel_features``, and a section that computes features of the transactions of ``make_transactions`` with a ``FeatureSpec`` and screens them with ``profile_table``.
+
 1.2.0 (2026-11-22)
 ------------------
 
