@@ -86,13 +86,12 @@ def _account_features() -> pd.DataFrame:
     position = np.arange(40000) * 12 % 40000 / 40000
     days = np.floor(position * month.dt.days_in_month)
     applications["application_date"] = month.dt.start_time + pd.to_timedelta(days, unit="D")
+    before = make_transactions(applications, application_date="application_date", rng=0)
     later = applications["application_date"] + pd.DateOffset(months=3)
-    extract = pd.concat(
-        [
-            make_transactions(applications, application_date="application_date", rng=0),
-            make_transactions(applications, application_date=later, n_months=3, rng=1),
-        ]
-    ).sort_values(["applicant_id", "timestamp"], ignore_index=True)
+    after = make_transactions(applications, application_date=later, n_months=3, rng=1)
+    after = after[after["timestamp"] >= after["applicant_id"].map(applications["application_date"])]
+    extract = pd.concat([before, after])
+    extract = extract.sort_values(["applicant_id", "timestamp"], ignore_index=True)
     one_sum = {"time": "timestamp", "aggregations": {"amount": ["sum"]}}
     spec = FeatureSpec(
         id="applicant_id",

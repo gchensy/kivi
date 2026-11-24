@@ -37,16 +37,16 @@ The dates keep the months of :doc:`data`, so the samples stay the same.
 Simulate the transactions
 -------------------------
 
-For the project, the lender extracted the transactions of its applicants' accounts: card purchases, cash withdrawals and the repayments of their instalments, from a year before each application to three months after it. :func:`~kivi.datasets.make_transactions` simulates them. It draws the transactions from a risk factor of each applicant that no lender sees, so the simulation reads the same applications with ``include_risk=True``, which adds that factor as the column ``risk``; the steps of the project never use it. The first call gives the year before each application, and the second the three months before a date three months after it:
+For the project, the lender extracted the transactions of its applicants' accounts: card purchases, cash withdrawals and the repayments of their instalments, from a year before each application to three months after it. :func:`~kivi.datasets.make_transactions` simulates them. It draws the transactions from a risk factor of each applicant that no lender sees, so the simulation reads the same applications with ``include_risk=True``, which adds that factor as the column ``risk``; the steps of the project never use it. The first call gives the year before each application, and the second the three months before a date three months after it. Counted back from the end of a shorter month, those three months can start a day or two before an application at the end of a month: three months after 30 November is 28 February, and three months before that is 28 November. A filter therefore keeps the transactions of the second call from the application date on:
 
 >>> from kivi.datasets import make_transactions
 >>> simulated = make_applications(n_applicants=40000, include_risk=True, rng=0)
 >>> simulated["application_date"] = applications["application_date"]
+>>> before = make_transactions(simulated, application_date="application_date", rng=0)
 >>> later = simulated["application_date"] + pd.DateOffset(months=3)
->>> extract = pd.concat([
-...     make_transactions(simulated, application_date="application_date", rng=0),
-...     make_transactions(simulated, application_date=later, n_months=3, rng=1),
-... ]).sort_values(["applicant_id", "timestamp"], ignore_index=True)
+>>> after = make_transactions(simulated, application_date=later, n_months=3, rng=1)
+>>> after = after[after["timestamp"] >= after["applicant_id"].map(simulated["application_date"])]
+>>> extract = pd.concat([before, after]).sort_values(["applicant_id", "timestamp"], ignore_index=True)
 >>> extract.head()
    applicant_id           timestamp  amount       kind merchant_category
 0             0 2023-01-05 12:52:45   60.01   purchase            online
@@ -150,7 +150,7 @@ incumbent_pd                                            0.000  0.272  0.295
 housing                                                 0.000  0.110    NaN
 cash_events_12m                                         0.000  0.099  0.183
 cash_events_3m                                          0.000  0.089  0.176
-cash_amount_sum_3m_over_purchase_amount_sum_3m          0.010  0.073  0.162
+cash_amount_sum_3m_over_purchase_amount_sum_3m          0.010  0.072  0.162
 repayment_amount_sum_3m_over_6m_3m                      0.001  0.063 -0.138
 repayment_events_3m                                     0.000  0.058 -0.123
 cash_amount_sum_3m                                      0.000  0.050  0.139
