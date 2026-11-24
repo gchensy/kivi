@@ -12,7 +12,9 @@ See :doc:`/user_guide/plotting` for examples on the bundled data.
    woe_chart
    correlation_chart
    roc_chart
+   precision_recall_chart
    gains_chart
+   distribution_chart
    calibration_chart
    cutoff_chart
    psi_chart
@@ -25,7 +27,11 @@ See :doc:`/user_guide/plotting` for examples on the bundled data.
 
 .. autofunction:: roc_chart
 
+.. autofunction:: precision_recall_chart
+
 .. autofunction:: gains_chart
+
+.. autofunction:: distribution_chart
 
 .. autofunction:: calibration_chart
 
