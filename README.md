@@ -231,7 +231,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | | English | 中文 |
 | --- | --- | --- |
 | Quickstart | [Read](https://gchensy.github.io/kivi/en/getting_started/quickstart.html) | [阅读](https://gchensy.github.io/kivi/zh/getting_started/quickstart.html) |
-| Tutorial: a credit scorecard project in ten chapters | [Read](https://gchensy.github.io/kivi/en/tutorial/index.html) | [阅读](https://gchensy.github.io/kivi/zh/tutorial/index.html) |
+| Tutorial: a credit scorecard project in eleven chapters | [Read](https://gchensy.github.io/kivi/en/tutorial/index.html) | [阅读](https://gchensy.github.io/kivi/zh/tutorial/index.html) |
 | Risk modeling workflow | [Read](https://gchensy.github.io/kivi/en/user_guide/risk_workflow.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/risk_workflow.html) |
 | Time-window features | [Read](https://gchensy.github.io/kivi/en/user_guide/features.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/features.html) |
 | Univariate profile | [Read](https://gchensy.github.io/kivi/en/user_guide/univariate.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/univariate.html) |

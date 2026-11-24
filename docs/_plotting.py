@@ -128,10 +128,11 @@ def window_bands(tables: dict[str, pd.DataFrame], overall: float):
         figsize=(8, 3.4),
         sharey=True,
         squeeze=False,
-        gridspec_kw={"width_ratios": [len(table) + 0.6 for table in tables.values()]},
+        gridspec_kw={"width_ratios": [len(table) + 0.4 for table in tables.values()]},
     )
     for ax, (column, table) in zip(axes[0], tables.items(), strict=True):
         x = np.arange(len(table))
+        ax.set_xlim(-0.9, len(table) - 0.5)  # room for the label left of the first point
         ax.bar(x, table["total_share"], color=LIGHT_BLUE, width=0.6, label="total_share")
         ax.axhline(overall, color=GRAY, linestyle="--", linewidth=1)
         ax.plot(x, table["event_rate"], color=AMBER, marker="o", linewidth=2, label="event_rate")

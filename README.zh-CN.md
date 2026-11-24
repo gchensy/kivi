@@ -231,7 +231,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | | 中文 | English |
 | --- | --- | --- |
 | 快速上手 | [阅读](https://gchensy.github.io/kivi/zh/getting_started/quickstart.html) | [Read](https://gchensy.github.io/kivi/en/getting_started/quickstart.html) |
-| 教程：分十章展开的信用评分卡项目 | [阅读](https://gchensy.github.io/kivi/zh/tutorial/index.html) | [Read](https://gchensy.github.io/kivi/en/tutorial/index.html) |
+| 教程：分十一章展开的信用评分卡项目 | [阅读](https://gchensy.github.io/kivi/zh/tutorial/index.html) | [Read](https://gchensy.github.io/kivi/en/tutorial/index.html) |
 | 风控建模流程 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/risk_workflow.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/risk_workflow.html) |
 | 时间窗特征 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/features.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/features.html) |
 | 单变量概况 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/univariate.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/univariate.html) |
