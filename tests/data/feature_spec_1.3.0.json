@@ -83,7 +83,37 @@
     [
       "daily_balance_mean_30d",
       "daily_balance_mean_60d_30d"
+    ],
+    [
+      "bad_months_6m",
+      "months_6m"
     ]
   ],
-  "panel": null
+  "panel": [
+    {
+      "table": "loans",
+      "month": "month",
+      "status": "status",
+      "windows": [
+        "6M",
+        "12M",
+        [
+          "12M",
+          "6M"
+        ]
+      ],
+      "bad": "30-59",
+      "prefix": ""
+    },
+    {
+      "table": "loans",
+      "month": "month",
+      "status": "status",
+      "windows": [
+        "12M"
+      ],
+      "bad": "90+",
+      "prefix": "severe_"
+    }
+  ]
 }

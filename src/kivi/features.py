@@ -3,10 +3,13 @@
 ``window_features`` aggregates the events of each entity, such as the
 transactions of a customer, over windows that end at an observation time,
 such as the date of an application: the number of transactions in the last
-three months, their total, the days since the last one. Only events before
-the observation time count, so a feature never uses what was not yet known.
-A `FeatureSpec` keeps the definitions of the features and saves them as
-JSON, so that development and production compute the same numbers.
+three months, their total, the days since the last one. ``panel_features``
+summarizes a monthly panel of repayment statuses in the same way: the bad
+months, the longest runs of bad and good months, the worst status. Only
+what is known at the observation time counts, so a feature never uses what
+was not yet known. A `FeatureSpec` keeps the definitions of the features
+and saves them as JSON, so that development and production compute the
+same numbers.
 """
 
 import dataclasses
@@ -24,7 +27,7 @@ import kivi
 
 from . import _validation
 
-__all__ = ["FeatureSpec", "window_features"]
+__all__ = ["FeatureSpec", "panel_features", "window_features"]
 
 _FORMAT = "kivi.FeatureSpec"
 # The newest version of the JSON format that from_dict reads and to_dict writes.
@@ -49,6 +52,10 @@ _DEFAULT_WINDOWS = ("3M", "6M", "12M")
 _BOUND = re.compile(r"([1-9][0-9]*)([MD])")
 _GROUP_KEYS = ("table", "time", "windows", "aggregations", "closed", "prefix")
 _DEFAULT_TABLE = "events"
+_PANEL_KEYS = ("table", "month", "status", "windows", "bad", "prefix")
+_DEFAULT_PANEL_TABLE = "panel"
+_DEFAULT_PANEL_WINDOWS = ("6M", "12M")
+_DEFAULT_BAD = "30-59"
 _NANOSECONDS_PER_DAY = 86_400 * 10**9
 
 
@@ -76,14 +83,31 @@ class _Group(typing.NamedTuple):
     prefix: str
 
 
+class _PanelGroup(typing.NamedTuple):
+    """The checked definitions of one call of `panel_features`."""
+
+    table: str
+    month: str
+    status: str
+    windows: tuple[_Window, ...]
+    bad: str | int
+    prefix: str
+
+
 class _Feature(typing.NamedTuple):
-    """One column of the result; ``column`` is None for the number of events."""
+    """One column of the result.
+
+    ``column`` is None for the features that count events or months, and
+    ``window`` is None for ``months_since_bad``. A feature that is not
+    ``numeric``, a status, cannot be part of a ratio.
+    """
 
     name: str
     stem: str
-    window: _Window
+    window: _Window | None
     column: str | None
     aggregation: str | None
+    numeric: bool = True
 
 
 class _Ratio(typing.NamedTuple):
@@ -327,17 +351,190 @@ def window_features(
     return _frame(columns, checked, observed.labels)
 
 
+def panel_features(
+    panel: pd.DataFrame,
+    observations: pd.DataFrame,
+    *,
+    id: str,
+    month: str,
+    status: str,
+    observation_time: str,
+    windows: abc.Sequence[str | tuple[str, str]] = _DEFAULT_PANEL_WINDOWS,
+    bad: str | int = _DEFAULT_BAD,
+    prefix: str = "",
+) -> pd.DataFrame:
+    """Summarize the monthly repayment status of each entity before an observation time.
+
+    For each row of `observations`, an entity and a time :math:`t`, every
+    window collects the month-end statuses of that entity in the months
+    before the month of :math:`t`, such as the last six months, and
+    counts how many were bad, the longest runs of bad and of good months
+    and the worst status. A status is bad from `bad` on, in the order of
+    the categories. The status at the end of the month of :math:`t` is not
+    known at :math:`t`, so that month and the later ones are never used.
+
+    Parameters
+    ----------
+    panel : pandas.DataFrame
+        One row per loan and month, with the columns `id`, `month` and
+        `status`, such as the result of `kivi.vintage.delinquency_panel` or
+        `kivi.datasets.make_loan_panel`, in any order. An entity with
+        several loans has several rows in a month, and its status in that
+        month is the worst of them.
+    observations : pandas.DataFrame
+        One row per entity and observation time, with the columns `id` and
+        `observation_time`, as in `window_features`.
+    id : str
+        Column of both tables that names the entity, such as a customer or
+        a loan. Values are matched by equality.
+    month : str
+        Column of `panel` with the month of each status: monthly periods,
+        or datetimes, which stand for their month on their own calendar.
+        Tz-aware datetimes must be in the time zone of `observation_time`
+        if that has one too.
+    status : str
+        Column of `panel` with the status at the end of each month, an
+        ordered categorical from the best status to the worst, such as the
+        ``status`` of `kivi.vintage.delinquency_panel`.
+    observation_time : str
+        Column of `observations` with the time of each observation, of a
+        datetime dtype. Its month is taken on its own calendar, also with a
+        time zone.
+    windows : sequence, default ("6M", "12M")
+        Windows of months before the month of the observation time:
+        ``"6M"`` is the six months before it. A pair such as
+        ``("12M", "6M")`` is the earlier period from twelve to six months
+        before it, and is one window only as an item of the list, as in
+        ``windows=[("12M", "6M")]``. Windows of days are not allowed,
+        because the statuses are monthly.
+    bad : str or int, default "30-59"
+        The first bad status, one of the categories of `status`. It and
+        every later category are bad, the earlier ones good. The default is
+        30 days past due in the buckets of `kivi.vintage.delinquency_panel`.
+    prefix : str, default ""
+        Text put in front of every column name, as given, such as
+        ``"card_"`` for the panel of credit cards.
+
+    Returns
+    -------
+    pandas.DataFrame
+        One row per row of `observations`, on its index and in its order.
+        For each window in turn, the columns ``{prefix}months_{window}``,
+        the number of months of the window with a status,
+        ``{prefix}bad_months_{window}``, the number of bad months,
+        ``{prefix}longest_bad_run_{window}`` and
+        ``{prefix}longest_good_run_{window}``, the longest runs of
+        consecutive bad and good months, and ``{prefix}worst_status_{window}``,
+        the worst status. Then ``{prefix}months_since_bad``, the months from
+        the latest bad month before the month of the observation time to
+        that month, whatever the windows. The counts are integers, the worst
+        status has the dtype of `status` and is missing for a window without
+        months, and ``months_since_bad`` is a float, NaN for an entity that
+        was never bad before. The prefix is kept as given, and the windows
+        are in lower case, as in `window_features`.
+
+    Raises
+    ------
+    ValueError
+        If `panel` or `observations` is not a DataFrame, if `id`, `month`,
+        `status` or `observation_time` is not the name of a single column of
+        its table, if an id, a month or a status is missing, if `month` does
+        not hold monthly periods or datetimes, if `status` is not an ordered
+        categorical or `bad` not one of its categories, if
+        `observation_time` does not hold datetimes, or if the months and the
+        observation times are tz-aware in two different time zones. Also if
+        a window is not a number of months or is repeated, or if `prefix` is
+        not a string.
+
+    See Also
+    --------
+    window_features : The features of event data.
+    FeatureSpec : Keep the definitions and compute them again.
+    kivi.vintage.delinquency_panel : The monthly panel of instalment loans.
+
+    Notes
+    -----
+    The month of an observation time is its calendar month, so an
+    observation on 31 March uses the statuses up to the end of February.
+    Months and observation times are each taken on their own calendar,
+    which is why two time zones raise an error: 1 April in Tokyo is still
+    31 March in New York, before the status at the end of March in New
+    York exists.
+    A window of :math:`k` months holds the :math:`k` months before it, so
+    ``"6M"`` for an observation in March holds September to February.
+
+    Only months with a status count: a window that holds months before the
+    first month of an entity, after its last loan ended or in a gap between
+    its loans has fewer than :math:`k` months, which ``months_{window}``
+    shows. A month without a status ends a run, so a bad month, a missing
+    month and a bad month are two runs of one. A run that started before a
+    window counts only with its months inside the window.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from kivi.features import panel_features
+    >>> buckets = ["current", "1-29", "30-59", "60-89", "90+"]
+    >>> panel = pd.DataFrame({
+    ...     "customer": ["a"] * 6 + ["b"] * 2,
+    ...     "month": pd.PeriodIndex(
+    ...         ["2023-10", "2023-11", "2023-12", "2024-01", "2024-02", "2024-03",
+    ...          "2024-02", "2024-03"], freq="M",
+    ...     ),
+    ...     "status": pd.Categorical(
+    ...         ["current", "1-29", "30-59", "60-89", "current", "current",
+    ...          "current", "30-59"], categories=buckets, ordered=True,
+    ...     ),
+    ... })
+    >>> observations = pd.DataFrame({
+    ...     "customer": ["a", "b", "c"],
+    ...     "date": pd.to_datetime(["2024-03-15", "2024-03-15", "2024-03-15"]),
+    ... })
+    >>> panel_features(
+    ...     panel, observations, id="customer", month="month", status="status",
+    ...     observation_time="date", windows=["3M"],
+    ... ).T
+                             0        1    2
+    months_3m                3        1    0
+    bad_months_3m            2        0    0
+    longest_bad_run_3m       2        0    0
+    longest_good_run_3m      1        1    0
+    worst_status_3m      60-89  current  NaN
+    months_since_bad       2.0      NaN  NaN
+
+    The three months before March are December to February. Customer ``b``
+    falls 30 days behind in March, the month of the observation, which is
+    not used.
+    """
+    group = _checked_panel_group(
+        table=_DEFAULT_PANEL_TABLE,
+        month=month,
+        status=status,
+        windows=windows,
+        bad=bad,
+        prefix=prefix,
+        arguments={name: name for name in _PANEL_KEYS},
+    )
+    features = _panel_features(group)
+    _check_unique(features, [], "the result", "remove the repeated window")
+    observed = _observed(observations, id, observation_time)
+    columns = _panel_values(group, panel, "panel", id, observed, "bad")
+    return _frame(columns, [], observed.labels)
+
+
 @dataclasses.dataclass(frozen=True, eq=False, repr=False)
 class FeatureSpec:
     """Definitions of time-window features, to compute them the same way again.
 
     A specification records the columns that identify the entities and the
-    observation times, and one or more groups of window features. A group
-    holds the arguments of one call of `window_features`: the event table
-    it reads, its time column, its windows, its aggregations, the side on
-    which its windows are closed and the prefix of its column names. Groups
-    that read filtered events, such as only the cash withdrawals, use their
-    own table and prefix. `compute` gives the features of any sample, and
+    observation times, and groups of window features and of panel
+    features. A group of window features holds the arguments of one call of
+    `window_features`: the event table it reads, its time column, its
+    windows, its aggregations, the side on which its windows are closed and
+    the prefix of its column names. Groups that read filtered events, such
+    as only the cash withdrawals, use their own table and prefix. A group
+    of panel features holds the arguments of one call of `panel_features`
+    in the same way. `compute` gives the features of any sample, and
     `to_json` and `from_json` save and load the definitions. Nothing is
     fitted to data, so a specification can be written by hand.
 
@@ -352,19 +549,22 @@ class FeatureSpec:
         entity; all groups share it.
     observation_time : str
         Column of the observations with the observation times.
-    events : sequence of dict
-        One dict per group, with the keys ``time`` (required),
-        ``windows``, ``aggregations``, ``closed`` and ``prefix``, which mean
-        and default to what the arguments of `window_features` do, and
-        ``table``, the name of the event table that the group reads,
-        ``"events"`` by default.
+    events : sequence of dict, default ()
+        One dict per group of window features, with the keys ``time``
+        (required), ``windows``, ``aggregations``, ``closed`` and
+        ``prefix``, which mean and default to what the arguments of
+        `window_features` do, and ``table``, the name of the event table
+        that the group reads, ``"events"`` by default.
     ratios : sequence of pairs of str, default ()
         Ratios of two features of any groups, named by their columns, as in
         `window_features`.
-    panel : None, default None
-        Reserved for the features of monthly status panels, which
-        ``panel_features`` adds before kivi 1.3.0 is released, completing
-        version 1 of the JSON format; until then it must be None.
+    panel : sequence of dict, default ()
+        One dict per group of panel features, with the keys ``month`` and
+        ``status`` (both required), ``windows``, ``bad`` and ``prefix``,
+        which mean and default to what the arguments of `panel_features`
+        do, and ``table``, the name of the panel that the group reads,
+        ``"panel"`` by default. The specification needs at least one
+        group of either kind.
     kivi_version : str, optional
         Version of kivi that wrote the specification. By default, or if
         None, the installed version.
@@ -378,15 +578,17 @@ class FeatureSpec:
     Raises
     ------
     ValueError
-        If `id` or `observation_time` is not a string, if `events` is not a
-        non-empty list of dicts with valid entries, if two features of the
-        groups have one name, if a ratio is invalid, if `panel` is not None
-        or if `kivi_version` is not a string. The checks of each entry are
-        those of the arguments of `window_features`.
+        If `id` or `observation_time` is not a string, if `events` or
+        `panel` is not a list of dicts with valid entries or both are empty,
+        if two features of the groups have one name, if a ratio is invalid
+        or divides a status, or if `kivi_version` is not a string. The
+        checks of each entry are those of the arguments of
+        `window_features` and `panel_features`.
 
     See Also
     --------
-    window_features : Compute the features of one group directly.
+    window_features : Compute the features of one group of events directly.
+    panel_features : Compute the features of one group of a panel directly.
     kivi.spec.BinningSpec : The binning of the features, saved the same way.
 
     Notes
@@ -424,9 +626,9 @@ class FeatureSpec:
 
     id: str
     observation_time: str
-    events: abc.Sequence[abc.Mapping[str, typing.Any]]
+    events: abc.Sequence[abc.Mapping[str, typing.Any]] = ()
     ratios: abc.Sequence[tuple[str, str]] = ()
-    panel: None = None
+    panel: abc.Sequence[abc.Mapping[str, typing.Any]] = ()
     kivi_version: str | None = None
     FORMAT_VERSION: typing.ClassVar[int] = _FORMAT_VERSION
 
@@ -435,25 +637,35 @@ class FeatureSpec:
         for argument in ("id", "observation_time"):
             _check_name(getattr(self, argument), argument)
         entries = self.events
-        if not isinstance(entries, (list, tuple)) or not entries:
+        if not isinstance(entries, (list, tuple)):
             raise ValueError(
-                "events must be a non-empty list of dicts, one per group of features, got "
+                "events must be a list of dicts, one per group of window features, got "
                 f"{_validation.shown_argument(entries)}"
             )
+        panels = self.panel
+        if not isinstance(panels, (list, tuple)):
+            raise ValueError(
+                "panel must be a list of dicts, one per group of panel features, got "
+                f"{_validation.shown_argument(panels)}"
+            )
+        if not entries and not panels:
+            raise ValueError(
+                "a feature specification needs a group of window features in events or of "
+                "panel features in panel, got neither"
+            )
         groups = tuple(_entry_group(entry, number) for number, entry in enumerate(entries))
+        panel_groups = tuple(
+            _entry_panel_group(entry, number) for number, entry in enumerate(panels)
+        )
         features = [feature for group in groups for feature in _features(group)]
+        features += [feature for group in panel_groups for feature in _panel_features(group)]
         ratios = _checked_ratios(self.ratios, features, "ratios")
         _check_unique(
             features,
             ratios,
-            "the groups of events",
+            "the groups",
             "give the groups different prefixes or remove the repeated ratio",
         )
-        if self.panel is not None:
-            raise ValueError(
-                f"panel must be None, got {_validation.shown_argument(self.panel)}; panel "
-                "features are not available yet"
-            )
         version = kivi.__version__ if self.kivi_version is None else self.kivi_version
         if not isinstance(version, str):
             raise ValueError(
@@ -463,10 +675,14 @@ class FeatureSpec:
         object.__setattr__(self, "observation_time", str(self.observation_time))
         object.__setattr__(self, "events", tuple(_frozen_group(group) for group in groups))
         object.__setattr__(
+            self, "panel", tuple(_frozen_panel_group(group) for group in panel_groups)
+        )
+        object.__setattr__(
             self, "ratios", tuple((ratio.numerator, ratio.denominator) for ratio in ratios)
         )
         object.__setattr__(self, "kivi_version", version)
         object.__setattr__(self, "_groups", groups)
+        object.__setattr__(self, "_panel_groups", panel_groups)
         object.__setattr__(self, "_ratios", ratios)
         object.__setattr__(self, "_features", features)
 
@@ -496,9 +712,9 @@ class FeatureSpec:
     def columns(self) -> pd.Index:
         """Names of the columns that `compute` returns, in their order.
 
-        The features of each group come in the order of the groups, and the
-        ratios last, so the names can select or check the columns of a
-        result before any data is read.
+        The window features of each group come in the order of the groups,
+        then the panel features, and the ratios last, so the names can select
+        or check the columns of a result before any data is read.
 
         See Also
         --------
@@ -527,23 +743,31 @@ class FeatureSpec:
         self,
         observations: pd.DataFrame,
         *,
-        events: pd.DataFrame | abc.Mapping[str, pd.DataFrame],
+        events: pd.DataFrame | abc.Mapping[str, pd.DataFrame] | None = None,
+        panel: pd.DataFrame | abc.Mapping[str, pd.DataFrame] | None = None,
     ) -> pd.DataFrame:
         """Compute the features of every observation.
 
-        Each group gives the columns that `window_features` gives for its
-        definitions and its event table, without ratios, and the ratios of
-        the specification follow.
+        Each group of window features gives the columns that
+        `window_features` gives for its definitions and its event table,
+        without ratios, and each group of panel features the columns that
+        `panel_features` gives for its definitions and its panel. The ratios
+        of the specification follow.
 
         Parameters
         ----------
         observations : pandas.DataFrame
             One row per entity and observation time, with the columns `id`
             and `observation_time` of the specification.
-        events : pandas.DataFrame or dict of pandas.DataFrame
+        events : pandas.DataFrame or dict of pandas.DataFrame, optional
             The event table, or a dict from the ``table`` name of every
-            group to its event table. A single table is allowed when all
-            groups read the same table.
+            group of window features to its event table. A single table is
+            allowed when all these groups read the same table. Required when
+            the specification has groups of window features, and otherwise
+            None.
+        panel : pandas.DataFrame or dict of pandas.DataFrame, optional
+            The monthly panel, or a dict from the ``table`` name of every
+            group of panel features to its panel, in the same way.
 
         Returns
         -------
@@ -554,13 +778,15 @@ class FeatureSpec:
         Raises
         ------
         ValueError
-            If `events` is neither a DataFrame nor a dict of DataFrames with
-            one entry per table of the groups, or for the reasons that
-            `window_features` gives.
+            If `events` or `panel` is neither a DataFrame nor a dict of
+            DataFrames with one entry per table of the groups, or is given
+            without groups to read it, or for the reasons that
+            `window_features` and `panel_features` give.
 
         See Also
         --------
-        window_features : The features of one group.
+        window_features : The features of one group of events.
+        panel_features : The features of one group of a panel.
         columns : The names of the columns.
 
         Examples
@@ -594,12 +820,21 @@ class FeatureSpec:
         cash_amount_sum_3m_over_amount_sum_3m 0.3
         """
         groups: tuple[_Group, ...] = self.__dict__["_groups"]
-        tables = _tables(events, list(dict.fromkeys(group.table for group in groups)))
+        panel_groups: tuple[_PanelGroup, ...] = self.__dict__["_panel_groups"]
+        tables = _tables(events, list(dict.fromkeys(group.table for group in groups)), "events")
+        panels = _tables(panel, list(dict.fromkeys(group.table for group in panel_groups)), "panel")
         observed = _observed(observations, self.id, self.observation_time)
-        columns: dict[str, npt.NDArray[typing.Any]] = {}
+        columns: dict[str, typing.Any] = {}
         for group in groups:
             table, where = tables[group.table]
             columns.update(_group_values(group, table, where, self.id, observed))
+        for number, panel_group in enumerate(panel_groups):
+            table, where = panels[panel_group.table]
+            columns.update(
+                _panel_values(
+                    panel_group, table, where, self.id, observed, f"bad of panel[{number}]"
+                )
+            )
         return _frame(columns, self.__dict__["_ratios"], observed.labels)
 
     def to_dict(self) -> dict[str, typing.Any]:
@@ -607,7 +842,7 @@ class FeatureSpec:
 
         The dict holds the arguments of the constructor as the constructor
         takes them, with lists for tuples, so they rebuild the specification.
-        It holds only dicts, lists, strings and None, so ``json.dumps`` can
+        It holds only dicts, lists, strings and integers, so ``json.dumps`` can
         write it without further conversion, and its keys are always in the
         same order. `to_json` writes this dict.
 
@@ -619,7 +854,9 @@ class FeatureSpec:
             ``ratios`` and ``panel``. Each group of ``events`` has all its
             keys: ``table``, ``time``, ``windows``, ``aggregations``, a dict
             from each column to the list of its aggregations in the order of
-            the columns of the result, ``closed`` and ``prefix``.
+            the columns of the result, ``closed`` and ``prefix``. Each group
+            of ``panel`` has the keys ``table``, ``month``, ``status``,
+            ``windows``, ``bad`` and ``prefix``.
 
         See Also
         --------
@@ -651,12 +888,7 @@ class FeatureSpec:
                 {
                     "table": group.table,
                     "time": group.time,
-                    "windows": [
-                        list(window.definition)
-                        if isinstance(window.definition, tuple)
-                        else window.definition
-                        for window in group.windows
-                    ],
+                    "windows": [_window_json(window) for window in group.windows],
                     "aggregations": {
                         column: list(names) for column, names in group.aggregations.items()
                     },
@@ -672,7 +904,17 @@ class FeatureSpec:
             "observation_time": self.observation_time,
             "events": groups,
             "ratios": [list(pair) for pair in self.ratios],
-            "panel": None,
+            "panel": [
+                {
+                    "table": group.table,
+                    "month": group.month,
+                    "status": group.status,
+                    "windows": [_window_json(window) for window in group.windows],
+                    "bad": group.bad,
+                    "prefix": group.prefix,
+                }
+                for group in self.__dict__["_panel_groups"]
+            ],
         }
 
     @classmethod
@@ -739,7 +981,7 @@ class FeatureSpec:
             )
         entries = data["events"]
         if not isinstance(entries, list):
-            raise ValueError(f"events must be a list, got {type(entries).__name__}")
+            raise ValueError(f"events must be a list of groups, got {_json_kind(entries)}")
         groups = []
         for number, entry in enumerate(entries):
             where = f"events[{number}]"
@@ -747,12 +989,20 @@ class FeatureSpec:
                 raise ValueError(f"{where} must be a mapping, got {type(entry).__name__}")
             _check_keys(entry, set(_GROUP_KEYS), where)
             groups.append(entry)
+        panels = data["panel"]
+        if not isinstance(panels, list):
+            raise ValueError(f"panel must be a list of groups, got {_json_kind(panels)}")
+        for number, entry in enumerate(panels):
+            where = f"panel[{number}]"
+            if not isinstance(entry, abc.Mapping):
+                raise ValueError(f"{where} must be a mapping, got {type(entry).__name__}")
+            _check_keys(entry, set(_PANEL_KEYS), where)
         return cls(
             id=data["id"],
             observation_time=data["observation_time"],
             events=groups,
             ratios=data["ratios"],
-            panel=data["panel"],
+            panel=panels,
             kivi_version=data["kivi_version"],
         )
 
@@ -813,7 +1063,7 @@ class FeatureSpec:
             }
           ],
           "ratios": [],
-          "panel": null
+          "panel": []
         }
 
         Write the text to a file with
@@ -943,12 +1193,20 @@ def _frozen_group(group: _Group) -> types.MappingProxyType[str, typing.Any]:
     )
 
 
+def _window_json(window: _Window) -> str | list[str]:
+    """Return the definition of a window as JSON writes it, a pair as a list."""
+    definition = window.definition
+    return list(definition) if isinstance(definition, tuple) else definition
+
+
 def _check_name(value: object, argument: str) -> None:
     if not isinstance(value, str):
         raise ValueError(f"{argument} must be a string, got {_validation.shown_argument(value)}")
 
 
-def _checked_windows(windows: object, argument: str) -> tuple[_Window, ...]:
+def _checked_windows(
+    windows: object, argument: str, *, months_only: bool = False
+) -> tuple[_Window, ...]:
     if not isinstance(windows, (list, tuple)):
         hint = f"; pass [{windows!r}] for one window" if isinstance(windows, str) else ""
         raise ValueError(
@@ -957,7 +1215,7 @@ def _checked_windows(windows: object, argument: str) -> tuple[_Window, ...]:
         )
     if not windows:
         raise ValueError(f"{argument} must have at least one window")
-    checked = [_checked_window(window, argument) for window in windows]
+    checked = [_checked_window(window, argument, months_only) for window in windows]
     labels = [window.label for window in checked]
     for window in checked:
         if labels.count(window.label) > 1:
@@ -967,16 +1225,17 @@ def _checked_windows(windows: object, argument: str) -> tuple[_Window, ...]:
     return tuple(checked)
 
 
-def _checked_window(window: object, argument: str) -> _Window:
+def _checked_window(window: object, argument: str, months_only: bool) -> _Window:
     if isinstance(window, str):
-        start = _bound(window, argument)
+        start = _bound(window, argument, months_only)
         return _Window(str(window), _bound_label(start), start, None)
     if (
         isinstance(window, (list, tuple))
         and len(window) == 2
         and all(isinstance(bound, str) for bound in window)
     ):
-        start, end = _bound(window[0], argument), _bound(window[1], argument)
+        start = _bound(window[0], argument, months_only)
+        end = _bound(window[1], argument, months_only)
         if start[1] != end[1] or start[0] <= end[0]:
             raise ValueError(
                 f"a pair of {argument} must reach further back with its first bound, in the "
@@ -991,8 +1250,13 @@ def _checked_window(window: object, argument: str) -> _Window:
     )
 
 
-def _bound(text: str, argument: str) -> tuple[int, str]:
+def _bound(text: str, argument: str, months_only: bool) -> tuple[int, str]:
     match = _BOUND.fullmatch(text)
+    if months_only and (match is None or match[2] != "M"):
+        raise ValueError(
+            f"{argument} must count months for a panel of monthly statuses, such as '6M', got "
+            f"{_validation.shown(text)}"
+        )
     if match is None:
         raise ValueError(
             f"{argument} must count months or days such as '3M' or '90D', got "
@@ -1089,7 +1353,13 @@ def _checked_ratios(ratios: object, features: list[_Feature], argument: str) -> 
                 f"{_validation.shown_argument(tuple(pair))}"
             )
         top, bottom = known[numerator], known[denominator]
-        if top.stem == bottom.stem:
+        for feature in (top, bottom):
+            if not feature.numeric:
+                raise ValueError(
+                    f"{argument} must divide numeric features, got "
+                    f"{_validation.shown(feature.name)}, a status"
+                )
+        if top.stem == bottom.stem and bottom.window is not None:
             name = f"{numerator}_over_{bottom.window.label}"
         else:
             name = f"{numerator}_over_{denominator}"
@@ -1120,6 +1390,15 @@ def _check_keys(data: abc.Mapping[str, typing.Any], expected: set[str], where: s
         raise ValueError(f"{where} " + " and ".join(problems))
 
 
+def _json_kind(value: object) -> str:
+    """Name the kind of a JSON value for a message; write [] for an empty list."""
+    if value is None:
+        return "null; write [] for no groups"
+    if isinstance(value, dict):
+        return "an object"
+    return "a string" if isinstance(value, str) else type(value).__name__
+
+
 def _unique_keys(pairs: list[tuple[str, typing.Any]]) -> dict[str, typing.Any]:
     """Return the pairs of a JSON object as a dict, rejecting a repeated key."""
     result: dict[str, typing.Any] = {}
@@ -1132,30 +1411,45 @@ def _unique_keys(pairs: list[tuple[str, typing.Any]]) -> dict[str, typing.Any]:
     return result
 
 
-def _tables(events: object, names: list[str]) -> dict[str, tuple[pd.DataFrame, str]]:
-    """Map the table name of each group to its event table and its name in messages."""
-    if isinstance(events, pd.DataFrame):
+def _tables(tables: object, names: list[str], argument: str) -> dict[str, tuple[pd.DataFrame, str]]:
+    """Map the table name of each group to its table and its name in messages.
+
+    ``argument`` is ``"events"`` or ``"panel"``, the argument of `FeatureSpec.compute`
+    that passed the tables. Without groups, the argument must be None.
+    """
+    kind = "window features" if argument == "events" else "panel features"
+    if not names:
+        if tables is not None:
+            raise ValueError(
+                f"{argument} must be None, because the specification has no groups of {kind}, "
+                f"got {type(tables).__name__}"
+            )
+        return {}
+    if tables is None:
+        raise ValueError(f"{argument} is required, because the specification has groups of {kind}")
+    if isinstance(tables, pd.DataFrame):
         if len(names) > 1:
             raise ValueError(
-                "events must be a dict from table names to DataFrames, because the groups read "
-                f"the tables {_validation.shown_list(names)}"
+                f"{argument} must be a dict from table names to DataFrames, because the groups "
+                f"read the tables {_validation.shown_list(names)}"
             )
-        return {names[0]: (events, "events")}
-    if not isinstance(events, abc.Mapping):
+        return {names[0]: (tables, argument)}
+    if not isinstance(tables, abc.Mapping):
         raise ValueError(
-            f"events must be a DataFrame or a dict of DataFrames, got {type(events).__name__}"
+            f"{argument} must be a DataFrame or a dict of DataFrames, got {type(tables).__name__}"
         )
-    missing = [name for name in names if name not in events]
+    missing = [name for name in names if name not in tables]
     if missing:
         raise ValueError(
-            f"events must have a table for every group, but lacks {_validation.shown(missing[0])}"
+            f"{argument} must have a table for every group, but lacks "
+            f"{_validation.shown(missing[0])}"
         )
-    unknown = [name for name in events if name not in names]
+    unknown = [name for name in tables if name not in names]
     if unknown:
         raise ValueError(
-            f"events has tables that no group reads: {_validation.shown_list(unknown)}"
+            f"{argument} has tables that no group reads: {_validation.shown_list(unknown)}"
         )
-    return {name: (events[name], f"events[{name!r}]") for name in names}
+    return {name: (tables[name], f"{argument}[{name!r}]") for name in names}
 
 
 def _column(frame: pd.DataFrame, name: str, argument: str, where: str) -> pd.Series:
@@ -1527,3 +1821,251 @@ def _frame(
             top, bottom, out=np.full(len(top), np.nan), where=(bottom != 0) & ~np.isnan(bottom)
         )
     return pd.DataFrame(data, index=index)
+
+
+def _checked_panel_group(
+    *,
+    table: object,
+    month: object,
+    status: object,
+    windows: object,
+    bad: object,
+    prefix: object,
+    arguments: abc.Mapping[str, str],
+) -> _PanelGroup:
+    """Check the definitions of one group of panel features."""
+    for key, value in (("table", table), ("month", month), ("status", status)):
+        _check_name(value, arguments[key])
+    if isinstance(bad, (bool, np.bool_)) or not (
+        isinstance(bad, str) or _validation.is_integral(bad)
+    ):
+        raise ValueError(
+            f"{arguments['bad']} must be a status, a string or an integer, got "
+            f"{_validation.shown_argument(bad)}"
+        )
+    if not isinstance(prefix, str):
+        raise ValueError(
+            f"{arguments['prefix']} must be a string, got {_validation.shown_argument(prefix)}"
+        )
+    checked = _checked_windows(windows, arguments["windows"], months_only=True)
+    return _PanelGroup(
+        table=str(table),
+        month=str(month),
+        status=str(status),
+        windows=checked,
+        bad=str(bad) if isinstance(bad, str) else int(bad),
+        prefix=str(prefix),
+    )
+
+
+def _entry_panel_group(entry: object, number: int) -> _PanelGroup:
+    """Check one entry of `FeatureSpec.panel`."""
+    where = f"panel[{number}]"
+    if not isinstance(entry, abc.Mapping):
+        raise ValueError(f"{where} must be a dict, got {_validation.shown_argument(entry)}")
+    unknown = [key for key in entry if key not in _PANEL_KEYS]
+    if unknown:
+        raise ValueError(
+            f"{where} has unknown keys {_validation.shown_list(unknown)}; the keys are "
+            f"{_validation.shown_list(_PANEL_KEYS)}"
+        )
+    for key in ("month", "status"):
+        if key not in entry:
+            raise ValueError(f"{where} lacks {key!r}, the column with the {key} of each row")
+    return _checked_panel_group(
+        table=entry.get("table", _DEFAULT_PANEL_TABLE),
+        month=entry["month"],
+        status=entry["status"],
+        windows=entry.get("windows", _DEFAULT_PANEL_WINDOWS),
+        bad=entry.get("bad", _DEFAULT_BAD),
+        prefix=entry.get("prefix", ""),
+        arguments={key: f"{key} of {where}" for key in _PANEL_KEYS},
+    )
+
+
+def _frozen_panel_group(group: _PanelGroup) -> types.MappingProxyType[str, typing.Any]:
+    """Return a group as the read-only mapping that `FeatureSpec.panel` holds."""
+    return types.MappingProxyType(
+        {
+            "table": group.table,
+            "month": group.month,
+            "status": group.status,
+            "windows": tuple(window.definition for window in group.windows),
+            "bad": group.bad,
+            "prefix": group.prefix,
+        }
+    )
+
+
+def _panel_features(group: _PanelGroup) -> list[_Feature]:
+    """Return the columns of a group of panel features, window by window."""
+    features = []
+    for window in group.windows:
+        for name in ("months", "bad_months", "longest_bad_run", "longest_good_run"):
+            stem = f"{group.prefix}{name}"
+            features.append(_Feature(f"{stem}_{window.label}", stem, window, None, name))
+        stem = f"{group.prefix}worst_status"
+        features.append(
+            _Feature(f"{stem}_{window.label}", stem, window, None, "worst_status", False)
+        )
+    stem = f"{group.prefix}months_since_bad"
+    features.append(_Feature(stem, stem, None, None, "months_since_bad"))
+    return features
+
+
+def _month_numbers(values: pd.Series) -> npt.NDArray[np.int64]:
+    """Return the months since January 1970 of monthly periods or tz-naive datetimes."""
+    years = values.dt.year.to_numpy(dtype=np.int64)
+    return years * 12 + values.dt.month.to_numpy(dtype=np.int64) - 1 - 1970 * 12
+
+
+def _months(values: pd.Series, where: str, zone: object) -> npt.NDArray[np.int64]:
+    """Return the months of a month column of monthly periods or datetimes.
+
+    ``zone`` is the time zone of the observation times. Tz-aware datetimes
+    are taken on their own calendar, which must then be that of the
+    observations if they have one.
+    """
+    dtype = values.dtype
+    monthly = isinstance(dtype, pd.PeriodDtype) and dtype == pd.PeriodDtype("M")
+    if not (monthly or pd.api.types.is_datetime64_any_dtype(dtype)):
+        raise ValueError(
+            f"month column {_validation.shown(values.name)} of {where} must hold monthly "
+            f"periods or datetimes, got dtype {dtype}"
+        )
+    _check_complete(values, "month", where)
+    own = getattr(dtype, "tz", None)
+    if own is not None:
+        if zone is not None and _zone_name(own) != _zone_name(zone):
+            raise ValueError(
+                f"the months of {where} and the times of observations must share one time zone "
+                f"when both have one, got {_zone_name(own)} and {_zone_name(zone)}"
+            )
+        values = values.dt.tz_localize(None)
+    return _month_numbers(values)
+
+
+def _statuses(
+    values: pd.Series, bad: str | int, where: str, argument: str
+) -> tuple[npt.NDArray[np.int64], int]:
+    """Return the codes of an ordered categorical status column and the code of `bad`."""
+    dtype = values.dtype
+    if not (isinstance(dtype, pd.CategoricalDtype) and dtype.ordered):
+        got = (
+            "an unordered categorical"
+            if isinstance(dtype, pd.CategoricalDtype)
+            else f"dtype {dtype}"
+        )
+        raise ValueError(
+            f"status column {_validation.shown(values.name)} of {where} must be an ordered "
+            f"categorical, from the best status to the worst, got {got}; convert it with "
+            "pandas.Categorical(values, categories=[...], ordered=True)"
+        )
+    _check_complete(values, "status", where)
+    try:
+        position = list(dtype.categories).index(bad)
+    except ValueError:
+        raise ValueError(
+            f"{argument} must be one of the categories of status column "
+            f"{_validation.shown(values.name)} of {where}, got {_validation.shown(bad)}; the "
+            f"categories are {_validation.shown_list(dtype.categories)}"
+        ) from None
+    return np.asarray(values.cat.codes, dtype=np.int64), position
+
+
+def _runs(flags: npt.NDArray[np.bool_], following: npt.NDArray[np.bool_]) -> npt.NDArray[np.int64]:
+    """Return the length of the run of flagged rows that ends at each row, 0 where unflagged.
+
+    ``following`` marks the rows that continue the row before them: the
+    same entity and the next month. Any other row starts a new run.
+    """
+    index = np.arange(len(flags))
+    previous = np.zeros(len(flags), dtype=bool)
+    previous[1:] = flags[:-1]
+    starts = flags & ~(following & previous)
+    last_start = np.maximum.accumulate(np.where(starts, index, 0))
+    return np.where(flags, index - last_start + 1, 0).astype(np.int64)
+
+
+def _panel_values(
+    group: _PanelGroup, panel: object, where: str, id: str, observed: _Observed, bad: str
+) -> dict[str, typing.Any]:
+    """Return the columns of one group of panel features for every observation, by name.
+
+    ``bad`` names the argument that gave the first bad status, for messages.
+    """
+    _check_frame(panel, where)
+    frame = typing.cast(pd.DataFrame, panel)
+    ids = _column(frame, id, "id", where)
+    _check_complete(ids, "id", where)
+    months = _months(_column(frame, group.month, "month", where), where, observed.zone)
+    statuses = _column(frame, group.status, "status", where)
+    codes, bad_code = _statuses(statuses, group.bad, where, bad)
+
+    entities, uniques = pd.factorize(ids)
+    targets = pd.Index(uniques).get_indexer(observed.ids).astype(np.int64)
+    order = np.lexsort((months, entities))
+    entities, months, codes = entities[order].astype(np.int64), months[order], codes[order]
+    if len(order):
+        # The worst status of each entity in each month, over its loans.
+        new = np.ones(len(order), dtype=bool)
+        new[1:] = (entities[1:] != entities[:-1]) | (months[1:] != months[:-1])
+        heads = np.flatnonzero(new)
+        codes = np.maximum.reduceat(codes, heads)
+        entities, months = entities[heads], months[heads]
+    flags = codes >= bad_code
+    following = np.zeros(len(months), dtype=bool)
+    following[1:] = (entities[1:] == entities[:-1]) & (months[1:] == months[:-1] + 1)
+    bad_runs, good_runs = _runs(flags, following), _runs(~flags, following)
+    bad_counts = np.concatenate(([0], np.cumsum(flags, dtype=np.int64)))
+
+    observation_months = _month_numbers(observed.local)
+    distinct = np.unique(months)
+    width = len(distinct) + 1
+    keys = entities * width + np.searchsorted(distinct, months)
+
+    def position(back: int) -> npt.NDArray[np.intp]:
+        """Return the first row of each observation's entity in or after a month."""
+        rank = np.searchsorted(distinct, observation_months - back)
+        return np.where(targets >= 0, np.searchsorted(keys, targets * width + rank), 0)
+
+    result: dict[str, typing.Any] = {}
+    prefix = group.prefix
+    for window in group.windows:
+        start = position(window.start[0])
+        end = position(0 if window.end is None else window.end[0])
+        label = window.label
+        result[f"{prefix}months_{label}"] = (end - start).astype(np.int64)
+        result[f"{prefix}bad_months_{label}"] = bad_counts[end] - bad_counts[start]
+        longest_bad = np.zeros(len(start), dtype=np.int64)
+        longest_good = np.zeros(len(start), dtype=np.int64)
+        worst = np.full(len(start), -1, dtype=np.int64)
+        for chunk in _chunks(end - start):
+            rows, heads, filled, lengths = _expansion(start[chunk], end[chunk])
+            if not len(heads):
+                continue
+            # A run that began before the window counts with its months inside the window.
+            inside = rows - np.repeat(start[chunk][filled], lengths) + 1
+            longest_bad[chunk][filled] = np.maximum.reduceat(
+                np.minimum(bad_runs[rows], inside), heads
+            )
+            longest_good[chunk][filled] = np.maximum.reduceat(
+                np.minimum(good_runs[rows], inside), heads
+            )
+            worst[chunk][filled] = np.maximum.reduceat(codes[rows], heads)
+        result[f"{prefix}longest_bad_run_{label}"] = longest_bad
+        result[f"{prefix}longest_good_run_{label}"] = longest_good
+        result[f"{prefix}worst_status_{label}"] = pd.Categorical.from_codes(
+            worst, dtype=typing.cast(pd.CategoricalDtype, statuses.dtype)
+        )
+    # The latest bad month before the month of each observation, over the whole history.
+    since = np.full(len(targets), np.nan)
+    if len(flags):
+        latest = np.maximum.accumulate(np.where(flags, np.arange(len(flags)), -1))
+        last = position(0) - 1
+        row = latest[np.maximum(last, 0)]
+        known = (targets >= 0) & (last >= 0) & (row >= 0)
+        known &= entities[np.maximum(row, 0)] == targets
+        since[known] = observation_months[known] - months[row[known]]
+    result[f"{prefix}months_since_bad"] = since
+    return {feature.name: result[feature.name] for feature in _panel_features(group)}

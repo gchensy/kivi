@@ -1,7 +1,7 @@
 Time-window features
 ====================
 
-Most behavioural variables of a scorecard summarize a history of events: the number of transactions in the last three months, the largest withdrawal in a year, the days since the last payment. Each is computed for an entity, such as a customer, at an observation time, such as the date of an application, and may only use what was known then. Code that filters and groups the events by hand easily lets a later event slip in, and code written again for production rarely gives the same numbers. :func:`~kivi.features.window_features` computes such variables for many observations at once and never uses an event at or after the observation time, and a :class:`~kivi.features.FeatureSpec` keeps their definitions so that production computes them in the same way.
+Most behavioural variables of a scorecard summarize a history of events: the number of transactions in the last three months, the largest withdrawal in a year, the days since the last payment. Each is computed for an entity, such as a customer, at an observation time, such as the date of an application, and may only use what was known then. Code that filters and groups the events by hand easily lets a later event slip in, and code written again for production rarely gives the same numbers. :func:`~kivi.features.window_features` computes such variables for many observations at once and never uses an event at or after the observation time, :func:`~kivi.features.panel_features` does the same for monthly repayment statuses, such as the months in arrears in the last year, and a :class:`~kivi.features.FeatureSpec` keeps their definitions so that production computes them in the same way.
 
 Window features come first in a project. :doc:`univariate` profiles the features that they give against the target, and :doc:`binning` bins the ones that are kept.
 
@@ -228,6 +228,94 @@ Reading the result
 
 The columns come window by window, then column by column in the order of ``aggregations``, then aggregation by aggregation, and the ratios last. Column names and prefixes keep their case: only kivi's own parts of the names, the aggregations and the windows, are in lower case, so the features of ``Amount`` and ``amount`` stay apart. A NaN means that the window had no value to aggregate, which is information in its own right: profile the features with :func:`~kivi.univariate.profile_table` to see how often they are missing and how well they separate the classes, and bin them with :doc:`binning`, where missing values form their own group.
 
+Repayment behaviour
+-------------------
+
+A monthly panel of repayment statuses, such as the result of :func:`~kivi.vintage.delinquency_panel` or :func:`~kivi.datasets.make_loan_panel`, gives the behaviour of each borrower on its earlier loans. :func:`~kivi.features.panel_features` counts, for each window of months before the month of the observation time, the months with a status, the bad months, the longest runs of consecutive bad and good months and the worst status, and adds the months since the latest bad month. A status is bad from ``bad`` on, ``"30-59"`` by default, in the order of the categories of the status column, which must therefore be an ordered categorical.
+
+Customer ``a`` fell 30 days behind in December and January, and customer ``b`` has two loans in January, one current and one late:
+
+>>> from kivi.features import panel_features
+>>> panel = pd.DataFrame({
+...     "customer": ["a"] * 7 + ["b"] * 7,
+...     "month": pd.PeriodIndex(
+...         ["2023-09", "2023-10", "2023-11", "2023-12", "2024-01", "2024-02", "2024-03"]
+...         + ["2023-10", "2023-11", "2023-12", "2024-01", "2024-01", "2024-02", "2024-03"],
+...         freq="M",
+...     ),
+...     "status": pd.Categorical(
+...         ["current", "current", "1-29", "30-59", "30-59", "current", "current"]
+...         + ["current", "current", "current", "current", "1-29", "60-89", "90+"],
+...         categories=["current", "1-29", "30-59", "60-89", "90+"],
+...         ordered=True,
+...     ),
+... })
+>>> behaviour = panel_features(
+...     panel, applications, id="customer", month="month", status="status",
+...     observation_time="application_date", windows=["3M", "6M"],
+... )
+>>> behaviour.T
+                         0      1    2
+months_3m                3      3    0
+bad_months_3m            2      1    0
+longest_bad_run_3m       2      1    0
+longest_good_run_3m      1      2    0
+worst_status_3m      30-59  60-89  NaN
+months_6m                6      5    0
+bad_months_6m            2      1    0
+longest_bad_run_6m       2      1    0
+longest_good_run_6m      3      4    0
+worst_status_6m      30-59  60-89  NaN
+months_since_bad       2.0    1.0  NaN
+
+The applications are dated 31 March, but the status at the end of March is not known then, so the windows end with February: the three months are December to February and the six months September to February. The 90 days behind of customer ``b`` in March therefore count nowhere. In January customer ``b`` has two loans, and the worse status, ``1-29``, counts for the month. Its six months hold only five months with a status, because its first loan began in October: only months with a status count, so the columns ``months_*`` show how much of a window the panel covers. A month without a status also ends a run, so a bad month, a month without a loan and a bad month are two runs of one month. A run that began before a window counts only with its months inside it, and ``months_since_bad`` looks at all the months before the observation, whatever the windows.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 45 25
+
+   * - Column
+     - Meaning
+     - Type and empty window
+   * - ``{prefix}months_{window}``
+     - Number of months of the window with a status
+     - Integer, 0
+   * - ``{prefix}bad_months_{window}``
+     - Number of bad months
+     - Integer, 0
+   * - ``{prefix}longest_bad_run_{window}``, ``…_longest_good_run_{window}``
+     - Longest runs of consecutive bad and good months
+     - Integer, 0
+   * - ``{prefix}worst_status_{window}``
+     - Worst status of the window
+     - The dtype of the status, missing
+   * - ``{prefix}months_since_bad``
+     - Months from the latest bad month to the month of the observation time
+     - Float, NaN if never bad
+
+The windows count months only, as ``"6M"`` or ``("12M", "6M")``; windows of days raise an error, because the statuses are monthly. The month column may hold monthly periods or datetimes, which stand for their month. Months and observation times are each taken on their own calendar, so tz-aware months and tz-aware observation times must share one time zone: 1 April in Tokyo is still 31 March in New York, before the status at the end of March there exists.
+
+On the simulated book of :func:`~kivi.datasets.make_loan_panel`, the features of every loan in January 2025 summarize its last year:
+
+>>> from kivi.datasets import make_loan_panel
+>>> loans = make_loan_panel(rng=0)
+>>> book = pd.DataFrame({"loan_id": loans["loan_id"].unique(), "date": pd.Timestamp("2025-01-15")})
+>>> year = panel_features(
+...     loans, book, id="loan_id", month="month", status="status", observation_time="date",
+...     windows=["12M"],
+... )
+>>> year["worst_status_12m"].value_counts(sort=False, dropna=False)
+worst_status_12m
+current    1976
+1-29        205
+30-59        48
+60-89        20
+90+          40
+NaN        2711
+Name: count, dtype: int64
+
+The 2,711 loans whose first month on book is in 2025 have no month before January 2025, so their windows are empty and their worst status is missing. Of the others, 108 were 30 days or more behind at some month end of 2024.
+
 Feature specifications
 ----------------------
 
@@ -263,6 +351,31 @@ A :class:`~kivi.features.FeatureSpec` holds the definitions of the features: the
 
 Each group gives the columns that :func:`~kivi.features.window_features` gives for its definitions, so the specification reproduces the calls of development exactly. A specification holds definitions only: nothing in it is fitted to data, so it can be written by hand or read from a configuration file.
 
+Groups of panel features go in ``panel``, each with the keyword arguments of one call of :func:`~kivi.features.panel_features` and the name of its panel in ``table``, ``"panel"`` by default, and :meth:`~kivi.features.FeatureSpec.compute` takes the panels as ``panel``. A specification may hold only panel features, and its ratios may divide window features by panel features. Two groups with different ``bad`` statuses and prefixes give the features of two definitions of default:
+
+>>> both = FeatureSpec(
+...     id="customer",
+...     observation_time="application_date",
+...     events=[{"time": "time", "windows": ["3M"]}],
+...     panel=[
+...         {"month": "month", "status": "status", "windows": ["6M"]},
+...         {"month": "month", "status": "status", "windows": ["6M"], "bad": "90+",
+...          "prefix": "severe_"},
+...     ],
+... )
+>>> list(both.columns)
+['events_3m', 'months_6m', 'bad_months_6m', 'longest_bad_run_6m', 'longest_good_run_6m',
+ 'worst_status_6m', 'months_since_bad', 'severe_months_6m', 'severe_bad_months_6m',
+ 'severe_longest_bad_run_6m', 'severe_longest_good_run_6m', 'severe_worst_status_6m',
+ 'severe_months_since_bad']
+>>> both.compute(applications, events=events, panel=panel)[["bad_months_6m", "severe_bad_months_6m"]]
+   bad_months_6m  severe_bad_months_6m
+0              2                     0
+1              1                     0
+2              0                     0
+
+The window features come first, then the panel features and the ratios last.
+
 :meth:`~kivi.features.FeatureSpec.to_json` writes the specification as JSON text, and :meth:`~kivi.features.FeatureSpec.from_json` reads it back into an equal specification. Two specifications are equal when their JSON text is the same, which includes the version of kivi that wrote them:
 
 >>> loaded = FeatureSpec.from_json(spec.to_json(indent=2))
@@ -292,7 +405,7 @@ The file has the keys below. After ``kivi_version`` they are the arguments of :c
    * - ``ratios``
      - The pairs of column names of the ratios.
    * - ``panel``
-     - ``null``; reserved for the features of monthly status panels, which ``panel_features`` adds before kivi 1.3.0 is released, completing version 1 of the format.
+     - One dict per group of panel features, in order, with ``table``, ``month``, ``status``, ``windows``, ``bad`` and ``prefix``. ``bad`` is written as the string or integer of its category.
 
 Missing values
 --------------
@@ -316,7 +429,8 @@ Limits
 * The windows compare times only. Events that are recorded late, such as transactions booked days after they were made, are known later than their time says; shift their times, or the observation times, before computing the features.
 * kivi has no expressions to filter events and no ranks of an entity within a population; filter with pandas and rank the features afterwards.
 * The features are not weighted: each event counts once.
-* An entity has one id column. To combine several keys, such as a customer and a product, join them into one column first.
+* An entity has one id column, shared by the events and the panels. To combine several keys, such as a customer and a product, join them into one column first.
+* Panel features need monthly statuses. A panel with another frequency, such as weekly snapshots, has to be reduced to month ends first.
 
 Errors and warnings
 -------------------
@@ -338,4 +452,23 @@ A single window is still a list:
 ...     print(error)
 windows must be a list of windows such as '3M', '90D' or ('6M', '3M'), got '3M'; pass ['3M'] for one window
 
-A time column with a time zone and one without, or two time zones, raise an error that names both; convert them to one zone with ``Series.dt.tz_convert`` or remove the zones with ``Series.dt.tz_localize(None)``. The aggregations other than ``count``, ``nunique`` and ``days_since_last`` raise an error for a column of text, and every aggregation of numbers raises one for infinite values.
+A time column with a time zone and one without, or two time zones, raise an error that names both; convert them to one zone with ``Series.dt.tz_convert`` or remove the zones with ``Series.dt.tz_localize(None)``. For a panel, tz-aware months and tz-aware observation times in two time zones raise the same way. The aggregations other than ``count``, ``nunique`` and ``days_since_last`` raise an error for a column of text, and every aggregation of numbers raises one for infinite values.
+
+A status column of strings has no order, so :func:`~kivi.features.panel_features` asks for an ordered categorical, and ``bad`` must be one of its categories:
+
+>>> try:
+...     panel_features(
+...         panel.astype({"status": object}), applications, id="customer", month="month",
+...         status="status", observation_time="application_date",
+...     )
+... except ValueError as error:
+...     print(error)
+status column 'status' of panel must be an ordered categorical, from the best status to the worst, got dtype object; convert it with pandas.Categorical(values, categories=[...], ordered=True)
+>>> try:
+...     panel_features(
+...         panel, applications, id="customer", month="month", status="status",
+...         observation_time="application_date", bad="30+",
+...     )
+... except ValueError as error:
+...     print(error)
+bad must be one of the categories of status column 'status' of panel, got '30+'; the categories are ['current', '1-29', '30-59', '60-89', '90+']

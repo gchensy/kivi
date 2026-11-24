@@ -1,15 +1,17 @@
-"""Tests of kivi.features against a brute-force reference, pandas and saved files.
+"""Tests of kivi.features against brute-force references, pandas and saved files.
 
-The reference computes every window of every observation with plain pandas,
-one observation at a time, from the definitions in the docstring of
-`window_features`. The golden files in ``tests/data`` were written by this
-module run as a script, ``PYTHONPATH=src python tests/test_features.py``,
-with the code that introduced the format of `FeatureSpec` (kivi 1.3.0):
-``feature_spec_1.3.0.json`` with ``to_json(indent=2)`` and
+The references compute every window of every observation with plain pandas
+and Python loops, one observation at a time, from the definitions in the
+docstrings of `window_features` and `panel_features`. The golden files in
+``tests/data`` were written by this module run as a script,
+``PYTHONPATH=src python tests/test_features.py``, with the code that
+completed version 1 of the format of `FeatureSpec` with its panel groups
+(kivi 1.3.0): ``feature_spec_1.3.0.json`` with ``to_json(indent=2)`` and
 ``feature_spec_1.3.0.features.json`` with the features that the loaded
-specification computes on `golden_tables`. Once 1.3.0 is released they must
-not change: later releases read the file and compute the same features from
-it, and a change that breaks that needs a new format version.
+specification computes on `golden_tables`. The format is final from 1.3.0
+on, so the files must not change: later releases read the file and compute
+the same features from it, and a change that breaks that needs a new
+format version.
 """
 
 import copy
@@ -958,7 +960,7 @@ def test_a_specification_normalizes_its_fields_and_is_read_only():
         "closed": "left",
         "prefix": "",
     }
-    assert spec.ratios == () and spec.panel is None and spec.kivi_version == kivi.__version__
+    assert spec.ratios == () and spec.panel == () and spec.kivi_version == kivi.__version__
     with pytest.raises(TypeError):
         group["time"] = "other"  # type: ignore[index]
     with pytest.raises(dataclasses.FrozenInstanceError):
@@ -1037,11 +1039,13 @@ def test_compute_takes_one_table_or_a_dict_of_tables():
         ({"observation_time": None}, "^observation_time must be a string, got None$"),
         (
             {"events": []},
-            r"^events must be a non-empty list of dicts, one per group of features, got \[\]$",
+            "^a feature specification needs a group of window features in events or of panel "
+            "features in panel, got neither$",
         ),
         (
             {"events": {"time": "time"}},
-            r"^events must be a non-empty list of dicts, .*, got \{'time': 'time'\}$",
+            r"^events must be a list of dicts, one per group of window features, got "
+            r"\{'time': 'time'\}$",
         ),
         ({"events": ["time"]}, r"^events\[0\] must be a dict, got 'time'$"),
         (
@@ -1080,8 +1084,8 @@ def test_compute_takes_one_table_or_a_dict_of_tables():
         ),
         (
             {"events": [{"time": "time"}, {"time": "time", "windows": ["1M", "3M"]}]},
-            "^the groups of events would have two columns named 'events_3m'; give the groups "
-            "different prefixes or remove the repeated ratio$",
+            "^the groups would have two columns named 'events_3m'; give the groups different "
+            "prefixes or remove the repeated ratio$",
         ),
         (
             {"ratios": [("events_3m", "x")]},
@@ -1090,8 +1094,8 @@ def test_compute_takes_one_table_or_a_dict_of_tables():
         ),
         (
             {"panel": {"status": "status"}},
-            r"^panel must be None, got \{'status': 'status'\}; panel features are not available "
-            r"yet$",
+            r"^panel must be a list of dicts, one per group of panel features, got "
+            r"\{'status': 'status'\}$",
         ),
         ({"kivi_version": 1.3}, "^kivi_version must be a string, got 1.3$"),
     ],
@@ -1135,10 +1139,14 @@ def damaged(change):
             damaged(lambda d: d.update(groups=[])),
             r"^the specification has unknown keys \['groups'\]$",
         ),
-        (damaged(lambda d: d.update(events={})), "^events must be a list, got dict$"),
+        (
+            damaged(lambda d: d.update(events={})),
+            "^events must be a list of groups, got an object$",
+        ),
         (
             damaged(lambda d: d.update(events=[])),
-            r"^events must be a non-empty list of dicts, .*, got \[\]$",
+            "^a feature specification needs a group of window features in events or of panel "
+            "features in panel, got neither$",
         ),
         (damaged(lambda d: d["events"].append([])), r"^events\[2\] must be a mapping, got list$"),
         (damaged(lambda d: d["events"][0].pop("closed")), r"^events\[0\] lacks \['closed'\]$"),
@@ -1172,7 +1180,16 @@ def damaged(change):
             damaged(lambda d: d.update(ratios=[["events_1m"]])),
             r"^each ratio of ratios must be .*, got \['events_1m'\]$",
         ),
-        (damaged(lambda d: d.update(panel=[])), r"^panel must be None, got \[\]"),
+        (damaged(lambda d: d.update(panel={})), "^panel must be a list of groups, got an object$"),
+        (
+            # The reserved panel of the first version of the format, before panel_features.
+            damaged(lambda d: d.update(panel=None)),
+            r"^panel must be a list of groups, got null; write \[\] for no groups$",
+        ),
+        (
+            damaged(lambda d: d.update(events="none")),
+            "^events must be a list of groups, got a string$",
+        ),
         (
             damaged(lambda d: d.update(kivi_version=None)),
             "^kivi_version must be a string, got None$",
@@ -1230,6 +1247,633 @@ def test_a_missing_kivi_version_is_rejected_even_though_the_constructor_fills_it
         FeatureSpec.from_dict(data)
 
 
+# Panel features
+
+BUCKETS = ["current", "1-29", "30-59", "60-89", "90+"]
+PANEL_KEYS = {"id": "customer", "month": "month", "status": "status", "observation_time": "date"}
+PANEL_WINDOWS = ["1M", "3M", "6M", "12M", ("6M", "3M"), ("12M", "6M")]
+
+
+def month_number(value):
+    """Months since January 1970 of a Period, a Timestamp (on its own calendar) or a date."""
+    return value.year * 12 + value.month - 1 - 1970 * 12
+
+
+def panel_brute_force(
+    panel,
+    observations,
+    *,
+    id,
+    month,
+    status,
+    observation_time,
+    windows=("6M", "12M"),
+    bad="30-59",
+    prefix="",
+):
+    """Compute the panel features of each observation with a loop over months."""
+    categories = list(panel[status].cat.categories)
+    first_bad = categories.index(bad)
+    rows = []
+    for _, observation in observations.iterrows():
+        now = month_number(observation[observation_time])
+        mine = panel[panel[id] == observation[id]]
+        worst = {}
+        for value, code in zip(mine[month], mine[status].cat.codes, strict=True):
+            number = month_number(value)
+            worst[number] = max(worst.get(number, -1), int(code))
+        row = {}
+        for window in windows:
+            outer, inner = (window, None) if isinstance(window, str) else window
+            low, high = now - int(outer[:-1]), now - (0 if inner is None else int(inner[:-1]))
+            name = label(window)
+            inside = [number for number in range(low, high) if number in worst]
+            row[f"{prefix}months_{name}"] = len(inside)
+            row[f"{prefix}bad_months_{name}"] = sum(worst[n] >= first_bad for n in inside)
+            for kind, wanted in (("bad", True), ("good", False)):
+                longest = run = 0
+                for number in range(low, high):
+                    if number in worst and (worst[number] >= first_bad) == wanted:
+                        run += 1
+                        longest = max(longest, run)
+                    else:
+                        run = 0
+                row[f"{prefix}longest_{kind}_run_{name}"] = longest
+            row[f"{prefix}worst_status_{name}"] = (
+                categories[max(worst[n] for n in inside)] if inside else np.nan
+            )
+        bad_months = [
+            number for number, code in worst.items() if number < now and code >= first_bad
+        ]
+        row[f"{prefix}months_since_bad"] = now - max(bad_months) if bad_months else np.nan
+        rows.append(row)
+    names = []
+    for window in windows:
+        for stem in ("months", "bad_months", "longest_bad_run", "longest_good_run", "worst_status"):
+            names.append(f"{prefix}{stem}_{label(window)}")
+    names.append(f"{prefix}months_since_bad")
+    data = {}
+    for name in names:
+        values = [row[name] for row in rows]
+        if "worst_status" in name:
+            data[name] = pd.Categorical(values, dtype=panel[status].dtype)
+        elif name.endswith("months_since_bad"):
+            data[name] = np.array(values, dtype=float)
+        else:
+            data[name] = np.array(values, dtype=np.int64)
+    return pd.DataFrame(data, index=observations.index)
+
+
+def random_panel(seed, *, dates=False, zone=None):
+    """A panel of several loans per customer with gaps, and observations in its months."""
+    rng = np.random.default_rng(seed)
+    rows = []
+    for customer in range(8):
+        # Up to three loans, which often overlap.
+        for _ in range(int(rng.integers(0, 4))):
+            first, length = int(rng.integers(0, 20)), int(rng.integers(1, 24))
+            for offset in range(length):
+                if rng.random() < 0.1:
+                    continue
+                code = int(rng.choice(5, p=[0.5, 0.15, 0.15, 0.1, 0.1]))
+                rows.append((customer, first + offset, BUCKETS[code]))
+    customers, offsets, statuses = zip(*rows, strict=True)
+    months = pd.Series(pd.period_range("2022-01", periods=60, freq="M")).iloc[list(offsets)]
+    month = months.reset_index(drop=True)
+    if dates:
+        # Datetimes stand for their month, whatever the day.
+        month = month.dt.to_timestamp() + pd.to_timedelta(rng.integers(0, 28, len(rows)), unit="D")
+    panel = pd.DataFrame(
+        {
+            "customer": list(customers),
+            "month": month,
+            "status": pd.Categorical(statuses, categories=BUCKETS, ordered=True),
+        }
+    )
+    panel = panel.sample(frac=1, random_state=seed)
+    panel.index = pd.Index(rng.permutation(len(panel)) + 500)
+    # Observation times on the first and last day of months and in between, some in panel months.
+    days = pd.to_timedelta(rng.choice([0, 14, 27], 40), unit="D") + pd.to_timedelta(
+        rng.choice([0, 23], 40), unit="h"
+    )
+    starts = pd.Series(pd.period_range("2022-03", periods=40, freq="M")).sample(
+        40, replace=True, random_state=seed
+    )
+    dates_ = starts.dt.to_timestamp().to_numpy() + days.to_numpy()
+    observations = pd.DataFrame(
+        {"customer": rng.choice([0, 1, 2, 3, 4, 5, 6, 7, 9], 40), "date": dates_}
+    )
+    if zone is not None:
+        observations["date"] = observations["date"].dt.tz_localize(zone)
+    observations = pd.concat([observations, observations.iloc[[0]]])
+    observations.index = pd.Index([f"o{i}" for i in range(len(observations))])
+    return panel, observations
+
+
+def assert_same_panel(result, expected):
+    assert list(result.columns) == list(expected.columns)
+    assert result.index.equals(expected.index)
+    for name in expected:
+        assert result[name].dtype == expected[name].dtype, name
+    pd.testing.assert_frame_equal(result, expected)
+
+
+@pytest.mark.parametrize("seed", [0, 1, 2])
+@pytest.mark.parametrize("bad", ["1-29", "30-59", "90+"])
+@pytest.mark.parametrize("dates,zone", [(False, None), (True, None), (False, "Europe/Berlin")])
+def test_panel_features_match_the_brute_force(seed, bad, dates, zone):
+    panel, observations = random_panel(seed, dates=dates, zone=zone)
+    options = {"windows": PANEL_WINDOWS, "bad": bad, "prefix": "Loan_"}
+    result = features.panel_features(panel, observations, **PANEL_KEYS, **options)
+    assert_same_panel(result, panel_brute_force(panel, observations, **PANEL_KEYS, **options))
+
+
+def test_the_panel_brute_force_sees_the_cases_it_is_meant_to_cover():
+    panel, observations = random_panel(0)
+    numbers = panel["month"].map(month_number)
+    assert panel.assign(number=numbers).duplicated(["customer", "number"]).any()
+    merged = observations.merge(panel, on="customer")
+    same = merged["date"].map(month_number) == merged["month"].map(month_number)
+    assert same.any()
+    result = features.panel_features(panel, observations, **PANEL_KEYS, windows=["1M"])
+    assert (result["months_1m"] == 0).any() and (result["months_1m"] == 1).any()
+    assert result["months_since_bad"].isna().any() and result["months_since_bad"].notna().any()
+
+
+def test_months_at_or_after_the_observation_month_never_count():
+    panel, observations = random_panel(3)
+    observations = observations.drop_duplicates("customer")
+    options = {"windows": PANEL_WINDOWS}
+    before = features.panel_features(panel, observations, **PANEL_KEYS, **options)
+    now = panel["customer"].map(observations.set_index("customer")["date"].map(month_number))
+    later = (panel["month"].map(month_number) >= now).to_numpy()
+    assert later.sum() > 10
+    changed = panel.copy()
+    changed.loc[later, "status"] = "90+"
+    extra = observations.assign(
+        month=observations["date"].dt.to_period("M"),
+        status=pd.Categorical(["90+"] * len(observations), categories=BUCKETS, ordered=True),
+    )[["customer", "month", "status"]]
+    changed = pd.concat([changed, extra], ignore_index=True)
+    after = features.panel_features(changed, observations, **PANEL_KEYS, **options)
+    pd.testing.assert_frame_equal(after, before)
+
+
+def test_a_worked_example_of_a_panel_by_hand():
+    panel = pd.DataFrame(
+        {
+            "customer": ["a"] * 5 + ["b"] * 2,
+            "month": pd.PeriodIndex(
+                ["2024-01", "2024-02", "2024-04", "2024-05", "2024-06", "2024-05", "2024-05"],
+                freq="M",
+            ),
+            # Customer b has two loans in May; the worse status counts.
+            "status": pd.Categorical(
+                ["30-59", "60-89", "30-59", "current", "90+", "current", "1-29"],
+                categories=BUCKETS,
+                ordered=True,
+            ),
+        }
+    )
+    observations = pd.DataFrame(
+        {
+            "customer": ["a", "b"],
+            "date": pd.to_datetime(["2024-06-30 23:59", "2024-06-01"], format="ISO8601"),
+        }
+    )
+    result = features.panel_features(panel, observations, **PANEL_KEYS, windows=["6M"], bad="30-59")
+    # Six months before June are December to May; December and March have no status, and
+    # the missing March ends the bad run of January and February. June is not used.
+    assert result.iloc[0].tolist() == [4, 3, 2, 1, "60-89", 2.0]
+    # Customer b has only May, a month of two loans, and was never bad before June.
+    assert result.iloc[1, :5].tolist() == [1, 0, 0, 1, "1-29"]
+    assert np.isnan(result.iloc[1, 5])
+    assert isinstance(result["worst_status_6m"].dtype, pd.CategoricalDtype)
+    assert result["worst_status_6m"].dtype == panel["status"].dtype
+
+
+def test_panels_of_make_loan_panel_and_delinquency_panel():
+    from kivi.datasets import make_loan_panel
+    from kivi.vintage import delinquency_panel
+
+    loans = make_loan_panel(n_loans=300, n_months=18, rng=4)
+    # Three loans per customer, so that the worst status of a month counts.
+    loans = loans.assign(customer=loans["loan_id"] // 3)
+    rng = np.random.default_rng(4)
+    observations = pd.DataFrame(
+        {
+            "customer": rng.integers(0, 110, 60),
+            "date": pd.Series(loans["month"].sample(60, random_state=4).to_numpy())
+            .dt.to_timestamp()
+            .to_numpy(),
+        }
+    )
+    options = {"windows": ["3M", "12M", ("12M", "3M")], "bad": "1-29"}
+    keys = {**PANEL_KEYS, "id": "customer"}
+    assert_same_panel(
+        features.panel_features(loans, observations, **keys, **options),
+        panel_brute_force(loans, observations, **keys, **options),
+    )
+    schedule = pd.DataFrame(
+        {
+            "loan": ["a"] * 4 + ["b"] * 4,
+            "due": ["2024-01-15", "2024-02-15", "2024-03-15", "2024-04-15"] * 2,
+            "amount": [100.0] * 8,
+        }
+    )
+    payments = pd.DataFrame(
+        {
+            "loan": ["a", "a", "b"],
+            "date": ["2024-01-15", "2024-03-20", "2024-01-10"],
+            "amount": [100.0, 200.0, 100.0],
+        }
+    )
+    panel = delinquency_panel(
+        schedule["loan"],
+        schedule["due"],
+        schedule["amount"],
+        payments["loan"],
+        payments["date"],
+        payments["amount"],
+        end="2024-08",
+    )
+    observations = pd.DataFrame(
+        {
+            "loan_id": ["a", "b", "a"],
+            "date": pd.to_datetime(["2024-05-10", "2024-07-01", "2024-03-01"]),
+        }
+    )
+    keys = {**PANEL_KEYS, "id": "loan_id"}
+    assert_same_panel(
+        features.panel_features(panel, observations, **keys),
+        panel_brute_force(panel, observations, **keys),
+    )
+
+
+def test_panel_inputs_are_left_unchanged_and_empty_tables_work():
+    panel, observations = random_panel(5)
+    before = (panel.copy(deep=True), observations.copy(deep=True))
+    features.panel_features(panel, observations, **PANEL_KEYS, windows=PANEL_WINDOWS)
+    pd.testing.assert_frame_equal(panel, before[0])
+    pd.testing.assert_frame_equal(observations, before[1])
+    full = features.panel_features(panel, observations, **PANEL_KEYS)
+    empty = features.panel_features(panel, observations.iloc[:0], **PANEL_KEYS)
+    assert empty.shape == (0, 11)
+    pd.testing.assert_series_equal(empty.dtypes, full.dtypes)
+    nothing = features.panel_features(panel.iloc[:0], observations, **PANEL_KEYS)
+    assert_same_panel(nothing, panel_brute_force(panel.iloc[:0], observations, **PANEL_KEYS))
+    assert nothing["worst_status_6m"].isna().all() and nothing["months_since_bad"].isna().all()
+
+
+def test_panel_statuses_with_integer_categories():
+    panel = pd.DataFrame(
+        {
+            "customer": [1, 1, 1],
+            "month": pd.to_datetime(["2024-01-31", "2024-02-29", "2024-03-31"]),
+            "status": pd.Categorical([0, 2, 1], categories=[0, 1, 2, 3], ordered=True),
+        }
+    )
+    observations = pd.DataFrame({"customer": [1], "date": pd.to_datetime(["2024-04-02"])})
+    result = features.panel_features(panel, observations, **PANEL_KEYS, windows=["3M"], bad=2)
+    assert result.iloc[0].tolist() == [3, 1, 1, 1, 2, 2.0]
+
+
+def test_months_and_observation_times_in_two_time_zones_raise():
+    panel = pd.DataFrame(
+        {
+            "customer": [1],
+            "month": pd.to_datetime(["2024-03-15"]).tz_localize("America/New_York"),
+            "status": pd.Categorical(["90+"], categories=BUCKETS, ordered=True),
+        }
+    )
+    # 1 April 01:00 in Tokyo is 31 March 12:00 in New York, before the end of March there.
+    tokyo = pd.DataFrame(
+        {"customer": [1], "date": pd.to_datetime(["2024-04-01 01:00"]).tz_localize("Asia/Tokyo")}
+    )
+    with pytest.raises(
+        ValueError,
+        match="^the months of panel and the times of observations must share one time zone when "
+        "both have one, got 'America/New_York' and 'Asia/Tokyo'$",
+    ):
+        features.panel_features(panel, tokyo, **PANEL_KEYS, windows=["1M"])
+    new_york = tokyo.assign(date=tokyo["date"].dt.tz_convert("America/New_York"))
+    result = features.panel_features(panel, new_york, **PANEL_KEYS, windows=["1M"])
+    assert result["months_1m"].tolist() == [0]
+    # Naive observation times are read on the calendar of the months.
+    naive = tokyo.assign(date=pd.to_datetime(["2024-04-01 01:00"]))
+    result = features.panel_features(panel, naive, **PANEL_KEYS, windows=["1M"])
+    assert result["bad_months_1m"].tolist() == [1]
+    spec = FeatureSpec(
+        id="customer", observation_time="date", panel=[{"month": "month", "status": "status"}]
+    )
+    with pytest.raises(ValueError, match="^the months of panel and the times of observations "):
+        spec.compute(tokyo, panel=panel)
+
+
+def test_months_of_tz_aware_datetimes_are_local():
+    # 00:30 on 1 February in Shanghai is still 31 January in UTC.
+    panel = pd.DataFrame(
+        {
+            "customer": [1, 1],
+            "month": pd.to_datetime(["2024-01-15 12:00", "2024-02-01 00:30"]).tz_localize(
+                "Asia/Shanghai"
+            ),
+            "status": pd.Categorical(["30-59", "current"], categories=BUCKETS, ordered=True),
+        }
+    )
+    observations = pd.DataFrame({"customer": [1], "date": pd.to_datetime(["2024-03-01"])})
+    result = features.panel_features(panel, observations, **PANEL_KEYS, windows=["1M", "2M"])
+    assert result[["months_1m", "bad_months_1m", "months_2m", "bad_months_2m"]].iloc[
+        0
+    ].tolist() == [
+        1,
+        0,
+        2,
+        1,
+    ]
+    assert result["months_since_bad"].tolist() == [2.0]
+
+
+@pytest.mark.parametrize(
+    "change,message",
+    [
+        ({"panel": [1]}, "^panel must be a DataFrame, got list$"),
+        ({"month": 1}, "^month must be a string, got 1$"),
+        ({"status": None}, "^status must be a string, got None$"),
+        ({"month": "x"}, "^month must name a column of panel, got 'x'$"),
+        ({"status": "x"}, "^status must name a column of panel, got 'x'$"),
+        ({"id": "x"}, "^id must name a column of observations, got 'x'$"),
+        (
+            {"windows": ["90D"]},
+            "^windows must count months for a panel of monthly statuses, such as '6M', got '90D'$",
+        ),
+        (
+            {"windows": [("60D", "30D")]},
+            r"^windows must count months for a panel .*, got '60D'$",
+        ),
+        (
+            {"windows": ["6m"]},
+            "^windows must count months for a panel of monthly statuses, such as '6M', got '6m'$",
+        ),
+        (
+            {"windows": [("12M", "6m")]},
+            "^windows must count months for a panel .*, got '6m'$",
+        ),
+        (
+            {"windows": "6M"},
+            r"^windows must be a list of windows .*; pass \['6M'\] for one window$",
+        ),
+        ({"windows": ["6M", "6M"]}, "^windows must not repeat a window, got '6M'$"),
+        ({"bad": True}, "^bad must be a status, a string or an integer, got True$"),
+        ({"bad": 1.5}, "^bad must be a status, a string or an integer, got 1.5$"),
+        (
+            {"bad": "30+"},
+            r"^bad must be one of the categories of status column 'status' of panel, got "
+            r"'30\+'; the categories are \['current', '1-29', '30-59', '60-89', '90\+'\]$",
+        ),
+        ({"prefix": 1}, "^prefix must be a string, got 1$"),
+    ],
+)
+def test_invalid_panel_arguments_raise(change, message):
+    panel, observations = random_panel(6)
+    arguments = {"panel": panel, "observations": observations, **PANEL_KEYS, **change}
+    with pytest.raises(ValueError, match=message):
+        features.panel_features(**arguments)
+
+
+@pytest.mark.parametrize(
+    "change,message",
+    [
+        (
+            lambda p: p.assign(status=p["status"].astype(str)),
+            "^status column 'status' of panel must be an ordered categorical, from the best "
+            r"status to the worst, got dtype (object|str); convert it with "
+            r"pandas.Categorical\(values, categories=\[...\], ordered=True\)$",
+        ),
+        (
+            lambda p: p.assign(status=p["status"].cat.as_unordered()),
+            "^status column 'status' of panel must be an ordered categorical, .*, got an "
+            "unordered categorical; ",
+        ),
+        (
+            lambda p: p.assign(status=p["status"].where(p.index != p.index[0])),
+            "^status column 'status' of panel must not contain missing values, got 1$",
+        ),
+        (
+            lambda p: p.assign(month=p["month"].dt.asfreq("Q")),
+            r"^month column 'month' of panel must hold monthly periods or datetimes, got dtype "
+            r"period\[Q-DEC\]$",
+        ),
+        (
+            lambda p: p.assign(month=1),
+            "^month column 'month' of panel must hold monthly periods or datetimes, got dtype "
+            "int64$",
+        ),
+        (
+            lambda p: p.assign(month=p["month"].where(p.index != p.index[0])),
+            "^month column 'month' of panel must not contain missing values, got 1$",
+        ),
+        (
+            lambda p: p.assign(customer=p["customer"].where(p.index != p.index[0])),
+            "^id column 'customer' of panel must not contain missing values, got 1$",
+        ),
+    ],
+)
+def test_invalid_panels_raise(change, message):
+    panel, observations = random_panel(7)
+    with pytest.raises(ValueError, match=message):
+        features.panel_features(change(panel), observations, **PANEL_KEYS)
+
+
+def test_a_status_is_not_part_of_a_ratio():
+    with pytest.raises(
+        ValueError,
+        match="^ratios must divide numeric features, got 'worst_status_6m', a status$",
+    ):
+        FeatureSpec(
+            id="customer",
+            observation_time="date",
+            panel=[{"month": "month", "status": "status"}],
+            ratios=[("bad_months_6m", "worst_status_6m")],
+        )
+
+
+def panel_spec(**changes):
+    fields = {
+        "id": "customer",
+        "observation_time": "date",
+        "events": [{"time": "time", "windows": ["3M"], "aggregations": {"amount": ["sum"]}}],
+        "panel": [
+            {"table": "loans", "month": "month", "status": "status", "windows": ["6M", "12M"]},
+            {
+                "table": "loans",
+                "month": "month",
+                "status": "status",
+                "windows": [("12M", "6M")],
+                "bad": "90+",
+                "prefix": "severe_",
+            },
+        ],
+        "ratios": [("bad_months_6m", "months_6m"), ("severe_months_since_bad", "events_3m")],
+    }
+    return FeatureSpec(**{**fields, **changes})
+
+
+def test_compute_gives_the_results_of_both_functions():
+    events, _ = random_tables(14)
+    panel, observations = random_panel(14)
+    spec = panel_spec()
+    result = spec.compute(observations, events=events, panel={"loans": panel})
+    pd.testing.assert_frame_equal(spec.compute(observations, events=events, panel=panel), result)
+    first = window_features(
+        events, observations, **KEYS, windows=["3M"], aggregations={"amount": ["sum"]}
+    )
+    second = features.panel_features(panel, observations, **PANEL_KEYS, windows=["6M", "12M"])
+    third = features.panel_features(
+        panel, observations, **PANEL_KEYS, windows=[("12M", "6M")], bad="90+", prefix="severe_"
+    )
+    expected = pd.concat([first, second, third], axis=1)
+    expected["bad_months_6m_over_months_6m"] = expected["bad_months_6m"] / expected[
+        "months_6m"
+    ].replace(0, np.nan)
+    expected["severe_months_since_bad_over_events_3m"] = expected[
+        "severe_months_since_bad"
+    ] / expected["events_3m"].replace(0, np.nan)
+    pd.testing.assert_frame_equal(result, expected)
+    assert list(spec.columns) == list(result.columns)
+    only = FeatureSpec(
+        id="customer", observation_time="date", panel=[{"month": "month", "status": "status"}]
+    )
+    pd.testing.assert_frame_equal(
+        only.compute(observations, panel=panel),
+        features.panel_features(panel, observations, **PANEL_KEYS),
+    )
+
+
+def test_a_specification_with_panel_groups_round_trips():
+    spec = panel_spec()
+    data = spec.to_dict()
+    assert data["panel"][1] == {
+        "table": "loans",
+        "month": "month",
+        "status": "status",
+        "windows": [["12M", "6M"]],
+        "bad": "90+",
+        "prefix": "severe_",
+    }
+    arguments = ["id", "observation_time", "events", "ratios", "panel", "kivi_version"]
+    assert FeatureSpec(**{name: data[name] for name in arguments}) == spec
+    assert FeatureSpec.from_json(spec.to_json()) == spec
+    assert pickle.loads(pickle.dumps(spec)) == spec
+    assert dict(spec.panel[0]) == {
+        "table": "loans",
+        "month": "month",
+        "status": "status",
+        "windows": ("6M", "12M"),
+        "bad": "30-59",
+        "prefix": "",
+    }
+    integer = FeatureSpec(
+        id="customer",
+        observation_time="date",
+        panel=[{"month": "month", "status": "status", "bad": np.int64(2)}],
+    )
+    assert integer.panel[0]["bad"] == 2 and type(integer.panel[0]["bad"]) is int
+    assert FeatureSpec.from_json(integer.to_json()) == integer
+    for field in ("events", "panel"):
+        fields = {"events": [{"time": "t"}], field: None}
+        kind = "window" if field == "events" else "panel"
+        with pytest.raises(
+            ValueError,
+            match=f"^{field} must be a list of dicts, one per group of {kind} features, got None$",
+        ):
+            FeatureSpec(id="customer", observation_time="date", **fields)
+
+
+def test_compute_requires_exactly_the_tables_of_its_groups():
+    events, _ = random_tables(15)
+    panel, observations = random_panel(15)
+    spec = panel_spec()
+    with pytest.raises(
+        ValueError,
+        match="^panel is required, because the specification has groups of panel features$",
+    ):
+        spec.compute(observations, events=events)
+    with pytest.raises(
+        ValueError,
+        match="^events is required, because the specification has groups of window features$",
+    ):
+        spec.compute(observations, panel=panel)
+    only = FeatureSpec(
+        id="customer", observation_time="date", panel=[{"month": "month", "status": "status"}]
+    )
+    with pytest.raises(
+        ValueError,
+        match="^events must be None, because the specification has no groups of window "
+        "features, got DataFrame$",
+    ):
+        only.compute(observations, events=events, panel=panel)
+    with pytest.raises(ValueError, match=r"^panel must have a table for every group, but lacks "):
+        spec.compute(observations, events=events, panel={"other": panel})
+    message = r"^bad of panel\[1\] must be one of the categories of status column 'status' of "
+    with pytest.raises(ValueError, match=message):
+        spec.compute(
+            observations,
+            events=events,
+            panel=panel.assign(status=panel["status"].cat.rename_categories({"90+": "90 or more"})),
+        )
+
+
+@pytest.mark.parametrize(
+    "change,message",
+    [
+        ({"panel": [1]}, r"^panel\[0\] must be a dict, got 1$"),
+        (
+            {"panel": [{"month": "month", "status": "status", "window": ["6M"]}]},
+            r"^panel\[0\] has unknown keys \['window'\]; the keys are \['table', 'month', "
+            r"'status', 'windows', 'bad', 'prefix'\]$",
+        ),
+        (
+            {"panel": [{"status": "status"}]},
+            r"^panel\[0\] lacks 'month', the column with the month of each row$",
+        ),
+        (
+            {"panel": [{"month": "month"}]},
+            r"^panel\[0\] lacks 'status', the column with the status of each row$",
+        ),
+        (
+            {"panel": [{"month": "month", "status": "status", "windows": ["30D"]}]},
+            r"^windows of panel\[0\] must count months for a panel of monthly statuses, such as "
+            r"'6M', got '30D'$",
+        ),
+        (
+            {"panel": [{"month": "month", "status": "status", "bad": None}]},
+            r"^bad of panel\[0\] must be a status, a string or an integer, got None$",
+        ),
+        (
+            {"panel": [{"month": "month", "status": "status"}] * 2},
+            "^the groups would have two columns named 'months_6m'; give the groups different "
+            "prefixes or remove the repeated ratio$",
+        ),
+    ],
+)
+def test_invalid_panel_groups_raise(change, message):
+    fields = {"id": "customer", "observation_time": "date", "events": [{"time": "time"}]}
+    with pytest.raises(ValueError, match=message):
+        FeatureSpec(**{**fields, **change})
+
+
+def test_invalid_panel_entries_of_a_dict_raise():
+    data = panel_spec().to_dict()
+    data["panel"][0].pop("bad")
+    with pytest.raises(ValueError, match=r"^panel\[0\] lacks \['bad'\]$"):
+        FeatureSpec.from_dict(data)
+    data = panel_spec().to_dict()
+    data["panel"].append("loans")
+    with pytest.raises(ValueError, match=r"^panel\[2\] must be a mapping, got str$"):
+        FeatureSpec.from_dict(data)
+
+
 # Golden files
 
 
@@ -1264,6 +1908,23 @@ def golden_spec():
             ("amount_sum_3m", "amount_sum_6m_3m"),
             ("cash_amount_sum_3m", "amount_sum_3m"),
             ("daily_balance_mean_30d", "daily_balance_mean_60d_30d"),
+            ("bad_months_6m", "months_6m"),
+        ],
+        panel=[
+            {
+                "table": "loans",
+                "month": "month",
+                "status": "status",
+                "windows": ["6M", "12M", ("12M", "6M")],
+            },
+            {
+                "table": "loans",
+                "month": "month",
+                "status": "status",
+                "windows": ["12M"],
+                "bad": "90+",
+                "prefix": "severe_",
+            },
         ],
         kivi_version="1.3.0",
     )
@@ -1305,7 +1966,21 @@ def golden_tables():
         "cash": events[events["merchant"] == "atm"],
         "balances": balances,
     }
-    return tables, observations
+    # Two loans of customers 0 to 2 over 2023 and 2024, with a gap.
+    months = pd.period_range("2023-01", "2024-06", freq="M")
+    loans = pd.DataFrame(
+        {
+            "customer": np.repeat([0, 0, 1, 1, 2, 2], len(months)),
+            "month": np.tile(months, 6),
+            "status": pd.Categorical(
+                rng.choice(BUCKETS, 6 * len(months), p=[0.55, 0.15, 0.12, 0.1, 0.08]),
+                categories=BUCKETS,
+                ordered=True,
+            ),
+        }
+    )
+    loans = loans[rng.random(len(loans)) > 0.15]
+    return tables, loans, observations
 
 
 def test_the_golden_file_loads_and_computes_the_golden_features():
@@ -1313,14 +1988,18 @@ def test_the_golden_file_loads_and_computes_the_golden_features():
     loaded = FeatureSpec.from_json(text)
     assert loaded == golden_spec()
     assert loaded.to_json(indent=2) + "\n" == text
-    tables, observations = golden_tables()
-    result = loaded.compute(observations, events=tables)
+    tables, loans, observations = golden_tables()
+    result = loaded.compute(observations, events=tables, panel=loans)
     saved = json.loads(GOLDEN_FEATURES.read_text(encoding="utf-8"))
     assert list(result.columns) == saved["columns"]
     assert result.index.tolist() == saved["index"]
     for name in saved["columns"]:
         expected = [np.nan if value is None else value for value in saved["data"][name]]
-        if result[name].dtype == np.int64:
+        if isinstance(result[name].dtype, pd.CategoricalDtype):
+            assert result[name].dtype == loans["status"].dtype
+            labels = [None if pd.isna(value) else value for value in result[name].astype(object)]
+            assert labels == saved["data"][name], name
+        elif result[name].dtype == np.int64:
             assert result[name].tolist() == expected, name
         else:
             assert result[name].dtype == np.float64
@@ -1332,12 +2011,12 @@ def write_golden_files():
     """Write the golden files from `golden_spec` and `golden_tables`."""
     spec = golden_spec()
     GOLDEN.write_text(spec.to_json(indent=2) + "\n", encoding="utf-8")
-    tables, observations = golden_tables()
+    tables, loans, observations = golden_tables()
     result = FeatureSpec.from_json(GOLDEN.read_text(encoding="utf-8")).compute(
-        observations, events=tables
+        observations, events=tables, panel=loans
     )
     data = {
-        name: [None if pd.isna(value) else value for value in result[name].tolist()]
+        name: [None if pd.isna(value) else value for value in result[name].astype(object)]
         for name in result.columns
     }
     saved = {"columns": list(result.columns), "index": result.index.tolist(), "data": data}
