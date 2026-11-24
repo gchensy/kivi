@@ -10,8 +10,9 @@ import pytest
 import kivi
 from kivi.binning import bin_edges, cut
 from kivi.datasets import load_bank
+from kivi.spec import BinningSpec, fit_spec
 from kivi.stability import psi, psi_table
-from kivi.woe import iv, woe, woe_table, woe_transform
+from kivi.woe import iv, woe, woe_table, woe_transform, woe_trend
 
 
 def test_example_data():
@@ -779,3 +780,141 @@ def test_nullable_values_with_special_codes():
     groups = cut(values, [-np.inf, 2, np.inf], special=[-1])
     np.testing.assert_equal(groups.cat.codes.to_numpy(), [1, 0, 2, -1])
     np.testing.assert_equal(bin_edges(values, bins=2, special=[-1]), [-np.inf, 3, np.inf])
+
+
+def interval_woe(values):
+    """A Series of WOE values on consecutive intervals, as woe_transform accepts."""
+    breaks = np.arange(len(values) + 1, dtype=float)
+    return pd.Series(values, index=pd.IntervalIndex.from_breaks(breaks), name="woe")
+
+
+@pytest.mark.parametrize(
+    ("values", "trend"),
+    [
+        ([0.1, 0.2, 0.5], "increasing"),
+        ([0.5, -0.2, -0.3], "decreasing"),
+        ([0.3, -0.1, 0.2], "u_shaped"),
+        ([-0.3, 0.1, 0.4, -0.2], "inverted_u"),
+        ([0.1, 0.3, -0.2, 0.4], "irregular"),
+        ([0.1, -0.1, 0.1, -0.1, 0.1], "irregular"),
+        ([0.2, 0.2, 0.2], "flat"),
+        ([0.0, 0.0], "flat"),
+        ([0.7], "flat"),
+        # Equal neighbours neither rise nor fall, so they break no trend.
+        ([0.1, 0.1, 0.3], "increasing"),
+        ([0.5, 0.5, 0.2, 0.2], "decreasing"),
+        ([0.3, 0.1, 0.1, 0.1, 0.4], "u_shaped"),
+        ([0.1, 0.3, 0.3, 0.1], "inverted_u"),
+        ([0.1, 0.3, 0.3, 0.1, 0.1, 0.3], "irregular"),
+    ],
+)
+def test_woe_trend_names_the_shape_of_the_woe(values, trend):
+    assert woe_trend(interval_woe(values)) == trend
+    assert woe_trend(interval_woe(values).to_frame()) == trend
+
+
+def test_woe_trend_counts_neighbours_within_a_relative_1e_10_as_equal():
+    assert woe_trend(interval_woe([2.0, 2.0 * (1 + 5e-11), 2.0])) == "flat"
+    assert woe_trend(interval_woe([-2.0, -2.0 * (1 + 5e-11), -2.0, -1.0])) == "increasing"
+    assert woe_trend(interval_woe([2.0, 2.0 * (1 + 5e-10), 2.0])) == "inverted_u"
+
+
+def reference_trend(values):
+    """The trend by its definition: split the bins into pieces that rise or fall."""
+
+    def rises(part):
+        return all(b >= a for a, b in zip(part, part[1:], strict=False))
+
+    def falls(part):
+        return all(b <= a for a, b in zip(part, part[1:], strict=False))
+
+    if rises(values) and falls(values):
+        return "flat"
+    if rises(values):
+        return "increasing"
+    if falls(values):
+        return "decreasing"
+    for k in range(len(values)):
+        if falls(values[: k + 1]) and rises(values[k:]):
+            return "u_shaped"
+        if rises(values[: k + 1]) and falls(values[k:]):
+            return "inverted_u"
+    return "irregular"
+
+
+def test_woe_trend_matches_its_definition_on_random_tables_with_ties():
+    rng = np.random.default_rng(0)
+    mirror = {
+        "increasing": "decreasing",
+        "decreasing": "increasing",
+        "u_shaped": "inverted_u",
+        "inverted_u": "u_shaped",
+        "irregular": "irregular",
+        "flat": "flat",
+    }
+    seen = set()
+    for _ in range(3000):
+        # Few distinct values, so that equal neighbours are common.
+        values = rng.integers(-2, 3, size=rng.integers(1, 9)) / 10
+        trend = woe_trend(interval_woe(values))
+        assert trend == reference_trend(values.tolist())
+        assert woe_trend(interval_woe(-values)) == mirror[trend]
+        seen.add(trend)
+    assert seen == set(mirror)
+
+
+def test_woe_trend_leaves_out_special_codes_and_missing_values():
+    values = pd.Series([-1.0] * 4 + [1, 1, 1, 1, 3, 3, 3, 3, 5, 5, 5, 5] + [np.nan] * 4)
+    target = pd.Series([1, 1, 1, 0] + [0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1] + [0, 0, 0, 0])
+    groups = cut(values, [-np.inf, 2, 4, np.inf], special=[-1])
+    table = woe_table(groups, target)
+    assert table.index[0] == -1 and pd.isna(table.index[-1])
+    woe_values = table["woe"].to_numpy()
+    # The special group has the highest WOE and the missing group the lowest; the bins rise.
+    assert woe_values[0] > woe_values[1] < woe_values[2] < woe_values[3] > woe_values[4]
+    assert woe_trend(table) == "increasing"
+
+
+def test_woe_trend_reads_the_tables_of_a_binning_spec():
+    data = load_bank().iloc[:3000]
+    spec = fit_spec(data[["pdays", "job"]], data["target"], special={"pdays": [-1]})
+    edges = bin_edges(data["pdays"], bins=5, special=[-1])
+    table = woe_table(cut(data["pdays"], edges, special=[-1]), data["target"])
+    assert woe_trend(spec.tables["pdays"]) == woe_trend(table) == "irregular"
+    assert woe_trend(BinningSpec.from_json(spec.to_json()).tables["pdays"]) == "irregular"
+    with pytest.raises(ValueError, match="a categorical variable has no trend"):
+        woe_trend(spec.tables["job"])
+
+
+def test_woe_trend_leaves_the_table_alone():
+    table = woe_table(pd.cut(pd.Series([1, 2, 3, 4]), [0, 2, 4]), pd.Series([0, 1, 1, 1]))
+    copy = table.copy()
+    woe_trend(table)
+    pd.testing.assert_frame_equal(table, copy)
+
+
+@pytest.mark.parametrize(
+    ("table", "message"),
+    [
+        ([0.1, 0.2], "table must be a woe_table result or a Series, got list"),
+        (
+            pd.DataFrame({"iv": [0.1]}, index=pd.IntervalIndex.from_breaks([0.0, 1.0])),
+            "table must have a woe column, as returned by woe_table",
+        ),
+        (
+            pd.Series([0.1, 0.2], index=pd.IntervalIndex.from_breaks([0.0, 1.0, 2.0])[[0, 0]]),
+            "table must have one row per group",
+        ),
+        (
+            woe_table(pd.Series(["a", "a", "b", "b"]), pd.Series([1, 0, 0, 1])),
+            "table must have a row labeled with an interval, as the bins of a numeric variable "
+            "are; a categorical variable has no trend, got the label 'a'",
+        ),
+        (interval_woe([0.1, np.nan]), "the woe of table must be finite, got nan"),
+        (interval_woe([-np.inf, 0.1]), "the woe of table must be finite, got -inf"),
+        (interval_woe(["0.1", "x"]), "table must hold numbers, got 'x'"),
+    ],
+)
+def test_woe_trend_rejects_another_table(table, message):
+    with pytest.raises(ValueError, match=re.escape(message)):
+        woe_trend(table)

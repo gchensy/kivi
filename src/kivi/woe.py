@@ -2,7 +2,8 @@
 
 ``woe_table`` measures groups against a binary target and ``woe_transform``
 encodes groups with the fitted WOE. ``woe`` and ``iv`` compute the same
-measures from counts that are already aggregated.
+measures from counts that are already aggregated, and ``woe_trend`` names the
+shape of the WOE over the bins of a numeric variable.
 """
 
 import math
@@ -14,7 +15,10 @@ import pandas as pd
 
 from . import _counts, _validation
 
-__all__ = ["iv", "woe", "woe_table", "woe_transform"]
+__all__ = ["iv", "woe", "woe_table", "woe_transform", "woe_trend"]
+
+# Neighbouring WOE values within this relative difference count as equal in woe_trend.
+_TIE = 1e-10
 
 
 def woe_table(
@@ -411,3 +415,101 @@ def woe_transform(
     if isinstance(groups, pd.Series):
         return pd.Series(result, index=series.index, name=series.name)
     return result
+
+
+def woe_trend(
+    table: pd.DataFrame | pd.Series,
+) -> typing.Literal["increasing", "decreasing", "u_shaped", "inverted_u", "irregular", "flat"]:
+    """Name the shape of the WOE over the bins of a numeric variable.
+
+    The WOE of the rows labeled with an interval is read in the order of
+    the table, which for the bins of `kivi.binning.cut` or ``pandas.cut``
+    runs from the lowest values of the variable to the highest. Rows of
+    special codes and of missing values have no place on that scale and are
+    left out.
+
+    Parameters
+    ----------
+    table : pandas.DataFrame or pandas.Series
+        The result of `woe_table`, one of the tables of a
+        `kivi.spec.BinningSpec`, or a Series of WOE values indexed by group,
+        as `woe_transform` accepts. It needs at least one row labeled with a
+        ``pandas.Interval``.
+
+    Returns
+    -------
+    str
+        One of:
+
+        - ``'increasing'``: the WOE rises from bin to bin;
+        - ``'decreasing'``: the WOE falls from bin to bin;
+        - ``'u_shaped'``: the WOE falls, then rises;
+        - ``'inverted_u'``: the WOE rises, then falls;
+        - ``'irregular'``: the direction changes more than once;
+        - ``'flat'``: every bin has the same WOE, or there is one bin.
+
+    Raises
+    ------
+    ValueError
+        If `table` is neither a `woe_table` result nor a Series, has no
+        ``woe`` column or repeats a group, has no row labeled with an
+        interval, as a categorical variable has none, or the WOE of an
+        interval row is not a finite number.
+
+    See Also
+    --------
+    woe_table : The WOE of each group.
+    kivi.binning.monotonic_edges : Fit edges whose WOE rises or falls from
+        bin to bin.
+    kivi.plotting.woe_chart : Draw the WOE of each group.
+
+    Notes
+    -----
+    Two neighbouring bins whose WOE values differ by at most a relative
+    1e-10 count as equal. Equal neighbours neither rise nor fall, so they
+    do not break a trend: WOE values of 0.1, 0.1 and 0.3 are increasing.
+    A change of direction is a rise followed by a fall, or a fall followed
+    by a rise, across any number of equal neighbours.
+
+    The order of the table decides the trend, so a table reordered after
+    `woe_table`, for example with ``sort_values("woe")``, has the trend of
+    that order. Sort it by its intervals first, as ``table.sort_index()``
+    does when every label is an interval.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from kivi.woe import woe_table, woe_trend
+    >>> values = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    >>> target = pd.Series([1, 0, 0, 0, 0, 0, 1, 1, 0])
+    >>> table = woe_table(pd.cut(values, [0, 3, 6, 9]), target)
+    >>> table["woe"].round(3).tolist()
+    [-0.154, -1.253, 1.232]
+    >>> woe_trend(table)
+    'u_shaped'
+    """
+    woe = _validation.woe_values(table)
+    interval = np.array([isinstance(label, pd.Interval) for label in woe.index], dtype=bool)
+    if not interval.any():
+        raise ValueError(
+            "table must have a row labeled with an interval, as the bins of a numeric variable "
+            "are; a categorical variable has no trend, got the label "
+            f"{_validation.shown(woe.index)}"
+        )
+    values = _validation.float_values(woe[interval], "table")
+    if not np.isfinite(values).all():
+        raise ValueError(
+            "the woe of table must be finite, got "
+            f"{_validation.shown(values[~np.isfinite(values)][0])}"
+        )
+    change = np.diff(values)
+    scale = np.maximum(np.abs(values[:-1]), np.abs(values[1:]))
+    steps = np.sign(change)[np.abs(change) > _TIE * scale]
+    if not steps.size:
+        return "flat"
+    turns = int(np.count_nonzero(steps[1:] != steps[:-1]))
+    if turns == 0:
+        return "increasing" if steps[0] > 0 else "decreasing"
+    if turns == 1:
+        return "u_shaped" if steps[0] < 0 else "inverted_u"
+    return "irregular"
