@@ -30,8 +30,8 @@ The tools of the report
    * - 2.5.5.3
      - Concentration in rating grades: the HI and a test of the coefficient of variation
      - :func:`~kivi.calibration.concentration_test`; :func:`~kivi.calibration.herfindahl_index` gives the Herfindahl-Hirschman index itself
-   * - 2.6.2.1, 2.8.2.1, 2.9.3.1
-     - Back-testing of the LGD, the LGD in-default and the CCF with a one-sided t-test
+   * - 2.6.2.1, 2.8.2.1, 2.9.3.1, 2.9.3.2
+     - Back-testing of the LGD, the LGD in-default, the CCF and the EAD of facilities with an EAD approach with a one-sided t-test
      - :func:`~kivi.calibration.backtest_table`
    * - 2.7.2.1
      - Back-testing of the ELBE with a two-sided t-test
@@ -152,7 +152,7 @@ The report asks for the HI of the numbers of customers with this test, and for t
 LGD and CCF models
 ------------------
 
-The LGD tools work on the facilities whose recovery process closed in the observation period. Here 1,500 closed defaults in five facility grades realize LGDs that scatter widely around the LGD of their grade, as recoveries do, and the facilities of grade F4 realize about eight points more than its LGD of 60%:
+The LGD tools work on the facilities whose recovery process closed in the observation period. Here 1,500 closed defaults in five facility grades realize LGDs that scatter widely around the LGD of their grade, as recoveries do. The LGDs of grade F4 are drawn around 68% instead of its LGD of 60%:
 
 >>> rng = np.random.default_rng(0)
 >>> grade_lgd = pd.Series([0.10, 0.25, 0.40, 0.60, 0.80], index=["F1", "F2", "F3", "F4", "F5"])
@@ -187,7 +187,7 @@ Only grade F4 is rejected. The report tests the portfolio as well; pass one grou
 bin
 all   1500     0.3576    0.3676        0.01    0.0721     1.4422   0.0747
 
-At the level of the portfolio, the shortfall of grade F4 is diluted by the other grades and is no longer significant at 5%. The same table back-tests the LGD in-default and the CCF, with their estimates and realized values in place of the LGDs. The ELBE is tested two-sided, so its p-value is ``2 * min(p_value, 1 - p_value)``.
+At the level of the portfolio, the shortfall of grade F4 is diluted by the other grades and is no longer significant at 5%. The same table back-tests the LGD in-default and the CCF, with their estimates and realized values in place of the LGDs, and the EAD estimates of facilities with an EAD approach, with the amount drawn at default as the realized value. The ELBE is tested two-sided, so its p-value is ``2 * min(p_value, 1 - p_value)``.
 
 Generalized AUC
 ^^^^^^^^^^^^^^^

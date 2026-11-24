@@ -408,7 +408,7 @@ The matrix of the simulation sends more customers from grade B to grade E than t
 Migration bandwidth
 ^^^^^^^^^^^^^^^^^^^
 
-Number the grades from 1 to :math:`K`, and let :math:`N_{ij}` customers move from grade :math:`i` to grade :math:`j`. The upper matrix weighted bandwidth (MWB) adds up how far the customers moved to worse grades, above the diagonal, relative to how far each could have moved:
+Number the grades from 1 to :math:`K`, and let :math:`N_{ij}` customers move from grade :math:`i` to grade :math:`j`. The upper matrix weighted bandwidth (MWB) adds up how far the customers moved to worse grades, above the diagonal, relative to the furthest move from each customer's grade in either direction:
 
 .. math::
 
@@ -424,7 +424,7 @@ upper    0.4618
 lower    0.4047
 dtype: float64
 
-A downgrade from the middle grade C can go two grades at most, and one from grade A four, so a move of one grade weighs half the furthest move from C but a quarter of it from A.
+The furthest move from the middle grade C is two grades and that from grade A four, so a move of one grade weighs half the furthest move from C but a quarter of it from A. The furthest move counts in either direction, so an upgrade of one grade from grade B, as far as B can rise, is measured against the three grades that B could fall.
 
 Monotonicity of the migration matrix
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

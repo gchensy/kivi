@@ -1554,6 +1554,19 @@ def test_concentration_test_with_equally_full_grades():
         assert math.isnan(result["statistic"]) and math.isnan(result["p_value"])
 
 
+def test_concentration_test_takes_the_largest_cv_and_requires_one_index():
+    # One full grade among three has the coefficient of variation sqrt(2).
+    result = concentration_test([5, 3, 2], initial_cv=math.sqrt(2))
+    assert result["initial_hi"] == pytest.approx(1, rel=1e-14)
+    counts = pd.Series([5, 3, 2], index=["A", "B", "C"])
+    with pytest.raises(ValueError, match="counts and initial_counts must have identical indices"):
+        concentration_test(counts, initial_counts=counts.set_axis(["C", "B", "A"]))
+    pd.testing.assert_series_equal(
+        concentration_test(counts, initial_counts=counts * 2),
+        concentration_test(counts.to_numpy(), initial_counts=[10, 6, 4]),
+    )
+
+
 def test_concentration_test_matches_scipy_normal_tail():
     stats = pytest.importorskip("scipy.stats")
     result = concentration_test([600, 200, 100, 50, 50], initial_cv=0.6)
@@ -1574,6 +1587,7 @@ def test_concentration_test_matches_scipy_normal_tail():
         ([1, 2], {"initial_cv": True}, "initial_cv must be a finite, non-negative number"),
         ([1, 2], {"initial_cv": "0.3"}, "got '0.3'"),
         ([1, 2], {"initial_cv": 0.2, "initial_counts": [1, 1]}, "not both"),
+        ([1, 2, 3], {"initial_cv": 1.5}, "initial_cv must be at most 1.41421"),
     ],
 )
 def test_invalid_concentration_inputs(counts, options, message):
@@ -1644,6 +1658,34 @@ def test_backtest_table_integer_weights_equal_repeated_rows():
         np.array(BACKTEST_ESTIMATED)[rows],
     )
     pd.testing.assert_frame_equal(weighted, repeated, check_dtype=False, rtol=1e-12)
+
+
+def test_backtest_table_ignores_rows_without_weight_also_first_in_a_group():
+    # Rows of zero weight count nowhere, also when one comes first in its group: the group
+    # of equal differences keeps a variance of exactly 0, as without the row.
+    realized, estimated = [0.9, 0.3, 0.3, 0.3, 0.2, 0.8], [0.1, 0.3, 0.3, 0.3, 0.6, 0.1]
+    groups = ["a", "a", "a", "a", "b", "b"]
+    with np.errstate(all="raise"):
+        weighted = backtest_table(groups, realized, estimated, weights=[0, 1, 1, 1, 0, 2])
+    dropped = backtest_table(groups[1:4] + ["b"], realized[1:4] + [0.8], estimated[1:4] + [0.1])
+    assert weighted.loc["a", "difference"] == 0.0
+    assert weighted.loc["a", "variance"] == 0.0
+    assert weighted.loc["a"][["statistic", "p_value"]].isna().all()
+    pd.testing.assert_frame_equal(weighted.iloc[:1], dropped.iloc[:1], check_dtype=False)
+    assert weighted.loc["b", "difference"] == pytest.approx(0.7)
+    assert weighted.loc["b", "variance"] == 0.0
+    assert (weighted.loc["b", "statistic"], weighted.loc["b", "p_value"]) == (math.inf, 0.0)
+
+
+def test_brier_decomposition_ignores_a_first_row_without_weight():
+    result = brier_decomposition(
+        ["A", "A", "A", "B", "B"],
+        [1, 0, 1, 0, 1],
+        [0.9, 0.3, 0.3, 0.6, 0.6],
+        weights=[0, 1, 1, 1, 1],
+    )
+    assert result["within_variance"] == 0.0
+    assert result["within_covariance"] == 0.0
 
 
 def test_backtest_table_without_a_variance():

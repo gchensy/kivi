@@ -839,8 +839,8 @@ def migration_bandwidth(
     The matrix weighted bandwidth (MWB) of the European Central Bank [1]_
     summarizes a migration matrix in two numbers: how far the customers who
     moved to worse grades moved, and how far those who moved to better
-    grades moved, each relative to the furthest they could have moved. A
-    stable rating system has small values.
+    grades moved, each relative to the furthest move from their grade in
+    either direction. A stable rating system has small values.
 
     Parameters
     ----------
@@ -1201,7 +1201,9 @@ def _migrations(
     labels = _ordered_labels(grades, "grades")
     size = len(labels)
     if size < 2:
-        raise ValueError(f"grades must hold at least two grades, got {size}")
+        raise ValueError(
+            f"grades must hold at least two grades, got {_validation.shown_argument(grades)}"
+        )
     before_code = _state_codes(before, labels, "before", "grades")
     after_code = _positions(after, labels)
     total = np.bincount(before_code, weights=mass, minlength=size)

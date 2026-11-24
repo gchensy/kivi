@@ -1292,7 +1292,8 @@ def concentration_test(
         ``grades.value_counts(sort=False)``. At least two grades.
     initial_counts : array_like, optional
         Number of customers in each grade at the initial validation, for
-        the same grades in the same order.
+        the same grades in the same order. If `counts` and `initial_counts`
+        are both Series, they must have identical indices.
     initial_cv : float, optional
         The coefficient of variation at the initial validation, when only
         that is known. Pass `initial_counts` or `initial_cv`, or neither to
@@ -1313,9 +1314,10 @@ def concentration_test(
     ValueError
         If `counts` or `initial_counts` is not one-dimensional, has
         negative or non-finite values or sums to zero, if `counts` has
-        fewer than two grades or `initial_counts` another number of grades,
-        if `initial_cv` is not a finite, non-negative number, or if both
-        `initial_counts` and `initial_cv` are given.
+        fewer than two grades or `initial_counts` another number of grades
+        or another index, if `initial_cv` is not a finite, non-negative
+        number or exceeds :math:`\sqrt{K - 1}`, or if both `initial_counts`
+        and `initial_cv` are given.
 
     See Also
     --------
@@ -1382,6 +1384,7 @@ def concentration_test(
         raise ValueError(f"counts must have at least two grades, got {grades}")
     if initial_counts is not None and initial_cv is not None:
         raise ValueError("pass initial_counts or initial_cv, not both")
+    _validation.shared_index({"counts": counts, "initial_counts": initial_counts})
     hi, cv = _concentration(shares)
     initial_hi = start_cv = math.nan
     if initial_counts is not None:
@@ -1403,6 +1406,12 @@ def concentration_test(
                 f"{_validation.shown_argument(initial_cv)}"
             )
         start_cv = float(initial_cv)
+        # A share of 1 in one grade gives the largest CV, sqrt(K - 1).
+        if start_cv > math.sqrt(grades - 1) * (1 + 1e-12):
+            raise ValueError(
+                f"initial_cv must be at most {math.sqrt(grades - 1):.6g}, the coefficient of "
+                f"variation of one full grade among {grades}, got {start_cv!r}"
+            )
         initial_hi = 1 + math.log((start_cv**2 + 1) / grades) / math.log(grades)
     with np.errstate(divide="ignore", invalid="ignore"):
         statistic = float(
@@ -1490,10 +1499,11 @@ def backtest_table(
 
     which follows Student's t distribution with :math:`N - 1` degrees of
     freedom under the null hypothesis, and the p-value is
-    :math:`1 - S_{N-1}(T)`. This is the test of sections 2.6.2.1, 2.8.2.1
-    and 2.9.3.1 of [1]_ for LGDs, LGDs in default and CCFs. Section
-    2.7.2.1 tests the ELBE two-sided; its p-value is
-    ``2 * min(p_value, 1 - p_value)``.
+    :math:`1 - S_{N-1}(T)`. This is the test of sections 2.6.2.1, 2.8.2.1,
+    2.9.3.1 and 2.9.3.2 of [1]_ for LGDs, LGDs in default, CCFs and the
+    EAD estimates of facilities with an EAD approach, whose realized
+    value is the amount drawn at default. Section 2.7.2.1 tests the ELBE
+    two-sided; its p-value is ``2 * min(p_value, 1 - p_value)``.
 
     A group of one observation has no variance, and its ``variance``,
     ``statistic`` and ``p_value`` are NaN. A group whose differences are
@@ -1512,8 +1522,8 @@ def backtest_table(
     ----------
     .. [1] European Central Bank, "Instructions for reporting the
        validation results of internal models: IRB Pillar I models for
-       credit risk", February 2019, sections 2.6.2.1, 2.7.2.1, 2.8.2.1 and
-       2.9.3.1.
+       credit risk", February 2019, sections 2.6.2.1, 2.7.2.1, 2.8.2.1,
+       2.9.3.1 and 2.9.3.2.
 
     Examples
     --------
@@ -2026,14 +2036,17 @@ def _group_means(
 ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """Weighted mean of each group, and the deviation of each observation from its group's mean.
 
-    ``rows`` gives the group of each observation, and every group has an observation. The values
-    are shifted by the first value of their group before they are averaged, so that a group of
-    equal values has that value as its mean and deviations of exactly 0.
+    ``rows`` gives the group of each observation, and every group has an observation of positive
+    weight. The values are shifted by the first value of positive weight in their group before
+    they are averaged, so that a group whose weighted values are equal has that value as its mean
+    and deviations of exactly 0 where the weights are positive.
     """
-    _, first = np.unique(rows, return_index=True)
-    shifted = values - values[first][rows]
+    weighted = np.flatnonzero(mass > 0)
+    _, first = np.unique(rows[weighted], return_index=True)
+    shift = values[weighted[first]]
+    shifted = values - shift[rows]
     mean_shift = np.bincount(rows, weights=mass * shifted, minlength=len(total)) / total
-    return values[first] + mean_shift, shifted - mean_shift[rows]
+    return shift + mean_shift, shifted - mean_shift[rows]
 
 
 def _grade_shares(counts: npt.ArrayLike, name: str) -> npt.NDArray[np.float64]:
