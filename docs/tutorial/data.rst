@@ -101,3 +101,5 @@ The profile shapes the next chapters:
 * ``incumbent_pd`` is by far the strongest candidate, followed by ``housing``. The other fields of the application form have an IV between 0.017 and 0.031: weak on their own, but they may add to the vendor's PD.
 * The approved applicants are a selected sample: the vendor's scorecard turned away the riskiest applications, so every variable separates the outcomes less among the accepts than among all applicants.
 * ``inquiries`` is marked in ``tied_bins``: almost half of the applicants had no inquiry, so its quantile bins collapse. :doc:`binning` gives it explicit edges.
+
+:doc:`features` derives further candidates from the applicants' accounts, which the project keeps for the next version of the scorecard, and :doc:`binning` bins the seven candidates above.
