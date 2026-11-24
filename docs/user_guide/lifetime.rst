@@ -347,11 +347,17 @@ These PDs go with the contractual balance of the loan, which it owes as long as 
 Left truncation
 ^^^^^^^^^^^^^^^
 
-Data often start after the loans were originated, for example when a new system went live. The loans that defaulted or were repaid before are missing, and the others are observed only from their month on book at the start. ``entry`` gives the number of months on book before a loan comes under observation, and the loan is at risk from month on book ``entry + 1``. If the panel starts in January 2025, a loan first seen at month on book 12 has an entry of 11; loans already at 90+ in their first row had defaulted before and are left out:
+Data often start after the loans were originated, for example when a new system went live. The loans that defaulted or were repaid before are missing, and the others are observed only from their month on book at the start. ``entry`` gives the number of months on book before a loan comes under observation, and the loan is at risk from month on book ``entry + 1``. If the panel starts in January 2025, a loan first seen at month on book 12 has an entry of 11.
+
+A loan that reached 90+ before 2025 had defaulted before it came under observation, and is left out. A loan that reaches 90+ in January 2025 defaulted in the window, in its first month at risk, and stays: leaving it out would drop defaults because of their outcome and bias the curve down. Both have a first row at 90+, because 90+ is the last bucket, so the example compares the month on book of the default with that of the first row; with real data, the days past due of the first row, or the status at the end of the month before, tell them apart:
 
 >>> window = repaying[repaying["month"] >= "2025-01"]
 >>> first = window.groupby("loan_id").head(1).set_index("loan_id")
->>> observed = loans.loc[first.index[first["status"] != "90+"]]
+>>> seen = loans.loc[first.index]
+>>> before = seen["event"] & (seen["duration"] < first["month_on_book"])
+>>> observed = seen[~before]
+>>> int(before.sum()), int((first.loc[observed.index, "status"] == "90+").sum())
+(37, 9)
 >>> entry = first.loc[observed.index, "month_on_book"] - 1
 >>> truncated = survival_table(
 ...     observed["duration"], observed["event"], competing=observed["competing"], entry=entry
@@ -366,12 +372,12 @@ Data often start after the loans were originated, for example when a new system 
 ... ).loc[[6, 12, 18, 24]].round(4)
         all_rows   entry  without_entry
 period
-6         0.0093  0.0090         0.0063
-12        0.0376  0.0316         0.0266
-18        0.0625  0.0569         0.0535
-24        0.0641  0.0585         0.0553
+6         0.0093  0.0093         0.0066
+12        0.0376  0.0350         0.0296
+18        0.0625  0.0601         0.0564
+24        0.0641  0.0618         0.0581
 
-Without ``entry``, the loans of 2024 count as at risk from their first month on book, although they were not observed then and are in the data only because they had neither defaulted nor been repaid by 2025: the early risk sets are too large and the PD too low. With ``entry``, each month on book uses only the loans observed at that age, so the first months rest on the cohorts originated during the window, and the curve differs from that of the whole panel as these cohorts differ from the earlier ones. Left truncation loses information, but with ``entry`` it no longer biases the estimate.
+Without ``entry``, the loans of 2024 count as at risk from their first month on book, although they were not observed then and are in the data only because they had neither defaulted nor been repaid by 2025: the early risk sets are too large and the PD too low. With ``entry``, each month on book uses only the loans observed at that age, and the curve stays within 0.3 percentage points of that of the whole panel; it differs from it because its first months rest on the cohorts originated during the window. Left truncation loses information, but with ``entry`` it no longer biases the estimate.
 
 Discrete-time hazard models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
