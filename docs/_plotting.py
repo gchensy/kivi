@@ -35,7 +35,8 @@ from kivi.calibration import (
     master_scale,
     prior_correction,
 )
-from kivi.datasets import load_bank, make_applications, make_loan_panel
+from kivi.datasets import load_bank, make_applications, make_loan_panel, make_transactions
+from kivi.features import FeatureSpec
 from kivi.lifetime import convert_pd, transition_pd
 from kivi.metrics import delong_test, gains_table, gini, roc_table
 from kivi.monitoring import monitoring_table, stability_table
@@ -117,6 +118,49 @@ def _ticks(ax, x, labels) -> None:
         ax.set_xticks(x, labels, rotation=35, ha="right", fontsize=8.5)
     else:
         ax.set_xticks(x, labels)
+
+
+def window_bands(tables: dict[str, pd.DataFrame], overall: float):
+    """Share and event rate per band of several window features, one panel per feature."""
+    fig, axes = plt.subplots(
+        1,
+        len(tables),
+        figsize=(8, 3.4),
+        sharey=True,
+        squeeze=False,
+        gridspec_kw={"width_ratios": [len(table) + 0.6 for table in tables.values()]},
+    )
+    for ax, (column, table) in zip(axes[0], tables.items(), strict=True):
+        x = np.arange(len(table))
+        ax.bar(x, table["total_share"], color=LIGHT_BLUE, width=0.6, label="total_share")
+        ax.axhline(overall, color=GRAY, linestyle="--", linewidth=1)
+        ax.plot(x, table["event_rate"], color=AMBER, marker="o", linewidth=2, label="event_rate")
+        for xi, rate in zip(x, table["event_rate"], strict=True):
+            ax.annotate(
+                f"{rate:.1%}",
+                (xi, rate),
+                xytext=(-5, 5),
+                textcoords="offset points",
+                ha="right",
+                fontsize=8.5,
+                color=TEXT,
+            )
+        ax.set_xticks(x, _labels(table.index), rotation=25, ha="right", fontsize=8.5)
+        ax.set_title(f"{column}    IV = {table['iv'].sum():.3f}", fontsize=10)
+    axes[0][0].yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+    handles, labels = axes[0][0].get_legend_handles_labels()
+    axes[0][0].legend(handles[::-1], labels[::-1], loc="upper left")
+    axes[0][-1].text(
+        1.01,
+        overall,
+        f"{overall:.1%}",
+        transform=axes[0][-1].get_yaxis_transform(),
+        va="center",
+        fontsize=8.5,
+        color=MUTED,
+    )
+    fig.tight_layout()
+    return fig
 
 
 def woe_rate_panels(table: pd.DataFrame, title: str = ""):
@@ -948,6 +992,68 @@ def _samples():
     return data, data.iloc[:3000], data.iloc[3000:]
 
 
+def _transaction_features():
+    """The applications of the features guide and the features of their transactions."""
+    sample = make_applications(n_applicants=10000, include_risk=True, rng=0)
+    days = pd.to_timedelta(np.arange(10000) * 366 // 10000, unit="D")
+    sample["application_date"] = pd.Timestamp("2024-01-01") + days
+    transactions = make_transactions(sample, application_date="application_date", rng=0)
+    observations = pd.DataFrame(
+        {"applicant_id": sample.index, "application_date": sample["application_date"]},
+        index=sample.index,
+    )
+    two_periods = {
+        "time": "timestamp",
+        "windows": ["3M", ("6M", "3M")],
+        "aggregations": {"amount": ["sum"]},
+    }
+    spec = FeatureSpec(
+        id="applicant_id",
+        observation_time="application_date",
+        events=[
+            {"table": "cash", "prefix": "cash_", **two_periods},
+            {"table": "repayments", "prefix": "repayment_", **two_periods},
+            {
+                "table": "purchases",
+                "prefix": "purchase_",
+                "time": "timestamp",
+                "windows": ["3M"],
+                "aggregations": {"amount": ["sum"], "merchant_category": ["nunique"]},
+            },
+        ],
+        ratios=[
+            ("cash_events_3m", "cash_events_6m_3m"),
+            ("repayment_amount_sum_3m", "repayment_amount_sum_6m_3m"),
+        ],
+    )
+    kind = transactions["kind"]
+    features = spec.compute(
+        observations,
+        events={
+            "cash": transactions[kind == "cash_withdrawal"],
+            "repayments": transactions[kind == "repayment"],
+            "purchases": transactions[kind == "purchase"],
+        },
+    )
+    return sample, features
+
+
+def figure_transaction_features():
+    sample, features = _transaction_features()
+    columns = ["cash_events_3m", "cash_events_6m_3m"]
+    screening = profile_table(features[columns], sample["target"])
+    tables = {}
+    for column in columns:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)  # profile_table reports tied_bins instead
+            edges = bin_edges(features[column], bins=5)
+        table = woe_table(pd.cut(features[column], edges), sample["target"]).sort_index()
+        if not np.isclose(table["iv"].sum(), screening.loc[column, "iv"], rtol=1e-12, atol=0):
+            raise ValueError(f"the bands of {column} do not give the iv of profile_table")
+        tables[column] = table
+    return window_bands(tables, sample["target"].mean())
+
+
 def figure_quickstart_woe():
     _, reference, _ = _samples()
     groups = pd.cut(reference["age"], bin_edges(reference["age"], bins=5))
@@ -1335,6 +1441,7 @@ def figure_lifetime_transition():
 
 
 README_FIGURES = {
+    "readme-features.svg": figure_transaction_features,
     "readme-woe.svg": figure_quickstart_woe,
     "readme-iv.svg": figure_iv_ranking,
     "readme-psi.svg": figure_psi_monitor,

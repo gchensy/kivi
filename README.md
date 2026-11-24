@@ -50,6 +50,12 @@ derive point-in-time features, screen and bin the variables, fit and scale the m
 
 <table>
   <tr>
+    <td colspan="2" valign="top">
+      <a href="https://gchensy.github.io/kivi/en/user_guide/features.html#features-of-synthetic-transactions"><img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/readme-features.svg" alt="Share and event rate per band of the number of cash withdrawals in the last three months and in the three months before"></a>
+      <br><b>Time-window features</b>: share and event rate per band of the cash withdrawals in the last three months and in the three months before, derived from transactions with a <code>FeatureSpec</code>.
+    </td>
+  </tr>
+  <tr>
     <td width="50%" valign="top">
       <a href="https://gchensy.github.io/kivi/en/user_guide/woe_iv.html#charting-woe"><img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/readme-woe.svg" alt="WOE chart for age"></a>
       <br><b>WOE chart</b>: share of customers, event rate and WOE per bin.
@@ -114,10 +120,10 @@ Every step is defined or fitted on the development sample and applied unchanged 
 | Follow the loans | `kivi.vintage`, `kivi.lifetime` | `delinquency_panel`, `vintage_table`, `transition_pd`, `expected_credit_loss`, `assign_stages` |
 | Draw the results | `kivi.plotting` | `woe_chart`, `roc_chart`, `gains_chart`, `monitoring_chart`, `vintage_chart` |
 
-Binning shows the pattern: fit the edges once, cut every sample with them, then measure.
+The first steps show the pattern: define the features once and compute them for every sample, fit the bin edges once and cut every sample with them, then measure.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/kivi-workflow.svg" width="820" alt="Fit edges once with bin_edges, cut every sample with pandas.cut, then measure with woe_table and psi_table">
+  <img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/kivi-workflow.svg" width="820" alt="Define features once with FeatureSpec and compute them for every sample, fit edges once with bin_edges, cut every sample with pandas.cut, then measure with woe_table and psi_table">
 </p>
 
 ## 📦 Installation

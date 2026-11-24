@@ -50,6 +50,12 @@
 
 <table>
   <tr>
+    <td colspan="2" valign="top">
+      <a href="https://gchensy.github.io/kivi/zh/user_guide/features.html#features-of-synthetic-transactions"><img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/readme-features.svg" alt="最近三个月与此前三个月取现次数各区间的占比与事件率"></a>
+      <br><b>时间窗特征</b>：最近三个月与此前三个月取现次数各区间的占比与事件率，由 <code>FeatureSpec</code> 从交易流水计算得出。
+    </td>
+  </tr>
+  <tr>
     <td width="50%" valign="top">
       <a href="https://gchensy.github.io/kivi/zh/user_guide/woe_iv.html#charting-woe"><img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/readme-woe.svg" alt="age 的 WOE 图"></a>
       <br><b>WOE 图</b>：每箱的客户占比、事件率与 WOE。
@@ -114,10 +120,10 @@
 | 跟踪贷款 | `kivi.vintage`、`kivi.lifetime` | `delinquency_panel`、`vintage_table`、`transition_pd`、`expected_credit_loss`、`assign_stages` |
 | 绘制结果 | `kivi.plotting` | `woe_chart`、`roc_chart`、`gains_chart`、`monitoring_chart`、`vintage_chart` |
 
-以分箱为例：拟合一次边界，用它对每个样本分箱，再计算指标。
+前几步体现了这一模式：一次定义特征并为每个样本计算，拟合一次分箱边界并用它对每个样本分箱，再计算指标。
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/kivi-workflow.zh-CN.svg" width="820" alt="用 bin_edges 拟合一次边界，用 pandas.cut 对每个样本分箱，再用 woe_table 和 psi_table 计算指标">
+  <img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/kivi-workflow.zh-CN.svg" width="820" alt="用 FeatureSpec 一次定义特征并为每个样本计算，用 bin_edges 拟合一次边界，用 pandas.cut 对每个样本分箱，再用 woe_table 和 psi_table 计算指标">
 </p>
 
 ## 📦 安装
