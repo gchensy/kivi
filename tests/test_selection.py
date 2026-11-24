@@ -476,7 +476,7 @@ def reference_vif_filter(X, threshold, priority):
             break
         tied = factors.index[factors >= factors.max() * (1 - 1e-10)]
         lowest = min(priority[label] for label in tied)
-        kept.remove(next(label for label in tied if priority[label] == lowest))
+        kept.remove([label for label in tied if priority[label] == lowest][-1])
     return kept, rounds
 
 
@@ -488,7 +488,8 @@ def test_vif_filter_drops_the_largest_vif_until_none_exceeds_the_threshold():
     # Dropping c brings a and b from above 500 to below 5 in one round.
     assert (vif(NEAR_SUM[kept]) <= 5).all()
     assert vif(NEAR_SUM[kept])["a"] > 3
-    assert vif_filter(NEAR_SUM, threshold=3).tolist() == ["b", "d"]
+    # a and b then tie at 3.55, above a threshold of 3, and the later column b goes.
+    assert vif_filter(NEAR_SUM, threshold=3).tolist() == ["a", "d"]
     assert vif_filter(NEAR_SUM, threshold=1e4).tolist() == ["a", "b", "c", "d"]
 
 
@@ -519,8 +520,9 @@ def test_vif_filter_rounds_follow_repeated_vif_calls():
 def test_vif_filter_drops_an_exact_combination_by_priority():
     Z = pd.DataFrame({"a": NEAR_SUM["a"], "d": NEAR_SUM["d"], "e": NEAR_SUM["a"] + NEAR_SUM["d"]})
     np.testing.assert_equal(vif(Z).to_numpy(), np.inf)
-    # The three infinite VIFs tie: without priority the first is dropped.
-    assert vif_filter(Z).tolist() == ["d", "e"]
+    # The three infinite VIFs tie: without priority the last is dropped.
+    assert vif_filter(Z).tolist() == ["a", "d"]
+    assert vif_filter(Z[["e", "d", "a"]]).tolist() == ["e", "d"]
     by_label = pd.Series({"e": 0.2, "a": 0.3, "d": 0.1})
     assert vif_filter(Z, priority=by_label).tolist() == ["a", "e"]
     assert vif_filter(Z, priority=[0.3, 0.1, 0.2]).tolist() == ["a", "e"]
@@ -532,14 +534,20 @@ def test_vif_filter_drops_an_exact_combination_by_priority():
     assert vif_filter(X, priority=priority).tolist() == ["a", "b", "d"]
 
 
-def test_vif_filter_ties_drop_the_lowest_priority_then_the_first_column():
-    # Both columns of a pair have the VIF 1 / (1 - 0.9^2) = 5.26.
+def test_vif_filter_ties_drop_the_lowest_priority_then_the_last_column():
+    # Both columns of a pair have the VIF 1 / (1 - 0.9^2) = 5.26. As in correlation_filter,
+    # the column order breaks ties of priority, and earlier columns are kept.
     X = pd.DataFrame({"a": [1.0, 2.0, 3.0, 4.0, 5.0], "b": [1.0, 2.0, 3.0, 5.0, 4.0]})
-    assert vif_filter(X).tolist() == ["b"]
-    assert vif_filter(X[["b", "a"]]).tolist() == ["a"]
-    assert vif_filter(X, priority=[1.0, 1.0]).tolist() == ["b"]
+    assert vif_filter(X).tolist() == ["a"]
+    assert vif_filter(X[["b", "a"]]).tolist() == ["b"]
+    assert vif_filter(X, priority=[1.0, 1.0]).tolist() == ["a"]
     assert vif_filter(X, priority=[1.0, 2.0]).tolist() == ["b"]
     assert vif_filter(X, priority=[2.0, 1.0]).tolist() == ["a"]
+    # Three tied columns: the lowest priority goes, and of equal lowest priorities the last.
+    a = np.array([1.0, 2.0, 4.0, 3.0])
+    tied = pd.DataFrame({"a": a, "b": 2 * a + 1, "c": 3 * a})
+    assert vif_filter(tied, threshold=1e6, priority=[0.2, 0.1, 0.1]).tolist() == ["a"]
+    assert vif_filter(tied, threshold=1e6, priority=[0.1, 0.2, 0.1]).tolist() == ["b"]
     assert vif_filter(X, threshold=5.3).tolist() == ["a", "b"]
 
 
@@ -557,7 +565,7 @@ def test_vif_filter_ties_do_not_depend_on_rounding():
     threshold = 1 + (factors.min() - 1) / 2
     assert vif_filter(X, threshold=threshold, priority=[2.0, 1.0]).tolist() == ["a"]
     assert vif_filter(X, threshold=threshold, priority=[1.0, 2.0]).tolist() == ["b"]
-    assert vif_filter(X, threshold=threshold).tolist() == ["b"]
+    assert vif_filter(X, threshold=threshold).tolist() == ["a"]
 
 
 def test_vif_filter_keeps_a_vif_equal_to_the_threshold():
@@ -568,10 +576,10 @@ def test_vif_filter_keeps_a_vif_equal_to_the_threshold():
 def test_vif_filter_stops_at_one_column():
     a = np.array([1.0, 2.0, 4.0, 3.0])
     X = pd.DataFrame({"a": a, "b": 2 * a, "c": 3 * a - 1})
-    assert vif_filter(X).tolist() == ["c"]
-    assert vif_filter(X, priority=[3.0, 1.0, 2.0]).tolist() == ["a"]
+    assert vif_filter(X).tolist() == ["a"]
+    assert vif_filter(X, priority=[1.0, 3.0, 2.0]).tolist() == ["b"]
     # Two rows make any two columns collinear.
-    assert vif_filter(pd.DataFrame({"a": [1.0, 2.0], "b": [3.0, 1.0]})).tolist() == ["b"]
+    assert vif_filter(pd.DataFrame({"a": [1.0, 2.0], "b": [3.0, 1.0]})).tolist() == ["a"]
     assert vif_filter(X[["a"]]).tolist() == ["a"]
 
 

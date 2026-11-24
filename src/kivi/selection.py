@@ -269,8 +269,9 @@ def vif_filter(
         inputs by position. Of several variables whose VIFs tie for the
         largest, such as variables with infinite VIFs, the one with the
         lowest priority is dropped. Ties of priority, and every tie when
-        `priority` is omitted, drop the first of the tied variables in the
-        column order.
+        `priority` is omitted, drop the last of the tied variables in the
+        column order, so that earlier columns are kept, as in
+        `correlation_filter`.
 
     Returns
     -------
@@ -301,7 +302,8 @@ def vif_filter(
     A variable that is a linear combination of the others has an infinite
     VIF, and so does every other variable of that combination (see `vif`).
     Such variables tie, and dropping one of them, the one with the lowest
-    priority, usually leaves the others with finite VIFs. VIFs within a
+    priority or else the last in the column order, usually leaves the
+    others with finite VIFs. VIFs within a
     relative :math:`10^{-10}` of the largest count as tied, so that rounding
     does not decide between variables whose VIFs are equal, such as the two
     variables of a pair.
@@ -341,8 +343,9 @@ def vif_filter(
     round.
 
     The three variables of an exact linear combination all have an
-    infinite VIF. Without `priority`, the first of them is dropped; with
-    the information values as `priority`, the least predictive one is:
+    infinite VIF. Without `priority`, the last of them in the column order
+    is dropped; with the information values as `priority`, the least
+    predictive one is:
 
     >>> Z = pd.DataFrame({"a": X["a"], "d": X["d"], "e": X["a"] + X["d"]})
     >>> vif(Z)
@@ -352,7 +355,7 @@ def vif_filter(
     e    inf
     Name: vif, dtype: float64
     >>> vif_filter(Z).tolist()
-    ['d', 'e']
+    ['a', 'd']
     >>> vif_filter(Z, priority=pd.Series({"a": 0.3, "d": 0.1, "e": 0.2})).tolist()
     ['a', 'e']
     """
@@ -376,8 +379,9 @@ def vif_filter(
             break
         # An infinite largest VIF ties only with the other infinite ones.
         tied = np.flatnonzero(factors >= largest * (1 - _TIE))
-        # np.argmin returns the first of equal priorities, the first tied column.
-        kept = np.delete(kept, tied[np.argmin(rank[kept[tied]])])
+        lowest = rank[kept[tied]] == rank[kept[tied]].min()
+        # Of the tied columns with the lowest priority, the last goes, so earlier ones are kept.
+        kept = np.delete(kept, tied[lowest][-1])
     return frame.columns[kept]
 
 
