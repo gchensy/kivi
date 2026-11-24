@@ -7,7 +7,7 @@
 1.4 有两份设计稿，分别审定：
 
 - **本稿**：补齐 0.2.x 中既没有迁移、迁移指南也没有说明的功能。由协调会话起草。
-- **领域稿**：新的风控算法，如资本计量和验证检验。由“金融风控算法研究”会话起草，分支为 `claude/design-1.4`。
+- **领域稿**：新的风控算法。由“金融风控算法研究”会话起草，即 PR #79 的 `docs/design/kivi-1.4-risk-parameters.md`。按它的推荐，1.4 只做验证报告的检验，资本计量、生存曲线、LGD 和规则放到 1.5–1.7。
 
 两份稿子涉及的源文件互不重叠，见“与领域稿的协同”一节。
 
@@ -143,7 +143,7 @@ woe_trend(table) -> str
 ## 与领域稿的协同
 
 - **本稿的功能 PR 独占：** `src/kivi/selection.py`、`src/kivi/plotting.py`、`src/kivi/woe.py`，以及它们的测试、指南（`selection.rst`、`plotting.rst`、`woe_iv.rst`）和 API 页。
-- **领域稿的功能 PR：** 使用新模块，以及它扩展的已有模块（如 `calibration.py`、`metrics.py`、`lifetime.py`、`strategy.py`、`_stats.py`）。领域功能如果要在 `plotting.py` 里加图，等本稿的画图 PR 合并后再做。
+- **领域稿 1.4 的功能 PR**（一个会话，`validation-tests`）：`_stats.py`、`calibration.py`、`metrics.py`、`vintage.py` 及其测试、API 页和指南，包括新指南 `validation.rst` 以及 `calibration.rst`、`metrics.rst`、`vintage.rst` 的小节。本稿的 PR 不改这些指南，画图 PR 只写 `plotting.rst`。领域功能如果要在 `plotting.py` 里加图，比如迁移矩阵热力图，等本稿的画图 PR 合并后再做。指南里的图在集成 PR 中加进 `docs/_plotting.py`。
 - **只在集成 PR 里改：** README（中英文）、`docs/index.rst`、`user_guide/index.rst` 与 `api.rst` 的顺序、`compatibility.rst`、`glossary.rst`、`conventions.rst`、`migration.rst`、CLAUDE.md，以及 `tests/test_validation.py` 的登记表。两份稿子的功能 PR 都在描述里列出它们需要的改动。
 - **共用文件：** `kivi.po` 是唯一大家都能改的文件，冲突用 `--merge-po` 解决。
 - **合并与发布：** 由协调会话按你的指示，依依赖顺序合并；1.4.0 由你确认后发布。
