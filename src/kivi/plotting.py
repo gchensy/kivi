@@ -2,8 +2,10 @@
 
 Each function draws one result of another kivi module on a matplotlib
 Axes: ``woe_chart`` a ``kivi.woe.woe_table``, ``correlation_chart`` a
-correlation matrix such as ``X.corr()``, ``roc_chart`` a
-``kivi.metrics.roc_table``, ``gains_chart`` a ``kivi.metrics.gains_table``,
+correlation matrix such as ``X.corr()``, ``roc_chart`` and
+``precision_recall_chart`` a ``kivi.metrics.roc_table``, ``gains_chart`` a
+``kivi.metrics.gains_table``, ``distribution_chart`` the event and
+non-event counts of a gains or WOE table,
 ``calibration_chart`` a ``kivi.calibration.calibration_table``,
 ``cutoff_chart`` a ``kivi.strategy.cutoff_table``, ``psi_chart`` a
 ``kivi.stability.psi_table``, ``monitoring_chart`` a column of a
@@ -39,7 +41,9 @@ __all__ = [
     "woe_chart",
     "correlation_chart",
     "roc_chart",
+    "precision_recall_chart",
     "gains_chart",
+    "distribution_chart",
     "calibration_chart",
     "cutoff_chart",
     "psi_chart",
@@ -373,6 +377,138 @@ def roc_chart(
     return ax
 
 
+def precision_recall_chart(
+    table: pd.DataFrame,
+    *,
+    label: str | None = None,
+    ax: "matplotlib.axes.Axes | None" = None,
+) -> "matplotlib.axes.Axes":
+    r"""Draw the precision against the recall of every threshold of a score.
+
+    Flagging the observations from the highest score down, the curve plots
+    ``precision``, the event rate of the flagged observations, against
+    ``true_positive_rate``, the share of all events flagged, also called
+    the recall, as steps whose area is the average precision. A dashed line
+    marks the event rate of the sample, the precision of a score that ranks
+    at random.
+
+    Parameters
+    ----------
+    table : pandas.DataFrame
+        A table from `kivi.metrics.roc_table`. It needs the columns
+        ``true_positive_rate`` and ``precision``.
+    label : str, optional
+        Legend entry of the curve. A legend is drawn only when a curve has
+        a label.
+    ax : matplotlib.axes.Axes, optional
+        Axes to draw on. A new figure is created when it is not given.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        The Axes drawn on, `ax` when it is given.
+
+    Raises
+    ------
+    ImportError
+        If matplotlib is not installed.
+    ValueError
+        If `table` is not a DataFrame, lacks a column it needs or has no
+        rows, a column it needs is not numeric, no row has a precision, or
+        `ax` is not a matplotlib Axes.
+
+    See Also
+    --------
+    kivi.metrics.roc_table : The table that this chart draws.
+    roc_chart : The true positive rate against the false positive rate.
+    kivi.strategy.confusion_table : Precision and recall at chosen
+        cut-offs.
+
+    Notes
+    -----
+    The first row of a roc table, at the threshold ``inf``, flags nobody
+    and has no precision. From a recall of 0, the curve steps through the
+    other rows: from the recall of one row to that of the next, it stays at
+    the precision of the next row. Straight lines between the rows would
+    overstate the precision between them [1]_. With :math:`R_n` and
+    :math:`P_n` the recall and the precision of the n-th row, and
+    :math:`R_0 = 0`, the area under the steps is the average precision
+
+    .. math::
+
+       \mathrm{AP} = \sum_n (R_n - R_{n-1})\, P_n.
+
+    The last row flags every observation, so its precision is the event
+    rate: the curve ends on the dashed line, which is labeled with that
+    rate at its left end.
+
+    The curve takes the next color of the Axes' color cycle, so that the
+    curves of several scores drawn on the same `ax` are told apart by
+    color and by `label`. The dashed line is gray, as the diagonal of
+    `roc_chart`, and is drawn once for each event rate shown, so that the
+    scores of one sample share it and two samples get one line each.
+
+    References
+    ----------
+    .. [1] J. Davis and M. Goadrich, "The Relationship Between
+       Precision-Recall and ROC Curves", Proceedings of the 23rd
+       International Conference on Machine Learning, 233-240, 2006.
+
+    Examples
+    --------
+    >>> from kivi.metrics import roc_table
+    >>> from kivi.plotting import precision_recall_chart
+    >>> table = roc_table([0.1, 0.4, 0.35, 0.8], [0, 0, 1, 1])
+    >>> ax = precision_recall_chart(table)
+    >>> ax.get_xlabel(), ax.get_ylabel()
+    ('true_positive_rate', 'precision')
+    >>> ax.texts[0].get_text()
+    'event_rate = 0.5'
+    """
+    table = _table(table, ["true_positive_rate", "precision"], "kivi.metrics.roc_table")
+    precision = table["precision"].to_numpy(dtype=float)
+    flagged = ~np.isnan(precision)
+    if not flagged.any():
+        raise ValueError(
+            "table must have a row with a precision, below the first row of a roc table"
+        )
+    recall = table["true_positive_rate"].to_numpy(dtype=float)[flagged]
+    precision = precision[flagged]
+    ax = _axes(ax, (5, 4.5))
+    rate = float(precision[-1])
+    text = f"event_rate = {rate:.3g}"
+    if all(drawn.get_text() != text for drawn in ax.texts):
+        ax.axhline(rate, color=_GRAY, linestyle="--", linewidth=1)
+        ax.annotate(
+            text,
+            (0, rate),
+            xycoords=ax.get_yaxis_transform(),
+            xytext=(4, 3),
+            textcoords="offset points",
+            ha="left",
+            va="bottom",
+            fontsize="small",
+            color=_GRAY,
+        )
+    # Steps from a recall of 0, each at the precision of the row it ends on.
+    ax.plot(
+        np.r_[0.0, recall],
+        np.r_[precision[0], precision],
+        drawstyle="steps-pre",
+        linewidth=2,
+        label=label,
+    )
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    _percent(ax.xaxis)
+    _percent(ax.yaxis)
+    ax.set_xlabel("true_positive_rate")
+    ax.set_ylabel("precision")
+    if label is not None:
+        ax.legend(loc="best")
+    return ax
+
+
 def gains_chart(
     table: pd.DataFrame,
     *,
@@ -483,6 +619,96 @@ def gains_chart(
     ax.set_xlabel("cum_total_share")
     ax.set_ylabel("cum_event_share, cum_non_event_share")
     ax.legend(loc="best")
+    return ax
+
+
+def distribution_chart(
+    table: pd.DataFrame, *, ax: "matplotlib.axes.Axes | None" = None
+) -> "matplotlib.axes.Axes":
+    """Draw the share of all non-events and of all events in each group side by side.
+
+    Each row of the table, such as a score band of a gains table or a bin
+    of a WOE table, gets a pair of bars: its share of all the non-events of
+    the table and its share of all the events, from the raw ``non_event``
+    and ``event`` counts. The further apart the two distributions lie, the
+    better the score or the variable tells the classes apart.
+
+    Parameters
+    ----------
+    table : pandas.DataFrame
+        A table from `kivi.metrics.gains_table` or `kivi.woe.woe_table`,
+        or one of the tables of a `kivi.spec.BinningSpec`. It needs the
+        columns ``non_event`` and ``event``.
+    ax : matplotlib.axes.Axes, optional
+        Axes to draw on. A new figure is created when it is not given.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        The Axes drawn on, `ax` when it is given.
+
+    Raises
+    ------
+    ImportError
+        If matplotlib is not installed.
+    ValueError
+        If `table` is not a DataFrame, lacks a column it needs or has no
+        rows, a column it needs is not numeric, a count is negative or not
+        finite, the table counts no event or no non-event, or `ax` is not a
+        matplotlib Axes.
+
+    See Also
+    --------
+    kivi.metrics.gains_table : Score bands, with the highest first.
+    kivi.woe.woe_table : Bins or groups of a variable.
+    gains_chart : The cumulative shares of the same bands.
+    psi_chart : The shares of two samples in the same groups.
+
+    Notes
+    -----
+    The bars keep the order of the table, the highest band first for a
+    gains table, and its empty rows, so that the charts of two samples
+    binned on the same edges line up. The shares are not smoothed, so for
+    a group without events or without non-events they differ from the
+    ``event_share`` and ``non_event_share`` columns of a WOE table, which
+    give an empty cell the smoothing. The tick labels are the group labels
+    of the index, with ``NaN`` for the group of missing values.
+
+    The non-events are blue and the events red. The y-axis leaves room at
+    the top for the legend, so that it covers no bar.
+
+    Examples
+    --------
+    >>> from kivi.metrics import gains_table
+    >>> from kivi.plotting import distribution_chart
+    >>> score = [1, 2, 3, 3, 4, 5, 1, 2]
+    >>> target = [0, 0, 1, 0, 1, 1, 0, 0]
+    >>> ax = distribution_chart(gains_table(score, target, bins=3))
+    >>> [label.get_text() for label in ax.get_xticklabels()]
+    ['(3.0, inf]', '(2.0, 3.0]', '(-inf, 2.0]']
+    >>> [f"{bar.get_height():.2f}" for bar in ax.patches]
+    ['0.00', '0.20', '0.80', '0.67', '0.33', '0.00']
+    """
+    table = _table(table, ["non_event", "event"], "kivi.metrics.gains_table or kivi.woe.woe_table")
+    counts = _validation.as_count_columns(
+        table["non_event"], table["event"], ("non_event of table", "event of table")
+    )
+    shares = counts / counts.sum(axis=0)
+    ax = _axes(ax, (7, 4))
+    x = np.arange(len(table))
+    ax.bar(x - 0.2, shares[:, 0], width=0.4, color=_BLUE, label="non_event_share")
+    ax.bar(x + 0.2, shares[:, 1], width=0.4, color=_RED, label="event_share")
+    columns = _legend_columns(ax, ["non_event_share", "event_share"])
+    # The room of a row more than the legend has: slanted labels of many bands make the
+    # layout shrink the Axes more, and the highest band of a gains table, on the left,
+    # often holds the tallest event bar.
+    room = _legend_room(ax, 1 + 2 // columns)
+    ax.set_ylim(0, _top(shares.ravel(), 0.0, room))
+    _percent(ax.yaxis)
+    ax.set_ylabel("non_event_share, event_share")
+    _xlabel(ax, table.index)
+    _ticks(ax, x, _labels(table.index))
+    ax.legend(loc="upper left", ncols=columns)
     return ax
 
 
