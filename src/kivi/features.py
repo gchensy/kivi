@@ -389,7 +389,9 @@ def panel_features(
         a loan. Values are matched by equality.
     month : str
         Column of `panel` with the month of each status: monthly periods,
-        or datetimes, which stand for their month.
+        or datetimes, which stand for their month on their own calendar.
+        Tz-aware datetimes must be in the time zone of `observation_time`
+        if that has one too.
     status : str
         Column of `panel` with the status at the end of each month, an
         ordered categorical from the best status to the worst, such as the
@@ -438,9 +440,11 @@ def panel_features(
         `status` or `observation_time` is not the name of a single column of
         its table, if an id, a month or a status is missing, if `month` does
         not hold monthly periods or datetimes, if `status` is not an ordered
-        categorical or `bad` not one of its categories, or if
-        `observation_time` does not hold datetimes. Also if a window is not
-        a number of months or is repeated, or if `prefix` is not a string.
+        categorical or `bad` not one of its categories, if
+        `observation_time` does not hold datetimes, or if the months and the
+        observation times are tz-aware in two different time zones. Also if
+        a window is not a number of months or is repeated, or if `prefix` is
+        not a string.
 
     See Also
     --------
@@ -452,6 +456,10 @@ def panel_features(
     -----
     The month of an observation time is its calendar month, so an
     observation on 31 March uses the statuses up to the end of February.
+    Months and observation times are each taken on their own calendar,
+    which is why two time zones raise an error: 1 April in Tokyo is still
+    31 March in New York, before the status at the end of March in New
+    York exists.
     A window of :math:`k` months holds the :math:`k` months before it, so
     ``"6M"`` for an observation in March holds September to February.
 
@@ -555,8 +563,8 @@ class FeatureSpec:
         ``status`` (both required), ``windows``, ``bad`` and ``prefix``,
         which mean and default to what the arguments of `panel_features`
         do, and ``table``, the name of the panel that the group reads,
-        ``"panel"`` by default. None is read as no groups. The
-        specification needs at least one group of either kind.
+        ``"panel"`` by default. The specification needs at least one
+        group of either kind.
     kivi_version : str, optional
         Version of kivi that wrote the specification. By default, or if
         None, the installed version.
@@ -620,7 +628,7 @@ class FeatureSpec:
     observation_time: str
     events: abc.Sequence[abc.Mapping[str, typing.Any]] = ()
     ratios: abc.Sequence[tuple[str, str]] = ()
-    panel: abc.Sequence[abc.Mapping[str, typing.Any]] | None = ()
+    panel: abc.Sequence[abc.Mapping[str, typing.Any]] = ()
     kivi_version: str | None = None
     FORMAT_VERSION: typing.ClassVar[int] = _FORMAT_VERSION
 
@@ -634,7 +642,7 @@ class FeatureSpec:
                 "events must be a list of dicts, one per group of window features, got "
                 f"{_validation.shown_argument(entries)}"
             )
-        panels = () if self.panel is None else self.panel
+        panels = self.panel
         if not isinstance(panels, (list, tuple)):
             raise ValueError(
                 "panel must be a list of dicts, one per group of panel features, got "
@@ -834,7 +842,7 @@ class FeatureSpec:
 
         The dict holds the arguments of the constructor as the constructor
         takes them, with lists for tuples, so they rebuild the specification.
-        It holds only dicts, lists, strings and None, so ``json.dumps`` can
+        It holds only dicts, lists, strings and integers, so ``json.dumps`` can
         write it without further conversion, and its keys are always in the
         same order. `to_json` writes this dict.
 
@@ -973,7 +981,7 @@ class FeatureSpec:
             )
         entries = data["events"]
         if not isinstance(entries, list):
-            raise ValueError(f"events must be a list, got {type(entries).__name__}")
+            raise ValueError(f"events must be a list of groups, got {_json_kind(entries)}")
         groups = []
         for number, entry in enumerate(entries):
             where = f"events[{number}]"
@@ -983,7 +991,7 @@ class FeatureSpec:
             groups.append(entry)
         panels = data["panel"]
         if not isinstance(panels, list):
-            raise ValueError(f"panel must be a list, got {type(panels).__name__}")
+            raise ValueError(f"panel must be a list of groups, got {_json_kind(panels)}")
         for number, entry in enumerate(panels):
             where = f"panel[{number}]"
             if not isinstance(entry, abc.Mapping):
@@ -1196,7 +1204,9 @@ def _check_name(value: object, argument: str) -> None:
         raise ValueError(f"{argument} must be a string, got {_validation.shown_argument(value)}")
 
 
-def _checked_windows(windows: object, argument: str) -> tuple[_Window, ...]:
+def _checked_windows(
+    windows: object, argument: str, *, months_only: bool = False
+) -> tuple[_Window, ...]:
     if not isinstance(windows, (list, tuple)):
         hint = f"; pass [{windows!r}] for one window" if isinstance(windows, str) else ""
         raise ValueError(
@@ -1205,7 +1215,7 @@ def _checked_windows(windows: object, argument: str) -> tuple[_Window, ...]:
         )
     if not windows:
         raise ValueError(f"{argument} must have at least one window")
-    checked = [_checked_window(window, argument) for window in windows]
+    checked = [_checked_window(window, argument, months_only) for window in windows]
     labels = [window.label for window in checked]
     for window in checked:
         if labels.count(window.label) > 1:
@@ -1215,16 +1225,17 @@ def _checked_windows(windows: object, argument: str) -> tuple[_Window, ...]:
     return tuple(checked)
 
 
-def _checked_window(window: object, argument: str) -> _Window:
+def _checked_window(window: object, argument: str, months_only: bool) -> _Window:
     if isinstance(window, str):
-        start = _bound(window, argument)
+        start = _bound(window, argument, months_only)
         return _Window(str(window), _bound_label(start), start, None)
     if (
         isinstance(window, (list, tuple))
         and len(window) == 2
         and all(isinstance(bound, str) for bound in window)
     ):
-        start, end = _bound(window[0], argument), _bound(window[1], argument)
+        start = _bound(window[0], argument, months_only)
+        end = _bound(window[1], argument, months_only)
         if start[1] != end[1] or start[0] <= end[0]:
             raise ValueError(
                 f"a pair of {argument} must reach further back with its first bound, in the "
@@ -1239,8 +1250,13 @@ def _checked_window(window: object, argument: str) -> _Window:
     )
 
 
-def _bound(text: str, argument: str) -> tuple[int, str]:
+def _bound(text: str, argument: str, months_only: bool) -> tuple[int, str]:
     match = _BOUND.fullmatch(text)
+    if months_only and (match is None or match[2] != "M"):
+        raise ValueError(
+            f"{argument} must count months for a panel of monthly statuses, such as '6M', got "
+            f"{_validation.shown(text)}"
+        )
     if match is None:
         raise ValueError(
             f"{argument} must count months or days such as '3M' or '90D', got "
@@ -1372,6 +1388,15 @@ def _check_keys(data: abc.Mapping[str, typing.Any], expected: set[str], where: s
         if unknown:
             problems.append(f"has unknown keys {_validation.shown_list(unknown)}")
         raise ValueError(f"{where} " + " and ".join(problems))
+
+
+def _json_kind(value: object) -> str:
+    """Name the kind of a JSON value for a message; write [] for an empty list."""
+    if value is None:
+        return "null; write [] for no groups"
+    if isinstance(value, dict):
+        return "an object"
+    return "a string" if isinstance(value, str) else type(value).__name__
 
 
 def _unique_keys(pairs: list[tuple[str, typing.Any]]) -> dict[str, typing.Any]:
@@ -1822,13 +1847,7 @@ def _checked_panel_group(
         raise ValueError(
             f"{arguments['prefix']} must be a string, got {_validation.shown_argument(prefix)}"
         )
-    checked = _checked_windows(windows, arguments["windows"])
-    for window in checked:
-        if window.start[1] != "M":
-            raise ValueError(
-                f"{arguments['windows']} must count months for a panel of monthly statuses, "
-                f"such as '6M', got {_validation.shown(window.definition)}"
-            )
+    checked = _checked_windows(windows, arguments["windows"], months_only=True)
     return _PanelGroup(
         table=str(table),
         month=str(month),
@@ -1900,8 +1919,13 @@ def _month_numbers(values: pd.Series) -> npt.NDArray[np.int64]:
     return years * 12 + values.dt.month.to_numpy(dtype=np.int64) - 1 - 1970 * 12
 
 
-def _months(values: pd.Series, where: str) -> npt.NDArray[np.int64]:
-    """Return the months of a month column of monthly periods or datetimes."""
+def _months(values: pd.Series, where: str, zone: object) -> npt.NDArray[np.int64]:
+    """Return the months of a month column of monthly periods or datetimes.
+
+    ``zone`` is the time zone of the observation times. Tz-aware datetimes
+    are taken on their own calendar, which must then be that of the
+    observations if they have one.
+    """
     dtype = values.dtype
     monthly = isinstance(dtype, pd.PeriodDtype) and dtype == pd.PeriodDtype("M")
     if not (monthly or pd.api.types.is_datetime64_any_dtype(dtype)):
@@ -1910,7 +1934,13 @@ def _months(values: pd.Series, where: str) -> npt.NDArray[np.int64]:
             f"periods or datetimes, got dtype {dtype}"
         )
     _check_complete(values, "month", where)
-    if getattr(dtype, "tz", None) is not None:
+    own = getattr(dtype, "tz", None)
+    if own is not None:
+        if zone is not None and _zone_name(own) != _zone_name(zone):
+            raise ValueError(
+                f"the months of {where} and the times of observations must share one time zone "
+                f"when both have one, got {_zone_name(own)} and {_zone_name(zone)}"
+            )
         values = values.dt.tz_localize(None)
     return _month_numbers(values)
 
@@ -1968,7 +1998,7 @@ def _panel_values(
     frame = typing.cast(pd.DataFrame, panel)
     ids = _column(frame, id, "id", where)
     _check_complete(ids, "id", where)
-    months = _months(_column(frame, group.month, "month", where), where)
+    months = _months(_column(frame, group.month, "month", where), where, observed.zone)
     statuses = _column(frame, group.status, "status", where)
     codes, bad_code = _statuses(statuses, group.bad, where, bad)
 

@@ -293,7 +293,7 @@ The applications are dated 31 March, but the status at the end of March is not k
      - Months from the latest bad month to the month of the observation time
      - Float, NaN if never bad
 
-The windows count months only, as ``"6M"`` or ``("12M", "6M")``; windows of days raise an error, because the statuses are monthly. The month column may hold monthly periods or datetimes, which stand for their month.
+The windows count months only, as ``"6M"`` or ``("12M", "6M")``; windows of days raise an error, because the statuses are monthly. The month column may hold monthly periods or datetimes, which stand for their month. Months and observation times are each taken on their own calendar, so tz-aware months and tz-aware observation times must share one time zone: 1 April in Tokyo is still 31 March in New York, before the status at the end of March there exists.
 
 On the simulated book of :func:`~kivi.datasets.make_loan_panel`, the features of every loan in January 2025 summarize its last year:
 
@@ -314,7 +314,7 @@ current    1976
 NaN        2711
 Name: count, dtype: int64
 
-The 2,711 loans that start in 2025 have no month before January 2025, so their windows are empty and their worst status is missing. Of the others, 108 were 30 days or more behind at some month end of 2024.
+The 2,711 loans whose first month on book is in 2025 have no month before January 2025, so their windows are empty and their worst status is missing. Of the others, 108 were 30 days or more behind at some month end of 2024.
 
 Feature specifications
 ----------------------
@@ -452,4 +452,23 @@ A single window is still a list:
 ...     print(error)
 windows must be a list of windows such as '3M', '90D' or ('6M', '3M'), got '3M'; pass ['3M'] for one window
 
-A time column with a time zone and one without, or two time zones, raise an error that names both; convert them to one zone with ``Series.dt.tz_convert`` or remove the zones with ``Series.dt.tz_localize(None)``. The aggregations other than ``count``, ``nunique`` and ``days_since_last`` raise an error for a column of text, and every aggregation of numbers raises one for infinite values.
+A time column with a time zone and one without, or two time zones, raise an error that names both; convert them to one zone with ``Series.dt.tz_convert`` or remove the zones with ``Series.dt.tz_localize(None)``. For a panel, tz-aware months and tz-aware observation times in two time zones raise the same way. The aggregations other than ``count``, ``nunique`` and ``days_since_last`` raise an error for a column of text, and every aggregation of numbers raises one for infinite values.
+
+A status column of strings has no order, so :func:`~kivi.features.panel_features` asks for an ordered categorical, and ``bad`` must be one of its categories:
+
+>>> try:
+...     panel_features(
+...         panel.astype({"status": object}), applications, id="customer", month="month",
+...         status="status", observation_time="application_date",
+...     )
+... except ValueError as error:
+...     print(error)
+status column 'status' of panel must be an ordered categorical, from the best status to the worst, got dtype object; convert it with pandas.Categorical(values, categories=[...], ordered=True)
+>>> try:
+...     panel_features(
+...         panel, applications, id="customer", month="month", status="status",
+...         observation_time="application_date", bad="30+",
+...     )
+... except ValueError as error:
+...     print(error)
+bad must be one of the categories of status column 'status' of panel, got '30+'; the categories are ['current', '1-29', '30-59', '60-89', '90+']

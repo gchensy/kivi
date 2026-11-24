@@ -1139,7 +1139,10 @@ def damaged(change):
             damaged(lambda d: d.update(groups=[])),
             r"^the specification has unknown keys \['groups'\]$",
         ),
-        (damaged(lambda d: d.update(events={})), "^events must be a list, got dict$"),
+        (
+            damaged(lambda d: d.update(events={})),
+            "^events must be a list of groups, got an object$",
+        ),
         (
             damaged(lambda d: d.update(events=[])),
             "^a feature specification needs a group of window features in events or of panel "
@@ -1177,7 +1180,16 @@ def damaged(change):
             damaged(lambda d: d.update(ratios=[["events_1m"]])),
             r"^each ratio of ratios must be .*, got \['events_1m'\]$",
         ),
-        (damaged(lambda d: d.update(panel={})), "^panel must be a list, got dict$"),
+        (damaged(lambda d: d.update(panel={})), "^panel must be a list of groups, got an object$"),
+        (
+            # The reserved panel of the first version of the format, before panel_features.
+            damaged(lambda d: d.update(panel=None)),
+            r"^panel must be a list of groups, got null; write \[\] for no groups$",
+        ),
+        (
+            damaged(lambda d: d.update(events="none")),
+            "^events must be a list of groups, got a string$",
+        ),
         (
             damaged(lambda d: d.update(kivi_version=None)),
             "^kivi_version must be a string, got None$",
@@ -1526,6 +1538,38 @@ def test_panel_statuses_with_integer_categories():
     assert result.iloc[0].tolist() == [3, 1, 1, 1, 2, 2.0]
 
 
+def test_months_and_observation_times_in_two_time_zones_raise():
+    panel = pd.DataFrame(
+        {
+            "customer": [1],
+            "month": pd.to_datetime(["2024-03-15"]).tz_localize("America/New_York"),
+            "status": pd.Categorical(["90+"], categories=BUCKETS, ordered=True),
+        }
+    )
+    # 1 April 01:00 in Tokyo is 31 March 12:00 in New York, before the end of March there.
+    tokyo = pd.DataFrame(
+        {"customer": [1], "date": pd.to_datetime(["2024-04-01 01:00"]).tz_localize("Asia/Tokyo")}
+    )
+    with pytest.raises(
+        ValueError,
+        match="^the months of panel and the times of observations must share one time zone when "
+        "both have one, got 'America/New_York' and 'Asia/Tokyo'$",
+    ):
+        features.panel_features(panel, tokyo, **PANEL_KEYS, windows=["1M"])
+    new_york = tokyo.assign(date=tokyo["date"].dt.tz_convert("America/New_York"))
+    result = features.panel_features(panel, new_york, **PANEL_KEYS, windows=["1M"])
+    assert result["months_1m"].tolist() == [0]
+    # Naive observation times are read on the calendar of the months.
+    naive = tokyo.assign(date=pd.to_datetime(["2024-04-01 01:00"]))
+    result = features.panel_features(panel, naive, **PANEL_KEYS, windows=["1M"])
+    assert result["bad_months_1m"].tolist() == [1]
+    spec = FeatureSpec(
+        id="customer", observation_time="date", panel=[{"month": "month", "status": "status"}]
+    )
+    with pytest.raises(ValueError, match="^the months of panel and the times of observations "):
+        spec.compute(tokyo, panel=panel)
+
+
 def test_months_of_tz_aware_datetimes_are_local():
     # 00:30 on 1 February in Shanghai is still 31 January in UTC.
     panel = pd.DataFrame(
@@ -1565,7 +1609,15 @@ def test_months_of_tz_aware_datetimes_are_local():
         ),
         (
             {"windows": [("60D", "30D")]},
-            r"^windows must count months for a panel .*, got \('60D', '30D'\)$",
+            r"^windows must count months for a panel .*, got '60D'$",
+        ),
+        (
+            {"windows": ["6m"]},
+            "^windows must count months for a panel of monthly statuses, such as '6M', got '6m'$",
+        ),
+        (
+            {"windows": [("12M", "6m")]},
+            "^windows must count months for a panel .*, got '6m'$",
         ),
         (
             {"windows": "6M"},
@@ -1728,12 +1780,14 @@ def test_a_specification_with_panel_groups_round_trips():
     )
     assert integer.panel[0]["bad"] == 2 and type(integer.panel[0]["bad"]) is int
     assert FeatureSpec.from_json(integer.to_json()) == integer
-    assert (
-        FeatureSpec(
-            id="customer", observation_time="date", panel=None, events=[{"time": "t"}]
-        ).panel
-        == ()
-    )
+    for field in ("events", "panel"):
+        fields = {"events": [{"time": "t"}], field: None}
+        kind = "window" if field == "events" else "panel"
+        with pytest.raises(
+            ValueError,
+            match=f"^{field} must be a list of dicts, one per group of {kind} features, got None$",
+        ):
+            FeatureSpec(id="customer", observation_time="date", **fields)
 
 
 def test_compute_requires_exactly_the_tables_of_its_groups():

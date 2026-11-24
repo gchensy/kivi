@@ -127,7 +127,7 @@ FeatureSpec.from_json(spec.to_json())
 
 **输出：** 每个观察一行。列先按窗口、再按列、再按聚合排序，比率列在最后。计数为整数，其余为浮点数。这些列名和顺序一旦发布，就受 1.x 兼容性承诺约束。
 
-**`FeatureSpec`：** 不可变的 dataclass，只存定义，不从数据拟合任何东西，这一点与 `BinningSpec` 不同。所有事件表共用一个 `id` 列。JSON 的结构与构造函数的参数一致：先是 `format: "kivi.FeatureSpec"`、`format_version: 1` 和 `kivi_version`，然后依次是构造函数的参数 `id`、`observation_time`、`events`、`ratios` 和 `panel`。`events` 的每组写出全部键 `table`、`time`、`windows`、`aggregations`（列到聚合列表的对象，按结果中列的顺序）、`closed` 和 `prefix`，元组写成列表，所以 `to_dict()` 的这些键可以直接传给构造函数。读到更新的格式版本时拒绝，JSON 对象中重复的键也报错。`panel` 与 `events` 一样是组的列表，每组写出全部键 `table`、`month`、`status`、`windows`、`bad` 和 `prefix`；`events` 和 `panel` 都可以为空，但至少要有一组。`panel_features` 与本节一起在 1.3.0 发布，`format_version` 1 由此定稿。
+**`FeatureSpec`：** 不可变的 dataclass，只存定义，不从数据拟合任何东西，这一点与 `BinningSpec` 不同。所有事件表共用一个 `id` 列。JSON 的结构与构造函数的参数一致：先是 `format: "kivi.FeatureSpec"`、`format_version: 1` 和 `kivi_version`，然后依次是构造函数的参数 `id`、`observation_time`、`events`、`ratios` 和 `panel`。`events` 的每组写出全部键 `table`、`time`、`windows`、`aggregations`（列到聚合列表的对象，按结果中列的顺序）、`closed` 和 `prefix`，元组写成列表，所以 `to_dict()` 的这些键可以直接传给构造函数。读到更新的格式版本时拒绝，JSON 对象中重复的键也报错。`panel` 与 `events` 一样是组的列表，每组写出全部键 `table`、`month`、`status`、`windows`、`bad` 和 `prefix`；`events` 和 `panel` 默认都是空列表 `()`，但至少要有一组；两者都不接受 None，JSON 中的 `null` 也会报错。`panel_features` 与本节一起在 1.3.0 发布，`format_version` 1 由此定稿。
 
 ## 语义细节
 
@@ -165,7 +165,7 @@ FeatureSpec.from_json(spec.to_json())
 - 每个窗口另有 `months_{窗口}`：窗口内有状态的月数，与 `events_{窗口}` 对应。只统计有状态的月份，贷款开始之前、结清之后或两笔贷款之间没有状态的月份不计入；没有状态的月份会中断连续月数。
 - `status` 必须是有序分类，从最好到最差排列，`bad` 必须是其类别之一；字符串列会报错，避免把 `current` 这类标签按字母排序。`bad` 可以是字符串或整数。
 - 窗口只能按月，`"90D"` 这类按天的窗口报错；窗口对写成 `windows=[("12M", "6M")]`，与 `window_features` 相同。
-- `month` 列可以是月度 Period，也可以是日期时间（取其所在月）；有时区的观察时间按当地日历取月。
+- `month` 列可以是月度 Period，也可以是日期时间（取其所在月）；月份和观察时间各按自己的日历取月，因此两边都有时区时必须是同一时区，否则报错（东京的 4 月 1 日在纽约仍是 3 月 31 日，纽约 3 月末的状态那时还不存在）。
 - `worst_status_{窗口}` 的 dtype 与 `status` 相同，窗口内没有月份时为缺失；`months_since_bad` 看观察月之前的全部历史，不受窗口限制，从未变坏为 NaN。
 - 列名的前缀保持原样，只有 kivi 自己的部分为小写。`worst_status` 不能参与比率。
 
