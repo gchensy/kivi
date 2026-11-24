@@ -69,6 +69,12 @@ A loan system records the instalments that each loan owes and the payments that 
 13       D  2024-05            106          100.01       100.01      90+
 14       D  2024-06            136          100.01       100.01      90+
 
+.. plot::
+   :alt: A timeline of loan D with its three instalments of 100, its payments of 100 and 99.99 and the six month ends from January to June 2024, above its days past due, overdue amount, outstanding amount and status at each month end
+   :caption: How ``delinquency_panel`` computes the rows of loan D. Its instalments fall due on the 15th of January, February and March, and it pays 100 on 15 January and 99.99 on 15 February. At each month end, the payments made by then go to the oldest instalments first, so the February instalment stays 0.01 short and ``days_past_due`` counts from its due date. The loan keeps rolling after its last due date until ``end``.
+
+   kd.figure_delinquency_timeline()
+
 Each loan has a row at the end of every month from the month of its first due date, here January, to ``end``. The rows follow the rules that loan servicing usually applies:
 
 * Payments go to the oldest unpaid instalment first. A pays every instalment by its due date and stays current. B misses its February instalment and pays it with the March one on 20 March: it is 14 days past due at the end of February, counted from 15 February, and current again at the end of March.

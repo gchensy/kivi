@@ -27,7 +27,7 @@ import pandas as pd
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 from matplotlib.ticker import FixedLocator
 
-from kivi.binning import bin_edges
+from kivi.binning import bin_edges, ks_edges
 from kivi.calibration import isotonic_fit
 from kivi.datasets import load_bank, make_applications, make_loan_panel
 from kivi.expert import ahp_consistency, ahp_weights
@@ -42,7 +42,7 @@ from kivi.spec import BinningSpec, fit_spec
 from kivi.stability import psi_table
 from kivi.strategy import confusion_table, cutoff_table, swap_set
 from kivi.univariate import profile_table
-from kivi.vintage import roll_rates, transition_matrix
+from kivi.vintage import delinquency_panel, roll_rates, transition_matrix
 from kivi.woe import woe_table, woe_transform
 
 UNIT = 0.25  # inches per grid unit, 18 points
@@ -399,6 +399,139 @@ def figure_bin_edges_cut():
         ],
     )
     canvas.arrow((x1 + 1.2, line_y), (out.left - 0.3, line_y), linewidth=1.2)
+    return canvas.fig
+
+
+def _best_ks_cut(values, target, low, high, min_count):
+    """The cut of the bin (low, high] with the largest KS, tried value by value."""
+    inside = (values > low) & (values <= high)
+    values, target = values[inside], target[inside]
+    events, non_events = int(target.sum()), int((1 - target).sum())
+    best = None
+    for cut in np.unique(values)[:-1]:
+        left = values <= cut
+        if left.sum() < min_count or (~left).sum() < min_count:
+            continue
+        e, n = int(target[left].sum()), int((1 - target[left]).sum())
+        # e n KS: the pairs of an event and a non-event that the cut ranks apart; ties go to
+        # the first cut.
+        pairs = abs(e * (non_events - n) - (events - e) * n)
+        if best is None or pairs > best["pairs"]:
+            best = {"cut": cut, "e": e, "n": n, "pairs": pairs}
+    best["ks"] = abs(best["e"] / events - best["n"] / non_events)
+    return {"low": low, "high": high, "event": events, "non_event": non_events} | best
+
+
+def figure_ks_second_cut():
+    """The second step of Best KS: each bin of the first cut with its best cut and its pairs."""
+    reference = load_bank().iloc[:3000]
+    balance, target = reference["balance"], reference["target"]
+    min_bin_share = 0.05
+    first = ks_edges(balance, target, max_bins=2)
+    values, labels = balance.to_numpy(dtype=float), target.to_numpy()
+    bins = [
+        _best_ks_cut(values, labels, low, high, min_bin_share * len(values))
+        for low, high in zip(first[:-1], first[1:], strict=True)
+    ]
+    chosen = max(range(len(bins)), key=lambda i: bins[i]["pairs"])
+    second = ks_edges(balance, target, max_bins=3)
+    third = ks_edges(balance, target, max_bins=4)
+    if list(second) != sorted([*first, bins[chosen]["cut"]]) or list(third) != sorted(
+        [*first, *(b["cut"] for b in bins)]
+    ):
+        raise AssertionError("the drawn cuts are not those of ks_edges")
+
+    def interval(low, high):
+        return str(pd.Interval(float(low), float(high), closed="right"))
+
+    parents = [interval(b["low"], b["high"]) for b in bins]
+    halves = [
+        name for b in bins for name in (interval(b["low"], b["cut"]), interval(b["cut"], b["high"]))
+    ]
+    styles = dict(zip(parents, ramp(len(parents)), strict=True))
+    styles |= dict(zip(halves, ramp(len(halves)), strict=True))
+
+    canvas = Canvas(height=12.4)
+    left, right = canvas.call(0.6, 0.15, "ks_edges(balance, target, max_bins=2)")
+    canvas.note(right + 0.4, 0.65, f"-> array({np.array2string(first, separator=', ')})", size=9)
+    width, top, bottom = 15.0, 1.9, 10.0
+    for i, b in enumerate(bins):
+        x = 0.6 + i * (width + 0.8)
+        picked = i == chosen
+        canvas.box(
+            x,
+            top,
+            width,
+            bottom - top,
+            fill=CARD_FILL,
+            edge=AMBER if picked else CARD_EDGE,
+            radius=0.45,
+            linewidth=1.6 if picked else 0.8,
+            z=0,
+        )
+        tx = x + 0.9
+        counts = canvas.table(
+            tx,
+            top + 0.35,
+            [
+                group_column("bin", [parents[i]], 5.4, styles),
+                Column("event", [str(b["event"])], 2.2),
+                Column("non_event", [str(b["non_event"])], 3.0),
+            ],
+        )
+        split = canvas.table(
+            tx,
+            counts.bottom + 0.9,
+            [
+                group_column("bin", halves[2 * i : 2 * i + 2], 5.4, styles),
+                Column("event", [str(b["e"]), str(b["event"] - b["e"])], 2.2),
+                Column("non_event", [str(b["n"]), str(b["non_event"] - b["n"])], 3.0),
+            ],
+            header=False,
+        )
+        centre = counts.center("bin")
+        canvas.arrow((centre, counts.bottom + 0.08), (centre, split.top - 0.08), linewidth=1.2)
+        boundary = (split.rows[0] + split.rows[1]) / 2
+        canvas.line(
+            split.left - 0.3, boundary, split.right + 0.3, boundary, color=AMBER, linewidth=1.6
+        )
+        canvas.note(
+            split.right + 0.5, boundary, f"{b['cut']:.1f}", color=RESULT_TEXT, bold=True, size=9.5
+        )
+        canvas.note(
+            tx,
+            split.bottom + 0.7,
+            f"ks = |{b['e']} / {b['event']} - {b['n']} / {b['non_event']}| = {b['ks']:.4f}",
+        )
+        pairs = f"event * non_event * ks = {b['pairs']}"
+        canvas.box(
+            tx,
+            split.bottom + 1.2,
+            text_width(pairs, 9.5) + 0.8,
+            CELL,
+            fill=RESULT_FILL if picked else CELL_FILL,
+            edge=RESULT_EDGE if picked else CELL_EDGE,
+        )
+        canvas.text(
+            tx + 0.4,
+            split.bottom + 1.2 + CELL / 2,
+            pairs,
+            color=RESULT_TEXT if picked else INK,
+            bold=picked,
+            ha="left",
+        )
+
+    centre = 0.6 + chosen * (width + 0.8) + width / 2
+    left, right = canvas.call(0.6, bottom + 1.1, "ks_edges(balance, target, max_bins=3)")
+    canvas.arrow((min(centre, right - 1.0), bottom + 0.1), (min(centre, right - 1.0), bottom + 1.0))
+    canvas.note(
+        right + 0.4,
+        bottom + 1.6,
+        f"-> array({np.array2string(second, separator=', ')})",
+        size=9,
+        color=RESULT_TEXT,
+        bold=True,
+    )
     return canvas.fig
 
 
@@ -794,12 +927,14 @@ def figure_ahp_weights():
         ],
     )
     canvas.call(31.6, 0.15, "ahp_consistency(matrix)", ha="right")
+    # The Series as the doctest prints it: the index name heads the labels, and the values
+    # have no header because the Series has no name.
     canvas.table(
         out.right + 0.6,
         top,
         [
-            Column("statistic", list(statistics.index), 3.6, color=MUTED),
-            result("value", [number(v, 4) for v in statistics], 2.3),
+            Column(statistics.index.name, list(statistics.index), 3.6, color=MUTED),
+            result(statistics.name or "", [number(v, 4) for v in statistics], 2.3),
         ],
     )
     lam, ri = statistics["lambda_max"], statistics["ri"]
@@ -1230,6 +1365,209 @@ def figure_reject_bands():
 
 
 # Vintage
+
+
+def _repayment_example():
+    """The schedule and the payments of the four loans of the vintage guide."""
+    schedule = pd.DataFrame(
+        {
+            "loan": np.repeat(["A", "B", "C", "D"], 3),
+            "due_date": pd.to_datetime(["2024-01-15", "2024-02-15", "2024-03-15"] * 4),
+            "amount_due": 100.0,
+        }
+    )
+    payments = pd.DataFrame(
+        {
+            "loan": ["A", "A", "A", "B", "B", "C", "C", "D", "D"],
+            "date": pd.to_datetime(
+                [
+                    "2024-01-15",
+                    "2024-02-15",
+                    "2024-03-14",
+                    "2024-01-15",
+                    "2024-03-20",
+                    "2024-01-10",
+                    "2024-03-15",
+                    "2024-01-15",
+                    "2024-02-15",
+                ]
+            ),
+            "amount": [100.0, 100.0, 100.0, 100.0, 200.0, 200.0, 100.0, 100.0, 99.99],
+        }
+    )
+    return schedule, payments
+
+
+def _month_end_rows(due_date, amount_due, payment_date, payment_amount, months, statuses):
+    """days_past_due, overdue_amount, outstanding and status at each month end, by hand."""
+    order = np.argsort(due_date.to_numpy(), kind="stable")
+    due_date, amount_due = due_date.to_numpy()[order], amount_due.to_numpy()[order]
+    owed = np.cumsum(amount_due)
+    rows = []
+    for month in months:
+        end = month.to_timestamp(how="end").normalize()
+        paid = payment_amount[payment_date <= end].sum()
+        unpaid = np.flatnonzero(owed - paid > 1e-9)
+        oldest = due_date[unpaid[0]] if len(unpaid) else None
+        days = max((end - oldest).days, 0) if oldest is not None else 0
+        bucket = sum(days >= start for start in (1, 30, 60, 90))
+        rows.append(
+            {
+                "days_past_due": days,
+                "overdue_amount": max(amount_due[due_date < end].sum() - paid, 0.0),
+                "outstanding": amount_due.sum() - min(paid, amount_due.sum()),
+                "status": statuses[bucket],
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def figure_delinquency_timeline():
+    """Loan D of the vintage guide: instalments, payments and the columns at each month end."""
+    schedule, payments = _repayment_example()
+    book = delinquency_panel(
+        schedule["loan"],
+        schedule["due_date"],
+        schedule["amount_due"],
+        payments["loan"],
+        payments["date"],
+        payments["amount"],
+        end="2024-06",
+    )
+    loan = "D"
+    rows = book[book["loan_id"] == loan].reset_index(drop=True)
+    due = schedule[schedule["loan"] == loan]
+    paid = payments[payments["loan"] == loan]
+    statuses = list(rows["status"].cat.categories)
+    expected = _month_end_rows(
+        due["due_date"], due["amount_due"], paid["date"], paid["amount"], rows["month"], statuses
+    )
+    numbers = ["days_past_due", "overdue_amount", "outstanding"]
+    if not (
+        np.allclose(rows[numbers].to_numpy(dtype=float), expected[numbers].to_numpy(dtype=float))
+        and list(rows["status"]) == list(expected["status"])
+    ):
+        raise AssertionError(f"the drawn month ends of {loan} do not match delinquency_panel")
+
+    canvas = Canvas(height=16.6)
+    origin, scale, x0 = pd.Timestamp("2024-01-01"), 0.1265, 6.8
+    labels = 6.2
+
+    def at(time):
+        return x0 + (time - origin).days * scale
+
+    ends = [month.to_timestamp(how="end").normalize() for month in rows["month"]]
+    canvas.call(0.6, 0.15, 'delinquency_panel(*instalments, *paid, end="2024-06")')
+    canvas.note(31.4, 0.65, f'loan_id == "{loan}"', ha="right", color=INK, bold=True)
+
+    # Days past due run from the due date of the oldest unpaid instalment to each month end.
+    oldest = due["due_date"].iloc[1]
+    bracket, instalments, payment_row, axis = 2.1, 3.5, 4.9, 6.2
+    canvas.line(at(oldest), bracket, at(ends[-1]), bracket, color=AMBER, linewidth=1.6, z=3)
+    canvas.line(
+        at(oldest), bracket - 0.28, at(oldest), bracket + 0.28, color=AMBER, linewidth=1.6, z=3
+    )
+    canvas.line(at(oldest), bracket, at(oldest), instalments, color=AMBER, style="--", z=1)
+    canvas.note(
+        at(oldest) - 0.4, bracket, "days_past_due", ha="right", color=RESULT_TEXT, bold=True
+    )
+    for end in ends:
+        late = end > oldest
+        start = bracket if late else instalments - 1.0
+        canvas.line(at(end), start, at(end), axis, color=AMBER, linewidth=0.9, style="--", z=1)
+        if late:
+            canvas.ax.plot(at(end), bracket, "o", markersize=4.5, color=AMBER, zorder=4)
+
+    canvas.text(labels, instalments, "amount_due", size=9, bold=True, ha="right")
+    canvas.text(labels, payment_row, "payment_amount", size=9, bold=True, ha="right")
+    for y in (instalments, payment_row):
+        canvas.line(labels + 0.4, y, at(ends[-1]) + 0.6, y, color=CELL_EDGE)
+    fill, color = CATEGORY[0]
+    for time, amount in zip(due["due_date"], due["amount_due"], strict=True):
+        is_oldest = time == oldest
+        canvas.ax.plot(
+            at(time),
+            instalments,
+            "s",
+            markersize=9,
+            markerfacecolor=fill,
+            markeredgecolor=AMBER if is_oldest else color,
+            markeredgewidth=1.8 if is_oldest else 1.2,
+            zorder=5,
+        )
+        canvas.note(at(time), instalments - 0.62, f"{amount:g}", ha="center", color=INK)
+    fill, color = CATEGORY[3]
+    for time, amount in zip(paid["date"], paid["amount"], strict=True):
+        canvas.ax.plot(
+            at(time),
+            payment_row,
+            "o",
+            markersize=9,
+            markerfacecolor=fill,
+            markeredgecolor=color,
+            markeredgewidth=1.2,
+            zorder=5,
+        )
+        canvas.note(at(time), payment_row - 0.62, f"{amount:g}", ha="center", color=INK)
+
+    canvas.arrow((labels + 0.4, axis), (at(ends[-1]) + 1.2, axis), color=MUTED)
+    for time in due["due_date"]:
+        canvas.line(at(time), axis - 0.15, at(time), axis + 0.15, color=MUTED)
+        canvas.note(at(time), axis + 0.6, time.strftime("%Y-%m-%d"), ha="center", size=8.3)
+    for end in ends:
+        canvas.line(at(end), axis - 0.2, at(end), axis + 0.2, color=AMBER, linewidth=1.4)
+        canvas.note(
+            at(end), axis + 1.35, end.strftime("%Y-%m-%d"), ha="center", size=8.3, color=RESULT_TEXT
+        )
+
+    # The rows of the loan, one column per month end.
+    top = axis + 2.2
+    tints = dict(zip(statuses, ramp(len(statuses)), strict=True))
+    canvas.text(labels, top + HEADER / 2 - 0.05, "month", size=9, bold=True, ha="right")
+    cells = {
+        "days_past_due": [str(v) for v in rows["days_past_due"]],
+        "overdue_amount": [f"{v:.2f}" for v in rows["overdue_amount"]],
+        "outstanding": [f"{v:.2f}" for v in rows["outstanding"]],
+        "status": [str(v) for v in rows["status"]],
+    }
+    width = 3.4
+    for j, (month, end) in enumerate(zip(rows["month"], ends, strict=True)):
+        centre = at(end)
+        canvas.text(centre, top + HEADER / 2 - 0.05, str(month), size=9, bold=True)
+        for i, (name, values) in enumerate(cells.items()):
+            y = top + HEADER + (i + 0.5) * ROW
+            if j == 0:
+                canvas.text(labels, y, name, size=9, bold=True, ha="right", color=RESULT_TEXT)
+            if name == "status":
+                fill, color = tints[values[j]]
+                edge = None
+            else:
+                fill, color, edge = RESULT_FILL, INK, RESULT_EDGE
+            canvas.box(centre - width / 2, y - CELL / 2, width, CELL, fill=fill, edge=edge)
+            canvas.text(centre, y, values[j], color=color)
+    canvas.line(labels + 0.4, top + HEADER - 0.06, at(ends[-1]) + width / 2, top + HEADER - 0.06)
+
+    # The month end of February by hand.
+    end = ends[1]
+    before = due.loc[due["due_date"] < end, "amount_due"]
+    made = paid.loc[paid["date"] <= end, "amount"]
+
+    def total(values):
+        return " + ".join(f"{v:g}" for v in values)
+
+    canvas.notes(
+        labels + 0.4,
+        top + HEADER + len(cells) * ROW + 0.75,
+        [
+            f"{rows['month'][1]}:  days_past_due  = {end:%Y-%m-%d} - {oldest:%Y-%m-%d}"
+            f" = {cells['days_past_due'][1]}",
+            f"{'':9}overdue_amount = {total(before)} - ({total(made)})"
+            f" = {cells['overdue_amount'][1]}",
+            f"{'':9}outstanding    = {total(due['amount_due'])} - ({total(made)})"
+            f" = {cells['outstanding'][1]}",
+        ],
+    )
+    return canvas.fig
 
 
 def _monthly_pairs():

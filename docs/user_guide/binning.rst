@@ -218,6 +218,17 @@ KS = 0.150
 
 Each bin is then cut where its own KS is largest, among the cuts that leave at least ``min_bin_share`` of the observations, 5% by default, on each side. The bin split next is the one whose cut ranks the most pairs of a subscriber and a non-subscriber apart: its KS times the numbers of subscribers and non-subscribers in the bin. Each such pair adds the same amount to the Gini coefficient of the bins, so a sharp cut in a bin of a few customers does not take a split from a larger bin, and neither does a large bin whose classes barely separate. Splitting stops at ``max_bins`` bins, or when no bin has an allowed cut with a positive KS.
 
+>>> ks_edges(balance, target, max_bins=3)
+array([-inf,  99., 888.,  inf])
+
+.. plot::
+   :alt: The two bins of balance after the first cut at 888, each with its event and non-event counts, the two parts of its best cut, the KS of that cut and the KS times the counts, with the lower bin, cut at 99, highlighted
+   :caption: The second step of ``ks_edges``. Each bin of the first cut is cut where its own KS is largest. The cut of the lower bin, at 99, ranks 38565 pairs of a subscriber and a non-subscriber apart, and the cut of the upper bin, at 6046, only 8422, so the lower bin is split.
+
+   kd.figure_ks_second_cut()
+
+The lower bin holds 179 subscribers and 1,763 non-subscribers, and its cut at 99 leaves 56 and 767 of them on the left, a KS of :math:`|56 / 179 - 767 / 1763| = 0.122`. The best cut of the upper bin, at 6,046, has a KS of 0.056 in a smaller bin, so the upper bin waits for the third step. There its cut ranks more pairs apart than the cuts of the two new bins, although its KS is the smallest of the three. Splitting goes on in this way up to five bins:
+
 >>> best_ks = ks_edges(balance, target)
 >>> best_ks
 array([ -inf,   99.,  888., 3276., 6046.,   inf])
@@ -268,7 +279,7 @@ The trend is checked with the same smoothing as :func:`~kivi.woe.woe_table`, so 
 Comparing the methods
 ^^^^^^^^^^^^^^^^^^^^^
 
-Supervised edges are chosen to separate the sample they are fitted on, so the information value on that sample is optimistic. Compare the methods on a later sample as well, keeping the edges fixed.
+Supervised edges are chosen to separate the sample they are fitted on, so the information value on that sample is optimistic. Compare the methods on a later sample as well, keeping the edges fixed. :func:`~kivi.binning.ks_edges` is left out, because on ``balance`` its edges are those of :func:`~kivi.binning.tree_edges`.
 
 >>> current = data.iloc[3000:]
 >>> fitted = {

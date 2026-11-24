@@ -17,8 +17,14 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Area under the ROC curve (AUC)
       The probability that a randomly chosen event scores higher than a randomly chosen non-event, with ties counted as one half. A score unrelated to the target has an AUC of about 0.5; see :doc:`/user_guide/metrics`.
 
+   Bad definition
+      The condition that makes a loan bad at a month end, usually a delinquency bucket or worse, such as 90 days past due or more. A vintage table counts the loans that have met it at any month on book so far, so an earlier definition gives an earlier signal; see :doc:`/user_guide/vintage`.
+
    Bad month
       A month whose status at its end is ``bad`` or worse in the order of an ordered status column, such as 30 days past due or more with the default ``bad="30-59"`` of :func:`~kivi.features.panel_features`; see :doc:`/user_guide/features`.
+
+   Best-KS binning
+      Supervised binning that cuts each bin where the KS between its events and non-events is largest, and splits first the bin whose cut ranks the most pairs of an event and a non-event apart. Its first cut keeps the KS of the raw values; see :doc:`/user_guide/binning`.
 
    Binning
       Dividing the values of a numeric variable into intervals, the bins, whose edges are fitted on a reference sample and then applied to every other sample. Scorecard development calls it classing: fine classing forms many small bins, and coarse classing merges them into a few that are large enough to be stable. A categorical variable is binned by grouping its categories instead; see :doc:`/user_guide/binning`.
@@ -31,6 +37,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Characteristic stability index (CSI)
       The change of a variable's average scorecard points from a reference sample to a current one: the change of each group's share times the group's points, summed over the groups. Over all the variables of a scorecard, the CSI values add up to the change of the average score; see :ref:`characteristic-stability`.
+
+   ChiMerge
+      Supervised binning that starts from many small bins and repeatedly merges the adjacent pair with the smallest chi-square statistic, the pair whose event rates are most alike, until no more than a given number of bins remain and every adjacent pair differs significantly. Categories are merged in the same way once sorted by their WOE; see :doc:`/user_guide/binning`.
 
    Cohort
       The loans originated in the same period, usually a month, followed together as they age in a vintage table; see :doc:`/user_guide/vintage`.
@@ -59,6 +68,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Days past due (DPD)
       The number of days for which a contractual payment has been overdue. IFRS 9 rebuttably presumes a significant increase in credit risk when a payment is more than 30 days past due, and default no later than when it is 90 days past due; see :doc:`/user_guide/lifetime`, and :doc:`/user_guide/vintage` for how they are counted from a repayment schedule.
 
+   Delinquency bucket
+      A range of days past due that the status of a loan falls into at a month end, such as ``current``, ``1-29``, ``30-59``, ``60-89`` and ``90+``. Roll rates and transition matrices count how loans move between buckets from one month end to the next; see :doc:`/user_guide/vintage`.
+
    DeLong test
       A test of whether two scores have the same AUC on the same sample. It uses the variances and the covariance of the two AUCs that DeLong, DeLong and Clarke-Pearson (1988) derived from the placement values; see :doc:`/user_guide/metrics`.
 
@@ -72,7 +84,7 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       The customer, account or loan that events, monthly statuses and observations belong to, named by the ``id`` column of :mod:`kivi.features`; see :doc:`/user_guide/features`.
 
    Event and non-event
-      The two outcomes of a binary target: an event has target 1, such as a default or another bad outcome, and a non-event has target 0. The guides read the subscription of the bundled bank data as the event; see :doc:`/user_guide/woe_iv`.
+      The two outcomes of a binary target: an event has target 1, such as a default or another bad outcome, and a non-event has target 0. The guides read the subscription of the bundled bank data as the event; see :doc:`/user_guide/woe_iv`. The events that :mod:`kivi.features` aggregates are of another kind: dated records of an entity, such as its transactions; see :doc:`/user_guide/features`.
 
    Event rate
       The share of events among the observations of a group, called the bad rate when the event is a default. It is computed from the raw counts, without smoothing; see :doc:`/user_guide/woe_iv`.
@@ -104,6 +116,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Gini coefficient
       Twice the AUC minus 1: 0 for a score unrelated to the target and 1 for a score that ranks every event above every non-event. Scorecard development reports it more often than the AUC itself; see :doc:`/user_guide/metrics`.
 
+   Global weight
+      The weight of a sub-factor in a whole expert scorecard: the weight of its factor times its weight among the sub-factors of that factor. The global weights of all sub-factors sum to 1; see :doc:`/user_guide/expert`.
+
    Grace period
       The months after the origination of a loan in which nothing falls due, so that its first instalment falls due later than a month after origination. :func:`~kivi.vintage.delinquency_panel` puts a loan in the cohort of the month before its first due date unless ``origination`` gives the origination dates, which keep the loans with a grace period in the cohort of their origination month; see :doc:`/user_guide/vintage`.
 
@@ -134,6 +149,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Monitoring report
       A table with one row per period that tracks a model in use: its population, the known outcomes, its discrimination and the stability of its score against a reference sample; see :doc:`/user_guide/monitoring`.
 
+   Monotonic binning
+      Supervised binning whose WOE rises or falls steadily from the lowest bin to the highest, so that the bins can be explained. kivi starts from many small bins and merges the adjacent bins that break the trend, pooling adjacent violators; see :doc:`/user_guide/binning`.
+
    Month on book
       The number of months since a loan was originated. A vintage table compares cohorts at the same month on book; see :doc:`/user_guide/vintage`.
 
@@ -151,6 +169,12 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Outcome window
       The time after which the outcome of an observation is known, such as twelve months after a loan was granted. Until it has passed, the target is missing and the outcome counts as unknown; see :doc:`/user_guide/monitoring`.
+
+   Outstanding amount
+      The unpaid amount of all the instalments of a loan at a month end, whether they have fallen due or not: the ``outstanding`` column of :func:`~kivi.vintage.delinquency_panel`. It includes interest, while the ``balance`` column, given the principal of each instalment, counts only the unpaid principal; see :doc:`/user_guide/vintage`.
+
+   Overdue amount
+      The unpaid amount of the instalments of a loan that fell due before a month end: the ``overdue_amount`` column of :func:`~kivi.vintage.delinquency_panel`. An instalment due on the month end itself is not overdue yet; see :doc:`/user_guide/vintage`.
 
    Pairwise comparison matrix
       A square matrix whose entry :math:`a_{ij}` says how many times more important factor :math:`i` is than factor :math:`j`, on the Saaty scale. Its diagonal is 1 and :math:`a_{ji} = 1 / a_{ij}`; see :doc:`/user_guide/expert`.
@@ -223,6 +247,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Swap set
       The four groups of applicants that two scores, each with its cut-off, approve or decline. The swap-outs are approved only by the current score and the swap-ins only by the new one; see :doc:`/user_guide/strategy`.
+
+   Tolerance
+      How far a value may miss a rule and still count as meeting it. :func:`~kivi.vintage.delinquency_panel` counts an instalment as paid once at most ``tolerance``, an amount, remains unpaid of it and the older instalments together, so that a rounding difference does not make a loan past due; see :doc:`/user_guide/vintage`. :func:`~kivi.expert.ahp_weights` and :func:`~kivi.expert.ahp_consistency` accept a pairwise comparison matrix whose diagonal is 1 and whose entries are reciprocal within the relative tolerance ``rtol``, so that 0.3333 passes for 1 / 3; see :doc:`/user_guide/expert`.
 
    Total
       The number of observations in a row of a table, missing values included, or their sum of weights. The ``count`` of :func:`~kivi.univariate.profile_table` is the number of values that are not missing instead, as in ``pandas.DataFrame.describe``; see :doc:`/user_guide/univariate`.
