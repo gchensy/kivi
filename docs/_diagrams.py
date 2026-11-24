@@ -2136,15 +2136,15 @@ def figure_window_features():
     )
     columns = [Column("customer", list(applications["customer"]), 2.6)]
     for name in windows:
-        columns.append(result(f"events_{name}", [str(v) for v in features[f"events_{name}"]], 3.0))
+        columns.append(result(f"events_{name}", [str(v) for v in features[f"events_{name}"]], 3.5))
         columns.append(
             result(
                 f"amount_sum_{name}",
                 [f"{v:.1f}" for v in features[f"amount_sum_{name}"]],
-                3.9,
+                4.6,
             )
         )
-    canvas.table(5.2, axis + 3.8, columns)
+    canvas.table(4.4, axis + 3.8, columns)
     return canvas.fig
 
 
