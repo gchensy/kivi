@@ -1,7 +1,7 @@
 The loan book under IFRS 9
 ==========================
 
-The approved applications become loans, and the lender follows them until they are repaid. This chapter tracks how the loans go bad by origination month, how they move between delinquency buckets, and turns those movements into the PD term structures, stages and loss allowance that IFRS 9 requires; :doc:`/user_guide/vintage` and :doc:`/user_guide/lifetime` explain each step.
+The approved applications become loans, and the lender follows them until they are repaid. This chapter tracks how the loans go bad by origination month and how they move between delinquency buckets, turns those movements into the PD term structures, stages and loss allowance that IFRS 9 requires, and reads the repayment history of each loan; :doc:`/user_guide/vintage` and :doc:`/user_guide/lifetime` explain each step.
 
 The loan book is the synthetic panel of :func:`~kivi.datasets.make_loan_panel`: 5,000 instalment loans originated from January 2024 to December 2025, with their status at every month end up to January 2026. It stands in for the loans that the lender booked; it is simulated apart from the applications of the earlier chapters, so this chapter needs none of their code.
 
@@ -121,7 +121,45 @@ stage
 
 Stage 1 holds nine tenths of the exposure at a coverage below 1%, while stage 3 holds the defaulted loans at the LGD of 45%. The loss allowance of the whole book is 4% of its exposure.
 
+Read the repayment history
+--------------------------
+
+The stages above look only at the bucket of each loan at the reporting date, so a loan returns to stage 1 as soon as it has paid its arrears. Many lenders keep a loan that has cured in stage 2 for a probation period instead. :func:`~kivi.features.panel_features` reads the history of each loan from the panel: for each window of months before the month of the reporting date, the months with a status, the months in arrears, the longest runs of bad and good months and the worst status, and the months since the latest month in arrears. With ``bad="1-29"`` every month end in arrears counts as bad, as every bucket in arrears puts a loan in stage 2 or 3 above; :doc:`/user_guide/features` describes the features:
+
+>>> from kivi.features import panel_features
+>>> observations = pd.DataFrame(
+...     {"loan_id": book.index, "reporting_date": pd.Timestamp("2026-01-31")}, index=book.index
+... )
+>>> history = panel_features(
+...     panel, observations, id="loan_id", month="month", status="status",
+...     observation_time="reporting_date", windows=["6M", "12M"], bad="1-29",
+... )
+>>> pd.crosstab(stage, history["worst_status_6m"])
+worst_status_6m  current  1-29  30-59  60-89  90+
+stage
+1                   3558   240     43      9    0
+2                     54    42     28      7    0
+3                      0     0      0     14  191
+
+The windows end before January, the month of the reporting date, so the six months are July to December 2025, and the status of January is the bucket that the stages already use. Of the loans in stage 1, 292 were in arrears at one of those month ends and are current again. The 230 loans originated in December 2025 have no month end before January, so their worst status is missing and the table leaves them out.
+
+A probation of six months keeps those 292 loans in stage 2: a loan in arrears at any of the six month ends before the reporting date counts as a significant increase too:
+
+>>> probation = history["bad_months_6m"].to_numpy() > 0
+>>> revised = assign_stages(increase | probation, days_past_due, defaulted)
+>>> revised_table = stage_table(revised, book["balance"], np.where(revised == 1, twelve_month, lifetime))
+>>> revised_table.round(4)
+       total     exposure  exposure_share  expected_credit_loss  coverage
+stage
+1       3784  21218424.37          0.8545           205727.2235    0.0097
+2        427   2182351.97          0.0879           148631.8793    0.0681
+3        205   1431123.43          0.0576           644005.5435    0.4500
+>>> print(f"{revised_table['expected_credit_loss'].sum() - table['expected_credit_loss'].sum():.0f}")
+5550
+
+The rule moves 1.4 million of exposure into stage 2 but adds only 5,550 to the allowance, and the coverage of stage 2 falls from 17.5% to 6.8%. The cured loans are current, so the transition matrix gives them the PDs of every other current loan, and only the horizon of their ECL changes, from 12 months to the lifetime. The matrix forgets the history of a loan, so it cannot tell whether a loan that was recently in arrears is riskier than one that never was. A model with the features of the history can: they are the characteristics of a behaviour scorecard, which the steps of this tutorial would build from the book as they built the application scorecard.
+
 Close the loop
 --------------
 
-The project has gone from the applications to the loss allowance of the loans they became. In production the steps repeat: the monitoring of :doc:`monitoring` watches the applicants and the scorecard, the vintages and roll rates of this chapter watch the loans, and when either drifts, the project returns to the data of :doc:`data` with the new outcomes.
+The project has gone from the applications to the loss allowance of the loans they became. In production the steps repeat: the monitoring of :doc:`monitoring` watches the applicants and the scorecard, the vintages, roll rates and repayment histories of this chapter watch the loans, and when either drifts, the project returns to the data of :doc:`data` with the new outcomes.

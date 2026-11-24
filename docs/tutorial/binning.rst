@@ -1,7 +1,7 @@
 Binning and WOE
 ===============
 
-A scorecard groups every characteristic, so that the effect of each group can be read, explained to the business and monitored. This chapter compares the binning methods on one variable, chooses the binning of every variable, and fits them all at once into a binning specification that later chapters reuse.
+A scorecard groups every characteristic, so that the effect of each group can be read, explained to the business and monitored. This chapter compares the binning methods on one variable, chooses the binning of every variable, and fits them all at once into a binning specification that later chapters reuse. The characteristics are the seven candidates of :doc:`data`; the transaction features of :doc:`features` wait for the next version of the scorecard.
 
 .. dropdown:: Code from the previous chapters
 

@@ -16,7 +16,8 @@ import pandas as pd
 
 from kivi.binning import bin_edges, chimerge_edges, monotonic_edges, tree_edges
 from kivi.calibration import assign_grades, calibration_table, master_scale
-from kivi.datasets import make_applications, make_loan_panel
+from kivi.datasets import make_applications, make_loan_panel, make_transactions
+from kivi.features import FeatureSpec
 from kivi.metrics import gains_table, gini, roc_auc, roc_table
 from kivi.monitoring import monitoring_table, stability_table
 from kivi.reject_inference import fuzzy_augmentation
@@ -74,6 +75,60 @@ def _project() -> SimpleNamespace:
 def figure_profile_iv():
     p = _project()
     profile = profile_table(p.development[FEATURES], p.development["target"])
+    return kp.iv_ranking(profile["iv"], limit=0.35)
+
+
+def _account_features() -> pd.DataFrame:
+    """The transaction features of the applications, as the features chapter computes them."""
+    applications = make_applications(n_applicants=40000, include_risk=True, rng=0)
+    month = pd.period_range("2024-01", periods=12, freq="M")[np.arange(40000) * 12 // 40000]
+    month = pd.Series(month, index=applications.index)
+    position = np.arange(40000) * 12 % 40000 / 40000
+    days = np.floor(position * month.dt.days_in_month)
+    applications["application_date"] = month.dt.start_time + pd.to_timedelta(days, unit="D")
+    before = make_transactions(applications, application_date="application_date", rng=0)
+    later = applications["application_date"] + pd.DateOffset(months=3)
+    after = make_transactions(applications, application_date=later, n_months=3, rng=1)
+    after = after[after["timestamp"] >= after["applicant_id"].map(applications["application_date"])]
+    extract = pd.concat([before, after])
+    extract = extract.sort_values(["applicant_id", "timestamp"], ignore_index=True)
+    one_sum = {"time": "timestamp", "aggregations": {"amount": ["sum"]}}
+    spec = FeatureSpec(
+        id="applicant_id",
+        observation_time="application_date",
+        events=[
+            {"table": "cash", "prefix": "cash_", "windows": ["3M", "12M"], **one_sum},
+            {
+                "table": "repayments",
+                "prefix": "repayment_",
+                "windows": ["3M", ("6M", "3M")],
+                **one_sum,
+            },
+            {"table": "purchases", "prefix": "purchase_", "windows": ["3M"], **one_sum},
+        ],
+        ratios=[
+            ("cash_amount_sum_3m", "purchase_amount_sum_3m"),
+            ("repayment_amount_sum_3m", "repayment_amount_sum_6m_3m"),
+        ],
+    )
+    observations = pd.DataFrame(
+        {"applicant_id": applications.index, "application_date": applications["application_date"]},
+        index=applications.index,
+    )
+    kind = extract["kind"]
+    tables = {
+        "cash": extract[kind == "cash_withdrawal"],
+        "repayments": extract[kind == "repayment"],
+        "purchases": extract[kind == "purchase"],
+    }
+    return spec.compute(observations, events=tables)
+
+
+def figure_features_iv():
+    p = _project()
+    account = _account_features().loc[p.development.index]
+    candidates = pd.concat([p.development[FEATURES], account], axis=1)
+    profile = profile_table(candidates, p.development["target"])
     return kp.iv_ranking(profile["iv"], limit=0.35)
 
 

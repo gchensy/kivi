@@ -53,7 +53,7 @@ True
 >>> restored.groups["employment"]
 {'permanent': 'permanent', 'self_employed': 'self_employed, temporary', 'temporary': 'self_employed, temporary'}
 
-The JSON is stored with the coefficients and the scale of :doc:`scorecard`. The examples below score with ``restored``, as the scoring system would:
+The JSON is stored with the coefficients and the scale of :doc:`scorecard`, and next to it the feature specification of :doc:`features`, which computes the transaction features of every new application for the next scorecard. The examples below score with ``restored``, as the scoring system would:
 
 >>> def score_pd(frame):
 ...     slopes = model["coef"].drop("intercept")

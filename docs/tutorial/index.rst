@@ -10,12 +10,12 @@ The project
 
 In 2024 the lender received 40,000 applications. Two policy rules declined some of them whatever their risk: a debt-to-income ratio above 0.6 or an age below 21. The vendor's scorecard decided the others and approved an application when its PD, ``incumbent_pd``, was below 15%. Whether a borrower defaults is known only for the approved applications.
 
-The vendor's scorecard sees credit bureau data that the application form does not hold, but it ignores some of the application data, and the lender cannot explain its decisions to applicants. The project therefore builds a scorecard from the application data that keeps the vendor's PD as one of its characteristics, as lenders do with a credit bureau score. The new scorecard must rank applicants better than the vendor's PD alone, give a PD for every applicant, approved or not, and state the reasons for a decline.
+The vendor's scorecard sees credit bureau data that the application form does not hold, but it ignores some of the application data, and the lender cannot explain its decisions to applicants. The project therefore builds a scorecard from the application data that keeps the vendor's PD as one of its characteristics, as lenders do with a credit bureau score. The new scorecard must rank applicants better than the vendor's PD alone, give a PD for every applicant, approved or not, and state the reasons for a decline. The applicants also hold current accounts with the lender, whose transactions the project turns into features for the next version of the scorecard.
 
 The data
 --------
 
-The applications are simulated by :func:`~kivi.datasets.make_applications`, and the loans that the lender booked by :func:`~kivi.datasets.make_loan_panel`; :doc:`/user_guide/datasets` describes both. Because the data are simulated, the outcome of every applicant is known, also of the declined ones. A real project never sees those outcomes. The tutorial uses them only in boxes like the one below, to show how close each estimate comes to the truth:
+The applications are simulated by :func:`~kivi.datasets.make_applications`, the transactions on the applicants' accounts by :func:`~kivi.datasets.make_transactions`, and the loans that the lender booked by :func:`~kivi.datasets.make_loan_panel`; :doc:`/user_guide/datasets` describes them. Because the data are simulated, the outcome of every applicant is known, also of the declined ones, and so is the risk factor from which the transactions are drawn. A real project never sees either. The tutorial uses them only in boxes like the one below, to show how close each estimate comes to the truth:
 
 .. admonition:: Simulation check
    :class: kivi-check
@@ -34,6 +34,12 @@ The chapters
       :link-type: doc
 
       Load the applications, split them into development and validation samples, and profile the candidate variables. ``profile_table``
+
+   .. grid-item-card:: Transaction features
+      :link: features
+      :link-type: doc
+
+      Derive features from the account transactions as of each application date, check that they are point in time, profile them and save their definitions. ``make_transactions`` · ``FeatureSpec`` · ``window_features`` · ``profile_table``
 
    .. grid-item-card:: Binning and WOE
       :link: binning
@@ -87,13 +93,14 @@ The chapters
       :link: portfolio
       :link-type: doc
 
-      Follow the booked loans, project their PDs and allocate them to stages with their loss allowance. ``vintage_table`` · ``roll_rates`` · ``transition_matrix`` · ``transition_pd`` · ``convert_pd`` · ``expected_credit_loss`` · ``significant_increase`` · ``assign_stages`` · ``stage_table``
+      Follow the booked loans, project their PDs and allocate them to stages with their loss allowance. ``vintage_table`` · ``roll_rates`` · ``transition_matrix`` · ``transition_pd`` · ``convert_pd`` · ``expected_credit_loss`` · ``significant_increase`` · ``assign_stages`` · ``stage_table`` · ``panel_features``
 
 .. toctree::
    :hidden:
    :numbered: 1
 
    data
+   features
    binning
    model
    reject_inference
