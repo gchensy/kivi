@@ -1,0 +1,2 @@
+* ``kivi.plotting.distribution_chart`` draws the share of all non-events and the share of all events in each row of a gains table or a WOE table as bars side by side, from the raw ``non_event`` and ``event`` counts, in the order of the table and with its empty rows.
+* ``kivi.plotting.precision_recall_chart`` draws the precision against the true positive rate, the recall, of every threshold of a ROC table as steps whose area is the average precision, with a dashed line at the event rate of the sample, the precision of a score that ranks at random.
