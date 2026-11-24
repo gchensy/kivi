@@ -3,7 +3,7 @@ Vintage and roll-rate analysis
 
 Once a scorecard is in use, the loans it approves are monitored as they age. :mod:`kivi.vintage` covers the two standard views of a loan portfolio: vintage curves, which follow the bad rate of each origination cohort by month on book, and roll rates and transition matrices, which show how loans move between delinquency buckets from one month end to the next.
 
-Vintage analysis complements :doc:`monitoring` and the :doc:`population stability index <psi>`, which monitor the applicants, by following the loans themselves. Its curves and matrices then give the PD term structures of :doc:`lifetime`, the last step of the user guide. :func:`~kivi.vintage.delinquency_panel` builds the monthly loan panel from the instalment schedules and the payments of the loans, :func:`~kivi.vintage.vintage_table` gives the vintage curves, and :func:`~kivi.vintage.transition_matrix` and :func:`~kivi.vintage.roll_rates` the movements between buckets. :func:`~kivi.vintage.migration_bandwidth` and :func:`~kivi.vintage.migration_test` summarize and test the migrations between rating grades, as the European Central Bank asks in the validation of PD models.
+Vintage analysis follows the loans themselves, where :doc:`monitoring` and the :doc:`population stability index <psi>` monitor the applicants and :doc:`validation` reviews the model once a year. Its curves and matrices then give the PD term structures of :doc:`lifetime`, the last step of the user guide. :func:`~kivi.vintage.delinquency_panel` builds the monthly loan panel from the instalment schedules and the payments of the loans, :func:`~kivi.vintage.vintage_table` gives the vintage curves, and :func:`~kivi.vintage.transition_matrix` and :func:`~kivi.vintage.roll_rates` the movements between buckets. :func:`~kivi.vintage.migration_bandwidth` and :func:`~kivi.vintage.migration_test` summarize and test the migrations between rating grades, as the European Central Bank asks in the validation of PD models.
 
 The loan panel
 --------------
@@ -450,6 +450,12 @@ E        600  0.0200    -1.7018   0.0444
               total  share  statistic  p_value
 before after
 B      E        600   0.02    -1.7018   0.0444
+
+.. plot::
+   :alt: The migration shares of the five grades to the grades and to the statuses default and closed, and the number of customers of each grade, with the cell from B to E and its neighbour from B to D outlined, and the computation of the statistic of the cell
+   :caption: How ``migration_test`` computes the statistic of the cell from B to E. Grade B sends 2.0% of its 600 customers to grade E but only 0.8% to grade D, its neighbour towards the diagonal, so the statistic is negative and the p-value small. The customers who defaulted or closed count only in the total ``N_B``.
+
+   kd.figure_migration_test()
 
 ``total`` counts every customer of the grade at the beginning, so the shares of a row add up to less than 1 when customers defaulted or left. The cells next to the diagonal are compared with the diagonal, so their statistics are large. A statistic is NaN where the test is not defined, as for the cell from E to A, whose share and whose neighbour's share are both 0:
 

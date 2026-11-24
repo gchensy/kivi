@@ -1,7 +1,7 @@
 User guide
 ==========
 
-The user guide follows the steps of a credit risk model in the order of a project: compute features of the applicants from their transactions and repayment histories, profile and bin the candidate variables, encode them with WOE, select the variables and fit the model, infer the outcomes of rejected applicants, scale the model to a scorecard, or weigh the factors of an expert scorecard where there are too few defaults to fit one, evaluate and calibrate it, set the cut-offs, save the binning for production, monitor the model period by period, follow the loans that it approves from their repayment schedules, and measure their expected credit loss under IFRS 9. :doc:`plotting` draws the tables of every step. :doc:`risk_workflow` runs the steps from the profile to the stability report on the bundled data, leaving out the features of event data and reject inference, and the :doc:`/tutorial/index` follows a whole project from the first applications to the loss allowance.
+The user guide follows the steps of a credit risk model in the order of a project: compute features of the applicants from their transactions and repayment histories, profile and bin the candidate variables, encode them with WOE, select the variables and fit the model, infer the outcomes of rejected applicants, scale the model to a scorecard, or weigh the factors of an expert scorecard where there are too few defaults to fit one, evaluate and calibrate it, set the cut-offs, save the binning for production, monitor the model period by period, validate it as supervisors ask of internal rating models, follow the loans that it approves from their repayment schedules, and measure their expected credit loss under IFRS 9. :doc:`plotting` draws the tables of every step. :doc:`risk_workflow` runs the steps from the profile to the stability report on the bundled data, leaving out the features of event data and reject inference, and the :doc:`/tutorial/index` follows a whole project from the first applications to the loss allowance.
 
 kivi keeps fitting and applying apart. Bin edges, category groupings, WOE tables, master scales and cut-offs are fitted on the development sample and then applied unchanged to every later sample, so that counts and rates stay comparable. The tables take the groups as they are, so category labels can be passed directly.
 
@@ -38,13 +38,13 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: woe_iv
       :link-type: doc
 
-      Definitions, the smoothing rule for empty cells, how to read the result and how to encode new data.
+      Definitions, the smoothing rule for empty cells, how to read the result, the trend of the WOE over the bins and how to encode new data.
 
    .. grid-item-card:: Variable selection
       :link: selection
       :link-type: doc
 
-      Correlation filtering by Pearson or Spearman correlation, variance inflation factors, logistic regression and stepwise selection with positive coefficients.
+      Correlation filtering by Pearson or Spearman correlation, variance inflation factors and their elimination, logistic regression, stepwise selection with positive coefficients, and the selection path of nested models on a validation sample.
 
    .. grid-item-card:: Reject inference
       :link: reject_inference
@@ -68,13 +68,13 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: metrics
       :link-type: doc
 
-      AUC, Gini, KS, gains and ROC tables, with the score oriented so that higher means riskier, and the confidence interval and DeLong test of an AUC.
+      AUC, Gini, KS, gains and ROC tables, with the score oriented so that higher means riskier, the confidence interval and DeLong test of an AUC, and the generalized AUC of ordered outcomes such as LGDs.
 
    .. grid-item-card:: Calibration
       :link: calibration
       :link-type: doc
 
-      Prior correction, master scales built from PDs or fitted to default rates, tests of each grade's PD, and Platt and isotonic recalibration.
+      Prior correction, master scales built from PDs or fitted to default rates, tests of each grade's PD and of single PDs, the Brier decomposition, grade concentration, back-tests of LGDs and CCFs, and Platt and isotonic recalibration.
 
    .. grid-item-card:: Credit strategy
       :link: strategy
@@ -100,11 +100,17 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
 
       A per-period report of the population, the known outcomes, AUC, Gini, KS and PSI of a score, and the PSI of every variable by period.
 
+   .. grid-item-card:: Model validation
+      :link: validation
+      :link-type: doc
+
+      The tests of the ECB's validation report for PD, LGD and CCF models: back-tests, the current against the initial AUC and gAUC, migrations between grades and their concentration.
+
    .. grid-item-card:: Vintage and roll-rate analysis
       :link: vintage
       :link-type: doc
 
-      Monthly delinquency panels from repayment schedules, cumulative bad rates by cohort and month on book, roll rates and transition matrices between delinquency buckets.
+      Monthly delinquency panels from repayment schedules, cumulative bad rates by cohort and month on book, roll rates and transition matrices between delinquency buckets, and the bandwidth and tests of rating migrations.
 
    .. grid-item-card:: Lifetime PD and expected credit loss
       :link: lifetime
@@ -116,7 +122,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: plotting
       :link-type: doc
 
-      Draw WOE tables, ROC and gains curves, calibration, cut-offs, PSI, monitoring reports and vintage curves with matplotlib.
+      Draw WOE tables, ROC, precision-recall and gains curves, the distributions of events and non-events, calibration, cut-offs, PSI, monitoring reports and vintage curves with matplotlib.
 
    .. grid-item-card:: Example data
       :link: datasets
@@ -143,6 +149,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
    spec
    psi
    monitoring
+   validation
    vintage
    lifetime
    plotting

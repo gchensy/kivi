@@ -787,6 +787,13 @@ def generalized_auc(
     :math:`(1 + \mathrm{level}) / 2`, and the bounds of Somers' D follow
     from it.
 
+    The normal approximation is poor when the gAUC is close to 0 or 1 or
+    the table holds few observations. The standard error is 0 for a
+    degenerate table, where every realized value falls into one segment or
+    the ranking is perfect or reversed, so the interval collapses to the
+    estimate: ``generalized_auc([1, 2, 3, 1], [5, 5, 5, 5])`` gives a gAUC
+    of 0.5 with a standard error of 0 and the interval [0.5, 0.5].
+
     Pairs in the same estimated segment do not count, so a gAUC of 1 means
     that every pair in different estimated segments is ordered the same
     way by its realized segments. The AUC leaves out the pairs with the

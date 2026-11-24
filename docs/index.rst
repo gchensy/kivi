@@ -7,7 +7,7 @@ Credit risk modeling with pandas
 
 .. container:: kivi-lead
 
-   kivi is a pandas toolkit for credit risk and financial modeling. It computes point-in-time features from transactions and repayment histories, profiles the candidate variables, bins them and groups their categories, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard or weighs the factors of an expert scorecard, infers the outcomes of rejected applicants, scales the model to points, evaluates it and calibrates it on a master scale, and prices the cut-offs and the expected loss. Once the model is live, it monitors the score period by period, follows how the approved loans repay and perform, and measures their expected credit loss under IFRS 9. Tables come back as pandas DataFrames with one row per bin, grade, cut-off, period or variable, and :mod:`kivi.plotting` draws them as charts.
+   kivi is a pandas toolkit for credit risk and financial modeling. It computes point-in-time features from transactions and repayment histories, profiles the candidate variables, bins them and groups their categories, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard or weighs the factors of an expert scorecard, infers the outcomes of rejected applicants, scales the model to points, evaluates it and calibrates it on a master scale, and prices the cut-offs and the expected loss. Once the model is live, it monitors the score period by period, validates the model with the tests that supervisors ask of internal rating models, follows how the approved loans repay and perform, and measures their expected credit loss under IFRS 9. Tables come back as pandas DataFrames with one row per bin, grade, cut-off, period or variable, and :mod:`kivi.plotting` draws them as charts.
 
 .. container:: kivi-actions
 
@@ -86,13 +86,13 @@ Built for risk teams
       :link: user_guide/woe_iv
       :link-type: doc
 
-      The WOE and IV of every bin, with smoothing that leaves the counts alone, and the WOE encoding of new data.
+      The WOE and IV of every bin, with smoothing that leaves the counts alone, the trend of the WOE over the bins and the WOE encoding of new data.
 
    .. grid-item-card:: Variable selection
       :link: user_guide/selection
       :link-type: doc
 
-      Rank candidates by IV, drop variables with a high Pearson or Spearman correlation and select a logistic model whose coefficients all point the right way.
+      Rank candidates by IV, drop variables with a high Pearson or Spearman correlation or VIF, select a logistic model whose coefficients all point the right way and follow the AUC of nested models on a validation sample.
 
    .. grid-item-card:: Reject inference
       :link: user_guide/reject_inference
@@ -116,13 +116,13 @@ Built for risk teams
       :link: user_guide/metrics
       :link-type: doc
 
-      AUC, Gini, KS, gains and ROC tables on development and validation samples, with the confidence interval of an AUC and the DeLong test of two scores.
+      AUC, Gini, KS, gains and ROC tables on development and validation samples, with the confidence interval of an AUC, the DeLong test of two scores and the generalized AUC of LGD segments.
 
    .. grid-item-card:: Calibration
       :link: user_guide/calibration
       :link-type: doc
 
-      Prior correction, master scales, binomial, Jeffreys and Hosmer-Lemeshow tests per grade, and Platt and isotonic recalibration.
+      Prior correction, master scales, binomial, Jeffreys and Hosmer-Lemeshow tests per grade, Spiegelhalter's test, the Brier decomposition, and Platt and isotonic recalibration.
 
    .. grid-item-card:: Credit strategy
       :link: user_guide/strategy
@@ -148,11 +148,17 @@ Built for risk teams
 
       One row per period with the population, the known outcomes, AUC, Gini, KS and the PSI of the score, and the PSI of every variable by period.
 
+   .. grid-item-card:: Model validation
+      :link: user_guide/validation
+      :link-type: doc
+
+      The tests of the ECB's validation report for PD, LGD and CCF models: back-tests, the current against the initial AUC and gAUC, rating migrations and the concentration of grades.
+
    .. grid-item-card:: Vintage and roll-rate analysis
       :link: user_guide/vintage
       :link-type: doc
 
-      Monthly delinquency panels from repayment schedules, vintage curves by origination cohort, roll rates and transition matrices between delinquency buckets.
+      Monthly delinquency panels from repayment schedules, vintage curves by origination cohort, roll rates and transition matrices between delinquency buckets, and the migrations between rating grades.
 
    .. grid-item-card:: Lifetime PD and expected credit loss
       :link: user_guide/lifetime
@@ -164,7 +170,7 @@ Built for risk teams
       :link: user_guide/plotting
       :link-type: doc
 
-      WOE, ROC, gains, calibration, cut-off, PSI, monitoring and vintage charts drawn straight from kivi's tables with matplotlib.
+      WOE, ROC, precision-recall, gains, distribution, calibration, cut-off, PSI, monitoring and vintage charts drawn straight from kivi's tables with matplotlib.
 
 How it works
 ------------
@@ -179,7 +185,7 @@ How it works
 
    .. grid-item-card:: Encode and fit
 
-      ``woe_table`` measures each bin against the target and ``woe_transform`` encodes it. ``stepwise`` and ``logistic_regression`` select the variables and fit the model, with ``weights`` for inferred rejects.
+      ``woe_table`` measures each bin against the target, ``woe_trend`` names the shape of its WOE and ``woe_transform`` encodes it. ``vif_filter`` drops collinear variables, ``stepwise`` and ``logistic_regression`` select the variables and fit the model, with ``weights`` for inferred rejects, and ``selection_path`` shows on a validation sample where more variables stop paying off.
 
    .. grid-item-card:: Scale and evaluate
 
@@ -189,9 +195,9 @@ How it works
 
       ``master_scale`` and ``assign_grades`` group the PDs into grades, and the binomial and Jeffreys tests check the PD of each grade. ``cutoff_table`` shows what each cut-off approves, ``confusion_table`` how many events it declines, and ``expected_loss_table`` adds up the expected loss of each grade.
 
-   .. grid-item-card:: Deploy and monitor
+   .. grid-item-card:: Deploy, monitor and validate
 
-      ``FeatureSpec`` and ``BinningSpec`` save the features and the binning as JSON for production. ``monitoring_table`` and ``stability_table`` compare every period with the development sample, and ``csi_table`` measures each variable's effect on the score.
+      ``FeatureSpec`` and ``BinningSpec`` save the features and the binning as JSON for production. ``monitoring_table`` and ``stability_table`` compare every period with the development sample, and ``csi_table`` measures each variable's effect on the score. Once a year, ``backtest_table``, ``generalized_auc``, ``migration_test`` and ``concentration_test`` give the tests of the ECB's validation report.
 
    .. grid-item-card:: Follow the loans
 

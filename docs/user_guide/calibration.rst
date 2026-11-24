@@ -284,7 +284,7 @@ The Hosmer-Lemeshow statistic depends on how the groups are formed. Spiegelhalte
 z = -0.95, p = 0.343
 z = 7.38, p = 0.000
 
-A positive :math:`z` means that the outcomes lie further from the probabilities than chance allows, and a negative one that they lie closer. The test weighs the observations with probabilities close to 0 or 1 most, so a few confident mistakes can decide it.
+A positive :math:`z` means that the Brier score of the probabilities exceeds the score that they would have if they were the true probabilities, and a negative one that it falls short of it; both reject the probabilities. For probabilities below 1/2, as PDs usually are, a positive :math:`z` means more defaults than the PDs predict and a negative one fewer: the scaled-down PDs, nearly all of them below 1/2, are too low. The test weighs the observations with probabilities close to 0 or 1 most, so a few confident mistakes can decide it.
 
 Decomposing the Brier score
 ---------------------------
@@ -312,6 +312,12 @@ resolution         0.0134       0.0135
 uncertainty        0.1008       0.1008
 within_variance    0.0004       0.0003
 within_covariance  0.0006       0.0006
+
+.. plot::
+   :alt: The terms of the Brier decomposition for the PDs of the model and the scaled-down PDs, with the uncertainty and the Brier score on the left and the smaller terms on the right
+   :caption: The scaled-down PDs have the same uncertainty and almost the same resolution as the PDs of the model, but nine times their reliability, which raises their Brier score.
+
+   kp.figure_brier_decomposition()
 
 On a master scale, every customer of a grade gets the PD of the grade, so the within-group terms vanish and the three terms of Murphy remain. Compare the PDs of the model with the PDs of the fitted scale, on the grades of that scale:
 
@@ -372,6 +378,12 @@ initial_hi  0.2244       0.2244
 initial_cv  0.7036       0.7036
 statistic  -0.0264       0.6569
 p_value     0.5105       0.2556
+
+.. plot::
+   :alt: Share of each grade A to F in the development sample, in the monitoring sample and for the scaled-down PDs, with the HI of each
+   :caption: The grades of the monitoring sample are spread like those of the development sample, the initial validation here. The scaled-down PDs crowd into grades A and B, which more than doubles the HI.
+
+   kp.figure_concentration()
 
 Yet the test does not reject the scaled-down grades: its variance depends on the number of grades, not on the number of customers, so a scale of six grades leaves it little power. Read the HI and its change as well as the p-value. When only the coefficient of variation of the initial validation is known, pass it as ``initial_cv``. The European Central Bank also asks for the HI of the exposures, without a test; pass the exposure of each grade alone, here with the account balance standing in for the exposure:
 

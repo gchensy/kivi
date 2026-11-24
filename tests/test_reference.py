@@ -19,17 +19,30 @@ import pytest
 from kivi import _stats
 from kivi.binning import chimerge_edges, chimerge_groups, ks_edges, tree_edges
 from kivi.calibration import (
+    backtest_table,
     binomial_test,
+    concentration_test,
     fit_grade_pd,
     hosmer_lemeshow,
     isotonic_fit,
     isotonic_predict,
     jeffreys_test,
     platt_fit,
+    spiegelhalter_test,
 )
 from kivi.datasets import load_bank
-from kivi.metrics import brier_score, delong_test, ks, roc_auc, roc_auc_interval, roc_table
-from kivi.selection import logistic_regression, vif
+from kivi.metrics import (
+    brier_score,
+    delong_test,
+    generalized_auc,
+    ks,
+    roc_auc,
+    roc_auc_interval,
+    roc_table,
+)
+from kivi.selection import logistic_regression, selection_path, vif
+from kivi.vintage import migration_test
+from kivi.woe import woe_table, woe_transform
 
 
 @pytest.fixture(scope="module")
@@ -216,6 +229,20 @@ def test_brier_score_matches_scikit_learn(use_weights):
     assert brier_score(probability, target, weights=weights) == pytest.approx(
         expected, rel=1e-12, abs=0
     )
+
+
+@pytest.mark.parametrize("use_weights", [False, True])
+def test_precision_recall_steps_match_scikit_learn_average_precision(use_weights):
+    # precision_recall_chart draws the rows of roc_table as steps whose area is
+    # sum((R_n - R_{n-1}) P_n), the average precision of scikit-learn.
+    metrics = pytest.importorskip("sklearn.metrics")
+    score, _, target, weights = simulated_scores(seed=24)
+    weights = weights if use_weights else None
+    table = roc_table(score, target, weights=weights)
+    recall, precision = table["true_positive_rate"].to_numpy(), table["precision"].to_numpy()
+    area = np.sum(np.diff(recall) * precision[1:])
+    expected = metrics.average_precision_score(target, score, sample_weight=weights)
+    assert area == pytest.approx(expected, rel=1e-12, abs=0)
 
 
 # --------------------------------------------------------------------------------- SciPy
@@ -572,6 +599,84 @@ def test_delong_test_matches_an_independent_delong_computation(seed):
         assert 1e-3 < p_value < 0.9
 
 
+def test_normal_and_t_match_scipy():
+    stats = pytest.importorskip("scipy.stats")
+    x = np.linspace(-12, 12, 97)
+    np.testing.assert_allclose(_stats.normal_cdf(x), stats.norm.cdf(x), rtol=1e-13, atol=0)
+    rng = np.random.default_rng(0)
+    t = np.concatenate([rng.normal(scale=4, size=400), [-1e-7, 1e-7, 0.0, 40.0]])
+    dof = np.concatenate([rng.uniform(0.5, 2000, size=400), [3.0, 1e4, 7.0, 15.0]])
+    np.testing.assert_allclose(_stats.student_t_sf(t, dof), stats.t.sf(t, dof), rtol=1e-10, atol=0)
+
+
+@pytest.mark.parametrize(
+    "dof", [1.5, 2, 3, 7.5, 30, 99.5, 100, 101, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9]
+)
+def test_student_t_sf_matches_scipy_up_to_a_billion_degrees_of_freedom(dof):
+    # One degree of freedom is left out: there SciPy's t.sf loses digits near 0 (3e-9 at 1e-8),
+    # and tests/test_calibration.py compares it with the Cauchy distribution instead.
+    stats = pytest.importorskip("scipy.stats")
+    t = np.geomspace(1e-8, 40, 500)
+    t = np.concatenate([t, -t[::7]])
+    expected = stats.t.sf(t, dof)
+    actual = _stats.student_t_sf(t, dof)
+    # Where SciPy's tail underflows, so does kivi's.
+    shown = expected > 1e-300
+    np.testing.assert_allclose(actual[shown], expected[shown], rtol=1e-12, atol=0)
+    assert (actual[~shown] < 1e-290).all()
+
+
+def test_spiegelhalter_matches_scipy_normal_tail():
+    stats = pytest.importorskip("scipy.stats")
+    statistic, pvalue = spiegelhalter_test([0.1, 0.2, 0.2, 0.4, 0.7, 0.9], [1, 1, 0, 1, 0, 1])
+    assert pvalue == pytest.approx(2 * stats.norm.sf(abs(statistic)), rel=1e-12)
+
+
+def test_concentration_test_matches_scipy_normal_tail():
+    stats = pytest.importorskip("scipy.stats")
+    result = concentration_test([600, 200, 100, 50, 50], initial_cv=0.6)
+    assert result["p_value"] == pytest.approx(stats.norm.sf(result["statistic"]), rel=1e-12)
+
+
+def test_backtest_table_matches_scipy_paired_t_tests():
+    stats = pytest.importorskip("scipy.stats")
+    rng = np.random.default_rng(5)
+    estimated = rng.choice([0.1, 0.25, 0.4, 0.7], size=300)
+    realized = np.clip(estimated + rng.normal(0.02, 0.2, size=300), -0.1, 1.2)
+    table = backtest_table(estimated, realized, estimated)
+    for grade, row in table.iterrows():
+        mine = estimated == grade
+        result = stats.ttest_1samp(realized[mine] - estimated[mine], 0, alternative="greater")
+        assert row["statistic"] == pytest.approx(result.statistic, rel=1e-11)
+        assert row["p_value"] == pytest.approx(result.pvalue, rel=1e-9)
+        assert row["variance"] == pytest.approx(np.var(realized[mine] - estimated[mine], ddof=1))
+    paired = stats.ttest_rel(realized, estimated, alternative="greater")
+    portfolio = backtest_table(np.zeros(300), realized, estimated)
+    assert portfolio["statistic"].iloc[0] == pytest.approx(paired.statistic, rel=1e-11)
+    assert portfolio["p_value"].iloc[0] == pytest.approx(paired.pvalue, rel=1e-9)
+
+
+def test_generalized_auc_matches_scipy_somersd():
+    stats = pytest.importorskip("scipy.stats")
+    rng = np.random.default_rng(9)
+    estimated = rng.integers(0, 6, size=500)
+    realized = np.clip(estimated + rng.integers(-3, 3, size=500), 0, 7)
+    expected = stats.somersd(estimated, realized).statistic
+    result = generalized_auc(estimated, realized)
+    assert result.loc["somers_d", "estimate"] == pytest.approx(expected, rel=1e-12)
+    table = stats.contingency.crosstab(estimated, realized).count
+    assert stats.somersd(table).statistic == pytest.approx(expected, rel=1e-12)
+
+
+def test_migration_matches_the_scipy_normal_distribution():
+    stats = pytest.importorskip("scipy.stats")
+    before = ["A"] * 50 + ["B"] * 40 + ["C"] * 30
+    after = ["A"] * 40 + ["B"] * 6 + ["C"] * 4 + ["A"] * 5 + ["B"] * 30 + ["C"] * 5
+    after += ["A"] * 2 + ["B"] * 6 + ["C"] * 20 + ["default"] * 2
+    table = migration_test(before, after, grades=["A", "B", "C"])
+    np.testing.assert_allclose(table["p_value"], stats.norm.cdf(table["statistic"]), rtol=1e-12)
+
+
 # ----------------------------------------------------------------------------- statsmodels
 
 
@@ -642,6 +747,37 @@ def test_logistic_regression_on_woe_like_columns_matches_statsmodels():
     np.testing.assert_allclose(ours["coef"], reference.params, rtol=1e-8)
     np.testing.assert_allclose(ours["se"], reference.bse, rtol=1e-8)
     np.testing.assert_allclose(ours["p_value"], reference.pvalues, rtol=1e-7)
+
+
+def bank_woe(bank):
+    """The WOE of the categorical bank variables, fitted on the whole sample."""
+    columns = ["poutcome", "contact", "housing", "loan", "marital", "default"]
+    return pd.DataFrame(
+        {
+            column: woe_transform(bank[column], woe_table(bank[column], bank["target"]))
+            for column in columns
+        }
+    )
+
+
+def test_selection_path_matches_statsmodels(bank):
+    sm = pytest.importorskip("statsmodels.api")
+    metrics = pytest.importorskip("sklearn.metrics")
+    X, target = bank_woe(bank), bank["target"]
+    path = selection_path(X, target)
+    for step, row in path.iterrows():
+        columns = X.columns[:step]
+        fitted = sm.GLM(target, sm.add_constant(X[columns]), family=sm.families.Binomial()).fit(
+            tol=1e-15, tol_criterion="params"
+        )
+        assert row["max_p_value"] == pytest.approx(fitted.pvalues.iloc[1:].max(), rel=1e-6)
+        assert row["min_coefficient"] == pytest.approx(fitted.params.iloc[1:].min(), rel=1e-9)
+        # fittedvalues come from a matrix product, which can give identical rows probabilities
+        # that differ in the last digit and so split their tie; score column by column instead.
+        score = np.full(len(X), fitted.params.iloc[0])
+        for column in columns:
+            score += fitted.params[column] * X[column].to_numpy()
+        assert row["auc"] == pytest.approx(metrics.roc_auc_score(target, score), rel=1e-12)
 
 
 def test_vif_matches_statsmodels_on_a_design_with_a_constant(bank):

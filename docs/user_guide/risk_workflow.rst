@@ -155,7 +155,7 @@ contact    0.588  0.153   3.850    0.000
 housing    0.635  0.189   3.358    0.001
 job        0.592  0.180   3.285    0.001
 
-No pair is correlated strongly enough to drop a variable, and ``stepwise`` leaves out ``age``. The model is fitted on the development sample only.
+No pair is correlated strongly enough to drop a variable, and ``stepwise`` leaves out ``age``. The model is fitted on the development sample only. :func:`~kivi.selection.vif_filter` checks the kept variables for collinearity among several of them, and :func:`~kivi.selection.selection_path` shows on a validation sample where adding variables in IV order stops paying off; :doc:`selection` shows both.
 
 The bank data record the outcome of every customer. A credit development sample usually holds only the applications that the previous policy approved, and a model fitted on them alone underestimates the risk of the applicants it used to decline. :doc:`reject_inference` infers their outcomes and refits the model with ``weights``.
 

@@ -983,9 +983,12 @@ def spiegelhalter_test(
     -------
     statistic : float
         The z statistic, approximately standard normal when the
-        probabilities are the true ones. It is positive when the
-        probabilities are less accurate than they would be if they were
-        true.
+        probabilities are the true ones. It is positive when the Brier
+        score of the probabilities exceeds its expectation under them, and
+        negative when it falls short of it. When every probability is
+        below 1/2, as PDs usually are, a positive statistic means more
+        events than the probabilities predict and a negative one fewer;
+        both reject the probabilities.
     pvalue : float
         Its two-sided p-value.
 
@@ -1048,7 +1051,8 @@ def spiegelhalter_test(
     >>> print(f"z = {statistic:.3f}, p = {pvalue:.3f}")
     z = 1.912, p = 0.056
 
-    Outcomes that follow the probabilities closely give a negative ``z``:
+    Outcomes that follow the probabilities more closely than chance give a
+    Brier score below its expectation and a negative ``z``:
 
     >>> statistic, pvalue = spiegelhalter_test(probability, [0, 0, 0, 1, 1, 1])
     >>> print(f"z = {statistic:.3f}, p = {pvalue:.3f}")

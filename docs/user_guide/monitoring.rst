@@ -3,7 +3,7 @@ Model monitoring
 
 A model in use is checked every month or quarter: does it still see the population that it was developed on, and does it still rank the outcomes as it did? :func:`~kivi.monitoring.monitoring_table` answers both questions for a score in one table, with one row per period: the number of observations, the events among the known outcomes, the AUC, Gini and KS, and the PSI of the score against a reference sample. :func:`~kivi.monitoring.stability_table` gives the PSI of every variable of the model in every period, to find the variables behind a shift.
 
-Monitoring repeats the measures of :doc:`metrics` and of the :doc:`population stability index <psi>` period by period, once the model is in production with its :doc:`binning specification <spec>`. :doc:`vintage` then follows the loans that the model approves.
+Monitoring repeats the measures of :doc:`metrics` and of the :doc:`population stability index <psi>` period by period, once the model is in production with its :doc:`binning specification <spec>`. :doc:`validation` then reviews the model once a year, as supervisors ask of internal rating models, and :doc:`vintage` follows the loans that the model approves.
 
 Definitions
 -----------

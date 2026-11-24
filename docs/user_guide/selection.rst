@@ -240,6 +240,12 @@ step
 9       marital  0.729           0.697        0.187            0.341
 10     campaign  0.730           0.701        0.227            0.322
 
+.. plot::
+   :alt: Development and validation AUC of each step of the selection path, with the variable that each step adds
+   :caption: The ``auc`` of the development sample rises with every step, while the ``validation_auc`` levels off once ``job`` enters at step 4.
+
+   kp.figure_selection_path()
+
 The AUC on the development sample rises with every variable, because each model is fitted to that sample. On the validation sample it reaches 0.697 when ``job`` enters at step 4 and stays within 0.01 of that afterwards: the last six variables add 0.042 to the development AUC and 0.004 to the validation AUC. From ``education`` on, the largest p-value is also above 0.05. ``path[["auc", "validation_auc"]].diff()`` shows the gain of each step. ``min_coefficient`` stays positive, so no variable works against its own event rates.
 
 With ``previous`` in the order, right after ``pdays`` as its IV puts it, the smallest coefficient turns negative at step 3 and stays negative:

@@ -1281,32 +1281,38 @@ def test_normal_cdf_at_tabulated_points_and_in_the_tails():
 
 @pytest.mark.parametrize("t", [-30.0, -2.5, -1.0, -1e-9, 0.0, 1e-9, 0.4, 1.0, 3.0, 50.0])
 def test_student_t_tail_matches_closed_forms(t):
-    # One degree of freedom is the Cauchy distribution and two have an algebraic tail.
-    assert student_t_sf(t, 1) == pytest.approx(0.5 - math.atan(t) / math.pi, rel=1e-13, abs=0)
-    two = 0.5 - t / (2 * math.sqrt(2 + t * t))
-    assert student_t_sf(t, 2) == pytest.approx(two, rel=1e-12, abs=0)
+    # One degree of freedom is the Cauchy distribution and two have an algebraic tail, both
+    # written so that the upper tail does not cancel.
+    assert student_t_sf(t, 1) == pytest.approx(math.atan2(1, t) / math.pi, rel=2e-15, abs=0)
+    root = math.sqrt(2 + t * t)
+    two = 1 / (root * (root + t)) if t >= 0 else 1 - 1 / (root * (root - t))
+    assert student_t_sf(t, 2) == pytest.approx(two, rel=2e-15, abs=0)
+
+
+@pytest.mark.parametrize("t", [0.5, 1.8, 2.5, 5.0])
+def test_student_t_tail_with_a_billion_degrees_of_freedom(t):
+    # Fisher's expansion P(T > t) = Q(t) + phi(t) (t**3 + t) / (4 df) + O(df**-2) leaves about
+    # 1e-15 at a billion degrees of freedom. The incomplete beta function there is off by up to
+    # 1e-7, because it raises a rounded df / (df + t**2) to the power df / 2.
+    dof = 1e9
+    density = math.exp(-t * t / 2) / math.sqrt(2 * math.pi)
+    expected = float(normal_cdf(-t)) + density * (t**3 + t) / (4 * dof)
+    assert student_t_sf(t, dof) == pytest.approx(expected, rel=1e-13, abs=0)
+    assert student_t_sf(-t, dof) == pytest.approx(1 - expected, rel=1e-14, abs=0)
 
 
 def test_student_t_tail_at_its_limits():
     np.testing.assert_array_equal(student_t_sf([np.inf, -np.inf, 0.0], 3.5), [0.0, 1.0, 0.5])
     assert np.isnan(student_t_sf(np.nan, 4))
-    # A huge statistic overflows t**2 without a warning.
+    # A huge statistic overflows t**2 without a warning, also with many degrees of freedom.
     assert student_t_sf(1e200, 10) == 0.0
-    # Many degrees of freedom approach the normal distribution.
-    assert student_t_sf(2.0, 1e9) == pytest.approx(normal_cdf(-2.0), rel=1e-7)
+    assert student_t_sf(1e200, 1e6) == 0.0
+    # Far in the tail of many degrees of freedom, erfc underflows together with the result.
+    assert student_t_sf(1500.0, 1e6) == 0.0
+    np.testing.assert_array_equal(student_t_sf([0.0, -0.0], 1e6), [0.5, 0.5])
     for dof in (0, -1, np.inf, np.nan):
         with pytest.raises(ValueError, match="degrees of freedom must be finite and positive"):
             student_t_sf(1.0, dof)
-
-
-def test_normal_and_t_match_scipy():
-    stats = pytest.importorskip("scipy.stats")
-    x = np.linspace(-12, 12, 97)
-    np.testing.assert_allclose(normal_cdf(x), stats.norm.cdf(x), rtol=1e-13, atol=0)
-    rng = np.random.default_rng(0)
-    t = np.concatenate([rng.normal(scale=4, size=400), [-1e-7, 1e-7, 0.0, 40.0]])
-    dof = np.concatenate([rng.uniform(0.5, 2000, size=400), [3.0, 1e4, 7.0, 15.0]])
-    np.testing.assert_allclose(student_t_sf(t, dof), stats.t.sf(t, dof), rtol=1e-10, atol=0)
 
 
 # Spiegelhalter's test.
@@ -1368,12 +1374,6 @@ def test_spiegelhalter_without_variance():
         # Certain probabilities that come true are perfect, and there is nothing to test.
         statistic, pvalue = spiegelhalter_test([0.0, 1.0], [0, 1])
         assert math.isnan(statistic) and math.isnan(pvalue)
-
-
-def test_spiegelhalter_matches_scipy_normal_tail():
-    stats = pytest.importorskip("scipy.stats")
-    statistic, pvalue = spiegelhalter_test(SPIEGEL_PROBABILITY, [1, 1, 0, 1, 0, 1])
-    assert pvalue == pytest.approx(2 * stats.norm.sf(abs(statistic)), rel=1e-12)
 
 
 @pytest.mark.parametrize(
@@ -1567,12 +1567,6 @@ def test_concentration_test_takes_the_largest_cv_and_requires_one_index():
     )
 
 
-def test_concentration_test_matches_scipy_normal_tail():
-    stats = pytest.importorskip("scipy.stats")
-    result = concentration_test([600, 200, 100, 50, 50], initial_cv=0.6)
-    assert result["p_value"] == pytest.approx(stats.norm.sf(result["statistic"]), rel=1e-12)
-
-
 @pytest.mark.parametrize(
     "counts,options,message",
     [
@@ -1626,24 +1620,6 @@ def test_backtest_table_matches_the_hand_calculation():
     # Two degrees of freedom have the closed-form tail 1/2 - t / (2 sqrt(2 + t^2)).
     t = statistic[0]
     assert table["p_value"].iloc[0] == pytest.approx(0.5 - t / (2 * math.sqrt(2 + t * t)))
-
-
-def test_backtest_table_matches_scipy_paired_t_tests():
-    stats = pytest.importorskip("scipy.stats")
-    rng = np.random.default_rng(5)
-    estimated = rng.choice([0.1, 0.25, 0.4, 0.7], size=300)
-    realized = np.clip(estimated + rng.normal(0.02, 0.2, size=300), -0.1, 1.2)
-    table = backtest_table(estimated, realized, estimated)
-    for grade, row in table.iterrows():
-        mine = estimated == grade
-        result = stats.ttest_1samp(realized[mine] - estimated[mine], 0, alternative="greater")
-        assert row["statistic"] == pytest.approx(result.statistic, rel=1e-11)
-        assert row["p_value"] == pytest.approx(result.pvalue, rel=1e-9)
-        assert row["variance"] == pytest.approx(np.var(realized[mine] - estimated[mine], ddof=1))
-    paired = stats.ttest_rel(realized, estimated, alternative="greater")
-    portfolio = backtest_table(np.zeros(300), realized, estimated)
-    assert portfolio["statistic"].iloc[0] == pytest.approx(paired.statistic, rel=1e-11)
-    assert portfolio["p_value"].iloc[0] == pytest.approx(paired.pvalue, rel=1e-9)
 
 
 def test_backtest_table_integer_weights_equal_repeated_rows():

@@ -17,6 +17,12 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Area under the ROC curve (AUC)
       The probability that a randomly chosen event scores higher than a randomly chosen non-event, with ties counted as one half. A score unrelated to the target has an AUC of about 0.5; see :doc:`/user_guide/metrics`.
 
+   Average precision
+      The area under the precision-recall curve drawn as steps: the sum over the thresholds of the gain in recall times the precision at the threshold, :math:`\sum_n (R_n - R_{n-1}) P_n`. A score that ranks at random has an average precision close to the event rate; see :doc:`/user_guide/plotting`.
+
+   Back-test
+      A comparison of the estimates of a model, such as the PDs of its grades or the LGDs of its facilities, with the values realized later. kivi tests PDs with the binomial and Jeffreys tests and continuous estimates with the t-tests of the European Central Bank; see :doc:`/user_guide/validation`.
+
    Bad definition
       The condition that makes a loan bad at a month end, usually a delinquency bucket or worse, such as 90 days past due or more. A vintage table counts the loans that have met it at any month on book so far, so an earlier definition gives an earlier signal; see :doc:`/user_guide/vintage`.
 
@@ -32,6 +38,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Binning specification
       The edges, category groupings, special codes and WOE tables of every column of a model, fitted together and saved as versioned JSON, so that production data are grouped and encoded exactly as the development sample; see :doc:`/user_guide/spec`.
 
+   Brier decomposition
+      The split of the Brier score of probabilities, by groups such as grades, into the reliability, how far the mean probability of each group lies from its event rate, the resolution, how far the event rates of the groups lie from the overall event rate, and the uncertainty, the variance of the outcomes. The Brier score is the reliability minus the resolution plus the uncertainty, plus two terms for probabilities that vary within a group; see :doc:`/user_guide/calibration`.
+
    Category grouping
       A mapping from each category of a categorical variable to a group, fitted on a reference sample by pooling rare categories or by merging categories with similar event rates, and applied unchanged to every other sample; see :ref:`category-groups`.
 
@@ -40,6 +49,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    ChiMerge
       Supervised binning that starts from many small bins and repeatedly merges the adjacent pair with the smallest chi-square statistic, the pair whose event rates are most alike, until no more than a given number of bins remain and every adjacent pair differs significantly. Categories are merged in the same way once sorted by their WOE; see :doc:`/user_guide/binning`.
+
+   Coefficient of variation (CV)
+      The standard deviation of values divided by their mean, as in the ``cv`` of :func:`~kivi.univariate.profile_table`. For the shares :math:`R_i` of :math:`K` grades it is :math:`\sqrt{K \sum_i (R_i - 1/K)^2}`, 0 for equally full grades and :math:`\sqrt{K - 1}` when one grade holds everybody, and the European Central Bank tests whether it has risen since the initial validation; see :doc:`/user_guide/calibration`.
 
    Cohort
       The loans originated in the same period, usually a month, followed together as they age in a vintage table; see :doc:`/user_guide/vintage`.
@@ -55,6 +67,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Coverage ratio
       The loss allowance of a group of loans divided by their exposure; see :doc:`/user_guide/lifetime`.
+
+   Credit conversion factor (CCF)
+      The share of the undrawn amount of a credit line that a borrower draws by the time of default, so that the exposure at default is the drawn amount plus the CCF times the undrawn amount; see :doc:`/user_guide/validation`.
 
    Credit-impaired
       IFRS 9 calls a loan credit-impaired once events with a detrimental effect on its expected cash flows have occurred, such as significant financial difficulty of the borrower or a breach of contract like a default or a past-due event. Lenders usually align it with their definition of default, and such loans are in stage 3; see :doc:`/user_guide/lifetime`.
@@ -83,6 +98,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Entity
       The customer, account or loan that events, monthly statuses and observations belong to, named by the ``id`` column of :mod:`kivi.features`; see :doc:`/user_guide/features`.
 
+   Estimated and realized values
+      The estimates of a model, such as the LGD of a facility, and the values observed later, such as the loss realized when its recovery process closed. kivi takes them as ``estimated`` and ``realized``: continuous values in :func:`~kivi.calibration.backtest_table` and ordered segments in :func:`~kivi.metrics.generalized_auc`; see :doc:`/user_guide/validation`.
+
    Event and non-event
       The two outcomes of a binary target: an event has target 1, such as a default or another bad outcome, and a non-event has target 0. The guides read the subscription of the bundled bank data as the event; see :doc:`/user_guide/woe_iv`. The events that :mod:`kivi.features` aggregates are of another kind: dated records of an entity, such as its transactions; see :doc:`/user_guide/features`.
 
@@ -97,6 +115,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Expected loss (EL)
       The loss that an exposure is expected to cause: its probability of default times its loss given default times its exposure at default; see :doc:`/user_guide/strategy`.
+
+   Expected loss best estimate (ELBE)
+      The best estimate of the loss of an exposure that is already in default, given the economic conditions at the time. The European Central Bank back-tests it against the realized losses with a two-sided t-test; see :doc:`/user_guide/validation`.
 
    Expert scorecard
       A scorecard whose weights are set by the judgment of credit analysts rather than fitted to outcomes, for portfolios with too few defaults to fit a model; see :doc:`/user_guide/expert`.
@@ -113,6 +134,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Gains table
       A table of score bands from the riskiest to the safest, with the event rate and lift of each band and the cumulative shares of events and non-events; see :doc:`/user_guide/metrics`.
 
+   Generalized AUC (gAUC)
+      The AUC extended to ordered outcomes that are not binary, such as realized LGDs cut into segments: of two observations in different estimated segments, the probability that the one estimated higher also realized more, with ties counting as one half. It is Somers' D plus one, halved; see :doc:`/user_guide/metrics`.
+
    Gini coefficient
       Twice the AUC minus 1: 0 for a score unrelated to the target and 1 for a score that ranks every event above every non-event. Scorecard development reports it more often than the AUC itself; see :doc:`/user_guide/metrics`.
 
@@ -123,10 +147,16 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       The months after the origination of a loan in which nothing falls due, so that its first instalment falls due later than a month after origination. :func:`~kivi.vintage.delinquency_panel` puts a loan in the cohort of the month before its first due date unless ``origination`` gives the origination dates, which keep the loans with a grace period in the cohort of their origination month; see :doc:`/user_guide/vintage`.
 
    Grade
-      One class of a rating system or master scale, with a PD of its own and bounds that decide which predicted PDs fall into it; see :doc:`/user_guide/calibration`.
+      One class of a rating system or master scale, with a PD of its own and bounds that decide which predicted PDs fall into it. The functions that follow migrations take the grades of a rating system from the best to the worst as ``grades``; see :doc:`/user_guide/calibration`.
+
+   Herfindahl-Hirschman index (HHI)
+      The sum of the squared shares of the grades of a rating scale: :math:`1/K` when :math:`K` grades are equally full and 1 when one grade holds everybody. The European Central Bank measures the concentration with the HI, :math:`1 + \ln \mathrm{HHI} / \ln K`, which runs from 0 to 1 instead; see :doc:`/user_guide/calibration`.
 
    Information value (IV)
       The sum of the differences between the event share and the non-event share of each group, each times the group's WOE. It measures how strongly a grouped variable separates events from non-events on its own; see :doc:`/user_guide/woe_iv`.
+
+   Initial validation
+      The validation of a rating model before its first use. Later validations compare their AUC, gAUC and concentration of grades with those of the initial validation, which they take as known; see :doc:`/user_guide/validation`.
 
    Kolmogorov-Smirnov statistic (KS)
       The largest absolute gap between the distribution functions of the scores of events and of non-events; see :doc:`/user_guide/metrics`.
@@ -145,6 +175,12 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Master scale
       A fixed set of grades that divides the PD range from 0 to 1, so that ratings from different models share one meaning; see :doc:`/user_guide/calibration`.
+
+   Matrix weighted bandwidth (MWB)
+      A summary of how far customers move between the grades of a rating system in a period: the distances of the moves to worse grades, for the upper MWB, or to better grades, for the lower MWB, relative to the furthest move possible from each customer's grade. Both run from 0 to 1, and smaller values mean shorter migrations; see :doc:`/user_guide/vintage`.
+
+   Migration matrix
+      The transition matrix of the grades of a rating system over a period, usually a year: the share of the customers of each grade at the beginning that are in each grade at the end. Customers who defaulted or left count among the customers of their grade at the beginning, so the shares of a row may add up to less than 1; see :doc:`/user_guide/vintage`.
 
    Monitoring report
       A table with one row per period that tracks a model in use: its population, the known outcomes, its discrimination and the stability of its score against a reference sample; see :doc:`/user_guide/monitoring`.
@@ -197,6 +233,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Precision
       The share of events among the observations that a score flags at a threshold, that is, the event rate of the flagged observations; see :doc:`/user_guide/metrics`.
 
+   Precision-recall curve
+      The precision against the recall at every threshold of a score, drawn as steps from one threshold to the next. It shows how the share of events among the flagged observations falls as more of the events are found, which matters most when events are rare; see :doc:`/user_guide/plotting`.
+
    Probability of default (PD)
       The probability that a borrower defaults within a given horizon, usually twelve months. kivi calls a predicted PD, or any other predicted event probability, ``probability``; see :doc:`/user_guide/calibration`.
 
@@ -205,6 +244,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Reason codes
       The variables that lowered an applicant's score most, compared with the best group of each variable, as given to a declined applicant; see :doc:`/user_guide/scorecard`.
+
+   Recall
+      The share of all events that a score flags at a threshold: the ``true_positive_rate`` of :func:`~kivi.metrics.roc_table` and the ``recall`` of :func:`~kivi.strategy.confusion_table`; see :doc:`/user_guide/metrics`.
 
    Reference sample
       The sample that later samples are compared with, usually the development sample or a period right after it. Bin edges, score bands and groups are fitted on it; see :doc:`/user_guide/monitoring`.
@@ -230,14 +272,23 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Saaty scale
       The scale of pairwise comparisons from 1, equally important, through 3, 5 and 7 to 9, extremely more important, with 2, 4, 6 and 8 in between and the reciprocals for the reverse comparisons; see :doc:`/user_guide/expert`.
 
+   Selection path
+      The models fitted on the first 1, 2, 3 and more variables of a fixed order, such as the variables sorted by IV, with the measures of each model on the development sample and on a validation sample, which show where adding variables stops paying off; see :doc:`/user_guide/selection`.
+
    Significant increase in credit risk (SICR)
       The IFRS 9 criterion that moves a loan from stage 1 to stage 2: its risk of default has risen significantly since initial recognition. Each lender sets the test in its own policy, for example as relative and absolute increases of the PD; see :doc:`/user_guide/lifetime`.
 
    Smoothing
       The value that replaces an empty count before shares are computed, 0.5 by default, so that the WOE, the IV and the PSI of a group stay finite. Counts are reported as observed, and only the shares are smoothed; see :doc:`/user_guide/woe_iv`.
 
+   Somers' D
+      A rank correlation of an ordered outcome with ordered estimates: of the pairs of observations in different estimated segments, the share that the outcome orders the same way minus the share that it orders the other way. It runs from -1 to 1, and the generalized AUC is Somers' D plus one, halved; see :doc:`/user_guide/metrics`.
+
    Special codes
       Values that stand for a state rather than a measurement, such as -1 for "never contacted", 999 for "no record" or the label "unknown" of a categorical variable. Passed in ``special``, they are left out of the fit of the edges or of the grouping and each gets a group of its own; see :ref:`special-values`.
+
+   Spiegelhalter test
+      A test of the calibration of single probabilities, without groups: it standardizes the difference between the Brier score of the probabilities and the score that they would have if they were the true ones. For PDs below 1/2, a positive statistic means more defaults than the PDs predict and a negative one fewer; see :doc:`/user_guide/calibration`.
 
    Stage
       One of the three IFRS 9 buckets of a loan: stage 1 for loans without a significant increase in credit risk, with a 12-month ECL; stage 2 for loans with one, with a lifetime ECL; and stage 3 for credit-impaired loans, also with a lifetime ECL; see :doc:`/user_guide/lifetime`.
@@ -260,6 +311,15 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Unseen category
       A category of a later sample that did not occur in the reference sample, so that its grouping or WOE table has no row for it. kivi raises an error for such a category unless an ``unseen`` policy says how to treat it; see :doc:`/user_guide/woe_iv`.
 
+   Validation sample
+      A sample left out of the development of a model, such as later applicants, on which the fitted model is measured, so that its measures do not reward a fit to the chance features of the development sample; see :doc:`/user_guide/metrics`.
+
+   Variance inflation factor (VIF)
+      How much the variance of a coefficient grows because its variable is correlated with the other variables: :math:`1 / (1 - R^2)` for the :math:`R^2` of the regression of the variable on the others, with an intercept. It is 1 without collinearity, and values above 5 or 10 are usually taken as too high; see :doc:`/user_guide/selection`.
+
+   VIF elimination
+      Dropping the variable with the largest VIF, computing the VIFs of the others again and repeating until no VIF exceeds a threshold, so that one collinear variable at a time is removed; see :doc:`/user_guide/selection`.
+
    Vintage table
       The cumulative ever-bad rate of each cohort by month on book; see :doc:`/user_guide/vintage`.
 
@@ -271,3 +331,6 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Window pair
       Two bounds of the same unit, such as ``("6M", "3M")``, that make one window from the first to the second, here :math:`[t - 6M, t - 3M)`, the period before the most recent one. Its features are named with both bounds, as ``6m_3m``; see :doc:`/user_guide/features`.
+
+   WOE trend
+      The shape of the WOE over the bins of a numeric variable, from its lowest values to its highest: increasing, decreasing, U-shaped, an inverted U, irregular when it changes direction more than once, or flat. Monotonic binning makes it increasing or decreasing; see :doc:`/user_guide/woe_iv`.

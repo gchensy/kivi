@@ -1078,18 +1078,6 @@ def test_generalized_auc_of_perfect_and_uninformative_rankings():
     assert flat["se"].tolist() == [0.0, 0.0]
 
 
-def test_generalized_auc_matches_scipy_somersd():
-    stats = pytest.importorskip("scipy.stats")
-    rng = np.random.default_rng(9)
-    estimated = rng.integers(0, 6, size=500)
-    realized = np.clip(estimated + rng.integers(-3, 3, size=500), 0, 7)
-    expected = stats.somersd(estimated, realized).statistic
-    result = generalized_auc(estimated, realized)
-    assert result.loc["somers_d", "estimate"] == pytest.approx(expected, rel=1e-12)
-    table = stats.contingency.crosstab(estimated, realized).count
-    assert stats.somersd(table).statistic == pytest.approx(expected, rel=1e-12)
-
-
 @pytest.mark.parametrize(
     "estimated,realized,options,message",
     [
