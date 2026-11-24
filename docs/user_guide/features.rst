@@ -495,6 +495,12 @@ repayment_amount_sum_6m_3m                     0.000  0.005  0.037
 
 The number of cash withdrawals in the last three months separates the classes best, and more withdrawals mean more defaults, as the positive ``gini`` shows. The repayments of the last three months come next with the opposite sign: applicants at risk miss more of them, so fewer repayments, and a smaller sum than in the three months before, mean more defaults. Both follow from how the transactions are simulated, with a stress that builds up before the application, and both are stronger in the last three months than in the three months before them. The purchases say little. The ratio of the cash withdrawals is missing for the 24% of applicants who withdrew no cash in the three months before the last three, because its denominator is 0. The profile counts them as a group of their own, which defaults less often than the others: a missing value is information too.
 
+.. plot::
+   :alt: The share of applicants and the event rate in each band of cash_events_3m and cash_events_6m_3m: the event rate rises from 9.4% to 31.4% over the bands of the last three months and from 11.6% to 28.0% over those of the three months before, against 16.1% for all applicants
+   :caption: The bands of the quick binning of the profile for the number of cash withdrawals in the last three months and in the three months before them, with the IV of each feature. In both windows more withdrawals mean more defaults, and the last three months separate the classes better. The dashed line is the event rate of all applicants.
+
+   kp.figure_transaction_features()
+
 The signal is clear but modest, and only simulated data can tie it to a factor that no lender sees: the transactions show how window features work, not how well behaviour predicts default in a real portfolio. Bin the features that are kept as :doc:`binning` describes and select them with the rest of the candidates, as :doc:`selection` describes.
 
 Missing values
