@@ -3,7 +3,7 @@ Weight of evidence and information value
 
 :func:`~kivi.woe.woe_table` measures how each group separates a binary target. An event is target 1 and a non-event is target 0. Both target classes must be present. Group and target series must share the same index; arrays and lists are matched by position, as :doc:`/api/conventions` describes for every function.
 
-WOE and IV follow :doc:`binning`, which forms the groups, and come before :doc:`variable selection <selection>`, which fits a logistic regression on the WOE-encoded variables. :func:`~kivi.woe.woe_transform` encodes new data with the fitted WOE, and :func:`~kivi.woe.woe` and :func:`~kivi.woe.iv` compute the measures from counts that are already aggregated.
+WOE and IV follow :doc:`binning`, which forms the groups, and come before :doc:`variable selection <selection>`, which fits a logistic regression on the WOE-encoded variables. :func:`~kivi.woe.woe_transform` encodes new data with the fitted WOE, :func:`~kivi.woe.woe` and :func:`~kivi.woe.iv` compute the measures from counts that are already aggregated, and :func:`~kivi.woe.woe_trend` names the shape of the WOE over the bins of a numeric variable.
 
 Definitions
 -----------
@@ -152,6 +152,48 @@ student         15         44       0.254  0.955
       :pyobject: woe_rate_panels
 
 To compare many variables at once, rank them by IV; see :doc:`risk_workflow`.
+
+The trend of the WOE
+--------------------
+
+The WOE of a numeric variable is easiest to explain when it rises or falls steadily with the variable. :func:`~kivi.woe.woe_trend` names the shape of a binning from the ``woe`` column of the rows labeled with intervals, in the order of the table: ``"increasing"``, ``"decreasing"``, ``"u_shaped"`` (falls, then rises), ``"inverted_u"`` (rises, then falls), ``"irregular"`` (changes direction more than once) or ``"flat"``. Five quantile bins give four shapes on the bank data:
+
+>>> from kivi.binning import bin_edges
+>>> from kivi.woe import woe_trend
+>>> trends = {}
+>>> for column in ["age", "balance", "day", "duration"]:
+...     values = reference[column]
+...     table = woe_table(pd.cut(values, bin_edges(values, bins=5)), reference["target"])
+...     trends[column] = woe_trend(table)
+>>> trends
+{'age': 'u_shaped', 'balance': 'increasing', 'day': 'irregular', 'duration': 'increasing'}
+
+Rows of special codes and of missing values have no place on the scale of the variable, so they are left out. The code ``-1`` of ``pdays``, a customer not contacted before, comes first in its table, and the trend reads the five intervals after it:
+
+>>> from kivi.binning import cut
+>>> pdays = reference["pdays"]
+>>> edges = bin_edges(pdays, bins=5, special=[-1])
+>>> pdays_table = woe_table(cut(pdays, edges, special=[-1]), reference["target"])
+>>> pdays_table["woe"].round(3)
+bin
+-1               -0.257
+(-inf, 105.0]     1.880
+(105.0, 175.6]    0.326
+(175.6, 255.4]    1.161
+(255.4, 342.2]   -0.336
+(342.2, inf]      0.239
+Name: woe, dtype: float64
+>>> woe_trend(pdays_table)
+'irregular'
+
+An irregular trend is often noise in small bins. :func:`~kivi.binning.monotonic_edges` merges neighbouring bins until the WOE rises or falls from bin to bin, as :doc:`binning` describes:
+
+>>> from kivi.binning import monotonic_edges
+>>> edges = monotonic_edges(pdays, reference["target"], special=[-1])
+>>> woe_trend(woe_table(cut(pdays, edges, special=[-1]), reference["target"]))
+'decreasing'
+
+Neighbouring bins whose WOE values agree to a relative 1e-10 neither rise nor fall, so they break no trend. A U shape can be genuine, as for age, where the youngest and the oldest customers subscribe more often; review it with the business rather than force it to be monotonic. The trend follows the order of the table, so read it before sorting the rows, for example by WOE for a chart. A categorical variable has no intervals and no order, so :func:`~kivi.woe.woe_trend` raises a ``ValueError`` for its table.
 
 Encoding new data
 -----------------
