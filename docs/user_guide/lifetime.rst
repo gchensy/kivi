@@ -3,7 +3,7 @@ Lifetime PD and expected credit loss
 
 IFRS 9 requires a lender to hold a loss allowance for the credit losses that it expects on its loans. While the credit risk of a loan has not increased significantly since it was granted, the allowance covers the losses from defaults in the next 12 months; once it has, and once the loan is in default, it covers the losses over the remaining life of the loan. Both need the probability of a default in each period after the reporting date, a PD term structure, rather than the single 12-month PD of a scorecard.
 
-The term structures come from the vintage curves and the transition matrices of :doc:`vintage`, and the loss allowance is the last step of this user guide. :func:`~kivi.lifetime.convert_pd` converts a term structure between cumulative, marginal and conditional PDs, :func:`~kivi.lifetime.transition_pd` projects one from a transition matrix, :func:`~kivi.lifetime.expected_credit_loss` gives the 12-month and the lifetime expected credit loss of each account, :func:`~kivi.lifetime.significant_increase` and :func:`~kivi.lifetime.assign_stages` allocate the accounts to the three stages, and :func:`~kivi.lifetime.stage_table` sums the loss allowance of each stage.
+The term structures come from the vintage curves and the transition matrices of :doc:`vintage`, or from the durations of the loans until they default, repay or are last observed, and the loss allowance is the last step of this user guide. :func:`~kivi.lifetime.convert_pd` converts a term structure between cumulative, marginal and conditional PDs, :func:`~kivi.lifetime.transition_pd` projects one from a transition matrix, :func:`~kivi.lifetime.survival_table` estimates one from loans that are censored, repaid early or observed only from some age on, :func:`~kivi.lifetime.expected_credit_loss` gives the 12-month and the lifetime expected credit loss of each account, :func:`~kivi.lifetime.significant_increase` and :func:`~kivi.lifetime.assign_stages` allocate the accounts to the three stages, and :func:`~kivi.lifetime.stage_table` sums the loss allowance of each stage.
 
 Definitions
 -----------
@@ -15,6 +15,14 @@ A PD term structure describes the risk of each period after a starting point, su
    m_k = C_k - C_{k-1}, \qquad
    h_k = \frac{m_k}{1 - C_{k-1}}, \qquad
    C_k = \sum_{j \le k} m_j = 1 - \prod_{j \le k} (1 - h_j).
+
+A loan leaves the risk of default when it defaults, when it is repaid, early or at its term, or when the data end. A loan last observed without a default or a repayment is *censored*: all that is known is that it had not defaulted by then. A repayment is a *competing risk*: once repaid, a loan can no longer default. With :math:`n_t` loans at risk in period :math:`t` of their life, :math:`d_t` defaults and :math:`c_t` repayments in it, the hazard rate of default is :math:`h_t = d_t / n_t`, and the probability of being still on book at the end of the period is :math:`S(t) = \prod_{s \le t} (1 - (d_s + c_s) / n_s)`. The cumulative PD is the *cumulative incidence* of default, the Aalen–Johansen estimate
+
+.. math::
+
+   C_t = \sum_{s \le t} S(s - 1) \, h_s, \qquad S(0) = 1,
+
+and without competing exits it is the Kaplan–Meier estimate :math:`1 - \prod_{s \le t} (1 - h_s)`.
 
 The expected credit loss (ECL) of an account adds up, over the periods :math:`t = 1, \ldots, H` after the reporting date, the marginal PD of each period times the loss given default (LGD) and the exposure at default (EAD) in that period, discounted to the reporting date at the effective interest rate :math:`r` per period:
 
@@ -205,6 +213,216 @@ current    0.1440
 90+        1.0000
 dtype: float64
 
+Term structures from survival tables
+------------------------------------
+
+A vintage table needs cohorts that have been observed since origination, and it pools them only through their conditional PDs. :func:`~kivi.lifetime.survival_table` starts instead from one row per loan: ``duration``, the month on book in which it defaulted, was repaid or was last observed, ``event``, whether it defaulted, and ``competing``, whether it was repaid. Eight loans over three months show the computation:
+
+>>> from kivi.lifetime import survival_table
+>>> duration = [1, 1, 2, 2, 2, 3, 3, 3]
+>>> event = [1, 0, 1, 0, 0, 1, 0, 0]
+>>> repaid = [0, 1, 0, 1, 0, 0, 0, 0]
+>>> survival_table(duration, event, competing=repaid).round(4)
+        at_risk  event  competing  censored  hazard  survival  cumulative_pd
+period
+1             8      1          1         0  0.1250    0.7500         0.1250
+2             6      1          1         1  0.1667    0.5000         0.2500
+3             3      1          0         2  0.3333    0.3333         0.4167
+
+In the second month, six loans are at risk and one defaults, so the hazard is 1/6. Three quarters of the loans got through the first month with neither a default nor a repayment, so the cumulative PD rises by 0.75 × 1/6 to 0.25. The loan censored in month 2 counts in the risk set of that month: its censoring comes after the defaults and repayments of the month.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 75
+
+   * - Column
+     - Meaning
+   * - ``at_risk``
+     - Loans at risk in the period: those with ``entry < period <= duration``, or their total weight with ``weights``.
+   * - ``event``
+     - Loans that defaulted in the period.
+   * - ``competing``
+     - Loans that left for another reason in the period, such as a repayment. Only with ``competing``.
+   * - ``censored``
+     - Loans last observed in the period without a default or an exit.
+   * - ``hazard``
+     - ``event`` divided by ``at_risk``: the conditional PD of a loan still on book. NaN without loans at risk.
+   * - ``survival``
+     - Probability of neither a default nor an exit by the end of the period.
+   * - ``cumulative_pd``
+     - Probability of a default by the end of the period: the cumulative incidence with ``competing``, 1 − Kaplan–Meier without it.
+
+``cumulative_pd`` is a cumulative term structure, which :func:`~kivi.lifetime.convert_pd` turns into marginal or conditional PDs, as for a vintage curve.
+
+Durations from a loan panel
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The loans of :func:`~kivi.datasets.make_loan_panel` repay early when ``prepayment`` gives the monthly probability that a current loan repays its whole balance, as :doc:`datasets` describes. A loan defaults in the first month on book at which it is 90+, it is repaid in its last row if its balance is 0 there, early or at its term, and otherwise it is censored at the last month of the panel:
+
+>>> repaying = make_loan_panel(prepayment=0.02, rng=0)
+>>> bad = repaying["status"] == "90+"
+>>> last = repaying.groupby("loan_id").tail(1).set_index("loan_id")
+>>> default_month = repaying[bad].groupby("loan_id")["month_on_book"].min()
+>>> loans = pd.DataFrame(
+...     {
+...         "cohort": last["cohort"],
+...         "duration": default_month.reindex(last.index).fillna(last["month_on_book"]).astype(int),
+...         "event": last.index.isin(default_month.index),
+...         "competing": last["balance"].eq(0),
+...     }
+... )
+>>> loans.head()
+          cohort  duration  event  competing
+loan_id
+1        2024-01        24  False       True
+2        2024-01        16  False       True
+3        2024-01        24  False      False
+4        2024-01        11   True      False
+5        2024-01         2  False       True
+>>> int(loans["event"].sum()), int(loans["competing"].sum())
+(182, 1416)
+
+Of the 1,416 repaid loans, the 962 with a balance of 0 before their term repaid early. Loan 4 reached 90+ at month on book 11 and stays in the panel at 90+, but it leaves the risk set there. One call pools all the cohorts:
+
+>>> table = survival_table(loans["duration"], loans["event"], competing=loans["competing"])
+>>> table.loc[[1, 4, 6, 12, 18, 24]].round(4)
+        at_risk  event  competing  censored  hazard  survival  cumulative_pd
+period
+1          5000      0         95       225  0.0000    0.9810         0.0000
+4          4100     10         88       207  0.0024    0.9189         0.0023
+6          3530     15         57       196  0.0042    0.8812         0.0093
+12         2083     11        420       127  0.0053    0.6176         0.0376
+18          778      5         13       113  0.0064    0.5214         0.0625
+24          120      0         60        60  0.0000    0.2344         0.0641
+
+Every cohort counts from its first month on book, and the risk set shrinks as loans default, repay and reach the end of the panel: 225 loans of the youngest cohort are censored at month on book 1. The repayments at month on book 12 are mostly the 12-month loans that reach their term. The late months rest on the oldest cohorts only.
+
+Early repayment as a competing risk
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Without ``competing``, every loan that did not default is censored, and ``cumulative_pd`` is 1 − Kaplan–Meier:
+
+>>> censored = survival_table(loans["duration"], loans["event"])
+>>> pd.DataFrame(
+...     {"censored": censored["cumulative_pd"], "competing": table["cumulative_pd"]}
+... ).loc[[6, 12, 18, 24]].round(4)
+        censored  competing
+period
+6         0.0101     0.0093
+12        0.0434     0.0376
+18        0.0838     0.0625
+24        0.0867     0.0641
+
+The censored estimate is a third higher after two years. Censoring assumes that a loan would have gone on with the risk of the loans still on book, but a repaid loan can no longer default: 1 − Kaplan–Meier is the PD of a loan that is never repaid. The cumulative incidence keeps the repaid loans among all the loans without letting them default, so it estimates the share of the loans that default. For a cohort observed from origination until the end of the panel, it is exactly the cumulative bad rate of :func:`~kivi.vintage.vintage_table`, while 1 − Kaplan–Meier is higher:
+
+>>> oldest = loans[loans["cohort"] == "2024-01"]
+>>> vintage = vintage_table(
+...     repaying["loan_id"], repaying["cohort"], repaying["month_on_book"], bad
+... )
+>>> pd.DataFrame(
+...     {
+...         "vintage": vintage.loc["2024-01"],
+...         "competing": survival_table(
+...             oldest["duration"], oldest["event"], competing=oldest["competing"]
+...         )["cumulative_pd"],
+...         "censored": survival_table(oldest["duration"], oldest["event"])["cumulative_pd"],
+...     }
+... ).loc[[6, 12, 18, 24]].round(4)
+    vintage  competing  censored
+6    0.0000     0.0000    0.0000
+12   0.0641     0.0641    0.0728
+18   0.0897     0.0897    0.1116
+24   0.0897     0.0897    0.1116
+
+:func:`~kivi.lifetime.expected_credit_loss` takes the probability of a default in each period seen from the reporting date, which must allow for the loans that repay before. For a loan still on book at month on book :math:`a`, the marginal PD of a later month :math:`t` is :math:`(C_t - C_{t-1}) / S(a)`, the defaults of month :math:`t` among the loans on book at :math:`a`. For a loan at month on book 6, the next 12 months give:
+
+>>> ahead = table["cumulative_pd"].diff().loc[7:18] / table.loc[6, "survival"]
+>>> print(f"{ahead.sum():.4f}")
+0.0604
+>>> print(f"{convert_pd(censored['hazard'].loc[7:18], kind='conditional', to='marginal').sum():.4f}")
+0.0745
+
+These PDs go with the contractual balance of the loan, which it owes as long as it is on book. The hazards of 1 − Kaplan–Meier give 7.45% instead of 6.04%: they leave out that the loan may repay first, and they overstate the lifetime PD and with it the lifetime ECL.
+
+Left truncation
+^^^^^^^^^^^^^^^
+
+Data often start after the loans were originated, for example when a new system went live. The loans that defaulted or were repaid before are missing, and the others are observed only from their month on book at the start. ``entry`` gives the number of months on book before a loan comes under observation, and the loan is at risk from month on book ``entry + 1``. If the panel starts in January 2025, a loan first seen at month on book 12 has an entry of 11; loans already at 90+ in their first row had defaulted before and are left out:
+
+>>> window = repaying[repaying["month"] >= "2025-01"]
+>>> first = window.groupby("loan_id").head(1).set_index("loan_id")
+>>> observed = loans.loc[first.index[first["status"] != "90+"]]
+>>> entry = first.loc[observed.index, "month_on_book"] - 1
+>>> truncated = survival_table(
+...     observed["duration"], observed["event"], competing=observed["competing"], entry=entry
+... )
+>>> naive = survival_table(observed["duration"], observed["event"], competing=observed["competing"])
+>>> pd.DataFrame(
+...     {
+...         "all_rows": table["cumulative_pd"],
+...         "entry": truncated["cumulative_pd"],
+...         "without_entry": naive["cumulative_pd"],
+...     }
+... ).loc[[6, 12, 18, 24]].round(4)
+        all_rows   entry  without_entry
+period
+6         0.0093  0.0090         0.0063
+12        0.0376  0.0316         0.0266
+18        0.0625  0.0569         0.0535
+24        0.0641  0.0585         0.0553
+
+Without ``entry``, the loans of 2024 count as at risk from their first month on book, although they were not observed then and are in the data only because they had neither defaulted nor been repaid by 2025: the early risk sets are too large and the PD too low. With ``entry``, each month on book uses only the loans observed at that age, so the first months rest on the cohorts originated during the window, and the curve differs from that of the whole panel as these cohorts differ from the earlier ones. Left truncation loses information, but with ``entry`` it no longer biases the estimate.
+
+Discrete-time hazard models
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The hazards of :func:`~kivi.lifetime.survival_table` are one estimate per month on book for all the loans. A discrete-time hazard model smooths them and can add the characteristics of each loan: a logistic regression on a person-period table, with one row for every month that a loan is at risk and a target of 1 in the month of its default. Each loan of the panel gives ``duration`` rows:
+
+>>> from kivi.selection import logistic_regression
+>>> expanded = loans.loc[loans.index.repeat(loans["duration"])]
+>>> month_on_book = expanded.groupby(level="loan_id").cumcount() + 1
+>>> defaulted = (expanded["event"] & (month_on_book == expanded["duration"])).astype(int)
+>>> len(expanded), int(defaulted.sum())
+(50563, 182)
+
+:func:`~kivi.selection.logistic_regression` fits the log odds of the hazard. Separate coefficients for each month would reproduce the ``hazard`` column, but the months without a default would separate the classes. The logarithm of the month on book and the month on book itself give a curve that rises with seasoning and then falls:
+
+>>> X = pd.DataFrame({"log_month_on_book": np.log(month_on_book), "month_on_book": month_on_book})
+>>> fit = logistic_regression(X, defaulted)
+>>> fit.round(4)
+                      coef      se        z  p_value
+variable
+intercept         -10.8619  0.7879 -13.7852      0.0
+log_month_on_book   4.3320  0.6416   6.7513      0.0
+month_on_book      -0.4033  0.0691  -5.8380      0.0
+>>> months = table.index.to_numpy()
+>>> log_odds = fit.loc["intercept", "coef"] + (
+...     fit.loc["log_month_on_book", "coef"] * np.log(months)
+...     + fit.loc["month_on_book", "coef"] * months
+... )
+>>> smoothed = pd.Series(1 / (1 + np.exp(-log_odds)), index=table.index)
+>>> pd.DataFrame({"hazard": table["hazard"], "model": smoothed}).loc[[4, 6, 12, 18, 24]].round(4)
+        hazard   model
+period
+4       0.0024  0.0015
+6       0.0042  0.0040
+12      0.0053  0.0071
+18      0.0064  0.0037
+24      0.0000  0.0011
+
+The model's hazard peaks at about 11 months on book and runs smoothly through the late months, where the table rests on a few loans. A loan's characteristics, such as a behavioural score, enter the same model as further columns and give each loan its own hazards. The hazards are conditional on the loan being still on book, so the cumulative PD weights them with the probability of getting there, as the cumulative incidence does. With ``survival`` from the table, which a second model for the repayments could replace:
+
+>>> on_book = table["survival"].shift(fill_value=1.0)
+>>> pd.DataFrame(
+...     {"table": table["cumulative_pd"], "model": (on_book * smoothed).cumsum()}
+... ).loc[[6, 12, 18, 24]].round(4)
+         table   model
+period
+6       0.0093  0.0084
+12      0.0376  0.0412
+18      0.0625  0.0595
+24      0.0641  0.0656
+
 Expected credit loss
 --------------------
 
@@ -355,17 +573,20 @@ Missing values
 
 :func:`~kivi.lifetime.expected_credit_loss` converts each account on its own, so as :doc:`/api/conventions` describes, an account with a missing PD, LGD or EAD in a period that is added up, or with a missing rate, gets a missing ECL; the periods after ``horizon`` are not used. :func:`~kivi.lifetime.transition_pd` needs a complete row for every state other than the default state. The staging functions reject missing values, because a flag or a stage cannot be missing: decide how to stage an exposure without a PD or without its days past due before passing it in.
 
+:func:`~kivi.lifetime.survival_table` rejects missing values too, because a loan without a duration or an outcome cannot be counted. Its own result is NaN where no loan is at risk: the hazard of such a period, and ``survival`` and ``cumulative_pd`` from that period on, because the share of the loans that get through it is not known. This happens with ``entry`` when no loan is observed at some age, for example in the first months on book of a panel that holds only old loans. The hazards of the later periods are still known, and :func:`~kivi.lifetime.convert_pd` turns them into PDs conditional on reaching those periods.
+
 Sample weights
 --------------
 
-:func:`~kivi.lifetime.stage_table` takes ``weights``, such as the inverse of a sampling rate. The counts, exposures and losses become sums of weights, so integer weights give the same table as repeated rows. The other functions work on single accounts or states and take no weights; to weight the loans of a vintage table by amount, pass ``weights`` to :func:`~kivi.vintage.vintage_table`.
+:func:`~kivi.lifetime.stage_table` and :func:`~kivi.lifetime.survival_table` take ``weights``, such as the inverse of a sampling rate. The counts, exposures and losses become sums of weights, so integer weights give the same table as repeated rows, and loans with weight 0 are left out. The other functions work on single accounts or states and take no weights; to weight the loans of a vintage table by amount, pass ``weights`` to :func:`~kivi.vintage.vintage_table`.
 
 Limits
 ------
 
 - A transition matrix gives a term structure only as far as the movements are a time-homogeneous Markov chain: the same probabilities in every period, whatever the age of a loan or the time it has spent in its state.
 - IFRS 9 asks for an unbiased, probability-weighted amount that reflects forecasts of economic conditions. These functions compute the ECL of one set of PDs, LGDs and EADs: compute it for each economic scenario and weight the results with the probabilities of the scenarios.
-- Early repayment enters only through the EAD schedule and through the vintage curves, which count repaid loans as not bad.
+- Early repayment enters through the EAD schedule, through the vintage curves, which count repaid loans as not bad, and through the cumulative incidence of :func:`~kivi.lifetime.survival_table`.
+- :func:`~kivi.lifetime.survival_table` assumes that censoring and late entry tell nothing about the risk of a loan, as when the data simply end. It estimates one curve for the loans it is given, without confidence intervals; split the loans into segments, or fit a discrete-time hazard model, to let the curve depend on their characteristics.
 - For revolving facilities, such as credit cards, IFRS 9 measures the expected credit losses over the period in which the lender is exposed to credit risk, which can be longer than the contractual period (paragraphs B5.5.39 and B5.5.40). Choose the periods and the EAD schedule, including drawings of undrawn limits, for that period.
 - :func:`~kivi.lifetime.significant_increase` does not apply the exemption for exposures with low credit risk at the reporting date (paragraph 5.5.10); combine its flags with a low-risk criterion of your own.
 - :func:`~kivi.lifetime.assign_stages` looks at one reporting date. Probation periods, during which an exposure that no longer meets a criterion stays in its stage, need the history of each exposure and are not applied, and neither are the rules for assets that are credit-impaired when they are purchased or originated.
@@ -403,3 +624,15 @@ A horizon longer than the term structure raises an error, because leaving out th
 Traceback (most recent call last):
 ...
 ValueError: horizon must be at most the number of periods of probability, 6, got 12
+
+``entry`` counts the months on book before a loan is observed, not the month on book of its first row. Passing the first month on book itself makes a loan that is observed for a single month enter at its exit:
+
+>>> survival_table(
+...     observed["duration"],
+...     observed["event"],
+...     competing=observed["competing"],
+...     entry=first.loc[observed.index, "month_on_book"],
+... )
+Traceback (most recent call last):
+...
+ValueError: entry must be smaller than duration, because an account is at risk from period entry + 1 on; got an entry of 12 with a duration of 12
