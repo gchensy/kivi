@@ -7,7 +7,7 @@
 **Credit risk modeling with pandas**
 
 A toolkit for the whole scorecard project:<br>
-screen and bin the variables, fit and scale the model, calibrate it, price the cut-offs, monitor the model and provision for the loans it approves.
+derive point-in-time features, screen and bin the variables, fit and scale the model, calibrate it, price the cut-offs, monitor the model and provision for the loans it approves.
 
 [![PyPI](https://img.shields.io/pypi/v/kivi?logo=pypi&logoColor=white&color=2f5bd3)](https://pypi.org/project/kivi/)
 [![Downloads](https://img.shields.io/pypi/dm/kivi?color=0b7a70)](https://pypi.org/project/kivi/)
@@ -32,11 +32,12 @@ screen and bin the variables, fit and scale the model, calibrate it, price the c
 
 ## ✨ Highlights
 
-- 🏦 **Built for risk teams.** Covers a credit scorecard project end to end: variable profiles, classing, variable selection, reject inference, a logistic fit or expert weights from pairwise comparisons, scaling to points, evaluation, calibration on a master scale, cut-off strategy and expected loss, deployment and monitoring by period, plus delinquency panels built from repayment schedules, vintage and roll-rate analysis of the approved loans and their IFRS 9 expected credit loss.
+- 🏦 **Built for risk teams.** Covers a credit scorecard project end to end: features of transactions and repayment histories, variable profiles, classing, variable selection, reject inference, a logistic fit or expert weights from pairwise comparisons, scaling to points, evaluation, calibration on a master scale, cut-off strategy and expected loss, deployment and monitoring by period, plus delinquency panels built from repayment schedules, vintage and roll-rate analysis of the approved loans and their IFRS 9 expected credit loss.
 - 📐 **Fit once, reuse everywhere.** Bin edges, category groupings, WOE tables, master scales and cut-offs are fitted on the development sample and applied unchanged to later samples. `bin_edges` learns quantile or uniform edges, `chimerge_edges`, `tree_edges`, `ks_edges` and `monotonic_edges` also use the target, and `chimerge_groups` merges categories with similar event rates. The outer edges are infinite, so every future value still lands in a bin.
+- ⏱️ **Point in time by construction.** `window_features` aggregates transactions and other events over windows of calendar months or days that end just before each observation time, such as an application date, and `panel_features` reads only the month-end repayment statuses before its month, so no later event leaks into a feature.
 - 🔍 **Transparent results.** Tables return raw counts, smoothed shares and a contribution per bin, grade or cut-off, not just one number.
 - 📏 **Uncertainty in view.** `roc_auc_interval` gives the DeLong confidence interval of an AUC and a Gini, and `delong_test` tests whether two scores rank the same sample equally well.
-- 💾 **Reproducible in production.** `fit_spec` bins a whole data frame, and `BinningSpec` saves the edges and WOE tables as versioned JSON, so production groups new data exactly as development did.
+- 💾 **Reproducible in production.** `FeatureSpec` saves the definitions of the window and repayment features, `fit_spec` bins a whole data frame, and `BinningSpec` saves the edges and WOE tables, all as versioned JSON, so production computes and groups new data exactly as development did.
 - 🧩 **Nothing silently dropped.** Missing values, special codes such as `-1` and categories seen in only one sample get their own group, and a category that a fitted grouping or WOE table does not know raises an error unless you say where it belongs.
 - ⚖️ **Sample weights throughout.** Binning, WOE, PSI, the metrics, calibration, the model fits, the strategy tables, the monitoring report, vintage tables and the stage table take sample weights, and integer weights count like repeated rows: the same counts, rates and coefficients. Only quantile edges differ, because weighted quantiles do not interpolate.
 - 🧊 **Honest smoothing.** Empty cells are replaced by `smoothing` (default 0.5) before normalizing, and the reported counts are never altered.
@@ -98,10 +99,11 @@ screen and bin the variables, fit and scale the model, calibrate it, price the c
 
 ## 🧭 How it works
 
-Every step fits on the development sample and applies the result unchanged to later samples:
+Every step is defined or fitted on the development sample and applied unchanged to later samples:
 
 | Step | Modules | Main functions |
 | --- | --- | --- |
+| Derive features | `kivi.features` | `window_features`, `panel_features`, `FeatureSpec` |
 | Profile the candidates | `kivi.univariate` | `profile_table` |
 | Bin and encode | `kivi.binning`, `kivi.woe` | `bin_edges`, `monotonic_edges`, `chimerge_groups`, `woe_table`, `woe_transform` |
 | Select and fit | `kivi.selection`, `kivi.reject_inference` | `stepwise`, `logistic_regression`, `fuzzy_augmentation` |
@@ -175,6 +177,9 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 
 | Function | What it does |
 | --- | --- |
+| [`kivi.features.window_features`](https://gchensy.github.io/kivi/en/api/features.html#kivi.features.window_features) | Aggregate transactions and other events over windows of months or days that end just before each observation time, point in time: counts, sums, means, extremes, distinct values, days since the last event and ratios |
+| [`kivi.features.panel_features`](https://gchensy.github.io/kivi/en/api/features.html#kivi.features.panel_features) | Summarize monthly repayment statuses before an observation time: months covered, bad months, longest bad and good runs, worst status and months since the last bad month |
+| [`kivi.features.FeatureSpec`](https://gchensy.github.io/kivi/en/api/features.html#kivi.features.FeatureSpec) | Definitions of window and repayment features, computed again on any sample and saved as versioned JSON |
 | [`kivi.univariate.profile_table`](https://gchensy.github.io/kivi/en/api/univariate.html#kivi.univariate.profile_table) | One row per candidate: missing values, distribution and shape, event rates, the IV and chi-squared test of a quick binning, and the Gini and KS of numeric values |
 | [`kivi.binning.bin_edges`](https://gchensy.github.io/kivi/en/api/binning.html#kivi.binning.bin_edges) | Fit quantile or uniform edges on a reference sample, with infinite outer edges |
 | [`kivi.binning.cut`](https://gchensy.github.io/kivi/en/api/binning.html#kivi.binning.cut) | Assign values to bins, with a separate group for each special value such as `-1` |
@@ -213,7 +218,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | [`kivi.lifetime.expected_credit_loss`](https://gchensy.github.io/kivi/en/api/lifetime.html#kivi.lifetime.expected_credit_loss), [`kivi.lifetime.significant_increase`](https://gchensy.github.io/kivi/en/api/lifetime.html#kivi.lifetime.significant_increase), [`kivi.lifetime.assign_stages`](https://gchensy.github.io/kivi/en/api/lifetime.html#kivi.lifetime.assign_stages), [`kivi.lifetime.stage_table`](https://gchensy.github.io/kivi/en/api/lifetime.html#kivi.lifetime.stage_table) | IFRS 9: 12-month and lifetime expected credit loss, significant increase in credit risk, stages 1 to 3 and the loss allowance by stage |
 | [`kivi.plotting.woe_chart`](https://gchensy.github.io/kivi/en/api/plotting.html#kivi.plotting.woe_chart), [`kivi.plotting.psi_chart`](https://gchensy.github.io/kivi/en/api/plotting.html#kivi.plotting.psi_chart), [`kivi.plotting.correlation_chart`](https://gchensy.github.io/kivi/en/api/plotting.html#kivi.plotting.correlation_chart) | Charts of the variables: WOE and event rate per bin, reference and current shares, and a correlation heatmap |
 | [`kivi.plotting.roc_chart`](https://gchensy.github.io/kivi/en/api/plotting.html#kivi.plotting.roc_chart), [`kivi.plotting.gains_chart`](https://gchensy.github.io/kivi/en/api/plotting.html#kivi.plotting.gains_chart), [`kivi.plotting.calibration_chart`](https://gchensy.github.io/kivi/en/api/plotting.html#kivi.plotting.calibration_chart), [`kivi.plotting.cutoff_chart`](https://gchensy.github.io/kivi/en/api/plotting.html#kivi.plotting.cutoff_chart), [`kivi.plotting.monitoring_chart`](https://gchensy.github.io/kivi/en/api/plotting.html#kivi.plotting.monitoring_chart), [`kivi.plotting.vintage_chart`](https://gchensy.github.io/kivi/en/api/plotting.html#kivi.plotting.vintage_chart) | Charts of a score and a portfolio: ROC and gains curves with the KS, calibration, cut-offs, monitoring by period and vintage curves |
-| [`kivi.datasets.load_bank`](https://gchensy.github.io/kivi/en/api/datasets.html#kivi.datasets.load_bank), [`kivi.datasets.make_loan_panel`](https://gchensy.github.io/kivi/en/api/datasets.html#kivi.datasets.make_loan_panel), [`kivi.datasets.make_applications`](https://gchensy.github.io/kivi/en/api/datasets.html#kivi.datasets.make_applications) | The bundled bank marketing data, and seeded synthetic loan panels and loan applications |
+| [`kivi.datasets.load_bank`](https://gchensy.github.io/kivi/en/api/datasets.html#kivi.datasets.load_bank), [`kivi.datasets.make_loan_panel`](https://gchensy.github.io/kivi/en/api/datasets.html#kivi.datasets.make_loan_panel), [`kivi.datasets.make_applications`](https://gchensy.github.io/kivi/en/api/datasets.html#kivi.datasets.make_applications), [`kivi.datasets.make_transactions`](https://gchensy.github.io/kivi/en/api/datasets.html#kivi.datasets.make_transactions) | The bundled bank marketing data, and seeded synthetic loan panels, loan applications and the account transactions before each application |
 
 ## 📚 Documentation
 
@@ -222,6 +227,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | Quickstart | [Read](https://gchensy.github.io/kivi/en/getting_started/quickstart.html) | [阅读](https://gchensy.github.io/kivi/zh/getting_started/quickstart.html) |
 | Tutorial: a credit scorecard project in ten chapters | [Read](https://gchensy.github.io/kivi/en/tutorial/index.html) | [阅读](https://gchensy.github.io/kivi/zh/tutorial/index.html) |
 | Risk modeling workflow | [Read](https://gchensy.github.io/kivi/en/user_guide/risk_workflow.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/risk_workflow.html) |
+| Time-window features | [Read](https://gchensy.github.io/kivi/en/user_guide/features.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/features.html) |
 | Univariate profile | [Read](https://gchensy.github.io/kivi/en/user_guide/univariate.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/univariate.html) |
 | Binning | [Read](https://gchensy.github.io/kivi/en/user_guide/binning.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/binning.html) |
 | WOE and IV | [Read](https://gchensy.github.io/kivi/en/user_guide/woe_iv.html) | [阅读](https://gchensy.github.io/kivi/zh/user_guide/woe_iv.html) |
@@ -268,7 +274,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 - ✅ Diagrams of how kivi computes its results, and a tutorial that follows one credit risk project
 - ✅ 1.1: charts of every result table (`kivi[plot]`), the confusion matrix and F1 of a cut-off, shape statistics, KS and a chi-squared test in the variable profile, Spearman correlation filtering, and cross-checks against scikit-learn, SciPy and statsmodels in CI
 - ✅ 1.2: Best-KS binning, delinquency panels from instalment schedules and payments, and expert scorecard weights by the analytic hierarchy process, with their consistency check
-- 🔜 1.3: batch time-window features with a saved feature specification
+- ✅ 1.3: point-in-time window features of transactions and other events, repayment-behaviour features from monthly status panels, feature specifications saved as versioned JSON, and simulated transactions before each application
 
 ## 🤝 Contributing
 

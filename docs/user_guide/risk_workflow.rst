@@ -3,6 +3,8 @@ Risk modeling workflow
 
 This example follows the steps of a scorecard project with kivi: profile and screen the candidate variables, bin the shortlist, encode it with WOE and save the binning for production, select the variables and fit the model, scale it to a scorecard, evaluate it, calibrate it on a master scale, set a cut-off with its expected loss, and prepare the stability report used in monitoring. The bundled data record a marketing response rather than a default, but the steps are the same for a credit default flag: use the bad flag as ``target``.
 
+The bank data have no history of transactions or repayments, so the example starts from the profile of the columns as they are. Where such events exist, :doc:`features` first turns them into candidates, using only what was known at each observation date, and the profile then screens them with the other columns.
+
 >>> import numpy as np
 >>> import pandas as pd
 >>> from kivi.binning import bin_edges

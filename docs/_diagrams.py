@@ -31,6 +31,7 @@ from kivi.binning import bin_edges
 from kivi.calibration import isotonic_fit
 from kivi.datasets import load_bank, make_applications, make_loan_panel
 from kivi.expert import ahp_consistency, ahp_weights
+from kivi.features import panel_features, window_features
 from kivi.lifetime import assign_stages, convert_pd, expected_credit_loss
 from kivi.metrics import roc_auc, roc_table
 from kivi.monitoring import monitoring_table
@@ -1978,6 +1979,335 @@ def figure_swap_set():
         [
             f"current_cutoff=0.1, new_cutoff={new_cutoff:.6f}",
             "observed = y.where(current <= 0.1)",
+        ],
+    )
+    return canvas.fig
+
+
+# Time-window features
+
+
+def _features_example():
+    """The events, applications and panel of the worked examples of the features guide."""
+    events = pd.DataFrame(
+        {
+            "customer": ["a", "a", "a", "a", "a", "b", "b", "b"],
+            "time": pd.to_datetime(
+                [
+                    "2023-11-20",
+                    "2024-01-10",
+                    "2024-02-29",
+                    "2024-03-15",
+                    "2024-03-31",
+                    "2024-01-05",
+                    "2024-03-20",
+                    "2024-03-20",
+                ]
+            ),
+            "amount": [300.0, 120.0, 80.0, 50.0, 200.0, 50.0, 40.0, 25.0],
+            "kind": ["card", "card", "cash", "card", "card", "cash", "cash", "card"],
+        }
+    )
+    applications = pd.DataFrame(
+        {
+            "customer": ["a", "b", "c"],
+            "application_date": pd.to_datetime(["2024-03-31", "2024-03-31", "2024-03-31"]),
+        }
+    )
+    months = ["2023-09", "2023-10", "2023-11", "2023-12", "2024-01", "2024-02", "2024-03"]
+    panel = pd.DataFrame(
+        {
+            "customer": ["a"] * 7 + ["b"] * 7,
+            "month": pd.PeriodIndex(
+                months
+                + ["2023-10", "2023-11", "2023-12", "2024-01", "2024-01", "2024-02", "2024-03"],
+                freq="M",
+            ),
+            "status": pd.Categorical(
+                ["current", "current", "1-29", "30-59", "30-59", "current", "current"]
+                + ["current", "current", "current", "current", "1-29", "60-89", "90+"],
+                categories=["current", "1-29", "30-59", "60-89", "90+"],
+                ordered=True,
+            ),
+        }
+    )
+    return events, applications, panel
+
+
+def _bracket(canvas, x0, x1, y, name, *, above=True):
+    """An amber window [x0, x1): a closed tick on the left and an open circle on the right."""
+    canvas.line(x0, y, x1, y, color=AMBER, linewidth=1.6, z=3)
+    canvas.line(x0, y - 0.28, x0, y + 0.28, color=AMBER, linewidth=1.6, z=3)
+    canvas.ax.plot(
+        x1, y, "o", markersize=6, markerfacecolor="white", markeredgecolor=AMBER, zorder=4
+    )
+    if above:
+        canvas.note(x0 + 0.3, y - 0.48, name, color=RESULT_TEXT, bold=True)
+    else:
+        canvas.note(x0 - 0.35, y, name, color=RESULT_TEXT, bold=True, ha="right")
+
+
+def figure_window_features():
+    """The worked example of the features guide: the events of each window and their sums."""
+    events, applications, _ = _features_example()
+    keys = {"id": "customer", "time": "time", "observation_time": "application_date"}
+    windows = {"1m": pd.Timestamp("2024-02-29"), "3m": pd.Timestamp("2023-12-31")}
+    t = pd.Timestamp("2024-03-31")
+    features = window_features(
+        events, applications, **keys, windows=["1M", "3M"], aggregations={"amount": ["sum"]}
+    )
+    # The sums again from the drawn rows: the events from the start of a window up to, but
+    # not including, the application date.
+    for name, start in windows.items():
+        for i, customer in enumerate(applications["customer"]):
+            own = events[events["customer"] == customer]
+            inside = own[(own["time"] >= start) & (own["time"] < t)]
+            if (len(inside), inside["amount"].sum()) != (
+                features[f"events_{name}"].iloc[i],
+                features[f"amount_sum_{name}"].iloc[i],
+            ):
+                raise AssertionError(f"the {name} window of {customer} does not match")
+
+    canvas = Canvas(height=16.6)
+    origin, scale = pd.Timestamp("2023-11-01"), 23.5 / 161
+    left = 3.6
+
+    def at(time):
+        return left + (time - origin).days * scale
+
+    rows = {customer: 4.1 + i * 1.45 for i, customer in enumerate(applications["customer"])}
+    axis = 8.4
+    tints = {"card": CATEGORY[0], "cash": CATEGORY[2]}
+    for start in windows.values():
+        canvas.line(at(start), 2.9, at(start), axis, color=AMBER, linewidth=0.9, style="--", z=1)
+    _bracket(canvas, at(windows["3m"]), at(t), 1.1, "3m = [2023-12-31, 2024-03-31)")
+    _bracket(canvas, at(windows["1m"]), at(t), 2.5, "1m = [2024-02-29, 2024-03-31)", above=False)
+    canvas.line(at(t), 0.4, at(t), axis + 0.3, color=AMBER, linewidth=1.8, z=2)
+    canvas.note(at(t) + 0.3, 0.45, "application_date", color=RESULT_TEXT, bold=True)
+
+    canvas.text(left - 2.0, 3.25, "customer", size=9, bold=True)
+    for customer, y in rows.items():
+        canvas.text(left - 2.0, y, customer, bold=True)
+        canvas.line(left - 0.6, y, at(pd.Timestamp("2024-04-10")), y, color=CELL_EDGE)
+        own = events[events["customer"] == customer]
+        repeated = own["time"].duplicated(keep=False)
+        offset = 0
+        for time, amount, kind, twin in zip(
+            own["time"], own["amount"], own["kind"], repeated, strict=True
+        ):
+            used = windows["3m"] <= time < t
+            fill, color = tints[kind] if used else ("white", FAINT)
+            edge = color if used else FAINT
+            dy = (offset - 0.5) * 0.62 if twin else 0.0
+            offset += twin
+            canvas.ax.plot(
+                at(time),
+                y + dy,
+                "o",
+                markersize=9,
+                markerfacecolor=fill,
+                markeredgecolor=edge,
+                markeredgewidth=1.2,
+                zorder=5,
+            )
+            text = f"{amount:g}"
+            if twin:
+                canvas.note(at(time) + 0.4, y + dy, text, color=color if used else FAINT)
+            else:
+                canvas.note(at(time), y - 0.6, text, ha="center", color=INK if used else FAINT)
+
+    canvas.arrow((left - 0.6, axis), (at(pd.Timestamp("2024-04-10")), axis), color=MUTED)
+    for month in pd.date_range("2023-11-01", "2024-04-01", freq="MS"):
+        canvas.line(at(month), axis - 0.15, at(month), axis + 0.15, color=MUTED)
+        canvas.note(at(month), axis + 0.6, month.strftime("%Y-%m"), ha="center", size=8.3)
+    for i, (kind, (fill, color)) in enumerate(tints.items()):
+        x = left + 17.0 + i * 4.4
+        canvas.ax.plot(
+            x, axis + 1.5, "o", markersize=8, markerfacecolor=fill, markeredgecolor=color
+        )
+        canvas.note(x + 0.45, axis + 1.5, f"kind = {kind}", color=INK)
+
+    canvas.call(
+        0.6,
+        axis + 2.35,
+        'window_features(events, applications, **keys, windows=["1M", "3M"], '
+        'aggregations={"amount": ["sum"]})',
+        size=8.6,
+    )
+    columns = [Column("customer", list(applications["customer"]), 2.6)]
+    for name in windows:
+        columns.append(result(f"events_{name}", [str(v) for v in features[f"events_{name}"]], 3.0))
+        columns.append(
+            result(
+                f"amount_sum_{name}",
+                [f"{v:.1f}" for v in features[f"amount_sum_{name}"]],
+                3.9,
+            )
+        )
+    canvas.table(5.2, axis + 3.8, columns)
+    return canvas.fig
+
+
+def _runs(flags) -> int:
+    """The longest run of True in a list of True, False and None, where None ends a run."""
+    longest = current = 0
+    for flag in flags:
+        current = current + 1 if flag else 0
+        longest = max(longest, current)
+    return longest
+
+
+def figure_panel_features():
+    """The repayment example of the features guide: the months of each window and the runs."""
+    _, applications, panel = _features_example()
+    features = panel_features(
+        panel,
+        applications,
+        id="customer",
+        month="month",
+        status="status",
+        observation_time="application_date",
+        windows=["3M", "6M"],
+    )
+    categories = list(panel["status"].cat.categories)
+    bad = categories.index("30-59")
+    months = pd.period_range("2023-09", "2024-03", freq="M")
+    observed = pd.Period("2024-03", freq="M")
+    # The worst status of each customer and month, as a position in the categories.
+    worst = {}
+    for customer, month, code in zip(
+        panel["customer"], panel["month"], panel["status"].cat.codes, strict=True
+    ):
+        worst[customer, month] = max(worst.get((customer, month), -1), int(code))
+    # The columns again from the drawn months: only the months before the observation month.
+    for i, customer in enumerate(applications["customer"]):
+        for name, k in (("3m", 3), ("6m", 6)):
+            codes = [worst.get((customer, observed - j)) for j in range(k, 0, -1)]
+            flags = [None if c is None else c >= bad for c in codes]
+            expected = {
+                "months": sum(c is not None for c in codes),
+                "bad_months": sum(f is True for f in flags),
+                "longest_bad_run": _runs(flags),
+                "longest_good_run": _runs([None if f is None else not f for f in flags]),
+            }
+            for column, value in expected.items():
+                if features[f"{column}_{name}"].iloc[i] != value:
+                    raise AssertionError(f"{column}_{name} of {customer} does not match")
+
+    canvas = Canvas(height=14.2)
+    left, width, step, height, pitch = 2.6, 2.1, 2.24, 1.0, 1.25
+    tints = dict(zip(categories, ramp(len(categories)), strict=True))
+    top = 5.0
+
+    def x_of(month):
+        return left + (month - months[0]).n * step
+
+    canvas.call(
+        0.6,
+        0.15,
+        'panel_features(panel, applications, ..., windows=["3M", "6M"])',
+        size=8.8,
+    )
+    end = x_of(observed) - GAP / 2
+    _bracket(canvas, x_of(months[0]), end, 2.35, "6m = [2023-09, 2024-03)")
+    _bracket(canvas, x_of(observed - 3), end, 3.55, "3m = [2023-12, 2024-03)", above=False)
+    canvas.line(end, 1.75, end, top + 2 * pitch + height + 0.25, color=AMBER, linewidth=1.8, z=2)
+    for month in months:
+        canvas.text(x_of(month) + width / 2, top - 0.45, str(month), size=8.3, color=MUTED)
+    for row, customer in enumerate(applications["customer"]):
+        y = top + row * pitch
+        canvas.text(left - 1.2, y + height / 2, customer, bold=True)
+        for month in months:
+            x = x_of(month)
+            loans = panel[(panel["customer"] == customer) & (panel["month"] == month)]
+            statuses = list(loans["status"])
+            used = month < observed
+            code = worst.get((customer, month))
+            edge = EVENT if used and code is not None and code >= bad else None
+            if not statuses:
+                canvas.box(x, y, width, height, fill=CELL_FILL, edge=CELL_EDGE)
+            elif len(statuses) == 1:
+                fill, color = tints[statuses[0]]
+                canvas.box(x, y, width, height, fill=fill, edge=edge, linewidth=1.6)
+                canvas.text(
+                    x + width / 2,
+                    y + height / 2,
+                    statuses[0],
+                    size=8,
+                    color=color if used else FAINT,
+                )
+            else:
+                # Two loans in one month: the worse status counts.
+                for k, status in enumerate(statuses):
+                    fill, color = tints[status]
+                    canvas.box(x, y + k * height / 2, width, height / 2, fill=fill, radius=0.08)
+                    chosen = categories.index(status) == code
+                    canvas.text(
+                        x + width / 2,
+                        y + (k + 0.5) * height / 2,
+                        status,
+                        size=7.2,
+                        color=INK if chosen else FAINT,
+                        bold=chosen,
+                    )
+                canvas.box(x, y, width, height, fill="none", edge=edge or CELL_EDGE, z=2)
+            if not used:
+                canvas.ax.add_patch(
+                    FancyBboxPatch(
+                        (x, y),
+                        width,
+                        height,
+                        boxstyle="round,pad=0,rounding_size=0.14",
+                        facecolor="none",
+                        edgecolor=FAINT,
+                        hatch="////",
+                        linewidth=0.6,
+                        zorder=3,
+                    )
+                )
+    y = top + 3 * pitch + 0.55
+    for i, status in enumerate(categories):
+        fill, color = tints[status]
+        x = left + i * 3.15
+        canvas.box(x, y - 0.3, 0.6, 0.6, fill=fill, radius=0.08)
+        canvas.note(x + 0.85, y, status, color=INK)
+    canvas.box(left, y + 0.75, 0.6, 0.6, fill=CELL_FILL, edge=EVENT, radius=0.08, linewidth=1.6)
+    canvas.note(left + 0.85, y + 1.05, f'status >= "{categories[bad]}"', color=INK)
+
+    names = list(features.columns)
+    in_3m = [name.endswith("_3m") for name in names]
+
+    def values(i):
+        cells = [
+            label(v) if isinstance(v, str) or pd.isna(v) else f"{v:g}" for v in features.iloc[i]
+        ]
+        months_since = features["months_since_bad"].iloc[i]
+        cells[-1] = label(months_since) if pd.isna(months_since) else f"{months_since:.1f}"
+        return Column(
+            applications["customer"].iloc[i],
+            cells,
+            1.75,
+            fill=[
+                MISSING_FILL if c == "NaN" else RESULT_FILL if amber else CELL_FILL
+                for c, amber in zip(cells, in_3m, strict=True)
+            ],
+            edge=[RESULT_EDGE if amber else None for amber in in_3m],
+            color=[FAINT if c == "NaN" else INK for c in cells],
+        )
+
+    canvas.table(
+        19.4,
+        1.2,
+        [
+            Column(
+                "",
+                names,
+                6.2,
+                fill="none",
+                edge="none",
+                color=[RESULT_TEXT if amber else INK for amber in in_3m],
+            ),
+            *(values(i) for i in range(len(applications))),
         ],
     )
     return canvas.fig

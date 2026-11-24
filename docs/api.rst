@@ -10,6 +10,7 @@ Import each function from its module, as in ``from kivi.woe import woe_table``. 
    api/conventions
    api/compatibility
    api/glossary
+   api/features
    api/univariate
    api/binning
    api/woe

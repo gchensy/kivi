@@ -7,7 +7,7 @@ Credit risk modeling with pandas
 
 .. container:: kivi-lead
 
-   kivi is a pandas toolkit for credit risk and financial modeling. It profiles the candidate variables, bins them and groups their categories, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard or weighs the factors of an expert scorecard, infers the outcomes of rejected applicants, scales the model to points, evaluates it and calibrates it on a master scale, and prices the cut-offs and the expected loss. Once the model is live, it monitors the score period by period, follows how the approved loans repay and perform, and measures their expected credit loss under IFRS 9. Tables come back as pandas DataFrames with one row per bin, grade, cut-off, period or variable, and :mod:`kivi.plotting` draws them as charts.
+   kivi is a pandas toolkit for credit risk and financial modeling. It computes point-in-time features from transactions and repayment histories, profiles the candidate variables, bins them and groups their categories, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard or weighs the factors of an expert scorecard, infers the outcomes of rejected applicants, scales the model to points, evaluates it and calibrates it on a master scale, and prices the cut-offs and the expected loss. Once the model is live, it monitors the score period by period, follows how the approved loans repay and perform, and measures their expected credit loss under IFRS 9. Tables come back as pandas DataFrames with one row per bin, grade, cut-off, period or variable, and :mod:`kivi.plotting` draws them as charts.
 
 .. container:: kivi-actions
 
@@ -63,6 +63,12 @@ Built for risk teams
 
 .. grid:: 1 1 3 3
    :gutter: 3
+
+   .. grid-item-card:: Time-window features
+      :link: user_guide/features
+      :link-type: doc
+
+      Transaction windows and repayment behaviour for every application, computed point in time from event tables and monthly status panels, with the definitions saved as versioned JSON.
 
    .. grid-item-card:: Univariate profile
       :link: user_guide/univariate
@@ -167,9 +173,9 @@ How it works
    :gutter: 3
    :class-container: kivi-steps
 
-   .. grid-item-card:: Profile and bin
+   .. grid-item-card:: Derive, profile and bin
 
-      ``profile_table`` gives a first look at every candidate. ``bin_edges``, or a supervised method such as ``monotonic_edges``, fits edges on the development sample once, and ``chimerge_groups`` groups the categories of a categorical variable. Every later sample is cut with the same edges and groups, and the outer edges are infinite, so later values always fall into a bin.
+      ``window_features`` and ``panel_features`` turn transactions and monthly repayment statuses into candidates, using only what was known at each application date. ``profile_table`` gives a first look at every candidate. ``bin_edges``, or a supervised method such as ``monotonic_edges``, fits edges on the development sample once, and ``chimerge_groups`` groups the categories of a categorical variable. Every later sample is cut with the same edges and groups, and the outer edges are infinite, so later values always fall into a bin.
 
    .. grid-item-card:: Encode and fit
 
@@ -185,7 +191,7 @@ How it works
 
    .. grid-item-card:: Deploy and monitor
 
-      ``BinningSpec`` saves the binning as JSON for production. ``monitoring_table`` and ``stability_table`` compare every period with the development sample, and ``csi_table`` measures each variable's effect on the score.
+      ``FeatureSpec`` and ``BinningSpec`` save the features and the binning as JSON for production. ``monitoring_table`` and ``stability_table`` compare every period with the development sample, and ``csi_table`` measures each variable's effect on the score.
 
    .. grid-item-card:: Follow the loans
 
@@ -213,7 +219,7 @@ Documentation
       :link: user_guide/index
       :link-type: doc
 
-      One page per step of a risk model, from the profile of the candidates to the expected credit loss of the approved loans, with definitions, worked examples and how to read each result.
+      One page per step of a risk model, from the features of the applicants to the expected credit loss of the approved loans, with definitions, worked examples and how to read each result.
 
    .. grid-item-card:: API reference
       :link: api
