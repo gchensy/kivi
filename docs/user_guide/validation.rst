@@ -3,7 +3,7 @@ Model validation
 
 A bank that sets its capital requirements with internal ratings validates each model at least once a year and reports the results to its supervisor. For the PD, LGD and CCF models of the IRB approach, the European Central Bank prescribes the quantitative tools of that report in its "Instructions for reporting the validation results of internal models" of February 2019: back-tests of the estimates, the discriminatory power against that of the initial validation, and the stability of the ratings. This guide maps each tool to a kivi function and computes them on simulated data, in the order of the report.
 
-The tools belong to several steps of a model: :doc:`calibration` back-tests the estimates, :doc:`metrics` measures the ranking and :doc:`vintage` follows the migrations between grades, and those guides explain each function in detail. :func:`~kivi.calibration.jeffreys_test`, :func:`~kivi.metrics.roc_auc_interval`, :func:`~kivi.vintage.migration_bandwidth`, :func:`~kivi.vintage.migration_test`, :func:`~kivi.calibration.concentration_test`, :func:`~kivi.calibration.backtest_table` and :func:`~kivi.metrics.generalized_auc` compute the statistics of the report, and :func:`~kivi.calibration.spiegelhalter_test` and :func:`~kivi.calibration.brier_decomposition` add two checks that it does not ask for.
+A validation reviews once a year a model that :doc:`monitoring` follows period by period, and :doc:`vintage`, the next guide, follows the loans that the model approves. The tools belong to several steps of a model: :doc:`calibration` back-tests the estimates, :doc:`metrics` measures the ranking and :doc:`vintage` follows the migrations between grades, and those guides explain each function in detail. :func:`~kivi.calibration.jeffreys_test`, :func:`~kivi.metrics.roc_auc_interval`, :func:`~kivi.vintage.migration_bandwidth`, :func:`~kivi.vintage.migration_test`, :func:`~kivi.calibration.concentration_test`, :func:`~kivi.calibration.backtest_table` and :func:`~kivi.metrics.generalized_auc` compute the statistics of the report, and :func:`~kivi.calibration.spiegelhalter_test` and :func:`~kivi.calibration.brier_decomposition` add two checks that it does not ask for.
 
 The tools of the report
 -----------------------
@@ -127,6 +127,12 @@ upper    0.7500
 lower    0.6667
 dtype: float64
 
+.. plot::
+   :alt: The moves of the eight customers between the grades A, B and C and to default, with the distance of each move and the furthest move from each grade, and the computation of the upper and the lower MWB
+   :caption: How ``migration_bandwidth`` weighs the moves. Each move to a worse grade, above the diagonal, adds its distance ``|i - j|`` to the numerator of the upper MWB and the furthest move from its grade, in either direction, to the denominator. The moves to better grades make up the lower MWB in the same way, and the customer who defaulted counts in neither.
+
+   kd.figure_migration_bandwidth()
+
 :doc:`vintage` explains both functions on a simulated portfolio of five grades.
 
 :func:`~kivi.calibration.concentration_test` gives the HI of the grades and tests whether their coefficient of variation has risen since the initial validation. Count every grade of the scale, empty or not, in both samples:
@@ -179,6 +185,12 @@ F2     427       0.25    0.2223     -0.0277    0.0690    -2.1822   0.9852
 F3     311       0.40    0.3863     -0.0137    0.1006    -0.7602   0.7762
 F4     251       0.60    0.7064      0.1064    0.0793     5.9874   0.0000
 F5     148       0.80    0.8016      0.0016    0.0662     0.0758   0.4698
+
+.. plot::
+   :alt: Mean estimated and realized LGD of the five facility grades, with the p-value of each grade and the realized LGD of grade F4 in red
+   :caption: The mean realized LGD of grade F4 exceeds its estimate of 60%, and only its p-value lies below 5%.
+
+   kp.figure_lgd_backtest()
 
 Only grade F4 is rejected. The report tests the portfolio as well; pass one group for every facility:
 
@@ -263,7 +275,7 @@ somers_d     0.5228  0.0134  0.4964  0.5491
 Beyond the report
 -----------------
 
-The report tests the PD of each grade on its own. :func:`~kivi.calibration.spiegelhalter_test` tests the PDs of all customers at once, without grouping them, and its large statistic confirms that the incumbent PDs understate the risk of the current period:
+The report tests the PD of each grade on its own. :func:`~kivi.calibration.spiegelhalter_test` tests the PDs of all customers at once, without grouping them. Every incumbent PD lies below 1/2, so a positive statistic means more defaults than the PDs predict, and its value of 4.09 confirms that they understate the risk of the current period:
 
 >>> from kivi.calibration import brier_decomposition, spiegelhalter_test
 >>> statistic, pvalue = spiegelhalter_test(current["incumbent_pd"], current["target"])
@@ -293,5 +305,5 @@ Limits
 * Every test assumes independent observations. Defaults and recoveries that move together, as in a downturn, make the back-tests reject more often than their nominal level.
 * The concentration test compares the coefficients of variation of :math:`K` grades, and its variance depends on :math:`K` rather than on the number of customers, so a scale with few grades leaves it little power. Read the HI and its change as well as the p-value.
 * The migration test gives one p-value for each of the :math:`K (K - 1)` off-diagonal cells, so some fall below 5% by chance alone.
-* For a portfolio with few defaults, annex 3.1 pools the observation periods after replacing each rating by its share of the period's customers at or below it. ``score.groupby(period).rank(method="max", pct=True)`` gives that share, and :func:`~kivi.metrics.roc_auc_interval` then takes the pooled values.
+* For a portfolio with few defaults, annex 3.1 pools the observation periods after replacing each rating by the share of the period's customers rated the same or worse, for ratings that are higher for better customers. For a PD, which rises with the risk, these are the customers with the same or a higher PD, ``score.groupby(period).rank(method="max", ascending=False, pct=True)``. That share falls as the risk rises, so pass its negative, ``-score.groupby(period).rank(method="max", ascending=False, pct=True)``, to :func:`~kivi.metrics.roc_auc_interval`, which takes the pooled values. With tied grades, the share rated the same or better, ``rank(method="max", pct=True)`` without ``ascending=False``, gives another AUC.
 * kivi computes the statistics of the report, not its data exclusions, its counts of overrides and missing ratings, or its templates.

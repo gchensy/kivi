@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 from cycler import cycler
 from matplotlib.colors import BoundaryNorm, ListedColormap
+from matplotlib.patches import Patch
 from matplotlib.ticker import FixedLocator, FuncFormatter, PercentFormatter
 
 from kivi.binning import (
@@ -30,7 +31,10 @@ from kivi.binning import (
 )
 from kivi.calibration import (
     assign_grades,
+    backtest_table,
+    brier_decomposition,
     calibration_table,
+    concentration_test,
     fit_grade_pd,
     master_scale,
     prior_correction,
@@ -41,7 +45,7 @@ from kivi.lifetime import convert_pd, transition_pd
 from kivi.metrics import delong_test, gains_table, gini, roc_table
 from kivi.monitoring import monitoring_table, stability_table
 from kivi.reject_inference import fuzzy_augmentation
-from kivi.selection import logistic_regression
+from kivi.selection import correlation_filter, logistic_regression, selection_path
 from kivi.spec import fit_spec
 from kivi.stability import psi_table
 from kivi.strategy import cutoff_table
@@ -951,6 +955,117 @@ def term_structures(curves: pd.DataFrame, pooled: pd.Series):
     return fig
 
 
+def selection_path_chart(path: pd.DataFrame):
+    """The development and validation AUC of every step of a selection path."""
+    fig, ax = plt.subplots(figsize=(8, 3.6))
+    x = path.index.to_numpy()
+    for column, color in (("auc", BLUE), ("validation_auc", TEAL)):
+        ax.plot(x, path[column], color=color, marker="o", markersize=4, linewidth=1.8, label=column)
+        ax.annotate(
+            f"{path[column].iloc[-1]:.3f}",
+            (x[-1], path[column].iloc[-1]),
+            xytext=(6, 0),
+            textcoords="offset points",
+            va="center",
+            fontsize=8.5,
+            color=color,
+        )
+    labels = [f"{step}\n{variable}" for step, variable in zip(x, path["variable"], strict=True)]
+    ax.set_xticks(x, labels, fontsize=8)
+    ax.set_xlim(x[0] - 0.4, x[-1] + 0.9)
+    ax.set_xlabel(path.index.name)
+    ax.set_ylabel("auc")
+    ax.legend(loc="lower right")
+    fig.tight_layout()
+    return fig
+
+
+def _grouped_bars(ax, table: pd.DataFrame, colors, shown: str) -> None:
+    """One group of bars per row of ``table`` and one bar per column, each with its value."""
+    x = np.arange(len(table))
+    width = 0.8 / table.shape[1]
+    for i, (column, color) in enumerate(zip(table.columns, colors, strict=False)):
+        offset = (i - (table.shape[1] - 1) / 2) * width
+        values = table[column].to_numpy(dtype=float)
+        ax.bar(x + offset, values, width=width * 0.92, color=color, label=column)
+        for xi, value in zip(x + offset, values, strict=True):
+            ax.annotate(
+                format(value, shown),
+                (xi, value),
+                xytext=(0, 2),
+                textcoords="offset points",
+                ha="center",
+                fontsize=7,
+                color=TEXT,
+            )
+    ax.set_xticks(x, _labels(table.index), fontsize=8.5)
+    ax.margins(y=0.15)
+
+
+def brier_terms(terms: pd.DataFrame):
+    """The terms of brier_decomposition for several probabilities, the large ones on the left."""
+    large = ["uncertainty", "brier"]
+    small = ["reliability", "resolution", "within_variance", "within_covariance"]
+    fig, (left, right) = plt.subplots(
+        1, 2, figsize=(8, 3.4), gridspec_kw={"width_ratios": [1, 2.2]}
+    )
+    colors = [BLUE, AMBER]
+    _grouped_bars(left, terms.loc[large], colors, ".4f")
+    _grouped_bars(right, terms.loc[small], colors, ".4f")
+    right.tick_params(axis="x", labelsize=8)
+    right.legend(loc="upper right")
+    fig.tight_layout()
+    return fig
+
+
+def grade_shares(counts: pd.DataFrame, hi: pd.Series):
+    """The share of each grade in several samples, with the HI of each sample in the legend."""
+    shares = counts / counts.sum()
+    shares.columns = [f"{column}: hi = {hi[column]:.3f}" for column in counts.columns]
+    fig, ax = plt.subplots(figsize=(8, 3.4))
+    _grouped_bars(ax, shares, [LIGHT_BLUE, BLUE, AMBER], ".0%")
+    ax.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+    ax.set_xlabel(counts.index.name)
+    ax.legend(loc="upper right")
+    fig.tight_layout()
+    return fig
+
+
+def backtest_bars(table: pd.DataFrame, level: float = 0.05):
+    """The mean estimate and realized value of each group, the realized ones in red if rejected."""
+    x = np.arange(len(table))
+    rejected = table["p_value"] < level
+    fig, ax = plt.subplots(figsize=(8, 3.4))
+    ax.bar(x - 0.2, table["estimated"], width=0.38, color=LIGHT_BLUE, label="estimated")
+    ax.bar(
+        x + 0.2,
+        table["realized"],
+        width=0.38,
+        color=[RED if flag else BLUE for flag in rejected],
+        label="realized",
+    )
+    for xi, (_, row) in zip(x, table.iterrows(), strict=True):
+        top = max(row["estimated"], row["realized"])
+        ax.annotate(
+            f"p_value = {row['p_value']:.3f}",
+            (xi, top),
+            xytext=(0, 4),
+            textcoords="offset points",
+            ha="center",
+            fontsize=8,
+            color=RED if row["p_value"] < level else MUTED,
+        )
+    ax.set_xticks(x, _labels(table.index))
+    ax.set_xlabel(table.index.name)
+    ax.set_ylim(0, 1)
+    ax.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+    handles, _ = ax.get_legend_handles_labels()
+    rejected_patch = Patch(color=RED, label=f"p_value < {level:g}")
+    ax.legend(handles=[*handles, rejected_patch], loc="upper left")
+    fig.tight_layout()
+    return fig
+
+
 def state_term_structures(cumulative: pd.DataFrame, vintage: pd.Series, state: str):
     """Cumulative PD of each state by horizon, with a vintage curve dashed next to ``state``."""
     fig, ax = plt.subplots(figsize=(8, 4.0))
@@ -1241,6 +1356,47 @@ def figure_roc_comparison():
     return roc_curves(tables)
 
 
+def _selection_samples():
+    """The WOE candidates of the selection guide and the validation sample encoded like them."""
+    data = load_bank()
+    development, holdout = data.iloc[:3000], data.iloc[3000:]
+    target = development["target"]
+    edges = {
+        "age": bin_edges(development["age"], bins=5),
+        "balance": bin_edges(development["balance"], bins=5),
+        "day": bin_edges(development["day"], bins=5),
+        "campaign": [-np.inf, 1, 2, 3, np.inf],
+        "pdays": [-np.inf, -1, 100, 200, 300, np.inf],
+        "previous": [-np.inf, 0, 1, 3, np.inf],
+    }
+    categorical = ["job", "marital", "education", "default", "housing", "loan", "contact"]
+    categorical += ["poutcome"]
+
+    def to_groups(frame):
+        groups = pd.DataFrame({c: pd.cut(frame[c], e) for c, e in edges.items()})
+        for column in categorical:
+            groups[column] = frame[column]
+        return groups
+
+    groups = to_groups(development)
+    tables = {column: woe_table(groups[column], target) for column in groups}
+    iv = pd.Series({column: table["iv"].sum() for column, table in tables.items()})
+    iv = iv.sort_values(ascending=False)
+    candidates = iv.index[iv >= 0.02]
+    holdout_groups = to_groups(holdout)
+
+    def encode(frame_groups):
+        return pd.DataFrame({c: woe_transform(frame_groups[c], tables[c]) for c in candidates})
+
+    return encode(groups), target, iv, encode(holdout_groups), holdout["target"]
+
+
+def figure_selection_path():
+    X, target, iv, X_valid, valid_target = _selection_samples()
+    kept = correlation_filter(X, priority=iv)
+    return selection_path_chart(selection_path(X[kept], target, validation=(X_valid, valid_target)))
+
+
 def _calibration_samples():
     """The samples and PDs of the calibration guide."""
     _, development, monitoring = _samples()
@@ -1287,6 +1443,40 @@ def figure_calibration():
             "population_rate=0.06": grade_table(low),
         }
     )
+
+
+def figure_brier_decomposition():
+    _, monitoring, _, probability = _calibration_samples()
+    low = prior_correction(probability, sample_rate=0.116, population_rate=0.06)
+    pd_edges = [0, 0.05, 0.08, 0.12, 0.2, 0.4, 1]
+    labels = list("ABCDEF")
+    grades = pd.cut(probability, pd_edges, labels=labels, include_lowest=True)
+    low_grades = pd.cut(low, pd_edges, labels=labels, include_lowest=True)
+    terms = pd.DataFrame(
+        {
+            "model": brier_decomposition(grades, monitoring["target"], probability),
+            "scaled_down": brier_decomposition(low_grades, monitoring["target"], low),
+        }
+    )
+    return brier_terms(terms)
+
+
+def figure_concentration():
+    _, monitoring, dev_prob, probability = _calibration_samples()
+    low = prior_correction(probability, sample_rate=0.116, population_rate=0.06)
+    pd_edges = [0, 0.05, 0.08, 0.12, 0.2, 0.4, 1]
+
+    def grade_counts(p):
+        grades = pd.cut(p, pd_edges, labels=list("ABCDEF"), include_lowest=True)
+        return grades.value_counts(sort=False)
+
+    counts = pd.DataFrame(
+        {"initial": grade_counts(dev_prob), "model": grade_counts(probability)}
+        | {"scaled_down": grade_counts(low)}
+    )
+    counts.index.name = "grade"
+    hi = pd.Series({column: concentration_test(counts[column])["hi"] for column in counts})
+    return grade_shares(counts, hi)
 
 
 def _strategy_scores():
@@ -1412,6 +1602,24 @@ def figure_stability_heatmap():
         reference_groups=spec.cut(development[features]),
     )
     return stability_heatmap(stability)
+
+
+def figure_lgd_backtest():
+    """The facility grades and LGDs simulated in the validation guide, back-tested per grade."""
+    rng = np.random.default_rng(0)
+    grade_lgd = pd.Series([0.10, 0.25, 0.40, 0.60, 0.80], index=["F1", "F2", "F3", "F4", "F5"])
+    facility_grade = pd.Series(
+        pd.Categorical(
+            rng.choice(grade_lgd.index, size=1500, p=[0.25, 0.3, 0.2, 0.15, 0.1]),
+            categories=grade_lgd.index,
+            ordered=True,
+        ),
+        name="grade",
+    )
+    estimated = facility_grade.map(grade_lgd).astype(float)
+    mean = estimated + np.where(facility_grade == "F4", 0.08, 0.0)
+    realized = pd.Series(rng.beta(1.5 * mean, 1.5 * (1 - mean)), name="realized")
+    return backtest_bars(backtest_table(facility_grade, realized, estimated))
 
 
 def _lifetime_curves():

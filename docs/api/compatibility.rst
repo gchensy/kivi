@@ -29,7 +29,7 @@ What is public
 * The names of the arguments. A keyword is part of a call, so renaming an argument needs a deprecation, even one that is usually passed by position.
 * Everything else is private: the modules and names that start with an underscore, and the modules that a public module imports, such as ``kivi.binning.np``. They can change in any release.
 
-Results that are pairs of parameters, such as the ``(factor, offset)`` of :func:`~kivi.scorecard.score_scaling`, the ``(slope, intercept)`` of :func:`~kivi.calibration.platt_fit`, the ``(edges, probability)`` of :func:`~kivi.calibration.isotonic_fit` and the ``(statistic, p_value)`` of :func:`~kivi.calibration.hosmer_lemeshow`, are tuples. A minor release may turn them into named tuples, which unpack in the same way.
+Results that are pairs of parameters, such as the ``(factor, offset)`` of :func:`~kivi.scorecard.score_scaling`, the ``(slope, intercept)`` of :func:`~kivi.calibration.platt_fit`, the ``(edges, probability)`` of :func:`~kivi.calibration.isotonic_fit` and the ``(statistic, p_value)`` of :func:`~kivi.calibration.hosmer_lemeshow` and :func:`~kivi.calibration.spiegelhalter_test`, are tuples. A minor release may turn them into named tuples, which unpack in the same way.
 
 Tables
 ------
@@ -67,6 +67,15 @@ The index name, the column names and the order of the columns of every table are
    * - :func:`~kivi.calibration.calibration_table`
      - ``bin``
      - ``total``, ``event``, ``event_rate``, ``mean_probability``
+   * - :func:`~kivi.calibration.backtest_table`
+     - ``bin``
+     - ``total``, ``estimated``, ``realized``, ``difference``, ``variance``, ``statistic``, ``p_value``
+   * - :func:`~kivi.calibration.brier_decomposition`
+     - A Series with the index ``statistic``: ``brier``, ``reliability``, ``resolution``, ``uncertainty``, ``within_variance``, ``within_covariance``
+     -
+   * - :func:`~kivi.calibration.concentration_test`
+     - A Series with the index ``statistic``: ``hi``, ``cv``, ``initial_hi``, ``initial_cv``, ``statistic``, ``p_value``
+     -
    * - :func:`~kivi.strategy.expected_loss_table`
      - ``bin``
      - ``total``, ``exposure``, ``exposure_weighted_probability``, ``expected_loss``, ``expected_loss_rate``
@@ -82,6 +91,9 @@ The index name, the column names and the order of the columns of every table are
    * - :func:`~kivi.metrics.delong_test`
      - A Series with the index ``current_auc``, ``new_auc``, ``difference``, ``se``, ``lower``, ``upper``, ``z``, ``p_value``
      -
+   * - :func:`~kivi.metrics.generalized_auc`
+     - ``statistic``: ``gauc`` and ``somers_d``
+     - ``estimate``, ``se``, ``lower``, ``upper``
    * - :func:`~kivi.univariate.profile_table`
      - ``variable``
      - ``kind``, ``count``, ``missing``, ``missing_share``, ``distinct``, ``top``, ``top_share``, ``special``, ``special_share``, ``mean``, ``std``, ``min``, ``q01``, ``q50``, ``q99``, ``max``, with a target ``event_rate``, ``missing_event_rate``, ``non_missing_event_rate``, ``missing_lift``, ``non_missing_lift``, ``iv``, ``tied_bins``, ``gini``, then ``skewness``, ``kurtosis``, ``cv``, and with a target ``ks``, ``chi2_p_value``
@@ -91,6 +103,12 @@ The index name, the column names and the order of the columns of every table are
    * - :func:`~kivi.selection.vif`
      - A Series named ``vif`` with the index ``variable``
      -
+   * - :func:`~kivi.selection.correlation_filter`, :func:`~kivi.selection.vif_filter`
+     - A ``pandas.Index`` of the kept columns of ``X``, in their order, or of their positions when ``X`` is not a DataFrame
+     -
+   * - :func:`~kivi.selection.selection_path`
+     - ``step``: 1 to the number of variables in ``order``
+     - ``variable``, ``auc``, ``gini``, ``ks``, ``max_p_value``, ``min_coefficient``, and with ``validation`` ``validation_auc``, ``validation_gini``, ``validation_ks``
    * - :func:`~kivi.scorecard.points_table`
      - ``variable``
      - ``bin``, ``woe``, ``points``
@@ -148,6 +166,12 @@ The index name, the column names and the order of the columns of every table are
    * - :func:`~kivi.vintage.roll_rates`
      - A Series named ``roll_rate`` with the index ``before``
      -
+   * - :func:`~kivi.vintage.migration_bandwidth`
+     - A Series with the index ``statistic``: ``upper``, ``lower``
+     -
+   * - :func:`~kivi.vintage.migration_test`
+     - ``before`` and ``after``, one row per off-diagonal cell of ``grades``
+     - ``total``, ``share``, ``statistic``, ``p_value``
    * - :func:`~kivi.lifetime.transition_pd`
      - ``state``
      - One per horizon, in columns named ``horizon``
@@ -171,12 +195,14 @@ The feature names follow from the arguments. Column names and prefixes are kept 
 
 :func:`~kivi.datasets.load_bank` always returns the same data. :func:`~kivi.datasets.make_loan_panel`, :func:`~kivi.datasets.make_applications` and :func:`~kivi.datasets.make_transactions` keep their columns and dtypes, including the categories of ``kind`` and ``merchant_category``, but the values that they simulate for a given ``rng`` stay the same only within a minor version, so that a minor release can improve the simulation.
 
+:func:`~kivi.woe.woe_trend` returns one of six labels, ``"increasing"``, ``"decreasing"``, ``"u_shaped"``, ``"inverted_u"``, ``"irregular"`` and ``"flat"``, which are public like column names, and so is its rule that neighbouring bins whose WOE differ by at most a relative :math:`10^{-10}` neither rise nor fall.
+
 The random indices of :func:`~kivi.expert.ahp_consistency`, the table of Tone (1986) for 3 to 15 factors, are constants. A release changes them only to correct a wrong value, as a fix that the release notes list under Fixed, so the consistency ratio of a matrix stays the same from release to release.
 
 Charts
 ------
 
-The functions of :mod:`kivi.plotting` keep the data that they draw from each table, which column goes on which axis, their arguments, the errors they raise and what they return: every function returns the ``matplotlib.axes.Axes`` it drew on, except :func:`~kivi.plotting.woe_chart`, the one chart with two y-axes, which returns the pair of Axes of its bars and its line. Colors, line styles, figure sizes, the placement of legends and annotations, tick formats and the number of matplotlib artists that make up a chart may change in any release, so that a release can improve how the charts look. Code that styles a chart further should work on the returned Axes rather than on the artists inside it.
+The functions of :mod:`kivi.plotting` keep the data that they draw from each table, which column goes on which axis, their arguments, the errors they raise and what they return: every function returns the ``matplotlib.axes.Axes`` it drew on, except :func:`~kivi.plotting.woe_chart`, the one chart with two y-axes, which returns the pair of Axes of its bars and its line. :func:`~kivi.plotting.distribution_chart` draws the shares of the raw ``non_event`` and ``event`` counts, not the smoothed share columns of a WOE table, and :func:`~kivi.plotting.precision_recall_chart` draws the rows of a ROC table that have a precision and a line at the precision of its last row, the event rate. Colors, line styles, figure sizes, the placement of legends and annotations, tick formats and the number of matplotlib artists that make up a chart may change in any release, so that a release can improve how the charts look. Code that styles a chart further should work on the returned Axes rather than on the artists inside it.
 
 Errors and warnings
 -------------------

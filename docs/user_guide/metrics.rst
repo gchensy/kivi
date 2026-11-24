@@ -167,7 +167,7 @@ threshold
 
    kp.figure_roc_curve()
 
-The rates are the ``cum_event_share`` and ``cum_non_event_share`` of a gains table with one band per distinct score, and scikit-learn's ``roc_curve(target, score, drop_intermediate=False)`` gives the same points.
+The rates are the ``cum_event_share`` and ``cum_non_event_share`` of a gains table with one band per distinct score, and scikit-learn's ``roc_curve(target, score, drop_intermediate=False)`` gives the same points. :func:`~kivi.plotting.precision_recall_chart` draws the ``precision`` of the same table against the ``true_positive_rate``, the recall, a view that matters most when events are rare, as frauds are.
 
 Confidence interval of the AUC
 ------------------------------
@@ -257,6 +257,12 @@ statistic
 gauc         0.7619  0.0902  0.5852  0.9386
 somers_d     0.5238  0.1803  0.1704  0.8772
 
+.. plot::
+   :alt: The contingency table of the eight facilities by estimated and realized segment, with the cell of estimated segment 2 and realized segment 1, the cells that agree with it in order and those that disagree, and the computation of Somers' D and the gAUC
+   :caption: The contingency table of ``generalized_auc``. For the outlined cell, ``A_21`` counts the observations in the cells below and to the right of it or above and to the left, which it orders the same way, and ``D_21`` those in the cells above and to the right or below and to the left. Of the 21 pairs in different estimated segments, 13 are ordered the same way by the realized segments, 2 the other way and 6 are tied.
+
+   kd.figure_generalized_auc()
+
 The segments are ordered categoricals, such as the intervals of ``pandas.cut`` in the order of their categories, or numbers in the order of their values. The standard error of the gAUC is half the asymptotic standard error of Somers' D of Brown and Benedetti (1977), because the gAUC is half of Somers' D plus one half, and that of ``somers_d`` is twice as large.
 
 Pairs in the same estimated segment do not count in the gAUC, while the AUC leaves out the pairs with the same target instead. With the target in the place of the estimated segments, the gAUC is therefore the AUC of the worked example, though with an asymptotic standard error that differs from DeLong's:
@@ -297,7 +303,7 @@ bin
 
    kp.figure_gains()
 
-The top band holds 17% of the validation customers (264 of 1,521) but 42% of the events, so its event rate is 2.4 times that of the whole sample. The table checks the gap between the two classes only at the four interior cut-offs, so its largest ``ks`` stays below the KS over all scores:
+The top band holds 17% of the validation customers (264 of 1,521) but 42% of the events, so its event rate is 2.4 times that of the whole sample. :func:`~kivi.plotting.distribution_chart` draws each band's share of all events next to its share of all non-events. The table checks the gap between the two classes only at the four interior cut-offs, so its largest ``ks`` stays below the KS over all scores:
 
 >>> print(f"{gains['ks'].max():.3f} < {ks(val_score, y):.3f}")
 0.274 < 0.321
@@ -404,5 +410,5 @@ Limits
 * The intervals and the test rest on a normal approximation, which is poor for an AUC close to 0 or 1 and for a class with few observations. The standard error is 0 whenever the placement values are constant within each class, as they are for a score that separates the classes perfectly, one that reverses them and a constant score, so the interval collapses to the estimate. Without weights, both functions need at least two events and two non-events, and with weights a total weight above 1 in each class.
 * :func:`~kivi.metrics.delong_test` needs both scores on the same observations. For the AUCs of different samples, combine the standard errors of the two intervals, as in the comparison of the development and validation samples above.
 * The standard errors measure the noise of sampling customers from one population. A shift of the population over time is a separate question, which :doc:`psi` answers.
-* :func:`~kivi.metrics.generalized_auc` builds the contingency table of every distinct estimated and realized value, so cut continuous values into segments first; the twelve LGD segments of the European Central Bank are one choice.
+* :func:`~kivi.metrics.generalized_auc` builds the contingency table of every distinct estimated and realized value, so cut continuous values into segments first; the twelve LGD segments of the European Central Bank are one choice. Its interval rests on a normal approximation too, and its standard error is 0 for a degenerate table, where every realized value falls into one segment or the ranking is perfect or reversed, so the interval collapses to the estimate.
 * kivi gives no p-value for the KS statistic and no confidence bands for the ROC curve or the gains table.

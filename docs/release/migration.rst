@@ -56,14 +56,18 @@ The functions below replace the 0.2.x classes. The example data of ``Dataset.ban
      - ``woe_table(labels, target)``, after ``category_groups`` or ``chimerge_groups`` and ``group_categories`` where the labels should be grouped, from 0.8.0
    * - ``WOEScore``
      - ``woe_transform(groups, table)`` on groups formed with the development edges, from 0.5.0
+   * - ``woe/utils.monotony``
+     - ``kivi.woe.woe_trend(table)`` on a WOE table, from 1.4.0
    * - ``PSI.fit()``
      - ``psi_table(before, after)`` on groups formed with the same edges
    * - ``BinaryMetrics``, ``ModelEvaluate``, ``ScoreEvaluate``
      - ``kivi.metrics``: ``roc_auc``, ``gini``, ``ks``, ``gains_table`` and ``brier_score``, from 0.5.0, and ``roc_table``, ``roc_auc_interval`` and ``delong_test``, from 0.8.0; ``kivi.strategy.confusion_table`` for the confusion matrix and F1, from 1.1.0
    * - ``ScoreEvaluate.score_psi``, ``add_psi``
      - ``kivi.monitoring``: ``monitoring_table`` and ``stability_table``, from 0.8.0
-   * - ``VIF``, ``StepWise``, ``feature.Corr``
-     - ``kivi.selection``: ``vif``, ``stepwise``, ``correlation_filter`` and ``logistic_regression``, from 0.5.0; ``correlation_filter(X, method="spearman")`` for ``Corr.spearmanr``, from 1.1.0
+   * - ``VIF``, ``feature.Corr``
+     - ``kivi.selection``: ``vif``, ``correlation_filter`` and ``logistic_regression``, from 0.5.0; ``correlation_filter(X, method="spearman")`` for ``Corr.spearmanr``, from 1.1.0; ``vif_filter`` for ``VIF.LowVIFFeatures``, from 1.4.0
+   * - ``StepWise``
+     - ``kivi.selection.selection_path(X, target, order=...)``, from 1.4.0. ``stepwise``, from 0.5.0, selects variables by their p-values instead, which ``StepWise`` did not do
    * - ``PDToScore``, ``BaseScoreAndPDO``
      - ``kivi.scorecard``: ``pd_to_score``, ``score_to_pd``, ``score_scaling`` and ``points_table``, from 0.5.0
    * - ``AHP``
@@ -82,8 +86,10 @@ The functions below replace the 0.2.x classes. The example data of ``Dataset.ban
      - ``kivi.vintage.vintage_table`` on a loan panel, from 0.6.0, which ``delinquency_panel`` builds from repayment schedules from 1.2.0
    * - ``PortfolioAnalysis.Vintage``
      - ``kivi.vintage.delinquency_panel`` on the repayment schedules and payments, then ``vintage_table``, from 1.2.0
-   * - ``plot_bin``, ``DefaultAnalysis``, ``Calibration.CalibrationCurve``, ``BinaryMetrics.plot_*``, ``diagonal_corr``, ``structure_corr``
-     - ``kivi.plotting``: ``woe_chart``, ``calibration_chart``, ``roc_chart``, ``gains_chart`` and ``correlation_chart``, from 1.1.0
+   * - ``plot_bin``, ``DefaultAnalysis``, ``Calibration.CalibrationCurve``, ``diagonal_corr``, ``structure_corr``
+     - ``kivi.plotting``: ``woe_chart``, ``calibration_chart`` and ``correlation_chart``, from 1.1.0
+   * - ``BinaryMetrics.plot_roc``, ``plot_ks``, ``plot_score``, ``pr_curve``, ``plot_pr``
+     - ``kivi.plotting``: ``roc_chart`` for ``plot_roc`` and ``gains_chart(table, ks=True)`` for ``plot_ks``, from 1.1.0; ``distribution_chart`` for ``plot_score`` and ``precision_recall_chart`` of a ``roc_table`` for ``pr_curve`` and ``plot_pr``, from 1.4.0. ``plot_confusion_matrix`` is not ported; ``kivi.strategy.confusion_table`` holds its counts
    * - ``Dataset.bank_data()``
      - ``kivi.datasets.load_bank()``, from 0.6.0. ``Dataset.bank_data()`` warned with a ``FutureWarning`` in 0.9.0 and was removed in 1.0
 
@@ -109,7 +115,7 @@ Models, scorecards and calibration
 These modules are new implementations, so compare their output with the legacy code on a fixed reference sample before switching.
 
 * The legacy ``lift`` column was cumulative. In ``gains_table``, ``lift`` is the lift of each band and ``cum_lift`` the cumulative lift. The metrics take a score that rises with risk, such as a PD; pass ``-score`` for scorecard points. ``ModelEvaluate`` rescaled each sample by its own minimum and maximum, so its scores were not comparable across samples; the new functions use the scores as given.
-* ``VIF`` called statsmodels without a constant, which measures uncentred R²; ``vif`` includes an intercept in every auxiliary regression, as in the textbook definition, so the values differ. ``stepwise`` replaces ``StepWise`` and by default keeps every coefficient positive, as WOE inputs require. ``logistic_regression`` fits the model in NumPy, so statsmodels is no longer needed.
+* ``VIF`` called statsmodels without a constant, which measures uncentred R²; ``vif`` includes an intercept in every auxiliary regression, as in the textbook definition, so the values differ. ``stepwise`` selects variables by their p-values and by default keeps every coefficient positive, as WOE inputs require. It is new: ``StepWise`` compared the models of a fixed order of the variables instead, as ``selection_path`` does from 1.4.0. ``logistic_regression`` fits the model in NumPy, so statsmodels is no longer needed.
 * ``BaseScoreAndPDO`` took bad:good odds, for example ``odds=1/50``. ``base_odds`` is good:bad, so pass ``base_odds=50``; passing ``1/50`` silently gives an offset of 712.9. The legacy ``PDToScore`` divided by ln 2 only in one of its branches; ``pd_to_score`` and ``score_to_pd`` are exact inverses.
 * ``get_omega`` becomes ``prior_correction`` for probabilities and ``corrected_intercept`` for the model intercept.
 
@@ -138,7 +144,7 @@ Category grouping, validation and monitoring
 Version 0.8.0 groups categorical variables, adds the ROC table and the uncertainty of an AUC, and monitors a model period by period. These are new implementations as well.
 
 * ``CategoryBins`` kept the labels of a categorical variable as they were. ``category_groups`` pools the rare categories and ``chimerge_groups`` merges the categories with similar event rates; both return a dictionary from category to group that is fitted on the reference sample, and ``group_categories`` applies it to every sample. A category that the grouping does not know raises an error unless ``unseen`` names its group. ``fit_spec`` groups a column with the methods ``"rare"`` and ``"chimerge"``, and a specification that groups a column is saved as format version 2, which 0.7.0 and earlier refuse to read.
-* ``BinaryMetrics.roc_curve`` returned the points of scikit-learn's ``roc_curve`` with its default ``drop_intermediate=True``. ``roc_table`` has one row for every distinct score, as ``roc_curve`` with ``drop_intermediate=False``, with the cumulative counts, the two rates and the precision. Its ``precision`` and ``true_positive_rate`` columns are the precision and the recall at each threshold, so it also gives the precision-recall curve. ``roc_auc_interval`` adds the DeLong standard error and interval of the AUC and the Gini, and ``delong_test`` compares the AUCs of two scores on the same sample; the legacy code had neither.
+* ``BinaryMetrics.roc_curve`` returned the points of scikit-learn's ``roc_curve`` with its default ``drop_intermediate=True``. ``roc_table`` has one row for every distinct score, as ``roc_curve`` with ``drop_intermediate=False``, with the cumulative counts, the two rates and the precision. Its ``precision`` and ``true_positive_rate`` columns are the precision and the recall at each threshold, so it also gives the precision-recall curve, which ``precision_recall_chart`` draws from 1.4.0. ``roc_auc_interval`` adds the DeLong standard error and interval of the AUC and the Gini, and ``delong_test`` compares the AUCs of two scores on the same sample; the legacy code had neither.
 * ``ScoreEvaluate.score_psi`` and ``add_psi`` compared the band totals of two lift tables. ``monitoring_table`` compares every period with one reference sample on score bands fitted once, adds the known outcomes, the AUC, the Gini and the KS of each period, and counts an observation without a known outcome in the population only. ``stability_table`` gives the PSI of every variable in every period.
 * Lifetime PD term structures, the IFRS 9 expected credit loss and the allocation to stages have no 0.2.x counterpart; see ``kivi.lifetime``.
 
@@ -147,7 +153,7 @@ Charts, classification measures and variable statistics
 
 Version 1.1.0 draws charts and adds the measures of a classifier and more statistics to the variable profile.
 
-* ``plot_bin`` and ``DefaultAnalysis`` drew the bins of a variable from raw data, ``Calibration.CalibrationCurve`` the predicted against the observed rate, the ``plot_*`` methods of ``BinaryMetrics`` the ROC and KS curves, and ``diagonal_corr`` and ``structure_corr`` correlation heatmaps. The functions of ``kivi.plotting`` draw the tables that kivi returns instead: ``woe_chart`` a ``woe_table``, ``calibration_chart`` a ``calibration_table``, ``roc_chart`` and ``gains_chart`` a ``roc_table`` and a ``gains_table`` with the KS, and ``correlation_chart`` a correlation matrix such as ``X.corr()``. They return the matplotlib Axes rather than saving image files, and they need matplotlib, which ``pip install "kivi[plot]"`` installs.
+* ``plot_bin`` and ``DefaultAnalysis`` drew the bins of a variable from raw data, ``Calibration.CalibrationCurve`` the predicted against the observed rate, ``BinaryMetrics.plot_roc`` and ``plot_ks`` the ROC and KS curves, and ``diagonal_corr`` and ``structure_corr`` correlation heatmaps. The functions of ``kivi.plotting`` draw the tables that kivi returns instead: ``woe_chart`` a ``woe_table``, ``calibration_chart`` a ``calibration_table``, ``roc_chart`` and ``gains_chart`` a ``roc_table`` and a ``gains_table`` with the KS, so ``plot_ks`` becomes ``gains_chart`` with its default ``ks=True``, and ``correlation_chart`` a correlation matrix such as ``X.corr()``. They return the matplotlib Axes rather than saving image files, and they need matplotlib, which ``pip install "kivi[plot]"`` installs.
 * The F1 score and the confusion matrix of ``BinaryMetrics`` judged labels that the caller had predicted. ``confusion_table(score, target, cutoffs=...)`` takes a score and the cut-offs of ``cutoff_table`` instead: a score above the cut-off is declined, and a declined event is a true positive. Pass labels already predicted as the score with ``cutoffs=[0]`` to get the legacy counts. Where nothing is declined, the precision is NaN, where the legacy code gave 0 with a warning, and the table has no ``lift`` column; divide ``precision`` by the event rate for it.
 * The skewness, kurtosis and coefficient of variation of ``FeatureEvaluate`` are the ``skewness``, ``kurtosis`` and ``cv`` columns of ``profile_table``. ``cv`` is NaN when the mean is 0, where the legacy code gave -9999. ``ks`` is the KS statistic of the values themselves, which the legacy ``ks_test`` computed with SciPy, without its p-value. ``chi2_p_value`` tests the groups of the quick binning against the target, while the legacy chi-squared test was scikit-learn's ``chi2`` on the raw values, so the two p-values differ.
 * ``Corr.spearmanr`` gave the Spearman correlation of each pair of columns. ``correlation_filter(X, method="spearman")`` drops one variable of each pair whose Spearman correlation is too high; ``X.corr(method="spearman")`` gives the matrix itself.
@@ -217,6 +223,37 @@ Version 1.3.0 computes features of event data and of monthly repayment statuses,
 * ``features_agg`` takes the aggregations that its docstring lists under their kivi names: ``cnt`` is ``count``, or the ``events`` column, which also counts the rows without a value, ``avg`` and ``mean`` are ``mean``, ``cnt_dist`` is ``nunique``, ``stddev`` and ``stddev_samp`` are ``std``, whose square gives ``variance`` and ``var_samp``, and ``sum``, ``min``, ``max``, ``first`` and ``last`` keep their names. ``sum_dist``, ``skewness``, ``kurtosis``, ``collect_set``, ``collect_list``, ``approx_count_distinct`` and the population statistics ``stddev_pop`` and ``var_pop`` are not ported. The features are named ``{prefix}{column}_{aggregation}_{window}``, such as ``amount_sum_3m``, rather than ``ent_{column}_last_{month}_{operator}``.
 * An ``IndexField`` configured the columns, operators and months of an indicator, and ``CollectIndex`` computed it. A :class:`~kivi.features.FeatureSpec` holds the same as groups of ``aggregations`` and ``windows``, saved as versioned JSON, without the database, table and partition settings, because the caller reads and writes the tables. Its ``id_levels`` become one specification per level, each with its own ``id`` column. ``CollectIndex`` declared steps for the change from the previous period and from the same period a year earlier but left them empty; they are ratios to window pairs, such as ``("amount_sum_3m", "amount_sum_6m_3m")`` and ``("amount_sum_3m", "amount_sum_15m_12m")``.
 
+Variable selection, charts and WOE trends
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Version 1.4.0 ports the last tools of the 0.2.x selection, chart and WOE utilities that had no replacement, and adds the validation tests of the European Central Bank, which have no 0.2.x counterpart. These are new implementations as well, so compare their output with the legacy code on a fixed reference sample before switching.
+
+* ``VIF.LowVIFFeatures(df, thresh=5)`` tried dropping each column in turn and dropped the one that left the smallest sum of VIFs, while the largest VIF was at least ``thresh`` and more than two columns were left. It computed the VIFs without an intercept, which inflates the VIF of a variable whose mean is far from 0, dropped the columns from the frame it was given and returned the VIFs of every step. ``vif_filter(X, threshold=5)`` drops the variable with the largest VIF, with an intercept, until no VIF exceeds ``threshold`` or one variable is left, and ``priority``, such as the IVs, decides between tied VIFs. It leaves ``X`` unchanged and returns the kept columns, like ``correlation_filter``; ``vif(X[kept])`` gives their VIFs. On WOE values, whose means are close to 0, the VIFs differ little, but the two rules can drop different variables.
+* ``StepWise(df, dependent=..., indicator="auc").forward()`` did not select variables by their p-values. It ranked the variables by a univariate measure of the ``dependent`` table, such as their AUC or KS, fitted the logistic regressions on the first 1, 2, 3 and more of them and reported the AUC, the KS, the lift and the signs of the coefficients of each model, stopping once the relative gain of ``indicator`` fell below ``early_stop``. ``selection_path(X, target, order=...)`` fits the same nested models, with the order as ``order``, such as ``profile.sort_values("iv", ascending=False).index``, and reports each step's ``auc``, ``gini``, ``ks``, ``max_p_value`` and ``min_coefficient``, also on a ``validation`` sample. It has no early stop: ``path["auc"].pct_change()`` gives the relative gain that ``early_stop`` compared. ``backward()`` fitted the same models from the longest down, so read the path from its last row up. A model that could not be fitted was logged and reported without measures, while ``selection_path`` raises ``SeparationError`` and names the step. The lift of a model is in the ``gains_table`` of its fitted probabilities.
+* ``woe/utils.monotony`` labelled the trend of the values it was given. ``woe_trend(table)`` takes a ``woe_table`` result or a table of a ``BinningSpec`` and reads the WOE of its interval rows in the order of the table, leaving out the rows of special codes and missing values, and it raises for a categorical variable. Its labels correspond one to one:
+
+  .. list-table::
+     :header-rows: 1
+     :widths: 50 50
+
+     * - ``monotony``
+       - ``woe_trend``
+     * - ``单调上升``
+       - ``"increasing"``
+     * - ``单调下降``
+       - ``"decreasing"``
+     * - ``下降上升``
+       - ``"u_shaped"``
+     * - ``上升下降``
+       - ``"inverted_u"``
+     * - ``未知``
+       - ``"irregular"``
+     * - ``数据不足``, a single value
+       - ``"flat"``
+
+  ``monotony`` counted equal neighbours as rising, so ``[0.3, 0.3, 0.1]`` was ``上升下降`` and equal values were ``单调上升``. In ``woe_trend``, neighbours whose WOE differ by at most a relative :math:`10^{-10}` neither rise nor fall, so the same values are ``"decreasing"``, and equal values are ``"flat"``.
+* ``BinaryMetrics.plot_score`` drew histograms and kernel densities of the scores of the goods and the bads. ``distribution_chart`` draws, for each band of a ``gains_table`` or each bin of a ``woe_table``, its share of all non-events and of all events as bars side by side; ``gains_table(score, target, bins=40)`` gives the 40 bands of ``plot_ks``. ``plot_pr`` joined the points of ``pr_curve`` with straight lines, labelled the curve with the AUC of the ROC curve and drew the diagonal from (0, 1) to (1, 0). ``precision_recall_chart`` draws the ``precision`` and ``true_positive_rate`` of a ``roc_table`` as steps, whose area is the average precision, with a line at the event rate, the precision of a score that ranks at random.
+
 Not ported
 ~~~~~~~~~~
 
@@ -225,7 +262,10 @@ Spark, SQL, model wrappers and application code are out of scope and remain in t
 * The binning classes ``KmeansBins``, which cut at the boundaries of k-means clusters, and ``PearsonBins``, which lowered the number of quantile bins until their rank correlation with the bad rate reached a threshold. ``monotonic_edges`` reaches the monotonic WOE that ``PearsonBins`` aimed at, and the supervised methods of :doc:`/user_guide/binning` replace the clustering of ``KmeansBins``.
 * The sampling helpers ``sampling`` and ``upsampling``, the median and missing-value cross features of ``joint_feature`` in ``FeatureTools``, its trend flags and its counts of months above and below the average, its ``ratio`` of two columns of a frame, and the min-max and z-score scaling of ``Scale``. Use pandas. The ratios of window features are the ``ratios`` of ``window_features`` from 1.3.0.
 * The industry percentile ranks of ``index_indu_pct`` in ``FeatureToolsV2`` and ``pct_rank``. Rank features within groups with pandas, as in ``features.groupby(industry).rank(pct=True)``.
-* The grading by the Beta distribution in ``BetaCalibration``, ``BetaDistribution`` and ``MasterScale.cal_quantile``, and ``model_score_by_weight``. ``master_scale`` and ``woe_to_points`` cover the same steps without them.
+* The grading by the Beta distribution in ``BetaCalibration``, ``BetaDistribution`` and ``MasterScale.cal_quantile``, the chart of its grade shares in ``MasterScale.plot_grade_rate``, and ``model_score_by_weight``. ``master_scale`` and ``woe_to_points`` cover the same steps without them, and ``calibration_chart`` compares the predicted and the observed rate of each grade.
 * The univariate logistic fit of ``FeatureEvaluate`` and the p-value of its KS test. The ``gini`` and ``ks`` of ``profile_table`` measure how well the values rank the target directly.
 * ``ODDS``, which computed a stability index of score bands, and ``StatsLogit``, a wrapper of statsmodels' logistic regression. Use ``psi_table`` and ``logistic_regression``.
+* ``int_score`` in ``woe/utils``, which rounded a score to the nearest multiple of 5 from 0 to 100. Use ``(score / 5).round().clip(0, 20) * 5``, which rounds ties to even where ``int_score`` rounded them down. Rounded points no longer add up to the rounded score, so round only the total.
+* ``StepWise.top_n_features``, which kept the variables with the highest KS of each dimension. With ``dimension`` a Series that maps each variable to its dimension, ``profile.assign(dimension=dimension).sort_values("iv").groupby("dimension").tail(n)`` keeps the ``n`` variables with the highest IV of each dimension of a ``profile_table``, and ``sort_values("ks")`` those with the highest KS.
+* ``BinaryMetrics.plot_confusion_matrix``, a heatmap of the four counts of a confusion matrix. ``confusion_table`` returns them for every cut-off.
 * ``Dataset.crime_data()``, a table of crime rates of US states that has nothing to do with credit risk, and the synthetic data of ``MakeData``, a scikit-learn classification sample split for training, and of ``fake_data``, which drew each column from one range for the bad and another for the good customers. ``make_applications`` and ``make_loan_panel`` simulate loan applications and a loan portfolio instead, and from 1.3.0 ``make_transactions`` the account transactions before each application, which neither legacy generator produced.

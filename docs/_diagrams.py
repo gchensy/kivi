@@ -33,7 +33,7 @@ from kivi.datasets import load_bank, make_applications, make_loan_panel
 from kivi.expert import ahp_consistency, ahp_weights
 from kivi.features import panel_features, window_features
 from kivi.lifetime import assign_stages, convert_pd, expected_credit_loss
-from kivi.metrics import roc_auc, roc_table
+from kivi.metrics import generalized_auc, roc_auc, roc_table
 from kivi.monitoring import monitoring_table
 from kivi.reject_inference import fuzzy_augmentation, parceling, reweighting
 from kivi.scorecard import score_scaling, woe_to_points
@@ -42,7 +42,13 @@ from kivi.spec import BinningSpec, fit_spec
 from kivi.stability import psi_table
 from kivi.strategy import confusion_table, cutoff_table, swap_set
 from kivi.univariate import profile_table
-from kivi.vintage import delinquency_panel, roll_rates, transition_matrix
+from kivi.vintage import (
+    delinquency_panel,
+    migration_bandwidth,
+    migration_test,
+    roll_rates,
+    transition_matrix,
+)
 from kivi.woe import woe_table, woe_transform
 
 UNIT = 0.25  # inches per grid unit, 18 points
@@ -1120,6 +1126,98 @@ def figure_roc_table():
     return canvas.fig
 
 
+def figure_generalized_auc():
+    """The table of generalized_auc, with the cells that agree and disagree with one cell."""
+    estimated = [1, 1, 1, 2, 2, 2, 3, 3]
+    realized = [1, 1, 2, 1, 2, 3, 2, 3]
+    result = generalized_auc(estimated, realized)
+    table = pd.crosstab(
+        pd.Series(estimated, name="estimated"), pd.Series(realized, name="realized")
+    )
+    pairs = [
+        (realized[j] - realized[i]) * (estimated[j] - estimated[i])
+        for i in range(len(estimated))
+        for j in range(i + 1, len(estimated))
+        if estimated[i] != estimated[j]
+    ]
+    same, other = sum(p > 0 for p in pairs), sum(p < 0 for p in pairs)
+    tied = len(pairs) - same - other
+    somers_d = Fraction(same - other, len(pairs))
+    if not np.isclose(result.loc["somers_d", "estimate"], float(somers_d), rtol=1e-12, atol=0):
+        raise AssertionError("the drawn pairs do not match generalized_auc")
+    # The cell of estimated segment 2 and realized segment 1, and the cells that agree with it in
+    # order (A) and that disagree (D).
+    cell = (1, 0)
+    agree = {(2, 1), (2, 2)}
+    disagree = {(0, 1), (0, 2)}
+    a_count = sum(int(table.iat[i, j]) for i, j in agree)
+    d_count = sum(int(table.iat[i, j]) for i, j in disagree)
+
+    canvas = Canvas(height=8.4)
+    left, top, width = 7.2, 1.9, 2.4
+    canvas.call(0.6, 0.15, "generalized_auc(estimated, realized)")
+    canvas.text(
+        left - 0.4,
+        top + HEADER / 2 - 0.05,
+        "estimated \\ realized",
+        size=8.5,
+        ha="right",
+        color=MUTED,
+    )
+    for j, column in enumerate(table.columns):
+        x = left + j * (width + GAP) + width / 2
+        canvas.text(x, top + HEADER / 2 - 0.05, str(column), size=9, bold=True)
+    for i, row in enumerate(table.index):
+        y = top + HEADER + (i + 0.5) * ROW
+        canvas.text(left - 0.4, y, str(row), size=9, ha="right", bold=True)
+        for j in range(table.shape[1]):
+            x = left + j * (width + GAP)
+            if (i, j) == cell:
+                fill, edge, color = RESULT_FILL, AMBER, RESULT_TEXT
+            elif (i, j) in agree:
+                fill, edge, color = BLUE_FILL, BLUE, BLUE
+            elif (i, j) in disagree:
+                fill, edge, color = EVENT_FILL, EVENT, EVENT
+            else:
+                fill, edge, color = CELL_FILL, CELL_EDGE, INK
+            canvas.box(x, y - CELL / 2, width, CELL, fill=fill, edge=edge, linewidth=1.2)
+            canvas.text(
+                x + width / 2, y, str(int(table.iat[i, j])), color=color, bold=fill != CELL_FILL
+            )
+    right = left + 3 * width + 2 * GAP
+    canvas.line(left, top + HEADER - 0.06, right, top + HEADER - 0.06)
+    canvas.note(left, top + HEADER + 3 * ROW + 0.6, f"A_21 = {a_count}", color=BLUE, bold=True)
+    canvas.note(
+        left + 3.4, top + HEADER + 3 * ROW + 0.6, f"D_21 = {d_count}", color=EVENT, bold=True
+    )
+    x = right + 1.6
+    canvas.notes(
+        x,
+        2.4,
+        [
+            f"pairs in different estimated  {len(pairs)}",
+            f"  ordered the same way        {same}",
+            f"  ordered the other way       {other}",
+            f"  tied in realized            {tied}",
+        ],
+        step=1.0,
+        size=8.6,
+    )
+    canvas.notes(
+        x,
+        6.6,
+        [
+            f"somers_d = ({same} - {other}) / {len(pairs)} = {number(float(somers_d), 4)}",
+            f"gauc     = (somers_d + 1) / 2 = {number(result.loc['gauc', 'estimate'], 4)}",
+        ],
+        step=1.0,
+        size=8.6,
+        color=RESULT_TEXT,
+        bold=True,
+    )
+    return canvas.fig
+
+
 # Calibration
 
 
@@ -1635,6 +1733,199 @@ def figure_transition_matrix():
         y = top + HEADER + (i + 0.5) * ROW
         canvas.box(x, y - CELL / 2, 3.2, CELL, fill=RESULT_FILL, edge=RESULT_EDGE)
         canvas.text(x + 1.6, y, number(rolls[state]))
+    return canvas.fig
+
+
+def _migration_example():
+    """The yearly migrations of the vintage guide: grades at the start and statuses at the end."""
+    rng = np.random.default_rng(0)
+    grades = ["A", "B", "C", "D", "E"]
+    statuses = grades + ["default", "closed"]
+    yearly = np.array(
+        [
+            [0.86, 0.07, 0.02, 0.01, 0.00, 0.00, 0.04],
+            [0.06, 0.80, 0.06, 0.01, 0.03, 0.01, 0.03],
+            [0.01, 0.07, 0.78, 0.07, 0.02, 0.02, 0.03],
+            [0.00, 0.01, 0.08, 0.76, 0.08, 0.04, 0.03],
+            [0.00, 0.00, 0.02, 0.09, 0.73, 0.13, 0.03],
+        ]
+    )
+    counts = [300, 600, 700, 400, 200]
+    start = np.repeat(grades, counts)
+    end = np.concatenate(
+        [rng.choice(statuses, size=count, p=row) for count, row in zip(counts, yearly, strict=True)]
+    )
+    return start, end, grades, statuses
+
+
+def figure_migration_test():
+    """The migration shares, with the cell that migration_test flags and its neighbour."""
+    start, end, grades, statuses = _migration_example()
+    shares = transition_matrix(start, end, states=statuses, normalize=True).loc[grades]
+    total = pd.Series(start).value_counts().reindex(grades)
+    test = migration_test(start, end, grades=grades)
+    flagged = test.index[test["p_value"] < 0.05]
+    if len(flagged) != 1:
+        raise AssertionError("the guide flags one cell")
+    before, after = flagged[0]
+    row, column = grades.index(before), statuses.index(after)
+    neighbour = column - 1 if column > row else column + 1
+    p, q, n = shares.iat[row, column], shares.iat[row, neighbour], int(total[before])
+    se = np.sqrt((p * (1 - p) + q * (1 - q) + 2 * p * q) / n)
+    z = (q - p) / se
+    if not np.isclose(z, test.loc[(before, after), "statistic"], rtol=1e-12, atol=0):
+        raise AssertionError("the drawn statistic does not match migration_test")
+
+    canvas = Canvas(height=12.3)
+    left, top, width = 2.6, 1.9, 2.25
+    canvas.call(0.6, 0.15, "migration_test(start, end, grades=grades)")
+    for j, status in enumerate(statuses):
+        x = left + j * (width + GAP) + width / 2
+        canvas.text(
+            x,
+            top + HEADER / 2 - 0.05,
+            status,
+            size=8.5,
+            bold=True,
+            color=INK if status in grades else MUTED,
+        )
+    x_total = left + len(statuses) * (width + GAP) + 0.3
+    canvas.text(x_total + 1.0, top + HEADER / 2 - 0.05, "total", size=8.5, bold=True)
+    for i, grade in enumerate(grades):
+        y = top + HEADER + (i + 0.5) * ROW
+        canvas.text(left - 0.4, y, grade, size=9, ha="right", bold=True)
+        for j, value in enumerate(shares.loc[grade]):
+            x = left + j * (width + GAP)
+            if (i, j) == (row, column):
+                fill, edge, color = RESULT_FILL, AMBER, RESULT_TEXT
+            elif (i, j) == (row, neighbour):
+                fill, edge, color = CELL_FILL, AMBER, RESULT_TEXT
+            elif j >= len(grades):
+                fill, edge, color = MISSING_FILL, None, MUTED
+            elif value > 0:
+                fill, edge = _blend(BLUE_FILL, BLUE, value**0.8), None
+                color = "#ffffff" if value > 0.5 else INK
+            else:
+                fill, edge, color = CELL_FILL, CELL_EDGE, FAINT
+            canvas.box(
+                x,
+                y - CELL / 2,
+                width,
+                CELL,
+                fill=fill,
+                edge=edge,
+                linewidth=1.4 if edge == AMBER else 0.8,
+            )
+            canvas.text(x + width / 2, y, number(value), size=8.8, color=color)
+        canvas.box(x_total, y - CELL / 2, 2.0, CELL, fill=CELL_FILL, edge=CELL_EDGE)
+        canvas.text(x_total + 1.0, y, str(int(total[grade])), size=8.8)
+    right = x_total + 2.0
+    canvas.line(left, top + HEADER - 0.06, right, top + HEADER - 0.06)
+    y_arrow = top + HEADER + (row + 0.5) * ROW - CELL / 2 - 0.05
+    x_from = left + neighbour * (width + GAP) + width / 2
+    x_to = left + column * (width + GAP) + width / 2
+    canvas.arrow((x_from, y_arrow), (x_to, y_arrow), color=AMBER, linewidth=1.2, bend=-0.35)
+    pair = f"p_{before}{after}"
+    near = f"p_{before}{statuses[neighbour]}"
+    y = top + HEADER + len(grades) * ROW + 0.7
+    canvas.notes(
+        left,
+        y,
+        [
+            f"N_{before} = {n},  {pair} = {number(p, 4)},  {near} = {number(q, 4)}",
+            f"se = sqrt(({pair} (1 - {pair}) + {near} (1 - {near}) + 2 {pair} {near}) / N_{before})"
+            f" = {number(se, 4)}",
+            f"statistic = ({near} - {pair}) / se = {number(z, 4)}",
+        ],
+        size=8.4,
+    )
+    canvas.note(
+        left,
+        y + 3 * 0.95,
+        f"p_value = Phi(statistic) = {number(test.loc[(before, after), 'p_value'], 4)}",
+        size=8.4,
+        color=RESULT_TEXT,
+        bold=True,
+    )
+    return canvas.fig
+
+
+def figure_migration_bandwidth():
+    """The moves of the three-grade example and how migration_bandwidth weighs them."""
+    before = ["A", "A", "A", "B", "B", "B", "C", "C"]
+    after = ["A", "B", "C", "A", "B", "default", "B", "C"]
+    grades = ["A", "B", "C"]
+    result = migration_bandwidth(before, after, grades=grades)
+    columns = grades + ["default"]
+    counts = pd.crosstab(pd.Series(before), pd.Series(after)).reindex(
+        index=grades, columns=columns, fill_value=0
+    )
+    k = len(grades)
+    furthest = {g: max(abs(i - (k - 1)), i) for i, g in enumerate(grades)}
+    sums = {"upper": [0, 0], "lower": [0, 0]}
+    terms = {"upper": ([], []), "lower": ([], [])}
+    for i, g in enumerate(grades):
+        for j, h in enumerate(grades):
+            n = int(counts.loc[g, h])
+            if i == j or n == 0:
+                continue
+            side = "upper" if j > i else "lower"
+            sums[side][0] += abs(i - j) * n
+            sums[side][1] += furthest[g] * n
+            terms[side][0].append(f"{abs(i - j)}×{n}")
+            terms[side][1].append(f"{furthest[g]}×{n}")
+    for side, (top_sum, bottom_sum) in sums.items():
+        if not np.isclose(result[side], top_sum / bottom_sum, rtol=1e-12, atol=0):
+            raise AssertionError("the drawn bandwidth does not match migration_bandwidth")
+
+    canvas = Canvas(height=11.6)
+    left, top, width, height = 3.0, 1.9, 3.4, 1.5
+    canvas.call(0.6, 0.15, "migration_bandwidth(before, after, grades=grades)")
+    canvas.text(left - 0.4, top + HEADER / 2 - 0.05, "i", size=8.5, ha="right", color=MUTED)
+    for j, status in enumerate([*columns, "furthest"]):
+        x = left + j * (width + GAP) + width / 2
+        color = INK if status in grades else MUTED if status == "default" else RESULT_TEXT
+        canvas.text(x, top + HEADER / 2 - 0.05, status, size=9, bold=True, color=color)
+    tints = {"upper": CATEGORY[2], "lower": CATEGORY[0]}
+    for i, grade in enumerate(grades):
+        y = top + HEADER + i * (height + GAP)
+        canvas.text(left - 0.4, y + height / 2, f"{i + 1} {grade}", size=9, ha="right", bold=True)
+        for j, status in enumerate(columns):
+            x = left + j * (width + GAP)
+            n = int(counts.loc[grade, status])
+            distance = None
+            if status not in grades:
+                fill, color = MISSING
+            elif j == i:
+                fill, color = CELL_FILL, INK
+            else:
+                fill, color = tints["upper" if j > i else "lower"]
+                distance = abs(i - j)
+            canvas.box(x, y, width, height, fill=fill, edge=CELL_EDGE)
+            if distance is None:
+                canvas.text(x + width / 2, y + height / 2, str(n), size=10, color=color, bold=True)
+            else:
+                canvas.text(x + width / 2, y + 0.5, str(n), size=10, color=color, bold=True)
+                canvas.text(x + width / 2, y + 1.1, f"|i - j| = {distance}", size=7.6, color=color)
+        x = left + len(columns) * (width + GAP)
+        canvas.box(x, y, width, height, fill=RESULT_FILL, edge=RESULT_EDGE)
+        canvas.text(x + width / 2, y + height / 2, str(furthest[grade]), size=10, bold=True)
+    canvas.line(left, top + HEADER - 0.06, x + width, top + HEADER - 0.06)
+    y = top + HEADER + k * (height + GAP) + 0.5
+    canvas.note(left, y, f"furthest = max(|i - K|, |i - 1|),  K = {k}", size=8.6)
+    y += 1.15
+    for side in ("upper", "lower"):
+        moves, weights = terms[side]
+        canvas.note(
+            left,
+            y,
+            f"{side} = ({' + '.join(moves)}) / ({' + '.join(weights)}) = "
+            f"{sums[side][0]} / {sums[side][1]} = {number(result[side], 4)}",
+            size=8.8,
+            color=tints[side][1],
+            bold=True,
+        )
+        y += 1.05
     return canvas.fig
 
 

@@ -105,9 +105,35 @@ CASES = {
         {"probability": SCORE, "target": TARGET, "weights": WEIGHTS},
         {},
     ),
+    "generalized_auc": (
+        metrics.generalized_auc,
+        {"estimated": [1, 1, 2, 2, 3, 3, 1, 2], "realized": VALUES, "weights": WEIGHTS},
+        {},
+    ),
     "calibration_table": (
         calibration.calibration_table,
         {"groups": GROUPS, "target": TARGET, "probability": SCORE, "weights": WEIGHTS},
+        {},
+    ),
+    "spiegelhalter_test": (
+        calibration.spiegelhalter_test,
+        {"probability": SCORE, "target": TARGET, "weights": WEIGHTS},
+        {},
+    ),
+    "brier_decomposition": (
+        calibration.brier_decomposition,
+        {"groups": GROUPS, "target": TARGET, "probability": SCORE, "weights": WEIGHTS},
+        {},
+    ),
+    "backtest_table": (
+        calibration.backtest_table,
+        {"groups": GROUPS, "realized": SCORE, "estimated": NEW, "weights": WEIGHTS},
+        {},
+    ),
+    # Counts per grade: the rows are the grades of the scale.
+    "concentration_test": (
+        calibration.concentration_test,
+        {"counts": VALUES, "initial_counts": WEIGHTS},
         {},
     ),
     "platt_fit": (
@@ -126,6 +152,20 @@ CASES = {
         {},
     ),
     "stepwise": (selection.stepwise, {"X": {"x": SCORE}, "target": TARGET, "weights": WEIGHTS}, {}),
+    "selection_path": (
+        selection.selection_path,
+        {"X": {"x": SCORE}, "target": TARGET, "weights": WEIGHTS},
+        {},
+    ),
+    # The validation sample describes other rows, but its X and target share one index. The
+    # development X is an array, so that the validation X may be an array or a DataFrame.
+    "selection_path-validation": (
+        lambda X, target: selection.selection_path(
+            np.array(SCORE)[:, None], TARGET, validation=(X, target)
+        ),
+        {"X": {"x": NEW}, "target": TARGET},
+        {},
+    ),
     "cutoff_table": (
         strategy.cutoff_table,
         {"score": SCORE, "target": TARGET, "loss": [10.0] * ROWS, "weights": WEIGHTS},
@@ -227,6 +267,16 @@ CASES = {
         {"before": GROUPS, "after": ["a", "b", "b", "a", "a", "b", "b", "b"], "weights": WEIGHTS},
         {"states": ["a", "b"]},
     ),
+    "migration_bandwidth": (
+        vintage.migration_bandwidth,
+        {"before": GROUPS, "after": ["a", "b", "b", "a", "a", "b", "x", "b"], "weights": WEIGHTS},
+        {"grades": ["a", "b"]},
+    ),
+    "migration_test": (
+        vintage.migration_test,
+        {"before": GROUPS, "after": ["a", "b", "b", "a", "a", "b", "x", "b"], "weights": WEIGHTS},
+        {"grades": ["a", "b"]},
+    ),
     "fit_spec": (spec.fit_spec, {"frame": FRAME, "target": TARGET, "weights": WEIGHTS}, {}),
     "profile_table": (
         univariate.profile_table,
@@ -302,11 +352,14 @@ def test_target_and_weights_series_on_other_indices_raise_with_an_array_score():
 
 def _assert_same(result, expected):
     if isinstance(result, pd.DataFrame):
-        # The variables of a model fitted on an array are numbered, not named.
+        # The variables of a model fitted on an array are numbered, not named, both in the index
+        # of logistic_regression and in the variable column of selection_path.
         drop = result.index.name is None or result.index[0] == "intercept"
-        pd.testing.assert_frame_equal(
-            result.reset_index(drop=drop), expected.reset_index(drop=drop)
+        result, expected = (
+            table.reset_index(drop=drop).drop(columns="variable", errors="ignore")
+            for table in (result, expected)
         )
+        pd.testing.assert_frame_equal(result, expected)
     elif isinstance(result, pd.Index):
         assert len(result) == len(expected)
     elif isinstance(result, pd.Series | np.ndarray):
@@ -654,11 +707,17 @@ def _option_cases():
         # metrics
         "roc_auc_interval-level": lambda o: metrics.roc_auc_interval(SCORE, TARGET, level=o),
         "delong_test-level": lambda o: metrics.delong_test(SCORE, NEW, TARGET, level=o),
+        "generalized_auc-level": lambda o: metrics.generalized_auc(
+            [1, 1, 2, 3], [1, 2, 2, 3], level=o
+        ),
         # calibration
         "platt_predict-slope": lambda o: calibration.platt_predict(SCORE, o, 0.0),
         "platt_predict-intercept": lambda o: calibration.platt_predict(SCORE, 1.0, o),
         "isotonic_fit-increasing": lambda o: calibration.isotonic_fit(SCORE, TARGET, increasing=o),
         "herfindahl_index-normalize": lambda o: calibration.herfindahl_index([1, 2], normalize=o),
+        "concentration_test-initial_cv": lambda o: calibration.concentration_test(
+            [1, 2], initial_cv=o
+        ),
         "hosmer_lemeshow-ddof": lambda o: calibration.hosmer_lemeshow(event, total, rates, ddof=o),
         "master_scale-boundary": lambda o: calibration.master_scale([0.01, 0.1], boundary=o),
         "prior_correction-sample_rate": lambda o: calibration.prior_correction(
@@ -714,6 +773,7 @@ def _option_cases():
         "reason_codes-atol": lambda o: scorecard.reason_codes(points, card, atol=o),
         # selection
         "correlation_filter-threshold": lambda o: selection.correlation_filter(X, threshold=o),
+        "vif_filter-threshold": lambda o: selection.vif_filter(X, threshold=o),
         "stepwise-p_enter": lambda o: selection.stepwise(X, TARGET, p_enter=o),
         "stepwise-p_remove": lambda o: selection.stepwise(X, TARGET, p_remove=o),
         "stepwise-direction": lambda o: selection.stepwise(X, TARGET, direction=o),
@@ -834,6 +894,16 @@ SEQUENCES = {
     ),
     "monitoring_table-bins": lambda o: monitoring.monitoring_table(
         SCORE, PERIOD, reference_period="p1", bins=o
+    ),
+    # The positions 1 and 2 of a model matrix with three columns.
+    "selection_path-order": lambda o: selection.selection_path(
+        np.column_stack([SCORE, NEW, VALUES]), TARGET, order=o
+    ),
+    "migration_bandwidth-grades": lambda o: vintage.migration_bandwidth(
+        [1.0, 2.0, 2.0], [2.0, 1.0, 2.0], grades=o
+    ),
+    "migration_test-grades": lambda o: vintage.migration_test(
+        [1.0, 2.0, 2.0], [2.0, 1.0, 2.0], grades=o
     ),
 }
 

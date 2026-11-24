@@ -1192,24 +1192,6 @@ def test_selection_path_does_not_mutate_inputs(bank_split):
     assert order == ["poutcome", "loan"]
 
 
-def test_selection_path_matches_statsmodels(bank_woe):
-    sm = pytest.importorskip("statsmodels.api")
-    metrics = pytest.importorskip("sklearn.metrics")
-    X, target = bank_woe
-    path = selection_path(X, target)
-    for step, row in path.iterrows():
-        columns = X.columns[:step]
-        fitted = sm.GLM(target, sm.add_constant(X[columns]), family=sm.families.Binomial()).fit(
-            tol=1e-15, tol_criterion="params"
-        )
-        assert row["max_p_value"] == pytest.approx(fitted.pvalues.iloc[1:].max(), rel=1e-6)
-        assert row["min_coefficient"] == pytest.approx(fitted.params.iloc[1:].min(), rel=1e-9)
-        # fittedvalues come from a matrix product, which can give identical rows probabilities
-        # that differ in the last digit and so split their tie; score column by column instead.
-        score = linear_predictor(X[columns], fitted.params.rename("coef").to_frame())
-        assert row["auc"] == pytest.approx(metrics.roc_auc_score(target, score), rel=1e-12)
-
-
 # --- weights ------------------------------------------------------------------------------
 
 

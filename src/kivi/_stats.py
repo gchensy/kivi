@@ -12,10 +12,14 @@ is below 1.2e-9, and refines it with a step of Halley's method. The normal
 distribution function is ``0.5 erfc(-x / sqrt(2))``. The tail of Student's t
 distribution with ``df`` degrees of freedom beyond ``|t|`` is ``I_x(df / 2, 1 / 2) / 2``
 at ``x = df / (df + t**2)``, and near the centre ``1 / 2 - I_y(1 / 2, df / 2) / 2`` at
-``y = 1 - x`` (Abramowitz and Stegun, 26.5.27 and 26.7.1).
+``y = 1 - x`` (Abramowitz and Stegun, 26.5.27 and 26.7.1). From 100 degrees of freedom
+on, the continued fractions lose about ``log10(df)`` digits where ``x`` is close to the
+mean of its beta distribution, so there the tail is an expansion in incomplete gamma
+functions of half-integer order instead, which start from ``erfc``.
 """
 
 import math
+from fractions import Fraction
 
 import numpy as np
 import numpy.typing as npt
@@ -167,16 +171,94 @@ def student_t_sf(t: npt.ArrayLike, dof: npt.ArrayLike) -> npt.NDArray[np.float64
         # x + y = 1, each computed without cancellation.
         x = 1 / (1 + ratio)
         y = np.where(np.isinf(ratio), 1.0, ratio / (1 + ratio))
+        expansion = (dof >= _T_EXPANSION_DOF) & (ratio > 0) & (np.log1p(ratio) <= 1)
     a = dof / 2
     # Pass betainc the argument that lies below the mean of its distribution, so that it is not
     # recomputed as 1 minus the other one, which loses the digits of a t close to 0.
-    central = y < 1.5 / (a + 2.5)
+    central = ~expansion & (y < 1.5 / (a + 2.5))
+    tails = ~expansion & ~central
     # The other entries get x = 0, which betainc does not evaluate.
     within = betainc(0.5, np.where(central, a, 1.0), np.where(central, y, 0))
-    tail = 0.5 * betainc(np.where(central, 1.0, a), 0.5, np.where(central, 0, x))
+    tail = 0.5 * betainc(np.where(tails, a, 1.0), 0.5, np.where(tails, x, 0))
     # P(|T| < |t|) = I_y(1/2, df/2) near the centre; P(T > |t|) = I_x(df/2, 1/2) / 2 in the tails.
     upper = np.where(central, 0.5 - 0.5 * within, tail)
+    if expansion.any():
+        upper[expansion] = _t_tail_expansion(np.abs(t[expansion]), dof[expansion])
     return np.where(t > 0, upper, 1 - upper)
+
+
+# From here on, student_t_sf uses the expansion of _t_tail_expansion where ln(1 + t**2 / df) <= 1.
+_T_EXPANSION_DOF = 100.0
+
+
+def _t_expansion_coefficients(terms: int) -> tuple[float, ...]:
+    """Return the coefficients g_k of (v / (2 sinh(v / 2)))**(1/2) = sum_k g_k v**(2k).
+
+    The power series of 2 sinh(v / 2) / v = sum_n (v**2 / 4)**n / (2n + 1)! is raised to the
+    power -1/2 with exact fractions, by the recurrence of J. C. P. Miller for the powers of a
+    series.
+    """
+    series = [Fraction(1, 4**n * math.factorial(2 * n + 1)) for n in range(terms)]
+    power = [Fraction(1)]
+    for n in range(1, terms):
+        products = ((Fraction(k, 2) - n) * series[k] * power[n - k] for k in range(1, n + 1))
+        power.append(sum(products, Fraction(0)) / n)
+    return tuple(float(c) for c in power)
+
+
+# The coefficients fall by a factor of about 50 per term, so 13 terms reach double precision for
+# v0 <= 1.
+_T_EXPANSION = _t_expansion_coefficients(13)
+
+
+def _t_tail_expansion(
+    t: npt.NDArray[np.float64], dof: npt.NDArray[np.float64]
+) -> npt.NDArray[np.float64]:
+    """Return P(T > t) for t > 0 and many degrees of freedom, as a series in erfc.
+
+    With a = df / 2 and m = a - 1/4, the substitution x = exp(-v) in the integral of
+    I_x(a, 1/2) gives
+
+        P(T > t) = Gamma(a + 1/2) / (2 sqrt(pi) Gamma(a))
+                   * integral from v0 to inf of exp(-m v) v**(-1/2) g(v) dv,
+
+    with v0 = ln(1 + t**2 / df) and g(v) = (v / (2 sinh(v / 2)))**(1/2), an even function that
+    is analytic for |v| < 2 pi. Integrating its power series term by term gives
+
+        P(T > t) = R erfc(sqrt(z)) / 2 * [1 + sum_k g_k m**(-2k) G_k],  z = m v0,
+
+    with R = Gamma(a + 1/2) / (Gamma(a) sqrt(m)) and G_k = Gamma(2k + 1/2, z) / Gamma(1/2, z),
+    which the recurrence Gamma(s + 1, z) = s Gamma(s, z) + z**s exp(-z) gives from
+    Gamma(1/2, z) = sqrt(pi) erfc(sqrt(z)). The terms are about g_k v0**(2k) for a large z and
+    g_k m**(-2k) Gamma(2k + 1/2) / sqrt(pi) for a small one, so the series converges fast for
+    v0 <= 1 and m >= 50. The part of the integral beyond v = 2 pi, where the power series of g
+    diverges, is below exp(-2 pi m) and does not count.
+    """
+    a = dof / 2
+    m = a - 0.25
+    z = m * np.log1p(t * t / dof)
+    upper = _erfc(np.sqrt(z))
+    # ln R = a ln(1 + 1 / (2a)) - 1/2 - ln(1 - 1 / (4a)) / 2 from Stirling's series, with the
+    # first two terms as a [ln(1 + u) - u] at u = 1 / (2a), which does not cancel.
+    log_ratio = (
+        a * _log1pmx(0.5 / a)
+        - 0.5 * np.log1p(-0.25 / a)
+        + _stirling_correction(a + 0.5)
+        - _stirling_correction(a)
+    )
+    # exp(-z) / Gamma(1/2, z); erfc underflows only together with the result.
+    seen = upper > 0
+    step = np.where(seen, np.exp(-z) / (math.sqrt(math.pi) * np.where(seen, upper, 1.0)), 0.0)
+    ratio = np.ones_like(z)
+    total = np.ones_like(z)
+    order, power = 0.5, np.sqrt(z)
+    for k, coefficient in enumerate(_T_EXPANSION[1:], start=1):
+        for _ in range(2):
+            ratio = order * ratio + step * power
+            power = power * z
+            order += 1
+        total += coefficient * m ** (-2 * k) * ratio
+    return 0.5 * np.exp(log_ratio) * upper * total
 
 
 def chi2_sf(statistic: float, dof: int) -> float:

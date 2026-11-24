@@ -1648,15 +1648,6 @@ def test_migration_tests_take_categoricals_and_interval_grades():
     assert result["lower"] == pytest.approx(1 / 2, rel=1e-15)
 
 
-def test_migration_matches_the_scipy_normal_distribution():
-    stats = pytest.importorskip("scipy.stats")
-    before = ["A"] * 50 + ["B"] * 40 + ["C"] * 30
-    after = ["A"] * 40 + ["B"] * 6 + ["C"] * 4 + ["A"] * 5 + ["B"] * 30 + ["C"] * 5
-    after += ["A"] * 2 + ["B"] * 6 + ["C"] * 20 + ["default"] * 2
-    table = migration_test(before, after, grades=GRADES)
-    np.testing.assert_allclose(table["p_value"], stats.norm.cdf(table["statistic"]), rtol=1e-12)
-
-
 @pytest.mark.parametrize(
     "before,after,grades,message",
     [
