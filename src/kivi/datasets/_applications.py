@@ -25,7 +25,10 @@ _INCUMBENT_NOISE = 0.3
 
 
 def make_applications(
-    *, n_applicants: int = 10000, rng: int | np.random.Generator | None = None
+    *,
+    n_applicants: int = 10000,
+    include_risk: bool = False,
+    rng: int | np.random.Generator | None = None,
 ) -> pd.DataFrame:
     """Generate synthetic loan applications with an approval decision.
 
@@ -39,6 +42,10 @@ def make_applications(
     ----------
     n_applicants : int, default 10000
         Number of applications.
+    include_risk : bool, default False
+        If True, append the hidden risk factor as the last column ``risk``.
+        Nothing else depends on it, so the same seed gives the same
+        applications with and without the column.
     rng : {None, int, numpy.random.Generator}, optional
         Seed or generator passed to `numpy.random.default_rng`. The global
         NumPy random state is not used, so the same seed always returns the
@@ -52,13 +59,15 @@ def make_applications(
     Raises
     ------
     ValueError
-        If `n_applicants` is not a positive integer, or `rng` is not a seed
-        or generator that `numpy.random.default_rng` accepts.
+        If `n_applicants` is not a positive integer, `include_risk` is not
+        True or False, or `rng` is not a seed or generator that
+        `numpy.random.default_rng` accepts.
 
     See Also
     --------
     kivi.reject_inference.fuzzy_augmentation : Infer the outcomes of rejected applicants.
     make_loan_panel : Synthetic monthly history of a loan portfolio.
+    make_transactions : Synthetic account transactions of the applicants.
     load_bank : Real data with a binary target.
 
     Notes
@@ -80,13 +89,15 @@ def make_applications(
       whatever its PD: a debt-to-income ratio above 0.6 or an age below 21;
     - ``approved``: True if ``incumbent_pd`` is below 0.15 and no policy
       rule declined the application;
-    - ``target``: 1 if the applicant defaults, else 0.
+    - ``target``: 1 if the applicant defaults, else 0;
+    - ``risk``: only with ``include_risk=True``, the hidden risk factor, a
+      standard normal draw that is not rounded.
 
     The default probability rises with the debt-to-income ratio and the
     number of inquiries, falls with age and income, and is higher for
     renters and for temporary and self-employed applicants. A hidden risk
-    factor that no column holds also raises it, and the number of inquiries
-    rises with that factor.
+    factor that no column holds, unless ``include_risk`` is True, also raises
+    it, and the number of inquiries rises with that factor.
 
     The incumbent scorecard weighs the features differently, ignores
     ``housing`` and, like an underwriter with a credit bureau report, sees
@@ -98,7 +109,9 @@ def make_applications(
     In practice, the outcome is known only for approved applicants. Here
     ``target`` is also given for rejected applicants, but only to evaluate
     reject inference: a model must not be fitted on it, or reject inference
-    would be pointless.
+    would be pointless. The same holds for ``risk``: it is the information
+    that no data set holds, given only to simulate data that depend on it, as
+    `make_transactions` does.
 
     Examples
     --------
@@ -119,6 +132,10 @@ def make_applications(
     True           False      763  0.274
     """
     n_applicants = _validation.check_count(n_applicants, "n_applicants")
+    if not isinstance(include_risk, (bool, np.bool_)):
+        raise ValueError(
+            f"include_risk must be True or False, got {_validation.shown_argument(include_risk)}"
+        )
     rng = _validation.as_generator(rng)
 
     age = np.clip(np.round(rng.normal(40, 11, n_applicants)), 18, 75).astype(np.int64)
@@ -155,7 +172,7 @@ def make_applications(
     )
     incumbent_pd = np.round(_logistic(incumbent), 4)
     policy_decline = (debt_to_income > MAX_DEBT_TO_INCOME) | (age < MIN_AGE)
-    return pd.DataFrame(
+    applications = pd.DataFrame(
         {
             "age": age,
             "income": income,
@@ -169,6 +186,9 @@ def make_applications(
             "target": target,
         }
     )
+    if include_risk:
+        applications["risk"] = hidden
+    return applications
 
 
 def _logistic(log_odds: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
