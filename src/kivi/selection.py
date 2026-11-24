@@ -8,10 +8,21 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from . import _logit, _validation
+from . import _logit, _validation, metrics
 from ._logit import SeparationError
 
-__all__ = ["SeparationError", "correlation_filter", "logistic_regression", "stepwise", "vif"]
+__all__ = [
+    "SeparationError",
+    "correlation_filter",
+    "logistic_regression",
+    "selection_path",
+    "stepwise",
+    "vif",
+    "vif_filter",
+]
+
+# VIFs within this relative difference of the largest tie, as other statistics in kivi do.
+_TIE = 1e-10
 
 
 def correlation_filter(
@@ -128,7 +139,7 @@ def correlation_filter(
             f"threshold must be between 0 and 1, got {_validation.shown_argument(threshold)}"
         )
     frame, values = _as_frame(X)
-    _check_not_constant(frame, values, "its correlation is undefined")
+    _check_not_constant(frame.columns, values, "its correlation is undefined")
     order = np.argsort(-_priority(priority, frame.columns), kind="stable")
     if method == "pearson":
         matrix = np.corrcoef(values, rowvar=False)
@@ -173,6 +184,7 @@ def vif(X: pd.DataFrame | npt.ArrayLike) -> pd.Series:
 
     See Also
     --------
+    vif_filter : Drop the variable with the largest VIF until no VIF exceeds a threshold.
     correlation_filter : Drop one variable of each strongly correlated pair.
     logistic_regression : Fit the scorecard model.
 
@@ -225,7 +237,152 @@ def vif(X: pd.DataFrame | npt.ArrayLike) -> pd.Series:
     Name: vif, dtype: float64
     """
     frame, values = _as_frame(X)
-    _check_not_constant(frame, values, "its VIF is undefined")
+    _check_not_constant(frame.columns, values, "its VIF is undefined")
+    return pd.Series(_vif(values), index=frame.columns.rename("variable"), name="vif")
+
+
+def vif_filter(
+    X: pd.DataFrame | npt.ArrayLike,
+    *,
+    threshold: float = 5.0,
+    priority: npt.ArrayLike | None = None,
+) -> pd.Index:
+    """Drop the variable with the largest VIF until no VIF exceeds a threshold.
+
+    Each round computes the `vif` of the variables that are still kept. If
+    the largest is at most `threshold`, they are all kept and the
+    elimination stops; otherwise the variable with the largest VIF is
+    dropped and the next round starts. A single variable, whose VIF is 1, is
+    always kept.
+
+    Parameters
+    ----------
+    X : pandas.DataFrame or array_like
+        Two-dimensional numeric values with one column per variable, such as
+        WOE values from `kivi.woe.woe_transform`.
+    threshold : float, default 5.0
+        Largest VIF allowed for a kept variable, a finite number greater
+        than 1.
+    priority : array_like, optional
+        One number per column, such as its information value, matched to the
+        columns as in `correlation_filter`: a pandas Series by label, other
+        inputs by position. Of several variables whose VIFs tie for the
+        largest, such as variables with infinite VIFs, the one with the
+        lowest priority is dropped. Ties of priority, and every tie when
+        `priority` is omitted, drop the first of the tied variables in the
+        column order.
+
+    Returns
+    -------
+    pandas.Index
+        Labels of the kept columns, in the order of `X`. Column positions
+        when `X` is not a DataFrame.
+
+    Raises
+    ------
+    ValueError
+        If `X` is not two-dimensional, has fewer than 2 rows or no columns,
+        repeats a column label, or has a column that is not numeric, contains
+        missing or infinite values or is constant; if `threshold` is not a
+        finite number greater than 1; or if `priority` does not give one
+        number for every column.
+
+    See Also
+    --------
+    vif : Compute the VIFs of one set of variables.
+    correlation_filter : Drop one variable of each strongly correlated pair.
+
+    Notes
+    -----
+    Dropping a variable lowers the VIFs of the variables that it helped to
+    explain, so a variable whose VIF exceeds `threshold` in the first round
+    may be kept in the end. Each round therefore drops a single variable.
+
+    A variable that is a linear combination of the others has an infinite
+    VIF, and so does every other variable of that combination (see `vif`).
+    Such variables tie, and dropping one of them, the one with the lowest
+    priority, usually leaves the others with finite VIFs. VIFs within a
+    relative :math:`10^{-10}` of the largest count as tied, so that rounding
+    does not decide between variables whose VIFs are equal, such as the two
+    variables of a pair.
+
+    Examples
+    --------
+    ``c`` is nearly the sum of ``a`` and ``b``, so all three have large
+    VIFs, and ``d`` is unrelated to them:
+
+    >>> import pandas as pd
+    >>> from kivi.selection import vif, vif_filter
+    >>> X = pd.DataFrame({
+    ...     "a": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
+    ...     "b": [2.0, 1.0, 4.0, 3.0, 6.0, 5.0],
+    ...     "c": [3.2, 2.9, 7.1, 6.8, 11.1, 11.0],
+    ...     "d": [1.0, -1.0, -1.0, 1.0, 1.0, -1.0],
+    ... })
+    >>> vif(X).round(1)
+    variable
+    a     577.8
+    b     952.8
+    c    2747.5
+    d       1.3
+    Name: vif, dtype: float64
+    >>> kept = vif_filter(X)
+    >>> kept.tolist()
+    ['a', 'b', 'd']
+    >>> vif(X[kept]).round(2)
+    variable
+    a    3.55
+    b    3.55
+    d    1.12
+    Name: vif, dtype: float64
+
+    Dropping ``c``, the variable with the largest VIF, leaves ``a`` and
+    ``b`` with VIFs below 5, although they were above 500 in the first
+    round.
+
+    The three variables of an exact linear combination all have an
+    infinite VIF. Without `priority`, the first of them is dropped; with
+    the information values as `priority`, the least predictive one is:
+
+    >>> Z = pd.DataFrame({"a": X["a"], "d": X["d"], "e": X["a"] + X["d"]})
+    >>> vif(Z)
+    variable
+    a    inf
+    d    inf
+    e    inf
+    Name: vif, dtype: float64
+    >>> vif_filter(Z).tolist()
+    ['d', 'e']
+    >>> vif_filter(Z, priority=pd.Series({"a": 0.3, "d": 0.1, "e": 0.2})).tolist()
+    ['a', 'e']
+    """
+    if (
+        isinstance(threshold, bool)
+        or not _validation.is_real(threshold)
+        or not 1 < threshold < np.inf
+    ):
+        raise ValueError(
+            "threshold must be a finite number greater than 1, got "
+            f"{_validation.shown_argument(threshold)}"
+        )
+    frame, values = _as_frame(X)
+    _check_not_constant(frame.columns, values, "its VIF is undefined")
+    rank = _priority(priority, frame.columns)
+    kept = np.arange(values.shape[1])
+    while len(kept) > 1:
+        factors = _vif(values[:, kept])
+        largest = factors.max()
+        if largest <= threshold:
+            break
+        # An infinite largest VIF ties only with the other infinite ones.
+        tied = np.flatnonzero(factors >= largest * (1 - _TIE))
+        # np.argmin returns the first of equal priorities, the first tied column.
+        kept = np.delete(kept, tied[np.argmin(rank[kept[tied]])])
+    return frame.columns[kept]
+
+
+def _vif(values: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+    """Return the VIF of every column of non-constant, finite `values`."""
     centered = values - values.mean(axis=0)
     # With unit-length centred columns Z, Z'Z is the correlation matrix and its inverse,
     # whose diagonal holds the VIFs, is V diag(1 / s^2) V' from the SVD Z = U diag(s) V'.
@@ -240,7 +397,7 @@ def vif(X: pd.DataFrame | npt.ArrayLike) -> pd.Series:
     # combination of the others, and so is a column whose 1 - R^2 = 1 / VIF is at most eps.
     null = (vt[rank:] ** 2).sum(axis=0)
     result[(null > columns * eps) | (result >= 1 / eps)] = np.inf
-    return pd.Series(result, index=frame.columns.rename("variable"), name="vif")
+    return result
 
 
 def logistic_regression(
@@ -377,7 +534,7 @@ def logistic_regression(
     x          2.1972  1.6330  1.3455   0.1785
     """
     frame, values, labels, mass = _model_inputs(X, target, weights)
-    _check_independent(frame, values, weighted=mass is not None)
+    _check_independent(frame.columns, values, weighted=mass is not None)
     result = _fit(_with_intercept(values), labels, frame.columns, mass)
     if not result.converged:
         _warn_not_converged(result, stacklevel=2)
@@ -468,6 +625,7 @@ def stepwise(
     See Also
     --------
     logistic_regression : Fit the selected model and read its coefficients.
+    selection_path : Fit the models of a fixed order of variables.
     correlation_filter : Drop strongly correlated variables first.
 
     Notes
@@ -530,7 +688,7 @@ def stepwise(
         )
     frame, values, labels, mass = _model_inputs(X, target, weights)
     # Every subset of independent columns is independent, so candidate models have full rank.
-    _check_independent(frame, values, weighted=mass is not None)
+    _check_independent(frame.columns, values, weighted=mass is not None)
     design = _with_intercept(values)
     selected = list(range(values.shape[1])) if direction == "backward" else []
     visited = {frozenset(selected)}
@@ -549,6 +707,288 @@ def stepwise(
         selected.append(entering[0])
         visited.add(frozenset(selected))
     return frame.columns[np.sort(np.array(selected, dtype=np.intp))]
+
+
+def selection_path(
+    X: pd.DataFrame | npt.ArrayLike,
+    target: npt.ArrayLike,
+    *,
+    order: abc.Sequence[abc.Hashable] | npt.ArrayLike | None = None,
+    validation: tuple[pd.DataFrame | npt.ArrayLike, npt.ArrayLike] | None = None,
+    weights: npt.ArrayLike | None = None,
+) -> pd.DataFrame:
+    r"""Fit a logistic regression on each leading part of an order of variables.
+
+    Step :math:`k` is the logistic regression of `target` on the first
+    :math:`k` variables of `order`, fitted as `logistic_regression` fits it.
+    Each step reports how well its model ranks the development sample and,
+    optionally, a validation sample, and the largest p-value and the
+    smallest coefficient of its variables, so that the table shows where
+    adding variables stops paying.
+
+    Parameters
+    ----------
+    X : pandas.DataFrame or array_like
+        Two-dimensional numeric values with one column per candidate
+        variable, such as WOE values from `kivi.woe.woe_transform`.
+    target : array_like
+        Binary labels, with 1 indicating the event. If `X` is a DataFrame and
+        `target` a Series, they must have identical indices; otherwise they
+        are matched by position.
+    order : sequence, optional
+        The variables in the order in which they enter, such as the columns
+        sorted by information value: labels of the columns of `X`, or column
+        positions when `X` is not a DataFrame. It may leave columns out and
+        gives one step per entry. Default every column, in the order of `X`.
+    validation : tuple, optional
+        A validation sample ``(X_valid, target_valid)``, scored with the
+        models fitted on `X`. ``X_valid`` holds the variables of `order`: a
+        DataFrame with their labels when `X` is a DataFrame, otherwise
+        values with as many columns as `X`, matched by position.
+        ``target_valid`` holds both classes and is matched to ``X_valid`` as
+        `target` is to `X`.
+    weights : array_like, optional
+        Non-negative frequency weight of each row of `X`, matched like
+        `target`, as in `logistic_regression`. The fits and the metrics on
+        `X` use them, so integer weights give the same table as repeating
+        rows. Each row of the validation sample counts once.
+
+    Returns
+    -------
+    pandas.DataFrame
+        One row per step, in an index named ``step`` that counts the steps
+        from 1, with the columns:
+
+        - ``variable``: the variable that the step adds;
+        - ``auc``, ``gini`` and ``ks``: the area under the ROC curve, the
+          Gini coefficient and the KS statistic of the fitted probability
+          on `X`, as `kivi.metrics.roc_auc`, `kivi.metrics.gini` and
+          `kivi.metrics.ks` compute them;
+        - ``max_p_value``: the largest Wald p-value of the step's variables,
+          without the intercept;
+        - ``min_coefficient``: the smallest coefficient of the step's
+          variables, without the intercept;
+        - ``validation_auc``, ``validation_gini`` and ``validation_ks``,
+          only with `validation`: the same metrics on the validation sample.
+
+    Raises
+    ------
+    SeparationError
+        If the model of a step separates the classes; the message names the
+        step and the variable that it adds.
+    ValueError
+        If `X`, `target` or `weights` is invalid as described for
+        `logistic_regression`, where the columns before a variable are those
+        before it in `order`; if `order` is not a sequence of distinct
+        columns of `X`; or if `validation` is not a pair whose values have
+        the variables of `order` and are numeric and finite, and whose
+        labels are 0 and 1 with both classes present.
+
+    Warns
+    -----
+    RuntimeWarning
+        If the model of a step does not converge for a reason other than
+        separation.
+
+    See Also
+    --------
+    stepwise : Select the variables of the model by their p-values.
+    logistic_regression : Fit the model of one step and read its
+        coefficients.
+    kivi.metrics.roc_auc : Compute the AUC of a score.
+
+    Notes
+    -----
+    The steps add the variables in a fixed order; nothing is selected or
+    removed on the way. The order comes from outside the model, usually
+    from the univariate strength of each variable, as in the forward
+    procedure of many scorecard tools. `stepwise` instead chooses each
+    variable by its p-value in the model.
+
+    The AUC on the development sample almost always rises with every
+    variable, because each model is fitted to that sample. On a validation
+    sample it stops rising, or falls, once the variables add more noise
+    than information, which is where the order is usually cut. A
+    ``min_coefficient`` at or below 0 marks a model in which a WOE-encoded
+    variable works against its own event rates, which ``stepwise`` with
+    ``positive=True`` rules out.
+
+    The metrics are computed from the linear predictor
+    :math:`\hat\beta_0 + \sum_j \hat\beta_j x_j`. It ranks the rows as the
+    fitted probability does, without the ties that would appear where
+    probabilities close to 0 or 1 round to the same number.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from kivi.datasets import load_bank
+    >>> from kivi.selection import selection_path
+    >>> from kivi.woe import woe_table, woe_transform
+    >>> data = load_bank()
+    >>> development, validation = data.iloc[:3000], data.iloc[3000:]
+    >>> columns = ["poutcome", "contact", "housing", "loan", "marital", "default"]
+    >>> tables = {
+    ...     column: woe_table(development[column], development["target"]) for column in columns
+    ... }
+    >>> def encode(sample):
+    ...     return pd.DataFrame(
+    ...         {column: woe_transform(sample[column], tables[column]) for column in columns}
+    ...     )
+    >>> path = selection_path(
+    ...     encode(development),
+    ...     development["target"],
+    ...     validation=(encode(validation), validation["target"]),
+    ... )
+    >>> path[["variable", "auc", "validation_auc", "max_p_value", "min_coefficient"]].round(4)
+          variable     auc  validation_auc  max_p_value  min_coefficient
+    step
+    1     poutcome  0.6065          0.6162       0.0000           1.0000
+    2      contact  0.6548          0.6758       0.0000           0.7697
+    3      housing  0.6781          0.6956       0.0000           0.6702
+    4         loan  0.6918          0.7083       0.0017           0.6783
+    5      marital  0.7070          0.7070       0.0021           0.6602
+    6      default  0.7078          0.7076       0.7327          -1.3508
+
+    The AUC on the development sample rises with every step, while on the
+    validation sample it peaks at step 4. ``default`` adds nothing: its
+    p-value is 0.73 and its coefficient negative.
+    """
+    frame, values, labels, mass = _model_inputs(X, target, weights)
+    positions = _order(order, frame.columns)
+    columns = frame.columns[positions]
+    values = values[:, positions]
+    _check_independent(columns, values, weighted=mass is not None)
+    if validation is not None:
+        validation_values, validation_labels = _validation_sample(
+            validation, isinstance(X, pd.DataFrame), frame.columns, positions
+        )
+    steps = len(positions)
+    results = np.empty((steps, 8))
+    for step in range(1, steps + 1):
+        # The design of logistic_regression on the same columns, so that the fits agree exactly.
+        design = _with_intercept(values[:, :step])
+        try:
+            fitted = _fit(design, labels, columns[:step], mass, step=step)
+        except SeparationError:
+            raise SeparationError(
+                f"the model of step {step}, which adds X column "
+                f"{_validation.shown(columns[step - 1])}, separates the classes of target, so its "
+                "maximum likelihood estimates do not exist; end order before that column or merge "
+                "its bins"
+            ) from None
+        if not fitted.converged:
+            _warn_not_converged(fitted, stacklevel=2, step=step)
+        results[step - 1, :5] = (
+            *_ranking(_linear_predictor(values, fitted.coef), labels, mass),
+            fitted.p_value[1:].max(),
+            fitted.coef[1:].min(),
+        )
+        if validation is not None:
+            results[step - 1, 5:] = _ranking(
+                _linear_predictor(validation_values, fitted.coef), validation_labels, None
+            )
+    names = ["auc", "gini", "ks", "max_p_value", "min_coefficient"]
+    if validation is not None:
+        names += ["validation_auc", "validation_gini", "validation_ks"]
+    table = pd.DataFrame(
+        results[:, : len(names)], index=pd.RangeIndex(1, steps + 1, name="step"), columns=names
+    )
+    table.insert(0, "variable", columns)
+    return table
+
+
+def _linear_predictor(
+    values: npt.NDArray[np.float64], coef: npt.NDArray[np.float64]
+) -> npt.NDArray[np.float64]:
+    """Return the intercept ``coef[0]`` plus the first columns of `values` times ``coef[1:]``."""
+    # Element-wise products and sums, unlike a matrix product, give identical rows identical
+    # scores, so that their ties count as ties.
+    score = np.full(len(values), coef[0])
+    for column, slope in enumerate(coef[1:]):
+        score += slope * values[:, column]
+    return score
+
+
+def _ranking(
+    score: npt.NDArray[np.float64],
+    labels: npt.NDArray[np.float64],
+    mass: npt.NDArray[np.float64] | None,
+) -> tuple[float, float, float]:
+    """Return the AUC, Gini and KS of a score, as `kivi.metrics` computes them."""
+    auc = metrics.roc_auc(score, labels, weights=mass)
+    # kivi.metrics.gini is 2 * roc_auc - 1.
+    return auc, 2 * auc - 1, metrics.ks(score, labels, weights=mass)
+
+
+def _order(
+    order: abc.Sequence[abc.Hashable] | npt.ArrayLike | None, columns: pd.Index
+) -> npt.NDArray[np.intp]:
+    """Return the positions in `columns` of the labels of `order`, every column by default."""
+    if order is None:
+        return np.arange(len(columns))
+    if (
+        isinstance(order, (str, bytes))
+        or not isinstance(order, (abc.Sequence, pd.Index, pd.Series, np.ndarray))
+        or (isinstance(order, np.ndarray) and order.ndim != 1)
+    ):
+        raise ValueError(f"order must be a sequence of X column labels, got {type(order).__name__}")
+    labels = list(order)
+    if not labels:
+        raise ValueError("order must name at least one column of X, got []")
+    positions = []
+    for label in labels:
+        try:
+            position = columns.get_loc(label)
+        except (KeyError, TypeError, pd.errors.InvalidIndexError):
+            raise ValueError(
+                f"order must name columns of X, got {_validation.shown(label)}"
+            ) from None
+        if position in positions:
+            raise ValueError(f"order must not repeat a column, got {_validation.shown(label)}")
+        positions.append(position)
+    return np.array(positions, dtype=np.intp)
+
+
+def _validation_sample(
+    validation: tuple[pd.DataFrame | npt.ArrayLike, npt.ArrayLike],
+    by_label: bool,
+    columns: pd.Index,
+    positions: npt.NDArray[np.intp],
+) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+    """Return the values of the variables of `positions` and the labels of `validation`."""
+    if not isinstance(validation, (tuple, list)) or len(validation) != 2:  # type: ignore[redundant-expr]  # rejects other values
+        raise ValueError(f"validation must be a pair (X, target), got {type(validation).__name__}")
+    X, target = validation
+    # The checks of the development sample apply, with messages that name the validation sample.
+    try:
+        if by_label:
+            if not isinstance(X, pd.DataFrame):
+                raise ValueError(f"X must be a DataFrame, as X is, got {type(X).__name__}")
+            names = columns[positions]
+            absent = names[~names.isin(X.columns)]
+            if len(absent):
+                raise ValueError(f"X has no column {_validation.shown(absent[0])}")
+            frame, values = _as_frame(X[names])
+        else:
+            frame, values = _as_frame(X)
+            if frame.shape[1] != len(columns):
+                raise ValueError(
+                    f"X must have {len(columns)} columns, as X has, got {frame.shape[1]}"
+                )
+            values = values[:, positions]
+        if isinstance(X, pd.DataFrame) and isinstance(target, pd.Series):
+            if not X.index.equals(target.index):
+                raise ValueError("X and target must have identical indices")
+        series = _validation.as_series(target, "target")
+        if len(series) != len(frame):
+            raise ValueError(
+                "X and target must have the same number of rows, got "
+                f"{len(frame)} and {len(series)}"
+            )
+        labels = _validation.binary_labels(series).astype(float)
+    except ValueError as error:
+        raise ValueError(f"validation {error}") from None
+    return values, labels
 
 
 def _remove(
@@ -645,21 +1085,30 @@ def _fit(
     columns: pd.Index,
     mass: npt.NDArray[np.float64] | None,
     start: npt.NDArray[np.float64] | None = None,
+    *,
+    step: int | None = None,
 ) -> _logit.LogitFit:
-    """Fit a model on the intercept and `columns`, naming the column of a singular fit."""
+    """Fit a model on the intercept and `columns`, naming the column of a singular fit.
+
+    `step` names the step of `selection_path` in the message.
+    """
     try:
         return _warm_fit(design, labels, mass, start)
     except _logit.SingularError as error:
         label = "intercept" if error.column == 0 else columns[error.column - 1]
+        model = "" if step is None else f" in the model of step {step}"
         raise ValueError(
             f"X column {_validation.shown(label)} is so close to a linear combination of the "
-            "intercept and the other columns that its coefficient cannot be estimated"
+            f"intercept and the other columns that its coefficient cannot be estimated{model}"
         ) from None
 
 
-def _warn_not_converged(fitted: _logit.LogitFit, stacklevel: int) -> None:
+def _warn_not_converged(
+    fitted: _logit.LogitFit, stacklevel: int, *, step: int | None = None
+) -> None:
+    model = "" if step is None else f" of step {step}"
     warnings.warn(
-        f"logistic regression did not converge after {fitted.n_iter} iterations",
+        f"logistic regression{model} did not converge after {fitted.n_iter} iterations",
         RuntimeWarning,
         stacklevel=stacklevel + 1,
     )
@@ -785,22 +1234,24 @@ def _priority(priority: npt.ArrayLike | None, columns: pd.Index) -> npt.NDArray[
 
 
 def _check_not_constant(
-    frame: pd.DataFrame, values: npt.NDArray[np.float64], reason: str, where: str = ""
+    columns: pd.Index, values: npt.NDArray[np.float64], reason: str, where: str = ""
 ) -> None:
+    """Require every column of `values`, labelled by `columns`, to vary."""
     constant = np.ptp(values, axis=0) == 0
     if constant.any():
-        label = frame.columns[int(np.argmax(constant))]
+        label = columns[int(np.argmax(constant))]
         raise ValueError(f"X column {_validation.shown(label)} is constant{where}; {reason}")
 
 
 def _check_independent(
-    frame: pd.DataFrame, values: npt.NDArray[np.float64], *, weighted: bool
+    columns: pd.Index, values: npt.NDArray[np.float64], *, weighted: bool
 ) -> None:
+    """Require the columns of `values` to vary and to be independent of those before them."""
     where = " on the rows with positive weight" if weighted else ""
-    _check_not_constant(frame, values, "it cannot be told apart from the intercept", where)
+    _check_not_constant(columns, values, "it cannot be told apart from the intercept", where)
     dependent = _logit.dependent_column(_with_intercept(values))
     if dependent is not None:
         raise ValueError(
-            f"X column {_validation.shown(frame.columns[dependent - 1])} is a linear combination "
+            f"X column {_validation.shown(columns[dependent - 1])} is a linear combination "
             f"of the intercept and the columns before it{where}"
         )

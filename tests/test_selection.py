@@ -8,12 +8,15 @@ import pytest
 
 from kivi import _logit, selection
 from kivi.datasets import load_bank
+from kivi.metrics import gini, ks, roc_auc
 from kivi.selection import (
     SeparationError,
     correlation_filter,
     logistic_regression,
+    selection_path,
     stepwise,
     vif,
+    vif_filter,
 )
 from kivi.woe import woe_table, woe_transform
 
@@ -227,8 +230,9 @@ def test_logistic_regression_does_not_mutate_inputs():
     ],
 )
 def test_invalid_X(X, message):
-    with pytest.raises(ValueError, match=re.escape(message)):
-        logistic_regression(X, BINARY_Y)
+    for function in (logistic_regression, selection_path):
+        with pytest.raises(ValueError, match=re.escape(message)):
+            function(X, BINARY_Y)
 
 
 @pytest.mark.parametrize(
@@ -242,8 +246,9 @@ def test_invalid_X(X, message):
     ],
 )
 def test_invalid_target(target, message):
-    with pytest.raises(ValueError, match=re.escape(message)):
-        logistic_regression(pd.DataFrame({"x": BINARY_X}), target)
+    for function in (logistic_regression, selection_path):
+        with pytest.raises(ValueError, match=re.escape(message)):
+            function(pd.DataFrame({"x": BINARY_X}), target)
 
 
 def test_logistic_regression_rejects_separated_classes():
@@ -441,11 +446,187 @@ def test_vif_is_infinite_where_r_squared_rounds_to_one():
     assert np.isfinite(near).all() and (near > 1e11).all()
 
 
-@pytest.mark.parametrize("function", [vif, correlation_filter])
+@pytest.mark.parametrize("function", [vif, vif_filter, correlation_filter])
 def test_vif_and_filter_need_two_rows(function):
     for rows in (0, 1):
         with pytest.raises(ValueError, match=f"X must have at least 2 rows, got {rows}"):
             function(pd.DataFrame({"a": np.zeros(rows), "b": np.ones(rows)}))
+
+
+# --- vif_filter ---------------------------------------------------------------------------
+
+# c is nearly a + b, and d is unrelated to them.
+NEAR_SUM = pd.DataFrame(
+    {
+        "a": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
+        "b": [2.0, 1.0, 4.0, 3.0, 6.0, 5.0],
+        "c": [3.2, 2.9, 7.1, 6.8, 11.1, 11.0],
+        "d": [1.0, -1.0, -1.0, 1.0, 1.0, -1.0],
+    }
+)
+
+
+def reference_vif_filter(X, threshold, priority):
+    """Drop the largest VIF of the kept columns, by repeated calls of vif, and log each round."""
+    kept, rounds = list(X.columns), []
+    while len(kept) > 1:
+        factors = vif(X[kept])
+        rounds.append(factors)
+        if factors.max() <= threshold:
+            break
+        tied = factors.index[factors >= factors.max() * (1 - 1e-10)]
+        lowest = min(priority[label] for label in tied)
+        kept.remove(next(label for label in tied if priority[label] == lowest))
+    return kept, rounds
+
+
+def test_vif_filter_drops_the_largest_vif_until_none_exceeds_the_threshold():
+    factors = vif(NEAR_SUM)
+    assert factors.idxmax() == "c" and (factors[["a", "b", "c"]] > 500).all()
+    kept = vif_filter(NEAR_SUM)
+    assert isinstance(kept, pd.Index) and kept.tolist() == ["a", "b", "d"]
+    # Dropping c brings a and b from above 500 to below 5 in one round.
+    assert (vif(NEAR_SUM[kept]) <= 5).all()
+    assert vif(NEAR_SUM[kept])["a"] > 3
+    assert vif_filter(NEAR_SUM, threshold=3).tolist() == ["b", "d"]
+    assert vif_filter(NEAR_SUM, threshold=1e4).tolist() == ["a", "b", "c", "d"]
+
+
+def test_vif_filter_rounds_follow_repeated_vif_calls():
+    rng = np.random.default_rng(4)
+    base = rng.normal(size=(60, 3))
+    X = pd.DataFrame(
+        {
+            "a": base[:, 0],
+            "b": base[:, 1],
+            "c": base[:, 0] + base[:, 1] + rng.normal(scale=0.3, size=60),
+            "d": base[:, 2],
+            "e": base[:, 2] - base[:, 0] + rng.normal(scale=0.2, size=60),
+            "f": base[:, 0] + rng.normal(scale=0.5, size=60),
+        }
+    )
+    priority = pd.Series(rng.random(6), index=X.columns)
+    results = set()
+    for threshold in [1.1, 2.0, 5.0, 10.0, 30.0, 60.0]:
+        expected, rounds = reference_vif_filter(X, threshold, priority)
+        assert vif_filter(X, threshold=threshold, priority=priority).tolist() == expected
+        assert rounds[-1].max() <= threshold
+        results.add(tuple(expected))
+    # The thresholds stop the elimination after 0, 1, 2 and 3 rounds.
+    assert len(results) == 4
+
+
+def test_vif_filter_drops_an_exact_combination_by_priority():
+    Z = pd.DataFrame({"a": NEAR_SUM["a"], "d": NEAR_SUM["d"], "e": NEAR_SUM["a"] + NEAR_SUM["d"]})
+    np.testing.assert_equal(vif(Z).to_numpy(), np.inf)
+    # The three infinite VIFs tie: without priority the first is dropped.
+    assert vif_filter(Z).tolist() == ["d", "e"]
+    by_label = pd.Series({"e": 0.2, "a": 0.3, "d": 0.1})
+    assert vif_filter(Z, priority=by_label).tolist() == ["a", "e"]
+    assert vif_filter(Z, priority=[0.3, 0.1, 0.2]).tolist() == ["a", "e"]
+    assert vif_filter(Z, priority=np.array([0.1, 0.3, 0.2])).tolist() == ["d", "e"]
+    # Infinite VIFs go before any finite VIF, however large.
+    X = NEAR_SUM.assign(e=NEAR_SUM["a"] + NEAR_SUM["d"])
+    assert np.isinf(vif(X)[["a", "d", "e"]]).all() and np.isfinite(vif(X)[["b", "c"]]).all()
+    priority = pd.Series({"a": 0.9, "b": 0.1, "c": 0.2, "d": 0.8, "e": 0.3})
+    assert vif_filter(X, priority=priority).tolist() == ["a", "b", "d"]
+
+
+def test_vif_filter_ties_drop_the_lowest_priority_then_the_first_column():
+    # Both columns of a pair have the VIF 1 / (1 - 0.9^2) = 5.26.
+    X = pd.DataFrame({"a": [1.0, 2.0, 3.0, 4.0, 5.0], "b": [1.0, 2.0, 3.0, 5.0, 4.0]})
+    assert vif_filter(X).tolist() == ["b"]
+    assert vif_filter(X[["b", "a"]]).tolist() == ["a"]
+    assert vif_filter(X, priority=[1.0, 1.0]).tolist() == ["b"]
+    assert vif_filter(X, priority=[1.0, 2.0]).tolist() == ["b"]
+    assert vif_filter(X, priority=[2.0, 1.0]).tolist() == ["a"]
+    assert vif_filter(X, threshold=5.3).tolist() == ["a", "b"]
+
+
+def test_vif_filter_ties_do_not_depend_on_rounding():
+    # The VIFs of a pair are equal, but rounding usually makes them differ in the last digits;
+    # look for such a pair, whose tie must still follow the priority.
+    rng = np.random.default_rng(5)
+    for _ in range(100):
+        a = rng.normal(size=20)
+        X = pd.DataFrame({"a": a, "b": a + rng.normal(scale=0.3, size=20)})
+        factors = vif(X)
+        assert factors["a"] == pytest.approx(factors["b"], rel=1e-12)
+        if factors["a"] != factors["b"]:
+            break
+    threshold = 1 + (factors.min() - 1) / 2
+    assert vif_filter(X, threshold=threshold, priority=[2.0, 1.0]).tolist() == ["a"]
+    assert vif_filter(X, threshold=threshold, priority=[1.0, 2.0]).tolist() == ["b"]
+    assert vif_filter(X, threshold=threshold).tolist() == ["b"]
+
+
+def test_vif_filter_keeps_a_vif_equal_to_the_threshold():
+    X = pd.DataFrame({"a": [1.0, 2.0, 3.0, 4.0, 5.0], "b": [1.0, 2.0, 3.0, 5.0, 4.0]})
+    assert vif_filter(X, threshold=float(vif(X).max())).tolist() == ["a", "b"]
+
+
+def test_vif_filter_stops_at_one_column():
+    a = np.array([1.0, 2.0, 4.0, 3.0])
+    X = pd.DataFrame({"a": a, "b": 2 * a, "c": 3 * a - 1})
+    assert vif_filter(X).tolist() == ["c"]
+    assert vif_filter(X, priority=[3.0, 1.0, 2.0]).tolist() == ["a"]
+    # Two rows make any two columns collinear.
+    assert vif_filter(pd.DataFrame({"a": [1.0, 2.0], "b": [3.0, 1.0]})).tolist() == ["b"]
+    assert vif_filter(X[["a"]]).tolist() == ["a"]
+
+
+def test_vif_filter_returns_positions_for_arrays():
+    kept = vif_filter(NEAR_SUM.to_numpy())
+    assert kept.tolist() == [0, 1, 3]
+    assert vif_filter(NEAR_SUM.to_numpy().tolist()).tolist() == [0, 1, 3]
+    X = NEAR_SUM.rename_axis(columns="feature")
+    assert vif_filter(X).name == "feature"
+
+
+def test_vif_filter_on_bank_data(bank_woe):
+    X, target = bank_woe
+    factors = vif(X)
+    assert vif_filter(X).tolist() == X.columns.tolist()
+    # The lowest threshold that keeps every column keeps them all; below it, columns go.
+    assert vif_filter(X, threshold=factors.max()).tolist() == X.columns.tolist()
+    kept = vif_filter(X, threshold=1.05)
+    assert len(kept) < X.shape[1] and (vif(X[kept]) <= 1.05).all()
+    assert factors.idxmax() not in kept
+
+
+@pytest.mark.parametrize("threshold", [1, 1.0, 0.5, -2.0, np.inf, np.nan, True, "5", None])
+def test_vif_filter_rejects_threshold(threshold):
+    message = f"threshold must be a finite number greater than 1, got {threshold!r}"
+    with pytest.raises(ValueError, match=re.escape(message)):
+        vif_filter(NEAR_SUM, threshold=threshold)
+
+
+@pytest.mark.parametrize(
+    "priority,message",
+    [
+        (pd.Series({"a": 1.0, "b": 2.0}), "priority has no value for X column 'c'"),
+        ([1.0, 2.0], "priority must have one value per column of X, got 2 values for 4 columns"),
+        ([1.0, np.nan, 2.0, 3.0], "priority must contain numbers only, without missing values"),
+    ],
+)
+def test_vif_filter_rejects_priority(priority, message):
+    with pytest.raises(ValueError, match=re.escape(message)):
+        vif_filter(NEAR_SUM, priority=priority)
+
+
+def test_vif_filter_rejects_a_constant_column():
+    with pytest.raises(ValueError, match="X column 'k' is constant; its VIF is undefined"):
+        vif_filter(NEAR_SUM.assign(k=1.0))
+    with pytest.raises(ValueError, match="X column 'g' must be numeric"):
+        vif_filter(NEAR_SUM.assign(g="x"))
+
+
+def test_vif_filter_does_not_mutate_inputs():
+    X, priority = NEAR_SUM.copy(), pd.Series([0.4, 0.3, 0.2, 0.1], index=NEAR_SUM.columns)
+    before = priority.copy()
+    vif_filter(X, threshold=2.0, priority=priority)
+    pd.testing.assert_frame_equal(X, NEAR_SUM)
+    pd.testing.assert_series_equal(priority, before)
 
 
 # --- correlation_filter -------------------------------------------------------------------
@@ -733,6 +914,294 @@ def test_stepwise_rejects_non_boolean_positive(positive):
     assert stepwise(pd.DataFrame({"x": BINARY_X}), BINARY_Y, positive=np.True_).tolist() == []
 
 
+# --- selection_path -----------------------------------------------------------------------
+
+PATH_COLUMNS = ["variable", "auc", "gini", "ks", "max_p_value", "min_coefficient"]
+VALIDATION_COLUMNS = ["validation_auc", "validation_gini", "validation_ks"]
+
+
+def linear_predictor(X, table):
+    """The intercept plus the columns times their coefficients, column by column."""
+    coef = table["coef"].to_numpy()
+    score = np.full(len(X), coef[0])
+    for column, slope in zip(np.asarray(X, dtype=float).T, coef[1:], strict=True):
+        score += slope * column
+    return score
+
+
+@pytest.fixture(scope="module")
+def bank_split():
+    """WOE of the categorical bank variables fitted on a development sample, and a validation."""
+    data = load_bank()
+    development, validation = data.iloc[:3000], data.iloc[3000:]
+    columns = ["poutcome", "contact", "housing", "loan", "marital", "default"]
+    tables = {column: woe_table(development[column], development["target"]) for column in columns}
+
+    def encode(sample):
+        return pd.DataFrame(
+            {column: woe_transform(sample[column], tables[column]) for column in columns}
+        )
+
+    return encode(development), development["target"], encode(validation), validation["target"]
+
+
+def test_selection_path_rows_equal_logistic_regression_and_the_metrics(bank_split):
+    X, target, X_valid, target_valid = bank_split
+    order = ["contact", "poutcome", "default", "housing"]
+    path = selection_path(X, target, order=order, validation=(X_valid, target_valid))
+    assert path.columns.tolist() == PATH_COLUMNS + VALIDATION_COLUMNS
+    assert path.index.equals(pd.RangeIndex(1, 5, name="step"))
+    assert path["variable"].tolist() == order
+    for step, row in path.iterrows():
+        columns = order[:step]
+        table = logistic_regression(X[columns], target)
+        variables = table.drop("intercept")
+        assert row["max_p_value"] == variables["p_value"].max()
+        assert row["min_coefficient"] == variables["coef"].min()
+        score = linear_predictor(X[columns], table)
+        assert row["auc"] == roc_auc(score, target)
+        assert row["gini"] == gini(score, target)
+        assert row["ks"] == ks(score, target)
+        valid = linear_predictor(X_valid[columns], table)
+        assert row["validation_auc"] == roc_auc(valid, target_valid)
+        assert row["validation_gini"] == gini(valid, target_valid)
+        assert row["validation_ks"] == ks(valid, target_valid)
+        # The fitted probability ranks the rows as the linear predictor does.
+        probability = 1 / (1 + np.exp(-score))
+        assert row["auc"] == pytest.approx(roc_auc(probability, target), rel=1e-12)
+        assert row["ks"] == pytest.approx(ks(probability, target), rel=1e-12)
+
+
+def test_selection_path_on_bank_data(bank_split):
+    X, target, X_valid, target_valid = bank_split
+    path = selection_path(X, target, validation=(X_valid, target_valid))
+    assert path["variable"].tolist() == X.columns.tolist()
+    # The development AUC rises with every variable; the validation AUC peaks at loan.
+    assert path["auc"].is_monotonic_increasing
+    assert path["validation_auc"].idxmax() == 4
+    assert path.loc[6, "max_p_value"] > 0.5 and path.loc[6, "min_coefficient"] < 0
+    assert (path.loc[:5, "min_coefficient"] > 0).all()
+    np.testing.assert_allclose(path["gini"], 2 * path["auc"] - 1, rtol=0, atol=1e-15)
+    # A single WOE variable without smoothed cells has a coefficient of exactly 1.
+    assert path.loc[1, "min_coefficient"] == pytest.approx(1.0, rel=1e-10)
+
+
+def test_selection_path_order(bank_woe):
+    X, target = bank_woe
+    path = selection_path(X, target)
+    assert path.columns.tolist() == PATH_COLUMNS
+    assert path["variable"].tolist() == X.columns.tolist()
+    # A pandas Index, a Series or an array of labels works like a list; the steps follow it.
+    reordered = X.columns[::-1]
+    for order in (reordered, pd.Series(reordered), reordered.to_numpy(), tuple(reordered)):
+        result = selection_path(X, target, order=order)
+        assert result["variable"].tolist() == reordered.tolist()
+    # The last step has every variable, whatever the order.
+    pd.testing.assert_series_equal(
+        result.iloc[-1, 1:], path.iloc[-1, 1:], check_names=False, rtol=1e-9
+    )
+    subset = selection_path(X, target, order=["contact", "loan"])
+    assert subset.index.tolist() == [1, 2] and subset["variable"].tolist() == ["contact", "loan"]
+
+
+def test_selection_path_returns_positions_for_arrays(bank_split):
+    X, target, X_valid, target_valid = bank_split
+    validation = (X_valid, target_valid)
+    expected = selection_path(X, target, order=["housing", "poutcome"], validation=validation)
+    path = selection_path(
+        X.to_numpy(),
+        target.to_numpy(),
+        order=[2, 0],
+        validation=(X_valid.to_numpy(), target_valid.tolist()),
+    )
+    assert path["variable"].tolist() == [2, 0]
+    pd.testing.assert_frame_equal(path.drop(columns="variable"), expected.drop(columns="variable"))
+    # A DataFrame without labels in X is matched by position as well.
+    other = X_valid.set_axis(list("uvwxyz"), axis=1)
+    by_position = selection_path(
+        X.to_numpy(), target, order=[2, 0], validation=(other, target_valid)
+    )
+    pd.testing.assert_frame_equal(by_position, path)
+
+
+def test_selection_path_validation_is_matched_by_label(bank_split):
+    X, target, X_valid, target_valid = bank_split
+    order = ["housing", "poutcome"]
+    expected = selection_path(X, target, order=order, validation=(X_valid, target_valid))
+    # Other columns and another column order of the validation sample do not matter, nor does
+    # its index; a list works like a tuple.
+    shuffled = X_valid[["loan", "poutcome", "marital", "housing"]].reset_index(drop=True)
+    labels = target_valid.reset_index(drop=True)
+    for validation in ((shuffled, labels), [shuffled, labels.to_numpy()]):
+        pd.testing.assert_frame_equal(
+            selection_path(X, target, order=order, validation=validation), expected
+        )
+
+
+def test_selection_path_separation_names_the_step():
+    X = pd.DataFrame({"a": [1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0], "b": [0.0] * 4 + [1.0] * 4})
+    target = [0, 1, 0, 1, 1, 1, 1, 1]  # every row with b = 1 is an event
+    assert len(selection_path(X, target, order=["a"])) == 1
+    message = re.escape("the model of step 2, which adds X column 'b', separates the classes")
+    with pytest.raises(SeparationError, match=message):
+        selection_path(X, target)
+    with pytest.raises(SeparationError, match="the model of step 1, which adds X column 'b'"):
+        selection_path(X, target, order=["b", "a"])
+
+
+def test_selection_path_checks_the_columns_in_order():
+    b = np.array([1.0, 0.0, 2.0, 1.0, 0.0, 2.0, 1.0, 0.0])
+    X = pd.DataFrame({"a": BINARY_X, "b": b, "c": BINARY_X - b})
+    message = "X column '{}' is a linear combination of the intercept and the columns before it"
+    with pytest.raises(ValueError, match=message.format("c")):
+        selection_path(X, BINARY_Y)
+    with pytest.raises(ValueError, match=message.format("b")):
+        selection_path(X, BINARY_Y, order=["c", "a", "b"])
+    # Columns that the order leaves out are not fitted, so they may be constant.
+    path = selection_path(X.assign(k=1.0), BINARY_Y, order=["a", "b"])
+    assert path["variable"].tolist() == ["a", "b"]
+    with pytest.raises(ValueError, match="X column 'k' is constant"):
+        selection_path(X.assign(k=1.0), BINARY_Y, order=["a", "k"])
+
+
+def test_selection_path_non_convergence_warns_at_the_callers_line(monkeypatch):
+    monkeypatch.setattr(_logit, "fit", functools.partial(_logit.fit, max_iter=2))
+    X = pd.DataFrame({"x": BINARY_X})
+    message = "logistic regression of step 1 did not converge after 2 iterations"
+    with pytest.warns(RuntimeWarning, match=message) as record:
+        selection_path(X, BINARY_Y)
+    assert record[0].filename == __file__
+
+
+def test_selection_path_nearly_singular_fit_names_the_step(monkeypatch):
+    fit = _logit.fit
+
+    def singular(design, *args, **kwargs):
+        if design.shape[1] == 3:
+            raise _logit.SingularError(2)
+        return fit(design, *args, **kwargs)
+
+    monkeypatch.setattr(_logit, "fit", singular)
+    X = pd.DataFrame({"a": BINARY_X, "b": [1, 0, 2, 1, 0, 2, 1, 0]})
+    message = "X column 'b' is so close to a linear combination .* in the model of step 2$"
+    with pytest.raises(ValueError, match=message):
+        selection_path(X, BINARY_Y)
+
+
+@pytest.mark.parametrize(
+    "order,message",
+    [
+        ("a", "order must be a sequence of X column labels, got str"),
+        (0, "order must be a sequence of X column labels, got int"),
+        ({"a", "b"}, "order must be a sequence of X column labels, got set"),
+        (np.array([["a"]]), "order must be a sequence of X column labels, got ndarray"),
+        ([], "order must name at least one column of X, got []"),
+        (pd.Series([], dtype=float), "order must name at least one column of X, got []"),
+        (["a", "z"], "order must name columns of X, got 'z'"),
+        ([0], "order must name columns of X, got 0"),
+        ([["a"]], "order must name columns of X, got ['a']"),
+        (["b", "a", "b"], "order must not repeat a column, got 'b'"),
+    ],
+)
+def test_selection_path_rejects_order(order, message):
+    X = pd.DataFrame({"a": BINARY_X, "b": [1, 0, 2, 1, 0, 2, 1, 0]})
+    with pytest.raises(ValueError, match=re.escape(message)):
+        selection_path(X, BINARY_Y, order=order)
+
+
+def test_selection_path_order_of_an_array_holds_positions():
+    X = np.column_stack([BINARY_X, [1, 0, 2, 1, 0, 2, 1, 0]])
+    assert selection_path(X, BINARY_Y, order=[1, 0])["variable"].tolist() == [1, 0]
+    assert selection_path(X, BINARY_Y, order=np.array([1]))["variable"].tolist() == [1]
+    with pytest.raises(ValueError, match=re.escape("order must name columns of X, got 2")):
+        selection_path(X, BINARY_Y, order=[2])
+    with pytest.raises(ValueError, match=re.escape("order must name columns of X, got 'a'")):
+        selection_path(X, BINARY_Y, order=["a"])
+
+
+VALID_X = pd.DataFrame({"a": BINARY_X, "b": [1.0, 0.0, 2.0, 1.0, 0.0, 2.0, 1.0, 0.0]})
+
+
+@pytest.mark.parametrize(
+    "validation,message",
+    [
+        (VALID_X, "validation must be a pair (X, target), got DataFrame"),
+        ((VALID_X,), "validation must be a pair (X, target), got tuple"),
+        ((VALID_X, BINARY_Y, None), "validation must be a pair (X, target), got tuple"),
+        ((VALID_X.to_numpy(), BINARY_Y), "validation X must be a DataFrame, as X is, got ndarray"),
+        ((VALID_X[["a"]], BINARY_Y), "validation X has no column 'b'"),
+        (
+            (VALID_X.assign(b=list("abcdefgh")), BINARY_Y),
+            "validation X column 'b' must be numeric, such as WOE values from woe_transform",
+        ),
+        (
+            (VALID_X.assign(a=[0, 1, np.nan, 0, 1, 1, 0, 1]), BINARY_Y),
+            "validation X column 'a' must not contain missing or infinite values",
+        ),
+        (
+            (pd.concat([VALID_X, VALID_X[["a"]]], axis=1), BINARY_Y),
+            "validation X must have unique column labels, got 'a' more than once",
+        ),
+        ((VALID_X.iloc[:1], [1]), "validation X must have at least 2 rows, got 1"),
+        ((VALID_X, np.zeros(8)), "validation target must contain both 0 and 1, got only 0"),
+        ((VALID_X, [0, 1, 2, 0, 1, 2, 0, 1]), "validation target must contain only 0 and 1, got 2"),
+        ((VALID_X, np.zeros((8, 1))), "validation target must be one-dimensional"),
+        (
+            (VALID_X, BINARY_Y[:7]),
+            "validation X and target must have the same number of rows, got 8 and 7",
+        ),
+        (
+            (VALID_X, pd.Series(BINARY_Y, index=range(1, 9))),
+            "validation X and target must have identical indices",
+        ),
+    ],
+)
+def test_selection_path_rejects_validation(validation, message):
+    with pytest.raises(ValueError, match=re.escape(message)):
+        selection_path(VALID_X, BINARY_Y, validation=validation)
+
+
+def test_selection_path_validation_of_an_array_has_the_columns_of_X():
+    X = VALID_X.to_numpy()
+    message = "validation X must have 2 columns, as X has, got 1"
+    with pytest.raises(ValueError, match=re.escape(message)):
+        selection_path(X, BINARY_Y, order=[0], validation=(X[:, :1], BINARY_Y))
+    with pytest.raises(ValueError, match="validation X must be two-dimensional, got 1 dimensions"):
+        selection_path(X, BINARY_Y, validation=(BINARY_X, BINARY_Y))
+
+
+def test_selection_path_does_not_mutate_inputs(bank_split):
+    X, target, X_valid, target_valid = bank_split
+    weights = pd.Series(np.random.default_rng(6).random(len(X)), index=X.index)
+    order = ["poutcome", "loan"]
+    copies = [item.copy() for item in (X, target, X_valid, target_valid, weights)]
+    selection_path(X, target, order=order, validation=(X_valid, target_valid), weights=weights)
+    for item, copy in zip((X, target, X_valid, target_valid, weights), copies, strict=True):
+        if isinstance(item, pd.DataFrame):
+            pd.testing.assert_frame_equal(item, copy)
+        else:
+            pd.testing.assert_series_equal(item, copy)
+    assert order == ["poutcome", "loan"]
+
+
+def test_selection_path_matches_statsmodels(bank_woe):
+    sm = pytest.importorskip("statsmodels.api")
+    metrics = pytest.importorskip("sklearn.metrics")
+    X, target = bank_woe
+    path = selection_path(X, target)
+    for step, row in path.iterrows():
+        columns = X.columns[:step]
+        fitted = sm.GLM(target, sm.add_constant(X[columns]), family=sm.families.Binomial()).fit(
+            tol=1e-15, tol_criterion="params"
+        )
+        assert row["max_p_value"] == pytest.approx(fitted.pvalues.iloc[1:].max(), rel=1e-6)
+        assert row["min_coefficient"] == pytest.approx(fitted.params.iloc[1:].min(), rel=1e-9)
+        # fittedvalues come from a matrix product, which can give identical rows probabilities
+        # that differ in the last digit and so split their tie; score column by column instead.
+        score = linear_predictor(X[columns], fitted.params.rename("coef").to_frame())
+        assert row["auc"] == pytest.approx(metrics.roc_auc_score(target, score), rel=1e-12)
+
+
 # --- weights ------------------------------------------------------------------------------
 
 
@@ -755,6 +1224,28 @@ def test_integer_weights_equal_repeated_rows(bank_woe, repeated):
     assert weighted.attrs["log_likelihood"] == pytest.approx(
         expected.attrs["log_likelihood"], rel=1e-12
     )
+
+
+def test_selection_path_integer_weights_equal_repeated_rows(bank_woe, repeated):
+    X, target = bank_woe
+    weights, X_repeated, target_repeated = repeated
+    weighted = selection_path(X, target, weights=weights)
+    expected = selection_path(X_repeated, target_repeated)
+    pd.testing.assert_frame_equal(weighted, expected, rtol=1e-10)
+    # The metrics on X are weighted, those on the validation sample are not.
+    validation = (X.iloc[:2000], target.iloc[:2000])
+    weighted = selection_path(X, target, weights=weights, validation=validation)
+    expected = selection_path(X_repeated, target_repeated, validation=validation)
+    pd.testing.assert_frame_equal(weighted, expected, rtol=1e-10)
+    unweighted = selection_path(X, target, validation=validation)
+    assert not np.allclose(weighted["auc"], unweighted["auc"], rtol=1e-6)
+    for step, row in weighted.iterrows():
+        table = logistic_regression(X[X.columns[:step]], target, weights=weights)
+        score = linear_predictor(X[X.columns[:step]], table)
+        assert row["auc"] == roc_auc(score, target, weights=weights)
+        assert row["ks"] == ks(score, target, weights=weights)
+        valid = linear_predictor(validation[0][X.columns[:step]], table)
+        assert row["validation_auc"] == roc_auc(valid, validation[1])
 
 
 @pytest.mark.parametrize("direction", ["both", "forward", "backward"])
@@ -820,6 +1311,11 @@ def test_zero_weights_equal_dropped_rows(bank_woe):
         rtol=1e-10,
     )
     assert stepwise(X, target, weights=weights).equals(stepwise(X[kept], target[kept]))
+    pd.testing.assert_frame_equal(
+        selection_path(X, target, weights=weights),
+        selection_path(X[kept], target[kept]),
+        rtol=1e-10,
+    )
 
 
 def test_columns_are_checked_on_the_rows_with_positive_weight():
@@ -830,6 +1326,8 @@ def test_columns_are_checked_on_the_rows_with_positive_weight():
         logistic_regression(X, target, weights=[0, 1, 1, 1, 1])
     with pytest.raises(ValueError, match=message):
         stepwise(X, target, weights=[0, 1, 1, 1, 1])
+    with pytest.raises(ValueError, match=message):
+        selection_path(X, target, weights=[0, 1, 1, 1, 1])
     X["c"] = [5.0, 1.0, 0.0, 1.0, 1.0]
     message = (
         "X column 'c' is a linear combination of the intercept and the columns before it "
@@ -864,15 +1362,16 @@ def test_zero_weights_can_separate_the_classes():
 )
 def test_invalid_weights(weights, message):
     X = pd.DataFrame({"x": BINARY_X})
-    for function in (logistic_regression, stepwise):
+    for function in (logistic_regression, stepwise, selection_path):
         with pytest.raises(ValueError, match=message):
             function(X, BINARY_Y, weights=weights)
 
 
 def test_weights_must_have_the_index_of_X():
     X = pd.DataFrame({"x": BINARY_X})
-    with pytest.raises(ValueError, match="X and weights must have identical indices"):
-        logistic_regression(X, BINARY_Y, weights=pd.Series(1.0, index=range(1, 9)))
+    for function in (logistic_regression, selection_path):
+        with pytest.raises(ValueError, match="X and weights must have identical indices"):
+            function(X, BINARY_Y, weights=pd.Series(1.0, index=range(1, 9)))
     unit = logistic_regression(X, BINARY_Y, weights=np.ones(8))
     pd.testing.assert_frame_equal(unit, logistic_regression(X, BINARY_Y))
 

@@ -1,9 +1,9 @@
 Variable selection
 ==================
 
-A scorecard is a logistic regression on a short list of WOE-encoded variables. :mod:`kivi.selection` covers the usual steps from the candidates to that list: drop one variable of each strongly correlated pair, check the rest for collinearity, select variables by their p-values and read the fitted model. Every function takes a DataFrame with one WOE-encoded column per variable, such as the output of :func:`~kivi.woe.woe_transform`, and the functions that fit a model also take the 0/1 target.
+A scorecard is a logistic regression on a short list of WOE-encoded variables. :mod:`kivi.selection` covers the usual steps from the candidates to that list: drop one variable of each strongly correlated pair, check the rest for collinearity and drop the most collinear ones, select variables by their p-values or compare the models of a fixed order, and read the fitted model. Every function takes a DataFrame with one WOE-encoded column per variable, such as the output of :func:`~kivi.woe.woe_transform`, and the functions that fit a model also take the 0/1 target.
 
-Selection follows :doc:`woe_iv`, which encodes the candidates, and comes before :doc:`reject_inference` and the :doc:`scorecard`, which refit and scale the chosen model. :func:`~kivi.selection.correlation_filter` drops correlated variables, :func:`~kivi.selection.vif` measures collinearity, :func:`~kivi.selection.logistic_regression` fits the model and :func:`~kivi.selection.stepwise` selects its variables.
+Selection follows :doc:`woe_iv`, which encodes the candidates, and comes before :doc:`reject_inference` and the :doc:`scorecard`, which refit and scale the chosen model. :func:`~kivi.selection.correlation_filter` drops correlated variables, :func:`~kivi.selection.vif` measures collinearity, :func:`~kivi.selection.vif_filter` drops the most collinear variables, :func:`~kivi.selection.logistic_regression` fits the model, :func:`~kivi.selection.stepwise` selects its variables and :func:`~kivi.selection.selection_path` reports the models of the first 1, 2, 3 and more variables of an order.
 
 Preparing the candidates
 ------------------------
@@ -14,7 +14,9 @@ Group every candidate as in :doc:`risk_workflow`: quantile bins for most numeric
 >>> import pandas as pd
 >>> from kivi.binning import bin_edges
 >>> from kivi.datasets import load_bank
->>> from kivi.selection import correlation_filter, logistic_regression, stepwise, vif
+>>> from kivi.selection import (
+...     correlation_filter, logistic_regression, selection_path, stepwise, vif, vif_filter,
+... )
 >>> from kivi.woe import woe_table, woe_transform
 >>> data = load_bank()
 >>> development = data.iloc[:3000]
@@ -123,6 +125,25 @@ campaign         1.02  1.02
 
 A common rule of thumb flags a VIF above 5, or above 10, as harmful collinearity. Every value here is well below that, and dropping ``previous`` lowers the VIF of the other two variables of the previous campaign.
 
+Dropping collinear variables
+----------------------------
+
+:func:`~kivi.selection.vif_filter` drops variables until no VIF exceeds ``threshold``, 5 by default. Each round computes the VIFs of the variables that are still kept and drops the one with the largest VIF. Dropping a variable lowers the VIFs of the variables that it helped to explain, so the VIFs are computed again after every drop, and a variable above the threshold in the first round may stay in the end.
+
+>>> vif_filter(X, priority=iv).equals(X.columns)
+True
+>>> low = vif_filter(X, threshold=2, priority=iv)
+>>> X.columns.difference(low).tolist()
+['previous']
+>>> print(f"{vif(X[low]).max():.2f}")
+1.93
+>>> X.columns.difference(vif_filter(X, threshold=1.5, priority=iv)).tolist()
+['pdays', 'previous']
+
+Every candidate has a VIF below 5, so the default keeps them all. With a threshold of 2, ``previous`` goes first, with the largest VIF of 2.47, and the VIFs of ``poutcome`` and ``pdays`` then fall to 1.90 and 1.93: the result is the list that ``correlation_filter`` kept. A threshold of 1.5 drops ``pdays`` as well and leaves ``poutcome`` as the only variable of the previous campaign.
+
+Unlike ``correlation_filter``, ``vif_filter`` drops the most collinear variable whatever its IV. ``priority`` decides only between variables whose VIFs tie for the largest. Every variable of an exact linear combination, such as a total next to its parts, has an infinite VIF; such variables go first, and of them the one with the lowest priority, here the lowest IV, is dropped. Without ``priority``, and between equal priorities, the first tied variable in the column order of ``X`` is dropped. VIFs within a relative :math:`10^{-10}` of each other count as tied, so that rounding does not decide between equal VIFs, such as those of the two variables of a pair.
+
 Logistic regression on WOE
 --------------------------
 
@@ -190,10 +211,52 @@ False
 
    Stepwise selection tests many models on the same data, so the p-values of the selected model are optimistic. Treat the result as a proposal: review each variable with the business, and check the model on a validation sample before using it.
 
+Selection path
+--------------
+
+:func:`~kivi.selection.selection_path` fits the models of a fixed order instead of choosing each variable: step :math:`k` is the logistic regression on the first :math:`k` variables of ``order``, by default the columns of ``X`` in their order. Each row reports the variable that the step adds, the ``auc``, ``gini`` and ``ks`` of the model's fitted probability on the development sample, the largest p-value of its variables and their smallest coefficient. With ``validation``, each model also scores a validation sample, which adds ``validation_auc``, ``validation_gini`` and ``validation_ks``.
+
+Encode the other applicants of the bank data with the edges and WOE tables of the development sample, and follow the variables that ``correlation_filter`` kept in the order of ``X``, from the highest IV to the lowest:
+
+>>> holdout = data.iloc[3000:]
+>>> holdout_groups = holdout[groups.columns].copy()
+>>> for column, column_edges in edges.items():
+...     holdout_groups[column] = pd.cut(holdout[column], column_edges)
+>>> X_valid = pd.DataFrame({
+...     column: woe_transform(holdout_groups[column], tables[column]) for column in candidates
+... })
+>>> path = selection_path(X[kept], target, validation=(X_valid, holdout["target"]))
+>>> path[["variable", "auc", "validation_auc", "max_p_value", "min_coefficient"]].round(3)
+       variable    auc  validation_auc  max_p_value  min_coefficient
+step
+1      poutcome  0.607           0.616        0.000            1.000
+2         pdays  0.610           0.614        0.000            0.521
+3       contact  0.660           0.674        0.000            0.443
+4           job  0.688           0.697        0.002            0.379
+5       housing  0.697           0.697        0.002            0.373
+6       balance  0.709           0.691        0.004            0.352
+7          loan  0.715           0.699        0.011            0.346
+8     education  0.718           0.696        0.081            0.332
+9       marital  0.729           0.697        0.187            0.341
+10     campaign  0.730           0.701        0.227            0.322
+
+The AUC on the development sample rises with every variable, because each model is fitted to that sample. On the validation sample it reaches 0.697 when ``job`` enters at step 4 and stays within 0.01 of that afterwards: the last six variables add 0.042 to the development AUC and 0.004 to the validation AUC. From ``education`` on, the largest p-value is also above 0.05. ``path[["auc", "validation_auc"]].diff()`` shows the gain of each step. ``min_coefficient`` stays positive, so no variable works against its own event rates.
+
+With ``previous`` in the order, right after ``pdays`` as its IV puts it, the smallest coefficient turns negative at step 3 and stays negative:
+
+>>> selection_path(X, target).loc[2:4, ["variable", "max_p_value", "min_coefficient"]].round(3)
+      variable  max_p_value  min_coefficient
+step
+2        pdays        0.000            0.521
+3     previous        0.603           -0.095
+4      contact        0.196           -0.237
+
+``selection_path`` neither stops early nor removes a variable: the order decides, and the table shows every step, so that the cut is the analyst's choice. ``stepwise`` instead lets the p-values choose each variable. A model of the path whose classes are separated raises :exc:`~kivi.selection.SeparationError`, which names the step; end ``order`` before that variable, or merge its bins.
+
 Sample weights
 --------------
 
-:func:`~kivi.selection.logistic_regression` and :func:`~kivi.selection.stepwise` take ``weights``: frequency weights that count each row as that many identical observations. Integer weights therefore give the same coefficients, standard errors and selection as repeating the rows:
+:func:`~kivi.selection.logistic_regression`, :func:`~kivi.selection.stepwise` and :func:`~kivi.selection.selection_path` take ``weights``: frequency weights that count each row as that many identical observations. Integer weights therefore give the same coefficients, standard errors and selection as repeating the rows:
 
 >>> weights = np.random.default_rng(0).integers(1, 4, len(X))
 >>> repeated = np.repeat(np.arange(len(X)), weights)
@@ -204,6 +267,8 @@ True
 ...     stepwise(X[kept].iloc[repeated], target.iloc[repeated])
 ... )
 True
+
+``selection_path`` weights the metrics of the development sample as well, while each row of its validation sample counts once.
 
 The standard errors treat the total weight as the number of independent observations, so they depend on the scale of the weights: doubling every weight divides them by :math:`\sqrt 2` and lowers every p-value, as doubling the sample would.
 
