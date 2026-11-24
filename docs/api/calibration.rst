@@ -3,9 +3,9 @@ Calibration
 
 .. module:: kivi.calibration
 
-Check and correct predicted probabilities. :func:`~kivi.calibration.prior_correction` and :func:`~kivi.calibration.corrected_intercept` correct them for the sampling of the development data, :func:`~kivi.calibration.master_scale`, :func:`~kivi.calibration.fit_grade_pd` and :func:`~kivi.calibration.assign_grades` build a master scale and assign its grades, :func:`~kivi.calibration.calibration_table` and the tests count and test the grades, and :func:`~kivi.calibration.platt_fit` and :func:`~kivi.calibration.isotonic_fit` recalibrate a score.
+Check and correct predicted probabilities. :func:`~kivi.calibration.prior_correction` and :func:`~kivi.calibration.corrected_intercept` correct them for the sampling of the development data, :func:`~kivi.calibration.master_scale`, :func:`~kivi.calibration.fit_grade_pd` and :func:`~kivi.calibration.assign_grades` build a master scale and assign its grades, :func:`~kivi.calibration.calibration_table` and the tests count and test the grades, and :func:`~kivi.calibration.platt_fit` and :func:`~kivi.calibration.isotonic_fit` recalibrate a score. :func:`~kivi.calibration.spiegelhalter_test` and :func:`~kivi.calibration.brier_decomposition` check the probabilities of single observations, :func:`~kivi.calibration.concentration_test` tests the concentration of the grades, and :func:`~kivi.calibration.backtest_table` back-tests continuous estimates such as LGDs.
 
-See :doc:`/user_guide/calibration` for examples on the bundled data.
+See :doc:`/user_guide/calibration` for examples on the bundled data, and :doc:`/user_guide/validation` for the tests of a validation report.
 
 .. autosummary::
 
@@ -15,7 +15,11 @@ See :doc:`/user_guide/calibration` for examples on the bundled data.
    binomial_test
    jeffreys_test
    hosmer_lemeshow
+   spiegelhalter_test
+   brier_decomposition
    herfindahl_index
+   concentration_test
+   backtest_table
    master_scale
    fit_grade_pd
    assign_grades
@@ -36,7 +40,15 @@ See :doc:`/user_guide/calibration` for examples on the bundled data.
 
 .. autofunction:: hosmer_lemeshow
 
+.. autofunction:: spiegelhalter_test
+
+.. autofunction:: brier_decomposition
+
 .. autofunction:: herfindahl_index
+
+.. autofunction:: concentration_test
+
+.. autofunction:: backtest_table
 
 .. autofunction:: master_scale
 
