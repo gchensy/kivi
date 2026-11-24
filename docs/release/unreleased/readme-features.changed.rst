@@ -1,2 +1,0 @@
-* The README gallery opens with a chart of time-window features: the share of applicants and the event rate per band of the cash withdrawals in the last three months and in the three months before, computed with a ``FeatureSpec`` from synthetic transactions. The features guide shows the same chart after its screening of these features.
-* The workflow diagram of the README starts with defining the features once with a ``FeatureSpec`` and computing them for every sample, before the bin edges are fitted once and every sample is cut with them.
