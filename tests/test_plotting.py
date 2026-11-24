@@ -99,7 +99,9 @@ CASES = {
     "woe_chart": woe_example,
     "correlation_chart": correlation_example,
     "roc_chart": roc_example,
+    "precision_recall_chart": roc_example,
     "gains_chart": gains_example,
+    "distribution_chart": gains_example,
     "calibration_chart": calibration_example,
     "cutoff_chart": cutoff_example,
     "psi_chart": psi_example,
@@ -203,7 +205,9 @@ tables = {
     "woe_chart": woe_table(groups, pd.Series(target)),
     "correlation_chart": pd.DataFrame({"a": [1, 2, 3], "b": [2, 1, 3]}).corr(),
     "roc_chart": roc_table(score, target),
+    "precision_recall_chart": roc_table(score, target),
     "gains_chart": gains_table(score, target, bins=2),
+    "distribution_chart": gains_table(score, target, bins=2),
     "calibration_chart": calibration_table(groups, target, score),
     "cutoff_chart": cutoff_table(score, target, cutoffs=[0.3, 1.0]),
     "psi_chart": psi_table(groups, pd.Series(list("abbccc"))),
@@ -225,7 +229,9 @@ def test_drawing_on_a_given_ax_leaves_pyplot_unimported():
 TABLES = {
     "woe_chart": ("kivi.woe.woe_table", "iv"),
     "roc_chart": ("kivi.metrics.roc_table", "true_positive_rate"),
+    "precision_recall_chart": ("kivi.metrics.roc_table", "precision"),
     "gains_chart": ("kivi.metrics.gains_table", "ks"),
+    "distribution_chart": ("kivi.metrics.gains_table or kivi.woe.woe_table", "event"),
     "calibration_chart": ("kivi.calibration.calibration_table", "mean_probability"),
     "cutoff_chart": ("kivi.strategy.cutoff_table", "approved_event_rate"),
     "psi_chart": ("kivi.stability.psi_table", "psi"),
@@ -520,6 +526,75 @@ def test_roc_chart_compares_curves_on_one_ax():
     assert [text.get_text() for text in ax.get_legend().get_texts()] == ["score", "rank"]
 
 
+# precision_recall_chart ------------------------------------------------------
+
+
+def test_precision_recall_chart_draws_the_rows_that_flag_observations():
+    table = roc_example()
+    assert np.isinf(table.index[0]) and np.isnan(table["precision"].iloc[0])
+    ax = plotting.precision_recall_chart(table)
+    baseline, curve = ax.get_lines()
+    recall, precision = table["true_positive_rate"].iloc[1:], table["precision"].iloc[1:]
+    # Steps from a recall of 0, each at the precision of the row it ends on.
+    assert curve.get_drawstyle() == "steps-pre"
+    np.testing.assert_allclose(curve.get_xdata(), np.r_[0, recall])
+    np.testing.assert_allclose(curve.get_ydata(), np.r_[precision.iloc[0], precision])
+    rate = TARGET.mean()
+    np.testing.assert_allclose(baseline.get_ydata(), [rate, rate])
+    assert baseline.get_linestyle() == "--"
+    assert matplotlib.colors.same_color(baseline.get_color(), "#9ca3af")
+    # The last row flags everyone, so the curve ends on the line of the event rate.
+    assert (curve.get_xdata()[-1], curve.get_ydata()[-1]) == (1, pytest.approx(rate))
+    (text,) = ax.texts
+    assert text.get_text() == "event_rate = 0.5"
+    assert (ax.get_xlim(), ax.get_ylim()) == ((0, 1), (0, 1))
+    assert (ax.get_xlabel(), ax.get_ylabel()) == ("true_positive_rate", "precision")
+    assert ax.yaxis.get_major_formatter()(0.125) == "12.5%"
+    assert ax.get_legend() is None
+
+
+def test_precision_recall_chart_steps_enclose_the_average_precision():
+    rng = np.random.default_rng(0)
+    # Few distinct scores, so that rows add events and non-events together.
+    score = rng.integers(0, 8, size=200)
+    target = rng.binomial(1, 0.1 + 0.08 * score)
+    table = roc_table(score, target).iloc[1:]
+    recall, precision = table["true_positive_rate"], table["precision"]
+    average_precision = float(np.sum(np.diff(np.r_[0, recall]) * precision))
+    (curve,) = plotting.precision_recall_chart(roc_table(score, target)).get_lines()[1:]
+    x, y = matplotlib.cbook.pts_to_prestep(curve.get_xdata(), curve.get_ydata())
+    # Vertical steps have no width, so each horizontal step adds its width times its height.
+    assert np.sum(np.diff(x) * y[1:]) == pytest.approx(average_precision, rel=1e-12)
+    # Straight lines between the rows would enclose more.
+    linear = np.sum(np.diff(curve.get_xdata()) * (curve.get_ydata()[1:] + curve.get_ydata()[:-1]))
+    assert linear / 2 > average_precision
+
+
+def test_precision_recall_chart_draws_the_line_of_each_event_rate_once():
+    ax = plotting.precision_recall_chart(roc_example(), label="score")
+    plotting.precision_recall_chart(roc_table(SCORE.rank(), TARGET), label="rank", ax=ax)
+    baseline, first, second = ax.get_lines()
+    assert first.get_color() != second.get_color()
+    assert [text.get_text() for text in ax.texts] == ["event_rate = 0.5"]
+    assert [text.get_text() for text in ax.get_legend().get_texts()] == ["score", "rank"]
+    # Another sample with another event rate gets a line of its own.
+    plotting.precision_recall_chart(roc_table(SCORE[:5], TARGET[:5]), ax=ax)
+    assert [text.get_text() for text in ax.texts] == ["event_rate = 0.5", "event_rate = 0.4"]
+    np.testing.assert_allclose(ax.get_lines()[3].get_ydata(), [0.4, 0.4])
+
+
+def test_precision_recall_chart_shows_a_small_event_rate_to_three_digits():
+    target = np.r_[np.ones(3), np.zeros(1279)]
+    score = np.linspace(1, 0, target.size)
+    ax = plotting.precision_recall_chart(roc_table(score, target))
+    assert ax.texts[0].get_text() == "event_rate = 0.00234"
+
+
+def test_precision_recall_chart_needs_a_row_with_a_precision(no_new_figure):
+    with pytest.raises(ValueError, match="table must have a row with a precision"):
+        plotting.precision_recall_chart(roc_example().iloc[:1])
+
+
 @pytest.mark.parametrize("chart", [plotting.roc_chart, plotting.gains_chart])
 def test_rejects_a_ks_that_is_not_a_boolean(chart, no_new_figure):
     table = roc_example() if chart is plotting.roc_chart else gains_example()
@@ -572,6 +647,82 @@ def test_gains_chart_compares_scores_on_one_ax():
     first, second = ax.get_lines()[1], ax.get_lines()[5]
     assert first.get_color() != second.get_color()
     assert len(ax.texts) == 1
+
+
+# distribution_chart ----------------------------------------------------------
+
+
+def test_distribution_chart_draws_the_raw_shares_of_each_row():
+    table = woe_example()
+    # Group a has no event, so the smoothed event_share of the table is not 0.
+    assert table["event"].iloc[0] == 0 and table["event_share"].iloc[0] > 0
+    ax = plotting.distribution_chart(table)
+    bars = ax.patches
+    non_event = table["non_event"] / table["non_event"].sum()
+    event = table["event"] / table["event"].sum()
+    assert [bar.get_height() for bar in bars[:4]] == pytest.approx(non_event)
+    assert [bar.get_height() for bar in bars[4:]] == pytest.approx(event)
+    assert bars[4].get_height() == 0
+    centers = [bar.get_x() + bar.get_width() / 2 for bar in bars]
+    assert centers == pytest.approx([-0.2, 0.8, 1.8, 2.8, 0.2, 1.2, 2.2, 3.2])
+    assert matplotlib.colors.same_color(bars[0].get_facecolor(), BLUE)
+    assert matplotlib.colors.same_color(bars[4].get_facecolor(), "#dc2626")
+    assert [label.get_text() for label in ax.get_xticklabels()] == ["a", "b", "c", "NaN"]
+    assert (ax.get_xlabel(), ax.get_ylabel()) == ("bin", "non_event_share, event_share")
+    legend = ax.get_legend()
+    assert [text.get_text() for text in legend.get_texts()] == ["non_event_share", "event_share"]
+    assert ax.yaxis.get_major_formatter()(0.125) == "12.5%"
+
+
+def test_distribution_chart_draws_the_bands_of_a_gains_table_in_its_order():
+    table = gains_table(SCORE, TARGET, bins=[-np.inf, 0.3, 0.6, 2.0, np.inf])
+    # The highest band comes first, and it is empty.
+    assert table["total"].tolist() == [0, 3, 4, 3]
+    ax = plotting.distribution_chart(table)
+    heights = [bar.get_height() for bar in ax.patches]
+    assert heights == pytest.approx([0, 0.2, 0.2, 0.6, 0, 0.4, 0.6, 0])
+    assert [label.get_text() for label in ax.get_xticklabels()] == [
+        "(2.0, inf]",
+        "(0.6, 2.0]",
+        "(0.3, 0.6]",
+        "(-inf, 0.3]",
+    ]
+
+
+def test_distribution_chart_legend_covers_no_bar():
+    data = load_bank().iloc[:3000]
+    groups = pd.cut(data["age"], bin_edges(data["age"], bins=5))
+    figure, axes = plt.subplots(1, 2, figsize=(8, 3), layout="constrained")
+    plotting.distribution_chart(woe_table(groups, data["target"]), ax=axes[0])
+    # The highest band of duration holds the largest share of events, under the legend.
+    plotting.distribution_chart(gains_table(data["duration"], data["target"]), ax=axes[1])
+    figure.canvas.draw()
+    for ax in axes:
+        assert not covered(ax.get_legend(), [ax])
+
+
+@pytest.mark.parametrize(
+    ("column", "value", "message"),
+    [
+        ("non_event", -1.0, "non_event of table must contain finite, non-negative counts"),
+        ("event", np.inf, "event of table must contain finite, non-negative counts"),
+        ("event", np.nan, "event of table must contain finite, non-negative counts"),
+    ],
+)
+def test_distribution_chart_rejects_a_count_that_is_not_a_count(
+    column, value, message, no_new_figure
+):
+    table = gains_example().astype({column: float})
+    table.iloc[0, table.columns.get_loc(column)] = value
+    with pytest.raises(ValueError, match=message):
+        plotting.distribution_chart(table)
+
+
+@pytest.mark.parametrize("column", ["non_event", "event"])
+def test_distribution_chart_needs_both_classes(column, no_new_figure):
+    table = gains_example().assign(**{column: 0})
+    with pytest.raises(ValueError, match=f"^{column} of table must contain a positive count"):
+        plotting.distribution_chart(table)
 
 
 # calibration_chart -----------------------------------------------------------

@@ -1,7 +1,7 @@
 Charts
 ======
 
-A risk report shows its tables as charts: the event rate of each bin, the ROC curve of a score, the shares that moved since development. :mod:`kivi.plotting` draws the result tables of the other modules with matplotlib, one function per table: :func:`~kivi.plotting.woe_chart` for a WOE table, :func:`~kivi.plotting.correlation_chart` for a correlation matrix, :func:`~kivi.plotting.roc_chart` and :func:`~kivi.plotting.gains_chart` for the ROC and gains tables, :func:`~kivi.plotting.calibration_chart` for a calibration table, :func:`~kivi.plotting.cutoff_chart` for a cut-off table, :func:`~kivi.plotting.psi_chart` for a PSI table, :func:`~kivi.plotting.monitoring_chart` for a monitoring report and :func:`~kivi.plotting.vintage_chart` for a vintage table.
+A risk report shows its tables as charts: the event rate of each bin, the ROC curve of a score, the shares that moved since development. :mod:`kivi.plotting` draws the result tables of the other modules with matplotlib, one function per table: :func:`~kivi.plotting.woe_chart` for a WOE table, :func:`~kivi.plotting.correlation_chart` for a correlation matrix, :func:`~kivi.plotting.roc_chart` and :func:`~kivi.plotting.precision_recall_chart` for a ROC table, :func:`~kivi.plotting.gains_chart` for a gains table, :func:`~kivi.plotting.distribution_chart` for the events and non-events of a gains or WOE table, :func:`~kivi.plotting.calibration_chart` for a calibration table, :func:`~kivi.plotting.cutoff_chart` for a cut-off table, :func:`~kivi.plotting.psi_chart` for a PSI table, :func:`~kivi.plotting.monitoring_chart` for a monitoring report and :func:`~kivi.plotting.vintage_chart` for a vintage table.
 
 The charts draw the tables of the earlier guides, from :doc:`woe_iv` to :doc:`vintage`, so this page comes last in the user guide, after :doc:`lifetime`.
 
@@ -78,11 +78,11 @@ True
 
 Each function returns the Axes it drew on, ``ax`` when it is given, so that titles, limits and labels can be changed afterwards with matplotlib, as in ``right.set_title("woe")``. :func:`~kivi.plotting.woe_chart` returns the Axes of the bars and that of the line, which is why the figure above has four Axes.
 
-The functions never call ``matplotlib.pyplot.show``, never change ``matplotlib.rcParams`` and never modify the table. Save a figure with ``figure.savefig("woe.png")``, or show it with ``plt.show()`` outside a notebook. The curves that can be compared on one ``ax``, those of :func:`~kivi.plotting.roc_chart`, :func:`~kivi.plotting.gains_chart`, :func:`~kivi.plotting.calibration_chart`, :func:`~kivi.plotting.cutoff_chart` and :func:`~kivi.plotting.monitoring_chart`, take the next color of the Axes' color cycle. The other charts use fixed colors. Fonts, grids and spines follow the active matplotlib style, so a style set with ``plt.style.context`` applies to the charts drawn inside it.
+The functions never call ``matplotlib.pyplot.show``, never change ``matplotlib.rcParams`` and never modify the table. Save a figure with ``figure.savefig("woe.png")``, or show it with ``plt.show()`` outside a notebook. The curves that can be compared on one ``ax``, those of :func:`~kivi.plotting.roc_chart`, :func:`~kivi.plotting.precision_recall_chart`, :func:`~kivi.plotting.gains_chart`, :func:`~kivi.plotting.calibration_chart`, :func:`~kivi.plotting.cutoff_chart` and :func:`~kivi.plotting.monitoring_chart`, take the next color of the Axes' color cycle. The other charts use fixed colors. Fonts, grids and spines follow the active matplotlib style, so a style set with ``plt.style.context`` applies to the charts drawn inside it.
 
 Text inside a chart is limited to column names, such as ``total_share`` and ``event_rate``, and data values, such as the group labels and the IV. Each axis is labeled with the columns it shows, or with the name of the index for the groups and periods. The same chart therefore suits a report in any language; add titles in the language of the report.
 
-Legends are placed so that they cover no data: :func:`~kivi.plotting.woe_chart` and :func:`~kivi.plotting.psi_chart` leave room for theirs at the top of the Axes, and :func:`~kivi.plotting.vintage_chart` and :func:`~kivi.plotting.monitoring_chart` put theirs to the right of the Axes.
+Legends are placed so that they cover no data: :func:`~kivi.plotting.woe_chart`, :func:`~kivi.plotting.distribution_chart` and :func:`~kivi.plotting.psi_chart` leave room for theirs at the top of the Axes, and :func:`~kivi.plotting.vintage_chart` and :func:`~kivi.plotting.monitoring_chart` put theirs to the right of the Axes.
 
 WOE and event rate
 ------------------
@@ -182,6 +182,28 @@ ROC curve
 
 The dotted segment marks the KS statistic, the largest gap between ``true_positive_rate`` and ``false_positive_rate``, which equals :func:`~kivi.metrics.ks` of the score. Each curve takes the next color of the Axes, and its KS segment shares its color; pass ``ks=False`` for the curves whose KS is not needed.
 
+Precision and recall
+--------------------
+
+:func:`~kivi.plotting.precision_recall_chart` draws two other columns of the same :func:`~kivi.metrics.roc_table`: flagging the customers from the highest score down, the ``precision``, the event rate of those flagged, against the ``true_positive_rate``, the share of all events flagged, which is also called the recall. A dashed line marks the event rate of the sample, the precision of a score that ranks at random:
+
+>>> from kivi.plotting import precision_recall_chart
+>>> ax = precision_recall_chart(roc_table(score, y), label="score")
+>>> ax = precision_recall_chart(roc_table(validation_woe["poutcome"], y), label="poutcome", ax=ax)
+>>> [text.get_text() for text in ax.texts]
+['event_rate = 0.114']
+
+.. plot::
+   :context: close-figs
+   :alt: Step curves of the precision against the recall of the WOE score and of poutcome alone, above the event rate of the validation sample
+   :caption: The highest scores flag events with a precision of about 85% until 14% of the events are flagged. The precision then falls towards the event rate of 11.4%, which the curve reaches when every customer is flagged. poutcome alone takes one step for each of its four groups; its last group holds most customers, so from 37% of the events on its precision is the event rate.
+
+   from kivi.plotting import precision_recall_chart
+   ax = precision_recall_chart(roc_table(score, y), label="score")
+   precision_recall_chart(roc_table(validation_woe["poutcome"], y), label="poutcome", ax=ax)
+
+The first row of a ROC table flags nobody and has no precision. Each curve steps from a recall of 0 through the other rows: up to the recall of a row, it stays at the precision of that row, because straight lines between the rows would overstate the precision between them. The area under the steps is therefore the average precision of the score. The last row flags every customer, so each curve ends on the dashed line. The line is drawn once for each event rate, so the two scores of the validation sample share it, while a curve of the development sample would get a line of its own. The chart suits samples with few events, such as fraud, where the ROC curves of good scores crowd into the upper left corner: the precision shows how many of the flagged customers are events at each recall. :func:`~kivi.strategy.confusion_table` gives the precision and the recall at chosen cut-offs.
+
 Gains and KS
 ------------
 
@@ -203,6 +225,43 @@ Gains and KS
    gains_chart(gains_table(score, y))
 
 The solid ``cum_event_share`` curve lies above the diagonal and the dashed ``cum_non_event_share`` curve below it when the score ranks well. The dotted segment marks the band with the largest ``ks``. The KS of the bands is at most that of :func:`~kivi.plotting.roc_chart`, which compares every score rather than the band edges. As in :func:`~kivi.plotting.roc_chart`, ``ks=False`` leaves the segment out, and ``label`` names the score in the legend, so that the gains of several scores can be drawn on one ``ax``.
+
+Distributions
+-------------
+
+:func:`~kivi.plotting.distribution_chart` draws the ``non_event`` and ``event`` columns of a gains table or a WOE table: the share of all non-events and the share of all events in each row, side by side. Fixed edges give the bands of the score short labels:
+
+>>> import numpy as np
+>>> from kivi.plotting import distribution_chart
+>>> bands = gains_table(score, y, bins=[-np.inf, -1, -0.5, 0, 0.5, 1, np.inf])
+>>> bands[["non_event", "event"]]
+              non_event  event
+bin
+(1.0, inf]           46     40
+(0.5, 1.0]          166     31
+(0.0, 0.5]          280     34
+(-0.5, 0.0]         292     37
+(-1.0, -0.5]        173     13
+(-inf, -1.0]        391     18
+>>> ax = distribution_chart(bands)
+>>> [f"{bar.get_height():.3f}" for bar in ax.patches[:2]]
+['0.034', '0.123']
+>>> ax = distribution_chart(spec.tables["age"])
+
+.. plot::
+   :context: close-figs
+   :alt: Shares of all non-events and of all events in six score bands, and in the five age bins
+   :caption: Left: the highest band holds 23% of the events and 3% of the non-events, the lowest band 10% of the events and 29% of the non-events. Right: the youngest and the oldest age bins hold a larger share of the events than of the non-events.
+
+   import matplotlib.pyplot as plt
+   import numpy as np
+   from kivi.plotting import distribution_chart
+   bands = gains_table(score, y, bins=[-np.inf, -1, -0.5, 0, 0.5, 1, np.inf])
+   figure, (left, right) = plt.subplots(1, 2, figsize=(9, 3.6), layout="constrained")
+   distribution_chart(bands, ax=left)
+   distribution_chart(spec.tables["age"], ax=right)
+
+The rows keep the order of the table, so the bands of a gains table run from the highest score down, and an empty band keeps its place with bars of zero height. The shares come from the raw counts: for a group without events or without non-events they differ from the ``event_share`` and ``non_event_share`` columns of a WOE table, which smoothing keeps above zero. Where the two distributions differ most, the cumulative shares of :func:`~kivi.plotting.gains_chart` move apart fastest.
 
 Calibration
 -----------
@@ -467,6 +526,6 @@ Traceback (most recent call last):
 ...
 ValueError: table must have the columns ['total_share', 'event_rate', 'iv'] of kivi.woe.woe_table, missing ['total_share', 'event_rate', 'iv']
 
-An ``ax`` that is not a matplotlib Axes, an empty table, a column that is not numeric and a correlation matrix with a value outside [-1, 1] raise a ``ValueError`` as well. A chart that raises does not leave an empty figure behind.
+An ``ax`` that is not a matplotlib Axes, an empty table, a column that is not numeric, a negative count or a table without events or without non-events in :func:`~kivi.plotting.distribution_chart`, and a correlation matrix with a value outside [-1, 1] raise a ``ValueError`` as well. A chart that raises does not leave an empty figure behind.
 
 matplotlib warns when more than 20 figures are open. When a report draws a chart for each of many variables, save each figure and close it with ``plt.close(ax.figure)``.
