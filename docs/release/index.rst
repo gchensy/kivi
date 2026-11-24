@@ -8,6 +8,44 @@ Changes merged since the last release.
 
 .. release-fragments::
 
+1.4.0 (2026-11-24)
+------------------
+
+New
+^^^
+
+* ``kivi.plotting.distribution_chart`` draws the share of all non-events and the share of all events in each row of a gains table or a WOE table as bars side by side, from the raw ``non_event`` and ``event`` counts, in the order of the table and with its empty rows.
+* ``kivi.plotting.precision_recall_chart`` draws the precision against the true positive rate, the recall, of every threshold of a ROC table as steps whose area is the average precision, with a dashed line at the event rate of the sample, the precision of a score that ranks at random.
+
+* ``kivi.selection.vif_filter`` drops the variable with the largest VIF, recomputes the VIFs of the others and repeats until no VIF exceeds ``threshold`` (5 by default). Variables with infinite VIFs go first, and ``priority``, such as the information values, decides between tied VIFs. It returns the kept columns, like ``correlation_filter``.
+* ``kivi.selection.selection_path`` fits the logistic regression on the first 1, 2, 3 and more variables of an order, such as the variables sorted by information value, and returns one row per step with the variable added, the AUC, Gini and KS of the model, its largest Wald p-value and its smallest coefficient. An optional validation sample adds the same metrics on that sample, scored with the models of the development sample. Each row equals what ``logistic_regression`` and ``kivi.metrics`` give on the same columns.
+
+* ``kivi.vintage.migration_bandwidth`` and ``kivi.vintage.migration_test`` summarize and test the migrations of customers between rating grades, as sections 2.5.5.1 and 2.5.5.2 of the European Central Bank's instructions for reporting the validation results of internal models ask. The first gives the upper and lower matrix weighted bandwidth (MWB) of the migrations to worse and to better grades. The second gives, for every off-diagonal cell of the migration matrix, the z test of whether it holds more customers than its neighbour towards the diagonal. Both take the grades of each customer at the beginning and at the end of the period like ``transition_matrix``, with ``grades`` from the best to the worst, and count a customer whose status at the end is not a grade, such as ``"default"`` or ``"closed"``, among the customers of its grade at the beginning.
+* ``kivi.calibration.concentration_test`` gives the HI and the coefficient of variation of the shares of the grades of a rating scale and tests whether they are more concentrated than at the initial validation, as section 2.5.5.3 of the ECB's instructions asks. The HI is ``1 + ln(HHI) / ln(K)`` for the Herfindahl-Hirschman index of ``herfindahl_index`` and ``K`` grades.
+* ``kivi.calibration.backtest_table`` back-tests continuous estimates, such as LGDs, ELBEs and CCFs, against their realized values: for every group it gives the mean estimate and realized value, the variance of their difference and the t test of the ECB's instructions. Its p-value is one-sided, as sections 2.6.2.1, 2.8.2.1 and 2.9.3.1 ask for the LGD, the LGD in-default and the CCF, so small p-values mean that the estimates are too low; the ELBE test of section 2.7.2.1 is two-sided, with the p-value ``2 * min(p_value, 1 - p_value)``.
+* ``kivi.calibration.spiegelhalter_test`` tests the probabilities of single observations with Spiegelhalter's z statistic, which compares their Brier score with the score they would have if they were the true probabilities. ``kivi.calibration.brier_decomposition`` splits the Brier score by groups into reliability, resolution and uncertainty, plus two terms for probabilities that vary within a group, which are 0 on a master scale whose grades each have one PD.
+* ``kivi.metrics.generalized_auc`` gives the generalized AUC of the ECB's instructions (section 2.6.3.1 and annex 3.2) and Somers' D, with their standard errors and a confidence interval like ``roc_auc_interval``. It measures how well estimated segments, such as the facility grades of an LGD model, rank realized ones, such as the realized LGDs cut into segments.
+* The new guide to model validation maps the quantitative tools of the ECB's validation report to kivi's functions, and shows the back-tests, the comparison of the current AUC and gAUC with those of the initial validation, and the twelve LGD segments of the ECB on simulated data.
+
+* ``kivi.woe.woe_trend`` names the shape of the WOE over the bins of a numeric variable, from a ``woe_table`` result or a table of a ``BinningSpec``: ``"increasing"``, ``"decreasing"``, ``"u_shaped"``, ``"inverted_u"``, ``"irregular"`` or ``"flat"``. It reads the rows labeled with intervals in the order of the table, leaves out the rows of special codes and missing values, and counts neighbouring bins with equal WOE as neither rising nor falling.
+
+Changed
+^^^^^^^
+
+* The vintage guide gains a diagram of how ``delinquency_panel`` turns the instalments and payments of one loan into its rows at each month end. The binning guide gains a diagram of the second step of ``ks_edges``, which compares the best cuts of the two bins of the first cut, and says why ``ks_edges`` is not in its comparison of the methods.
+* The diagram of ``ahp_weights`` in the guide to expert scorecards shows the statistics of ``ahp_consistency`` as the unnamed Series that the function returns, without the column name ``value``.
+* The glossary defines ChiMerge, Best-KS and monotonic binning, delinquency buckets, bad definitions, the overdue and outstanding amounts of ``delinquency_panel``, the tolerances of ``delinquency_panel`` and of the AHP functions and the global weights of sub-factors, and tells the events of ``kivi.features`` apart from the events of a target.
+
+* The migration guide corrects its mappings of 0.2.x: ``StepWise`` compared the models of a fixed order and becomes ``selection_path``, while ``stepwise`` selects by p-values; ``VIF.LowVIFFeatures`` becomes ``vif_filter``, ``woe/utils.monotony`` becomes ``woe_trend``, and ``BinaryMetrics.plot_ks``, ``plot_score`` and ``plot_pr`` become ``gains_chart``, ``distribution_chart`` and ``precision_recall_chart``. It states how each differs from the legacy code, and gives pandas code for ``int_score`` and ``StepWise.top_n_features``, which are not ported.
+* The conventions page describes the arguments ``realized``, ``estimated`` and ``grades``, the compatibility page lists the tables of ``selection_path`` and of the validation tests and the labels of ``woe_trend``, and the glossary defines back-tests, the Brier decomposition, the generalized AUC and Somers' D, the HHI and the HI, the migration matrix and its bandwidth, the initial validation, the ELBE and the CCF, the precision-recall curve, average precision and recall, the selection path, VIFs and their elimination, and the trend of the WOE.
+* The guide to model validation comes after the guide to model monitoring, and the home page and the index of the user guide describe it. The guides gain diagrams of how ``generalized_auc``, ``migration_bandwidth`` and ``migration_test`` compute their results, and charts of a selection path, of the Brier decomposition, of the concentration of grades and of the back-test of LGD grades.
+
+* The README gallery opens with a chart of time-window features: the share of applicants and the event rate per band of the cash withdrawals in the last three months and in the three months before, computed with a ``FeatureSpec`` from synthetic transactions. The features guide shows the same chart after its screening of these features.
+* The workflow diagram of the README starts with defining the features once with a ``FeatureSpec`` and computing them for every sample, before the bin edges are fitted once and every sample is cut with them.
+
+* The tutorial gains a chapter on transaction features, after the data and samples, so it has eleven chapters. The lender dates the applications, simulates the transactions on the applicants' accounts with ``make_transactions``, derives cash, repayment and purchase features as of each application date with a ``FeatureSpec``, checks that the transactions after the application count in none of them, profiles them with ``profile_table`` next to the application data, and saves the specification as JSON. The scorecard of the later chapters still uses the application data alone, and their results are unchanged.
+* The chapter on the loan book under IFRS 9 reads the repayment history of each loan with ``panel_features`` and shows how a probation of six months for cured loans changes the stages and the loss allowance.
+
 1.3.0 (2026-11-23)
 ------------------
 
