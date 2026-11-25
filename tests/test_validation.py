@@ -28,6 +28,7 @@ from kivi import (
     metrics,
     monitoring,
     reject_inference,
+    rules,
     scorecard,
     selection,
     spec,
@@ -47,6 +48,7 @@ GROUPS = ["a", "a", "b", "b", "a", "b", "a", "b"]
 VALUES = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
 PERIOD = ["p1"] * 4 + ["p2"] * 4
 FRAME = {"x": VALUES, "g": GROUPS}
+RULES = {"high": [0, 1, 1, 0, 0, 1, 0, 1], "low": [1, 0, 0, 0, 1, 1, 0, 0]}
 
 # Each case: the function, its arguments that describe the same rows, and its other options.
 # A dict stands for a DataFrame, or for the array of its values.
@@ -105,6 +107,11 @@ CASES = {
     "brier_score": (
         metrics.brier_score,
         {"probability": SCORE, "target": TARGET, "weights": WEIGHTS},
+        {},
+    ),
+    "expected_maximum_profit": (
+        metrics.expected_maximum_profit,
+        {"score": SCORE, "target": TARGET, "weights": WEIGHTS},
         {},
     ),
     "generalized_auc": (
@@ -170,7 +177,13 @@ CASES = {
     ),
     "cutoff_table": (
         strategy.cutoff_table,
-        {"score": SCORE, "target": TARGET, "loss": [10.0] * ROWS, "weights": WEIGHTS},
+        {
+            "score": SCORE,
+            "target": TARGET,
+            "loss": [10.0] * ROWS,
+            "revenue": VALUES,
+            "weights": WEIGHTS,
+        },
         {"cutoffs": [0.5]},
     ),
     "confusion_table": (
@@ -182,6 +195,16 @@ CASES = {
         strategy.swap_set,
         {"current": SCORE, "new": NEW, "target": TARGET, "weights": WEIGHTS},
         {"current_cutoff": 0.5, "new_cutoff": 0.5},
+    ),
+    "rule_table": (
+        rules.rule_table,
+        {"rules": RULES, "target": TARGET, "weights": WEIGHTS},
+        {},
+    ),
+    "rule_set_table": (
+        rules.rule_set_table,
+        {"rules": RULES, "target": TARGET, "weights": WEIGHTS},
+        {},
     ),
     "expected_loss_table": (
         strategy.expected_loss_table,
@@ -368,7 +391,7 @@ OTHER = pd.Index(range(100, 100 + ROWS))
 
 def _is_frame(case: str, name: str) -> bool:
     """Whether the argument is always a DataFrame, which always has an index."""
-    return name == "frame" or (case == "stability_table" and name == "groups")
+    return name in ("frame", "rules") or (case == "stability_table" and name == "groups")
 
 
 def _call(case: str, indices: dict):
@@ -543,7 +566,7 @@ SMOOTHED = {
 def test_every_public_smoothing_argument_is_checked():
     modules = (binning, calibration, capital, lgd, lifetime, metrics, monitoring, reject_inference)
     modules += (scorecard, selection, spec, stability, strategy, univariate, vintage, woe, datasets)
-    modules += (expert, features)
+    modules += (expert, features, rules)
     names = set()
     for module in modules:
         for name in module.__all__:
@@ -944,6 +967,15 @@ def _option_cases():
             SCORE, NEW, current_cutoff=0.5, new_cutoff=o
         ),
         "profile_table-bins": lambda o: univariate.profile_table(frame, bins=o),
+        "expected_maximum_profit-no_loss_share": lambda o: metrics.expected_maximum_profit(
+            SCORE, TARGET, no_loss_share=o
+        ),
+        "expected_maximum_profit-full_loss_share": lambda o: metrics.expected_maximum_profit(
+            SCORE, TARGET, full_loss_share=o
+        ),
+        "expected_maximum_profit-roi": lambda o: metrics.expected_maximum_profit(
+            SCORE, TARGET, roi=o
+        ),
         "monitoring_table-smoothing": lambda o: monitoring.monitoring_table(
             SCORE, PERIOD, reference_period="p1", smoothing=o
         ),

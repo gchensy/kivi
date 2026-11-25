@@ -32,21 +32,22 @@
 
 ## ✨ 特性
 
-- 🏦 **为风控团队打造。** 完整覆盖信用评分卡项目：由交易流水和还款历史计算的特征、单变量概况、分箱、变量筛选、拒绝推断、逻辑回归或基于两两比较的专家权重、分值刻度、模型评估、基于主标尺的校准、清收 LGD 与 CCF、截断点策略与预期损失、部署与逐期监控、监管机构对 PD、LGD 和 CCF 模型要求的验证检验、内部评级法资本要求，以及由还款计划构建的逾期面板、对已放款贷款的账龄（vintage）与滚动率分析、含提前还款的生存曲线和多种经济情景下的 IFRS 9 预期信用损失。
+- 🏦 **为风控团队打造。** 完整覆盖信用评分卡项目：由交易流水和还款历史计算的特征、单变量概况、分箱、变量筛选、拒绝推断、逻辑回归或基于两两比较的专家权重、分值刻度、模型评估、基于主标尺的校准、清收 LGD 与 CCF、按预期损失和利润为截断点定价、政策规则及其决策瀑布表、部署与逐期监控、监管机构对 PD、LGD 和 CCF 模型要求的验证检验、内部评级法资本要求，以及由还款计划构建的逾期面板、对已放款贷款的账龄（vintage）与滚动率分析、含提前还款的生存曲线和多种经济情景下的 IFRS 9 预期信用损失。
 - 📐 **一次拟合，处处复用。** 分箱边界、类别分组、WOE 表、主标尺和截断点都在开发样本上拟合，之后原样用于后续样本。`bin_edges` 学习等频或等距边界，`chimerge_edges`、`tree_edges`、`ks_edges` 和 `monotonic_edges` 还会利用目标变量，`chimerge_groups` 则合并事件率相近的类别。边界两端延伸至无穷，之后的任何取值都能落入某个箱。
 - ⏱️ **天然时点正确。** `window_features` 按自然月或天数的窗口汇总交易等事件，窗口截止于每个观察时间（如申请日期）之前；`panel_features` 只读取该时间所在月之前的月末还款状态，因此之后发生的事件不会混入特征。
 - 🔍 **结果透明。** 各类表格返回每箱、每个等级、每个截断点或每个筛选步骤的原始计数、平滑后的占比和单项贡献，而不只是一个总数。
 - 📏 **看得见的不确定性。** `roc_auc_interval` 给出 AUC 和 Gini 的 DeLong 置信区间，`delong_test` 检验两个评分在同一样本上的排序能力是否相同。
 - 🏛️ **按监管要求验证模型。** 提供欧洲央行内部评级法模型验证报告说明中的工具：`backtest_table` 用其 t 检验回测 LGD、ELBE 和 CCF，`generalized_auc` 衡量它们的排序能力，`migration_bandwidth` 和 `migration_test` 检查等级之间的迁移，`concentration_test` 检查等级的集中度；此外还有逐等级 PD 的 Jeffreys 检验、Spiegelhalter 检验和 Brier 分数分解。
 - 💧 **由现金流计算 LGD 与 EAD。** `workout_lgd` 按违约日的折现率把每次清收的回收和费用换算为实际 LGD，`conversion_factor` 给出每个信用额度的实际 CCF，`lgd_table` 按违约笔数平均 LGD 并把负值记为 0，`fractional_regression` 对其建模，口径与 EBA 指引和中国 2023 年规则一致。
+- 💰 **利润与政策规则。** `cutoff_table` 汇总每个截断点所通过资产的收益、损失和利润，`expected_maximum_profit` 用评分最优截断点的利润衡量信用评分，算法与 R 包 EMP 和 empulse 一致。`rule_table` 给出每条政策规则的命中、事件率、提升度和独有命中，`rule_set_table` 给出规则集的决策瀑布表，在只有通过申请人才有结果时同样适用。
 - 🧮 **按监管规则计算资本。** `capital_requirement` 计算巴塞尔框架和中国 2023 年规则的内部评级法风险权重函数，包括中小企业调整、金融机构乘数和期限调整，并能重现巴塞尔 II 附件 5 的 152 个风险权重。`conditional_pd` 和 `vasicek_fit` 基于其背后的单因子模型，`most_prudent_pd` 给出违约很少的组合的 PD 上界。
 - 💾 **生产环境可复现。** `FeatureSpec` 保存时间窗特征和还款行为特征的定义，`fit_spec` 一次对整个数据框分箱，`BinningSpec` 保存边界和 WOE 表，都是带版本号的 JSON，生产环境对新数据的计算和分组与开发时完全一致。
 - 🧩 **不悄悄丢数据。** 缺失值、`-1` 这类特殊编码、只在一个样本中出现的类别，都会单独成组；拟合好的分组或 WOE 表不认识的类别会报错，除非明确指定它的归属。
-- ⚖️ **全面支持样本权重。** 分箱、WOE、PSI、评估指标、校准、验证检验、模型拟合、策略表、监控报告、vintage 表、生存表、LGD 表和阶段汇总表都支持样本权重，整数权重相当于重复相应的行：计数、比率和系数都相同。只有分位数边界不同，因为加权分位数不做插值。
+- ⚖️ **全面支持样本权重。** 分箱、WOE、PSI、评估指标、校准、验证检验、模型拟合、策略表和规则表、监控报告、vintage 表、生存表、LGD 表和阶段汇总表都支持样本权重，整数权重相当于重复相应的行：计数、比率和系数都相同。只有分位数边界不同，因为加权分位数不做插值。
 - 🧊 **平滑口径清楚。** 空单元格先按 `smoothing`（默认 0.5）替换再归一化，结果中的计数始终是实际观测数。
 - 📊 **由结果表直接出图。** `kivi.plotting` 用 matplotlib 直接根据 kivi 返回的表绘制 WOE、ROC、精确率-召回率、增益、评分分布、校准、截断点、PSI、监控和 vintage 图表。
 - 🐼 **运行时只依赖 pandas 和 NumPy。** 只有可选的图表需要 matplotlib（`pip install "kivi[plot]"`）。核心不依赖 Spark 和数据库驱动，也不修改全局随机状态。
-- 🧪 **与参考库交叉验证。** CI 将重新实现的算法（如决策树切分、保序回归与 Platt 校准、逻辑回归拟合、DeLong 方差、验证检验中的 t 检验和 Somers' D、生存曲线、资本函数中的分位数与积分，以及分数 logit 的稳健标准误）与 scikit-learn、SciPy 和 statsmodels 的结果对照。
+- 🧪 **与参考库交叉验证。** CI 将重新实现的算法（如决策树切分、保序回归与 Platt 校准、逻辑回归拟合、DeLong 方差、验证检验中的 t 检验和 Somers' D、生存曲线、资本函数中的分位数与积分，以及分数 logit 的稳健标准误）与 scikit-learn、SciPy 和 statsmodels 的结果对照，并用 empulse 算出的数值核对期望最大利润。
 - 🌏 **中英双语文档，示例全部经过测试。** 两种语言文档中的每个示例都会在 CI 中运行。
 
 ## 📊 图表示例
@@ -124,6 +125,16 @@
       <br><b>LGD 的驱动因素</b>：由 <code>lgd_table</code> 得到的有抵押贷款按贷款价值比分段的平均 LGD。
     </td>
   </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <a href="https://gchensy.github.io/kivi/zh/user_guide/rules.html#decision-waterfall"><img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/readme-rules.svg" alt="每条政策规则拒绝的申请人及通过资产的事件率"></a>
+      <br><b>政策规则</b>：四条规则的决策瀑布表，每条规则新增拒绝的申请人，以及剩余通过资产的事件率。
+    </td>
+    <td width="50%" valign="top">
+      <a href="https://gchensy.github.io/kivi/zh/user_guide/strategy.html#revenue-and-profit"><img src="https://raw.githubusercontent.com/gchensy/kivi/master/docs/_static/readme-profit.svg" alt="各截断点通过资产的收益、预期损失和利润"></a>
+      <br><b>各截断点的利润</b>：通过资产的收益、预期损失和利润，利润在盈亏平衡 PD 附近最高。
+    </td>
+  </tr>
 </table>
 
 ## 🧭 工作流程
@@ -136,10 +147,10 @@
 | 分析候选变量 | `kivi.univariate` | `profile_table` |
 | 分箱与编码 | `kivi.binning`、`kivi.woe` | `bin_edges`、`monotonic_edges`、`chimerge_groups`、`woe_table`、`woe_trend`、`woe_transform` |
 | 筛选与拟合 | `kivi.selection`、`kivi.reject_inference` | `vif_filter`、`selection_path`、`stepwise`、`logistic_regression`、`fuzzy_augmentation` |
-| 刻度与评估 | `kivi.scorecard`、`kivi.metrics` | `points_table`、`roc_auc`、`roc_auc_interval`、`gains_table` |
+| 刻度与评估 | `kivi.scorecard`、`kivi.metrics` | `points_table`、`roc_auc`、`roc_auc_interval`、`gains_table`、`expected_maximum_profit` |
 | 校准 | `kivi.calibration` | `master_scale`、`assign_grades`、`jeffreys_test` |
 | 估计 LGD 与 EAD | `kivi.lgd` | `workout_lgd`、`conversion_factor`、`lgd_table`、`fractional_regression` |
-| 决策 | `kivi.strategy` | `cutoff_table`、`confusion_table`、`swap_set`、`expected_loss_table` |
+| 决策 | `kivi.strategy`、`kivi.rules` | `cutoff_table`、`confusion_table`、`swap_set`、`expected_loss_table`、`rule_table`、`rule_set_table` |
 | 部署与监控 | `kivi.spec`、`kivi.monitoring`、`kivi.stability` | `fit_spec`、`monitoring_table`、`stability_table`、`csi_table` |
 | 验证 | `kivi.calibration`、`kivi.metrics`、`kivi.vintage` | `backtest_table`、`generalized_auc`、`migration_test`、`concentration_test` |
 | 计算资本 | `kivi.capital` | `capital_requirement`、`conditional_pd`、`vasicek_fit`、`most_prudent_pd` |
@@ -236,6 +247,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | [`kivi.metrics.gains_table`](https://gchensy.github.io/kivi/zh/api/metrics.html#kivi.metrics.gains_table) | 按分数段统计的增益与提升，含累计捕获率和 KS |
 | [`kivi.metrics.roc_table`](https://gchensy.github.io/kivi/zh/api/metrics.html#kivi.metrics.roc_table), [`kivi.metrics.roc_auc_interval`](https://gchensy.github.io/kivi/zh/api/metrics.html#kivi.metrics.roc_auc_interval), [`kivi.metrics.delong_test`](https://gchensy.github.io/kivi/zh/api/metrics.html#kivi.metrics.delong_test) | 每个阈值一行的 ROC 曲线表、AUC 与 Gini 的 DeLong 置信区间，以及两个评分的 DeLong 检验 |
 | [`kivi.metrics.generalized_auc`](https://gchensy.github.io/kivi/zh/api/metrics.html#kivi.metrics.generalized_auc) | 估计分段相对实际分段（例如 LGD 模型的等级与实际 LGD）的广义 AUC 和 Somers' D，以及它们的标准误 |
+| [`kivi.metrics.expected_maximum_profit`](https://gchensy.github.io/kivi/zh/api/metrics.html#kivi.metrics.expected_maximum_profit) | 信用评分的期望最大利润（EMP）：在不确定的违约损失上平均的最优截断点每位申请人利润，以及该截断点拒绝的申请人占比 |
 | [`kivi.calibration.master_scale`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.master_scale), [`kivi.calibration.fit_grade_pd`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.fit_grade_pd), [`kivi.calibration.assign_grades`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.assign_grades) | 由各等级的 PD 构建主标尺或按违约率拟合主标尺，并为每个 PD 分配等级 |
 | [`kivi.calibration.calibration_table`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.calibration_table), [`kivi.calibration.binomial_test`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.binomial_test), [`kivi.calibration.jeffreys_test`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.jeffreys_test), [`kivi.calibration.hosmer_lemeshow`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.hosmer_lemeshow) | 按评级比较事件率与预测 PD，并做二项、Jeffreys 和 Hosmer-Lemeshow 检验 |
 | [`kivi.calibration.spiegelhalter_test`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.spiegelhalter_test), [`kivi.calibration.brier_decomposition`](https://gchensy.github.io/kivi/zh/api/calibration.html#kivi.calibration.brier_decomposition) | 对单个观测的 PD 做 Spiegelhalter 检验，并把 Brier 分数分解为可靠性、分辨力和不确定性 |
@@ -246,8 +258,9 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | [`kivi.lgd.workout_lgd`](https://gchensy.github.io/kivi/zh/api/lgd.html#kivi.lgd.workout_lgd) | 由清收现金流计算每笔违约贷款的实际 LGD：按每笔贷款的利率折现到违约日，违约前的费用复利到违约日，结果不截断 |
 | [`kivi.lgd.conversion_factor`](https://gchensy.github.io/kivi/zh/api/lgd.html#kivi.lgd.conversion_factor) | 由参考日的额度和已提用金额计算每个信用额度的实际 CCF，满额使用的额度为 NaN |
 | [`kivi.lgd.lgd_table`](https://gchensy.github.io/kivi/zh/api/lgd.html#kivi.lgd.lgd_table), [`kivi.lgd.fractional_regression`](https://gchensy.github.io/kivi/zh/api/lgd.html#kivi.lgd.fractional_regression) | 按组汇总 LGD（按监管的平均方式把负值记为 0），以及对 0 到 1 之间的响应做分数 logit 回归并给出稳健标准误 |
-| [`kivi.strategy.cutoff_table`](https://gchensy.github.io/kivi/zh/api/strategy.html#kivi.strategy.cutoff_table), [`kivi.strategy.swap_set`](https://gchensy.github.io/kivi/zh/api/strategy.html#kivi.strategy.swap_set), [`kivi.strategy.confusion_table`](https://gchensy.github.io/kivi/zh/api/strategy.html#kivi.strategy.confusion_table) | 每个截断点的通过率与坏账率、混淆矩阵、精确率、召回率与 F1，以及现行评分与新评分之间的交换集 |
+| [`kivi.strategy.cutoff_table`](https://gchensy.github.io/kivi/zh/api/strategy.html#kivi.strategy.cutoff_table), [`kivi.strategy.swap_set`](https://gchensy.github.io/kivi/zh/api/strategy.html#kivi.strategy.swap_set), [`kivi.strategy.confusion_table`](https://gchensy.github.io/kivi/zh/api/strategy.html#kivi.strategy.confusion_table) | 每个截断点的通过率与坏账率、通过资产的收益、损失与利润、混淆矩阵、精确率、召回率与 F1，以及现行评分与新评分之间的交换集 |
 | [`kivi.strategy.expected_loss`](https://gchensy.github.io/kivi/zh/api/strategy.html#kivi.strategy.expected_loss), [`kivi.strategy.expected_loss_table`](https://gchensy.github.io/kivi/zh/api/strategy.html#kivi.strategy.expected_loss_table) | 每笔敞口及各等级的预期损失 PD × LGD × EAD |
+| [`kivi.rules.rule_table`](https://gchensy.github.io/kivi/zh/api/rules.html#kivi.rules.rule_table), [`kivi.rules.rule_set_table`](https://gchensy.github.io/kivi/zh/api/rules.html#kivi.rules.rule_set_table) | 每条政策规则的命中、事件率、提升度、召回率与独有命中，以及规则集的决策瀑布表和它留下的通过资产 |
 | [`kivi.spec.fit_spec`](https://gchensy.github.io/kivi/zh/api/spec.html#kivi.spec.fit_spec), [`kivi.spec.BinningSpec`](https://gchensy.github.io/kivi/zh/api/spec.html#kivi.spec.BinningSpec) | 对整个数据框分箱并做 WOE 编码，把分箱方案保存为带版本号的 JSON |
 | [`kivi.stability.psi_table`](https://gchensy.github.io/kivi/zh/api/stability.html#kivi.stability.psi_table) | 两个样本逐组的 PSI 贡献 |
 | [`kivi.stability.csi_table`](https://gchensy.github.io/kivi/zh/api/stability.html#kivi.stability.csi_table) | 特征稳定性指数（CSI）：各变量的分布变化让平均分移动了多少 |
@@ -285,6 +298,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | 校准 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/calibration.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/calibration.html) |
 | LGD 与 EAD | [阅读](https://gchensy.github.io/kivi/zh/user_guide/lgd.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/lgd.html) |
 | 信贷策略 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/strategy.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/strategy.html) |
+| 政策规则 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/rules.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/rules.html) |
 | 分箱方案 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/spec.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/spec.html) |
 | PSI | [阅读](https://gchensy.github.io/kivi/zh/user_guide/psi.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/psi.html) |
 | 模型监控 | [阅读](https://gchensy.github.io/kivi/zh/user_guide/monitoring.html) | [Read](https://gchensy.github.io/kivi/en/user_guide/monitoring.html) |
@@ -327,7 +341,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 - ✅ 1.4：欧洲央行对 PD、LGD 和 CCF 模型的验证检验（迁移带宽与迁移检验、集中度检验、连续型估计值的回测和广义 AUC）、Spiegelhalter 检验与 Brier 分数分解、按 VIF 逐步剔除变量与变量选择路径、精确率-召回率图与分布图，以及 WOE 趋势标签
 - ✅ 1.5：监管资本（巴塞尔框架和中国 2023 年规则的内部评级法风险权重函数、Vasicek 单因子模型、低违约组合的 Pluto-Tasche 估计）、用于存续期 PD 的含竞争风险和左截断的生存曲线、含提前还款的贷款面板，以及多种经济情景下的预期信用损失
 - ✅ 1.6：LGD 与 EAD：按每笔贷款折现的清收 LGD、实际信用转换系数、分组 LGD 表、带稳健标准误的分数 logit、模拟的违约与回收数据，以及并列给出的巴塞尔、EBA 和中国规则
-- 🔜 1.7：规则与收益：政策规则的命中率与瀑布表、各截断点的收益与利润，以及评分的期望最大利润
+- ✅ 1.7：政策规则与利润：政策规则的命中率、独有命中和决策瀑布表，也可只在通过的申请人上衡量；各截断点的收益与利润；以及信用评分的期望最大利润
 
 ## 🤝 参与贡献
 

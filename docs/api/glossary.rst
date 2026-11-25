@@ -50,6 +50,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Brier decomposition
       The split of the Brier score of probabilities, by groups such as grades, into the reliability, how far the mean probability of each group lies from its event rate, the resolution, how far the event rates of the groups lie from the overall event rate, and the uncertainty, the variance of the outcomes. The Brier score is the reliability minus the resolution plus the uncertainty, plus two terms for probabilities that vary within a group; see :doc:`/user_guide/calibration`.
 
+   Candidate rule
+      A policy rule that is considered but not yet in force. Its event rate can be measured on the applicants that the current policy approved, which shows what adding it would change; see :doc:`/user_guide/rules`.
+
    Capital requirement (K)
       The unexpected loss of an exposure as a share of its EAD: the loss in the economy that is worse only once in a thousand years, minus the expected loss. Its risk weight is 12.5 K, and its risk-weighted assets are 12.5 K times the EAD; see :doc:`/user_guide/capital`.
 
@@ -110,6 +113,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Days past due (DPD)
       The number of days for which a contractual payment has been overdue. IFRS 9 rebuttably presumes a significant increase in credit risk when a payment is more than 30 days past due, and default no later than when it is 90 days past due; see :doc:`/user_guide/lifetime`, and :doc:`/user_guide/vintage` for how they are counted from a repayment schedule.
 
+   Decision waterfall
+      A set of policy rules applied in order, each declining the applicants it hits among those that the rules before it left approved, so that every decline counts once, under the first rule that hits it. Its last row describes the book that the whole set approves, whatever the order; see :doc:`/user_guide/rules`.
+
    Delinquency bucket
       A range of days past due that the status of a loan falls into at a month end, such as ``current``, ``1-29``, ``30-59``, ``60-89`` and ``90+``. Roll rates and transition matrices count how loans move between buckets from one month end to the next; see :doc:`/user_guide/vintage`.
 
@@ -158,6 +164,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Expected loss best estimate (ELBE)
       The best estimate of the loss of an exposure that is already in default, given the economic conditions at the time. The European Central Bank back-tests it against the realized losses with a two-sided t-test; see :doc:`/user_guide/validation`.
 
+   Expected maximum profit (EMP)
+      The profit per applicant, as a share of the loan amount, of the best cut-off of a credit score, compared with approving everyone and averaged over the uncertain loss of a default: none with one probability, all of the loan with another, and evenly spread in between. Proposed by Verbraken, Bravo, Weber and Baesens; see :doc:`/user_guide/metrics`.
+
    Expert scorecard
       A scorecard whose weights are set by the judgment of credit analysts rather than fitted to outcomes, for portfolios with too few defaults to fit a model; see :doc:`/user_guide/expert`.
 
@@ -197,6 +206,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    High-volatility commercial real estate (HVCRE)
       Commercial real estate lending whose repayment depends on the property and whose losses vary strongly with the economy. Its asset correlation falls from 0.30 to 0.12 as the PD rises, with 0.30 in place of the 0.24 of other corporate exposures; see :doc:`/user_guide/capital`.
 
+   Hit rate
+      The share of applicants that a policy rule hits, that is declines or flags; see :doc:`/user_guide/rules`.
+
    Information value (IV)
       The sum of the differences between the event share and the non-event share of each group, each times the group's WOE. It measures how strongly a grouped variable separates events from non-events on its own; see :doc:`/user_guide/woe_iv`.
 
@@ -216,7 +228,7 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       Observing accounts only from some age on, as in data that start after the loans were originated, so that those that defaulted or left before are missing. The ``entry`` of :func:`~kivi.lifetime.survival_table` keeps each account out of the risk sets of the periods before it was observed; see :doc:`/user_guide/lifetime`.
 
    Lift
-      The event rate of a group divided by the event rate of the whole sample. A lift above 1 marks a group that is riskier than average; see :doc:`/user_guide/metrics`.
+      The event rate of a group, such as a score band or the applicants that a policy rule hits, divided by the event rate of the whole sample. A lift above 1 marks a group that is riskier than average; see :doc:`/user_guide/metrics`.
 
    Long-run average LGD
       The default-weighted average LGD of all the defaults of a long period, each default counted once and negative LGDs counted as 0, with the open workouts included through an adjustment for their future recoveries. An LGD estimate may not fall below it; see :doc:`/user_guide/lgd`.
@@ -260,6 +272,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Most prudent estimate
       Pluto and Tasche's upper bound for the PD of a grade: the largest PD that the defaults of the grade and of all riskier grades do not reject at a confidence level, assuming that the PD does not fall from one grade to the next riskier one; see :doc:`/user_guide/capital`.
 
+   New hits
+      The applicants that a rule of a decision waterfall hits and no earlier rule did, the declines that the waterfall credits to it. They range from its unique hits, when the rule comes last, to all its hits, when it comes first; see :doc:`/user_guide/rules`.
+
    Observation
       In :mod:`kivi.features`, an entity and an observation time, such as an applicant and the date of the application: one row of the table ``observations``, for which every window is computed. An entity may have several observations, such as one per month end; see :doc:`/user_guide/features`.
 
@@ -284,6 +299,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Overdue amount
       The unpaid amount of the instalments of a loan that fell due before a month end: the ``overdue_amount`` column of :func:`~kivi.vintage.delinquency_panel`. An instalment due on the month end itself is not overdue yet; see :doc:`/user_guide/vintage`.
 
+   Overlap matrix
+      The number of applicants that both rules of each pair hit, with the hits of each rule on the diagonal; see :doc:`/user_guide/rules`.
+
    Pairwise comparison matrix
       A square matrix whose entry :math:`a_{ij}` says how many times more important factor :math:`i` is than factor :math:`j`, on the Saaty scale. Its diagonal is 1 and :math:`a_{ji} = 1 / a_{ij}`; see :doc:`/user_guide/expert`.
 
@@ -298,6 +316,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Points to double the odds (PDO)
       The number of scorecard points by which the score rises when the good:bad odds double. Together with a base score and the odds at that score, it sets the scale of a scorecard; see :doc:`/user_guide/scorecard`.
+
+   Policy rule
+      A condition on the data of an applicant, such as a debt-to-income ratio above a cap or an age below a minimum, that declines or refers the applicant whatever the score; see :doc:`/user_guide/rules`.
 
    Population stability index (PSI)
       A measure of how much the distribution of a variable or a score has shifted between a reference sample and a current one, summed over the groups from the change of each group's share; see :doc:`/user_guide/psi`.
@@ -324,7 +345,7 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       The variables that lowered an applicant's score most, compared with the best group of each variable, as given to a declined applicant; see :doc:`/user_guide/scorecard`.
 
    Recall
-      The share of all events that a score flags at a threshold: the ``true_positive_rate`` of :func:`~kivi.metrics.roc_table` and the ``recall`` of :func:`~kivi.strategy.confusion_table`; see :doc:`/user_guide/metrics`.
+      The share of all events that a score flags at a threshold, or that a policy rule hits: the ``true_positive_rate`` of :func:`~kivi.metrics.roc_table` and the ``recall`` of :func:`~kivi.strategy.confusion_table` and :func:`~kivi.rules.rule_table`; see :doc:`/user_guide/metrics`.
 
    Reference date
       The date at which the limit and the drawn amount of a credit line are taken for its realized CCF, 12 months before default in the fixed-horizon approach of the regulations; see :doc:`/user_guide/lgd`.
@@ -341,6 +362,12 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Reporting date
       The date at which a loss allowance is measured. Period 1 of an expected credit loss is the first period after it; see :doc:`/user_guide/lifetime`.
 
+   Return on investment (ROI)
+      In the expected maximum profit, the return that a good loan earns over its term as a share of the amount lent, which a cut-off gives up for each good applicant that it rejects; see :doc:`/user_guide/metrics`.
+
+   Revenue and profit
+      The revenue of an approved loan is what it earns, such as its interest margin and fees, and the profit of a cut-off is the revenue of the book that it approves less the losses of that book; see :doc:`/user_guide/strategy`.
+
    Risk set
       The accounts at risk of default in a period: already observed and with neither a default nor another exit before it. The accounts censored in the period still belong to it; see :doc:`/user_guide/lifetime`.
 
@@ -349,6 +376,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Robust standard error
       A standard error from the sandwich estimator, the inverse information times the sum of the outer products of the scores times the inverse information, which holds whatever the variance of the response, as for a fractional response; see :doc:`/user_guide/lgd`.
+
+   ROC convex hull
+      The upper convex hull of the ROC curve, the smallest concave curve on or above it. Whatever the loss of a default and the return of a good loan, the most profitable cut-off of a score lies on a vertex of the hull; see :doc:`/user_guide/metrics`.
 
    ROC curve
       The true positive rate, the share of events flagged, against the false positive rate, the share of non-events flagged, as the threshold moves through the scores from the riskiest down. The area under it is the AUC, and its largest vertical distance from the diagonal is the KS; see :doc:`/user_guide/metrics`.
@@ -398,6 +428,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Systematic factor
       The state of the economy in the one-factor model, a standard normal variable that all borrowers share, positive in years better than the median and negative in worse ones. A default rate implies its value given the PD and the asset correlation; see :doc:`/user_guide/capital`.
 
+   Test group
+      A random share of the applicants that is approved despite a policy rule or the cut-off, so that the outcomes of the applicants the policy declines become known; see :doc:`/user_guide/rules`.
+
    Through-the-cycle PD (TTC)
       A PD that averages over the states of the economy, such as the long-run PD of the one-factor model, the mean of the yearly default rates. A point-in-time PD follows the economy of the moment instead, the PD given the systematic factor; this sense differs from the point-in-time features of :mod:`kivi.features`; see :doc:`/user_guide/capital`.
 
@@ -409,6 +442,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Transition matrix
       A table that counts the loans or obligors that moved from each state to each other state between two dates, such as delinquency buckets or rating grades; see :doc:`/user_guide/vintage`.
+
+   Unique hits
+      The applicants that a policy rule hits and no other rule of the set does: the declines that rest on this rule alone, which removing it from the set would approve; see :doc:`/user_guide/rules`.
 
    Unseen category
       A category of a later sample that did not occur in the reference sample, so that its grouping or WOE table has no row for it. kivi raises an error for such a category unless an ``unseen`` policy says how to treat it; see :doc:`/user_guide/woe_iv`.

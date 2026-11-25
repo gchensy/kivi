@@ -3,7 +3,7 @@ Binning specifications
 
 A scorecard must group and encode every variable in the same way in development, validation and production. :func:`~kivi.spec.fit_spec` bins all the columns of a development sample in one call and measures the WOE of every group. The resulting :class:`~kivi.spec.BinningSpec` groups and encodes any other sample with the same edges and WOE values. It can be saved as JSON and loaded again in production without changing the groups or the encoding.
 
-Each column is fitted with the functions of :doc:`binning` and :doc:`woe_iv`, so a column of the specification has exactly the edges and table that those steps give it alone. A specification takes a model to production once the :doc:`credit strategy <strategy>` is set, and the samples that it groups are monitored with the :doc:`population stability index <psi>`.
+Each column is fitted with the functions of :doc:`binning` and :doc:`woe_iv`, so a column of the specification has exactly the edges and table that those steps give it alone. A specification takes a model to production once the :doc:`credit strategy <strategy>` and its :doc:`policy rules <rules>` are set, and the samples that it groups are monitored with the :doc:`population stability index <psi>`.
 
 Screening the candidates
 ------------------------

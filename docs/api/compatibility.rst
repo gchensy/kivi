@@ -24,7 +24,7 @@ kivi supports Python 3.10 or newer, NumPy 1.24 or newer and pandas 2.0 or newer,
 What is public
 --------------
 
-* The names that a public module lists in its ``__all__``: :mod:`kivi.features`, :mod:`kivi.binning`, :mod:`kivi.woe`, :mod:`kivi.stability`, :mod:`kivi.univariate`, :mod:`kivi.selection`, :mod:`kivi.scorecard`, :mod:`kivi.expert`, :mod:`kivi.metrics`, :mod:`kivi.calibration`, :mod:`kivi.lgd`, :mod:`kivi.strategy`, :mod:`kivi.reject_inference`, :mod:`kivi.spec`, :mod:`kivi.monitoring`, :mod:`kivi.capital`, :mod:`kivi.vintage`, :mod:`kivi.lifetime`, :mod:`kivi.plotting` and :mod:`kivi.datasets`. Each has a page in this reference that documents every such name. ``kivi.__version__`` is public too.
+* The names that a public module lists in its ``__all__``: :mod:`kivi.features`, :mod:`kivi.binning`, :mod:`kivi.woe`, :mod:`kivi.stability`, :mod:`kivi.univariate`, :mod:`kivi.selection`, :mod:`kivi.scorecard`, :mod:`kivi.expert`, :mod:`kivi.metrics`, :mod:`kivi.calibration`, :mod:`kivi.lgd`, :mod:`kivi.strategy`, :mod:`kivi.rules`, :mod:`kivi.reject_inference`, :mod:`kivi.spec`, :mod:`kivi.monitoring`, :mod:`kivi.capital`, :mod:`kivi.vintage`, :mod:`kivi.lifetime`, :mod:`kivi.plotting` and :mod:`kivi.datasets`. Each has a page in this reference that documents every such name. ``kivi.__version__`` is public too.
 * The documented members of :class:`~kivi.spec.BinningSpec`: its fields, ``FORMAT_VERSION``, ``format_version`` and ``columns``, its methods, and its equality, hashing, pickling and ``dataclasses.replace``. The same holds for :class:`~kivi.features.FeatureSpec`, which has ``FORMAT_VERSION`` and ``columns`` but no ``format_version``, because its format has one version so far. :exc:`~kivi.selection.SeparationError`, which :func:`~kivi.calibration.platt_fit` raises as well, stays in :mod:`kivi.selection`.
 * The names of the arguments. A keyword is part of a call, so renaming an argument needs a deprecation, even one that is usually passed by position.
 * Everything else is private: the modules and names that start with an underscore, and the modules that a public module imports, such as ``kivi.binning.np``. They can change in any release.
@@ -94,6 +94,9 @@ The index name, the column names and the order of the columns of every table are
    * - :func:`~kivi.metrics.generalized_auc`
      - ``statistic``: ``gauc`` and ``somers_d``
      - ``estimate``, ``se``, ``lower``, ``upper``
+   * - :func:`~kivi.metrics.expected_maximum_profit`
+     - A Series with the index ``statistic``: ``emp``, ``rejected_share``
+     -
    * - :func:`~kivi.univariate.profile_table`
      - ``variable``
      - ``kind``, ``count``, ``missing``, ``missing_share``, ``distinct``, ``top``, ``top_share``, ``special``, ``special_share``, ``mean``, ``std``, ``min``, ``q01``, ``q50``, ``q99``, ``max``, with a target ``event_rate``, ``missing_event_rate``, ``non_missing_event_rate``, ``missing_lift``, ``non_missing_lift``, ``iv``, ``tied_bins``, ``gini``, then ``skewness``, ``kurtosis``, ``cv``, and with a target ``ks``, ``chi2_p_value``
@@ -132,13 +135,19 @@ The index name, the column names and the order of the columns of every table are
      - ``lower``, ``probability``, ``upper``
    * - :func:`~kivi.strategy.cutoff_table`
      - ``cutoff``
-     - ``approved``, ``approval_rate``, ``approved_event``, ``approved_event_rate``, ``rejected_event_share``, ``rejected_non_event_share``, and with ``loss`` ``approved_loss``
+     - ``approved``, ``approval_rate``, ``approved_event``, ``approved_event_rate``, ``rejected_event_share``, ``rejected_non_event_share``, then with ``loss`` ``approved_loss``, with ``revenue`` ``approved_revenue``, and with both ``profit``
    * - :func:`~kivi.strategy.confusion_table`
      - ``cutoff``
      - ``true_positive``, ``false_positive``, ``true_negative``, ``false_negative``, ``precision``, ``recall``, ``f1``, ``accuracy``
    * - :func:`~kivi.strategy.swap_set`
      - ``current`` and ``new``, four rows
      - ``total``, ``share``, and with a target ``known``, ``event``, ``event_rate``
+   * - :func:`~kivi.rules.rule_table`
+     - ``rule``: the columns of ``rules``, in their order
+     - ``hits``, ``hit_rate``, ``unique_hits``, and with a target ``known``, ``event``, ``event_rate``, ``lift``, ``recall``, ``unique_event``
+   * - :func:`~kivi.rules.rule_set_table`
+     - ``rule``: the columns of ``rules``, in their order
+     - ``new_hits``, with a target ``new_event``, then ``approved``, ``approval_rate``, and with a target ``approved_event``, ``approved_event_rate``, ``rejected_event_share``, ``rejected_non_event_share``
    * - :func:`~kivi.reject_inference.fuzzy_augmentation`
      - The index of ``probability``, each reject twice
      - ``target``, ``weight``
