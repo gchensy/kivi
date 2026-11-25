@@ -84,8 +84,8 @@ def test_beta_quantile_with_one_as_second_shape_is_a_power():
         np.testing.assert_allclose(_stats.beta_quantile(a, 1.0, probability), expected, rtol=1e-15)
 
 
-@pytest.mark.parametrize("a", [0.3, 0.9, 1.5, 4.0, 30.0, 250.0, 1000.0])
-@pytest.mark.parametrize("b", [0.3, 0.9, 2.5, 7.0, 40.0, 400.0])
+@pytest.mark.parametrize("a", [0.3, 0.9, 1.5, 4.0, 12.0, 30.0, 250.0, 1000.0])
+@pytest.mark.parametrize("b", [0.3, 0.9, 2.5, 7.0, 15.0, 40.0, 400.0])
 def test_beta_quantile_inverts_the_incomplete_beta_function(a, b):
     probability = np.array([1e-200, 1e-30, 1e-6, 0.01, 0.2, 0.5, 0.8, 0.99, 1 - 1e-6, 1 - 1e-13])
     x = _stats.beta_quantile(a, b, probability)
@@ -130,13 +130,56 @@ def test_beta_quantile_rejects_probabilities_outside_the_unit_interval(probabili
         _stats.beta_quantile(2.0, 3.0, [0.5, probability])
 
 
+# mpmath at 50 digits: I_x(a, b) far below the mean, where both shapes take Stirling's series.
+FAR_BELOW_THE_MEAN = [
+    (10.1, 73820.0, 1.3552527156068805e-20, 6.92036024359672e-159),
+    (10.53, 357.8, 1.73e-18, 6.45668447288524e-168),
+    (100.0, 12.0, 0.05, 2.135681609583152e-116),
+]
+
+
+@pytest.mark.parametrize("a,b,x,expected", FAR_BELOW_THE_MEAN)
+def test_incomplete_beta_keeps_its_digits_far_below_the_mean(a, b, x, expected):
+    # x - a / (a + b) rounds to -a / (a + b) once x is that far below the mean, which a direct
+    # ln(1 + t) - t would turn into 0 or a value off by orders of magnitude.
+    assert _stats.betainc(a, b, x) == pytest.approx(expected, rel=1e-13, abs=0)
+
+
+def test_front_factor_is_symmetric_in_the_two_tails():
+    # ln[x**a (1 - x)**b / B(a, b)] at x equals the same with a and b swapped at 1 - x, which
+    # is exact here, including where one side is far from the mean.
+    x = 1 - np.array([2.0**-50, 2.0**-30, 1e-6, 0.01, 0.2, 0.5])
+    for a, b in [(10.5, 20000.0), (40.0, 60.0), (5000.0, 12.0)]:
+        a_, b_ = np.full_like(x, a), np.full_like(x, b)
+        np.testing.assert_allclose(
+            _stats._log_front(a_, b_, x), _stats._log_front(b_, a_, 1 - x), rtol=1e-13
+        )
+
+
+# mpmath at 40 digits: the root of I_x(a, b) = p for a tiny p and shapes from 10 to 20.
+TINY_PROBABILITY_ROOTS = [
+    (10.1, 73820.0, 1.344e-287, 2.4450328514247079e-33),
+    (10.1, 73820.0, 1e-200, 9.7596284855112365e-25),
+    (10.67, 1309.0, 7.05e-299, 4.1517495729100537e-31),
+    (15.0, 400.0, 1e-250, 3.4004002326659835e-19),
+    (20.0, 2000.0, 1e-150, 1.3068327624148203e-10),
+]
+
+
+@pytest.mark.parametrize("a,b,probability,expected", TINY_PROBABILITY_ROOTS)
+def test_beta_quantile_of_tiny_probabilities_with_shapes_from_10_to_20(a, b, probability, expected):
+    assert _stats.beta_quantile(a, b, probability) == pytest.approx(expected, rel=1e-13, abs=0)
+
+
 def test_beta_quantile_reports_a_search_that_does_not_converge(monkeypatch):
     monkeypatch.setattr(_stats, "_BETA_ITERATIONS", 1)
     with pytest.raises(ArithmeticError, match="the beta quantile did not converge"):
         _stats.beta_quantile(2.0, 3.0, 0.4)
 
 
-BETA_SHAPES = [0.1, 0.5, 0.9, 1.5, 2.0, 5.0, 30.0, 200.0, 1e3, 1e4, 1e5, 1e6]
+# Shapes from 10 to 20 take the Stirling series of the front factor with a mean that a tiny
+# probability lies far below.
+BETA_SHAPES = [0.1, 0.5, 0.9, 1.5, 2.0, 5.0, 10.1, 15.0, 20.0, 30.0, 200.0, 1e3, 1e4, 1e5, 1e6]
 BETA_PROBABILITIES = [1e-300, 1e-100, 1e-30, 1e-12, 1e-6, 1e-3, 0.01, 0.05, 0.1, 0.3, 0.5]
 BETA_PROBABILITIES += [0.7, 0.9, 0.95, 0.99, 0.999, 1 - 1e-6, 1 - 1e-12, 1 - 1e-15]
 

@@ -77,9 +77,18 @@ def _log_front(
         a_, b_, x_ = a[both], b[both], x[both]
         total = a_ + b_
         p0, q0 = a_ / total, b_ / total
+        lower = a_ * _log1pmx((x_ - p0) / p0)
+        upper = b_ * _log1pmx((p0 - x_) / q0)
+        # Far from the mean x - p0 rounds to -p0 once x / p0 is below 1e-16, and 1 - x - q0 to
+        # -q0. There a ln(x / p0) - (total x - a), the same quantity, subtracts a large logarithm
+        # from a small term and loses nothing; likewise for 1 - x, whose logarithm is log1p(-x).
+        far = x_ < p0 / 2
+        lower[far] = (a_ * (np.log(x_) - np.log(p0)) - (total * x_ - a_))[far]
+        near = 1 - x_ < q0 / 2
+        upper[near] = (b_ * (np.log1p(-x_) - np.log(q0)) - (total * (1 - x_) - b_))[near]
         result[both] = (
-            a_ * _log1pmx((x_ - p0) / p0)
-            + b_ * _log1pmx((p0 - x_) / q0)
+            lower
+            + upper
             + 0.5 * (np.log(a_) + np.log(b_) - np.log(total))
             - _HALF_LOG_2PI
             + _stirling_correction(total)
