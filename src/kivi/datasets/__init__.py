@@ -3,8 +3,9 @@
 ``load_bank`` loads a real data set with a binary target,
 ``make_loan_panel`` simulates the monthly history of a loan portfolio,
 ``make_applications`` simulates loan applications with an approval decision,
-and ``make_transactions`` simulates the account transactions of the applicants
-before their applications.
+``make_transactions`` simulates the account transactions of the applicants
+before their applications, and ``make_defaults`` and ``make_recoveries``
+simulate defaulted loans and the cash flows of their workouts.
 """
 
 from importlib import resources
@@ -13,9 +14,17 @@ import pandas as pd
 
 from ._applications import make_applications
 from ._loan_panel import make_loan_panel
+from ._recoveries import make_defaults, make_recoveries
 from ._transactions import make_transactions
 
-__all__ = ["load_bank", "make_applications", "make_loan_panel", "make_transactions"]
+__all__ = [
+    "load_bank",
+    "make_applications",
+    "make_defaults",
+    "make_loan_panel",
+    "make_recoveries",
+    "make_transactions",
+]
 
 
 def load_bank() -> pd.DataFrame:

@@ -6,7 +6,14 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from kivi.datasets import load_bank, make_applications, make_loan_panel, make_transactions
+from kivi.datasets import (
+    load_bank,
+    make_applications,
+    make_defaults,
+    make_loan_panel,
+    make_recoveries,
+    make_transactions,
+)
 from kivi.metrics import roc_auc
 
 STATUSES = ["current", "1-29", "30-59", "60-89", "90+"]
@@ -1093,3 +1100,534 @@ def test_a_date_column_must_hold_dates(few):
     ]:
         with pytest.raises(ValueError, match=re.escape(message)):
             make_transactions(few.assign(decided=values), application_date="decided")
+
+
+DEFAULT_COLUMNS = [
+    "loan_id",
+    "segment",
+    "default_date",
+    "ead",
+    "limit",
+    "drawn",
+    "collateral_value",
+    "discount_rate",
+    "closing_date",
+]
+FLOW_COLUMNS = ["loan_id", "date", "amount", "kind"]
+SEGMENTS = ["secured", "unsecured", "revolving"]
+FLOW_KINDS = ["recovery", "cost", "cure"]
+CUT_OFF = pd.Timestamp("2025-06-30")
+
+
+@pytest.fixture(scope="module")
+def workouts():
+    defaults = make_defaults(n_defaults=20000, rng=1)
+    return defaults, make_recoveries(defaults, rng=1)
+
+
+def positions(defaults, flows):
+    """Row of each cash flow's loan in the defaults."""
+    position = pd.Index(defaults["loan_id"]).get_indexer(flows["loan_id"])
+    assert (position >= 0).all()
+    return position
+
+
+def realized_lgd(defaults, flows):
+    """(ead + PV(costs) - PV(recoveries)) / ead of every loan, at its discount rate and ACT/365."""
+    position = positions(defaults, flows)
+    elapsed = flows["date"].to_numpy() - defaults["default_date"].to_numpy()[position]
+    days = elapsed / np.timedelta64(1, "D")
+    rate = defaults["discount_rate"].to_numpy()[position]
+    present = flows["amount"].to_numpy() * (1 + rate) ** (-days / 365)
+    n = len(defaults)
+    recovery = np.bincount(position, np.where(present > 0, present, 0.0), minlength=n)
+    cost = np.bincount(position, np.where(present < 0, -present, 0.0), minlength=n)
+    ead = defaults["ead"].to_numpy()
+    return (ead + cost - recovery) / ead
+
+
+def cured_loans(defaults, flows):
+    return defaults["loan_id"].isin(flows.loc[flows["kind"] == "cure", "loan_id"]).to_numpy()
+
+
+def test_defaults_columns_and_dtypes():
+    defaults = make_defaults(rng=0)
+    assert isinstance(defaults, pd.DataFrame)
+    assert list(defaults.columns) == DEFAULT_COLUMNS
+    assert defaults.shape == (2000, 9)
+    assert defaults.index.equals(pd.RangeIndex(2000))
+    assert defaults.dtypes.astype(str).to_dict() == {
+        "loan_id": "int64",
+        "segment": "category",
+        "default_date": "datetime64[ns]",
+        "ead": "float64",
+        "limit": "float64",
+        "drawn": "float64",
+        "collateral_value": "float64",
+        "discount_rate": "float64",
+        "closing_date": "datetime64[ns]",
+    }
+    assert defaults["segment"].cat.categories.tolist() == SEGMENTS
+    assert not defaults["segment"].cat.ordered
+    assert defaults["loan_id"].tolist() == list(range(1, 2001))
+    assert defaults["default_date"].is_monotonic_increasing
+
+
+def test_defaults_of_a_fixed_seed():
+    defaults = make_defaults(rng=0)
+    assert defaults["segment"].value_counts(sort=False).tolist() == [846, 665, 489]
+    assert defaults["closing_date"].isna().sum() == 278
+    first, second = defaults.iloc[0], defaults.iloc[1]
+    assert first["segment"] == "secured" and second["segment"] == "revolving"
+    assert first["default_date"] == pd.Timestamp("2018-01-01")
+    assert first["ead"] == 307147.39 and first["collateral_value"] == 312800.0
+    assert np.isnan(first["limit"]) and np.isnan(first["drawn"])
+    assert first["closing_date"] == pd.Timestamp("2019-08-17")
+    assert (second["ead"], second["limit"], second["drawn"]) == (2471.68, 5100.0, 2043.04)
+    assert second["collateral_value"] == 0 and second["discount_rate"] == 0.05
+
+
+def test_default_values_lie_in_their_ranges(workouts):
+    defaults, _ = workouts
+    assert not defaults[["loan_id", "segment", "default_date", "ead"]].isna().any().any()
+    assert defaults["default_date"].min() >= pd.Timestamp("2018-01-01")
+    assert defaults["default_date"].max() <= pd.Timestamp("2024-12-31")
+    shares = defaults["segment"].value_counts(normalize=True, sort=False)
+    np.testing.assert_allclose(shares, [0.40, 0.35, 0.25], atol=0.015)
+    ead = defaults["ead"]
+    assert (ead > 0).all()
+    np.testing.assert_array_equal(ead, ead.round(2))
+    revolving = defaults["segment"] == "revolving"
+    secured = defaults["segment"] == "secured"
+    assert defaults["limit"].notna().equals(revolving)
+    assert defaults["drawn"].notna().equals(revolving)
+    limit, drawn = defaults.loc[revolving, "limit"], defaults.loc[revolving, "drawn"]
+    assert (limit >= 500).all() and (drawn > 0).all()
+    np.testing.assert_array_equal(limit, limit.round(-2))
+    np.testing.assert_array_equal(drawn, drawn.round(2))
+    collateral = defaults["collateral_value"]
+    assert (collateral > 0).equals(secured) and (collateral[~secured] == 0).all()
+    np.testing.assert_array_equal(collateral, collateral.round(-2))
+    # The median secured loan owes a quarter less than its collateral is worth, and some owe more.
+    ltv = defaults.loc[secured, "ead"] / collateral[secured]
+    assert 0.7 < ltv.median() < 0.8 and 0.1 < (ltv > 1).mean() < 0.25
+
+
+def test_the_discount_rate_is_fixed_at_the_month_of_default(workouts):
+    defaults, _ = workouts
+    rate = defaults["discount_rate"]
+    assert rate.min() == 0.05 and rate.max() == 0.09
+    np.testing.assert_array_equal(rate, rate.round(4))
+    month = defaults["default_date"].dt.to_period("M")
+    assert (rate.groupby(month).nunique() == 1).all()
+    by_month = rate.groupby(month).first()
+    assert (by_month[:"2021-12"] == 0.05).all()
+    assert by_month[pd.Period("2023-10", freq="M")] == 0.09
+    assert by_month["2022-01":"2023-10"].is_monotonic_increasing
+    assert by_month["2023-10":].is_monotonic_decreasing
+
+
+def test_workouts_last_at_least_three_months_and_end_by_the_cut_off(workouts):
+    defaults, _ = workouts
+    closing = defaults["closing_date"]
+    closed = closing.notna()
+    assert 0.1 < 1 - closed.mean() < 0.2
+    length = (closing - defaults["default_date"])[closed].dt.days
+    assert length.min() >= 91 and closing.max() <= CUT_OFF
+    # The workouts still open started later than the others.
+    assert defaults.loc[~closed, "default_date"].median() > defaults["default_date"].quantile(0.8)
+
+
+def test_the_ccfs_of_revolving_lines_mostly_lie_from_zero_to_one(workouts):
+    defaults, _ = workouts
+    lines = defaults[defaults["segment"] == "revolving"]
+    ead, drawn, limit = (lines[name].to_numpy() for name in ("ead", "drawn", "limit"))
+    fully_drawn = drawn >= limit
+    assert 0.02 < (drawn == limit).mean() < 0.04
+    assert 0.02 < (drawn > limit).mean() < 0.04
+    ccf = (ead[~fully_drawn] - drawn[~fully_drawn]) / (limit[~fully_drawn] - drawn[~fully_drawn])
+    assert 0.75 < ((ccf >= 0) & (ccf <= 1)).mean() < 0.85
+    assert 0.07 < (ccf < 0).mean() < 0.13 and 0.07 < (ccf > 1).mean() < 0.13
+    assert 0.5 < np.median(ccf) < 0.65
+    # A fully drawn line still draws or repays a little before default.
+    change = ead[fully_drawn] / drawn[fully_drawn]
+    assert change.min() >= 0.98 - 1e-6 and change.max() <= 1.15 + 1e-6
+
+
+def test_defaults_are_reproducible_and_leave_global_state_alone():
+    # Reads the legacy global state only to check that the generator does not touch it.
+    state = np.random.get_state()  # noqa: NPY002
+    first = make_defaults(n_defaults=300, rng=3)
+    after = np.random.get_state()  # noqa: NPY002
+    assert all(np.array_equal(a, b) for a, b in zip(state, after, strict=True))
+    pd.testing.assert_frame_equal(first, make_defaults(n_defaults=300, rng=3))
+    pd.testing.assert_frame_equal(
+        first, make_defaults(n_defaults=300, rng=np.random.default_rng(3))
+    )
+    assert not first.equals(make_defaults(n_defaults=300, rng=4))
+
+
+def test_defaults_advance_a_generator():
+    generator = np.random.default_rng(5)
+    first = make_defaults(n_defaults=50, rng=generator)
+    second = make_defaults(n_defaults=50, rng=generator)
+    assert not first.equals(second)
+
+
+def test_smallest_defaults():
+    defaults = make_defaults(n_defaults=1, rng=0)
+    assert defaults.shape == (1, 9) and defaults["loan_id"].tolist() == [1]
+    pd.testing.assert_frame_equal(make_defaults(n_defaults=np.int64(1), rng=0), defaults)
+    assert len(make_recoveries(defaults, rng=0)) > 0
+
+
+def test_defaults_size_is_keyword_only():
+    with pytest.raises(TypeError, match="positional argument"):
+        make_defaults(20)
+
+
+@pytest.mark.parametrize("value", [0, -3, 2.5, True, "10", None])
+def test_n_defaults_must_be_a_positive_integer(value):
+    with pytest.raises(ValueError, match=rf"n_defaults must be a positive integer, got {value!r}"):
+        make_defaults(n_defaults=value)
+
+
+def test_recoveries_columns_and_dtypes(workouts):
+    defaults, flows = workouts
+    assert isinstance(flows, pd.DataFrame)
+    assert list(flows.columns) == FLOW_COLUMNS
+    assert flows.dtypes.astype(str).to_dict() == {
+        "loan_id": "int64",
+        "date": "datetime64[ns]",
+        "amount": "float64",
+        "kind": "category",
+    }
+    assert flows["kind"].cat.categories.tolist() == FLOW_KINDS
+    assert not flows["kind"].cat.ordered
+    assert flows.index.equals(pd.RangeIndex(len(flows)))
+    assert not flows.isna().any().any()
+    assert set(flows["loan_id"]) <= set(defaults["loan_id"])
+
+
+def test_recoveries_of_a_fixed_seed():
+    flows = make_recoveries(make_defaults(rng=0), rng=0)
+    assert flows.shape == (11497, 4)
+    assert flows["kind"].value_counts(sort=False).tolist() == [6806, 4278, 413]
+    first = flows[flows["loan_id"] == 1]
+    assert (
+        first["date"].tolist()
+        == pd.to_datetime(
+            [
+                "2018-04-10",
+                "2018-11-01",
+                "2019-05-14",
+                "2019-07-11",
+                "2019-08-02",
+                "2019-08-17",
+                "2019-08-17",
+            ]
+        ).tolist()
+    )
+    assert first["amount"].tolist() == [
+        -808.71,
+        -1543.90,
+        -552.91,
+        3595.22,
+        2012.10,
+        233970.35,
+        -7019.11,
+    ]
+    assert first["kind"].tolist() == ["cost"] * 3 + ["recovery"] * 3 + ["cost"]
+
+
+def test_recoveries_are_sorted_by_loan_and_date(workouts):
+    defaults, flows = workouts
+    position = positions(defaults, flows)
+    days = flows["date"].to_numpy()
+    step = np.diff(position)
+    assert (step >= 0).all()
+    assert (np.diff(days)[step == 0] >= np.timedelta64(0, "D")).all()
+
+
+def test_the_sign_of_an_amount_follows_its_kind(workouts):
+    _, flows = workouts
+    amount, kind = flows["amount"], flows["kind"]
+    np.testing.assert_array_equal(amount, amount.round(2))
+    assert (amount[kind == "cost"] < 0).all()
+    assert (amount[kind != "cost"] > 0).all()
+    assert (flows["date"].dt.normalize() == flows["date"]).all()
+
+
+def test_no_cash_flow_follows_the_closing_date_or_the_cut_off(workouts):
+    defaults, flows = workouts
+    position = positions(defaults, flows)
+    assert flows["date"].max() <= CUT_OFF
+    closing = defaults["closing_date"].to_numpy()[position]
+    closed = ~np.isnat(closing)
+    assert (flows["date"].to_numpy()[closed] <= closing[closed]).all()
+    # Open workouts have cash flows up to the cut-off, but none after it.
+    assert flows.loc[~closed, "date"].max() > CUT_OFF - pd.DateOffset(months=1)
+
+
+def test_only_costs_precede_the_default_date(workouts):
+    defaults, flows = workouts
+    position = positions(defaults, flows)
+    default_date = defaults["default_date"].to_numpy()[position]
+    early = flows["date"].to_numpy() < default_date
+    assert (flows.loc[early, "kind"] == "cost").all()
+    before = (default_date - flows["date"].to_numpy())[early] / np.timedelta64(1, "D")
+    assert before.min() >= 1 and before.max() <= 90
+    assert 0.04 < len(np.unique(position[early])) / len(defaults) < 0.06
+
+
+def test_a_cure_repays_the_outstanding_amount_on_the_closing_date(workouts):
+    defaults, flows = workouts
+    position = positions(defaults, flows)
+    cure = (flows["kind"] == "cure").to_numpy()
+    assert np.bincount(position[cure], minlength=len(defaults)).max() == 1
+    cured = cured_loans(defaults, flows)
+    closing = defaults["closing_date"].to_numpy()
+    assert not np.isnat(closing[cured]).any()
+    np.testing.assert_array_equal(flows["date"].to_numpy()[cure], closing[position[cure]])
+    last = flows.groupby(position)["date"].max()
+    np.testing.assert_array_equal(last[np.flatnonzero(cured)], closing[cured])
+    # The arrears paid during the workout plus the cure make the exposure, up to rounding.
+    of_cured = cured[position] & (flows["kind"] != "cost").to_numpy()
+    repaid = np.bincount(position[of_cured], flows["amount"].to_numpy()[of_cured], len(defaults))
+    count = np.bincount(position[of_cured], minlength=len(defaults))
+    error = np.abs(repaid - defaults["ead"].to_numpy())[cured]
+    assert (error <= 0.005 * count[cured] + 1e-6).all()
+
+
+def test_the_collateral_of_a_secured_loan_is_sold_on_the_closing_date(workouts):
+    defaults, flows = workouts
+    position = positions(defaults, flows)
+    closed = defaults["closing_date"].notna().to_numpy()
+    sold = (defaults["segment"] == "secured").to_numpy() & closed & ~cured_loans(defaults, flows)
+    on_closing = flows["date"].to_numpy() == defaults["closing_date"].to_numpy()[position]
+    sale = on_closing & (flows["kind"] == "recovery").to_numpy()
+    assert set(position[sale]) >= set(np.flatnonzero(sold))
+    # Its costs are 3% of the proceeds, which cover the claim of most loans.
+    proceeds = np.bincount(position[sale], flows["amount"].to_numpy()[sale], len(defaults))[sold]
+    assert 0.5 < np.median(proceeds / defaults["ead"].to_numpy()[sold]) < 1.2
+
+
+def test_the_realized_lgds_are_bimodal_by_segment(workouts):
+    defaults, flows = workouts
+    lgd = realized_lgd(defaults, flows)
+    closed = defaults["closing_date"].notna().to_numpy()
+    cured = cured_loans(defaults, flows)
+    segment = defaults["segment"].to_numpy()
+    secured, unsecured, revolving = (closed & (segment == name) for name in SEGMENTS)
+    assert np.median(lgd[secured]) < 0.06 and np.median(lgd[secured & ~cured]) < 0.1
+    assert np.median(lgd[unsecured & ~cured]) > 0.85 and np.median(lgd[revolving & ~cured]) > 0.8
+    assert 0.6 < lgd[revolving].mean() < lgd[unsecured].mean() < 0.85
+    known = lgd[closed]
+    middle = ((known >= 0.3) & (known < 0.7)).mean()
+    assert middle < 0.15 < 0.35 < (known < 0.15).mean() and (known >= 0.7).mean() > 0.4
+
+
+def test_cured_loans_have_small_positive_lgds(workouts):
+    defaults, flows = workouts
+    lgd = realized_lgd(defaults, flows)
+    cured = cured_loans(defaults, flows)
+    closed = defaults["closing_date"].notna().to_numpy()
+    assert (lgd[cured] > 0).all() and np.median(lgd[cured]) < 0.05
+    segment = defaults["segment"].to_numpy()
+    share = [cured[closed & (segment == name)].mean() for name in SEGMENTS]
+    assert 0.3 < share[0] < 0.42 and 0.08 < share[1] < 0.15 and 0.12 < share[2] < 0.2
+    # Cures are short, so the closed workouts hold more of them than all workouts do.
+    overall = [cured[segment == name].mean() for name in SEGMENTS]
+    np.testing.assert_allclose(overall, [0.30, 0.10, 0.15], atol=0.015)
+
+
+def test_some_lgds_are_negative_and_some_exceed_one(workouts):
+    defaults, flows = workouts
+    lgd = realized_lgd(defaults, flows)
+    closed = defaults["closing_date"].notna().to_numpy()
+    segment = defaults["segment"].to_numpy()
+    negative = closed & (lgd < 0)
+    # Recoveries above the exposure: the collateral covered the claim with default interest.
+    assert 0.01 < negative.sum() / closed.sum() < 0.03
+    assert (segment[negative] == "secured").all() and not cured_loans(defaults, flows)[
+        negative
+    ].any()
+    above = closed & (lgd > 1)
+    assert 0.04 < above.sum() / closed.sum() < 0.09
+    assert lgd[closed].max() > 1.3 and lgd[closed].min() > -0.2
+
+
+def test_the_lgd_so_far_of_an_open_workout_overstates_its_loss(workouts):
+    defaults, flows = workouts
+    lgd = realized_lgd(defaults, flows)
+    closed = defaults["closing_date"].notna().to_numpy()
+    segment = defaults["segment"].to_numpy()
+    for name in SEGMENTS:
+        assert lgd[~closed & (segment == name)].mean() > lgd[closed & (segment == name)].mean()
+    # No collateral of an open workout has been sold yet.
+    assert lgd[~closed & (segment == "secured")].min() > 0.9
+    assert not cured_loans(defaults, flows)[~closed].any()
+
+
+def test_recoveries_read_only_the_required_columns(workouts):
+    defaults, _ = workouts
+    small = defaults.iloc[:500]
+    expected = make_recoveries(small, rng=2)
+    required = small[["loan_id", "segment", "default_date", "ead", "collateral_value"]]
+    reordered = required.assign(
+        closing_date=small["closing_date"], extra="x", discount_rate=0.0, limit=0.0
+    )
+    pd.testing.assert_frame_equal(make_recoveries(reordered, rng=2), expected)
+    pd.testing.assert_frame_equal(
+        make_recoveries(small.set_index("ead", drop=False), rng=2), expected
+    )
+    # Text segments and loan ids of any kind are read as well.
+    labelled = small.assign(
+        segment=small["segment"].astype(str), loan_id="L" + small["loan_id"].astype(str)
+    )
+    relabelled = make_recoveries(labelled, rng=2)
+    assert relabelled["loan_id"].tolist() == ("L" + expected["loan_id"].astype(str)).tolist()
+    pd.testing.assert_frame_equal(
+        relabelled.drop(columns="loan_id"), expected.drop(columns="loan_id")
+    )
+
+
+def test_recoveries_of_a_subset_and_of_no_loans(workouts):
+    defaults, _ = workouts
+    closed = defaults[defaults["closing_date"].notna()].head(300)
+    flows = make_recoveries(closed, rng=0)
+    assert set(flows["loan_id"]) == set(closed["loan_id"])
+    empty = make_recoveries(defaults.iloc[:0], rng=0)
+    assert list(empty.columns) == FLOW_COLUMNS and len(empty) == 0
+    assert empty["kind"].cat.categories.tolist() == FLOW_KINDS
+
+
+def test_recoveries_are_reproducible_and_leave_global_state_alone():
+    defaults = make_defaults(n_defaults=300, rng=0)
+    # Reads the legacy global state only to check that the generator does not touch it.
+    state = np.random.get_state()  # noqa: NPY002
+    first = make_recoveries(defaults, rng=3)
+    after = np.random.get_state()  # noqa: NPY002
+    assert all(np.array_equal(a, b) for a, b in zip(state, after, strict=True))
+    pd.testing.assert_frame_equal(first, make_recoveries(defaults, rng=3))
+    pd.testing.assert_frame_equal(first, make_recoveries(defaults, rng=np.random.default_rng(3)))
+    assert not first.equals(make_recoveries(defaults, rng=4))
+    pd.testing.assert_frame_equal(defaults, make_defaults(n_defaults=300, rng=0))
+
+
+def test_recoveries_advance_a_generator():
+    defaults = make_defaults(n_defaults=50, rng=0)
+    generator = np.random.default_rng(5)
+    first = make_recoveries(defaults, rng=generator)
+    second = make_recoveries(defaults, rng=generator)
+    assert not first.equals(second)
+
+
+def test_recoveries_rng_is_keyword_only():
+    defaults = make_defaults(n_defaults=5, rng=0)
+    with pytest.raises(TypeError, match="positional argument"):
+        make_recoveries(defaults, 0)
+    message = "rng must be None, an integer, a SeedSequence or a Generator, got 'seed'"
+    with pytest.raises(ValueError, match=message):
+        make_recoveries(defaults, rng="seed")
+
+
+@pytest.fixture(scope="module")
+def five():
+    return make_defaults(n_defaults=5, rng=0)
+
+
+def test_defaults_must_be_a_data_frame_with_the_required_columns(five):
+    with pytest.raises(ValueError, match="defaults must be a DataFrame, got dict"):
+        make_recoveries(five.to_dict())
+    message = (
+        "defaults must have the columns ['loan_id', 'segment', 'default_date', 'ead', "
+        "'collateral_value', 'closing_date'], got no column ['ead', 'closing_date']"
+    )
+    with pytest.raises(ValueError, match=re.escape(message)):
+        make_recoveries(five.drop(columns=["ead", "closing_date"]))
+    doubled = pd.concat([five, five[["ead"]]], axis=1)
+    with pytest.raises(ValueError, match="defaults has more than one column named 'ead'"):
+        make_recoveries(doubled)
+
+
+@pytest.mark.parametrize(
+    ("column", "values", "message"),
+    [
+        ("loan_id", [1, 2, None, 4, 5], "column 'loan_id' must not contain missing values, got 1"),
+        ("loan_id", [1, 2, 3, 2, 5], "column 'loan_id' must hold unique values, got 2 twice"),
+        (
+            "segment",
+            ["secured", "mortgage", "secured", "unsecured", "revolving"],
+            "column 'segment' must hold ['secured', 'unsecured', 'revolving'], got 'mortgage'",
+        ),
+        (
+            "segment",
+            ["secured", np.nan, "secured", "unsecured", "revolving"],
+            "column 'segment' must hold ['secured', 'unsecured', 'revolving'], got nan",
+        ),
+        (
+            "default_date",
+            ["2020-01-01"] * 5,
+            "column 'default_date' must have a datetime64 dtype, got dtype ",
+        ),
+        (
+            "default_date",
+            pd.to_datetime(["2020-01-01", None, "2020-01-01", "2020-01-01", "2020-01-01"]),
+            "column 'default_date' must not contain missing values, got 1",
+        ),
+        (
+            "default_date",
+            pd.date_range("2025-06-29", periods=5),
+            "column 'default_date' must lie between 1678-01-01 and the cut-off 2025-06-30, "
+            "got Timestamp('2025-07-01 00:00:00')",
+        ),
+        (
+            "default_date",
+            pd.date_range("2020-01-01", periods=5, tz="UTC", unit="ns"),
+            "column 'default_date' must have a datetime64 dtype, got dtype datetime64[ns, UTC]",
+        ),
+        (
+            "closing_date",
+            pd.to_datetime(["2017-12-31", None, None, None, None]),
+            "column 'closing_date' must not lie before the default date, got "
+            "Timestamp('2017-12-31 00:00:00')",
+        ),
+        (
+            "closing_date",
+            pd.to_datetime([None, "2025-07-01", None, None, None]),
+            "column 'closing_date' must not lie after the cut-off 2025-06-30, got "
+            "Timestamp('2025-07-01 00:00:00')",
+        ),
+        (
+            "closing_date",
+            [0] * 5,
+            "column 'closing_date' must have a datetime64 dtype, got dtype int64",
+        ),
+        ("ead", [1.0, 0.0, 1.0, 1.0, 1.0], "column 'ead' must be finite and positive, got 0.0"),
+        ("ead", [1.0, np.nan, 1.0, 1.0, 1.0], "column 'ead' must be finite and positive, got nan"),
+        ("ead", [1.0, np.inf, 1.0, 1.0, 1.0], "column 'ead' must be finite and positive, got inf"),
+        ("ead", [True] * 5, "column 'ead' must be real and numeric, got dtype bool"),
+        ("ead", ["1"] * 5, "column 'ead' must be real and numeric, got dtype "),
+        (
+            "collateral_value",
+            [0.0, -1.0, 0.0, 0.0, 0.0],
+            "column 'collateral_value' must be finite and non-negative, got -1.0",
+        ),
+    ],
+)
+def test_defaults_columns_must_hold_valid_values(five, column, values, message):
+    defaults = five.copy()
+    defaults[column] = values
+    with pytest.raises(ValueError, match=re.escape(message)):
+        make_recoveries(defaults)
+
+
+def test_a_workout_may_close_on_its_default_date(five):
+    defaults = five.assign(closing_date=five["default_date"])
+    flows = make_recoveries(defaults, rng=0)
+    position = positions(defaults, flows)
+    assert (flows["date"].to_numpy() <= defaults["closing_date"].to_numpy()[position]).all()
+    # A time of day is ignored.
+    later = five.assign(default_date=five["default_date"] + pd.Timedelta(hours=9))
+    pd.testing.assert_frame_equal(make_recoveries(later, rng=0), make_recoveries(five, rng=0))
