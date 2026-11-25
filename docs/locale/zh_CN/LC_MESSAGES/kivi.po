@@ -7970,6 +7970,635 @@ msgstr ""
 "数值变量各箱的 WOE 从最低取值到最高取值的形状：单调上升、单调下降、U 形、倒 U 形、方向改变不止一次时为不规则，或者平坦。单调分箱使其单调上升或单调下降；见 "
 ":doc:`/user_guide/woe_iv` 。"
 
+msgid "LGD and EAD"
+msgstr "LGD 与 EAD"
+
+msgid ""
+"Measure and model the loss given default and the credit conversion factor of defaulted loans. "
+":func:`~kivi.lgd.workout_lgd` discounts the recoveries and costs of each workout to the date of "
+"default, :func:`~kivi.lgd.conversion_factor` gives the realized CCF of a credit line, "
+":func:`~kivi.lgd.lgd_table` summarizes realized LGDs by group and "
+":func:`~kivi.lgd.fractional_regression` fits the fractional logit of an LGD on its drivers."
+msgstr ""
+"度量违约贷款的违约损失率和信用转换系数并为其建模。 :func:`~kivi.lgd.workout_lgd` 把每笔清收的回收和费用折现到违约日， "
+":func:`~kivi.lgd.conversion_factor` 给出授信额度的实际 CCF， :func:`~kivi.lgd.lgd_table` 按分组汇总实际 LGD， "
+":func:`~kivi.lgd.fractional_regression` 对 LGD 及其驱动因素拟合分数 logit。"
+
+msgid ""
+"See :doc:`/user_guide/lgd` for examples and the rules of the Basel framework, the EBA and China's"
+" capital rules."
+msgstr "示例以及巴塞尔框架、EBA 和中国资本管理办法的规则见 :doc:`/user_guide/lgd` 。"
+
+msgid ":py:obj:`workout_lgd <kivi.lgd.workout_lgd>`\\ \\(loan\\, default\\_date\\, ead\\, ...\\)"
+msgstr ":py:obj:`workout_lgd <kivi.lgd.workout_lgd>`\\ \\(loan\\, default\\_date\\, ead\\, ...\\)"
+
+msgid "Compute the realized LGD of defaulted loans from their workout cash flows."
+msgstr "由清收现金流计算违约贷款的实际 LGD。"
+
+msgid ":py:obj:`conversion_factor <kivi.lgd.conversion_factor>`\\ \\(ead\\, drawn\\, limit\\)"
+msgstr ":py:obj:`conversion_factor <kivi.lgd.conversion_factor>`\\ \\(ead\\, drawn\\, limit\\)"
+
+msgid "Compute the realized credit conversion factor of each credit line."
+msgstr "计算每个授信额度的实际信用转换系数。"
+
+msgid ":py:obj:`lgd_table <kivi.lgd.lgd_table>`\\ \\(groups\\, lgd\\, \\*\\[\\, floor\\, weights\\]\\)"
+msgstr ":py:obj:`lgd_table <kivi.lgd.lgd_table>`\\ \\(groups\\, lgd\\, \\*\\[\\, floor\\, weights\\]\\)"
+
+msgid "Summarize realized LGDs by group."
+msgstr "按分组汇总实际 LGD。"
+
+msgid ""
+":py:obj:`fractional_regression <kivi.lgd.fractional_regression>`\\ \\(X\\, response\\, \\*\\[\\, "
+"weights\\]\\)"
+msgstr ""
+":py:obj:`fractional_regression <kivi.lgd.fractional_regression>`\\ \\(X\\, response\\, \\*\\[\\, "
+"weights\\]\\)"
+
+msgid "Fit a fractional logit regression of a response between 0 and 1."
+msgstr "对取值在 0 到 1 之间的响应拟合分数 logit 回归。"
+
+msgid ""
+"The economic loss of a defaulted loan is its exposure at default plus the costs of the workout, "
+"minus the recoveries, all discounted to the date of default. Its ratio to the exposure at default"
+" is the realized loss given default of the workout approach."
+msgstr "违约贷款的经济损失是其违约风险敞口加上清收费用、减去回收，全部折现到违约日。它与违约风险敞口之比就是清收法下的实际违约损失率。"
+
+msgid "**loan**"
+msgstr "**loan**"
+
+msgid "Defaulted loans, each once. The result has one row per loan, in this order."
+msgstr "违约贷款，每笔一次。结果每笔贷款一行，顺序与此相同。"
+
+msgid "**default_date**"
+msgstr "**default_date**"
+
+msgid ""
+"Date of default of each loan, as dates or as strings that `pandas.to_datetime` reads. A time of "
+"day is ignored."
+msgstr "每笔贷款的违约日，可以是日期，也可以是 `pandas.to_datetime` 能读取的日期字符串。时刻会被忽略。"
+
+msgid "**ead**"
+msgstr "**ead**"
+
+msgid ""
+"Exposure at default of each loan, positive and finite: the amount outstanding at default, "
+"including accrued interest and fees, plus any amount written off at or before default."
+msgstr "每笔贷款的违约风险敞口，为有限正数：违约时的未偿金额，包括应计利息和费用，再加上违约时或违约前核销的金额。"
+
+msgid "**flow_loan**"
+msgstr "**flow_loan**"
+
+msgid ""
+"Loan of each cash flow of the workouts. Every one must be a loan of `loan`, and a loan without "
+"flows has recovered nothing. The flows need not be sorted, and their Series may have any index."
+msgstr "清收中每笔现金流所属的贷款。每一笔都必须是 `loan` 中的贷款；没有现金流的贷款视为没有任何回收。现金流无需排序，其 Series 可以有任意索引。"
+
+msgid "**flow_date**"
+msgstr "**flow_date**"
+
+msgid "Date of each cash flow, read like `default_date`."
+msgstr "每笔现金流的日期，读法与 `default_date` 相同。"
+
+msgid "**flow_amount**"
+msgstr "**flow_amount**"
+
+msgid ""
+"Amount of each cash flow, finite: positive for a recovery, such as a repayment, the proceeds of "
+"collateral or a cure, and negative for a cost of the workout or a drawing after default. Costs "
+"may come before the date of default; recoveries may not."
+msgstr "每笔现金流的金额，为有限值：回收为正，例如还款、处置押品所得或治愈；清收费用或违约后的追加提款为负。费用可以早于违约日，回收不可以。"
+
+msgid "**rate**"
+msgstr "**rate**"
+
+msgid "float or array_like"
+msgstr "float 或 array_like"
+
+msgid ""
+"Annual discount rate, greater than -1, as one rate for every loan or one per loan, matched to "
+"`loan` like `ead`, such as the 3-month interbank rate at the date of default plus 5 percentage "
+"points."
+msgstr "年折现率，大于 -1；可以为所有贷款给出一个利率，也可以每笔贷款一个，与 `loan` 的对应方式和 `ead` 相同，例如违约日的 3 个月银行间利率加 5 个百分点。"
+
+msgid ""
+"One row per loan, indexed by `loan` in an index named ``loan``, with ``ead``; ``recovery``, the "
+"present value of the positive flows; ``cost``, the present value of the negative flows as a "
+"positive amount; and ``lgd``, which is ``(ead + cost - recovery) / ead``."
+msgstr ""
+"每笔贷款一行，以 `loan` 为索引，索引名为 ``loan`` ，列为 ``ead`` ； ``recovery`` ，正现金流的现值； ``cost`` ，负现金流的现值，记为正数；以及 "
+"``lgd`` ，等于 ``(ead + cost - recovery) / ead`` 。"
+
+msgid ""
+"If the inputs of the loans, or those of the flows, are not one-dimensional, have different "
+"lengths or are Series with different indices, or if `loan` is empty. Also if a loan or a date is "
+"missing or repeats a loan, a date cannot be read, `ead` is missing or not positive and finite, an"
+" amount is missing, infinite or not a number, a flow belongs to a loan that is not in `loan`, a "
+"recovery comes before the date of default of its loan, or `rate` is missing, not finite, at most "
+"-1 or not one rate or one per loan. Booleans are not amounts or rates."
+msgstr ""
+"如果贷款的输入或现金流的输入不是一维的、长度不同或是索引不同的 Series，或者 `loan` 为空。另外，如果贷款或日期缺失或贷款重复，日期无法读取， `ead` "
+"缺失或不是有限正数，金额缺失、无穷或不是数值，某笔现金流所属的贷款不在 `loan` 中，回收早于其贷款的违约日，或者 `rate` 缺失、不是有限值、不大于 "
+"-1，或既不是一个利率也不是每笔贷款一个利率。布尔值不能作为金额或利率。"
+
+msgid ":obj:`lgd_table`"
+msgstr ":obj:`lgd_table`"
+
+msgid "Long-run average LGDs by group."
+msgstr "按分组的长期平均 LGD。"
+
+msgid ":obj:`fractional_regression`"
+msgstr ":obj:`fractional_regression`"
+
+msgid "Model the LGD on its drivers."
+msgstr "对 LGD 及其驱动因素建模。"
+
+msgid "Reads dates in the same way."
+msgstr "以同样的方式读取日期。"
+
+msgid ""
+"A flow of amount :math:`a_j` on the date :math:`t_j` of a loan that defaulted on the date "
+":math:`t_D` with the annual rate :math:`r` has the present value"
+msgstr "违约日为 :math:`t_D` 、年利率为 :math:`r` 的贷款在日期 :math:`t_j` 发生的金额为 :math:`a_j` 的现金流，其现值为"
+
+#, python-brace-format
+msgid "\\mathrm{PV}_j = a_j \\, (1 + r)^{-(t_j - t_D) / 365},"
+msgstr "\\mathrm{PV}_j = a_j \\, (1 + r)^{-(t_j - t_D) / 365},"
+
+msgid ""
+"with the days counted ACT/365. A cost before the date of default has a negative exponent and is "
+"compounded to the date of default. With the sums :math:`R` of the present values of the positive "
+"flows and :math:`C` of those of the negative flows, as a positive amount,"
+msgstr "天数按 ACT/365 计算。违约日之前的费用指数为负，即复利计算到违约日。记正现金流现值之和为 :math:`R` ，负现金流现值之和（记为正数）为 :math:`C` ，则"
+
+msgid "\\mathrm{LGD} = \\frac{\\mathrm{EAD} + C - R}{\\mathrm{EAD}}."
+msgstr "\\mathrm{LGD} = \\frac{\\mathrm{EAD} + C - R}{\\mathrm{EAD}}."
+
+msgid ""
+"This is the economic loss of paragraphs 131 to 146 of [R857870815ee0-1]_ and of CRE36.76 of the "
+"Basel framework. The LGD is not clipped to [0, 1]: it is negative when the recoveries exceed the "
+"exposure and the costs, and above 1 when the costs exceed the recoveries. `lgd_table` floors it "
+"at 0 for long-run averages (paragraph 160 of [R857870815ee0-1]_)."
+msgstr ""
+"这就是 [R857870815ee0-1]_ 第 131 至 146 段和巴塞尔框架 CRE36.76 中的经济损失。LGD 不截断到 [0, "
+"1]：回收超过敞口与费用之和时为负，费用超过回收时大于 1。计算长期平均时 `lgd_table` 把它的下限设为 0（ [R857870815ee0-1]_ 第 160 段）。"
+
+msgid ""
+"The function does not know whether a workout has ended, and gives the loss of the flows so far: a"
+" loan without flows has an LGD of 1. A realized LGD exists only for a closed workout (paragraph "
+"154 of [R857870815ee0-1]_; section 2.6.1 of [R857870815ee0-2]_), so select the loans whose "
+"recovery process has closed, by the bank's definition of its end, before averaging or back-"
+"testing."
+msgstr ""
+"函数不知道清收是否已经结束，给出的是到目前为止的现金流造成的损失：没有现金流的贷款 LGD 为 1。实际 LGD 只对已结案的清收成立（ [R857870815ee0-1]_ 第 154 段； "
+"[R857870815ee0-2]_ 第 2.6.1 节），因此在求平均或回测之前，应按银行对清收结束的定义筛选出回收过程已结案的贷款。"
+
+msgid "The flows are the caller's to choose:"
+msgstr "现金流由调用者选定："
+
+msgid ""
+"A drawing after default is a negative flow, like a cost, so that it counts in the loss (paragraph"
+" 142 of [R857870815ee0-1]_). Where the conversion factor includes the drawings, paragraph 140 of "
+"[R857870815ee0-1]_ counts them in the exposure as well: add their present value to `ead` instead "
+"of passing them as flows, since `ead` counts in the loss too. The ``cost`` of a call with the "
+"drawings alone, negated, is that present value."
+msgstr ""
+"违约后的追加提款是负现金流，与费用相同，从而计入损失（ [R857870815ee0-1]_ 第 142 段）。若信用转换系数包含追加提款， [R857870815ee0-1]_ 第 140 "
+"段把它们也计入敞口：此时把它们的现值加到 `ead` 上，而不是作为现金流传入，因为 `ead` 也计入损失。只传入追加提款（取相反数）调用一次所得的 ``cost`` 就是这一现值。"
+
+msgid ""
+"An amount written off at or before default belongs in `ead`, so that it counts in the loss and in"
+" the exposure (paragraph 134 of [R857870815ee0-1]_)."
+msgstr "违约时或违约前核销的金额属于 `ead` ，从而同时计入损失和敞口（ [R857870815ee0-1]_ 第 134 段）。"
+
+msgid ""
+"A cure is a recovery of the amount outstanding on the date of the cure (paragraph 135 of "
+"[R857870815ee0-1]_)."
+msgstr "治愈是一笔回收，金额为治愈日的未偿金额（ [R857870815ee0-1]_ 第 135 段）。"
+
+msgid ""
+"Interest and fees capitalized after default are not flows (paragraphs 137 and 138 of "
+"[R857870815ee0-1]_); their recoveries are."
+msgstr "违约后资本化的利息和费用不是现金流（ [R857870815ee0-1]_ 第 137 和 138 段），但它们的回收是。"
+
+msgid ""
+"European Banking Authority, \"Guidelines on PD estimation, LGD estimation and the treatment of "
+"defaulted exposures\", EBA/GL/2017/16, 20 November 2017, paragraphs 131 to 163."
+msgstr ""
+"European Banking Authority, \"Guidelines on PD estimation, LGD estimation and the treatment of "
+"defaulted exposures\", EBA/GL/2017/16, 2017 年 11 月 20 日，第 131 至 163 段。"
+
+msgid ""
+"European Central Bank, \"Instructions for reporting the validation results of internal models: "
+"IRB Pillar I models for credit risk\", February 2019, section 2.6.1."
+msgstr ""
+"European Central Bank, \"Instructions for reporting the validation results of internal models: "
+"IRB Pillar I models for credit risk\", 2019 年 2 月，第 2.6.1 节。"
+
+msgid "[R857870815ee0-1]_, [R857870815ee0-2]_"
+msgstr "[R857870815ee0-1]_, [R857870815ee0-2]_"
+
+msgid ""
+"Three loans defaulted on 1 January 2023. Loan A recovers 55 and costs 11 a year later, loan B "
+"recovers its exposure on the day of default after a legal cost of 5 a year before, and loan C has"
+" no flows yet:"
+msgstr "三笔贷款于 2023 年 1 月 1 日违约。贷款 A 一年后回收 55、发生费用 11；贷款 B 在违约当天回收了全部敞口，此前一年发生了 5 的法律费用；贷款 C 还没有现金流："
+
+msgid ""
+"At 10% a year, the flows of A a year after default are worth 55 / 1.1 = 50 and 11 / 1.1 = 10, and"
+" the cost of B a year before default is worth 5 × 1.1 = 5.5 at default."
+msgstr "按每年 10%，A 在违约一年后的现金流价值为 55 / 1.1 = 50 和 11 / 1.1 = 10；B 在违约前一年的费用折算到违约日为 5 × 1.1 = 5.5。"
+
+msgid ""
+"The credit conversion factor (CCF) is the share of the undrawn part of a credit line at a "
+"reference date that the borrower has drawn by the time of default."
+msgstr "信用转换系数（CCF）是授信额度在参考日的未提用部分中，借款人到违约时已提用的比例。"
+
+msgid "Amount drawn at default, the realized exposure at default."
+msgstr "违约时的提用金额，即实际违约风险敞口。"
+
+msgid "**drawn**"
+msgstr "**drawn**"
+
+msgid "Amount drawn at the reference date."
+msgstr "参考日的提用金额。"
+
+msgid "**limit**"
+msgstr "**limit**"
+
+msgid ""
+"Limit of the credit line at the reference date. Series inputs must have identical indices; "
+"otherwise the inputs are broadcast together."
+msgstr "参考日的授信额度。Series 输入必须有相同的索引；否则输入一起广播。"
+
+msgid ""
+"Realized CCFs, with the broadcast shape of the inputs: NaN where the line was fully drawn at the "
+"reference date (`limit` at most `drawn`) or an input is missing. If an input is a Series, the "
+"result is a Series with its index, named ``ccf``; scalar inputs give a float."
+msgstr ""
+"实际 CCF，形状为各输入广播后的形状：额度在参考日已满额使用（ `limit` 不大于 `drawn` ）或某个输入缺失时为 NaN。若某个输入是 Series，结果是带其索引、名为 "
+"``ccf`` 的 Series；标量输入得到 float。"
+
+msgid ""
+"If an input is not real and numeric or has an infinite value, the inputs cannot be broadcast "
+"together, or Series inputs have different indices. Booleans are not amounts."
+msgstr "如果某个输入不是实数数值或含有无穷值，各输入无法一起广播，或 Series 输入的索引不同。布尔值不能作为金额。"
+
+msgid ":obj:`workout_lgd`"
+msgstr ":obj:`workout_lgd`"
+
+msgid "Realized LGDs of the same defaults."
+msgstr "同一批违约的实际 LGD。"
+
+msgid "Summarize realized CCFs by group, with ``floor=None``."
+msgstr "用 ``floor=None`` 按分组汇总实际 CCF。"
+
+msgid "Back-test CCF estimates against realized CCFs."
+msgstr "用实际 CCF 回测 CCF 估计值。"
+
+msgid ""
+"With the amount :math:`E` drawn at default, and the amount :math:`D` drawn and the limit "
+":math:`L` at the reference date,"
+msgstr "记违约时的提用金额为 :math:`E` ，参考日的提用金额为 :math:`D` 、额度为 :math:`L` ，则"
+
+#, python-brace-format
+msgid "\\mathrm{CCF} = \\frac{E - D}{L - D}, \\qquad L > D."
+msgstr "\\mathrm{CCF} = \\frac{E - D}{L - D}, \\qquad L > D."
+
+msgid ""
+"This is the realized CCF of CRE36.95 of the Basel framework and of paragraph 61(a) of the EBA's "
+"consultation on CCF estimation [R1aa1dc58aef4-1]_. The reference date of the fixed-horizon "
+"approach lies 12 months before default (CRE36.93; article 182(1)(g) of the CRR3), and the limit "
+"is the larger of the advised and the unadvised limit at that date: a later increase of the limit "
+"stays out of the denominator, so the CCF can exceed 1."
+msgstr ""
+"这就是巴塞尔框架 CRE36.95 和 EBA CCF 估计征求意见稿 [R1aa1dc58aef4-1]_ 第 61(a) 段中的实际 CCF。固定期限法的参考日在违约前 12 "
+"个月（CRE36.93；CRR3 第 182(1)(g) 条），额度取该日已告知额度与未告知额度中的较大者：之后提高的额度不进入分母，因此 CCF 可以超过 1。"
+
+msgid ""
+"A line that is fully drawn or overdrawn at the reference date has no undrawn part, and its CCF is"
+" NaN instead of the sign-reversed ratio of an overdrawn line. The consultation measures such "
+"lines by ``ead / limit`` (paragraph 61(b)), and the ECB's validation report back-tests their EAD "
+"instead of a CCF."
+msgstr ""
+"参考日已满额或超额使用的额度没有未提用部分，其 CCF 为 NaN，而不是超额额度符号相反的比值。征求意见稿用 ``ead / limit`` 度量这类额度（第 61(b) 段），ECB "
+"的验证报告则改为回测它们的 EAD，而不是 CCF。"
+
+msgid ""
+"The CCFs are not clipped. Negative values, from lines repaid after the reference date, still rank"
+" the risk, but the quantification sets them to 0 (article 182(1) of the CRR3), as "
+"``numpy.maximum(ccf, 0)`` does; values above 1 are kept, since the CCF must not be capped "
+"(CRE36.95-96)."
+msgstr ""
+"CCF 不截断。参考日之后还款的额度给出负值，这些值仍能区分风险，但量化时记为 0（CRR3 第 182(1) 条），正如 ``numpy.maximum(ccf, 0)`` 所做的；大于 1 "
+"的值保留，因为 CCF 不得封顶（CRE36.95-96）。"
+
+msgid ""
+"European Banking Authority, \"Consultation paper on draft guidelines on CCF estimation\", "
+"EBA/CP/2025/10, 2 July 2025."
+msgstr ""
+"European Banking Authority, \"Consultation paper on draft guidelines on CCF estimation\", "
+"EBA/CP/2025/10, 2025 年 7 月 2 日。"
+
+msgid "[R1aa1dc58aef4-1]_"
+msgstr "[R1aa1dc58aef4-1]_"
+
+msgid ""
+"The first line drew 200 of its 600 undrawn; the third repaid 200 of its 500 undrawn, and the "
+"fourth was fully drawn at the reference date."
+msgstr "第一个额度提用了 600 未提用部分中的 200；第三个偿还了 500 未提用部分中的 200；第四个在参考日已满额使用。"
+
+msgid ""
+"The table gives the number of defaults, the average LGD, its spread and the shares of defaults "
+"without loss and with a total loss in each group, such as a segment, a facility grade or a bin of"
+" a driver: the long-run average LGD of each group and the bimodal shape of the LGDs within it."
+msgstr "这张表给出每个分组的违约数、平均 LGD、其离散程度以及无损失违约和全额损失违约的份额，分组可以是分段、债项等级或某个驱动因素的箱：即每个分组的长期平均 LGD 以及组内 LGD 的双峰形状。"
+
+msgid ""
+"Group labels, such as facility grades or the bins of a driver from `kivi.binning.cut`. Missing "
+"values form a group."
+msgstr "分组标签，例如债项等级，或用 `kivi.binning.cut` 切分的驱动因素的箱。缺失值单独成组。"
+
+msgid ""
+"Realized LGD of each default, such as the ``lgd`` column of `workout_lgd`, finite and without "
+"missing values. If `groups` and `lgd` are Series, they must have identical indices; otherwise "
+"they are matched by position."
+msgstr ""
+"每笔违约的实际 LGD，例如 `workout_lgd` 的 ``lgd`` 列，为有限值且没有缺失值。若 `groups` 和 `lgd` 都是 "
+"Series，它们必须有相同的索引；否则按位置对应。"
+
+msgid "**floor**"
+msgstr "**floor**"
+
+msgid "float or None, default 0.0"
+msgstr "float 或 None，默认 0.0"
+
+msgid ""
+"Lower bound applied to the LGDs before anything is computed: negative LGDs count as 0 by default,"
+" as the regulations ask for long-run averages. None keeps the LGDs as they are, which suits an "
+"analysis of the drivers."
+msgstr "在计算任何列之前施加于 LGD 的下限：默认把负的 LGD 记为 0，这是监管对长期平均的要求。None 保留 LGD 原值，适合分析驱动因素。"
+
+msgid ""
+"Non-negative frequency weight of each default, matched like `lgd`: integer weights give the same "
+"table as repeating rows, and groups whose weights sum to zero are left out. See the Notes on "
+"weighting by exposure."
+msgstr "每笔违约的非负频数权重，对应方式与 `lgd` 相同：整数权重与重复行得到相同的表，权重之和为零的分组被略去。关于按敞口加权见“说明”。"
+
+msgid "One row per group, in an index named ``bin``, with the columns described in the Notes."
+msgstr "每个分组一行，索引名为 ``bin`` ，各列见“说明”。"
+
+msgid ""
+"If the inputs are not one-dimensional, are empty, or their indices or lengths do not match, `lgd`"
+" is not real and numeric or has a missing or infinite value, or `floor` is neither None nor a "
+"finite number. Also if `weights` is not numeric, does not give each default one finite, non-"
+"negative weight with a positive total, or has an index other than that of `groups`."
+msgstr ""
+"如果输入不是一维的、为空，或者索引或长度不一致， `lgd` 不是实数数值或含有缺失值或无穷值，或者 `floor` 既不是 None 也不是有限数。另外，如果 `weights` "
+"不是数值，没有为每笔违约给出一个有限非负的权重且总和为正，或其索引与 `groups` 不同。"
+
+msgid "Realized LGDs from workout cash flows."
+msgstr "由清收现金流计算实际 LGD。"
+
+msgid "Model the LGD on several drivers at once."
+msgstr "同时对 LGD 及其多个驱动因素建模。"
+
+msgid "The table of a binary target."
+msgstr "二元目标的对应表。"
+
+msgid "Back-test LGD estimates by group."
+msgstr "按分组回测 LGD 估计值。"
+
+#, python-brace-format
+msgid ""
+"For the defaults :math:`i` of a group, with weights :math:`w_i` (1 without `weights`) and LGDs "
+":math:`x_i = \\max(\\mathrm{LGD}_i, f)` at the floor :math:`f`, the columns are:"
+msgstr ""
+"对分组中的违约 :math:`i` ，记权重为 :math:`w_i` （没有 `weights` 时为 1），在下限 :math:`f` 处的 LGD 为 :math:`x_i = "
+"\\max(\\mathrm{LGD}_i, f)` ，各列为："
+
+msgid "``total``: the number of defaults, :math:`n = \\sum_i w_i`;"
+msgstr "``total`` ：违约数， :math:`n = \\sum_i w_i` ；"
+
+msgid "``total_share``: ``total`` divided by the number of all defaults;"
+msgstr "``total_share`` ： ``total`` 除以全部违约数；"
+
+msgid "``mean``: the average LGD, :math:`\\bar x = \\sum_i w_i x_i / n`;"
+msgstr "``mean`` ：平均 LGD， :math:`\\bar x = \\sum_i w_i x_i / n` ；"
+
+#, python-brace-format
+msgid ""
+"``std``: the sample standard deviation, :math:`\\sqrt{\\sum_i w_i (x_i - \\bar x)^2 / (n - 1)}`, "
+"NaN for a group with a total weight of 1 or less;"
+msgstr "``std`` ：样本标准差， :math:`\\sqrt{\\sum_i w_i (x_i - \\bar x)^2 / (n - 1)}` ，总权重不超过 1 的分组为 NaN；"
+
+msgid "``min`` and ``max``: the smallest and largest LGD with a positive weight;"
+msgstr "``min`` 和 ``max`` ：权重为正的最小和最大 LGD；"
+
+msgid "``zero_share``: the share of defaults with :math:`x_i \\le 0`, without loss;"
+msgstr "``zero_share`` ： :math:`x_i \\le 0` 即无损失的违约所占份额；"
+
+msgid "``full_share``: the share of defaults with :math:`x_i \\ge 1`, a total loss."
+msgstr "``full_share`` ： :math:`x_i \\ge 1` 即全额损失的违约所占份额。"
+
+msgid ""
+"The average counts every default once, the default-weighted average of paragraph 150 of "
+"[Rd55d37e67d4b-1]_, CRE36.83 of the Basel framework and part VI(4) of annex 5 of China's 2023 "
+"capital rules, which also set negative LGDs to 0 (paragraph 160 of [Rd55d37e67d4b-1]_; part VI(4)"
+" 15 of the annex). Weighting by the exposure at default gives an exposure-weighted average "
+"instead, which is not the long-run average of the regulations; use weights that count defaults, "
+"such as the inverse of a sampling rate."
+msgstr ""
+"平均值中每笔违约计一次，即 [Rd55d37e67d4b-1]_ 第 150 段、巴塞尔框架 CRE36.83 以及中国 2023 年资本管理办法附件 5 "
+"六（四）中的违约加权平均，这些规则也把负的 LGD 记为 0（ [Rd55d37e67d4b-1]_ 第 160 "
+"段；该附件六（四）15）。按违约风险敞口加权得到的是敞口加权平均，不是监管所指的长期平均；应使用计数违约的权重，例如抽样比例的倒数。"
+
+msgid ""
+"Groups are counted as in `kivi.woe.woe_table`: categorical groups, such as the result of "
+"``pandas.cut``, follow the order of their categories, with missing values last, and other groups "
+"the order in which they first appear. Categories that are never observed are omitted."
+msgstr ""
+"分组的计数方式与 `kivi.woe.woe_table` 相同：分类型分组（例如 ``pandas.cut`` "
+"的结果）按类别顺序排列，缺失值在最后；其他分组按首次出现的顺序排列。从未出现的类别被略去。"
+
+msgid ""
+"European Banking Authority, \"Guidelines on PD estimation, LGD estimation and the treatment of "
+"defaulted exposures\", EBA/GL/2017/16, 20 November 2017, paragraphs 150 to 162."
+msgstr ""
+"European Banking Authority, \"Guidelines on PD estimation, LGD estimation and the treatment of "
+"defaulted exposures\", EBA/GL/2017/16, 2017 年 11 月 20 日，第 150 至 162 段。"
+
+msgid "[Rd55d37e67d4b-1]_"
+msgstr "[Rd55d37e67d4b-1]_"
+
+msgid ""
+"The LGD of -0.05 in grade F1, from recoveries above the exposure, counts as 0, so half of the "
+"defaults of F1 lost nothing, and two of the three defaults of F2 lost all of their exposure or "
+"more."
+msgstr "等级 F1 中 -0.05 的 LGD 来自超过敞口的回收，记为 0，因此 F1 的违约有一半没有损失；F2 的三笔违约中有两笔损失了全部敞口或更多。"
+
+msgid ""
+"The model of Papke and Wooldridge [R7fa063f9a0b4-1]_ gives the mean of a response between 0 and "
+"1, such as a realized LGD or a recovery rate, as the logistic function of a linear combination of"
+" the columns of `X`. Its coefficients maximize the Bernoulli quasi-likelihood, and their standard"
+" errors are robust, so the model needs no assumption about the distribution of the response "
+"around its mean."
+msgstr ""
+"Papke 和 Wooldridge [R7fa063f9a0b4-1]_ 的模型把取值在 0 到 1 之间的响应（例如实际 LGD 或回收率）的均值表示为 `X` 各列线性组合的 "
+"logistic 函数。其系数使伯努利拟似然最大，标准误是稳健标准误，因此模型无需对响应在均值周围的分布作任何假定。"
+
+msgid "**X**"
+msgstr "**X**"
+
+msgid "pandas.DataFrame or array_like"
+msgstr "pandas.DataFrame 或 array_like"
+
+msgid ""
+"Two-dimensional numeric values with one column per driver, such as the loan-to-value ratio or a "
+"segment dummy."
+msgstr "二维数值，每个驱动因素一列，例如贷款价值比或分段的虚拟变量。"
+
+msgid "**response**"
+msgstr "**response**"
+
+msgid ""
+"Response of each row, from 0 to 1, with exact 0 and 1 allowed, such as realized LGDs floored at 0"
+" and capped at 1. If `X` is a DataFrame and `response` a Series, they must have identical "
+"indices; otherwise they are matched by position."
+msgstr ""
+"每一行的响应，取值在 0 到 1 之间，可以恰为 0 或 1，例如下限设为 0、上限设为 1 的实际 LGD。若 `X` 是 DataFrame 而 `response` 是 "
+"Series，它们必须有相同的索引；否则按位置对应。"
+
+msgid ""
+"Non-negative frequency weight of each row, matched like `response`: integer weights give the same"
+" estimates, standard errors and quasi-log-likelihood as repeating rows. Rows with zero weight are"
+" left out of the fit."
+msgstr "每一行的非负频数权重，对应方式与 `response` 相同：整数权重与重复行得到相同的估计值、标准误和拟对数似然。权重为零的行不参与拟合。"
+
+msgid ""
+"One row for the intercept, labelled ``intercept``, and one for each column of `X`, with the "
+"coefficient ``coef``, its robust standard error ``se``, the z statistic ``z`` and its two-sided "
+"p-value ``p_value``, in an index named ``variable``, as `kivi.selection.logistic_regression` "
+"gives them. ``attrs[\"log_likelihood\"]`` holds the maximized quasi-log-likelihood and "
+"``attrs[\"converged\"]`` whether the fit converged."
+msgstr ""
+"截距一行，标签为 ``intercept`` ， `X` 的每一列各一行，列为系数 ``coef`` 、其稳健标准误 ``se`` 、z 统计量 ``z`` 及其双侧 p 值 "
+"``p_value`` ，索引名为 ``variable`` ，与 `kivi.selection.logistic_regression` 给出的相同。 "
+"``attrs[\"log_likelihood\"]`` 是最大化的拟对数似然， ``attrs[\"converged\"]`` 表示拟合是否收敛。"
+
+msgid ""
+"If the columns separate the responses of 0 from those of 1, while no response between them stops "
+"the coefficients from growing without bound, so that the estimates do not exist."
+msgstr "如果各列把响应为 0 的行与响应为 1 的行分开，而没有介于二者之间的响应阻止系数无限增长，因而估计值不存在。"
+
+msgid ""
+"If `X` is not two-dimensional, has fewer than 2 rows or no columns, repeats a column label, has a"
+" column labelled ``intercept``, or has a column that is not numeric, contains missing or infinite"
+" values, is constant or is a linear combination of the intercept and the columns before it, or so"
+" close to one that its coefficient cannot be estimated; if `response` is not one-dimensional, its"
+" index or length does not match `X`, it is not real and numeric, has a missing value or a value "
+"outside [0, 1], or is 0 for every row or 1 for every row; or if `weights` is not numeric or does "
+"not give each row one finite, non-negative weight with a positive total. With `weights`, the "
+"checks for constant columns, linear combinations and a response of 0 or 1 for every row are "
+"limited to the rows with positive weight."
+msgstr ""
+"如果 `X` 不是二维的，少于 2 行或没有列，列标签重复，有标签为 ``intercept`` "
+"的列，或者某列不是数值、含有缺失值或无穷值、为常数、是截距和它前面各列的线性组合，或者接近线性组合到无法估计其系数；如果 `response` 不是一维的，其索引或长度与 `X` "
+"不一致，不是实数数值，含有缺失值或 [0, 1] 之外的值，或者每一行都为 0 或每一行都为 1；或者如果 `weights` 不是数值，或没有为每一行给出一个有限非负的权重且总和为正。有 "
+"`weights` 时，常数列、线性组合以及响应每一行都为 0 或 1 的检查只针对权重为正的行。"
+
+msgid "If the fit does not converge for a reason other than separation."
+msgstr "如果拟合因分离以外的原因未能收敛。"
+
+msgid "The same model for a binary target."
+msgstr "二元目标的同一模型。"
+
+msgid "Realized LGDs by the groups of one driver."
+msgstr "按一个驱动因素分组的实际 LGD。"
+
+msgid "The model is"
+msgstr "模型为"
+
+msgid ""
+"E(y \\mid x) = \\frac{1}{1 + e^{-\\eta}}, \\qquad\n"
+"\\eta = \\beta_0 + \\sum_j \\beta_j x_j,"
+msgstr ""
+"E(y \\mid x) = \\frac{1}{1 + e^{-\\eta}}, \\qquad\n"
+"\\eta = \\beta_0 + \\sum_j \\beta_j x_j,"
+
+msgid "and the estimates maximize the quasi-log-likelihood"
+msgstr "估计值使拟对数似然最大："
+
+msgid ""
+"\\ell(\\beta) = \\sum_i w_i \\left[ y_i \\ln p_i + (1 - y_i) \\ln(1 - p_i)\n"
+"\\right],"
+msgstr ""
+"\\ell(\\beta) = \\sum_i w_i \\left[ y_i \\ln p_i + (1 - y_i) \\ln(1 - p_i)\n"
+"\\right],"
+
+msgid ""
+"which is the log-likelihood of `kivi.selection.logistic_regression` for a binary response, so a "
+"response of only 0 and 1 gives its coefficients. The fit uses the same iteratively reweighted "
+"least squares. The mean is consistently estimated whenever the model of the mean is right, but "
+"the Fisher information understates the variance of a fractional response, so the covariance is "
+"the HC0 sandwich"
+msgstr ""
+"对二元响应，这就是 `kivi.selection.logistic_regression` 的对数似然，因此只含 0 和 1 "
+"的响应得到它的系数。拟合使用同样的迭代重加权最小二乘法。只要均值模型正确，均值就能一致地估计，但 Fisher 信息低估了分数响应的方差，因此协方差取 HC0 夹心估计"
+
+#, python-brace-format
+msgid ""
+"\\hat V = A^{-1} B A^{-1}, \\qquad\n"
+"A = \\sum_i w_i p_i (1 - p_i) x_i x_i^\\top, \\qquad\n"
+"B = \\sum_i w_i (y_i - p_i)^2 x_i x_i^\\top,"
+msgstr ""
+"\\hat V = A^{-1} B A^{-1}, \\qquad\n"
+"A = \\sum_i w_i p_i (1 - p_i) x_i x_i^\\top, \\qquad\n"
+"B = \\sum_i w_i (y_i - p_i)^2 x_i x_i^\\top,"
+
+#, python-brace-format
+msgid ""
+"with :math:`x_i` including the 1 of the intercept, as statsmodels' ``GLM(family=Binomial(), "
+"freq_weights=w).fit(cov_type=\"HC0\")`` gives it. The z statistic is :math:`\\hat\\beta / "
+"\\mathrm{se}` and the p-value :math:`P(|Z| > |z|)` for a standard normal :math:`Z`. For a binary "
+"response, the robust standard errors differ from the model-based ones of "
+"`kivi.selection.logistic_regression`."
+msgstr ""
+"其中 :math:`x_i` 包括截距的 1，与 statsmodels 的 ``GLM(family=Binomial(), "
+"freq_weights=w).fit(cov_type=\"HC0\")`` 给出的相同。z 统计量为 :math:`\\hat\\beta / \\mathrm{se}` ，p 值为 "
+":math:`P(|Z| > |z|)` ，其中 :math:`Z` 服从标准正态分布。对二元响应，稳健标准误与 `kivi.selection.logistic_regression` "
+"基于模型的标准误不同。"
+
+msgid ""
+"A fractional response bounds the linear predictor in both directions, so the estimates exist "
+"unless a combination of the columns separates the responses of exactly 0 from those of exactly 1 "
+"and leaves the linear predictor of every response between them unchanged."
+msgstr "分数响应在两个方向上都约束线性预测值，因此只要不存在这样的列组合：它把恰为 0 的响应与恰为 1 的响应分开，并且使每个介于二者之间的响应的线性预测值保持不变，估计值就存在。"
+
+msgid ""
+"L. E. Papke and J. M. Wooldridge, \"Econometric methods for fractional response variables with an"
+" application to 401(k) plan participation rates\", Journal of Applied Econometrics, 11(6), pp. "
+"619-632, 1996."
+msgstr ""
+"L. E. Papke and J. M. Wooldridge, \"Econometric methods for fractional response variables with an"
+" application to 401(k) plan participation rates\", Journal of Applied Econometrics, 11(6), pp. "
+"619-632, 1996."
+
+msgid "[R7fa063f9a0b4-1]_"
+msgstr "[R7fa063f9a0b4-1]_"
+
+msgid ""
+"With one dummy, the fitted means are the mean responses of its two groups, 0.2 for the secured "
+"and 0.65 for the unsecured loans:"
+msgstr "只有一个虚拟变量时，拟合均值就是其两组的平均响应：有押品贷款为 0.2，无押品贷款为 0.65："
+
+msgid ""
+"The intercept is :math:`\\ln(0.2 / 0.8)`, the log odds of the secured mean, and its robust "
+"variance is :math:`\\sum_i (y_i - 0.2)^2 / (4 \\cdot 0.2 \\cdot 0.8)^2 = 0.14 / 0.4096` over the "
+"four secured rows."
+msgstr ""
+"截距为 :math:`\\ln(0.2 / 0.8)` ，即有押品贷款均值的对数几率；其稳健方差在四个有押品的行上为 :math:`\\sum_i (y_i - 0.2)^2 / (4 "
+"\\cdot 0.2 \\cdot 0.8)^2 = 0.14 / 0.4096` 。"
+
 msgid "Lifetime PD and expected credit loss"
 msgstr "存续期 PD 与预期信用损失"
 
@@ -8499,9 +9128,6 @@ msgstr ""
 "违约损失率，即占违约风险敞口的比例，取值在 0 到 1 之间：可以是适用于所有账户和各期的一个值，每个账户一个值的一维 "
 "array_like，或每个账户每期一个值的二维计划表。二维数组也可以只有一行（适用于所有账户）或只有一列（适用于各期）。"
 
-msgid "**ead**"
-msgstr "**ead**"
-
 msgid ""
 "Exposure at default, finite and non-negative, in the same forms as `lgd`: one value, one value "
 "per account, such as the balance at the reporting date, or a schedule, such as the balance "
@@ -8513,12 +9139,6 @@ msgstr ""
 "违约风险敞口，须为有限非负值，形式与 `lgd` 相同：一个值，每个账户一个值（例如报告日的余额），或计划表（例如每期预计的余额）。账户到期之后的各期，敞口请设为 0。每个账户一行的 "
 "Series 和 DataFrame 必须具有相同的索引，每期一列的 DataFrame 必须具有相同的列。只有一行或一列的输入会被广播，因此只有一个账户或一期时，只使用 "
 "`probability` 的标签。"
-
-msgid "**rate**"
-msgstr "**rate**"
-
-msgid "float or array_like"
-msgstr "float 或 array_like"
 
 #, python-brace-format
 msgid ""
@@ -11660,12 +12280,6 @@ msgid ""
 "absolute correlation with a variable that is already kept exceeds `threshold`."
 msgstr "按 `priority` 从高到低依次考察各变量。若某变量与已保留的某个变量的相关系数绝对值超过 `threshold` ，则将其剔除，否则保留。"
 
-msgid "**X**"
-msgstr "**X**"
-
-msgid "pandas.DataFrame or array_like"
-msgstr "pandas.DataFrame 或 array_like"
-
 msgid ""
 "Two-dimensional numeric values with one column per variable, such as WOE values from "
 "`kivi.woe.woe_transform`."
@@ -11937,9 +12551,6 @@ msgstr ""
 " 0 和 1 或含有缺失值及其他标签；或者 `weights` 不是数值、没有给每一行一个有限的非负权重，或者使某一类别没有权重。给定 `weights` "
 "时，只有常数列和线性组合的检查仅针对权重为正的行。"
 
-msgid "If the fit does not converge for a reason other than separation."
-msgstr "如果拟合因分离以外的原因未能收敛。"
-
 msgid "Select the columns of the model by their p-values."
 msgstr "按 p 值筛选模型的列。"
 
@@ -11948,9 +12559,6 @@ msgstr "检查各列的共线性。"
 
 msgid "Encode groups with their WOE."
 msgstr "用 WOE 对分组编码。"
-
-msgid "The model is"
-msgstr "模型为"
 
 #, python-brace-format
 msgid "\\ln \\frac{P(y = 1)}{P(y = 0)} = \\beta_0 + \\sum_j \\beta_j x_j."
@@ -14015,9 +14623,6 @@ msgid ""
 msgstr ""
 "在每个月末，贷款拖欠的是已经到期但尚未还清的期款。此函数把每笔贷款的还款依次分配给它的各期期款，先还最早的一期，并为每笔贷款的每个月末给出一行，包括逾期天数、逾期状态、逾期金额和未还金额，即 "
 "`vintage_table` 、 `transition_matrix` 和 `roll_rates` 所用的贷款面板。"
-
-msgid "**loan**"
-msgstr "**loan**"
 
 msgid "Loan of each instalment of the schedule. The instalments need not be sorted."
 msgstr "还款计划中每一期期款所属的贷款。各期期款不必排序。"
@@ -16193,6 +16798,48 @@ msgstr "上次发布以来合并的改动。"
 
 msgid "New"
 msgstr "新增"
+
+msgid ""
+"The new module ``kivi.lgd`` measures and models the loss given default and the credit conversion "
+"factor of defaulted loans. ``workout_lgd`` discounts the recoveries and costs of each workout to "
+"the date of default at an annual rate, one for all loans or one per loan, with the days counted "
+"ACT/365, and gives the exposure, the present values of the recoveries and of the costs and the "
+"realized LGD of each loan, without clipping it to [0, 1]. Costs before the date of default are "
+"compounded to it, as paragraph 144 of the EBA's guidelines on LGD estimation asks."
+msgstr ""
+"新模块 ``kivi.lgd`` 度量违约贷款的违约损失率和信用转换系数并为其建模。 ``workout_lgd`` 按年利率（所有贷款一个或每笔贷款一个，天数按 ACT/365 "
+"计算）把每笔清收的回收和费用折现到违约日，给出每笔贷款的敞口、回收现值、费用现值和实际 LGD，不截断到 [0, 1]。违约日之前的费用按 EBA LGD 估计指引第 144 "
+"段的要求复利计算到违约日。"
+
+msgid ""
+"``kivi.lgd.conversion_factor`` gives the realized CCF of each credit line from the amount drawn "
+"at default and the limit and the amount drawn at a reference date, NaN for lines that were fully "
+"drawn or overdrawn at that date, and ``kivi.lgd.lgd_table`` summarizes realized LGDs by group: "
+"the number of defaults, the average, the standard deviation, the range and the shares of defaults"
+" without loss and with a total loss, after flooring negative LGDs at 0 as the regulations ask for"
+" long-run averages."
+msgstr ""
+"``kivi.lgd.conversion_factor`` 由违约时的提用金额以及参考日的额度和提用金额给出每个授信额度的实际 CCF，参考日已满额或超额使用的额度为 NaN； "
+"``kivi.lgd.lgd_table`` 按分组汇总实际 LGD：违约数、平均值、标准差、取值范围以及无损失违约和全额损失违约的份额，并按监管对长期平均的要求先把负的 LGD 记为 0。"
+
+msgid ""
+"``kivi.lgd.fractional_regression`` fits the fractional logit of Papke and Wooldridge to a "
+"response between 0 and 1, such as a realized LGD, and returns the coefficient table of "
+"``logistic_regression`` with robust (HC0) standard errors. A response of only 0 and 1 gives the "
+"coefficients of ``logistic_regression``."
+msgstr ""
+"``kivi.lgd.fractional_regression`` 对取值在 0 到 1 之间的响应（例如实际 LGD）拟合 Papke 和 Wooldridge 的分数 logit，返回与 "
+"``logistic_regression`` 相同的系数表，标准误为稳健（HC0）标准误。只含 0 和 1 的响应得到 ``logistic_regression`` 的系数。"
+
+msgid ""
+"The new guide to LGD and EAD lists the rules of the Basel framework, the EBA and China's 2023 "
+"capital rules for realized LGDs and CCFs side by side, with their paragraphs and articles: the "
+"discount rate, costs before default, drawings, write-offs, cures, open workouts, long-run "
+"averages, negative values, the LGD and EAD floors, the reference date, fully drawn lines and the "
+"CCFs of the foundation approach."
+msgstr ""
+"新增的 LGD 与 EAD 指南把巴塞尔框架、EBA 和中国 2023 年资本管理办法对实际 LGD 和 CCF "
+"的规则并列，并注明段落和条款：折现率、违约前的费用、追加提款、核销、治愈、未结案的清收、长期平均、负值、LGD 和 EAD 下限、参考日、满额使用的额度以及初级法的 CCF。"
 
 msgid ""
 "``kivi.datasets.make_defaults`` simulates defaulted loans for LGD and EAD models: secured loans, "
@@ -24433,6 +25080,733 @@ msgid ""
 "The bundled bank marketing data, a synthetic loan panel for portfolio analysis, synthetic "
 "applications for reject inference and the account transactions before them."
 msgstr "随包的银行营销数据、用于资产组合分析的合成贷款面板数据、用于拒绝推断的合成申请数据，以及这些申请之前的账户交易流水。"
+
+msgid ""
+"When a borrower defaults, the bank loses the part of the exposure that the workout does not "
+"recover. The loss given default (LGD) is that loss as a share of the exposure at default (EAD), "
+"and for a credit line the EAD includes what the borrower draws between a reference date and the "
+"default, which the credit conversion factor (CCF) measures. With the PD, the LGD and the EAD make"
+" up the expected loss and the capital requirement of each exposure."
+msgstr ""
+"借款人违约时，银行损失的是清收未能收回的那部分敞口。违约损失率（LGD）是这一损失占违约风险敞口（EAD）的比例；对授信额度而言，EAD "
+"还包括借款人在参考日与违约之间提用的金额，这由信用转换系数（CCF）度量。LGD 和 EAD 与 PD 一起构成每笔敞口的预期损失和资本要求。"
+
+msgid ""
+"The PDs come from :doc:`calibration`, the expected loss that the three parameters give is that of"
+" :doc:`strategy`, :doc:`validation` back-tests LGD and CCF estimates as supervisors ask, and "
+":doc:`capital` turns them into the capital requirement. :func:`~kivi.lgd.workout_lgd` gives the "
+"realized LGD of each defaulted loan from the cash flows of its workout, and "
+":func:`~kivi.lgd.conversion_factor` the realized CCF of each credit line. "
+":func:`~kivi.lgd.lgd_table` summarizes realized LGDs by group, and "
+":func:`~kivi.lgd.fractional_regression` models them on several drivers at once."
+msgstr ""
+"PD 来自 :doc:`calibration` ，三个参数给出的预期损失见 :doc:`strategy` ， :doc:`validation` 按监管要求回测 LGD 和 CCF 估计值，"
+" :doc:`capital` 则把它们转化为资本要求。 :func:`~kivi.lgd.workout_lgd` 由清收现金流给出每笔违约贷款的实际 LGD， "
+":func:`~kivi.lgd.conversion_factor` 给出每个授信额度的实际 CCF。 :func:`~kivi.lgd.lgd_table` 按分组汇总实际 LGD， "
+":func:`~kivi.lgd.fractional_regression` 同时对多个驱动因素为其建模。"
+
+msgid ""
+"A workout recovers money from a defaulted loan, through repayments, the sale of collateral or a "
+"cure, and costs money, such as legal fees. A flow of amount :math:`a_j` on the date :math:`t_j`, "
+"positive for a recovery and negative for a cost, is discounted at the annual rate :math:`r` to "
+"the date of default :math:`t_D`, with the days counted ACT/365:"
+msgstr ""
+"清收通过还款、处置押品或治愈从违约贷款中收回资金，也要花费资金，例如法律费用。日期 :math:`t_j` 上金额为 :math:`a_j` 的现金流（回收为正，费用为负）按年利率 "
+":math:`r` 折现到违约日 :math:`t_D` ，天数按 ACT/365 计算："
+
+#, python-brace-format
+msgid "\\mathrm{PV}_j = a_j \\, (1 + r)^{-(t_j - t_D) / 365}."
+msgstr "\\mathrm{PV}_j = a_j \\, (1 + r)^{-(t_j - t_D) / 365}."
+
+msgid ""
+"With :math:`R` the sum of the present values of the recoveries and :math:`C` that of the costs, "
+"as a positive amount, the realized LGD is the economic loss as a share of the exposure at "
+"default:"
+msgstr "记回收现值之和为 :math:`R` ，费用现值之和（记为正数）为 :math:`C` ，实际 LGD 就是经济损失占违约风险敞口的比例："
+
+msgid ""
+"A credit line with the limit :math:`L` and the amount :math:`D` drawn at the reference date, and "
+"the amount :math:`E` drawn at default, has the realized CCF"
+msgstr "参考日额度为 :math:`L` 、提用金额为 :math:`D` 、违约时提用金额为 :math:`E` 的授信额度，其实际 CCF 为"
+
+#, python-brace-format
+msgid "\\mathrm{CCF} = \\frac{E - D}{L - D},"
+msgstr "\\mathrm{CCF} = \\frac{E - D}{L - D},"
+
+msgid ""
+"the share of its undrawn part that was drawn by the time of default. Neither measure is clipped: "
+"recoveries above the exposure give a negative LGD, costs above the recoveries an LGD above 1, a "
+"repayment after the reference date a negative CCF and a limit raised after it a CCF above 1."
+msgstr "即其未提用部分中到违约时已提用的比例。两个量都不截断：回收超过敞口时 LGD 为负，费用超过回收时 LGD 大于 1，参考日之后还款时 CCF 为负，参考日之后额度提高时 CCF 大于 1。"
+
+msgid ""
+"Three loans defaulted on 1 January 2023, and their workouts are discounted at 10% a year. Loan A "
+"recovers 55 and costs 11 a year after default, loan B recovers its exposure on the day of default"
+" after a legal cost of 5 a year before, and loan C has no flows yet:"
+msgstr ""
+"三笔贷款于 2023 年 1 月 1 日违约，其清收按每年 10% 折现。贷款 A 在违约一年后回收 55、发生费用 11；贷款 B 在违约当天回收了全部敞口，此前一年发生了 5 "
+"的法律费用；贷款 C 还没有现金流："
+
+msgid ""
+"A year after default, the flows of loan A are worth 55 / 1.1 = 50 and 11 / 1.1 = 10, so it lost "
+"100 + 10 − 50 = 60 of its exposure of 100. The cost of loan B a year before default is compounded"
+" to 5 × 1.1 = 5.5, so B lost 5.5 of 200 although it recovered its exposure. Loan C has an LGD of "
+"1 because nothing has been recovered yet, which is its realized LGD only if its workout has "
+"closed."
+msgstr ""
+"违约一年后，贷款 A 的现金流价值为 55 / 1.1 = 50 和 11 / 1.1 = 10，因此它在 100 的敞口中损失了 100 + 10 − 50 = 60。贷款 B "
+"违约前一年的费用复利计算为 5 × 1.1 = 5.5，因此 B 虽然收回了全部敞口，仍在 200 中损失了 5.5。贷款 C 尚无任何回收，LGD 为 1；只有它的清收已经结案，这才是它的实际"
+" LGD。"
+
+msgid "Workout LGD"
+msgstr "清收 LGD"
+
+msgid ""
+"The defaulted loans come as one table with a row per loan, and the cash flows of their workouts "
+"as another with a row per flow, as a bank's systems record them. "
+":func:`~kivi.datasets.make_defaults` and :func:`~kivi.datasets.make_recoveries` simulate such "
+"tables, which :doc:`datasets` describes. Each loan has its own ``discount_rate``, the money-"
+"market rate of its month of default plus 5 percentage points as paragraph 143 of the EBA's "
+"guidelines asks, so it is passed as ``rate``:"
+msgstr ""
+"违约贷款是一张表，每笔贷款一行；清收现金流是另一张表，每笔现金流一行，与银行系统的记录方式相同。 :func:`~kivi.datasets.make_defaults` 和 "
+":func:`~kivi.datasets.make_recoveries` 模拟这样的表，见 :doc:`datasets` 。每笔贷款有自己的 ``discount_rate`` ，即按 "
+"EBA 指引第 143 段的要求取违约当月的货币市场利率加 5 个百分点，因此把它作为 ``rate`` 传入："
+
+msgid ""
+"These are the LGDs that :doc:`datasets` computes with pandas, flow by flow. The secured loan 1 "
+"sold its collateral after a year and a half, the unsecured loan 3 cured, and the costs of loan 5 "
+"exceeded its recoveries, so it lost more than its exposure. The legal costs that 101 loans paid "
+"before their default count compounded to the date of default."
+msgstr ""
+"这就是 :doc:`datasets` 用 pandas 逐笔现金流计算的 LGD。有押品的贷款 1 在一年半后处置了押品，无押品的贷款 3 已治愈，贷款 5 "
+"的费用超过了回收，因此损失超过了其敞口。101 笔贷款在违约前支付的法律费用复利计算到违约日后计入。"
+
+msgid "Closed workouts"
+msgstr "已结案的清收"
+
+msgid ""
+":func:`~kivi.lgd.workout_lgd` does not know whether a workout has ended and gives the loss of the"
+" flows so far. The realized LGD exists only for a closed workout: the long-run average and the "
+"back-tests use the defaults whose recovery process has closed, by the bank's definition of its "
+"end, and leave out the expected future recoveries of the others. Here the workouts with a "
+"``closing_date`` have closed:"
+msgstr ""
+":func:`~kivi.lgd.workout_lgd` 不知道清收是否已经结束，给出的是到目前为止的现金流造成的损失。实际 LGD "
+"只对已结案的清收成立：长期平均和回测使用按银行对清收结束的定义回收过程已结案的违约，不计其他违约的预期未来回收。这里有 ``closing_date`` 的清收已经结案："
+
+msgid ""
+"The open workouts still count in the long-run average of the regulations, which adjusts for them;"
+" kivi leaves that adjustment to the bank's own estimate of the future recoveries."
+msgstr "未结案的清收仍计入监管所指的长期平均，长期平均要对它们作调整；kivi 把这一调整留给银行自己对未来回收的估计。"
+
+msgid "Drawings, write-offs and cures"
+msgstr "追加提款、核销和治愈"
+
+msgid "The flows and the exposure are the caller's to choose, and the EBA's guidelines say how:"
+msgstr "现金流和敞口由调用者选定，EBA 的指引规定了如何选定："
+
+msgid ""
+"**A cure** returns the loan to performing. It counts as a recovery of the amount outstanding on "
+"the date of the cure, as the flows of ``kind`` ``\"cure\"`` of the simulated data do."
+msgstr "**治愈** 使贷款恢复正常。它计为一笔回收，金额为治愈日的未偿金额，模拟数据中 ``kind`` 为 ``\"cure\"`` 的现金流就是如此。"
+
+msgid ""
+"**An amount written off** at or before default belongs in the exposure, so that it counts in the "
+"loss and in the EAD alike."
+msgstr "违约时或违约前 **核销的金额** 属于敞口，从而同样计入损失和 EAD。"
+
+msgid "**Interest and fees capitalized after default** are not flows, but their recoveries are."
+msgstr "**违约后资本化的利息和费用** 不是现金流，但它们的回收是。"
+
+msgid ""
+"**A drawing after default** is a negative flow, like a cost, so that it counts in the loss. Where"
+" the CCF includes the drawings, the EBA counts them in the exposure as well. Then add their "
+"present value to ``ead`` instead of passing them as flows, because the exposure counts in the "
+"loss too."
+msgstr ""
+"**违约后的追加提款** 是负现金流，与费用相同，从而计入损失。若 CCF 包含追加提款，EBA 把它们也计入敞口。此时把它们的现值加到 ``ead`` "
+"上，而不是作为现金流传入，因为敞口也计入损失。"
+
+msgid ""
+"A credit line with an exposure of 10,000 at default drew 2,000 two months later and recovered "
+"9,000 after a year. As a flow, the drawing raises the loss:"
+msgstr "一个授信额度违约时敞口为 10,000，两个月后又提用了 2,000，一年后回收 9,000。作为现金流，追加提款提高了损失："
+
+msgid ""
+"Where the CCF includes it, the present value of the drawing, the ``cost`` of a call with the "
+"drawing alone, moves to the exposure:"
+msgstr "若 CCF 包含追加提款，它的现值（只传入追加提款调用一次所得的 ``cost`` ）转入敞口："
+
+msgid ""
+"The drawing still counts once in the loss, and now also in the exposure, so the LGD falls from "
+"0.349 to 0.2913."
+msgstr "追加提款仍在损失中计一次，现在也计入敞口，因此 LGD 从 0.349 降到 0.2913。"
+
+msgid "Credit conversion factors"
+msgstr "信用转换系数"
+
+msgid ""
+"The CCF of a defaulted credit line compares the amount drawn at default with the limit and the "
+"amount drawn at a reference date. The regulations take the reference date 12 months before "
+"default, the fixed-horizon approach, and the limit at that date, the larger of the advised and "
+"the unadvised limit; a limit raised later stays out of the denominator. The revolving lines of "
+"the simulated defaults have their ``limit`` and ``drawn`` amount of that date:"
+msgstr ""
+"违约授信额度的 CCF 把违约时的提用金额与参考日的额度和提用金额相比较。监管取违约前 12 "
+"个月为参考日，即固定期限法，额度取该日的值，即已告知额度与未告知额度中的较大者；之后提高的额度不进入分母。模拟违约中的循环额度带有该日的 ``limit`` 和 ``drawn`` 金额："
+
+#, python-format
+msgid ""
+"The median line drew 55% of its undrawn limit by default. A negative CCF comes from a line that "
+"repaid part of its balance before default, and a CCF above 1 from a line that ended above its "
+"limit. The 25 other lines were fully drawn or overdrawn at the reference date, so they have no "
+"undrawn part and no CCF: the formula would divide by 0, or by a negative amount and reverse the "
+"sign. The EBA's consultation on CCF estimation measures such lines by the amount drawn at default"
+" over the limit, and the ECB's validation report back-tests their EAD instead of a CCF:"
+msgstr ""
+"中位数额度到违约时提用了其未提用额度的 55%。负的 CCF 来自违约前偿还了部分余额的额度，大于 1 的 CCF 来自最终超过额度的额度。另外 25 "
+"个额度在参考日已满额或超额使用，没有未提用部分，也就没有 CCF：公式会除以 0，或除以负数而使符号反转。EBA 的 CCF 估计征求意见稿用违约时的提用金额除以额度来度量这类额度，ECB "
+"的验证报告则改为回测它们的 EAD，而不是 CCF："
+
+msgid ""
+"A negative CCF still ranks the risk of the lines, but the quantification of the CRR3 counts it as"
+" 0, and no CCF may be capped at 1. :func:`~kivi.lgd.lgd_table`, whose floor of 0 does just that, "
+"gives the CCFs by the usage of the lines at the reference date:"
+msgstr ""
+"负的 CCF 仍能区分各额度的风险，但 CRR3 的量化把它记为 0，任何 CCF 都不得以 1 封顶。 :func:`~kivi.lgd.lgd_table` 的下限 0 "
+"正好如此处理，它按参考日的额度使用率给出 CCF："
+
+msgid ""
+"The lines that had drawn more than three quarters of their limit by the reference date drew more "
+"of what was left."
+msgstr "到参考日已提用超过四分之三额度的额度，提用了更大比例的剩余额度。"
+
+msgid "LGD tables"
+msgstr "LGD 表"
+
+msgid ""
+":func:`~kivi.lgd.lgd_table` summarizes the realized LGDs of each group: the number of defaults, "
+"the average LGD, its standard deviation, its range and the shares of defaults without loss and "
+"with a total loss. The average counts every default once, as the regulations ask of the long-run "
+"average LGD, and negative LGDs count as 0 by default. The closed workouts by segment:"
+msgstr ""
+":func:`~kivi.lgd.lgd_table` 汇总每个分组的实际 LGD：违约数、平均 "
+"LGD、其标准差、取值范围以及无损失违约和全额损失违约的份额。平均值中每笔违约计一次，这是监管对长期平均 LGD 的要求；默认把负的 LGD 记为 0。已结案的清收按分段汇总："
+
+msgid ""
+"The LGDs are bimodal within each segment, with the cures near 0 and the liquidations of unsecured"
+" loans near 1. ``zero_share`` holds the 38 secured loans whose collateral covered more than their"
+" exposure, which ``floor=None`` keeps negative; these values still tell the drivers of the loss "
+"apart:"
+msgstr ""
+"每个分段内的 LGD 都呈双峰分布：治愈接近 0，无押品贷款的清算接近 1。 ``zero_share`` 包括押品价值超过其敞口的 38 笔有押品贷款， ``floor=None`` "
+"保留它们的负值；这些值仍能区分损失的驱动因素："
+
+msgid ""
+"The table works like :func:`~kivi.woe.woe_table` for a continuous target: pass the bins of a "
+"driver, such as the loan-to-value ratio of the secured loans, to see how the average LGD changes "
+"from bin to bin. The bins may also come from :func:`~kivi.binning.bin_edges` and "
+":func:`~kivi.binning.cut`:"
+msgstr ""
+"这张表的用法与连续目标下的 :func:`~kivi.woe.woe_table` 相同：传入某个驱动因素的箱，例如有押品贷款的贷款价值比，就能看到平均 LGD 如何随箱变化。箱也可以来自 "
+":func:`~kivi.binning.bin_edges` 和 :func:`~kivi.binning.cut` ："
+
+#, python-format
+msgid ""
+"The loans that owe more than their collateral is worth lose five times as much as those with a "
+"loan-to-value ratio of 60% or less."
+msgstr "欠款超过押品价值的贷款，损失是贷款价值比不超过 60% 的贷款的五倍。"
+
+msgid "Fractional regression"
+msgstr "分数回归"
+
+msgid ""
+":func:`~kivi.lgd.fractional_regression` models the mean LGD on several drivers at once with the "
+"fractional logit of Papke and Wooldridge:"
+msgstr ":func:`~kivi.lgd.fractional_regression` 用 Papke 和 Wooldridge 的分数 logit 同时对多个驱动因素为 LGD 的均值建模："
+
+msgid "E(\\mathrm{LGD} \\mid x) = \\frac{1}{1 + e^{-(\\beta_0 + \\sum_j \\beta_j x_j)}}."
+msgstr "E(\\mathrm{LGD} \\mid x) = \\frac{1}{1 + e^{-(\\beta_0 + \\sum_j \\beta_j x_j)}}."
+
+msgid ""
+"The response must lie between 0 and 1, with 0 and 1 included, so cap the LGDs at 1 and floor them"
+" at 0 first. The coefficients maximize the same likelihood as "
+":func:`~kivi.selection.logistic_regression` and are read in the same way: a positive coefficient "
+"raises the mean LGD. The standard errors are robust, because the variance of a fractional "
+"response around its mean is not that of a binary one. A model of the closed workouts of the loans"
+" that defaulted from 2018 to 2020, on the segment and the coverage of the exposure by collateral:"
+msgstr ""
+"响应必须在 0 到 1 之间，可以取 0 和 1，因此先把 LGD 的上限设为 1、下限设为 0。系数使与 :func:`~kivi.selection.logistic_regression`"
+" 相同的似然最大，解读方式也相同：正的系数提高平均 LGD。标准误是稳健标准误，因为分数响应在均值周围的方差与二元响应不同。下面用 2018 至 2020 "
+"年违约贷款中已结案的清收，以分段和押品对敞口的覆盖率建模："
+
+msgid ""
+"Collateral lowers the LGD, and an unsecured loan loses more than a revolving line. The fitted "
+"mean LGD of each loan follows from the coefficients, and on the development sample the fitted "
+"means average to its mean LGD, as the means of a logit with an intercept do:"
+msgstr "押品降低 LGD，无押品贷款的损失高于循环额度。每笔贷款的拟合平均 LGD 由系数得出；在开发样本上，拟合均值的平均等于其平均 LGD，带截距的 logit 的均值都是如此："
+
+msgid "Back-testing"
+msgstr "回测"
+
+msgid ""
+"LGD and CCF estimates are back-tested against the realized values of closed workouts with the "
+"t-test of :func:`~kivi.calibration.backtest_table`, and their ranking is measured with the "
+"generalized AUC of :func:`~kivi.metrics.generalized_auc`, as the ECB's validation report asks. "
+"The closed workouts of the loans that defaulted from 2021 on validate the model:"
+msgstr ""
+"按 ECB 验证报告的要求，用 :func:`~kivi.calibration.backtest_table` 的 t 检验以已结案清收的实际值回测 LGD 和 CCF 估计值，并用 "
+":func:`~kivi.metrics.generalized_auc` 的广义 AUC 衡量其排序能力。2021 年起违约贷款中已结案的清收用来验证模型："
+
+msgid ""
+"No segment rejects the estimates, whose p-values test whether they are too low, but the revolving"
+" lines realize 10 points less than estimated. The recent defaults that have closed are the short "
+"workouts, since the long ones are still open, and a quarter of the closed revolving lines of 2021"
+" to 2024 cured, against an eighth of those of 2018 to 2020. This is why the long-run average "
+"adjusts for the open workouts."
+msgstr ""
+"没有分段拒绝估计值（这里的 p 值检验估计值是否偏低），但循环额度的实际 LGD 比估计值低 10 个百分点。近期已结案的违约是清收较短的那些，因为较长的还没有结案：2021 至 2024 "
+"年已结案的循环额度有四分之一治愈，而 2018 至 2020 年的只有八分之一。这正是长期平均要对未结案的清收作调整的原因。"
+
+msgid ""
+"The gAUC compares the ranking of the estimates with that of the realized LGDs in the twelve LGD "
+"segments of the report, with the realized LGDs floored at 0 so that every one falls into a "
+"segment:"
+msgstr "gAUC 在报告的十二个 LGD 分段中比较估计值的排序与实际 LGD 的排序；实际 LGD 先把下限设为 0，使每个值都落入某个分段："
+
+msgid ""
+":doc:`validation` explains the tests and the segments of the report, and the comparison of the "
+"gAUC with that of the initial validation. Back-test realized CCFs in the same way, and the EAD of"
+" the fully drawn lines with the amount drawn at default as the realized value."
+msgstr ""
+":doc:`validation` 解释了报告中的检验和分段，以及 gAUC 与初始验证时 gAUC 的比较。实际 CCF 以同样的方式回测；满额使用额度的 EAD "
+"以违约时的提用金额作为实际值回测。"
+
+msgid "Rules of Basel, the EBA and China"
+msgstr "巴塞尔、EBA 和中国的规则"
+
+msgid ""
+"The functions compute realized values and leave the rules around them to the caller: which "
+"defaults count, the discount rate, the floors of the estimates. The tables list the rules of the "
+"Basel framework (the CRE chapters in force since 1 January 2023), of the EBA's guidelines on PD "
+"and LGD estimation (EBA/GL/2017/16) and of the CRR3 (Regulation (EU) 2024/1623) next to those of "
+"China's *Rules on capital management of commercial banks* (NFRA order 2023 No. 4), with the "
+"paragraphs and articles that state them."
+msgstr ""
+"这些函数计算实际值，周围的规则留给调用者：哪些违约计入、折现率、估计值的下限。下表把巴塞尔框架（自 2023 年 1 月 1 日起生效的 CRE 各章）、EBA 的 PD 和 LGD "
+"估计指引（EBA/GL/2017/16）以及 CRR3（Regulation (EU) 2024/1623）的规则与中国《商业银行资本管理办法》（国家金融监督管理总局令 2023 年第 4 "
+"号）的规则并列，并注明所依据的段落和条款。"
+
+msgid "Loss given default"
+msgstr "违约损失率"
+
+msgid "Rule"
+msgstr "规则"
+
+msgid "Basel and EBA"
+msgstr "巴塞尔和 EBA"
+
+msgid "In kivi"
+msgstr "在 kivi 中"
+
+msgid "Realized LGD"
+msgstr "实际 LGD"
+
+msgid ""
+"The economic loss over the amount outstanding at default (EBA 131): the amount outstanding plus "
+"material direct and indirect costs, minus the recoveries discounted to the date of default (EBA "
+"132), also recoveries of unknown origin (EBA 133). The loss is economic, not accounting, with "
+"material discount effects and costs (CRE36.76)."
+msgstr ""
+"经济损失与违约时未偿金额之比（EBA 131）：未偿金额加上重大的直接和间接费用，减去折现到违约日的回收（EBA 132），来源不明的回收也计入（EBA "
+"133）。损失是经济损失而不是会计损失，包括重大的折现效应和费用（CRE36.76）。"
+
+msgid ""
+"The loss over the exposure of the defaulted facility (annex 5, part VI(4) 1), which includes "
+"principal and accrued unpaid interest and fees; an economic loss with direct and indirect costs "
+"(VI(4) 2)."
+msgstr "损失与违约债项风险暴露之比（附件 5 六（四）1），风险暴露包括本金和应计未付的利息、费用；基于经济损失，包括直接和间接成本（六（四）2）。"
+
+msgid ":func:`~kivi.lgd.workout_lgd`"
+msgstr ":func:`~kivi.lgd.workout_lgd`"
+
+msgid "Discount rate"
+msgstr "折现率"
+
+msgid ""
+"The 3-month EURIBOR at the date of default, or a comparable liquid rate of the currency, plus 5 "
+"percentage points, for recoveries, costs and drawings (EBA 143), so it differs with the date of "
+"default and the currency."
+msgstr "违约日的 3 个月 EURIBOR（或该币种可比的流动性利率）加 5 个百分点，用于回收、费用和追加提款（EBA 143），因此随违约日和币种而不同。"
+
+msgid ""
+"A rate that reflects the cost of holding the defaulted asset during the workout, with a risk "
+"premium for uncertain recoveries and the risk-free rate for certain ones (VI(4) 2(3))."
+msgstr "反映清收期间持有违约资产成本的利率；回收不确定时加风险溢价，确定时可用无风险利率（六（四）2（3））。"
+
+msgid "``rate``, one per loan"
+msgstr "``rate`` ，每笔贷款一个"
+
+msgid "Day count"
+msgstr "日计数"
+
+msgid "Not specified."
+msgstr "未规定。"
+
+msgid "ACT/365"
+msgstr "ACT/365"
+
+msgid "Costs before default"
+msgstr "违约前的费用"
+
+msgid ""
+"Material workout costs before default count, unless already in the amount outstanding or from an "
+"earlier default (EBA 144–146)."
+msgstr "违约前发生的重大清收费用也计入，除非已包含在未偿金额中或属于更早的违约（EBA 144–146）。"
+
+msgid "No specific rule."
+msgstr "未见专门规定。"
+
+msgid "Compounded to the date of default"
+msgstr "复利计算到违约日"
+
+msgid "Drawings after default"
+msgstr "违约后的追加提款"
+
+msgid ""
+"Count in the loss (EBA 142), and in the exposure where the CCF includes them (EBA 140), which "
+"retail exposures without that treatment leave out (EBA 141)."
+msgstr "计入损失（EBA 142）；若 CCF 包含追加提款，也计入敞口（EBA 140），未作此处理的零售敞口不计入敞口（EBA 141）。"
+
+msgid "Negative flows, or their present value in ``ead`` where the CCF includes them"
+msgstr "负现金流；若 CCF 包含追加提款，则把其现值计入 ``ead``"
+
+msgid "Interest and fees capitalized after default"
+msgstr "违约后资本化的利息和费用"
+
+msgid "Do not add to the loss; their recoveries count (EBA 137–138)."
+msgstr "不增加损失，其回收照常计入（EBA 137–138）。"
+
+msgid "Leave them out of the flows"
+msgstr "不作为现金流传入"
+
+msgid "Write-offs"
+msgstr "核销"
+
+msgid ""
+"Amounts written off at or before default are added to the amount outstanding, in the loss and in "
+"the exposure (EBA 134)."
+msgstr "违约时或违约前核销的金额加到未偿金额上，同时计入损失和敞口（EBA 134）。"
+
+msgid "Add them to ``ead``"
+msgstr "加到 ``ead`` 上"
+
+msgid "Cures"
+msgstr "治愈"
+
+msgid ""
+"A recovery of the amount outstanding on the date of the cure, discounted like the others; "
+"multiple defaults count from the first (EBA 135)."
+msgstr "一笔金额为治愈日未偿金额的回收，与其他现金流一样折现；多次违约从第一次违约起算（EBA 135）。"
+
+msgid "Not covered by annex 5."
+msgstr "附件 5 未涉及。"
+
+msgid "A recovery on the date of the cure"
+msgstr "治愈日的一笔回收"
+
+msgid "Open workouts"
+msgstr "未结案的清收"
+
+msgid ""
+"The observed average uses closed workouts only, without expected future recoveries (EBA 154; "
+"closure as in EBA 157); the long-run average adjusts for open workouts (EBA 158), and no default "
+"of the period may be left out (EBA 163). The ECB back-tests closed workouts (sections 2.3(i) and "
+"2.6.1(d) of its instructions)."
+msgstr ""
+"观察平均只用已结案的清收，不含预期的未来回收（EBA 154；结案的定义见 EBA 157）；长期平均对未结案的清收作调整（EBA 158），且不得剔除观察期内的任何违约（EBA "
+"163）。ECB 只回测已结案的清收（其报告说明第 2.3(i) 和 2.6.1(d) 节）。"
+
+msgid "The bank sets and documents when the recovery is complete (VI(4) 7)."
+msgstr "银行设定并记录清收完成的时间点（六（四）7）。"
+
+msgid "Select the closed workouts first"
+msgstr "先筛选已结案的清收"
+
+msgid "Long-run average"
+msgstr "长期平均"
+
+msgid ""
+"The arithmetic average over defaults (EBA 150), not over years; retail may weight recent data "
+"more (EBA 150–152). The long-run default-weighted average (CRE36.83, CRE36.81)."
+msgstr "按违约数的算术平均（EBA 150），不按年平均；零售可给近期数据更高的权重（EBA 150–152）。长期违约加权平均（CRE36.83、CRE36.81）。"
+
+msgid "At least the long-run default-weighted average loss rate (VI(4) 4)."
+msgstr "不低于长期违约加权平均损失率（六（四）4）。"
+
+msgid "``mean`` of :func:`~kivi.lgd.lgd_table` without ``weights``"
+msgstr "不带 ``weights`` 的 :func:`~kivi.lgd.lgd_table` 的 ``mean``"
+
+msgid "Negative LGDs and LGDs above 100%"
+msgstr "负的 LGD 和超过 100% 的 LGD"
+
+msgid ""
+"Negative realized LGDs count as 0 one by one in the observed and long-run averages, while the "
+"unclipped values may serve the risk differentiation (EBA 160); values far above 100% are kept and"
+" investigated or segmented (EBA 162)."
+msgstr "计算观察平均和长期平均时，负的实际 LGD 逐笔记为 0，未截断的值可用于风险区分（EBA 160）；远高于 100% 的值保留，并查明原因或单独分段（EBA 162）。"
+
+msgid "Samples below 0 count as 0 (VI(4) 15)."
+msgstr "小于 0 的样本按 0 处理（六（四）15）。"
+
+msgid "Not clipped by :func:`~kivi.lgd.workout_lgd`; ``floor=0.0`` of :func:`~kivi.lgd.lgd_table`"
+msgstr ":func:`~kivi.lgd.workout_lgd` 不截断； :func:`~kivi.lgd.lgd_table` 的 ``floor=0.0``"
+
+msgid "LGD floors"
+msgstr "LGD 下限"
+
+#, python-format
+msgid ""
+"Apply to the estimates, not to realized LGDs: 25% for unsecured corporate exposures, 5% for "
+"residential mortgages, 50% for QRRE and 30% for other unsecured retail exposures (CRE32.16, "
+"CRE32.58–59)."
+msgstr "用于估计值，不用于实际 LGD：无担保公司敞口 25%，个人住房抵押贷款 5%，QRRE 50%，其他无担保零售敞口 30%（CRE32.16、CRE32.58–59）。"
+
+msgid "Applied by the caller, such as ``numpy.maximum``"
+msgstr "由调用者施加，例如用 ``numpy.maximum``"
+
+msgid "Exposure at default and CCF"
+msgstr "违约风险敞口和 CCF"
+
+msgid "Basel and EU"
+msgstr "巴塞尔和欧盟"
+
+msgid "Own CCF estimates"
+msgstr "自行估计 CCF"
+
+msgid ""
+"Only for undrawn revolving commitments whose standardized CCF is below 100% (CRE32.36, for retail"
+" CRE32.63; CRR3 article 166(8b))."
+msgstr "只限标准法 CCF 低于 100% 的未提用循环承诺（CRE32.36，零售为 CRE32.63；CRR3 第 166(8b) 条）。"
+
+#, python-format
+msgid ""
+"Revolving off-balance-sheet items; other items take the CCFs of article 82, and 100% stays 100% "
+"(article 93(3) and (4))."
+msgstr "可循环的表外项目；其他项目用第八十二条的 CCF，100% 的仍为 100%（第九十三条三、四）。"
+
+msgid "Not checked"
+msgstr "不检查"
+
+msgid "EAD floor"
+msgstr "EAD 下限"
+
+#, python-format
+msgid ""
+"The on-balance-sheet amount plus 50% of the off-balance-sheet amount at its standardized CCF "
+"(CRE32.36, for retail CRE32.64; CRR3 article 166(8c), except central governments)."
+msgstr "表内金额加上表外金额按标准法 CCF 计算的 50%（CRE32.36，零售为 CRE32.64；CRR3 第 166(8c) 条，中央政府除外）。"
+
+msgid ""
+"For corporate exposures, the larger of the internal estimate and that sum (article 93(3)); no "
+"floor for retail exposures (article 93(4)), unlike Basel."
+msgstr "公司敞口取内部估计与上述两项之和中的较大者（第九十三条三）；零售敞口没有下限（第九十三条四），与巴塞尔不同。"
+
+msgid "Applied by the caller"
+msgstr "由调用者施加"
+
+msgid "Reference date"
+msgstr "参考日"
+
+msgid ""
+"The 12-month fixed horizon: the characteristics of the borrower and the facility 12 months before"
+" default (CRE36.93; CRR3 article 182(1)(g); EBA/CP/2025/10 paragraph 59). A default within 12 "
+"months of origination takes the earliest date with a strictly positive undrawn amount "
+"(EBA/CP/2025/10 paragraph 60)."
+msgstr ""
+"12 个月固定期限法：借款人和债项特征取违约前 12 个月的值（CRE36.93；CRR3 第 182(1)(g) 条；EBA/CP/2025/10 第 59 段）。放款后 12 "
+"个月内违约的，取未提用额度严格为正的最早日期（EBA/CP/2025/10 第 60 段）。"
+
+msgid "The 12-month fixed horizon, or another method shown to be prudent (annex 5, part VI(5) 12)."
+msgstr "12 个月固定期限法，或能证明审慎的其他方法（附件 5 六（五）12）。"
+
+msgid "``drawn`` and ``limit`` at the reference date"
+msgstr "参考日的 ``drawn`` 和 ``limit``"
+
+msgid "Realized CCF"
+msgstr "实际 CCF"
+
+msgid ""
+"The drawn amount at default minus that at the reference date, over the limit minus the drawn "
+"amount at the reference date (CRE36.95, footnote; EBA/CP/2025/10 paragraph 61(a)); the ECB uses "
+"the definition of the bank's model (section 2.9.1(b))."
+msgstr ""
+"违约时提用金额减去参考日提用金额，除以参考日额度减去参考日提用金额（CRE36.95 脚注；EBA/CP/2025/10 第 61(a) 段）；ECB 按银行模型的定义计算（第 2.9.1(b)"
+" 节）。"
+
+msgid "The same, with the default-weighted long-run average (VI(5) 3)."
+msgstr "口径相同，取违约加权长期平均（六（五）3）。"
+
+msgid ":func:`~kivi.lgd.conversion_factor`"
+msgstr ":func:`~kivi.lgd.conversion_factor`"
+
+msgid "Limit"
+msgstr "额度"
+
+#, python-format
+msgid ""
+"The larger of the advised and the unadvised limit (CRR article 4(1)(56)); a later increase stays "
+"out of the denominator, so a CCF of 200% is possible (EBA/CP/2025/10 example 3)."
+msgstr "已告知额度与未告知额度中的较大者（CRR 第 4(1)(56) 条）；之后提高的额度不进入分母，因此 CCF 可以达到 200%（EBA/CP/2025/10 例 3）。"
+
+msgid "``limit`` at the reference date"
+msgstr "参考日的 ``limit``"
+
+msgid "Fully drawn or overdrawn lines"
+msgstr "满额或超额使用的额度"
+
+msgid ""
+"From a usage of 100%, the drawn amount at default over the limit at the reference date "
+"(EBA/CP/2025/10 paragraph 61(b)), or a threshold that the bank sets (paragraphs 61(c) and 73); "
+"the factor is unstable near full usage (CRE36.95). The ECB back-tests the EAD of facilities with "
+"an EAD approach instead of a CCF (sections 2.9.1(g) and 2.9.3)."
+msgstr ""
+"使用率达到 100% 起，改用违约时提用金额除以参考日额度（EBA/CP/2025/10 第 61(b) 段），或用银行设定的使用率阈值（第 61(c) 和 73 "
+"段）；接近满额使用时该因子不稳定（CRE36.95）。对采用 EAD 方法的债项，ECB 改为回测 EAD，而不是 CCF（第 2.9.1(g) 和 2.9.3 节）。"
+
+msgid "The instability of the factor near full usage needs attention (VI(5) 14)."
+msgstr "需关注接近满额使用时该因子的不稳定（六（五）14）。"
+
+msgid "NaN; ``ead / limit`` by the caller"
+msgstr "NaN；由调用者计算 ``ead / limit``"
+
+msgid "Negative CCFs"
+msgstr "负的 CCF"
+
+msgid ""
+"Count as 0 in the quantification, while the unclipped values may serve the risk differentiation "
+"(CRR3 article 182(1); EBA/CP/2025/10 paragraph 99); the ECB reports the share of clipped values."
+msgstr "量化时记为 0，未截断的值可用于风险区分（CRR3 第 182(1) 条；EBA/CP/2025/10 第 99 段）；ECB 报告被截断的比例。"
+
+msgid "Not clipped; ``numpy.maximum(ccf, 0)``"
+msgstr "不截断； ``numpy.maximum(ccf, 0)``"
+
+msgid "Cap"
+msgstr "上限"
+
+msgid ""
+"No cap at 100%, and no capped reference data (CRE36.95–96; CRR3 article 182(1d); EBA/CP/2025/10 "
+"background, paragraph 22)."
+msgstr "不以 100% 封顶，参考数据也不封顶（CRE36.95–96；CRR3 第 182(1d) 条；EBA/CP/2025/10 背景部分第 22 段）。"
+
+msgid "No cap at the principal (VI(5) 15)."
+msgstr "不应设置本金上限（六（五）15）。"
+
+msgid "Not capped"
+msgstr "不封顶"
+
+msgid "CCFs of the foundation approach"
+msgstr "初级法的 CCF"
+
+#, python-format
+msgid ""
+"Those of the standardized approach: 100%, 50%, 40% for commitments, 20% and 10% for "
+"unconditionally cancellable commitments (CRE32.33, CRE20.95–100); 75% was the earlier value."
+msgstr "与标准法相同：100%、50%、承诺 40%、20%，可无条件撤销的承诺 10%（CRE32.33、CRE20.95–100）；75% 是旧值。"
+
+#, python-format
+msgid ""
+"Those of article 82 (article 93(2)): 100%, 40% for loan commitments (10% if unconditionally "
+"cancellable), 40% or 20% for unused credit card lines and 50% for NIFs and RUFs."
+msgstr "第八十二条的 CCF（第九十三条二）：100%，贷款承诺 40%（可无条件撤销的 10%），未使用的信用卡额度 40% 或 20%，NIF 和 RUF 50%。"
+
+msgid "Not computed"
+msgstr "不计算"
+
+msgid ""
+"The EBA consultation on CCF estimation, EBA/CP/2025/10 of 2 July 2025, was not final when kivi "
+"1.6 was written; article 182(5) of the CRR3 asks for the final guidelines by the end of 2026."
+msgstr ""
+"EBA 的 CCF 估计征求意见稿 EBA/CP/2025/10（2025 年 7 月 2 日）在编写 kivi 1.6 时尚未定稿；CRR3 第 182(5) 条要求在 2026 "
+"年底前发布正式指引。"
+
+msgid ""
+":func:`~kivi.lgd.workout_lgd` raises an error for a missing loan, date, exposure, amount or rate,"
+" because each decides a loss: a loan without flows is not missing but has recovered nothing. "
+":func:`~kivi.lgd.conversion_factor` gives NaN for a missing amount, so a portfolio with gaps "
+"keeps its shape. :func:`~kivi.lgd.lgd_table` raises an error for a missing LGD and counts missing"
+" groups as a group of their own, and :func:`~kivi.lgd.fractional_regression` raises an error for "
+"missing drivers or responses."
+msgstr ""
+":func:`~kivi.lgd.workout_lgd` 对缺失的贷款、日期、敞口、金额或利率报错，因为每一项都决定损失：没有现金流的贷款不是缺失，而是没有任何回收。 "
+":func:`~kivi.lgd.conversion_factor` 对缺失的金额给出 NaN，因此有缺口的资产组合保持其形状。 :func:`~kivi.lgd.lgd_table` "
+"对缺失的 LGD 报错，缺失的分组单独成组； :func:`~kivi.lgd.fractional_regression` 对缺失的驱动因素或响应报错。"
+
+msgid ""
+":func:`~kivi.lgd.lgd_table` and :func:`~kivi.lgd.fractional_regression` take frequency weights: "
+"integer weights give the same table, estimates and standard errors as repeating the rows. The "
+"long-run average of the regulations counts every default once, so weighting the defaults by their"
+" exposure gives an exposure-weighted average LGD, which is a different measure. Use weights that "
+"count defaults, such as the inverse of a sampling rate, and expect the standard errors of the "
+"regression to be too small with them, as in :func:`~kivi.selection.logistic_regression`."
+msgstr ""
+":func:`~kivi.lgd.lgd_table` 和 :func:`~kivi.lgd.fractional_regression` "
+"接受频数权重：整数权重与重复相应行得到相同的表、估计值和标准误。监管所指的长期平均中每笔违约计一次，因此按敞口给违约加权得到的是敞口加权平均 "
+"LGD，是另一个量。应使用计数违约的权重，例如抽样比例的倒数；与 :func:`~kivi.selection.logistic_regression` 一样，这时回归的标准误会偏小。"
+
+msgid ""
+"The realized LGD of an open workout is the loss so far. kivi does not estimate the future "
+"recoveries of open workouts, the adjustment of the long-run average for them, the LGD in-default "
+"or the ELBE."
+msgstr "未结案清收的实际 LGD 是到目前为止的损失。kivi 不估计未结案清收的未来回收、长期平均对它们的调整、违约后 LGD 或 ELBE。"
+
+msgid ""
+"The downturn LGD, the margin of conservatism and the LGD and EAD floors of the estimates are the "
+"bank's to apply."
+msgstr "经济下行期 LGD、保守性边际以及估计值的 LGD 和 EAD 下限由银行施加。"
+
+msgid ""
+":func:`~kivi.lgd.conversion_factor` leaves out the factor of fully drawn lines of the EBA's "
+"consultation, which was not final, and :func:`~kivi.lgd.workout_lgd` does not tell flow kinds "
+"apart, so the adjustment of the exposure for drawings is a second call, as shown above."
+msgstr ""
+":func:`~kivi.lgd.conversion_factor` 不实现 EBA 征求意见稿中满额使用额度的因子，因为该稿尚未定稿； "
+":func:`~kivi.lgd.workout_lgd` 不区分现金流的种类，因此按追加提款调整敞口需要再调用一次，如上所示。"
+
+msgid ""
+"The fractional logit models the mean LGD. Bimodal LGDs, with many cures and total losses, are "
+"often modelled in two stages, such as a logistic regression of a cure and a fractional regression"
+" of the loss without one, which combine the existing functions."
+msgstr "分数 logit 为平均 LGD 建模。治愈和全额损失都很多的双峰 LGD 常分两阶段建模，例如用逻辑回归对治愈建模，再用分数回归对未治愈贷款的损失建模，这可以组合现有函数实现。"
+
+msgid ""
+"**A recovery before the date of default.** A repayment before default is not part of the workout;"
+" check the dates, or count the payment in the exposure."
+msgstr "**回收早于违约日。** 违约前的还款不属于清收；检查日期，或把这笔还款计入敞口。"
+
+msgid ""
+"**A flow of a loan that is not in loan.** Every flow must belong to one of the defaulted loans, "
+"each listed once."
+msgstr "**某笔现金流所属的贷款不在 loan 中。** 每笔现金流都必须属于某一笔违约贷款，每笔贷款只列一次。"
+
+msgid ""
+"**A response outside [0, 1].** Floor the realized LGDs at 0 and cap them at 1 before "
+":func:`~kivi.lgd.fractional_regression`."
+msgstr "**响应超出 [0, 1]。** 在调用 :func:`~kivi.lgd.fractional_regression` 之前，把实际 LGD 的下限设为 0、上限设为 1。"
+
+msgid ""
+"**SeparationError.** A driver separates the losses of 0 from the losses of 1 while no loss in "
+"between bounds its coefficient, such as a segment in which every loan lost everything. Merge the "
+"segment with a neighbour or leave the driver out."
+msgstr ""
+"**SeparationError。** 某个驱动因素把损失为 0 的行与损失为 1 "
+"的行分开，而没有介于二者之间的损失约束其系数，例如某个分段中每笔贷款都损失了全部敞口。把该分段与相邻分段合并，或去掉该驱动因素。"
+
+msgid ""
+"**RuntimeWarning: fractional regression did not converge.** The fit stopped after 100 iterations;"
+" check the drivers for extreme values."
+msgstr "**RuntimeWarning: fractional regression did not converge。** 拟合在 100 次迭代后停止；检查驱动因素是否有极端值。"
 
 msgid ""
 "IFRS 9 requires a lender to hold a loss allowance for the credit losses that it expects on its "

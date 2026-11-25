@@ -2,14 +2,23 @@
 
 `fit` takes a design matrix that already holds the intercept column and
 returns the maximum likelihood estimates with their Wald statistics. The
-public wrappers in `kivi.selection` validate the inputs and label the result.
+target may be fractional, which gives the quasi-likelihood fit of a
+fractional logit. The public wrappers in `kivi.selection`,
+`kivi.calibration` and `kivi.lgd` validate the inputs and label the result,
+with the checks of a design matrix below `fit`, which name the columns of
+`X` in their messages.
 """
 
 import math
 import typing
+import warnings
+from collections import abc
 
 import numpy as np
 import numpy.typing as npt
+import pandas as pd
+
+from . import _validation
 
 # A fitted probability within 1e-10 of 0 or 1 means |eta| > 23.
 _EXTREME_ETA = -math.log(1e-10)
@@ -79,16 +88,21 @@ def fit(
     start: npt.NDArray[np.float64] | None = None,
     max_iter: int = 100,
     tol: float = 1e-8,
+    robust: bool = False,
 ) -> LogitFit:
     r"""Maximize the logistic log-likelihood by Newton-Raphson.
 
     For the logit link, Newton-Raphson is iteratively reweighted least
-    squares: each step solves :math:`(X^\top W X)\,\delta = X^\top (y - p)`
-    with :math:`W = \mathrm{diag}(w_i p_i (1 - p_i))`. The iterations run on
-    centred and scaled columns, so an offset or a unit of measurement does
-    not square into the conditioning of :math:`X^\top W X`; the estimates
-    and their covariance are transformed back. A step that lowers the
-    log-likelihood by more than rounding error is halved until it does not.
+    squares: each step solves :math:`(X^\top W X)\,\delta = X^\top w (y - p)`
+    with :math:`W = \mathrm{diag}(w_i p_i (1 - p_i))`. The same steps
+    maximize the quasi-log-likelihood
+    :math:`\sum_i w_i [y_i \ln p_i + (1 - y_i) \ln(1 - p_i)]` of a target
+    between 0 and 1, the fractional logit of Papke and Wooldridge. The
+    iterations run on centred and scaled columns, so an offset or a unit of
+    measurement does not square into the conditioning of
+    :math:`X^\top W X`; the estimates and their covariance are transformed
+    back. A step that lowers the log-likelihood by more than rounding error
+    is halved until it does not.
     The fit has converged when every scaled coefficient changes by at most
     `tol` times one plus its absolute value.
 
@@ -98,7 +112,7 @@ def fit(
         Two-dimensional float design matrix of full column rank, including
         the intercept column. See `dependent_column`.
     target : numpy.ndarray
-        Labels 0 and 1, one per row of `design`.
+        Labels 0 and 1, or fractions from 0 to 1, one per row of `design`.
     weights : numpy.ndarray, optional
         Non-negative frequency weights: a row with weight 2 counts as two
         identical observations. Default 1 for every row.
@@ -109,27 +123,39 @@ def fit(
     tol : float, default 1e-8
         Largest change of a scaled coefficient at convergence, relative to
         one plus its absolute value.
+    robust : bool, default False
+        Whether the covariance is the HC0 sandwich
+        :math:`A^{-1} B A^{-1}` of the Fisher information :math:`A` and
+        :math:`B = \sum_i w_i (y_i - p_i)^2 x_i x_i^\top`, instead of
+        :math:`A^{-1}`.
 
     Returns
     -------
     LogitFit
-        Coefficients, standard errors from the inverse Fisher information,
-        Wald z statistics, two-sided p-values, the covariance matrix, the
-        log-likelihood, the number of steps and whether the fit converged.
+        Coefficients, standard errors from the inverse Fisher information
+        or the sandwich, Wald z statistics, two-sided p-values, the
+        covariance matrix, the log-likelihood, the number of steps and
+        whether the fit converged.
         A fit that stops after `max_iter` steps is returned with
         ``converged=False``; the caller decides whether to warn.
 
     Raises
     ------
     SeparationError
-        If some fitted probabilities reach 0 or 1 while a Newton step moves
-        every observation towards its own class, which proves that a
-        combination of the columns separates the classes.
+        If some fitted probabilities of targets 0 and 1 reach 0 or 1 while a
+        Newton step moves every such observation towards its own class and
+        leaves the linear predictor of every fractional target unchanged,
+        which proves that a combination of the columns separates the
+        classes. A fractional target bounds the linear predictor in both
+        directions, so only targets of exactly 0 and 1 can be separated.
     SingularError
         If the Fisher information is numerically singular.
     """
     weights = np.ones(len(target)) if weights is None else weights
     used = weights > 0
+    # Only targets of exactly 0 and 1 can be separated, and fractional ones must not move.
+    binary = used & ((target == 0) | (target == 1))
+    fractional = used & ~binary
     sign = np.where(target == 1, 1.0, -1.0)
     scaled, transform = _standardize(design)
     coef = (
@@ -145,7 +171,7 @@ def fit(
     n_iter = 0
     while n_iter < max_iter and not converged:
         n_iter += 1
-        gradient = scaled.T @ (weights * np.where(target == 1, non_event, -event))
+        gradient = scaled.T @ (weights * _residual(target, event, non_event))
         information = _information(scaled, weights, event, non_event)
         try:
             step = np.linalg.solve(information, gradient)
@@ -166,9 +192,14 @@ def fit(
         change = trial_eta - eta
         coef, eta = trial, trial_eta
         event, non_event, log_likelihood = evaluated
-        if not converged and np.abs(eta[used]).max() > _EXTREME_ETA:
-            towards = (sign * change)[used]
-            if towards.max() > 0 and towards.min() >= -_AGAINST * np.abs(towards).max():
+        if not converged and binary.any() and np.abs(eta[binary]).max() > _EXTREME_ETA:
+            towards = (sign * change)[binary]
+            largest = np.abs(towards).max()
+            if (
+                towards.max() > 0
+                and towards.min() >= -_AGAINST * largest
+                and (np.abs(change[fractional]) <= _AGAINST * largest).all()
+            ):
                 raise SeparationError(
                     "the classes of target are separated by X: some fitted probabilities tend "
                     "to 0 or 1, so the maximum likelihood estimates do not exist; merge the "
@@ -181,10 +212,15 @@ def fit(
     variance = np.diagonal(cov)
     if not (np.isfinite(variance).all() and (variance > 0).all()):
         raise SingularError(_weakest_column(scaled, weights, event, non_event))
+    if robust:
+        score = scaled * _residual(target, event, non_event)[:, None]
+        cov = cov @ ((score * weights[:, None]).T @ score) @ cov
     coef = transform @ coef
     cov = transform @ cov @ transform.T
     se = np.sqrt(np.diagonal(cov))
-    z = coef / se
+    # A robust standard error is 0 where every residual is 0.
+    with np.errstate(divide="ignore", invalid="ignore"):
+        z = coef / se
     p_value = np.array([math.erfc(abs(value) / math.sqrt(2)) for value in z])
     return LogitFit(coef, se, z, p_value, cov, log_likelihood, n_iter, converged)
 
@@ -213,6 +249,108 @@ def dependent_column(design: npt.NDArray[np.float64]) -> int | None:
     if len(dependent):
         return int(dependent[0])
     return rows if rows < columns else None
+
+
+def as_frame(
+    X: pd.DataFrame | npt.ArrayLike, *, example: str = ""
+) -> tuple[pd.DataFrame, npt.NDArray[np.float64]]:
+    """Return `X` as a DataFrame, without copying one, and its float values.
+
+    `X` needs at least 2 rows and one column, unique column labels and
+    numeric, finite values. `example` names typical values in the message
+    for a column that is not numeric, such as ``"WOE values from
+    woe_transform"``.
+    """
+    if isinstance(X, pd.DataFrame):
+        frame = X
+    else:
+        if np.ndim(X) != 2:
+            raise ValueError(f"X must be two-dimensional, got {np.ndim(X)} dimensions")
+        frame = pd.DataFrame(X)  # type: ignore[arg-type]  # a two-dimensional array_like
+    if len(frame) < 2:
+        raise ValueError(f"X must have at least 2 rows, got {len(frame)}")
+    if not frame.shape[1]:
+        raise ValueError("X must have at least one column")
+    if frame.columns.has_duplicates:
+        label: abc.Hashable = frame.columns[frame.columns.duplicated()][0]
+        raise ValueError(
+            f"X must have unique column labels, got {_validation.shown(label)} more than once"
+        )
+    hint = f", such as {example}" if example else ""
+    for label, dtype in frame.dtypes.items():
+        if not pd.api.types.is_numeric_dtype(dtype):
+            raise ValueError(
+                f"X column {_validation.shown(label)} must be numeric{hint}, got dtype {dtype}"
+            )
+    values = frame.to_numpy(dtype=float, na_value=np.nan)
+    finite = np.isfinite(values).all(axis=0)
+    if not finite.all():
+        label = frame.columns[np.argmin(finite)]  # type: ignore[call-overload]  # a NumPy integer selects one label
+        raise ValueError(
+            f"X column {_validation.shown(label)} must not contain missing or infinite values"
+        )
+    return frame, values
+
+
+def with_intercept(values: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+    """Return the design matrix of `values` with a column of ones in front."""
+    return np.column_stack([np.ones(len(values)), values])
+
+
+def check_not_constant(
+    columns: pd.Index, values: npt.NDArray[np.float64], reason: str, where: str = ""
+) -> None:
+    """Require every column of `values`, labelled by `columns`, to vary."""
+    constant = np.ptp(values, axis=0) == 0
+    if constant.any():
+        label = columns[int(np.argmax(constant))]
+        raise ValueError(f"X column {_validation.shown(label)} is constant{where}; {reason}")
+
+
+def check_independent(
+    columns: pd.Index, values: npt.NDArray[np.float64], *, weighted: bool
+) -> None:
+    """Require the columns of `values` to vary and to be independent of those before them."""
+    where = " on the rows with positive weight" if weighted else ""
+    check_not_constant(columns, values, "it cannot be told apart from the intercept", where)
+    dependent = dependent_column(with_intercept(values))
+    if dependent is not None:
+        raise ValueError(
+            f"X column {_validation.shown(columns[dependent - 1])} is a linear combination "
+            f"of the intercept and the columns before it{where}"
+        )
+
+
+def singular_column(error: SingularError, columns: pd.Index, model: str = "") -> ValueError:
+    """Return the error that names the column of `X` at which a fit was singular.
+
+    The design is the intercept followed by `columns`. `model` names the model
+    in the message, such as ``" in the model of step 2"``.
+    """
+    label = "intercept" if error.column == 0 else columns[error.column - 1]
+    return ValueError(
+        f"X column {_validation.shown(label)} is so close to a linear combination of the "
+        f"intercept and the other columns that its coefficient cannot be estimated{model}"
+    )
+
+
+def warn_not_converged(
+    fitted: LogitFit,
+    stacklevel: int,
+    *,
+    model: str = "logistic regression",
+    step: int | None = None,
+) -> None:
+    """Warn that `fitted` stopped before it converged, at `stacklevel` frames above the caller.
+
+    `step` names the step of `kivi.selection.selection_path` in the message.
+    """
+    of = "" if step is None else f" of step {step}"
+    warnings.warn(
+        f"{model}{of} did not converge after {fitted.n_iter} iterations",
+        RuntimeWarning,
+        stacklevel=stacklevel + 1,
+    )
 
 
 def _standardize(
@@ -282,6 +420,15 @@ def _evaluate(
     # ln(1 + exp(eta)) = max(eta, 0) + ln(1 + exp(-|eta|)); np.sum adds pairwise.
     log_likelihood = float(np.sum(weights * (target * eta - np.maximum(eta, 0) - np.log1p(tail))))
     return event, non_event, log_likelihood
+
+
+def _residual(
+    target: npt.NDArray[np.float64],
+    event: npt.NDArray[np.float64],
+    non_event: npt.NDArray[np.float64],
+) -> npt.NDArray[np.float64]:
+    """Return y - p from both probabilities, exactly P(y = 0) or -P(y = 1) for labels 0 and 1."""
+    return target * non_event - (1 - target) * event
 
 
 def _information(

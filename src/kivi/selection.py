@@ -1,7 +1,6 @@
 """Variable selection for scorecards built on WOE-encoded variables."""
 
 import typing
-import warnings
 from collections import abc
 
 import numpy as np
@@ -23,6 +22,8 @@ __all__ = [
 
 # VIFs within this relative difference of the largest tie, as other statistics in kivi do.
 _TIE = 1e-10
+# The values that the message for a column that is not numeric gives as an example.
+_WOE = "WOE values from woe_transform"
 
 
 def correlation_filter(
@@ -138,8 +139,8 @@ def correlation_filter(
         raise ValueError(
             f"threshold must be between 0 and 1, got {_validation.shown_argument(threshold)}"
         )
-    frame, values = _as_frame(X)
-    _check_not_constant(frame.columns, values, "its correlation is undefined")
+    frame, values = _logit.as_frame(X, example=_WOE)
+    _logit.check_not_constant(frame.columns, values, "its correlation is undefined")
     order = np.argsort(-_priority(priority, frame.columns), kind="stable")
     if method == "pearson":
         matrix = np.corrcoef(values, rowvar=False)
@@ -236,8 +237,8 @@ def vif(X: pd.DataFrame | npt.ArrayLike) -> pd.Series:
     total    inf
     Name: vif, dtype: float64
     """
-    frame, values = _as_frame(X)
-    _check_not_constant(frame.columns, values, "its VIF is undefined")
+    frame, values = _logit.as_frame(X, example=_WOE)
+    _logit.check_not_constant(frame.columns, values, "its VIF is undefined")
     return pd.Series(_vif(values), index=frame.columns.rename("variable"), name="vif")
 
 
@@ -368,8 +369,8 @@ def vif_filter(
             "threshold must be a finite number greater than 1, got "
             f"{_validation.shown_argument(threshold)}"
         )
-    frame, values = _as_frame(X)
-    _check_not_constant(frame.columns, values, "its VIF is undefined")
+    frame, values = _logit.as_frame(X, example=_WOE)
+    _logit.check_not_constant(frame.columns, values, "its VIF is undefined")
     rank = _priority(priority, frame.columns)
     kept = np.arange(values.shape[1])
     while len(kept) > 1:
@@ -538,10 +539,10 @@ def logistic_regression(
     x          2.1972  1.6330  1.3455   0.1785
     """
     frame, values, labels, mass = _model_inputs(X, target, weights)
-    _check_independent(frame.columns, values, weighted=mass is not None)
-    result = _fit(_with_intercept(values), labels, frame.columns, mass)
+    _logit.check_independent(frame.columns, values, weighted=mass is not None)
+    result = _fit(_logit.with_intercept(values), labels, frame.columns, mass)
     if not result.converged:
-        _warn_not_converged(result, stacklevel=2)
+        _logit.warn_not_converged(result, stacklevel=2)
     table = pd.DataFrame(
         {"coef": result.coef, "se": result.se, "z": result.z, "p_value": result.p_value},
         index=pd.Index(["intercept"]).append(frame.columns).rename("variable"),
@@ -692,8 +693,8 @@ def stepwise(
         )
     frame, values, labels, mass = _model_inputs(X, target, weights)
     # Every subset of independent columns is independent, so candidate models have full rank.
-    _check_independent(frame.columns, values, weighted=mass is not None)
-    design = _with_intercept(values)
+    _logit.check_independent(frame.columns, values, weighted=mass is not None)
+    design = _logit.with_intercept(values)
     selected = list(range(values.shape[1])) if direction == "backward" else []
     visited = {frozenset(selected)}
     fitted = None
@@ -861,7 +862,7 @@ def selection_path(
     positions = _order(order, frame.columns)
     columns = frame.columns[positions]
     values = values[:, positions]
-    _check_independent(columns, values, weighted=mass is not None)
+    _logit.check_independent(columns, values, weighted=mass is not None)
     if validation is not None:
         validation_values, validation_labels = _validation_sample(
             validation, isinstance(X, pd.DataFrame), frame.columns, positions
@@ -870,7 +871,7 @@ def selection_path(
     results = np.empty((steps, 8))
     for step in range(1, steps + 1):
         # The design of logistic_regression on the same columns, so that the fits agree exactly.
-        design = _with_intercept(values[:, :step])
+        design = _logit.with_intercept(values[:, :step])
         try:
             fitted = _fit(design, labels, columns[:step], mass, step=step)
         except SeparationError:
@@ -881,7 +882,7 @@ def selection_path(
                 "its bins"
             ) from None
         if not fitted.converged:
-            _warn_not_converged(fitted, stacklevel=2, step=step)
+            _logit.warn_not_converged(fitted, stacklevel=2, step=step)
         results[step - 1, :5] = (
             *_ranking(_linear_predictor(values, fitted.coef), labels, mass),
             fitted.p_value[1:].max(),
@@ -972,9 +973,9 @@ def _validation_sample(
             absent = names[~names.isin(X.columns)]
             if len(absent):
                 raise ValueError(f"X has no column {_validation.shown(absent[0])}")
-            frame, values = _as_frame(X[names])
+            frame, values = _logit.as_frame(X[names], example=_WOE)
         else:
-            frame, values = _as_frame(X)
+            frame, values = _logit.as_frame(X, example=_WOE)
             if frame.shape[1] != len(columns):
                 raise ValueError(
                     f"X must have {len(columns)} columns, as X has, got {frame.shape[1]}"
@@ -1017,7 +1018,7 @@ def _remove(
                 design[:, _model_columns(selected)], labels, columns[selected], mass, start
             )
             if not fitted.converged:
-                _warn_not_converged(fitted, stacklevel=3)
+                _logit.warn_not_converged(fitted, stacklevel=3)
         coef, z, p_value = fitted.coef[1:], fitted.z[1:], fitted.p_value[1:]
         failing = p_value > p_remove
         if positive:
@@ -1099,31 +1100,12 @@ def _fit(
     try:
         return _warm_fit(design, labels, mass, start)
     except _logit.SingularError as error:
-        label = "intercept" if error.column == 0 else columns[error.column - 1]
         model = "" if step is None else f" in the model of step {step}"
-        raise ValueError(
-            f"X column {_validation.shown(label)} is so close to a linear combination of the "
-            f"intercept and the other columns that its coefficient cannot be estimated{model}"
-        ) from None
-
-
-def _warn_not_converged(
-    fitted: _logit.LogitFit, stacklevel: int, *, step: int | None = None
-) -> None:
-    model = "" if step is None else f" of step {step}"
-    warnings.warn(
-        f"logistic regression{model} did not converge after {fitted.n_iter} iterations",
-        RuntimeWarning,
-        stacklevel=stacklevel + 1,
-    )
+        raise _logit.singular_column(error, columns, model) from None
 
 
 def _model_columns(selected: list[int]) -> list[int]:
     return [0, *(column + 1 for column in selected)]
-
-
-def _with_intercept(values: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
-    return np.column_stack([np.ones(len(values)), values])
 
 
 def _check_level(level: float, name: str) -> None:
@@ -1131,39 +1113,6 @@ def _check_level(level: float, name: str) -> None:
         raise ValueError(
             f"{name} must be greater than 0 and at most 1, got {_validation.shown_argument(level)}"
         )
-
-
-def _as_frame(X: pd.DataFrame | npt.ArrayLike) -> tuple[pd.DataFrame, npt.NDArray[np.float64]]:
-    """Return `X` as a DataFrame, without copying one, and its float values."""
-    if isinstance(X, pd.DataFrame):
-        frame = X
-    else:
-        if np.ndim(X) != 2:
-            raise ValueError(f"X must be two-dimensional, got {np.ndim(X)} dimensions")
-        frame = pd.DataFrame(X)  # type: ignore[arg-type]  # a two-dimensional array_like
-    if len(frame) < 2:
-        raise ValueError(f"X must have at least 2 rows, got {len(frame)}")
-    if not frame.shape[1]:
-        raise ValueError("X must have at least one column")
-    if frame.columns.has_duplicates:
-        label: abc.Hashable = frame.columns[frame.columns.duplicated()][0]
-        raise ValueError(
-            f"X must have unique column labels, got {_validation.shown(label)} more than once"
-        )
-    for label, dtype in frame.dtypes.items():
-        if not pd.api.types.is_numeric_dtype(dtype):
-            raise ValueError(
-                f"X column {_validation.shown(label)} must be numeric, such as WOE values from "
-                f"woe_transform, got dtype {dtype}"
-            )
-    values = frame.to_numpy(dtype=float, na_value=np.nan)
-    finite = np.isfinite(values).all(axis=0)
-    if not finite.all():
-        label = frame.columns[np.argmin(finite)]  # type: ignore[call-overload]  # a NumPy integer selects one label
-        raise ValueError(
-            f"X column {_validation.shown(label)} must not contain missing or infinite values"
-        )
-    return frame, values
 
 
 def _model_inputs(
@@ -1182,7 +1131,7 @@ def _model_inputs(
         if isinstance(X, pd.DataFrame) and isinstance(values, pd.Series):
             if not X.index.equals(values.index):
                 raise ValueError(f"X and {name} must have identical indices")
-    frame, values = _as_frame(X)
+    frame, values = _logit.as_frame(X, example=_WOE)
     if "intercept" in frame.columns:
         raise ValueError("X must not have a column labelled 'intercept'")
     raw_target = target
@@ -1235,27 +1184,3 @@ def _priority(priority: npt.ArrayLike | None, columns: pd.Index) -> npt.NDArray[
             f"{_validation.shown(priority[priority.isna()])}"
         )
     return priority.to_numpy(dtype=float)
-
-
-def _check_not_constant(
-    columns: pd.Index, values: npt.NDArray[np.float64], reason: str, where: str = ""
-) -> None:
-    """Require every column of `values`, labelled by `columns`, to vary."""
-    constant = np.ptp(values, axis=0) == 0
-    if constant.any():
-        label = columns[int(np.argmax(constant))]
-        raise ValueError(f"X column {_validation.shown(label)} is constant{where}; {reason}")
-
-
-def _check_independent(
-    columns: pd.Index, values: npt.NDArray[np.float64], *, weighted: bool
-) -> None:
-    """Require the columns of `values` to vary and to be independent of those before them."""
-    where = " on the rows with positive weight" if weighted else ""
-    _check_not_constant(columns, values, "it cannot be told apart from the intercept", where)
-    dependent = _logit.dependent_column(_with_intercept(values))
-    if dependent is not None:
-        raise ValueError(
-            f"X column {_validation.shown(columns[dependent - 1])} is a linear combination "
-            f"of the intercept and the columns before it{where}"
-        )
