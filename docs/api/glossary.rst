@@ -183,7 +183,7 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       The sum of the squared shares of the grades of a rating scale: :math:`1/K` when :math:`K` grades are equally full and 1 when one grade holds everybody. The European Central Bank measures the concentration with the HI, :math:`1 + \ln \mathrm{HHI} / \ln K`, which runs from 0 to 1 instead; see :doc:`/user_guide/calibration`.
 
    High-volatility commercial real estate (HVCRE)
-      Commercial real estate lending whose repayment depends on the property and whose losses vary strongly with the economy. Its asset correlation runs from 0.12 to 0.30 instead of 0.24; see :doc:`/user_guide/capital`.
+      Commercial real estate lending whose repayment depends on the property and whose losses vary strongly with the economy. Its asset correlation falls from 0.30 to 0.12 as the PD rises, with 0.30 in place of the 0.24 of other corporate exposures; see :doc:`/user_guide/capital`.
 
    Information value (IV)
       The sum of the differences between the event share and the non-event share of each group, each times the group's WOE. It measures how strongly a grouped variable separates events from non-events on its own; see :doc:`/user_guide/woe_iv`.
@@ -192,7 +192,7 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       The validation of a rating model before its first use. Later validations compare their AUC, gAUC and concentration of grades with those of the initial validation, which they take as known; see :doc:`/user_guide/validation`.
 
    Internal ratings-based approach (IRB)
-      The approach of the Basel framework and of China's capital rules under which a bank sets its capital for credit risk from its own estimates of the PD, and in the advanced approach also of the LGD and the EAD, through the risk-weight functions of the rules; see :doc:`/user_guide/capital`.
+      The approach of the Basel framework and of China's capital rules under which a bank sets its capital for credit risk from its own estimates of the PD, and for retail exposures and in the advanced approach also of the LGD and the EAD, through the risk-weight functions of the rules; see :doc:`/user_guide/capital`.
 
    Kaplan–Meier estimator
       The estimate of the probability of getting through a series of periods as the product of the shares of the accounts at risk that get through each one. One minus it is the cumulative PD when every exit other than a default counts as censored; see :doc:`/user_guide/lifetime`.
@@ -261,7 +261,7 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       The time after which the outcome of an observation is known, such as twelve months after a loan was granted. Until it has passed, the target is missing and the outcome counts as unknown; see :doc:`/user_guide/monitoring`.
 
    Output floor
-      The rule that the risk-weighted assets of the IRB approach may not fall below 72.5% of those of the standardized approach. It applies to a whole portfolio, and kivi leaves it out; see :doc:`/user_guide/capital`.
+      The rule that the risk-weighted assets of the IRB approach may not fall below 72.5% of those of the standardized approach. It applies to the total risk-weighted assets of a bank and is phased in over several years, and kivi leaves it out; see :doc:`/user_guide/capital`.
 
    Outstanding amount
       The unpaid amount of all the instalments of a loan at a month end, whether they have fallen due or not: the ``outstanding`` column of :func:`~kivi.vintage.delinquency_panel`. It includes interest, while the ``balance`` column, given the principal of each instalment, counts only the unpaid principal; see :doc:`/user_guide/vintage`.
@@ -366,7 +366,7 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       The standard error measures how much an estimate, such as an AUC, would vary from sample to sample. A confidence interval at a level such as 95% is a range around the estimate that would cover the true value in that share of samples; see :doc:`/user_guide/metrics`.
 
    Stressed PD
-      The PD of the one-factor model in a bad economy, such as the PD at the 99.9% quantile of the systematic factor that the IRB capital requirement uses, or the PD of a downturn scenario; :func:`~kivi.capital.conditional_pd` gives it; see :doc:`/user_guide/capital`.
+      The PD of the one-factor model in a bad economy, such as the PD at the 0.1% quantile of the systematic factor, a ``level`` of 0.999, that the IRB capital requirement uses, or the PD of a downturn scenario; :func:`~kivi.capital.conditional_pd` gives it; see :doc:`/user_guide/capital`.
 
    Swap set
       The four groups of applicants that two scores, each with its cut-off, approve or decline. The swap-outs are approved only by the current score and the swap-ins only by the new one; see :doc:`/user_guide/strategy`.

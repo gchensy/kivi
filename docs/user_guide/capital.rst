@@ -89,7 +89,7 @@ other_retail       0.1216       0.4577
 
 .. plot::
    :alt: Risk weight against the PD on a logarithmic axis for the seven asset classes of the table, with an LGD of 45%
-   :caption: Risk weight of each asset class against the PD at an LGD of 45% and a maturity of 2.5 years, from the PD floor of 0.05% to 30%. The corporate classes start highest, mortgages rise steeply through the middle PDs, and the revolving and other retail exposures stay lowest.
+   :caption: Risk weight of each asset class against the PD at an LGD of 45% and a maturity of 2.5 years, from 0.05%, the PD floor of most classes, to 30%. The corporate classes start highest, mortgages rise steepest and pass the corporate exposures at a PD of about 5%, and the qualifying revolving exposures weigh least up to a PD of about 7%.
 
    kp.figure_capital_risk_weights()
 

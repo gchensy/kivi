@@ -527,7 +527,7 @@ base          0.0259      909598.0   984824.0
 downturn      0.1028     1400455.0  1667506.0
 weighted      0.0409     1000434.0  1111511.0
 
-``current_pd`` is the 12-month PD of a current loan: 2.59% in the median economy, below the average of 3.93%, and 10.28% in the downturn. The weighted ECL is 10% above that of the base scenario, because the PDs rise faster as the economy worsens than they fall as it improves, and the downturn here lies further from the base than the upside: the ECL of the most likely scenario alone would understate the weighted amount. Each scenario keeps its factor for the life of the loans; a path of factors, one per year, would shift the months of each year with the factor of that year.
+``current_pd`` is the 12-month PD of a current loan: 2.59% in the median economy, below the average of 3.93%, and 10.28% in the downturn. The weighted ECL is 10% above that of the base scenario over 12 months and 13% above it over the lifetime, because the PDs rise faster as the economy worsens than they fall as it improves, and the downturn here lies further from the base than the upside: the ECL of the most likely scenario alone would understate the weighted amount. Each scenario keeps its factor for the life of the loans; a path of factors, one per year, would shift the months of each year with the factor of that year.
 
 Stage allocation
 ----------------
