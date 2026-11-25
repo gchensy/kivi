@@ -23,6 +23,7 @@ from kivi import (
     datasets,
     expert,
     features,
+    lgd,
     lifetime,
     metrics,
     monitoring,
@@ -202,6 +203,31 @@ CASES = {
         monitoring.stability_table,
         {"groups": {"g": GROUPS}, "period": PERIOD, "weights": WEIGHTS},
         {"reference_period": "p1"},
+    ),
+    "workout_lgd": (
+        lgd.workout_lgd,
+        {
+            "loan": list("abcdefgh"),
+            "default_date": ["2023-01-31"] * ROWS,
+            "ead": VALUES,
+            "rate": [0.05, 0.06, 0.05, 0.07, 0.05, 0.06, 0.05, 0.08],
+        },
+        {
+            "flow_loan": list("abcdefgh"),
+            "flow_date": ["2023-07-31"] * ROWS,
+            "flow_amount": [0.5, -0.1, 1.5, 2.0, -0.2, 3.0, 3.5, 4.0],
+        },
+    ),
+    "conversion_factor": (
+        lgd.conversion_factor,
+        {"ead": VALUES, "drawn": [0.5] * ROWS, "limit": [4.0] * ROWS},
+        {},
+    ),
+    "lgd_table": (lgd.lgd_table, {"groups": GROUPS, "lgd": SCORE, "weights": WEIGHTS}, {}),
+    "fractional_regression": (
+        lgd.fractional_regression,
+        {"X": {"x": VALUES}, "response": SCORE, "weights": WEIGHTS},
+        {},
     ),
     "survival_table": (
         lifetime.survival_table,
@@ -515,7 +541,7 @@ SMOOTHED = {
 
 
 def test_every_public_smoothing_argument_is_checked():
-    modules = (binning, calibration, capital, lifetime, metrics, monitoring, reject_inference)
+    modules = (binning, calibration, capital, lgd, lifetime, metrics, monitoring, reject_inference)
     modules += (scorecard, selection, spec, stability, strategy, univariate, vintage, woe, datasets)
     modules += (expert, features)
     names = set()
@@ -712,6 +738,7 @@ def _option_cases():
     panel_keys = {"id": "c", "month": "m", "status": "s", "observation_time": "d"}
     group = {"time": "t"}
     applications = datasets.make_applications(n_applicants=2, include_risk=True, rng=0)
+    defaults = datasets.make_defaults(n_defaults=5, rng=0)
     return {
         # binning
         "bin_edges-bins": lambda o: binning.bin_edges(VALUES, bins=o),
@@ -948,6 +975,11 @@ def _option_cases():
         "make_loan_panel-n_months": lambda o: datasets.make_loan_panel(n_loans=10, n_months=o),
         "make_loan_panel-rng": lambda o: datasets.make_loan_panel(n_loans=10, rng=o),
         "make_loan_panel-prepayment": lambda o: datasets.make_loan_panel(n_loans=10, prepayment=o),
+        "make_defaults-n_defaults": lambda o: datasets.make_defaults(n_defaults=o),
+        "make_defaults-rng": lambda o: datasets.make_defaults(n_defaults=10, rng=o),
+        "make_recoveries-rng": lambda o: datasets.make_recoveries(defaults, rng=o),
+        # lgd
+        "lgd_table-floor": lambda o: lgd.lgd_table(GROUPS, SCORE, floor=o),
     }
 
 

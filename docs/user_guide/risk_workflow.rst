@@ -276,7 +276,7 @@ E              1.000                0.114                 0.000
 
 Approving the grades up to C, a PD of at most 14.1%, approves 79.5% of the applicants at a bad rate of 7.9% and turns away 45.1% of the events. Approving grade D as well approves 94.1% at a bad rate of 9.3%. Which row to choose is a business decision; the table shows its price.
 
-The expected loss of an exposure is its PD times its loss given default times its exposure at default. :func:`~kivi.strategy.expected_loss_table` adds it up for each grade. The bank data have no loan amounts, so the example takes the balance, floored at zero, as the exposure and one LGD of 45%:
+The expected loss of an exposure is its PD times its loss given default times its exposure at default. :func:`~kivi.strategy.expected_loss_table` adds it up for each grade. The bank data have no loan amounts, so the example takes the balance, floored at zero, as the exposure and one LGD of 45%; :doc:`lgd` estimates LGDs from the workouts of defaulted loans:
 
 >>> exposure = monitoring["balance"].clip(lower=0)
 >>> by_grade = expected_loss_table(grades, mon_pd, 0.45, exposure)

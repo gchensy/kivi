@@ -24,7 +24,7 @@ kivi supports Python 3.10 or newer, NumPy 1.24 or newer and pandas 2.0 or newer,
 What is public
 --------------
 
-* The names that a public module lists in its ``__all__``: :mod:`kivi.features`, :mod:`kivi.binning`, :mod:`kivi.woe`, :mod:`kivi.stability`, :mod:`kivi.univariate`, :mod:`kivi.selection`, :mod:`kivi.scorecard`, :mod:`kivi.expert`, :mod:`kivi.metrics`, :mod:`kivi.calibration`, :mod:`kivi.strategy`, :mod:`kivi.reject_inference`, :mod:`kivi.spec`, :mod:`kivi.monitoring`, :mod:`kivi.capital`, :mod:`kivi.vintage`, :mod:`kivi.lifetime`, :mod:`kivi.plotting` and :mod:`kivi.datasets`. Each has a page in this reference that documents every such name. ``kivi.__version__`` is public too.
+* The names that a public module lists in its ``__all__``: :mod:`kivi.features`, :mod:`kivi.binning`, :mod:`kivi.woe`, :mod:`kivi.stability`, :mod:`kivi.univariate`, :mod:`kivi.selection`, :mod:`kivi.scorecard`, :mod:`kivi.expert`, :mod:`kivi.metrics`, :mod:`kivi.calibration`, :mod:`kivi.lgd`, :mod:`kivi.strategy`, :mod:`kivi.reject_inference`, :mod:`kivi.spec`, :mod:`kivi.monitoring`, :mod:`kivi.capital`, :mod:`kivi.vintage`, :mod:`kivi.lifetime`, :mod:`kivi.plotting` and :mod:`kivi.datasets`. Each has a page in this reference that documents every such name. ``kivi.__version__`` is public too.
 * The documented members of :class:`~kivi.spec.BinningSpec`: its fields, ``FORMAT_VERSION``, ``format_version`` and ``columns``, its methods, and its equality, hashing, pickling and ``dataclasses.replace``. The same holds for :class:`~kivi.features.FeatureSpec`, which has ``FORMAT_VERSION`` and ``columns`` but no ``format_version``, because its format has one version so far. :exc:`~kivi.selection.SeparationError`, which :func:`~kivi.calibration.platt_fit` raises as well, stays in :mod:`kivi.selection`.
 * The names of the arguments. A keyword is part of a call, so renaming an argument needs a deprecation, even one that is usually passed by position.
 * Everything else is private: the modules and names that start with an underscore, and the modules that a public module imports, such as ``kivi.binning.np``. They can change in any release.
@@ -34,7 +34,7 @@ Results that are pairs of parameters, such as the ``(factor, offset)`` of :func:
 Tables
 ------
 
-The index name, the column names and the order of the columns of every table are public. A minor release may append columns at the end of a table, but renames, reorders or removes a column only after a deprecation, so select columns by name rather than by position. The ``attrs`` of :func:`~kivi.selection.logistic_regression` are set on the returned frame, and pandas drops them in many operations.
+The index name, the column names and the order of the columns of every table are public. A minor release may append columns at the end of a table, but renames, reorders or removes a column only after a deprecation, so select columns by name rather than by position. The ``attrs`` of :func:`~kivi.selection.logistic_regression` and :func:`~kivi.lgd.fractional_regression` are set on the returned frame, and pandas drops them in many operations.
 
 .. list-table::
    :header-rows: 1
@@ -97,7 +97,7 @@ The index name, the column names and the order of the columns of every table are
    * - :func:`~kivi.univariate.profile_table`
      - ``variable``
      - ``kind``, ``count``, ``missing``, ``missing_share``, ``distinct``, ``top``, ``top_share``, ``special``, ``special_share``, ``mean``, ``std``, ``min``, ``q01``, ``q50``, ``q99``, ``max``, with a target ``event_rate``, ``missing_event_rate``, ``non_missing_event_rate``, ``missing_lift``, ``non_missing_lift``, ``iv``, ``tied_bins``, ``gini``, then ``skewness``, ``kurtosis``, ``cv``, and with a target ``ks``, ``chi2_p_value``
-   * - :func:`~kivi.selection.logistic_regression`
+   * - :func:`~kivi.selection.logistic_regression`, :func:`~kivi.lgd.fractional_regression`
      - ``variable``: ``intercept``, then the columns of ``X``
      - ``coef``, ``se``, ``z``, ``p_value``
    * - :func:`~kivi.selection.vif`
@@ -154,6 +154,12 @@ The index name, the column names and the order of the columns of every table are
    * - :func:`~kivi.monitoring.stability_table`
      - ``period``
      - One per column of ``groups``, in columns named ``variable``
+   * - :func:`~kivi.lgd.workout_lgd`
+     - ``loan``: the values of ``loan``, in their order
+     - ``ead``, ``recovery``, ``cost``, ``lgd``
+   * - :func:`~kivi.lgd.lgd_table`
+     - ``bin``
+     - ``total``, ``total_share``, ``mean``, ``std``, ``min``, ``max``, ``zero_share``, ``full_share``
    * - :func:`~kivi.capital.most_prudent_pd`
      - A Series named ``most_prudent_pd`` with the index of a Series ``event`` or ``total``, an array otherwise
      -
@@ -193,13 +199,19 @@ The index name, the column names and the order of the columns of every table are
    * - :func:`~kivi.datasets.make_transactions`
      - A range, sorted by applicant and time
      - ``applicant_id``, ``timestamp``, ``amount``, ``kind``, ``merchant_category``
+   * - :func:`~kivi.datasets.make_defaults`
+     - A range, sorted by default date
+     - ``loan_id``, ``segment``, ``default_date``, ``ead``, ``limit``, ``drawn``, ``collateral_value``, ``discount_rate``, ``closing_date``
+   * - :func:`~kivi.datasets.make_recoveries`
+     - A range, in the order of the loans of ``defaults``, then by date
+     - ``loan_id``, ``date``, ``amount``, ``kind``
    * - :func:`~kivi.datasets.load_bank`
      - A range
      - The 16 columns of the UCI data and ``target``
 
 The feature names follow from the arguments. Column names and prefixes are kept as given, and kivi's own parts of the names, the aggregations, the windows and the names of the panel features, are in lower case, with windows written as ``3m``, ``90d`` or ``6m_3m``. The dtypes are public too: the ``events``, ``count`` and ``nunique`` features and the counts of :func:`~kivi.features.panel_features` are int64, ``worst_status`` has the dtype of the status column, and the other features are float64. A window without values gives 0 for these counts and for ``sum``, a missing status for ``worst_status``, and NaN for the other features.
 
-:func:`~kivi.datasets.load_bank` always returns the same data. :func:`~kivi.datasets.make_loan_panel`, :func:`~kivi.datasets.make_applications` and :func:`~kivi.datasets.make_transactions` keep their columns and dtypes, including the categories of ``kind`` and ``merchant_category``, but the values that they simulate for a given ``rng`` stay the same only within a minor version, so that a minor release can improve the simulation.
+:func:`~kivi.datasets.load_bank` always returns the same data. :func:`~kivi.datasets.make_loan_panel`, :func:`~kivi.datasets.make_applications`, :func:`~kivi.datasets.make_transactions`, :func:`~kivi.datasets.make_defaults` and :func:`~kivi.datasets.make_recoveries` keep their columns and dtypes, including the categories of ``kind``, ``merchant_category`` and ``segment``, but the values that they simulate for a given ``rng`` stay the same only within a minor version, so that a minor release can improve the simulation.
 
 :func:`~kivi.woe.woe_trend` returns one of six labels, ``"increasing"``, ``"decreasing"``, ``"u_shaped"``, ``"inverted_u"``, ``"irregular"`` and ``"flat"``, which are public like column names, and so is its rule that neighbouring bins whose WOE differ by at most a relative :math:`10^{-10}` neither rise nor fall.
 

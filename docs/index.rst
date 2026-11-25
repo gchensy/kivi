@@ -7,7 +7,7 @@ Credit risk modeling with pandas
 
 .. container:: kivi-lead
 
-   kivi is a pandas toolkit for credit risk and financial modeling. It computes point-in-time features from transactions and repayment histories, profiles the candidate variables, bins them and groups their categories, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard or weighs the factors of an expert scorecard, infers the outcomes of rejected applicants, scales the model to points, evaluates it and calibrates it on a master scale, and prices the cut-offs and the expected loss. Once the model is live, it monitors the score period by period, validates the model with the tests that supervisors ask of internal rating models, computes the regulatory capital of its PDs, follows how the approved loans repay and perform, and estimates their lifetime PDs and expected credit loss under IFRS 9. Tables come back as pandas DataFrames with one row per bin, grade, cut-off, period or variable, and :mod:`kivi.plotting` draws them as charts.
+   kivi is a pandas toolkit for credit risk and financial modeling. It computes point-in-time features from transactions and repayment histories, profiles the candidate variables, bins them and groups their categories, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard or weighs the factors of an expert scorecard, infers the outcomes of rejected applicants, scales the model to points, evaluates it and calibrates it on a master scale, estimates the loss given default and the exposure at default from workouts and credit lines, and prices the cut-offs and the expected loss. Once the model is live, it monitors the score period by period, validates the model with the tests that supervisors ask of internal rating models, computes the regulatory capital of its PDs, follows how the approved loans repay and perform, and estimates their lifetime PDs and expected credit loss under IFRS 9. Tables come back as pandas DataFrames with one row per bin, grade, cut-off, period or variable, and :mod:`kivi.plotting` draws them as charts.
 
 .. container:: kivi-actions
 
@@ -124,6 +124,12 @@ Built for risk teams
 
       Prior correction, master scales, binomial, Jeffreys and Hosmer-Lemeshow tests per grade, Spiegelhalter's test, the Brier decomposition, and Platt and isotonic recalibration.
 
+   .. grid-item-card:: LGD and EAD
+      :link: user_guide/lgd
+      :link-type: doc
+
+      Realized LGDs from the cash flows of workouts, realized CCFs of credit lines, LGD tables and the fractional logit, with the rules of Basel, the EBA and China.
+
    .. grid-item-card:: Credit strategy
       :link: user_guide/strategy
       :link-type: doc
@@ -199,7 +205,7 @@ How it works
 
    .. grid-item-card:: Calibrate and decide
 
-      ``master_scale`` and ``assign_grades`` group the PDs into grades, and the binomial and Jeffreys tests check the PD of each grade. ``cutoff_table`` shows what each cut-off approves, ``confusion_table`` how many events it declines, and ``expected_loss_table`` adds up the expected loss of each grade. ``capital_requirement`` turns the PDs into the IRB capital requirement, and ``most_prudent_pd`` bounds the PDs of grades with too few defaults.
+      ``master_scale`` and ``assign_grades`` group the PDs into grades, and the binomial and Jeffreys tests check the PD of each grade. ``workout_lgd`` and ``conversion_factor`` give the realized LGDs and CCFs of defaulted loans, ``lgd_table`` summarizes them by group and ``fractional_regression`` models the LGDs. ``cutoff_table`` shows what each cut-off approves, ``confusion_table`` how many events it declines, and ``expected_loss_table`` adds up the expected loss of each grade. ``capital_requirement`` turns the PDs into the IRB capital requirement, and ``most_prudent_pd`` bounds the PDs of grades with too few defaults.
 
    .. grid-item-card:: Deploy, monitor and validate
 

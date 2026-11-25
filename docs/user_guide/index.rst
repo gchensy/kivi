@@ -1,7 +1,7 @@
 User guide
 ==========
 
-The user guide follows the steps of a credit risk model in the order of a project: compute features of the applicants from their transactions and repayment histories, profile and bin the candidate variables, encode them with WOE, select the variables and fit the model, infer the outcomes of rejected applicants, scale the model to a scorecard, or weigh the factors of an expert scorecard where there are too few defaults to fit one, evaluate and calibrate it, set the cut-offs, save the binning for production, monitor the model period by period, validate it as supervisors ask of internal rating models, compute the regulatory capital that its PDs require, follow the loans that it approves from their repayment schedules, and estimate their lifetime PDs and expected credit loss under IFRS 9. :doc:`plotting` draws the tables of every step. :doc:`risk_workflow` runs the steps from the profile to the stability report on the bundled data, leaving out the features of event data and reject inference, and the :doc:`/tutorial/index` follows a whole project from the first applications to the loss allowance.
+The user guide follows the steps of a credit risk model in the order of a project: compute features of the applicants from their transactions and repayment histories, profile and bin the candidate variables, encode them with WOE, select the variables and fit the model, infer the outcomes of rejected applicants, scale the model to a scorecard, or weigh the factors of an expert scorecard where there are too few defaults to fit one, evaluate and calibrate it, estimate the loss given default and the exposure at default of its loans, set the cut-offs, save the binning for production, monitor the model period by period, validate it as supervisors ask of internal rating models, compute the regulatory capital that its PDs require, follow the loans that it approves from their repayment schedules, and estimate their lifetime PDs and expected credit loss under IFRS 9. :doc:`plotting` draws the tables of every step. :doc:`risk_workflow` runs the steps from the profile to the stability report on the bundled data, leaving out the features of event data and reject inference, and the :doc:`/tutorial/index` follows a whole project from the first applications to the loss allowance.
 
 kivi keeps fitting and applying apart. Bin edges, category groupings, WOE tables, master scales and cut-offs are fitted on the development sample and then applied unchanged to every later sample, so that counts and rates stay comparable. The tables take the groups as they are, so category labels can be passed directly.
 
@@ -76,6 +76,12 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
 
       Prior correction, master scales built from PDs or fitted to default rates, tests of each grade's PD and of single PDs, the Brier decomposition, grade concentration, back-tests of LGDs and CCFs, and Platt and isotonic recalibration.
 
+   .. grid-item-card:: LGD and EAD
+      :link: lgd
+      :link-type: doc
+
+      Realized LGDs from the cash flows of workouts with per-loan discount rates, realized CCFs of credit lines, LGD tables by segment, the fractional logit, and the rules of Basel, the EBA and China side by side.
+
    .. grid-item-card:: Credit strategy
       :link: strategy
       :link-type: doc
@@ -134,7 +140,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: datasets
       :link-type: doc
 
-      The bundled bank marketing data, a synthetic loan panel for portfolio analysis, synthetic applications for reject inference and the account transactions before them.
+      The bundled bank marketing data, a synthetic loan panel for portfolio analysis, synthetic applications for reject inference and the account transactions before them, and synthetic defaulted loans with the cash flows of their workouts.
 
 .. toctree::
    :hidden:
@@ -151,6 +157,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
    expert
    metrics
    calibration
+   lgd
    strategy
    spec
    psi

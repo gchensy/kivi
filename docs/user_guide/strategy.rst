@@ -3,7 +3,7 @@ Credit strategy
 
 A scorecard ranks applicants; a credit strategy decides whom to approve. :mod:`kivi.strategy` supports the decisions that follow: :func:`~kivi.strategy.cutoff_table` shows what each candidate cut-off approves and how many bad outcomes it lets through, :func:`~kivi.strategy.confusion_table` counts the right and the wrong decisions of each cut-off, :func:`~kivi.strategy.swap_set` compares the decisions of a current and a new score, and :func:`~kivi.strategy.expected_loss` and :func:`~kivi.strategy.expected_loss_table` turn PDs, LGDs and exposures into the expected loss of each applicant and of each grade.
 
-The strategy follows :doc:`calibration`, which gives PDs and grades, and comes before the :doc:`binning specifications <spec>` that take the model to production.
+The strategy follows :doc:`calibration`, which gives PDs and grades, and :doc:`lgd`, which gives the LGDs and EADs of the expected loss, and comes before the :doc:`binning specifications <spec>` that take the model to production.
 
 Score direction and the approval rule
 -------------------------------------

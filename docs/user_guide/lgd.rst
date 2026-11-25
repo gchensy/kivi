@@ -3,7 +3,7 @@ LGD and EAD
 
 When a borrower defaults, the bank loses the part of the exposure that the workout does not recover. The loss given default (LGD) is that loss as a share of the exposure at default (EAD), and for a credit line the EAD includes what the borrower draws between a reference date and the default, which the credit conversion factor (CCF) measures. With the PD, the LGD and the EAD make up the expected loss and the capital requirement of each exposure.
 
-The PDs come from :doc:`calibration`, the expected loss that the three parameters give is that of :doc:`strategy`, :doc:`validation` back-tests LGD and CCF estimates as supervisors ask, and :doc:`capital` turns them into the capital requirement. :func:`~kivi.lgd.workout_lgd` gives the realized LGD of each defaulted loan from the cash flows of its workout, and :func:`~kivi.lgd.conversion_factor` the realized CCF of each credit line. :func:`~kivi.lgd.lgd_table` summarizes realized LGDs by group, and :func:`~kivi.lgd.fractional_regression` models them on several drivers at once.
+The PDs come from :doc:`calibration`, the previous guide, the expected loss that the three parameters give is that of :doc:`strategy`, the next guide, :doc:`validation` back-tests LGD and CCF estimates as supervisors ask, and :doc:`capital` turns them into the capital requirement. :func:`~kivi.lgd.workout_lgd` gives the realized LGD of each defaulted loan from the cash flows of its workout, and :func:`~kivi.lgd.conversion_factor` the realized CCF of each credit line. :func:`~kivi.lgd.lgd_table` summarizes realized LGDs by group, and :func:`~kivi.lgd.fractional_regression` models them on several drivers at once.
 
 Definitions
 -----------
@@ -180,7 +180,13 @@ secured      704  0.0957  0.1176  0.0000  0.6555       0.054      0.0000
 unsecured    580  0.7773  0.2961  0.0136  1.2490       0.000      0.1190
 revolving    438  0.6853  0.3512  0.0120  1.3985       0.000      0.1142
 
-The LGDs are bimodal within each segment, with the cures near 0 and the liquidations of unsecured loans near 1. ``zero_share`` holds the 38 secured loans whose collateral covered more than their exposure, which ``floor=None`` keeps negative; these values still tell the drivers of the loss apart:
+.. plot::
+   :alt: Histograms of the realized LGDs of the closed workouts of the secured, unsecured and revolving loans, with lines at 0 and 100%
+   :caption: Realized LGDs of the closed workouts by segment, before the floor. The secured loans lose little, while the unsecured loans and revolving lines either cure, near 0, or lose most of their exposure, some of them more than all of it.
+
+   kp.figure_lgd_distribution()
+
+The LGDs of the unsecured loans and revolving lines are bimodal, with the cures near 0 and the liquidations near 1, while most secured loans lose less than 10%. ``zero_share`` holds the 38 secured loans whose collateral covered more than their exposure, which ``floor=None`` keeps negative; these values still tell the drivers of the loss apart:
 
 >>> lgd_table(loans.loc[closed, "segment"], realized["lgd"], floor=None)[["mean", "min"]].round(4)
              mean     min
@@ -200,6 +206,12 @@ bin
 (0.6, 0.8]    235  0.053       0.055
 (0.8, 1.0]    191  0.115       0.016
 (1.0, inf]    122  0.220       0.000
+
+.. plot::
+   :alt: Bars of the mean LGD and of the share of loans without loss for four loan-to-value bands of the secured loans
+   :caption: Mean LGD and share of loans without loss of the closed secured workouts by loan-to-value band. The mean rises from 4% to 22% as the collateral covers less of the exposure, and the loans without loss vanish.
+
+   kp.figure_lgd_ltv()
 
 The loans that owe more than their collateral is worth lose five times as much as those with a loan-to-value ratio of 60% or less.
 

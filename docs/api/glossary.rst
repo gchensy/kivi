@@ -65,6 +65,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    ChiMerge
       Supervised binning that starts from many small bins and repeatedly merges the adjacent pair with the smallest chi-square statistic, the pair whose event rates are most alike, until no more than a given number of bins remain and every adjacent pair differs significantly. Categories are merged in the same way once sorted by their WOE; see :doc:`/user_guide/binning`.
 
+   Closed workout
+      A workout whose recovery process has ended, by the bank's definition of its end, with a cure, the sale of the collateral or the write-off of what was not recovered. Only a closed workout has a realized LGD, and back-tests use closed workouts only; see :doc:`/user_guide/lgd`.
+
    Coefficient of variation (CV)
       The standard deviation of values divided by their mean, as in the ``cv`` of :func:`~kivi.univariate.profile_table`. For the shares :math:`R_i` of :math:`K` grades it is :math:`\sqrt{K \sum_i (R_i - 1/K)^2}`, 0 for equally full grades and :math:`\sqrt{K - 1}` when one grade holds everybody, and the European Central Bank tests whether it has risen since the initial validation; see :doc:`/user_guide/calibration`.
 
@@ -87,7 +90,7 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       The loss allowance of a group of loans divided by their exposure; see :doc:`/user_guide/lifetime`.
 
    Credit conversion factor (CCF)
-      The share of the undrawn amount of a credit line that a borrower draws by the time of default, so that the exposure at default is the drawn amount plus the CCF times the undrawn amount; see :doc:`/user_guide/validation`.
+      The share of the undrawn amount of a credit line that a borrower draws by the time of default, so that the exposure at default is the drawn amount plus the CCF times the undrawn amount. The realized CCF of a defaulted line compares the amount drawn at default with the limit and the drawn amount at the reference date; see :doc:`/user_guide/lgd`.
 
    Credit-impaired
       IFRS 9 calls a loan credit-impaired once events with a detrimental effect on its expected cash flows have occurred, such as significant financial difficulty of the borrower or a breach of contract like a default or a past-due event. Lenders usually align it with their definition of default, and such loans are in stage 3; see :doc:`/user_guide/lifetime`.
@@ -97,6 +100,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Cumulative PD
       The probability of a default in any of the periods from the first up to a given one, which never falls as the horizon grows; see :doc:`/user_guide/lifetime`.
+
+   Cure
+      The return of a defaulted loan to performing status. The EBA's guidelines count it as a recovery of the amount outstanding on the date of the cure; see :doc:`/user_guide/lgd`.
 
    Cut-off
       The score that separates approval from decline. kivi approves the scores at or below the cut-off, because its scores rise with the risk; see :doc:`/user_guide/strategy`.
@@ -118,6 +124,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Early repayment
       The repayment of the whole balance of a loan before its last instalment is due, also called prepayment. It ends the risk of default, so a survival table counts it as a competing risk; ``prepayment`` gives its monthly probability in :func:`~kivi.datasets.make_loan_panel`; see :doc:`/user_guide/lifetime`.
+
+   Economic loss
+      The loss of a workout as the regulations define it: the exposure at default plus the material direct and indirect costs, minus the recoveries, all discounted to the date of default, rather than the accounting loss; see :doc:`/user_guide/lgd`.
 
    Economic scenario
       A forecast of the economy, such as an upside, a base case or a downturn, with its probability. IFRS 9 weights the ECL of each scenario with its probability, and the one-factor model moves the PDs to a scenario through the systematic factor; see :doc:`/user_guide/lifetime`.
@@ -153,13 +162,16 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       A scorecard whose weights are set by the judgment of credit analysts rather than fitted to outcomes, for portfolios with too few defaults to fit a model; see :doc:`/user_guide/expert`.
 
    Exposure at default (EAD)
-      The amount owed when a borrower defaults, such as the outstanding balance of a loan; see :doc:`/user_guide/strategy`.
+      The amount owed when a borrower defaults, such as the outstanding balance of a loan; see :doc:`/user_guide/lgd`.
 
    Feature specification
       The definitions of the window and repayment features of a model: the columns of the entities and of the observation times, groups of features with their tables, windows and aggregations, and ratios. Saved as versioned JSON, it lets production compute the same features as development. Unlike a binning specification, it is not fitted to data; see :doc:`/user_guide/features`.
 
    Format version
       The version of the JSON format of a binning or feature specification, stored in each file. A release reads every format version up to its own and rejects a newer one; see :doc:`compatibility`.
+
+   Fractional logit
+      A logistic model of the mean of a response between 0 and 1, such as an LGD, fitted by the quasi-likelihood of Papke and Wooldridge, with robust standard errors; see :doc:`/user_guide/lgd`.
 
    Gains table
       A table of score bands from the riskiest to the safest, with the event rate and lift of each band and the cumulative shares of events and non-events; see :doc:`/user_guide/metrics`.
@@ -206,11 +218,14 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Lift
       The event rate of a group divided by the event rate of the whole sample. A lift above 1 marks a group that is riskier than average; see :doc:`/user_guide/metrics`.
 
+   Long-run average LGD
+      The default-weighted average LGD of all the defaults of a long period, each default counted once and negative LGDs counted as 0, with the open workouts included through an adjustment for their future recoveries. An LGD estimate may not fall below it; see :doc:`/user_guide/lgd`.
+
    Loss allowance
       The provision that IFRS 9 requires for the expected credit losses of a loan: the 12-month ECL in stage 1 and the lifetime ECL in stages 2 and 3; see :doc:`/user_guide/lifetime`.
 
    Loss given default (LGD)
-      The share of the exposure that is lost when a borrower defaults, after recoveries and collateral; see :doc:`/user_guide/strategy`.
+      The share of the exposure that is lost when a borrower defaults, after recoveries and collateral; see :doc:`/user_guide/lgd`.
 
    Low-default portfolio
       A portfolio with so few defaults, such as banks, sovereigns or large corporates, that its default rates cannot calibrate a PD. The most prudent estimate bounds its PDs instead; see :doc:`/user_guide/capital`.
@@ -302,11 +317,17 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Random index (RI)
       The average consistency index of pairwise comparison matrices filled with random judgments on the Saaty scale, which depends only on the number of factors. kivi uses the table of Tone (1986) for 3 to 15 factors; see :doc:`/user_guide/expert`.
 
+   Realized LGD
+      The economic loss of a closed workout as a share of its exposure at default, with the cash flows discounted at the rate of its date of default. It is negative when the recoveries exceed the exposure and the costs, and above 1 when the costs exceed the recoveries; see :doc:`/user_guide/lgd`.
+
    Reason codes
       The variables that lowered an applicant's score most, compared with the best group of each variable, as given to a declined applicant; see :doc:`/user_guide/scorecard`.
 
    Recall
       The share of all events that a score flags at a threshold: the ``true_positive_rate`` of :func:`~kivi.metrics.roc_table` and the ``recall`` of :func:`~kivi.strategy.confusion_table`; see :doc:`/user_guide/metrics`.
+
+   Reference date
+      The date at which the limit and the drawn amount of a credit line are taken for its realized CCF, 12 months before default in the fixed-horizon approach of the regulations; see :doc:`/user_guide/lgd`.
 
    Reference sample
       The sample that later samples are compared with, usually the development sample or a period right after it. Bin edges, score bands and groups are fitted on it; see :doc:`/user_guide/monitoring`.
@@ -325,6 +346,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Risk weight
       The capital requirement times 12.5, the share of an exposure that counts as risk-weighted assets (RWA), so that the minimum capital ratio of 8% of the RWA gives back the capital requirement; see :doc:`/user_guide/capital`.
+
+   Robust standard error
+      A standard error from the sandwich estimator, the inverse information times the sum of the outer products of the scores times the inverse information, which holds whatever the variance of the response, as for a fractional response; see :doc:`/user_guide/lgd`.
 
    ROC curve
       The true positive rate, the share of events flagged, against the false positive rate, the share of non-events flagged, as the threshold moves through the scores from the riskiest down. The area under it is the AUC, and its largest vertical distance from the diagonal is the KS; see :doc:`/user_guide/metrics`.
@@ -412,3 +436,6 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    WOE trend
       The shape of the WOE over the bins of a numeric variable, from its lowest values to its highest: increasing, decreasing, U-shaped, an inverted U, irregular when it changes direction more than once, or flat. Monotonic binning makes it increasing or decreasing; see :doc:`/user_guide/woe_iv`.
+
+   Workout
+      The recovery process of a defaulted loan, from the default to the cure, the sale of the collateral or the write-off, whose recoveries and costs give the realized LGD; see :doc:`/user_guide/lgd`.
