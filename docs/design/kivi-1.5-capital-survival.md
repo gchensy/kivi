@@ -131,7 +131,7 @@ survival_table(duration, event, *, competing=None, entry=None, weights=None)
 | --- | --- |
 | `asset_correlation`、`capital_requirement` | 巴塞尔 II 附件 5 的 152 个风险权重（硬编码，误差 0.01 个百分点）；用 `scipy.stats.norm` 独立写出的公式在 PD、LGD、M、S 和各资产类别的网格上比对到 1e-12；第 2.1 节表中的固定值 |
 | 极小 PD、金融机构与中小企业 | 边界两侧的报错与取值 |
-| `conditional_pd`、`systematic_factor`、`vasicek_fit`、`most_prudent_pd` | 同 #79 第 9.1 节：互为逆运算；模拟恢复参数；原论文算例 0.29%、0.33%、0.77%；`scipy.integrate.quad` |
+| `conditional_pd`、`systematic_factor`、`vasicek_fit`、`most_prudent_pd` | 同 #79 第 9.1 节：互为逆运算；模拟恢复参数；原论文算例 0.29%、0.33%、0.76%；`scipy.integrate.quad` |
 | `_stats` 新函数 | SciPy 的 `norm.ppf`、`beta.ppf`、`multivariate_normal.cdf` |
 | `survival_table` | statsmodels `SurvfuncRight`（含 `entry` 和 `freq_weights`）；`CumIncidenceRight` 没有 `entry`，左截断下的累计发生率手算；完整观察的批次与 `vintage_table` 一致 |
 
