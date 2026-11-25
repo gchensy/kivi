@@ -27,6 +27,7 @@ from kivi import (
     binning,
     calibration,
     capital,
+    lgd,
     lifetime,
     reject_inference,
     scorecard,
@@ -283,6 +284,30 @@ CASES = {
     ),
     "systematic_factor-array": (
         "capital.systematic_factor(ARRAY, ARRAY, correlation=0.12)",
+        "npt.NDArray[np.float64]",
+    ),
+    "conversion_factor-series": (
+        "lgd.conversion_factor(SERIES * 100, SERIES * 50, 100.0)",
+        "pd.Series",
+    ),
+    "conversion_factor-drawn-series": (
+        "lgd.conversion_factor(LIST, SERIES / 10, 1.0)",
+        "pd.Series",
+    ),
+    "conversion_factor-limit-series": (
+        "lgd.conversion_factor(LIST, 0.0, SERIES + 1)",
+        "pd.Series",
+    ),
+    "conversion_factor-float": (
+        "lgd.conversion_factor(80.0, 50.0, 100.0)",
+        "float",
+    ),
+    "conversion_factor-list": (
+        "lgd.conversion_factor(LIST, 0.05, [1.0, 1.0, 1.0])",
+        "npt.NDArray[np.float64]",
+    ),
+    "conversion_factor-array": (
+        "lgd.conversion_factor(ARRAY, ARRAY / 2, 1.0)",
         "npt.NDArray[np.float64]",
     ),
     "most_prudent_pd-event-series": (

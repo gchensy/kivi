@@ -40,8 +40,16 @@ from kivi.calibration import (
     prior_correction,
 )
 from kivi.capital import capital_requirement
-from kivi.datasets import load_bank, make_applications, make_loan_panel, make_transactions
+from kivi.datasets import (
+    load_bank,
+    make_applications,
+    make_defaults,
+    make_loan_panel,
+    make_recoveries,
+    make_transactions,
+)
 from kivi.features import FeatureSpec
+from kivi.lgd import lgd_table, workout_lgd
 from kivi.lifetime import convert_pd, survival_table, transition_pd
 from kivi.metrics import delong_test, gains_table, gini, roc_table
 from kivi.monitoring import monitoring_table, stability_table
@@ -1011,6 +1019,51 @@ def competing_risk_curves(curves: pd.DataFrame):
     return fig
 
 
+def lgd_histograms(lgd: pd.Series, segment: pd.Series):
+    """Histogram of the realized LGDs of each segment, one panel per segment on a shared axis."""
+    names = list(segment.cat.categories)
+    fig, axes = plt.subplots(1, len(names), figsize=(9, 3.4), sharey=True)
+    edges = np.arange(-0.1, 1.45, 0.05)
+    for ax, name, color in zip(axes, names, [TEAL, BLUE, AMBER], strict=True):
+        values = lgd[segment == name]
+        ax.hist(values.clip(edges[0], edges[-1]), bins=edges, color=color, edgecolor="white")
+        ax.axvline(0, color=GRAY, linewidth=0.8)
+        ax.axvline(1, color=GRAY, linewidth=0.8, linestyle="--")
+        ax.set_title(name, loc="left")
+        ax.set_xlabel("lgd")
+        ax.xaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+    axes[0].set_ylabel("total")
+    fig.tight_layout()
+    return fig
+
+
+def lgd_band_bars(table: pd.DataFrame):
+    """Mean LGD and share of defaults without loss of each band of a lgd_table, as grouped bars."""
+    fig, ax = plt.subplots(figsize=(8, 3.4))
+    x = np.arange(len(table))
+    width = 0.38
+    for offset, column, color in ((-width / 2, "mean", BLUE), (width / 2, "zero_share", AMBER)):
+        values = table[column].to_numpy()
+        ax.bar(x + offset, values, width=width, color=color, label=column)
+        for position, value in zip(x + offset, values, strict=True):
+            ax.annotate(
+                f"{value:.1%}",
+                (position, value),
+                xytext=(0, 3),
+                textcoords="offset points",
+                ha="center",
+                fontsize=8.5,
+                color=color,
+            )
+    ax.set_xticks(x, _labels(table.index))
+    ax.set_xlabel("ead / collateral_value")
+    ax.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+    ax.set_ylim(0, table[["mean", "zero_share"]].to_numpy().max() * 1.2)
+    ax.legend(loc="upper left")
+    fig.tight_layout()
+    return fig
+
+
 def selection_path_chart(path: pd.DataFrame):
     """The development and validation AUC of every step of a selection path."""
     fig, ax = plt.subplots(figsize=(8, 3.6))
@@ -1733,6 +1786,36 @@ def figure_survival_competing():
     return competing_risk_curves(curves)
 
 
+def _realized_lgds():
+    """The closed workouts of the LGD guide: the loans and the realized LGD of each."""
+    defaults = make_defaults(rng=0)
+    flows = make_recoveries(defaults, rng=0)
+    result = workout_lgd(
+        defaults["loan_id"],
+        defaults["default_date"],
+        defaults["ead"],
+        flows["loan_id"],
+        flows["date"],
+        flows["amount"],
+        rate=defaults["discount_rate"],
+    )
+    loans = defaults.set_index("loan_id")
+    closed = loans["closing_date"].notna()
+    return loans[closed], result.loc[closed, "lgd"]
+
+
+def figure_lgd_distribution():
+    loans, lgd = _realized_lgds()
+    return lgd_histograms(lgd, loans["segment"])
+
+
+def figure_lgd_ltv():
+    loans, lgd = _realized_lgds()
+    secured = loans["segment"] == "secured"
+    ltv = pd.cut((loans["ead"] / loans["collateral_value"])[secured], [0, 0.6, 0.8, 1, np.inf])
+    return lgd_band_bars(lgd_table(ltv, lgd[secured]))
+
+
 README_FIGURES = {
     "readme-features.svg": figure_transaction_features,
     "readme-woe.svg": figure_quickstart_woe,
@@ -1746,6 +1829,8 @@ README_FIGURES = {
     "readme-lifetime.svg": figure_lifetime_term_structure,
     "readme-capital.svg": figure_capital_risk_weights,
     "readme-survival.svg": figure_survival_competing,
+    "readme-lgd.svg": figure_lgd_distribution,
+    "readme-lgd-ltv.svg": figure_lgd_ltv,
 }
 
 

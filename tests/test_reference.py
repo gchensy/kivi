@@ -32,6 +32,7 @@ from kivi.calibration import (
 )
 from kivi.capital import asset_correlation, capital_requirement, most_prudent_pd, vasicek_fit
 from kivi.datasets import load_bank
+from kivi.lgd import fractional_regression
 from kivi.lifetime import survival_table
 from kivi.metrics import (
     brier_score,
@@ -1081,3 +1082,53 @@ def test_survival_table_matches_statsmodels_cumulative_incidence():
             1.0,
             rtol=1e-12,
         )
+
+
+# The fractional logit of kivi.lgd against statsmodels' GLM with a binomial family.
+
+
+def fractional_data(seed, n=400):
+    rng = np.random.default_rng(seed)
+    X = pd.DataFrame(
+        {
+            "ltv": rng.uniform(0.2, 1.4, n),
+            "unsecured": rng.integers(0, 2, n),
+            "age": rng.normal(size=n),
+        }
+    )
+    mean = 1 / (1 + np.exp(-(-2.0 + 1.5 * X["ltv"] + 1.2 * X["unsecured"] + 0.2 * X["age"])))
+    response = rng.beta(2 * mean, 2 * (1 - mean))
+    # Exact 0 and 1, as cures and total losses give them.
+    response[rng.random(n) < 0.1] = 0.0
+    response[rng.random(n) < 0.1] = 1.0
+    return X, pd.Series(response)
+
+
+def quasi_log_likelihood(response, mean, weights):
+    return float(np.sum(weights * (response * np.log(mean) + (1 - response) * np.log1p(-mean))))
+
+
+@pytest.mark.parametrize("weighted", [False, True])
+@pytest.mark.parametrize("seed", range(3))
+def test_fractional_regression_matches_statsmodels(seed, weighted):
+    sm = pytest.importorskip("statsmodels.api")
+    X, response = fractional_data(seed)
+    weights = np.random.default_rng(seed + 10).integers(1, 4, len(X)) if weighted else None
+    result = fractional_regression(X, response, weights=weights)
+    model = sm.GLM(
+        response,
+        sm.add_constant(X.astype(float)),
+        family=sm.families.Binomial(),
+        freq_weights=weights,
+    ).fit(cov_type="HC0", tol=1e-14)
+    np.testing.assert_allclose(result["coef"], model.params, rtol=1e-10, atol=0)
+    np.testing.assert_allclose(result["se"], model.bse, rtol=1e-10, atol=0)
+    np.testing.assert_allclose(result["z"], model.tvalues, rtol=1e-10, atol=0)
+    np.testing.assert_allclose(result["p_value"], model.pvalues, rtol=1e-9, atol=0)
+    mass = np.ones(len(X)) if weights is None else weights
+    llf = quasi_log_likelihood(response.to_numpy(), model.mu, mass)
+    np.testing.assert_allclose(result.attrs["log_likelihood"], llf, rtol=1e-12)
+    assert result.attrs["converged"] is True
+    assert result.index.tolist() == ["intercept", "ltv", "unsecured", "age"]
+    assert result.index.name == "variable"
+    assert result.columns.tolist() == ["coef", "se", "z", "p_value"]
