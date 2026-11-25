@@ -11,6 +11,7 @@ from kivi.lifetime import (
     expected_credit_loss,
     significant_increase,
     stage_table,
+    survival_table,
     transition_pd,
 )
 from kivi.strategy import expected_loss
@@ -462,6 +463,409 @@ def test_transition_pd_rejects_invalid_horizons(horizons):
 def test_transition_pd_rejects_unknown_default_states(default_state):
     with pytest.raises(ValueError, match="default_state must be one of the states, got"):
         transition_pd(MATRIX, horizons=2, default_state=default_state)
+
+
+# survival_table
+
+# Eight loans over three months (the docstring example): three default, two repay early, three
+# are still on book at the end.
+DURATION = [1, 1, 2, 2, 2, 3, 3, 3]
+EVENT = [1, 0, 1, 0, 0, 1, 0, 0]
+REPAID = [0, 1, 0, 1, 0, 0, 0, 0]
+
+
+def survival_frame(columns, periods):
+    return pd.DataFrame(columns, index=pd.Index(np.arange(1, periods + 1), name="period"))
+
+
+def brute_force_survival(duration, event, competing=None, entry=None, weights=None):
+    """survival_table account by account and period by period, straight from the formulas."""
+    n = len(duration)
+    competing = [0] * n if competing is None else competing
+    entry = [0] * n if entry is None else entry
+    weights = [1.0] * n if weights is None else weights
+    rows = [i for i in range(n) if weights[i] > 0]
+    periods = max(duration[i] for i in rows)
+    table = {name: [] for name in ["at_risk", "event", "competing", "censored", "hazard"]}
+    survival, cumulative, before, incidence = [], [], 1.0, 0.0
+    for t in range(1, periods + 1):
+        at_risk = sum(weights[i] for i in rows if entry[i] < t <= duration[i])
+        stop = [i for i in rows if duration[i] == t]
+        events = sum(weights[i] for i in stop if event[i])
+        exits = sum(weights[i] for i in stop if competing[i])
+        censored = sum(weights[i] for i in stop if not event[i] and not competing[i])
+        hazard = events / at_risk if at_risk else np.nan
+        incidence += before * hazard
+        before *= 1 - (events + exits) / at_risk if at_risk else np.nan
+        for name, value in zip(table, [at_risk, events, exits, censored, hazard], strict=True):
+            table[name].append(value)
+        survival.append(before)
+        cumulative.append(incidence if any(competing) else 1 - before)
+    table["survival"], table["cumulative_pd"] = survival, cumulative
+    return survival_frame(table, periods)
+
+
+def test_survival_table_hand_example_with_competing_exits():
+    table = survival_table(DURATION, EVENT, competing=REPAID)
+    expected = survival_frame(
+        {
+            "at_risk": [8, 6, 3],
+            "event": [1, 1, 1],
+            "competing": [1, 1, 0],
+            "censored": [0, 1, 2],
+            "hazard": [1 / 8, 1 / 6, 1 / 3],
+            "survival": [6 / 8, 6 / 8 * 4 / 6, 6 / 8 * 4 / 6 * 2 / 3],
+            # Aalen-Johansen: 1/8, then 1/8 + 3/4 * 1/6 = 1/4, then 1/4 + 1/2 * 1/3 = 5/12.
+            "cumulative_pd": [1 / 8, 1 / 4, 5 / 12],
+        },
+        3,
+    )
+    pd.testing.assert_frame_equal(table, expected)
+
+
+def test_survival_table_kaplan_meier_counts_early_exits_as_censored():
+    table = survival_table(DURATION, EVENT)
+    km = np.cumprod([7 / 8, 5 / 6, 2 / 3])
+    expected = survival_frame(
+        {
+            "at_risk": [8, 6, 3],
+            "event": [1, 1, 1],
+            "censored": [1, 2, 2],
+            "hazard": [1 / 8, 1 / 6, 1 / 3],
+            "survival": km,
+            "cumulative_pd": 1 - km,
+        },
+        3,
+    )
+    pd.testing.assert_frame_equal(table, expected)
+    # Counting the early repayments as censored overstates the cumulative PD.
+    competing = survival_table(DURATION, EVENT, competing=REPAID)["cumulative_pd"]
+    assert table["cumulative_pd"].iloc[-1] > competing.iloc[-1]
+    assert (table["cumulative_pd"] >= competing - 1e-15).all()
+
+
+def test_survival_table_left_truncation_by_hand():
+    # Loans c and d come under observation after period 1, and e and f after period 2.
+    entry = [0, 0, 1, 1, 2, 2]
+    duration = [2, 2, 2, 3, 4, 4]
+    event = [1, 0, 0, 1, 0, 0]
+    competing = [0, 1, 0, 0, 1, 0]
+    table = survival_table(duration, event, competing=competing, entry=entry)
+    expected = survival_frame(
+        {
+            "at_risk": [2, 4, 3, 2],
+            "event": [0, 1, 1, 0],
+            "competing": [0, 1, 0, 1],
+            "censored": [0, 1, 0, 1],
+            "hazard": [0.0, 1 / 4, 1 / 3, 0.0],
+            "survival": [1.0, 1 / 2, 1 / 6 * 2, 1 / 6],
+            # 0, then 1 * 1/4, then 1/4 + 1/2 * 1/3 = 5/12, and no default in period 4.
+            "cumulative_pd": [0.0, 1 / 4, 5 / 12, 5 / 12],
+        },
+        4,
+    )
+    pd.testing.assert_frame_equal(table, expected)
+    kaplan_meier = survival_table(duration, event, entry=entry)
+    np.testing.assert_allclose(kaplan_meier["cumulative_pd"], [0.0, 1 / 4, 1 / 2, 1 / 2])
+    assert kaplan_meier["at_risk"].tolist() == [2, 4, 3, 2]
+
+
+def test_survival_table_censored_accounts_are_at_risk_in_their_period():
+    # One default and two censorings tie in period 2: all three are at risk in it.
+    table = survival_table([2, 2, 2, 3], [1, 0, 0, 0])
+    assert table["at_risk"].tolist() == [4, 4, 1]
+    assert table["censored"].tolist() == [0, 2, 1]
+    np.testing.assert_allclose(table["hazard"], [0.0, 0.25, 0.0])
+    np.testing.assert_allclose(table["cumulative_pd"], [0.0, 0.25, 0.25])
+
+
+def test_survival_table_ties_of_defaults_and_exits():
+    table = survival_table([1, 1, 1, 1, 2], [1, 1, 0, 0, 1], competing=[0, 0, 1, 0, 0])
+    np.testing.assert_allclose(table["hazard"], [2 / 5, 1.0])
+    np.testing.assert_allclose(table["survival"], [2 / 5, 0.0])
+    np.testing.assert_allclose(table["cumulative_pd"], [2 / 5, 2 / 5 + 2 / 5])
+
+
+def test_survival_table_with_every_account_censored():
+    table = survival_table([3, 1, 2], [False, False, False], competing=[False, True, False])
+    assert table["event"].tolist() == [0, 0, 0]
+    assert table["hazard"].tolist() == [0.0, 0.0, 0.0]
+    assert table["cumulative_pd"].tolist() == [0.0, 0.0, 0.0]
+    np.testing.assert_allclose(table["survival"], [2 / 3, 2 / 3, 2 / 3])
+    table = survival_table([3, 1, 2], [0, 0, 0])
+    assert table["survival"].tolist() == [1.0, 1.0, 1.0]
+    assert table["censored"].tolist() == [1, 1, 1]
+
+
+def test_survival_table_when_every_account_defaults():
+    table = survival_table([1, 2, 2], [1, 1, 1])
+    np.testing.assert_allclose(table["hazard"], [1 / 3, 1.0])
+    assert table["survival"].tolist()[-1] == 0.0
+    assert table["cumulative_pd"].tolist()[-1] == 1.0
+    competing = survival_table([1, 2, 2], [1, 1, 1], competing=[0, 0, 0])
+    assert competing["cumulative_pd"].tolist()[-1] == 1.0
+
+
+def test_survival_table_is_missing_from_an_empty_risk_set_on():
+    # Loan b comes under observation after period 3, when loan a is no longer observed.
+    table = survival_table([2, 5], [0, 1], entry=[0, 3])
+    assert table["at_risk"].tolist() == [1, 1, 0, 1, 1]
+    assert table["event"].tolist() == [0, 0, 0, 0, 1]
+    np.testing.assert_array_equal(table["hazard"], [0.0, 0.0, np.nan, 0.0, 1.0])
+    np.testing.assert_array_equal(table["survival"], [1.0, 1.0, np.nan, np.nan, np.nan])
+    np.testing.assert_array_equal(table["cumulative_pd"], [0.0, 0.0, np.nan, np.nan, np.nan])
+    # The cumulative PDs still convert, and the hazards after the gap give the conditional PDs.
+    conditional = convert_pd(table["cumulative_pd"], kind="cumulative", to="conditional")
+    assert conditional.iloc[:2].tolist() == [0.0, 0.0] and conditional.iloc[2:].isna().all()
+    later = convert_pd(table["hazard"].loc[4:], kind="conditional", to="cumulative")
+    assert later.tolist() == [0.0, 1.0]
+
+
+def test_survival_table_without_accounts_in_the_first_periods():
+    table = survival_table([4, 3], [1, 0], entry=[2, 1])
+    assert table["at_risk"].tolist() == [0, 1, 2, 1]
+    np.testing.assert_array_equal(table["hazard"], [np.nan, 0.0, 0.0, 1.0])
+    assert table["survival"].isna().all() and table["cumulative_pd"].isna().all()
+
+
+def test_survival_table_competing_without_exits_equals_kaplan_meier():
+    rng = np.random.default_rng(3)
+    duration = rng.integers(1, 13, 300)
+    event = rng.random(300) < 0.2
+    kaplan_meier = survival_table(duration, event)
+    incidence = survival_table(duration, event, competing=np.zeros(300, dtype=bool))
+    assert incidence["competing"].sum() == 0
+    pd.testing.assert_frame_equal(
+        incidence.drop(columns="competing"), kaplan_meier, check_exact=False, rtol=1e-13
+    )
+
+
+@pytest.mark.parametrize("seed", range(6))
+def test_survival_table_matches_the_formulas_account_by_account(seed):
+    rng = np.random.default_rng(seed)
+    n = int(rng.integers(1, 80))
+    duration = rng.integers(1, 30, n)
+    entry = np.floor(rng.random(n) * duration).astype(int) * (rng.random(n) < 0.5)
+    event = rng.random(n) < 0.2
+    competing = ~event & (rng.random(n) < 0.3)
+    weights = rng.random(n) * (rng.random(n) < 0.9)
+    weights[0] = 1.0
+    options = [{}, {"entry": entry}, {"weights": weights}, {"entry": entry, "weights": weights}]
+    for kwargs in options:
+        for exits in [None, competing]:
+            table = survival_table(duration, event, competing=exits, **kwargs)
+            expected = brute_force_survival(
+                duration.tolist(),
+                event.tolist(),
+                None if exits is None else exits.tolist(),
+                kwargs.get("entry", entry * 0).tolist(),
+                kwargs.get("weights", np.ones(n)).tolist(),
+            )
+            if exits is None:
+                expected = expected.drop(columns="competing")
+            pd.testing.assert_frame_equal(
+                table, expected, check_dtype=False, check_exact=False, rtol=1e-12, atol=0
+            )
+
+
+def test_survival_table_integer_weights_equal_repeated_accounts():
+    rng = np.random.default_rng(4)
+    duration = rng.integers(1, 10, 60)
+    entry = np.floor(rng.random(60) * duration).astype(int)
+    event = rng.random(60) < 0.25
+    competing = ~event & (rng.random(60) < 0.3)
+    weights = rng.integers(0, 4, 60)
+    weighted = survival_table(duration, event, competing=competing, entry=entry, weights=weights)
+    repeated = survival_table(
+        *(np.repeat(values, weights) for values in (duration, event)),
+        competing=np.repeat(competing, weights),
+        entry=np.repeat(entry, weights),
+    )
+    pd.testing.assert_frame_equal(weighted, repeated, check_dtype=False)
+    assert weighted["at_risk"].dtype == np.float64
+    assert repeated["at_risk"].dtype == np.int64
+
+
+def test_survival_table_leaves_out_accounts_with_weight_zero():
+    table = survival_table([1, 2, 5], [1, 0, 1], weights=[1.0, 2.0, 0.0])
+    pd.testing.assert_frame_equal(table, survival_table([1, 2, 2], [1, 0, 0]), check_dtype=False)
+    assert table.index.tolist() == [1, 2]
+
+
+def test_survival_table_with_fractional_weights_by_hand():
+    table = survival_table([1, 2, 2], [1, 1, 0], competing=[0, 0, 1], weights=[0.5, 1.5, 2.0])
+    np.testing.assert_allclose(table["at_risk"], [4.0, 3.5])
+    np.testing.assert_allclose(table["hazard"], [0.125, 1.5 / 3.5])
+    np.testing.assert_allclose(table["survival"], [0.875, 0.0])
+    np.testing.assert_allclose(table["cumulative_pd"], [0.125, 0.125 + 0.875 * 1.5 / 3.5])
+
+
+def test_survival_table_keeps_small_weights_next_to_a_large_one():
+    # A difference of cumulative sums would give 1e20 + 1 - 1e20 = 0 accounts at risk in
+    # period 3, where the account of weight 1 is at risk and the large one not yet.
+    table = survival_table([5, 12], [1, 0], entry=[0, 10], weights=[1.0, 1e20])
+    assert table["at_risk"].tolist() == [1.0] * 5 + [0.0] * 5 + [1e20] * 2
+    assert table.loc[5, "hazard"] == 1.0
+
+
+def test_survival_table_cumulative_pd_converts_to_marginal_and_conditional_pds():
+    rng = np.random.default_rng(8)
+    duration = rng.integers(1, 25, 500)
+    event = rng.random(500) < 0.1
+    competing = ~event & (rng.random(500) < 0.4)
+    for exits in [None, competing]:
+        table = survival_table(duration, event, competing=exits)
+        marginal = convert_pd(table["cumulative_pd"], kind="cumulative", to="marginal")
+        assert marginal.index.equals(table.index) and (marginal >= 0).all()
+        np.testing.assert_allclose(marginal.sum(), table["cumulative_pd"].iloc[-1])
+    # Without exits, the conditional PDs are the hazards.
+    table = survival_table(duration, event)
+    conditional = convert_pd(table["cumulative_pd"], kind="cumulative", to="conditional")
+    np.testing.assert_allclose(conditional, table["hazard"], rtol=1e-12)
+
+
+def test_survival_table_of_full_cohorts_equals_the_vintage_table():
+    panel = make_loan_panel(n_loans=2000, n_months=18, prepayment=0.03, rng=2)
+    bad = panel["status"] == "90+"
+    last = panel.groupby("loan_id").tail(1).set_index("loan_id")
+    first_bad = panel[bad].groupby("loan_id")["month_on_book"].min()
+    defaulted = last.index.isin(first_bad.index)
+    duration = first_bad.reindex(last.index).fillna(last["month_on_book"]).astype(int)
+    # Early and scheduled repayments both end the risk of default.
+    repaid = ~defaulted & (last["balance"] == 0).to_numpy()
+    vintage = vintage_table(panel["loan_id"], panel["cohort"], panel["month_on_book"], bad)
+    for cohort in vintage.index:
+        rows = (last["cohort"] == cohort).to_numpy()
+        table = survival_table(duration[rows], defaulted[rows], competing=repaid[rows])
+        np.testing.assert_allclose(
+            table["cumulative_pd"], vintage.loc[cohort, table.index], rtol=1e-12, atol=1e-15
+        )
+    # The early repayments are there; counted as censored, they overstate the PD.
+    assert (repaid & (last["month_on_book"] < last["term"]).to_numpy()).sum() > 100
+    pooled = survival_table(duration, defaulted, competing=repaid)
+    censored = survival_table(duration, defaulted)
+    assert (censored["cumulative_pd"] >= pooled["cumulative_pd"] - 1e-15).all()
+    assert censored["cumulative_pd"].iloc[-1] > 1.2 * pooled["cumulative_pd"].iloc[-1]
+
+
+def test_survival_table_accepts_series_booleans_and_whole_floats():
+    index = list("abcdefgh")
+    table = survival_table(
+        pd.Series(np.array(DURATION, dtype=float), index=index),
+        pd.Series(np.array(EVENT, dtype=bool), index=index),
+        competing=pd.Series(REPAID, index=index, dtype="Int64"),
+        entry=pd.Series(0, index=index),
+        weights=pd.Series(1, index=index),
+    )
+    pd.testing.assert_frame_equal(
+        table, survival_table(DURATION, EVENT, competing=REPAID), check_dtype=False
+    )
+
+
+def test_survival_table_does_not_mutate_its_inputs():
+    duration = pd.Series([3, 1, 2, 2])
+    event = np.array([1, 0, 1, 0])
+    competing = [0, 1, 0, 0]
+    entry = np.array([0, 0, 1, 0])
+    weights = pd.Series([1.0, 2.0, 0.0, 1.0])
+    copies = [values.copy() for values in (duration, event, competing, entry, weights)]
+    survival_table(duration, event, competing=competing, entry=entry, weights=weights)
+    pd.testing.assert_series_equal(duration, copies[0])
+    np.testing.assert_array_equal(event, copies[1])
+    assert competing == copies[2]
+    np.testing.assert_array_equal(entry, copies[3])
+    pd.testing.assert_series_equal(weights, copies[4])
+
+
+def test_survival_table_options_are_keyword_only():
+    with pytest.raises(TypeError, match="positional argument"):
+        survival_table([1, 2], [1, 0], [0, 1])
+
+
+@pytest.mark.parametrize(
+    ("args", "kwargs", "message"),
+    [
+        (([], []), {}, "duration must not be empty"),
+        (([[1, 2]], [0]), {}, "duration must be one-dimensional, got 2 dimensions"),
+        (([1, 2], [1]), {}, "duration and event must have the same length, got 2 and 1"),
+        (([0, 1], [0, 1]), {}, "duration must hold positive whole numbers of periods, got 0$"),
+        (([1.5], [0]), {}, "duration must hold positive whole numbers of periods, got 1.5"),
+        (([np.nan], [0]), {}, "duration must hold positive whole numbers of periods, got nan"),
+        (([np.inf], [0]), {}, "duration must hold positive whole numbers of periods, got inf"),
+        (([True], [0]), {}, "duration must be real and numeric, got dtype bool"),
+        ((["1"], [0]), {}, "duration must be real and numeric, got dtype .* the value '1'"),
+        (([1], [2]), {}, "event must contain only booleans or 0 and 1, got 2"),
+        (([1], [np.nan]), {}, "event must contain only booleans or 0 and 1, got nan"),
+        (([1, 2], [1, 1]), {"competing": [0, 1]}, "event and competing must not both be 1"),
+        (([1, 2], [0, 0]), {"competing": [0]}, "duration and competing must have the same len"),
+        (([1], [0]), {"competing": ["yes"]}, "competing must contain only booleans or 0 and 1"),
+        (([2], [0]), {"entry": [2]}, "entry must be smaller than duration, .* entry of 2 with a"),
+        (([2], [0]), {"entry": [-1]}, "entry must hold non-negative whole numbers .*, got -1"),
+        (([2], [0]), {"entry": [0.5]}, "entry must hold non-negative whole numbers .*, got 0.5"),
+        (([2], [0]), {"entry": [np.nan]}, "entry must hold non-negative whole numbers .* got nan"),
+        (([2, 3], [0, 0]), {"entry": [0]}, "duration and entry must have the same length"),
+        (([2], [0]), {"weights": [-1.0]}, "weights must be finite and non-negative"),
+        (([2], [0]), {"weights": [0.0]}, "weights must have a finite, positive total"),
+        (([2], [0]), {"weights": [1.0, 1.0]}, "weights must have one weight per value of duration"),
+        (([2], [0]), {"weights": [True]}, "weights must be numeric, got dtype bool"),
+        (
+            (pd.Series([1, 2]), pd.Series([0, 1], index=[3, 4])),
+            {},
+            "duration and event must have identical indices",
+        ),
+        (
+            (pd.Series([1, 2]), [0, 1]),
+            {"entry": pd.Series([0, 0], index=[5, 6])},
+            "duration and entry must have identical indices",
+        ),
+    ],
+)
+def test_survival_table_rejects_invalid_inputs(args, kwargs, message):
+    with pytest.raises(ValueError, match=message):
+        survival_table(*args, **kwargs)
+
+
+def test_survival_table_matches_statsmodels_kaplan_meier():
+    survfunc = pytest.importorskip("statsmodels.duration.survfunc")
+    rng = np.random.default_rng(11)
+    duration = rng.integers(1, 37, 2000)
+    event = rng.random(2000) < 0.1
+    entry = np.floor(rng.random(2000) * duration).astype(int) * (rng.random(2000) < 0.4)
+    weights = rng.integers(1, 5, 2000).astype(float)
+    options = [{}, {"entry": entry}, {"weights": weights}, {"entry": entry, "weights": weights}]
+    for kwargs in options:
+        table = survival_table(duration, event, **kwargs)
+        reference = survfunc.SurvfuncRight(
+            duration,
+            event.astype(float),
+            entry=kwargs.get("entry"),
+            freq_weights=kwargs.get("weights"),
+        )
+        times = reference.surv_times.astype(int)
+        np.testing.assert_allclose(table.loc[times, "at_risk"], reference.n_risk, rtol=1e-15)
+        np.testing.assert_allclose(table.loc[times, "event"], reference.n_events, rtol=1e-15)
+        np.testing.assert_allclose(table.loc[times, "survival"], reference.surv_prob, rtol=1e-12)
+
+
+def test_survival_table_matches_statsmodels_cumulative_incidence():
+    survfunc = pytest.importorskip("statsmodels.duration.survfunc")
+    rng = np.random.default_rng(12)
+    duration = rng.integers(1, 37, 2000)
+    event = rng.random(2000) < 0.1
+    competing = ~event & (rng.random(2000) < 0.25)
+    weights = rng.integers(1, 5, 2000).astype(float)
+    status = np.where(event, 1, np.where(competing, 2, 0))
+    for mass in [None, weights]:
+        table = survival_table(duration, event, competing=competing, weights=mass)
+        reference = survfunc.CumIncidenceRight(duration, status, freq_weights=mass)
+        times = reference.times.astype(int)
+        np.testing.assert_allclose(table.loc[times, "cumulative_pd"], reference.cinc[0], rtol=1e-12)
+        # The two cumulative incidences and the survival add up to 1.
+        np.testing.assert_allclose(
+            table.loc[times, "cumulative_pd"] + reference.cinc[1] + table.loc[times, "survival"],
+            1.0,
+            rtol=1e-12,
+        )
 
 
 # expected_credit_loss

@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 import re
 
 import numpy as np
@@ -210,6 +211,134 @@ def test_sizes_are_keyword_only():
 def test_sizes_must_be_positive_integers(name, value):
     with pytest.raises(ValueError, match=rf"{name} must be a positive integer, got {value!r}"):
         make_loan_panel(**{name: value})
+
+
+# SHA-256 of make_loan_panel's columns as written by kivi 1.4.0, before `prepayment` existed.
+PANEL_DIGESTS = {
+    (5000, 24, 0): "72f7c19705b1f7c523a7939bc9f284b482d9f693809d21d6c71d0d1549327f57",
+    (5000, 24, 1): "684a8013d5105ac4cd25ca6c4fc128d5ed67dc3af0f8be9babf0e079c79bcb80",
+    (1500, 30, 7): "7188e3e4e5694cc9614623121e441013bf2504c1d6866cbd4e47b14fcc008d58",
+    (300, 48, 11): "b38dac4739ecf42f3cefc0588a0b42c4804c7f32f89d156fbd987661230d10aa",
+    (1, 1, 0): "d3591578ce2578f341be69624021d69b8a2b9a4b7d8603c1ddad78d29240644f",
+}
+
+
+def panel_digest(panel):
+    """SHA-256 of the panel's columns as fixed-width little-endian numbers."""
+    digest = hashlib.sha256()
+    for name in COLUMNS:
+        column = panel[name]
+        if name in ("cohort", "month"):
+            values = column.array.asi8.astype("<i8")
+        elif name == "status":
+            values = column.cat.codes.to_numpy().astype("<i8")
+        elif name in ("amount", "balance"):
+            values = column.to_numpy().astype("<f8")
+        else:
+            values = column.to_numpy().astype("<i8")
+        digest.update(name.encode())
+        digest.update(np.ascontiguousarray(values).tobytes())
+    return digest.hexdigest()
+
+
+@pytest.fixture(scope="module")
+def repaying():
+    return make_loan_panel(n_loans=1500, n_months=30, prepayment=0.03, rng=7)
+
+
+@pytest.mark.parametrize(("n_loans", "n_months", "seed"), list(PANEL_DIGESTS))
+def test_panel_without_prepayment_is_unchanged(n_loans, n_months, seed):
+    kwargs = {"n_loans": n_loans, "n_months": n_months, "rng": seed}
+    panel = make_loan_panel(**kwargs)
+    assert panel_digest(panel) == PANEL_DIGESTS[n_loans, n_months, seed]
+    for prepayment in (0, 0.0, np.float64(0.0)):
+        pd.testing.assert_frame_equal(make_loan_panel(prepayment=prepayment, **kwargs), panel)
+
+
+def test_panel_without_prepayment_advances_a_generator_as_before():
+    # The next draw of a generator after make_loan_panel in kivi 1.4.0.
+    generator = np.random.default_rng(5)
+    make_loan_panel(n_loans=50, n_months=4, rng=generator)
+    assert generator.integers(2**62) == 2163598577890985217
+    generator = np.random.default_rng(5)
+    make_loan_panel(n_loans=50, n_months=4, prepayment=0.1, rng=generator)
+    assert generator.integers(2**62) != 2163598577890985217
+
+
+def test_prepaid_panel_keeps_the_columns_and_dtypes(repaying):
+    assert list(repaying.columns) == COLUMNS
+    for column in ["loan_id", "month_on_book", "term"]:
+        assert repaying[column].dtype == np.int64
+    assert repaying["status"].dtype == pd.CategoricalDtype(STATUSES, ordered=True)
+    assert repaying.index.equals(pd.RangeIndex(len(repaying)))
+    assert not repaying.isna().any().any()
+    position = repaying.groupby("loan_id").cumcount() + 1
+    assert np.array_equal(repaying["month_on_book"], position)
+    assert np.array_equal(repaying["loan_id"].unique(), np.arange(1, 1501))
+
+
+def test_an_early_repayment_ends_a_current_loan_with_a_balance_of_zero(repaying):
+    loan = repaying["loan_id"]
+    early = (repaying["balance"] == 0) & (repaying["month_on_book"] < repaying["term"])
+    assert early.sum() > 300
+    assert (repaying.loc[early, "status"] == "current").all()
+    # The early repayment is the last row of the loan, and the loan was current before it.
+    last = repaying.groupby("loan_id").tail(1)
+    assert set(repaying.index[early]) <= set(last.index)
+    previous = repaying["status"].groupby(loan).shift()
+    assert (previous[early].dropna() == "current").all()
+    # Loans repay early also in their first month on book.
+    assert (repaying.loc[early, "month_on_book"] == 1).any()
+
+
+def test_prepayment_only_ends_loans_earlier(repaying, panel):
+    # The same seed without prepayment: every loan follows the same path until it repays early.
+    merged = repaying.merge(panel, on=["loan_id", "month_on_book"], suffixes=("", "_without"))
+    assert len(merged) == len(repaying)
+    early = (merged["balance"] == 0) & (merged["month_on_book"] < merged["term"])
+    same = merged[~early]
+    for column in ["cohort", "month", "term", "amount", "balance", "status"]:
+        assert (same[column] == same[f"{column}_without"]).all()
+    assert (merged.loc[early, "balance_without"] > 0).all()
+    # Loans that never repay early keep all their rows.
+    repaid = merged.loc[early, "loan_id"]
+    kept = ~panel["loan_id"].isin(repaid)
+    assert kept.sum() == (~repaying["loan_id"].isin(repaid)).sum()
+
+
+def test_prepayment_is_the_monthly_probability_of_an_early_repayment():
+    prepayment = 0.05
+    panel = make_loan_panel(n_loans=20000, n_months=12, prepayment=prepayment, rng=3)
+    loan = panel["loan_id"]
+    previous = panel["status"].groupby(loan).shift().fillna("current")
+    eligible = (previous == "current") & (panel["month_on_book"] < panel["term"])
+    early = (panel["balance"] == 0) & (panel["month_on_book"] < panel["term"])
+    rate = early[eligible].mean()
+    standard_error = np.sqrt(prepayment * (1 - prepayment) / eligible.sum())
+    assert abs(rate - prepayment) < 4 * standard_error
+    # Delinquent loans do not repay early.
+    assert not early[~eligible].any()
+
+
+def test_prepayment_of_one_repays_every_loan_in_its_first_month():
+    panel = make_loan_panel(n_loans=200, n_months=6, prepayment=1.0, rng=0)
+    assert len(panel) == 200
+    assert (panel["month_on_book"] == 1).all()
+    assert (panel["balance"] == 0).all() and (panel["status"] == "current").all()
+
+
+def test_prepayment_is_reproducible():
+    first = make_loan_panel(n_loans=300, n_months=12, prepayment=0.04, rng=9)
+    pd.testing.assert_frame_equal(
+        first, make_loan_panel(n_loans=300, n_months=12, prepayment=0.04, rng=9)
+    )
+    assert not first.equals(make_loan_panel(n_loans=300, n_months=12, prepayment=0.05, rng=9))
+
+
+@pytest.mark.parametrize("value", [-0.1, 1.5, np.nan, True, np.bool_(False), "0.1", None, [0.1]])
+def test_prepayment_must_be_a_probability(value):
+    with pytest.raises(ValueError, match="prepayment must be a monthly probability from 0 to 1"):
+        make_loan_panel(n_loans=10, n_months=2, prepayment=value)
 
 
 # --- make_applications --------------------------------------------------------------------

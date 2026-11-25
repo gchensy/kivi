@@ -24,7 +24,11 @@ _COHORT_RISK_SIGMA = 0.25
 
 
 def make_loan_panel(
-    *, n_loans: int = 5000, n_months: int = 24, rng: int | np.random.Generator | None = None
+    *,
+    n_loans: int = 5000,
+    n_months: int = 24,
+    prepayment: float = 0.0,
+    rng: int | np.random.Generator | None = None,
 ) -> pd.DataFrame:
     """Generate a synthetic monthly panel of instalment loans.
 
@@ -42,6 +46,10 @@ def make_loan_panel(
         Number of origination months, starting with January 2024. The oldest
         cohort is observed for `n_months` months on book and the youngest
         for one.
+    prepayment : float, default 0.0
+        Monthly probability that a current loan repays its whole balance
+        before its last instalment is due, from 0 to 1. The default, 0,
+        gives no early repayments and the same panel as earlier releases.
     rng : {None, int, numpy.random.Generator}, optional
         Seed or generator passed to `numpy.random.default_rng`. The global
         NumPy random state is not used, so the same seed always returns the
@@ -56,13 +64,15 @@ def make_loan_panel(
     Raises
     ------
     ValueError
-        If `n_loans` or `n_months` is not a positive integer, or `rng` is not
-        a seed or generator that `numpy.random.default_rng` accepts.
+        If `n_loans` or `n_months` is not a positive integer, `prepayment`
+        is not a number from 0 to 1, or `rng` is not a seed or generator that
+        `numpy.random.default_rng` accepts.
 
     See Also
     --------
     kivi.vintage.vintage_table : Cumulative bad rates by cohort and month on book.
     kivi.vintage.transition_matrix : Movements between delinquency buckets.
+    kivi.lifetime.survival_table : PD term structure with early repayments.
     load_bank : Real data with a binary target.
 
     Notes
@@ -96,6 +106,16 @@ def make_loan_panel(
     balance stays the same. A loan leaves the panel after its last instalment
     is paid; loans are not charged off.
 
+    With `prepayment`, every month, a loan that was current at the end of
+    the month before, as every loan is at origination, and that has more
+    instalments left than the one now due repays its whole balance with
+    that probability, whatever its risk. Its balance is 0 in that month and
+    it has no rows after it, so a balance of 0 before the term marks an
+    early repayment, while a loan repaid on schedule reaches 0 at or after
+    its term. The early repayments use random numbers of their own, drawn after
+    all the others: with the same `rng`, every loan follows the same path as
+    without `prepayment` until it repays early.
+
     Examples
     --------
     >>> from kivi.datasets import make_loan_panel
@@ -115,9 +135,27 @@ def make_loan_panel(
     60-89        320
     90+         1733
     Name: count, dtype: int64
+
+    With a 2% chance a month of repaying early, 962 loans repay before
+    their term, and 182 loans reach 90+ instead of 205:
+
+    >>> repaying = make_loan_panel(prepayment=0.02, rng=0)
+    >>> last = repaying.groupby("loan_id").tail(1)
+    >>> early = (last["balance"] == 0) & (last["month_on_book"] < last["term"])
+    >>> int(early.sum()), int((last["status"] == "90+").sum())
+    (962, 182)
     """
     n_loans = _validation.check_count(n_loans, "n_loans")
     n_months = _validation.check_count(n_months, "n_months")
+    if (
+        isinstance(prepayment, (bool, np.bool_))
+        or not _validation.is_real(prepayment)
+        or not 0 <= prepayment <= 1
+    ):
+        raise ValueError(
+            "prepayment must be a monthly probability from 0 to 1, got "
+            f"{_validation.shown_argument(prepayment)}"
+        )
     rng = _validation.as_generator(rng)
 
     cohort = np.sort(rng.integers(0, n_months, n_loans))
@@ -132,10 +170,14 @@ def make_loan_panel(
     # it keeps growing while nothing is paid, although no new instalment falls due.
     missed = np.zeros(n_loans, dtype=np.int64)
     closed = np.zeros(n_loans, dtype=bool)
+    # One draw per loan and month, row by row as in n_months calls of rng.random(n_loans); the
+    # draws for early repayments come after all of them, so that they leave these unchanged.
+    draws = rng.random((n_months, n_loans))
+    early = rng.random((n_months, n_loans)) if prepayment > 0 else None
     rows, months, paid_rows, missed_rows = [], [], [], []
     month: int | npt.NDArray[np.int_]
     for month in range(1, n_months + 1):
-        draw = rng.random(n_loans)
+        draw = draws[month - 1]
         on_book = (cohort < month) & ~closed
         month_on_book = month - cohort
         due = np.minimum(month_on_book, term)
@@ -149,6 +191,10 @@ def make_loan_panel(
         pays_all = on_book & (bucket < 4) & (draw < cure)
         pays_one = on_book & (bucket < 4) & ~pays_all & (draw < cure + stay)
         paid = np.where(pays_all, due, np.where(pays_one, np.minimum(paid + 1, due), paid))
+        if early is not None:
+            # A current loan with instalments left after this month repays all of them.
+            repays = on_book & (bucket == 0) & (month_on_book < term)
+            paid = np.where(repays & (early[month - 1] < prepayment), term, paid)
         missed = np.where(on_book, np.where(paid < due, month_on_book - paid, 0), missed)
 
         index = np.flatnonzero(on_book)
