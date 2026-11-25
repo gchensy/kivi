@@ -84,7 +84,7 @@ A 2% chance a month repays 962 of the 5,000 loans early. The early repayments us
 Synthetic loan applications
 ---------------------------
 
-:func:`~kivi.datasets.make_applications` simulates loan applications that an incumbent scorecard and two policy rules decided, for the reject inference in :doc:`reject_inference`. Every applicant has a true default flag, also the rejected ones, so that the inferred outcomes can be compared with the real ones. The same ``rng`` seed always gives the same applications:
+:func:`~kivi.datasets.make_applications` simulates loan applications that an incumbent scorecard and two policy rules decided, for the reject inference in :doc:`reject_inference` and the policy rules in :doc:`rules`. Every applicant has a true default flag, also the rejected ones, so that the inferred outcomes can be compared with the real ones. The same ``rng`` seed always gives the same applications:
 
 >>> from kivi.datasets import make_applications
 >>> applications = make_applications(n_applicants=10000, rng=0)

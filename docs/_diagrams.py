@@ -2689,18 +2689,14 @@ def figure_rule_set_table():
         x,
         out.bottom + 0.9,
         [
-            "new_hits  = rows whose first hit is the rule",
-            "new_event = events among them",
-            "approved  = rows that no rule up to it hits",
-            "approved_event_rate = approved_event / approved",
+            "first     = rules.idxmax(axis=1).where(rules.any(axis=1))",
+            "new_hits  = first.value_counts()[rules.columns]",
+            "new_event = target.groupby(first).sum()[rules.columns]",
+            "approved  = len(rules) - new_hits.cumsum()",
         ],
     )
-    approved = [str(i) for i in example.index[first == -1]]
-    canvas.note(
-        0.6,
-        inputs.bottom + 0.7,
-        f"approved after {names[-1]}: rows {', '.join(approved)}",
-    )
+    approved = ", ".join(str(i) for i in example.index[first == -1])
+    canvas.note(0.6, inputs.bottom + 0.7, f"list(first[first.isna()].index) == [{approved}]")
     return canvas.fig
 
 

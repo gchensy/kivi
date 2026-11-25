@@ -3,7 +3,7 @@ Policy rules
 
 Besides a score, a credit policy has rules that decline or refer an applicant whatever the score: a debt-to-income ratio above a cap, an applicant below a minimum age, too many recent credit inquiries. Each rule raises the same questions: how many applicants it hits, how risky they are, which declines rest on it alone, and what it adds to the rules before it. :mod:`kivi.rules` answers them: :func:`~kivi.rules.rule_table` counts the hits and the events of each rule, and :func:`~kivi.rules.rule_set_table` applies the rules in order, as a decision waterfall, and reports the book they leave approved with the columns of :func:`~kivi.strategy.cutoff_table`.
 
-Rules belong to the credit strategy of :doc:`strategy`, the previous guide, which chooses the cut-off of the score, and come before the :doc:`binning specifications <spec>`, the next guide, that take the model to production.
+Rules belong to the credit strategy of :doc:`strategy`, the previous guide, which chooses the cut-off of the score, and come before the :doc:`binning specifications <spec>`, the next guide, which take the model to production.
 
 Definitions
 -----------

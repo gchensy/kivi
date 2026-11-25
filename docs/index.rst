@@ -7,7 +7,7 @@ Credit risk modeling with pandas
 
 .. container:: kivi-lead
 
-   kivi is a pandas toolkit for credit risk and financial modeling. It computes point-in-time features from transactions and repayment histories, profiles the candidate variables, bins them and groups their categories, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard or weighs the factors of an expert scorecard, infers the outcomes of rejected applicants, scales the model to points, evaluates it and calibrates it on a master scale, estimates the loss given default and the exposure at default from workouts and credit lines, prices the cut-offs by their expected loss and profit, and measures the policy rules that decline applicants whatever their score. Once the model is live, it monitors the score period by period, validates the model with the tests that supervisors ask of internal rating models, computes the regulatory capital of its PDs, follows how the approved loans repay and perform, and estimates their lifetime PDs and expected credit loss under IFRS 9. Tables come back as pandas DataFrames with one row per bin, grade, cut-off, period or variable, and :mod:`kivi.plotting` draws them as charts.
+   kivi is a pandas toolkit for credit risk and financial modeling. It computes point-in-time features from transactions and repayment histories, profiles the candidate variables, bins them and groups their categories, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard or weighs the factors of an expert scorecard, infers the outcomes of rejected applicants, scales the model to points, evaluates it and calibrates it on a master scale, estimates the loss given default and the exposure at default from workouts and credit lines, prices the cut-offs by their expected loss and profit, and measures the policy rules that decline applicants whatever their score. Once the model is live, it monitors the score period by period, validates the model with the tests that supervisors ask of internal rating models, computes the regulatory capital of its PDs, follows how the approved loans repay and perform, and estimates their lifetime PDs and expected credit loss under IFRS 9. Tables come back as pandas DataFrames with one row per bin, grade, cut-off, rule, period or variable, and :mod:`kivi.plotting` draws them as charts.
 
 .. container:: kivi-actions
 
@@ -207,7 +207,7 @@ How it works
 
    .. grid-item-card:: Scale and evaluate
 
-      ``points_table`` turns the model into points, and ``gains_table``, ``roc_auc`` and ``ks`` measure how well the score ranks applicants on a holdout sample. ``roc_auc_interval`` shows how precisely a sample measures the AUC.
+      ``points_table`` turns the model into points, and ``gains_table``, ``roc_auc`` and ``ks`` measure how well the score ranks applicants on a holdout sample. ``roc_auc_interval`` shows how precisely a sample measures the AUC, and ``expected_maximum_profit`` what the best cut-off of the score earns.
 
    .. grid-item-card:: Calibrate and decide
 

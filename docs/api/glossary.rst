@@ -114,7 +114,7 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       The number of days for which a contractual payment has been overdue. IFRS 9 rebuttably presumes a significant increase in credit risk when a payment is more than 30 days past due, and default no later than when it is 90 days past due; see :doc:`/user_guide/lifetime`, and :doc:`/user_guide/vintage` for how they are counted from a repayment schedule.
 
    Decision waterfall
-      A set of policy rules applied in order, each declining the applicants it hits among those that the rules before it left approved, so that every decline counts once, under the first rule that hits it. Its last row describes the book that the whole set approves, whatever the order; see :doc:`/user_guide/rules`.
+      A set of policy rules applied in order, each declining the applicants it hits among those that the rules before it left approved, so that every decline counts once, under the first rule that hits it. The last row of :func:`~kivi.rules.rule_set_table` describes the book that the whole set approves, whatever the order; see :doc:`/user_guide/rules`.
 
    Delinquency bucket
       A range of days past due that the status of a loan falls into at a month end, such as ``current``, ``1-29``, ``30-59``, ``60-89`` and ``90+``. Roll rates and transition matrices count how loans move between buckets from one month end to the next; see :doc:`/user_guide/vintage`.
