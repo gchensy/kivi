@@ -8,6 +8,25 @@ Changes merged since the last release.
 
 .. release-fragments::
 
+1.6.0 (2026-11-25)
+------------------
+
+New
+^^^
+
+* The new module ``kivi.lgd`` measures and models the loss given default and the credit conversion factor of defaulted loans. ``workout_lgd`` discounts the recoveries and costs of each workout to the date of default at an annual rate, one for all loans or one per loan, with the days counted ACT/365, and gives the exposure, the present values of the recoveries and of the costs and the realized LGD of each loan, without clipping it to [0, 1]. Costs before the date of default are compounded to it, as paragraph 144 of the EBA's guidelines on LGD estimation asks.
+* ``kivi.lgd.conversion_factor`` gives the realized CCF of each credit line from the amount drawn at default and the limit and the amount drawn at a reference date, NaN for lines that were fully drawn or overdrawn at that date, and ``kivi.lgd.lgd_table`` summarizes realized LGDs by group: the number of defaults, the average, the standard deviation, the range and the shares of defaults without loss and with a total loss, after flooring negative LGDs at 0 as the regulations ask for long-run averages.
+* ``kivi.lgd.fractional_regression`` fits the fractional logit of Papke and Wooldridge to a response between 0 and 1, such as a realized LGD, and returns the coefficient table of ``logistic_regression`` with robust (HC0) standard errors. A response of only 0 and 1 gives the coefficients of ``logistic_regression``.
+* The new guide to LGD and EAD lists the rules of the Basel framework, the EBA and China's 2023 capital rules for realized LGDs and CCFs side by side, with their paragraphs and articles: the discount rate, costs before default, drawings, write-offs, cures, open workouts, long-run averages, negative values, the LGD and EAD floors, the reference date, fully drawn lines and the CCFs of the foundation approach.
+
+* ``kivi.datasets.make_defaults`` simulates defaulted loans for LGD and EAD models: secured loans, unsecured loans and revolving lines that defaulted from 2018 to 2024, with the exposure at default, the value of the collateral, the limit and drawn amount of the revolving lines 12 months before default, a discount rate fixed at the default date and the date the workout ended, missing for the workouts still open at the data cut-off of 30 June 2025. ``kivi.datasets.make_recoveries`` simulates the cash flows of their workouts, one row per recovery, cost or cure, so that the realized LGDs are bimodal: close to 0 for most secured and cured loans and close to 1 for the other unsecured loans and revolving lines, with a few negative LGDs, a few LGDs above 1 and a few legal costs before default. The realized CCFs of the revolving lines mostly lie from 0 to 1. The same ``rng`` seed always gives the same loans and cash flows.
+
+Changed
+^^^^^^^
+
+* The guide to LGD and EAD comes after the guide to calibration and before the credit strategy, whose expected loss takes the LGDs and EADs. The home page, the index of the user guide and both READMEs describe ``kivi.lgd`` and the simulated defaults and recoveries, with charts of the realized LGDs by segment and of the mean LGD of secured loans by loan-to-value band.
+* The conventions page describes the cash flows and the ``rate`` of ``workout_lgd``, the ``response`` of ``fractional_regression`` and how the functions of ``kivi.lgd`` treat dates, missing values, booleans and weights. The compatibility page lists the tables of ``workout_lgd``, ``lgd_table`` and ``fractional_regression`` and the columns of ``make_defaults`` and ``make_recoveries``, and the glossary defines the workout, the closed workout, the cure, the economic loss, the realized LGD, the long-run average LGD, the reference date of a CCF, the fractional logit and robust standard errors.
+
 1.5.0 (2026-11-24)
 ------------------
 

@@ -16964,6 +16964,9 @@ msgstr "未发布"
 msgid "Changes merged since the last release."
 msgstr "上次发布以来合并的改动。"
 
+msgid "1.6.0 (2026-11-25)"
+msgstr "1.6.0（2026-11-25）"
+
 msgid "New"
 msgstr "新增"
 
