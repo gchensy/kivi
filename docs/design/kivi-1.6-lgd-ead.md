@@ -1,6 +1,6 @@
 # kivi 1.6 实施计划：LGD 与 EAD
 
-2026-11-24 起草 · 待审定：第 6 节的 8 项
+2026-11-24 起草 · 2026-11-24 审定：第 6 节的 8 项全部采用推荐
 
 ## 1. 目标与范围
 
@@ -181,7 +181,7 @@ make_recoveries(defaults, *, rng=None)
 
 流程：
 
-1. 本稿审定。
+1. 本稿审定：2026-11-24 已确认，第 6 节的 8 项全部采用推荐。
 2. 两个会话开工。我逐个评审，按你的指示合并。
 3. 集成 PR 由我来写：
    - README、首页和指南索引：`lgd` 指南的位置由集成 PR 定，建议放在 `validation` 之前或 `capital` 之前；
@@ -199,9 +199,9 @@ make_recoveries(defaults, *, rng=None)
 
 ## 6. 决定
 
-以下 8 项待审定，推荐方案在前。
+2026-11-24，以下 8 项全部采用推荐方案。
 
-| # | 问题 | 推荐 | 其他选项 |
+| # | 问题 | 决定 | 未采用的选项 |
 | --- | --- | --- | --- |
 | 1 | `workout_lgd` 的参数名 | `loan`、`flow_loan`，与 `delinquency_panel`、`vintage_table` 一致 | 草稿的 `account`、`flow_account` |
 | 2 | `workout_lgd` 的结果 | 每笔贷款一行的 DataFrame：`ead`、`recovery`、`cost`、`lgd`，索引 `loan` | 草稿的 Series `lgd` |
