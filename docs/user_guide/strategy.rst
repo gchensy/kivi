@@ -1,7 +1,7 @@
 Credit strategy
 ===============
 
-A scorecard ranks applicants; a credit strategy decides whom to approve. :mod:`kivi.strategy` supports the decisions that follow: :func:`~kivi.strategy.cutoff_table` shows what each candidate cut-off approves and how many bad outcomes it lets through, :func:`~kivi.strategy.confusion_table` counts the right and the wrong decisions of each cut-off, :func:`~kivi.strategy.swap_set` compares the decisions of a current and a new score, and :func:`~kivi.strategy.expected_loss` and :func:`~kivi.strategy.expected_loss_table` turn PDs, LGDs and exposures into the expected loss of each applicant and of each grade.
+A scorecard ranks applicants; a credit strategy decides whom to approve. :mod:`kivi.strategy` supports the decisions that follow: :func:`~kivi.strategy.cutoff_table` shows what each candidate cut-off approves, how many bad outcomes it lets through and, with the revenue and losses of each applicant, what it earns, :func:`~kivi.strategy.confusion_table` counts the right and the wrong decisions of each cut-off, :func:`~kivi.strategy.swap_set` compares the decisions of a current and a new score, and :func:`~kivi.strategy.expected_loss` and :func:`~kivi.strategy.expected_loss_table` turn PDs, LGDs and exposures into the expected loss of each applicant and of each grade.
 
 The strategy follows :doc:`calibration`, which gives PDs and grades, and :doc:`lgd`, which gives the LGDs and EADs of the expected loss, and comes before the :doc:`binning specifications <spec>` that take the model to production.
 
@@ -102,6 +102,10 @@ Each row is a possible policy. A cut-off of 0.10 approves 784 of the 1,521 appli
      - Share of all non-events with a score above the cut-off: the good business the cut-off gives up.
    * - ``approved_loss``
      - With ``loss``, the sum of the losses of the approved applicants; see below.
+   * - ``approved_revenue``
+     - With ``revenue``, the sum of the revenue of the approved applicants.
+   * - ``profit``
+     - With both ``loss`` and ``revenue``, ``approved_revenue`` minus ``approved_loss``.
 
 The bad rate of the approved book averages over everyone approved. The cut-off itself is better judged by the marginal bad rate, the bad rate of the applicants that a higher cut-off adds:
 
@@ -109,7 +113,7 @@ The bad rate of the approved book averages over everyone approved. The cut-off i
 >>> marginal.round(3)
 array([0.04 , 0.056, 0.104, 0.112, 0.123, 0.477])
 
-Suppose a good loan earns a margin :math:`m` and a bad loan loses :math:`L`. A group of applicants with bad rate :math:`b` earns :math:`(1 - b)\,m - b L`, which is positive while :math:`b < m / (m + L)`. With a margin of 1 and a loss of 10 the break-even bad rate is :math:`1/11 \approx 9.1\%`. The applicants between 0.05 and 0.08 default at 5.6% and pay for themselves, while those between 0.08 and 0.10 default at 10.4% and do not, so 0.08 is the most profitable of these cut-offs. For a well-calibrated PD the break-even rate is itself the PD cut-off; the marginal rates check it against the observed outcomes.
+Suppose a good loan earns a margin :math:`m` and a bad loan loses :math:`L`. A group of applicants with bad rate :math:`b` earns :math:`(1 - b)\,m - b L`, which is positive while :math:`b < m / (m + L)`. With a margin of 1 and a loss of 10 the break-even bad rate is :math:`1/11 \approx 9.1\%`. The applicants between 0.05 and 0.08 default at 5.6% and pay for themselves, while those between 0.08 and 0.10 default at 10.4% and do not, so 0.08 is the most profitable of these cut-offs. For a well-calibrated PD the break-even rate is itself the PD cut-off; the marginal rates check it against the observed outcomes. With the revenue and the loss of each applicant, ``cutoff_table`` adds up the profit of each cut-off itself, as the section on revenue and profit below shows.
 
 An integer ``cutoffs`` places the cut-offs at the quantile edges of :func:`~kivi.binning.bin_edges`, so that the rows approve about a fifth, two fifths and so on of the applicants. Tied scores move the steps, because all applicants with the same score get the same decision:
 
@@ -281,6 +285,37 @@ cutoff
 
 Approving everyone carries an expected loss of 125,487, or 82.50 per applicant. A cut-off of 0.10 approves half of the applicants and only a fifth of that expected loss, 35.26 per approved applicant. ``approved_loss`` adds up whatever is passed as ``loss``: pass realized losses to see the losses each cut-off lets through, whose difference from the last row is the loss it avoids, or pass the exposures to see the volume it approves.
 
+Revenue and profit
+------------------
+
+A cut-off that avoids losses also gives up the revenue of the loans it declines. Pass the revenue of each applicant as ``revenue``, such as the interest margin its loan would earn, and :func:`~kivi.strategy.cutoff_table` adds ``approved_revenue``, the revenue of the approved book; with ``loss`` as well, it also adds ``profit``, the revenue minus the losses. Below, each loan earns a margin of 4% of its exposure over the year in which the expected loss is measured:
+
+>>> revenue = 0.04 * ead
+>>> table = cutoff_table(new, y, cutoffs=cutoffs, loss=el, revenue=revenue)
+>>> table[["approval_rate", "approved_loss", "approved_revenue", "profit"]].round(1)
+        approval_rate  approved_loss  approved_revenue   profit
+cutoff
+0.05              0.2         5824.6           14117.4   8292.8
+0.08              0.5        24451.0           39711.8  15260.8
+0.10              0.5        26478.5           41829.9  15351.4
+0.15              0.8        63693.3           70492.7   6799.4
+0.20              0.9        89103.9           84063.2  -5040.7
+1.00              1.0       125487.5           92864.4 -32623.1
+>>> float(table["profit"].idxmax())
+0.1
+
+Approving everyone loses 32,623, because the margin does not cover the expected loss of the riskiest applicants. The cut-offs of 0.08 and 0.10 both earn about 15,300, and 0.10 earns the most of the six. Per unit of exposure, a loan with a PD :math:`p` earns 0.04 and is expected to lose :math:`0.45\,p`, so it pays for itself while :math:`p < 0.04 / 0.45 \approx 8.9\%`. For well-calibrated PDs the most profitable cut-off therefore lies near that break-even PD, and a finer grid of cut-offs finds it:
+
+>>> fine = cutoff_table(
+...     new, y, cutoffs=np.arange(0.02, 0.4, 0.01).round(2), loss=el, revenue=revenue
+... )
+>>> fine.loc[[fine["profit"].idxmax()], ["approval_rate", "approved_event_rate", "profit"]].round(3)
+        approval_rate  approved_event_rate    profit
+cutoff
+0.09            0.473                0.049  15393.88
+
+The profit adds up whatever is passed in. With expected losses it is the expected profit of the approved book; with the realized losses of a past cohort, the profit the cut-offs would have earned on it. ``revenue``, like ``loss``, must be non-negative, so put costs such as funding, acquisition or servicing into ``loss``. :func:`~kivi.metrics.expected_maximum_profit` measures the profit of the best cut-off of a score when the loss of a default is uncertain, as a share of the loan amount; :doc:`metrics` describes it.
+
 Expected loss by grade
 ----------------------
 
@@ -337,4 +372,4 @@ Grades E and F hold under a tenth of the exposure but almost 30% of the expected
 Sample weights
 --------------
 
-:func:`~kivi.strategy.cutoff_table`, :func:`~kivi.strategy.confusion_table`, :func:`~kivi.strategy.swap_set` and :func:`~kivi.strategy.expected_loss_table` take ``weights``, one non-negative weight per applicant, as the functions of :mod:`kivi.metrics` do. Counts, exposures and losses become sums of weights, and integer weights give the same counts and sums as repeating rows. For ``cutoff_table`` and ``confusion_table`` this holds on explicit cut-offs: an integer ``cutoffs`` uses the weighted quantiles of :func:`~kivi.binning.bin_edges`, which can differ from the quantiles of repeated rows. Use the weights of an outcome-based sample, which keeps all bad outcomes but only some of the good ones, to report approval and bad rates for the whole population.
+:func:`~kivi.strategy.cutoff_table`, :func:`~kivi.strategy.confusion_table`, :func:`~kivi.strategy.swap_set` and :func:`~kivi.strategy.expected_loss_table` take ``weights``, one non-negative weight per applicant, as the functions of :mod:`kivi.metrics` do. Counts, exposures, losses and revenue become sums of weights, and integer weights give the same counts and sums as repeating rows. For ``cutoff_table`` and ``confusion_table`` this holds on explicit cut-offs: an integer ``cutoffs`` uses the weighted quantiles of :func:`~kivi.binning.bin_edges`, which can differ from the quantiles of repeated rows. Use the weights of an outcome-based sample, which keeps all bad outcomes but only some of the good ones, to report approval and bad rates for the whole population.

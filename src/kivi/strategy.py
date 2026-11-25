@@ -34,6 +34,7 @@ def cutoff_table(
     *,
     cutoffs: int | npt.ArrayLike = 10,
     loss: npt.ArrayLike | None = None,
+    revenue: npt.ArrayLike | None = None,
     weights: npt.ArrayLike | None = None,
 ) -> pd.DataFrame:
     """Summarize the approved book and the rejected events at each cut-off.
@@ -41,7 +42,9 @@ def cutoff_table(
     A cut-off approves every observation whose score is at or below it, so
     a higher cut-off approves more applicants and lets more events through.
     Each row shows the size and the event rate of the approved book and the
-    shares of events and non-events that the cut-off rejects.
+    shares of events and non-events that the cut-off rejects, and with
+    `loss` and `revenue` the losses, revenue and profit of the approved
+    book.
 
     Parameters
     ----------
@@ -64,12 +67,18 @@ def cutoff_table(
         Non-negative loss of each observation, matched like `target`, such
         as its expected loss from `expected_loss` or the loss realized on a
         defaulted account. The table then has a column ``approved_loss``.
+    revenue : array_like, optional
+        Non-negative revenue of each observation, matched like `target`,
+        such as the interest and fees an approved loan earns. The table then
+        has a column ``approved_revenue``, and with `loss` also ``profit``.
+        Costs that reduce the revenue, such as funding or acquisition costs,
+        belong in `loss`.
     weights : array_like, optional
         Non-negative weight of each observation, such as the inverse of its
-        sampling rate, matched like `target`. Counts and losses become sums
-        of weights. On the same cut-offs, integer weights give the same
-        table as repeating rows; an integer `cutoffs` can give other
-        cut-offs, because weighted quantiles use the inverted CDF.
+        sampling rate, matched like `target`. Counts, losses and revenue
+        become sums of weights. On the same cut-offs, integer weights give
+        the same table as repeating rows; an integer `cutoffs` can give
+        other cut-offs, because weighted quantiles use the inverted CDF.
 
     Returns
     -------
@@ -84,11 +93,11 @@ def cutoff_table(
         lengths do not match, `target` has a label other than 0 and 1 or
         lacks one of them, `score` is not real and numeric or has a missing
         or infinite value, or `cutoffs` is neither a positive integer nor a
-        sequence of increasing numbers. Also if `loss` is not numeric or
-        does not give each observation one finite, non-negative loss, or
-        `weights` is not numeric, does not give each observation one finite,
-        non-negative weight, has an index other than that of `score`, or
-        leaves a class without weight.
+        sequence of increasing numbers. Also if `loss` or `revenue` is not
+        numeric or does not give each observation one finite, non-negative
+        amount, or `weights` is not numeric, does not give each observation
+        one finite, non-negative weight, has an index other than that of
+        `score`, or leaves a class without weight.
 
     Warns
     -----
@@ -101,6 +110,7 @@ def cutoff_table(
     swap_set : Compare the decisions of two scores at their cut-offs.
     expected_loss : Expected loss of each exposure, to pass as `loss`.
     kivi.metrics.gains_table : Event rates of the bands between cut-offs.
+    kivi.metrics.expected_maximum_profit : Expected profit of the best cut-off of a score.
 
     Notes
     -----
@@ -120,12 +130,17 @@ def cutoff_table(
     - ``rejected_event_share`` and ``rejected_non_event_share``: shares of
       all events and of all non-events with a score above the cut-off;
     - ``approved_loss``: with `loss`, the sum of the losses of the
-      approved observations, weighted with `weights`.
+      approved observations, weighted with `weights`;
+    - ``approved_revenue``: with `revenue`, the sum of the revenue of the
+      approved observations, weighted with `weights`;
+    - ``profit``: with both `loss` and `revenue`, ``approved_revenue``
+      minus ``approved_loss``.
 
     A higher cut-off raises the approval rate and lowers both rejected
     shares. ``rejected_event_share`` is the share of bad outcomes the
     cut-off avoids, and ``rejected_non_event_share`` the share of good
-    business it gives up.
+    business it gives up. ``table["profit"].idxmax()`` is the most
+    profitable of the cut-offs.
 
     Examples
     --------
@@ -145,11 +160,31 @@ def cutoff_table(
     0.2                     0.75                       0.5
     0.5                     0.75                       0.0
     1.0                     0.00                       0.0
+
+    With a loss of 40 on each event and a revenue of 10 on every
+    observation, the cut-off of 0.5 is the most profitable of the three:
+
+    >>> loss = [0, 0, 40, 0, 0, 40, 40, 40]
+    >>> table = cutoff_table(score, target, cutoffs=[0.2, 0.5, 1.0], loss=loss, revenue=[10] * 8)
+    >>> table[["approved_loss", "approved_revenue", "profit"]]
+            approved_loss  approved_revenue  profit
+    cutoff
+    0.2              40.0              30.0   -10.0
+    0.5              40.0              50.0    10.0
+    1.0             160.0              80.0   -80.0
+    >>> float(table["profit"].idxmax())
+    0.5
     """
-    _validation.shared_index({"score": score, "target": target, "loss": loss, "weights": weights})
+    _validation.shared_index(
+        {"score": score, "target": target, "loss": loss, "revenue": revenue, "weights": weights}
+    )
     values, labels, mass = _validation.scores_and_labels(score, target, "score", weights=weights)
     points = _cutoff_values(values, cutoffs, mass)
-    amounts = None if loss is None else _loss_amounts(loss, score)
+    amounts = {
+        name: _amounts(given, name, score)
+        for name, given in (("loss", loss), ("revenue", revenue))
+        if given is not None
+    }
     order, approved_rows, cum_event, cum_non_event = _approved_counts(values, labels, mass, points)
     approved_event = cum_event[approved_rows]
     approved_non_event = cum_non_event[approved_rows]
@@ -163,9 +198,11 @@ def cutoff_table(
         "rejected_event_share": (total_event - approved_event) / total_event,
         "rejected_non_event_share": (total_non_event - approved_non_event) / total_non_event,
     }
-    if amounts is not None:
-        weighted = amounts if mass is None else amounts * mass
-        columns["approved_loss"] = np.r_[0.0, np.cumsum(weighted[order])][approved_rows]
+    for name, array in amounts.items():
+        weighted = array if mass is None else array * mass
+        columns[f"approved_{name}"] = np.r_[0.0, np.cumsum(weighted[order])][approved_rows]
+    if len(amounts) == 2:
+        columns["profit"] = columns["approved_revenue"] - columns["approved_loss"]
     return pd.DataFrame(columns, index=pd.Index(points, name="cutoff"))
 
 
@@ -756,17 +793,18 @@ def _cutoff(value: object, name: str) -> float:
     return float(value)
 
 
-def _loss_amounts(loss: npt.ArrayLike, score: npt.ArrayLike) -> npt.NDArray[np.float64]:
-    amounts = _validation.as_real(_validation.as_series(loss, "loss"), "loss")
+def _amounts(values: npt.ArrayLike, name: str, score: npt.ArrayLike) -> npt.NDArray[np.float64]:
+    """Check one finite, non-negative amount per observation, such as a loss or a revenue."""
+    amounts = _validation.as_real(_validation.as_series(values, name), name)
     count = len(score)  # type: ignore[arg-type]  # one-dimensional: validated by the caller
     if len(amounts) != count:
         raise ValueError(
-            f"loss must have one value per value of score, got {len(amounts)} for {count}"
+            f"{name} must have one value per value of score, got {len(amounts)} for {count}"
         )
     invalid = ~np.isfinite(amounts) | (amounts < 0)
     if invalid.any():
         raise ValueError(
-            f"loss must be finite and non-negative, got {float(amounts[invalid][0])!r}"
+            f"{name} must be finite and non-negative, got {float(amounts[invalid][0])!r}"
         )
     return amounts
 

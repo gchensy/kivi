@@ -1,7 +1,7 @@
 Model performance
 =================
 
-:mod:`kivi.metrics` measures how well a score separates events from non-events. :func:`~kivi.metrics.roc_auc`, :func:`~kivi.metrics.gini` and :func:`~kivi.metrics.ks` summarize the ranking in one number, and :func:`~kivi.metrics.roc_table` lists the points of the ROC curve behind them. :func:`~kivi.metrics.roc_auc_interval` gives the AUC a standard error and a confidence interval, and :func:`~kivi.metrics.delong_test` tests whether two scores of the same customers rank equally well. :func:`~kivi.metrics.generalized_auc` extends the AUC to outcomes in ordered segments, such as realized LGDs. :func:`~kivi.metrics.gains_table` breaks the ranking down by score band, and :func:`~kivi.metrics.brier_score` checks predicted probabilities against the outcomes.
+:mod:`kivi.metrics` measures how well a score separates events from non-events. :func:`~kivi.metrics.roc_auc`, :func:`~kivi.metrics.gini` and :func:`~kivi.metrics.ks` summarize the ranking in one number, and :func:`~kivi.metrics.roc_table` lists the points of the ROC curve behind them. :func:`~kivi.metrics.roc_auc_interval` gives the AUC a standard error and a confidence interval, and :func:`~kivi.metrics.delong_test` tests whether two scores of the same customers rank equally well. :func:`~kivi.metrics.generalized_auc` extends the AUC to outcomes in ordered segments, such as realized LGDs. :func:`~kivi.metrics.gains_table` breaks the ranking down by score band, :func:`~kivi.metrics.brier_score` checks predicted probabilities against the outcomes, and :func:`~kivi.metrics.expected_maximum_profit` measures the profit of the best cut-off of a credit score.
 
 Performance is measured once the model is scaled to a :doc:`scorecard`, or once the outcomes of an :doc:`expert scorecard <expert>` are known, and before its probabilities are checked in :doc:`calibration`.
 
@@ -359,6 +359,58 @@ The example below predicts the probability of each validation customer by the de
 
 The group rates lower the Brier score by about 10% compared with the constant forecast. Unlike the ranking measures, the Brier score needs no events in the sample, so it can also be computed for a period without any.
 
+Expected maximum profit
+-----------------------
+
+The ranking measures weigh every cut-off alike, although a lender uses only one. :func:`~kivi.metrics.expected_maximum_profit` measures a credit score by the profit of its best cut-off instead, as Verbraken, Bravo, Weber and Baesens (2014) propose. Compared with approving everyone, rejecting a default saves the share :math:`\lambda` of the loan that it would lose, and rejecting a good applicant gives up the return :math:`\mathrm{ROI}` that its loan would earn. Let :math:`\pi_d` and :math:`\pi_g` be the shares of defaults and of good applicants, and :math:`F_d(t)` and :math:`F_g(t)` the shares of each that score above a cut-off :math:`t` and are rejected. The profit per applicant, as a share of the loan amount, is
+
+.. math::
+
+   P(t; \lambda) = \lambda \, \pi_d F_d(t) - \mathrm{ROI} \, \pi_g F_g(t).
+
+The loss of a default is not known in advance: many defaulted loans are recovered in full and a few are lost entirely. The expected maximum profit (EMP) takes :math:`\lambda` as 0 with the probability ``no_loss_share``, as 1 with the probability ``full_loss_share`` and as evenly spread between 0 and 1 otherwise, and averages the profit of the best cut-off for each :math:`\lambda` over this distribution :math:`H`:
+
+.. math::
+
+   \mathrm{EMP} = \int_0^1 \max_t P(t; \lambda) \, dH(\lambda).
+
+``rejected_share`` is the share of applicants that the best cut-off rejects, averaged in the same way. The defaults, a ``no_loss_share`` of 0.55, a ``full_loss_share`` of 0.1 and an ``roi`` of 0.2644, are those of the R package EMP and the Python package empulse, whose results the function reproduces. Both take the default as class 1 and a score that rises with the risk, as kivi does.
+
+The best cut-off for any loss is a vertex of the upper convex hull of the ROC curve that :func:`~kivi.metrics.roc_table` lists, with :math:`F_g` as the false positive rate and :math:`F_d` as the true positive rate. For the six customers of the worked example, read as three defaults and three good applicants, the hull runs through (0, 0), (0, 1/3), (2/3, 1) and (1, 1). Rejecting the customer scored 0.9, a default, pays for any loss. Rejecting the customers scored from 0.8 down to 0.4 as well adds two defaults and two good applicants, which pays once the loss on two defaults exceeds the return on two good loans, for :math:`\lambda` above 0.2644. Rejecting the last customer, a good applicant, never pays. With the density :math:`1 - 0.55 - 0.1 = 0.35` of the evenly spread losses, the EMP integrates the profit of the first cut-off, :math:`\lambda / 6`, up to 0.2644 and that of the second, :math:`(3 \lambda - 2 \times 0.2644) / 6`, from there to 1, and the full loss adds 0.1 times :math:`(3 - 2 \times 0.2644) / 6`:
+
+>>> from kivi.metrics import expected_maximum_profit
+>>> expected_maximum_profit(score, target).round(4)
+statistic
+emp               0.1019
+rejected_share    0.3133
+dtype: float64
+
+On average over the losses, the best cut-off earns 10.2% of a loan amount per applicant more than approving everyone and rejects 31% of the applicants. On the validation sample the EMP compares the scores of :func:`~kivi.metrics.delong_test` above by what they earn:
+
+>>> pd.DataFrame({
+...     "current": expected_maximum_profit(val_score, y),
+...     "month": expected_maximum_profit(with_variable("month"), y),
+...     "loan": expected_maximum_profit(with_variable("loan"), y),
+... }).round(4)
+                current   month    loan
+statistic
+emp              0.0062  0.0077  0.0061
+rejected_share   0.0239  0.0388  0.0239
+
+With a return of 26% on a good loan, rejecting a group of applicants pays only if more than :math:`0.2644 / (1 + 0.2644) \approx 21\%` of them default, even when every default is lost in full. At a full loss the best cut-off of the current score rejects about 8% of the applicants, and at smaller losses fewer rejections pay, so the EMP is small. Adding ``month`` raises it by a quarter, from 0.62% to 0.77% of the loan amount per applicant, and lets the best cut-off reject more applicants. Adding ``loan`` raised the AUC by 0.010, but leaves the EMP where it was: its gain in ranking lies among applicants whom no profitable cut-off rejects.
+
+The three parameters describe the portfolio. A lower return on good loans makes more rejections pay:
+
+>>> pd.DataFrame({
+...     roi: expected_maximum_profit(val_score, y, roi=roi) for roi in [0.05, 0.1, 0.2644, 0.5]
+... }).round(4)
+                0.0500  0.1000  0.2644  0.5000
+statistic
+emp             0.0171  0.0102  0.0062  0.0044
+rejected_share  0.2209  0.0833  0.0239  0.0160
+
+The ``zero_share`` and ``full_share`` columns of :func:`~kivi.lgd.lgd_table` estimate ``no_loss_share`` and ``full_loss_share`` from the realized LGDs of past defaults, as :doc:`lgd` shows; ``roi`` is the return of a good loan over its term, as a share of the amount lent. With an amount, a revenue and a loss for each applicant, :func:`~kivi.strategy.cutoff_table` gives the profit of each cut-off directly, as :doc:`strategy` shows.
+
 Sample weights
 --------------
 
@@ -411,4 +463,5 @@ Limits
 * :func:`~kivi.metrics.delong_test` needs both scores on the same observations. For the AUCs of different samples, combine the standard errors of the two intervals, as in the comparison of the development and validation samples above.
 * The standard errors measure the noise of sampling customers from one population. A shift of the population over time is a separate question, which :doc:`psi` answers.
 * :func:`~kivi.metrics.generalized_auc` builds the contingency table of every distinct estimated and realized value, so cut continuous values into segments first; the twelve LGD segments of the European Central Bank are one choice. Its interval rests on a normal approximation too, and its standard error is 0 for a degenerate table, where every realized value falls into one segment or the ranking is perfect or reversed, so the interval collapses to the estimate.
+* :func:`~kivi.metrics.expected_maximum_profit` measures the profit as a share of the loan amount, with the same loss distribution and return for every applicant, so it suits portfolios of similar loans. Its defaults are those of the R and Python packages, the return on investment that of an example of Verbraken and co-authors, not estimates for a portfolio; the function gives no standard error.
 * kivi gives no p-value for the KS statistic and no confidence bands for the ROC curve or the gains table.
