@@ -23,7 +23,7 @@ def leaked(module, api=()):
 
 
 def test_every_public_module_is_checked():
-    assert len(PUBLIC) == 20
+    assert len(PUBLIC) == 21
     assert "binning" in PUBLIC and "datasets" in PUBLIC
 
 
