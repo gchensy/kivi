@@ -313,6 +313,12 @@ period
 18        0.0838     0.0625
 24        0.0867     0.0641
 
+.. plot::
+   :alt: Cumulative PD by month on book with early repayments as a competing risk and as censored; the censored curve ends at 8.67% and the competing one at 6.41%
+   :caption: Cumulative PD of the pooled loans by month on book. Counted as censored, the repaid loans raise the curve, which ends a third higher than the cumulative incidence.
+
+   kp.figure_survival_competing()
+
 The censored estimate is a third higher after two years. Censoring assumes that a loan would have gone on with the risk of the loans still on book, but a repaid loan can no longer default: 1 − Kaplan–Meier is the PD of a loan that is never repaid. The cumulative incidence keeps the repaid loans among all the loans without letting them default, so it estimates the share of the loans that default. For a cohort observed from origination until the end of the panel, it is exactly the cumulative bad rate of :func:`~kivi.vintage.vintage_table`, while 1 − Kaplan–Meier is higher:
 
 >>> oldest = loans[loans["cohort"] == "2024-01"]
@@ -487,6 +493,42 @@ loan_id
 
 These are the first loans of each bucket with more than two years to run. The lifetime ECL of the current loan is half as large again as its 12-month ECL: its PD is 0 for three months and its risk builds up over the following ones. The delinquent loans default mostly within the year, so their two ECLs are close. For a loan already at 90+, the PD is 1 in the first month and the rate is 0, so the ECL is the LGD times the balance: 0.45 × 10,371.94 = 4,667.37.
 
+Economic scenarios
+^^^^^^^^^^^^^^^^^^
+
+IFRS 9 measures the ECL as an unbiased, probability-weighted amount over a range of possible outcomes that reflects forecasts of economic conditions (paragraphs 5.5.17 and B5.5.42). The PDs above are averages over the months of the panel. The one-factor model of :doc:`capital` shifts them to the economy of a scenario: :func:`~kivi.capital.conditional_pd` gives the PD of a period given the systematic factor :math:`z`, which is 0 in the median economy and negative in worse ones. The three scenarios below, with their factors and probabilities, and the asset correlation of 0.1 are assumptions of the example: a forecast sets the scenarios, and :func:`~kivi.capital.vasicek_fit` estimates the correlation from a history of default rates. Each scenario shifts the monthly conditional PDs of the states not in default, whose PDs of 0 stay 0, and the 90+ loans keep a PD of 1:
+
+>>> from kivi.capital import conditional_pd
+>>> hazard = convert_pd(cumulative, kind="cumulative", to="conditional").drop(index="90+")
+>>> scenarios = pd.DataFrame(
+...     {"factor": [1.0, 0.0, -1.5], "weight": [0.25, 0.5, 0.25]},
+...     index=pd.Index(["upside", "base", "downturn"], name="scenario"),
+... )
+>>> results = {}
+>>> for scenario, factor in scenarios["factor"].items():
+...     shifted = conditional_pd(hazard.where(hazard > 0).to_numpy(), correlation=0.1, factor=factor)
+...     shifted = pd.DataFrame(shifted, index=hazard.index, columns=hazard.columns).fillna(0.0)
+...     states = pd.concat(
+...         [convert_pd(shifted, kind="conditional", to="marginal"), marginal.loc[["90+"]]]
+...     )
+...     scenario_pd = states.loc[book["status"]].set_axis(book.index)
+...     results[scenario] = {
+...         "current_pd": convert_pd(shifted, kind="conditional", to="cumulative").loc["current", 12],
+...         "twelve_month": expected_credit_loss(scenario_pd, 0.45, ead, rate=rate, horizon=12).sum(),
+...         "lifetime": expected_credit_loss(scenario_pd, 0.45, ead, rate=rate).sum(),
+...     }
+>>> by_scenario = pd.DataFrame(results).T.rename_axis("scenario")
+>>> by_scenario.loc["weighted"] = by_scenario.mul(scenarios["weight"], axis=0).sum()
+>>> by_scenario.round({"current_pd": 4, "twelve_month": 0, "lifetime": 0})
+          current_pd  twelve_month   lifetime
+scenario
+upside        0.0090      782085.0   808892.0
+base          0.0259      909598.0   984824.0
+downturn      0.1028     1400455.0  1667506.0
+weighted      0.0409     1000434.0  1111511.0
+
+``current_pd`` is the 12-month PD of a current loan: 2.59% in the median economy, below the average of 3.93%, and 10.28% in the downturn. The weighted ECL is 10% above that of the base scenario over 12 months and 13% above it over the lifetime, because the PDs rise faster as the economy worsens than they fall as it improves, and the downturn here lies further from the base than the upside: the ECL of the most likely scenario alone would understate the weighted amount. Each scenario keeps its factor for the life of the loans; a path of factors, one per year, would shift the months of each year with the factor of that year.
+
 Stage allocation
 ----------------
 
@@ -590,7 +632,7 @@ Limits
 ------
 
 - A transition matrix gives a term structure only as far as the movements are a time-homogeneous Markov chain: the same probabilities in every period, whatever the age of a loan or the time it has spent in its state.
-- IFRS 9 asks for an unbiased, probability-weighted amount that reflects forecasts of economic conditions. These functions compute the ECL of one set of PDs, LGDs and EADs: compute it for each economic scenario and weight the results with the probabilities of the scenarios.
+- IFRS 9 asks for an unbiased, probability-weighted amount that reflects forecasts of economic conditions. These functions compute the ECL of one set of PDs, LGDs and EADs: compute it for each economic scenario and weight the results with the probabilities of the scenarios, as in the example above. The shift of the one-factor model moves all PDs with one factor; a model of the PDs on macroeconomic variables, or LGDs and EADs that also depend on the scenario, need their own estimates.
 - Early repayment enters through the EAD schedule, through the vintage curves, which count repaid loans as not bad, and through the cumulative incidence of :func:`~kivi.lifetime.survival_table`.
 - :func:`~kivi.lifetime.survival_table` assumes that censoring and late entry tell nothing about the risk of a loan, as when the data simply end. It estimates one curve for the loans it is given, without confidence intervals; split the loans into segments, or fit a discrete-time hazard model, to let the curve depend on their characteristics.
 - For revolving facilities, such as credit cards, IFRS 9 measures the expected credit losses over the period in which the lender is exposed to credit risk, which can be longer than the contractual period (paragraphs B5.5.39 and B5.5.40). Choose the periods and the EAD schedule, including drawings of undrawn limits, for that period.

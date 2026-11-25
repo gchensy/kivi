@@ -333,4 +333,4 @@ The score itself is monitored the same way, with bands fitted on the development
 >>> print(f"score PSI = {score_psi['psi'].sum():.4f}")
 score PSI = 0.0020
 
-:doc:`psi` shows what a shift looks like. In production, :func:`~kivi.monitoring.monitoring_table` repeats this PSI for every period together with the known outcomes and the Gini, and :func:`~kivi.monitoring.stability_table` the PSI of every variable; see :doc:`monitoring`. Once the approved loans are booked, :doc:`vintage` follows their delinquency, and :doc:`lifetime` turns it into PD term structures and the IFRS 9 loss allowance.
+:doc:`psi` shows what a shift looks like. In production, :func:`~kivi.monitoring.monitoring_table` repeats this PSI for every period together with the known outcomes and the Gini, and :func:`~kivi.monitoring.stability_table` the PSI of every variable; see :doc:`monitoring`. The PDs of the master scale also set the regulatory capital that :doc:`capital` computes. Once the approved loans are booked, :doc:`vintage` follows their delinquency, and :doc:`lifetime` turns it into PD term structures and the IFRS 9 loss allowance.

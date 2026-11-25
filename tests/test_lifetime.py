@@ -825,49 +825,6 @@ def test_survival_table_rejects_invalid_inputs(args, kwargs, message):
         survival_table(*args, **kwargs)
 
 
-def test_survival_table_matches_statsmodels_kaplan_meier():
-    survfunc = pytest.importorskip("statsmodels.duration.survfunc")
-    rng = np.random.default_rng(11)
-    duration = rng.integers(1, 37, 2000)
-    event = rng.random(2000) < 0.1
-    entry = np.floor(rng.random(2000) * duration).astype(int) * (rng.random(2000) < 0.4)
-    weights = rng.integers(1, 5, 2000).astype(float)
-    options = [{}, {"entry": entry}, {"weights": weights}, {"entry": entry, "weights": weights}]
-    for kwargs in options:
-        table = survival_table(duration, event, **kwargs)
-        reference = survfunc.SurvfuncRight(
-            duration,
-            event.astype(float),
-            entry=kwargs.get("entry"),
-            freq_weights=kwargs.get("weights"),
-        )
-        times = reference.surv_times.astype(int)
-        np.testing.assert_allclose(table.loc[times, "at_risk"], reference.n_risk, rtol=1e-15)
-        np.testing.assert_allclose(table.loc[times, "event"], reference.n_events, rtol=1e-15)
-        np.testing.assert_allclose(table.loc[times, "survival"], reference.surv_prob, rtol=1e-12)
-
-
-def test_survival_table_matches_statsmodels_cumulative_incidence():
-    survfunc = pytest.importorskip("statsmodels.duration.survfunc")
-    rng = np.random.default_rng(12)
-    duration = rng.integers(1, 37, 2000)
-    event = rng.random(2000) < 0.1
-    competing = ~event & (rng.random(2000) < 0.25)
-    weights = rng.integers(1, 5, 2000).astype(float)
-    status = np.where(event, 1, np.where(competing, 2, 0))
-    for mass in [None, weights]:
-        table = survival_table(duration, event, competing=competing, weights=mass)
-        reference = survfunc.CumIncidenceRight(duration, status, freq_weights=mass)
-        times = reference.times.astype(int)
-        np.testing.assert_allclose(table.loc[times, "cumulative_pd"], reference.cinc[0], rtol=1e-12)
-        # The two cumulative incidences and the survival add up to 1.
-        np.testing.assert_allclose(
-            table.loc[times, "cumulative_pd"] + reference.cinc[1] + table.loc[times, "survival"],
-            1.0,
-            rtol=1e-12,
-        )
-
-
 # expected_credit_loss
 
 

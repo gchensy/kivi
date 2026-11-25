@@ -39,9 +39,10 @@ from kivi.calibration import (
     master_scale,
     prior_correction,
 )
+from kivi.capital import capital_requirement
 from kivi.datasets import load_bank, make_applications, make_loan_panel, make_transactions
 from kivi.features import FeatureSpec
-from kivi.lifetime import convert_pd, transition_pd
+from kivi.lifetime import convert_pd, survival_table, transition_pd
 from kivi.metrics import delong_test, gains_table, gini, roc_table
 from kivi.monitoring import monitoring_table, stability_table
 from kivi.reject_inference import fuzzy_augmentation
@@ -955,6 +956,61 @@ def term_structures(curves: pd.DataFrame, pooled: pd.Series):
     return fig
 
 
+def risk_weight_curves(probability: np.ndarray, classes: dict, lgd: float):
+    """The risk weight 12.5 K of each asset class against the PD, on a logarithmic PD axis."""
+    styles = [
+        (BLUE, "-"),
+        (LIGHT_BLUE, "--"),
+        (BLUE, ":"),
+        (RED, "-"),
+        (TEAL, "-"),
+        (AMBER, "-"),
+        (GRAY, "-"),
+    ]
+    fig, ax = plt.subplots(figsize=(8, 4.2))
+    for (name, options), (color, style) in zip(classes.items(), styles, strict=True):
+        weight = 12.5 * capital_requirement(probability, lgd, **options)
+        ax.plot(probability, weight, color=color, linestyle=style, linewidth=1.8, label=name)
+    ax.set_xscale("log")
+    ax.xaxis.set_major_formatter(PercentFormatter(1, decimals=None))
+    ax.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+    ax.set_xlabel("probability")
+    ax.set_ylabel("risk_weight")
+    ax.set_xlim(probability[0], probability[-1])
+    ax.set_ylim(bottom=0)
+    ax.legend(loc="upper left", fontsize=8.5, ncol=2)
+    fig.tight_layout()
+    return fig
+
+
+def competing_risk_curves(curves: pd.DataFrame):
+    """Cumulative PD by period with early repayments as a competing risk and as censored."""
+    fig, ax = plt.subplots(figsize=(8, 3.6))
+    for column, color, style in (("competing", BLUE, "-"), ("censored", AMBER, "--")):
+        ax.plot(
+            curves.index, curves[column], color=color, linestyle=style, linewidth=2, label=column
+        )
+    last = curves.index[-1]
+    for column, color in (("competing", BLUE), ("censored", AMBER)):
+        ax.annotate(
+            f"{curves[column].iloc[-1]:.2%}",
+            (last, curves[column].iloc[-1]),
+            xytext=(6, 0),
+            textcoords="offset points",
+            va="center",
+            fontsize=8.5,
+            color=color,
+        )
+    ax.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+    ax.set_xlabel(curves.index.name)
+    ax.set_ylabel("cumulative_pd")
+    ax.set_xlim(0, last + 2.5)
+    ax.set_ylim(bottom=0)
+    ax.legend(loc="upper left")
+    fig.tight_layout()
+    return fig
+
+
 def selection_path_chart(path: pd.DataFrame):
     """The development and validation AUC of every step of a selection path."""
     fig, ax = plt.subplots(figsize=(8, 3.6))
@@ -1649,6 +1705,34 @@ def figure_lifetime_transition():
     return state_term_structures(cumulative, curve, "current")
 
 
+def figure_capital_risk_weights():
+    classes = {
+        "corporate": {"asset_class": "corporate"},
+        "SME, S = 5": {"asset_class": "corporate", "turnover": 5.0},
+        "financial": {"asset_class": "corporate", "financial": True},
+        "hvcre": {"asset_class": "hvcre"},
+        "mortgage": {"asset_class": "mortgage"},
+        "revolving": {"asset_class": "revolving"},
+        "other_retail": {"asset_class": "other_retail"},
+    }
+    return risk_weight_curves(np.geomspace(0.0005, 0.3, 200), classes, 0.45)
+
+
+def figure_survival_competing():
+    repaying = make_loan_panel(prepayment=0.02, rng=0)
+    bad = repaying["status"] == "90+"
+    last = repaying.groupby("loan_id").tail(1).set_index("loan_id")
+    default_month = repaying[bad].groupby("loan_id")["month_on_book"].min()
+    duration = default_month.reindex(last.index).fillna(last["month_on_book"]).astype(int)
+    event = last.index.isin(default_month.index)
+    competing = survival_table(duration, event, competing=last["balance"].eq(0))
+    censored = survival_table(duration, event)
+    curves = pd.DataFrame(
+        {"competing": competing["cumulative_pd"], "censored": censored["cumulative_pd"]}
+    )
+    return competing_risk_curves(curves)
+
+
 README_FIGURES = {
     "readme-features.svg": figure_transaction_features,
     "readme-woe.svg": figure_quickstart_woe,
@@ -1660,6 +1744,8 @@ README_FIGURES = {
     "readme-reject.svg": figure_reject_factor,
     "readme-monitoring.svg": figure_monitoring_report,
     "readme-lifetime.svg": figure_lifetime_term_structure,
+    "readme-capital.svg": figure_capital_risk_weights,
+    "readme-survival.svg": figure_survival_competing,
 }
 
 

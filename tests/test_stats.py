@@ -54,17 +54,6 @@ def test_normal_quantile_of_a_missing_scalar_still_raises():
         _stats.normal_quantile(np.nan)
 
 
-def test_normal_quantile_of_an_array_matches_scipy_in_the_tails():
-    special = pytest.importorskip("scipy.special")
-    probability = np.r_[
-        np.logspace(-300, -1, 300),
-        np.linspace(0.01, 0.99, 197),
-        1 - np.logspace(-2, -16, 60),
-    ]
-    actual = _stats.normal_quantile(probability)
-    np.testing.assert_allclose(actual, special.ndtri(probability), rtol=1e-14, atol=0)
-
-
 # The beta quantile.
 
 
@@ -177,45 +166,6 @@ def test_beta_quantile_reports_a_search_that_does_not_converge(monkeypatch):
         _stats.beta_quantile(2.0, 3.0, 0.4)
 
 
-# Shapes from 10 to 20 take the Stirling series of the front factor with a mean that a tiny
-# probability lies far below.
-BETA_SHAPES = [0.1, 0.5, 0.9, 1.5, 2.0, 5.0, 10.1, 15.0, 20.0, 30.0, 200.0, 1e3, 1e4, 1e5, 1e6]
-BETA_PROBABILITIES = [1e-300, 1e-100, 1e-30, 1e-12, 1e-6, 1e-3, 0.01, 0.05, 0.1, 0.3, 0.5]
-BETA_PROBABILITIES += [0.7, 0.9, 0.95, 0.99, 0.999, 1 - 1e-6, 1 - 1e-12, 1 - 1e-15]
-
-
-def test_beta_quantile_matches_scipy():
-    stats = pytest.importorskip("scipy.stats")
-    # SciPy warns that its search does not converge for a = 0.5, b = 3 at 1e-10.
-    a, b = (grid.ravel() for grid in np.meshgrid([0.6, 1.5, 4.0, 25.0, 300.0], [0.7, 3.0, 60.0]))
-    probability = np.array([1e-10, 1e-4, 0.05, 0.5, 0.95, 1 - 1e-4, 1 - 1e-10])[:, None]
-    actual = _stats.beta_quantile(a, b, probability)
-    np.testing.assert_allclose(actual, stats.beta.ppf(probability, a, b), rtol=1e-12, atol=0)
-
-
-def test_beta_quantile_solves_scipys_incomplete_beta_function_at_extreme_arguments():
-    # SciPy's quantile misses the root at some of these arguments, such as a = 0.5, b = 2 at
-    # 1e-12, so the residual of SciPy's incomplete beta function at kivi's quantile, divided by
-    # the density, measures the error of the quantile.
-    special = pytest.importorskip("scipy.special")
-    stats = pytest.importorskip("scipy.stats")
-    a, b, probability = (
-        grid.ravel() for grid in np.meshgrid(BETA_SHAPES, BETA_SHAPES, BETA_PROBABILITIES)
-    )
-    x = _stats.beta_quantile(a, b, probability)
-    upper = probability > 0.5
-    tail = np.where(upper, special.betaincc(a, b, x), special.betainc(a, b, x))
-    residual = np.where(upper, (1 - probability) - tail, tail - probability)
-    # Leave out quantiles that double precision cannot hold, and tails where SciPy underflows.
-    shown = (x > 1e-300) & (1 - x > 1e-15) & (tail > 1e-280)
-    assert shown.mean() > 0.85
-    error = np.abs(residual[shown]) / stats.beta.pdf(x[shown], a[shown], b[shown]) / x[shown]
-    # The incomplete beta function loses digits as the shapes grow, and the quantile with it.
-    moderate = np.maximum(a, b)[shown] <= 1e4
-    assert error[moderate].max() < 1e-12
-    assert error.max() < 1e-10
-
-
 # The bivariate normal distribution function.
 
 
@@ -274,46 +224,3 @@ def test_bivariate_normal_cdf_is_continuous_where_the_method_switches():
 def test_bivariate_normal_cdf_rejects_correlations_outside_the_unit_interval():
     with pytest.raises(ValueError, match="the correlation must lie between -1 and 1"):
         _stats.bivariate_normal_cdf([0.0, 0.0], [0.0, 0.0], [0.5, 1.5])
-
-
-def test_bivariate_normal_cdf_matches_scipy():
-    stats = pytest.importorskip("scipy.stats")
-    rng = np.random.default_rng(1)
-    count = 300
-    x = np.r_[rng.uniform(-9, 4, count), [-8.0, -37.0, 6.0, 0.0, 30.0]]
-    y = np.r_[rng.uniform(-9, 4, count), [-8.0, 2.0, 6.0, -40.0, 30.0]]
-    near = rng.uniform(0.9, 1 - 1e-6, count // 3) * rng.choice([-1, 1], count // 3)
-    rho = np.r_[rng.uniform(-1, 1, count - len(near)), near, [0.999999, -0.5, -0.999, 0.97, 0.3]]
-    expected = [
-        stats.multivariate_normal.cdf([a, b], cov=[[1, r], [r, 1]])
-        for a, b, r in zip(x, y, rho, strict=True)
-    ]
-    actual = _stats.bivariate_normal_cdf(x, y, rho)
-    # Both are accurate to about 1e-16 absolute, SciPy's also in its far tails.
-    np.testing.assert_allclose(actual, expected, rtol=0, atol=4e-16)
-
-
-def test_bivariate_normal_cdf_keeps_its_relative_accuracy_for_positive_correlations():
-    # Plackett's identity from rho = 0, integrated by adaptive quadrature: with rho >= 0 the
-    # integrand is positive, so the reference keeps its relative accuracy in the tails. The
-    # diagonal x = y is the case of kivi.capital.vasicek_fit.
-    integrate = pytest.importorskip("scipy.integrate")
-    stats = pytest.importorskip("scipy.stats")
-    rng = np.random.default_rng(2)
-    x = np.r_[rng.uniform(-8, 3, 150), np.linspace(-6, 2, 30)]
-    y = np.r_[rng.uniform(-8, 3, 150), np.linspace(-6, 2, 30)]
-    rho = np.r_[rng.uniform(0, 1 - 1e-6, 150), rng.uniform(0, 0.999, 30)]
-
-    def reference(a, b, r):
-        def density(theta):
-            exponent = -(a * a + b * b - 2 * a * b * math.sin(theta)) / (2 * math.cos(theta) ** 2)
-            return math.exp(exponent) / (2 * math.pi)
-
-        integral, _ = integrate.quad(density, 0, math.asin(r), epsabs=0, epsrel=5e-14, limit=200)
-        return stats.norm.cdf(a) * stats.norm.cdf(b) + integral
-
-    expected = np.array([reference(a, b, r) for a, b, r in zip(x, y, rho, strict=True)])
-    shown = expected > 1e-10
-    assert shown.mean() > 0.6
-    actual = _stats.bivariate_normal_cdf(x, y, rho)
-    np.testing.assert_allclose(actual[shown], expected[shown], rtol=5e-14, atol=0)

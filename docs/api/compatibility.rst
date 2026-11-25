@@ -24,12 +24,12 @@ kivi supports Python 3.10 or newer, NumPy 1.24 or newer and pandas 2.0 or newer,
 What is public
 --------------
 
-* The names that a public module lists in its ``__all__``: :mod:`kivi.features`, :mod:`kivi.binning`, :mod:`kivi.woe`, :mod:`kivi.stability`, :mod:`kivi.univariate`, :mod:`kivi.selection`, :mod:`kivi.scorecard`, :mod:`kivi.expert`, :mod:`kivi.metrics`, :mod:`kivi.calibration`, :mod:`kivi.strategy`, :mod:`kivi.reject_inference`, :mod:`kivi.spec`, :mod:`kivi.monitoring`, :mod:`kivi.vintage`, :mod:`kivi.lifetime`, :mod:`kivi.plotting` and :mod:`kivi.datasets`. Each has a page in this reference that documents every such name. ``kivi.__version__`` is public too.
+* The names that a public module lists in its ``__all__``: :mod:`kivi.features`, :mod:`kivi.binning`, :mod:`kivi.woe`, :mod:`kivi.stability`, :mod:`kivi.univariate`, :mod:`kivi.selection`, :mod:`kivi.scorecard`, :mod:`kivi.expert`, :mod:`kivi.metrics`, :mod:`kivi.calibration`, :mod:`kivi.strategy`, :mod:`kivi.reject_inference`, :mod:`kivi.spec`, :mod:`kivi.monitoring`, :mod:`kivi.capital`, :mod:`kivi.vintage`, :mod:`kivi.lifetime`, :mod:`kivi.plotting` and :mod:`kivi.datasets`. Each has a page in this reference that documents every such name. ``kivi.__version__`` is public too.
 * The documented members of :class:`~kivi.spec.BinningSpec`: its fields, ``FORMAT_VERSION``, ``format_version`` and ``columns``, its methods, and its equality, hashing, pickling and ``dataclasses.replace``. The same holds for :class:`~kivi.features.FeatureSpec`, which has ``FORMAT_VERSION`` and ``columns`` but no ``format_version``, because its format has one version so far. :exc:`~kivi.selection.SeparationError`, which :func:`~kivi.calibration.platt_fit` raises as well, stays in :mod:`kivi.selection`.
 * The names of the arguments. A keyword is part of a call, so renaming an argument needs a deprecation, even one that is usually passed by position.
 * Everything else is private: the modules and names that start with an underscore, and the modules that a public module imports, such as ``kivi.binning.np``. They can change in any release.
 
-Results that are pairs of parameters, such as the ``(factor, offset)`` of :func:`~kivi.scorecard.score_scaling`, the ``(slope, intercept)`` of :func:`~kivi.calibration.platt_fit`, the ``(edges, probability)`` of :func:`~kivi.calibration.isotonic_fit` and the ``(statistic, p_value)`` of :func:`~kivi.calibration.hosmer_lemeshow` and :func:`~kivi.calibration.spiegelhalter_test`, are tuples. A minor release may turn them into named tuples, which unpack in the same way.
+Results that are pairs of parameters, such as the ``(factor, offset)`` of :func:`~kivi.scorecard.score_scaling`, the ``(slope, intercept)`` of :func:`~kivi.calibration.platt_fit`, the ``(edges, probability)`` of :func:`~kivi.calibration.isotonic_fit`, the ``(statistic, p_value)`` of :func:`~kivi.calibration.hosmer_lemeshow` and :func:`~kivi.calibration.spiegelhalter_test` and the ``(probability, correlation)`` of :func:`~kivi.capital.vasicek_fit`, are tuples. A minor release may turn them into named tuples, which unpack in the same way.
 
 Tables
 ------
@@ -154,6 +154,9 @@ The index name, the column names and the order of the columns of every table are
    * - :func:`~kivi.monitoring.stability_table`
      - ``period``
      - One per column of ``groups``, in columns named ``variable``
+   * - :func:`~kivi.capital.most_prudent_pd`
+     - A Series named ``most_prudent_pd`` with the index of a Series ``event`` or ``total``, an array otherwise
+     -
    * - :func:`~kivi.vintage.delinquency_panel`
      - A range, one row per loan and month
      - ``loan_id``, ``cohort``, ``month``, ``month_on_book``, ``days_past_due``, ``overdue_amount``, ``outstanding``, with ``principal`` ``balance``, and ``status``
@@ -175,6 +178,9 @@ The index name, the column names and the order of the columns of every table are
    * - :func:`~kivi.lifetime.transition_pd`
      - ``state``
      - One per horizon, in columns named ``horizon``
+   * - :func:`~kivi.lifetime.survival_table`
+     - ``period``: 1 to the largest ``duration``
+     - ``at_risk``, ``event``, ``competing`` (only with ``competing``), ``censored``, ``hazard``, ``survival``, ``cumulative_pd``
    * - :func:`~kivi.lifetime.stage_table`
      - ``stage``: 1, 2 and 3
      - ``total``, ``exposure``, ``exposure_share``, ``expected_credit_loss``, ``coverage``

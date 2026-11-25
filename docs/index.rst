@@ -7,7 +7,7 @@ Credit risk modeling with pandas
 
 .. container:: kivi-lead
 
-   kivi is a pandas toolkit for credit risk and financial modeling. It computes point-in-time features from transactions and repayment histories, profiles the candidate variables, bins them and groups their categories, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard or weighs the factors of an expert scorecard, infers the outcomes of rejected applicants, scales the model to points, evaluates it and calibrates it on a master scale, and prices the cut-offs and the expected loss. Once the model is live, it monitors the score period by period, validates the model with the tests that supervisors ask of internal rating models, follows how the approved loans repay and perform, and measures their expected credit loss under IFRS 9. Tables come back as pandas DataFrames with one row per bin, grade, cut-off, period or variable, and :mod:`kivi.plotting` draws them as charts.
+   kivi is a pandas toolkit for credit risk and financial modeling. It computes point-in-time features from transactions and repayment histories, profiles the candidate variables, bins them and groups their categories, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard or weighs the factors of an expert scorecard, infers the outcomes of rejected applicants, scales the model to points, evaluates it and calibrates it on a master scale, and prices the cut-offs and the expected loss. Once the model is live, it monitors the score period by period, validates the model with the tests that supervisors ask of internal rating models, computes the regulatory capital of its PDs, follows how the approved loans repay and perform, and estimates their lifetime PDs and expected credit loss under IFRS 9. Tables come back as pandas DataFrames with one row per bin, grade, cut-off, period or variable, and :mod:`kivi.plotting` draws them as charts.
 
 .. container:: kivi-actions
 
@@ -154,6 +154,12 @@ Built for risk teams
 
       The tests of the ECB's validation report for PD, LGD and CCF models: back-tests, the current against the initial AUC and gAUC, rating migrations and the concentration of grades.
 
+   .. grid-item-card:: Regulatory capital
+      :link: user_guide/capital
+      :link-type: doc
+
+      The IRB capital requirement under the Basel framework and China's 2023 rules, stressed PDs of the Vasicek model and most prudent PDs of low-default portfolios.
+
    .. grid-item-card:: Vintage and roll-rate analysis
       :link: user_guide/vintage
       :link-type: doc
@@ -164,7 +170,7 @@ Built for risk teams
       :link: user_guide/lifetime
       :link-type: doc
 
-      PD term structures from vintage curves and transition matrices, 12-month and lifetime ECL, and the three IFRS 9 stages.
+      PD term structures from vintage curves, transition matrices and survival tables, 12-month and lifetime ECL over economic scenarios, and the three IFRS 9 stages.
 
    .. grid-item-card:: Charts
       :link: user_guide/plotting
@@ -193,7 +199,7 @@ How it works
 
    .. grid-item-card:: Calibrate and decide
 
-      ``master_scale`` and ``assign_grades`` group the PDs into grades, and the binomial and Jeffreys tests check the PD of each grade. ``cutoff_table`` shows what each cut-off approves, ``confusion_table`` how many events it declines, and ``expected_loss_table`` adds up the expected loss of each grade.
+      ``master_scale`` and ``assign_grades`` group the PDs into grades, and the binomial and Jeffreys tests check the PD of each grade. ``cutoff_table`` shows what each cut-off approves, ``confusion_table`` how many events it declines, and ``expected_loss_table`` adds up the expected loss of each grade. ``capital_requirement`` turns the PDs into the IRB capital requirement, and ``most_prudent_pd`` bounds the PDs of grades with too few defaults.
 
    .. grid-item-card:: Deploy, monitor and validate
 
@@ -201,7 +207,7 @@ How it works
 
    .. grid-item-card:: Follow the loans
 
-      ``delinquency_panel`` builds the monthly delinquency of the approved loans from their repayment schedules and payments, and ``vintage_table`` and ``transition_matrix`` follow it. ``convert_pd`` and ``transition_pd`` turn the vintage curves and transition matrices into PD term structures, and ``expected_credit_loss`` and ``assign_stages`` give the IFRS 9 loss allowance.
+      ``delinquency_panel`` builds the monthly delinquency of the approved loans from their repayment schedules and payments, and ``vintage_table`` and ``transition_matrix`` follow it. ``convert_pd``, ``transition_pd`` and ``survival_table`` turn the vintage curves, the transition matrices and the durations of the loans into PD term structures, ``conditional_pd`` shifts them to economic scenarios, and ``expected_credit_loss`` and ``assign_stages`` give the IFRS 9 loss allowance.
 
 Documentation
 -------------
