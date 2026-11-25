@@ -1,7 +1,7 @@
 User guide
 ==========
 
-The user guide follows the steps of a credit risk model in the order of a project: compute features of the applicants from their transactions and repayment histories, profile and bin the candidate variables, encode them with WOE, select the variables and fit the model, infer the outcomes of rejected applicants, scale the model to a scorecard, or weigh the factors of an expert scorecard where there are too few defaults to fit one, evaluate and calibrate it, set the cut-offs, save the binning for production, monitor the model period by period, validate it as supervisors ask of internal rating models, follow the loans that it approves from their repayment schedules, and measure their expected credit loss under IFRS 9. :doc:`plotting` draws the tables of every step. :doc:`risk_workflow` runs the steps from the profile to the stability report on the bundled data, leaving out the features of event data and reject inference, and the :doc:`/tutorial/index` follows a whole project from the first applications to the loss allowance.
+The user guide follows the steps of a credit risk model in the order of a project: compute features of the applicants from their transactions and repayment histories, profile and bin the candidate variables, encode them with WOE, select the variables and fit the model, infer the outcomes of rejected applicants, scale the model to a scorecard, or weigh the factors of an expert scorecard where there are too few defaults to fit one, evaluate and calibrate it, set the cut-offs, save the binning for production, monitor the model period by period, validate it as supervisors ask of internal rating models, compute the regulatory capital that its PDs require, follow the loans that it approves from their repayment schedules, and estimate their lifetime PDs and expected credit loss under IFRS 9. :doc:`plotting` draws the tables of every step. :doc:`risk_workflow` runs the steps from the profile to the stability report on the bundled data, leaving out the features of event data and reject inference, and the :doc:`/tutorial/index` follows a whole project from the first applications to the loss allowance.
 
 kivi keeps fitting and applying apart. Bin edges, category groupings, WOE tables, master scales and cut-offs are fitted on the development sample and then applied unchanged to every later sample, so that counts and rates stay comparable. The tables take the groups as they are, so category labels can be passed directly.
 
@@ -106,6 +106,12 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
 
       The tests of the ECB's validation report for PD, LGD and CCF models: back-tests, the current against the initial AUC and gAUC, migrations between grades and their concentration.
 
+   .. grid-item-card:: Regulatory capital
+      :link: capital
+      :link-type: doc
+
+      The IRB risk-weight functions of the Basel framework and of China's 2023 rules side by side, stressed PDs and the systematic factor of the Vasicek model, and most prudent PDs for portfolios with few defaults.
+
    .. grid-item-card:: Vintage and roll-rate analysis
       :link: vintage
       :link-type: doc
@@ -116,7 +122,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: lifetime
       :link-type: doc
 
-      PD term structures from vintage curves and transition matrices, 12-month and lifetime expected credit loss, and IFRS 9 stages.
+      PD term structures from vintage curves, transition matrices and survival tables with early repayments as a competing risk, 12-month and lifetime expected credit loss over economic scenarios, and IFRS 9 stages.
 
    .. grid-item-card:: Charts
       :link: plotting
@@ -150,6 +156,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
    psi
    monitoring
    validation
+   capital
    vintage
    lifetime
    plotting

@@ -30,7 +30,9 @@ from kivi.calibration import (
     platt_fit,
     spiegelhalter_test,
 )
+from kivi.capital import asset_correlation, capital_requirement, most_prudent_pd, vasicek_fit
 from kivi.datasets import load_bank
+from kivi.lifetime import survival_table
 from kivi.metrics import (
     brier_score,
     delong_test,
@@ -677,6 +679,214 @@ def test_migration_matches_the_scipy_normal_distribution():
     np.testing.assert_allclose(table["p_value"], stats.norm.cdf(table["statistic"]), rtol=1e-12)
 
 
+# The beta quantile, the bivariate normal distribution and the normal quantile of kivi._stats,
+# which kivi.capital uses.
+
+
+def test_normal_quantile_of_an_array_matches_scipy_in_the_tails():
+    special = pytest.importorskip("scipy.special")
+    probability = np.r_[
+        np.logspace(-300, -1, 300),
+        np.linspace(0.01, 0.99, 197),
+        1 - np.logspace(-2, -16, 60),
+    ]
+    actual = _stats.normal_quantile(probability)
+    np.testing.assert_allclose(actual, special.ndtri(probability), rtol=1e-14, atol=0)
+
+
+# Shapes from 10 to 20 take the Stirling series of the front factor with a mean that a tiny
+# probability lies far below.
+QUANTILE_SHAPES = [0.1, 0.5, 0.9, 1.5, 2.0, 5.0, 10.1, 15.0, 20.0, 30.0, 200.0, 1e3, 1e4, 1e5, 1e6]
+QUANTILE_PROBABILITIES = [1e-300, 1e-100, 1e-30, 1e-12, 1e-6, 1e-3, 0.01, 0.05, 0.1, 0.3, 0.5]
+QUANTILE_PROBABILITIES += [0.7, 0.9, 0.95, 0.99, 0.999, 1 - 1e-6, 1 - 1e-12, 1 - 1e-15]
+
+
+def test_beta_quantile_matches_scipy():
+    stats = pytest.importorskip("scipy.stats")
+    # SciPy warns that its search does not converge for a = 0.5, b = 3 at 1e-10.
+    a, b = (grid.ravel() for grid in np.meshgrid([0.6, 1.5, 4.0, 25.0, 300.0], [0.7, 3.0, 60.0]))
+    probability = np.array([1e-10, 1e-4, 0.05, 0.5, 0.95, 1 - 1e-4, 1 - 1e-10])[:, None]
+    actual = _stats.beta_quantile(a, b, probability)
+    np.testing.assert_allclose(actual, stats.beta.ppf(probability, a, b), rtol=1e-12, atol=0)
+
+
+def test_beta_quantile_solves_scipys_incomplete_beta_function_at_extreme_arguments():
+    # SciPy's quantile misses the root at some of these arguments, such as a = 0.5, b = 2 at
+    # 1e-12, so the residual of SciPy's incomplete beta function at kivi's quantile, divided by
+    # the density, measures the error of the quantile.
+    special = pytest.importorskip("scipy.special")
+    stats = pytest.importorskip("scipy.stats")
+    grids = np.meshgrid(QUANTILE_SHAPES, QUANTILE_SHAPES, QUANTILE_PROBABILITIES)
+    a, b, probability = (grid.ravel() for grid in grids)
+    x = _stats.beta_quantile(a, b, probability)
+    upper = probability > 0.5
+    tail = np.where(upper, special.betaincc(a, b, x), special.betainc(a, b, x))
+    residual = np.where(upper, (1 - probability) - tail, tail - probability)
+    # Leave out quantiles that double precision cannot hold, and tails where SciPy underflows.
+    shown = (x > 1e-300) & (1 - x > 1e-15) & (tail > 1e-280)
+    assert shown.mean() > 0.85
+    error = np.abs(residual[shown]) / stats.beta.pdf(x[shown], a[shown], b[shown]) / x[shown]
+    # The incomplete beta function loses digits as the shapes grow, and the quantile with it.
+    moderate = np.maximum(a, b)[shown] <= 1e4
+    assert error[moderate].max() < 1e-12
+    assert error.max() < 1e-10
+
+
+def test_bivariate_normal_cdf_matches_scipy():
+    stats = pytest.importorskip("scipy.stats")
+    rng = np.random.default_rng(1)
+    count = 300
+    x = np.r_[rng.uniform(-9, 4, count), [-8.0, -37.0, 6.0, 0.0, 30.0]]
+    y = np.r_[rng.uniform(-9, 4, count), [-8.0, 2.0, 6.0, -40.0, 30.0]]
+    near = rng.uniform(0.9, 1 - 1e-6, count // 3) * rng.choice([-1, 1], count // 3)
+    rho = np.r_[rng.uniform(-1, 1, count - len(near)), near, [0.999999, -0.5, -0.999, 0.97, 0.3]]
+    expected = [
+        stats.multivariate_normal.cdf([a, b], cov=[[1, r], [r, 1]])
+        for a, b, r in zip(x, y, rho, strict=True)
+    ]
+    actual = _stats.bivariate_normal_cdf(x, y, rho)
+    # Both are accurate to about 1e-16 absolute, SciPy's also in its far tails.
+    np.testing.assert_allclose(actual, expected, rtol=0, atol=4e-16)
+
+
+def test_bivariate_normal_cdf_keeps_its_relative_accuracy_for_positive_correlations():
+    # Plackett's identity from rho = 0, integrated by adaptive quadrature: with rho >= 0 the
+    # integrand is positive, so the reference keeps its relative accuracy in the tails. The
+    # diagonal x = y is the case of kivi.capital.vasicek_fit.
+    integrate = pytest.importorskip("scipy.integrate")
+    stats = pytest.importorskip("scipy.stats")
+    rng = np.random.default_rng(2)
+    x = np.r_[rng.uniform(-8, 3, 150), np.linspace(-6, 2, 30)]
+    y = np.r_[rng.uniform(-8, 3, 150), np.linspace(-6, 2, 30)]
+    rho = np.r_[rng.uniform(0, 1 - 1e-6, 150), rng.uniform(0, 0.999, 30)]
+
+    def reference(a, b, r):
+        def density(theta):
+            exponent = -(a * a + b * b - 2 * a * b * math.sin(theta)) / (2 * math.cos(theta) ** 2)
+            return math.exp(exponent) / (2 * math.pi)
+
+        integral, _ = integrate.quad(density, 0, math.asin(r), epsabs=0, epsrel=5e-14, limit=200)
+        return stats.norm.cdf(a) * stats.norm.cdf(b) + integral
+
+    expected = np.array([reference(a, b, r) for a, b, r in zip(x, y, rho, strict=True)])
+    shown = expected > 1e-10
+    assert shown.mean() > 0.6
+    actual = _stats.bivariate_normal_cdf(x, y, rho)
+    np.testing.assert_allclose(actual[shown], expected[shown], rtol=5e-14, atol=0)
+
+
+# The risk-weight functions, the moment fit of the one-factor model and the most prudent PDs.
+
+
+def test_vasicek_fit_solves_the_moment_equation():
+    stats = pytest.importorskip("scipy.stats")
+    rates = np.array([0.004, 0.012, 0.0, 0.031, 0.008, 0.015, 0.0, 0.022])
+    probability, correlation = vasicek_fit(rates)
+    assert probability == rates.mean()
+    threshold = stats.norm.ppf(probability)
+    joint = stats.multivariate_normal.cdf(
+        [threshold, threshold], cov=[[1, correlation], [correlation, 1]]
+    )
+    assert joint - probability**2 == pytest.approx(rates.var(ddof=1), rel=1e-10)
+
+
+def test_most_prudent_pd_is_the_clopper_pearson_bound_of_the_pooled_grades():
+    stats = pytest.importorskip("scipy.stats")
+    event, total = np.array([1, 0, 4, 9, 20]), np.array([3000, 5000, 2000, 900, 400])
+    bounds = most_prudent_pd(event, total, level=0.95)
+    pooled_event, pooled_total = np.cumsum(event[::-1])[::-1], np.cumsum(total[::-1])[::-1]
+    expected = stats.beta.ppf(0.95, pooled_event + 1, pooled_total - pooled_event)
+    np.testing.assert_allclose(bounds, expected, rtol=1e-12)
+    np.testing.assert_allclose(
+        stats.binom.cdf(pooled_event, pooled_total, bounds), 0.05, rtol=1e-10
+    )
+
+
+def test_most_prudent_pd_with_correlation_matches_adaptive_quadrature():
+    integrate = pytest.importorskip("scipy.integrate")
+    optimize = pytest.importorskip("scipy.optimize")
+    stats = pytest.importorskip("scipy.stats")
+
+    def reference(defaults, obligors, level, rho):
+        def probability(p):
+            def integrand(z):
+                conditional = stats.norm.cdf(
+                    (stats.norm.ppf(p) - math.sqrt(rho) * z) / math.sqrt(1 - rho)
+                )
+                return stats.binom.cdf(defaults, obligors, conditional) * stats.norm.pdf(z)
+
+            return integrate.quad(integrand, -12, 12, epsabs=1e-15, epsrel=1e-12, limit=400)[0]
+
+        return optimize.brentq(lambda p: probability(p) - (1 - level), 1e-9, 1 - 1e-9, xtol=1e-16)
+
+    cases = [
+        ([0, 1, 3, 10], [2000, 3000, 1000, 500], 0.95, 0.2),
+        ([2, 30, 60], [10000, 30000, 4000], 0.99, 0.05),
+        ([0, 0], [100000, 50000], 0.999, 0.3),
+    ]
+    for event, total, level, rho in cases:
+        bounds = most_prudent_pd(event, total, level=level, correlation=rho)
+        pooled_event = np.cumsum(event[::-1])[::-1]
+        pooled_total = np.cumsum(total[::-1])[::-1]
+        expected = [
+            reference(*pair, level, rho) for pair in zip(pooled_event, pooled_total, strict=True)
+        ]
+        np.testing.assert_allclose(bounds, expected, rtol=1e-11)
+
+
+def test_capital_requirement_matches_an_independent_scipy_implementation():
+    stats = pytest.importorskip("scipy.stats")
+    rng = np.random.default_rng(3)
+    probability = np.exp(rng.uniform(np.log(3e-4), np.log(0.5), 300))
+    lgd = rng.uniform(0.05, 1.0, 300)
+    maturity = rng.uniform(0.1, 7.0, 300)
+    turnover = np.exp(rng.uniform(np.log(1.0), np.log(80.0), 300))
+
+    def scipy_requirement(p, lgd, r, m=None):
+        k = (
+            lgd
+            * stats.norm.cdf(
+                (stats.norm.ppf(p) + np.sqrt(r) * stats.norm.ppf(0.999)) / np.sqrt(1 - r)
+            )
+            - p * lgd
+        )
+        if m is None:
+            return k
+        b = (0.11852 - 0.05478 * np.log(p)) ** 2
+        return k * (1 + (m - 2.5) * b) / (1 - 1.5 * b)
+
+    w50 = (1 - np.exp(-50 * probability)) / (1 - np.exp(-50))
+    w35 = (1 - np.exp(-35 * probability)) / (1 - np.exp(-35))
+    corporate = 0.12 * w50 + 0.24 * (1 - w50)
+    sme = corporate - 0.04 * (1 - (np.clip(turnover, 5, 50) - 5) / 45)
+    china = corporate - 0.04 * (1 - (np.clip(turnover, 3, 30) - 3) / 27)
+    cases = [
+        ({"asset_class": "corporate", "maturity": maturity}, corporate, maturity),
+        ({"asset_class": "corporate", "maturity": maturity, "turnover": turnover}, sme, maturity),
+        (
+            {"asset_class": "corporate", "turnover": turnover, "turnover_range": (3.0, 30.0)},
+            china,
+            2.5,
+        ),
+        ({"asset_class": "corporate", "financial": True}, 1.25 * corporate, 2.5),
+        ({"asset_class": "hvcre", "maturity": maturity}, 0.12 * w50 + 0.30 * (1 - w50), maturity),
+        ({"asset_class": "mortgage"}, np.full(300, 0.15), None),
+        ({"asset_class": "revolving"}, np.full(300, 0.04), None),
+        ({"asset_class": "other_retail"}, 0.03 * w35 + 0.16 * (1 - w35), None),
+    ]
+    for options, correlation, maturity_ in cases:
+        np.testing.assert_allclose(
+            asset_correlation(probability, **{k: v for k, v in options.items() if k != "maturity"}),
+            correlation,
+            rtol=1e-12,
+        )
+        np.testing.assert_allclose(
+            capital_requirement(probability, lgd, **options),
+            scipy_requirement(probability, lgd, correlation, maturity_),
+            rtol=1e-12,
+        )
+
+
 # ----------------------------------------------------------------------------- statsmodels
 
 
@@ -825,3 +1035,49 @@ def test_fit_grade_pd_matches_statsmodels_weighted_least_squares(event, total):
     np.testing.assert_allclose(
         fit_grade_pd(event, total, smoothing=2.0), expected_pd(2.0), rtol=1e-10
     )
+
+
+# The Kaplan-Meier and Aalen-Johansen curves of survival_table.
+
+
+def test_survival_table_matches_statsmodels_kaplan_meier():
+    survfunc = pytest.importorskip("statsmodels.duration.survfunc")
+    rng = np.random.default_rng(11)
+    duration = rng.integers(1, 37, 2000)
+    event = rng.random(2000) < 0.1
+    entry = np.floor(rng.random(2000) * duration).astype(int) * (rng.random(2000) < 0.4)
+    weights = rng.integers(1, 5, 2000).astype(float)
+    options = [{}, {"entry": entry}, {"weights": weights}, {"entry": entry, "weights": weights}]
+    for kwargs in options:
+        table = survival_table(duration, event, **kwargs)
+        reference = survfunc.SurvfuncRight(
+            duration,
+            event.astype(float),
+            entry=kwargs.get("entry"),
+            freq_weights=kwargs.get("weights"),
+        )
+        times = reference.surv_times.astype(int)
+        np.testing.assert_allclose(table.loc[times, "at_risk"], reference.n_risk, rtol=1e-15)
+        np.testing.assert_allclose(table.loc[times, "event"], reference.n_events, rtol=1e-15)
+        np.testing.assert_allclose(table.loc[times, "survival"], reference.surv_prob, rtol=1e-12)
+
+
+def test_survival_table_matches_statsmodels_cumulative_incidence():
+    survfunc = pytest.importorskip("statsmodels.duration.survfunc")
+    rng = np.random.default_rng(12)
+    duration = rng.integers(1, 37, 2000)
+    event = rng.random(2000) < 0.1
+    competing = ~event & (rng.random(2000) < 0.25)
+    weights = rng.integers(1, 5, 2000).astype(float)
+    status = np.where(event, 1, np.where(competing, 2, 0))
+    for mass in [None, weights]:
+        table = survival_table(duration, event, competing=competing, weights=mass)
+        reference = survfunc.CumIncidenceRight(duration, status, freq_weights=mass)
+        times = reference.times.astype(int)
+        np.testing.assert_allclose(table.loc[times, "cumulative_pd"], reference.cinc[0], rtol=1e-12)
+        # The two cumulative incidences and the survival add up to 1.
+        np.testing.assert_allclose(
+            table.loc[times, "cumulative_pd"] + reference.cinc[1] + table.loc[times, "survival"],
+            1.0,
+            rtol=1e-12,
+        )

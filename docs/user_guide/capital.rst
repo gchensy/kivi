@@ -3,7 +3,7 @@ Regulatory capital
 
 A bank that uses the internal ratings-based (IRB) approach sets its capital requirement for credit risk from its own estimates of the probability of default (PD), the loss given default (LGD), the exposure at default (EAD) and the maturity of each exposure. Capital covers the unexpected loss: the loss of a year in which the economy is as bad as once in a thousand years, minus the expected loss that pricing and provisions already cover. The risk-weight functions that turn the estimates into that requirement are fixed by the Basel framework and by national rules such as China's capital rules of 2023, and both rest on the one-factor model of Vasicek.
 
-The PDs come from the master scale of :doc:`calibration`, and the expected loss that capital leaves out is that of :doc:`strategy`; :doc:`lifetime` turns the same PDs into the loss allowance of IFRS 9. :func:`~kivi.capital.asset_correlation` gives the asset correlation of each asset class and :func:`~kivi.capital.capital_requirement` the capital requirement. :func:`~kivi.capital.conditional_pd` gives the PD of the one-factor model in a scenario of the economy, :func:`~kivi.capital.systematic_factor` the state of the economy that an observed default rate implies, and :func:`~kivi.capital.vasicek_fit` estimates the long-run PD and the correlation from a series of default rates. :func:`~kivi.capital.most_prudent_pd` bounds the PDs of a portfolio with too few defaults to calibrate them.
+The PDs come from the master scale of :doc:`calibration` and are reviewed in :doc:`validation`, the previous guide, and the expected loss that capital leaves out is that of :doc:`strategy`. :doc:`vintage`, the next guide, follows the loans themselves, and :doc:`lifetime` turns the same PDs into the loss allowance of IFRS 9. :func:`~kivi.capital.asset_correlation` gives the asset correlation of each asset class and :func:`~kivi.capital.capital_requirement` the capital requirement. :func:`~kivi.capital.conditional_pd` gives the PD of the one-factor model in a scenario of the economy, :func:`~kivi.capital.systematic_factor` the state of the economy that an observed default rate implies, and :func:`~kivi.capital.vasicek_fit` estimates the long-run PD and the correlation from a series of default rates. :func:`~kivi.capital.most_prudent_pd` bounds the PDs of a portfolio with too few defaults to calibrate them.
 
 Definitions
 -----------
@@ -86,6 +86,12 @@ hvcre              0.2292       1.1150
 mortgage           0.1500       0.5640
 revolving          0.0400       0.1722
 other_retail       0.1216       0.4577
+
+.. plot::
+   :alt: Risk weight against the PD on a logarithmic axis for the seven asset classes of the table, with an LGD of 45%
+   :caption: Risk weight of each asset class against the PD at an LGD of 45% and a maturity of 2.5 years, from the PD floor of 0.05% to 30%. The corporate classes start highest, mortgages rise steeply through the middle PDs, and the revolving and other retail exposures stay lowest.
+
+   kp.figure_capital_risk_weights()
 
 A turnover :math:`S` within the range :math:`[l, u]` of ``turnover_range`` lowers the corporate correlation by :math:`0.04\,(1 - (S - l) / (u - l))`: by the full 0.04 at or below the lower bound, and not at all from the upper bound on. Pass ``numpy.inf`` for the borrowers of a portfolio that are not SMEs. With ``financial=True``, a turnover below the upper bound raises an error, because the printed formula for financial institutions has no turnover term in either jurisdiction.
 

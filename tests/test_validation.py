@@ -19,6 +19,7 @@ from kivi import (
     _validation,
     binning,
     calibration,
+    capital,
     datasets,
     expert,
     features,
@@ -201,6 +202,57 @@ CASES = {
         monitoring.stability_table,
         {"groups": {"g": GROUPS}, "period": PERIOD, "weights": WEIGHTS},
         {"reference_period": "p1"},
+    ),
+    "survival_table": (
+        lifetime.survival_table,
+        {
+            "duration": [1, 2, 2, 3, 3, 4, 4, 4],
+            "event": [1, 0, 1, 0, 0, 1, 0, 0],
+            "competing": [0, 1, 0, 0, 1, 0, 0, 0],
+            "entry": [0, 0, 1, 0, 2, 0, 1, 3],
+            "weights": WEIGHTS,
+        },
+        {},
+    ),
+    "asset_correlation": (
+        capital.asset_correlation,
+        {"probability": SCORE, "turnover": [10.0, 20.0, 30.0, 40.0, 5.0, 8.0, 60.0, 50.0]},
+        {"asset_class": "corporate"},
+    ),
+    "capital_requirement": (
+        capital.capital_requirement,
+        {
+            "probability": SCORE,
+            "lgd": [0.45] * ROWS,
+            "maturity": [1.0, 2.5, 5.0, 3.0, 2.0, 1.5, 4.0, 2.5],
+            "turnover": [10.0, 20.0, 30.0, 40.0, 5.0, 8.0, 60.0, 50.0],
+        },
+        {"asset_class": "corporate"},
+    ),
+    "capital_requirement-correlation": (
+        capital.capital_requirement,
+        {"probability": SCORE, "lgd": [0.45] * ROWS, "correlation": [0.12] * 4 + [0.2] * 4},
+        {"asset_class": "mortgage"},
+    ),
+    "conditional_pd": (
+        capital.conditional_pd,
+        {"probability": SCORE, "correlation": [0.12] * ROWS, "factor": VALUES},
+        {},
+    ),
+    "conditional_pd-level": (
+        capital.conditional_pd,
+        {"probability": SCORE, "correlation": [0.12] * ROWS, "level": NEW},
+        {},
+    ),
+    "systematic_factor": (
+        capital.systematic_factor,
+        {"default_rate": NEW, "probability": SCORE, "correlation": [0.12] * ROWS},
+        {},
+    ),
+    "most_prudent_pd": (
+        capital.most_prudent_pd,
+        {"event": [0, 1, 0, 2, 0, 1, 3, 2], "total": [100] * ROWS},
+        {},
     ),
     "stage_table": (
         lifetime.stage_table,
@@ -463,9 +515,9 @@ SMOOTHED = {
 
 
 def test_every_public_smoothing_argument_is_checked():
-    modules = (binning, calibration, lifetime, metrics, monitoring, reject_inference, scorecard)
-    modules += (selection, spec, stability, strategy, univariate, vintage, woe, datasets, expert)
-    modules += (features,)
+    modules = (binning, calibration, capital, lifetime, metrics, monitoring, reject_inference)
+    modules += (scorecard, selection, spec, stability, strategy, univariate, vintage, woe, datasets)
+    modules += (expert, features)
     names = set()
     for module in modules:
         for name in module.__all__:
@@ -730,6 +782,22 @@ def _option_cases():
             0.0, sample_rate=0.5, population_rate=o
         ),
         "fit_grade_pd-smoothing": lambda o: calibration.fit_grade_pd(event, total, smoothing=o),
+        # capital
+        "asset_correlation-asset_class": lambda o: capital.asset_correlation(0.01, asset_class=o),
+        "asset_correlation-turnover_range": lambda o: capital.asset_correlation(
+            0.01, asset_class="corporate", turnover=10.0, turnover_range=o
+        ),
+        "asset_correlation-financial": lambda o: capital.asset_correlation(
+            0.01, asset_class="corporate", financial=o
+        ),
+        "capital_requirement-level": lambda o: capital.capital_requirement(
+            0.01, 0.45, asset_class="corporate", level=o
+        ),
+        "capital_requirement-scaling": lambda o: capital.capital_requirement(
+            0.01, 0.45, asset_class="corporate", scaling=o
+        ),
+        "most_prudent_pd-level": lambda o: capital.most_prudent_pd([0], [10], level=o),
+        "most_prudent_pd-correlation": lambda o: capital.most_prudent_pd([0], [10], correlation=o),
         # lifetime
         "convert_pd-kind": lambda o: lifetime.convert_pd([[0.1, 0.2]], kind=o, to="marginal"),
         "convert_pd-to": lambda o: lifetime.convert_pd([[0.1, 0.2]], kind="cumulative", to=o),
@@ -879,6 +947,7 @@ def _option_cases():
         "make_loan_panel-n_loans": lambda o: datasets.make_loan_panel(n_loans=o),
         "make_loan_panel-n_months": lambda o: datasets.make_loan_panel(n_loans=10, n_months=o),
         "make_loan_panel-rng": lambda o: datasets.make_loan_panel(n_loans=10, rng=o),
+        "make_loan_panel-prepayment": lambda o: datasets.make_loan_panel(n_loans=10, prepayment=o),
     }
 
 

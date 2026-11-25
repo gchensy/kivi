@@ -5,6 +5,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
 .. glossary::
 
+   Aalen–Johansen estimator
+      The estimate of the cumulative incidence of default when other exits, such as early repayments, compete with it: the sum over the periods of the share of the accounts still on book at the start of a period times the hazard rate of default in it. Without other exits it equals 1 − Kaplan–Meier; see :doc:`/user_guide/lifetime`.
+
    Absorbing state
       A state of a transition matrix that a loan never leaves once it has entered it, such as default. The powers of the matrix then accumulate the probability of having reached it; see :doc:`/user_guide/lifetime`.
 
@@ -16,6 +19,12 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Area under the ROC curve (AUC)
       The probability that a randomly chosen event scores higher than a randomly chosen non-event, with ties counted as one half. A score unrelated to the target has an AUC of about 0.5; see :doc:`/user_guide/metrics`.
+
+   Asset class
+      The class of an exposure that fixes its asset correlation in the IRB risk-weight functions and whether the maturity adjustment applies: corporate, which includes sovereigns and banks, high-volatility commercial real estate, residential mortgages, qualifying revolving retail and other retail; see :doc:`/user_guide/capital`.
+
+   Asset correlation
+      In the one-factor model, the share of the variance of a borrower's assets that the systematic factor explains. The higher it is, the more the defaults of a portfolio cluster in bad years, and the higher the capital requirement; see :doc:`/user_guide/capital`.
 
    Average precision
       The area under the precision-recall curve drawn as steps: the sum over the thresholds of the gain in recall times the precision at the threshold, :math:`\sum_n (R_n - R_{n-1}) P_n`. A score that ranks at random has an average precision close to the event rate; see :doc:`/user_guide/plotting`.
@@ -41,8 +50,14 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Brier decomposition
       The split of the Brier score of probabilities, by groups such as grades, into the reliability, how far the mean probability of each group lies from its event rate, the resolution, how far the event rates of the groups lie from the overall event rate, and the uncertainty, the variance of the outcomes. The Brier score is the reliability minus the resolution plus the uncertainty, plus two terms for probabilities that vary within a group; see :doc:`/user_guide/calibration`.
 
+   Capital requirement (K)
+      The unexpected loss of an exposure as a share of its EAD: the loss in the economy that is worse only once in a thousand years, minus the expected loss. Its risk weight is 12.5 K, and its risk-weighted assets are 12.5 K times the EAD; see :doc:`/user_guide/capital`.
+
    Category grouping
       A mapping from each category of a categorical variable to a group, fitted on a reference sample by pooling rare categories or by merging categories with similar event rates, and applied unchanged to every other sample; see :ref:`category-groups`.
+
+   Censoring
+      Losing sight of an account before its outcome is known, as when the data end while a loan is still on book. A censored account counts among the accounts at risk up to its last period, and its later outcome stays unknown; see :doc:`/user_guide/lifetime`.
 
    Characteristic stability index (CSI)
       The change of a variable's average scorecard points from a reference sample to a current one: the change of each group's share times the group's points, summed over the groups. Over all the variables of a scorecard, the CSI values add up to the change of the average score; see :ref:`characteristic-stability`.
@@ -56,8 +71,11 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Cohort
       The loans originated in the same period, usually a month, followed together as they age in a vintage table; see :doc:`/user_guide/vintage`.
 
+   Competing risk
+      An exit that ends the risk of default without being a default, such as an early repayment. Counting it as censored, as 1 − Kaplan–Meier does, overstates the share of the accounts that default; see :doc:`/user_guide/lifetime`.
+
    Conditional PD
-      The probability of a default in a period given that there was none before it, also called the hazard rate; see :doc:`/user_guide/lifetime`.
+      The probability of a default in a period given that there was none before it, also called the hazard rate; see :doc:`/user_guide/lifetime`. With competing exits, the ``hazard`` of :func:`~kivi.lifetime.survival_table` is conditional on the account being still on book. In the one-factor model, :func:`~kivi.capital.conditional_pd` gives the PD conditional on the systematic factor instead; see :doc:`/user_guide/capital`.
 
    Consistency index (CI)
       How far the judgments of a pairwise comparison matrix of :math:`n` factors contradict each other: :math:`(\lambda_{\max} - n) / (n - 1)`, where :math:`\lambda_{\max}` is the principal eigenvalue of the matrix. It is 0 when the judgments are consistent; see :doc:`/user_guide/expert`.
@@ -73,6 +91,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Credit-impaired
       IFRS 9 calls a loan credit-impaired once events with a detrimental effect on its expected cash flows have occurred, such as significant financial difficulty of the borrower or a breach of contract like a default or a past-due event. Lenders usually align it with their definition of default, and such loans are in stage 3; see :doc:`/user_guide/lifetime`.
+
+   Cumulative incidence
+      The probability of a default by the end of a period when other exits compete with it: the share of all accounts that default by then, estimated by Aalen–Johansen. For a cohort observed from origination to a common end, it is the cumulative bad rate of its vintage curve; see :doc:`/user_guide/lifetime`.
 
    Cumulative PD
       The probability of a default in any of the periods from the first up to a given one, which never falls as the horizon grows; see :doc:`/user_guide/lifetime`.
@@ -91,6 +112,15 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Deprecation
       A part of the public API that still works but warns with a ``FutureWarning``, because a later release removes or changes it. The warning says what to use instead; see :doc:`compatibility`.
+
+   Discrete-time hazard model
+      A logistic regression of the hazard rate on the period and on the characteristics of each account, fitted on a person-period table, which has one row for every period in which an account is at risk and a target of 1 in the period of its default; see :doc:`/user_guide/lifetime`.
+
+   Early repayment
+      The repayment of the whole balance of a loan before its last instalment is due, also called prepayment. It ends the risk of default, so a survival table counts it as a competing risk; ``prepayment`` gives its monthly probability in :func:`~kivi.datasets.make_loan_panel`; see :doc:`/user_guide/lifetime`.
+
+   Economic scenario
+      A forecast of the economy, such as an upside, a base case or a downturn, with its probability. IFRS 9 weights the ECL of each scenario with its probability, and the one-factor model moves the PDs to a scenario through the systematic factor; see :doc:`/user_guide/lifetime`.
 
    Effective interest rate
       The rate that discounts the estimated future cash flows of a loan over its expected life to its gross carrying amount at initial recognition. IFRS 9 discounts expected credit losses at this rate; see :doc:`/user_guide/lifetime`.
@@ -152,14 +182,26 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Herfindahl-Hirschman index (HHI)
       The sum of the squared shares of the grades of a rating scale: :math:`1/K` when :math:`K` grades are equally full and 1 when one grade holds everybody. The European Central Bank measures the concentration with the HI, :math:`1 + \ln \mathrm{HHI} / \ln K`, which runs from 0 to 1 instead; see :doc:`/user_guide/calibration`.
 
+   High-volatility commercial real estate (HVCRE)
+      Commercial real estate lending whose repayment depends on the property and whose losses vary strongly with the economy. Its asset correlation runs from 0.12 to 0.30 instead of 0.24; see :doc:`/user_guide/capital`.
+
    Information value (IV)
       The sum of the differences between the event share and the non-event share of each group, each times the group's WOE. It measures how strongly a grouped variable separates events from non-events on its own; see :doc:`/user_guide/woe_iv`.
 
    Initial validation
       The validation of a rating model before its first use. Later validations compare their AUC, gAUC and concentration of grades with those of the initial validation, which they take as known; see :doc:`/user_guide/validation`.
 
+   Internal ratings-based approach (IRB)
+      The approach of the Basel framework and of China's capital rules under which a bank sets its capital for credit risk from its own estimates of the PD, and in the advanced approach also of the LGD and the EAD, through the risk-weight functions of the rules; see :doc:`/user_guide/capital`.
+
+   Kaplan–Meier estimator
+      The estimate of the probability of getting through a series of periods as the product of the shares of the accounts at risk that get through each one. One minus it is the cumulative PD when every exit other than a default counts as censored; see :doc:`/user_guide/lifetime`.
+
    Kolmogorov-Smirnov statistic (KS)
       The largest absolute gap between the distribution functions of the scores of events and of non-events; see :doc:`/user_guide/metrics`.
+
+   Left truncation
+      Observing accounts only from some age on, as in data that start after the loans were originated, so that those that defaulted or left before are missing. The ``entry`` of :func:`~kivi.lifetime.survival_table` keeps each account out of the risk sets of the periods before it was observed; see :doc:`/user_guide/lifetime`.
 
    Lift
       The event rate of a group divided by the event rate of the whole sample. A lift above 1 marks a group that is riskier than average; see :doc:`/user_guide/metrics`.
@@ -170,6 +212,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Loss given default (LGD)
       The share of the exposure that is lost when a borrower defaults, after recoveries and collateral; see :doc:`/user_guide/strategy`.
 
+   Low-default portfolio
+      A portfolio with so few defaults, such as banks, sovereigns or large corporates, that its default rates cannot calibrate a PD. The most prudent estimate bounds its PDs instead; see :doc:`/user_guide/capital`.
+
    Marginal PD
       The probability, seen from the starting point, of a default in one given period. The marginal PDs of the periods up to a horizon add up to the cumulative PD; see :doc:`/user_guide/lifetime`.
 
@@ -178,6 +223,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Matrix weighted bandwidth (MWB)
       A summary of how far customers move between the grades of a rating system in a period: the distances of the moves to worse grades, for the upper MWB, or to better grades, for the lower MWB, relative to the furthest move possible from each customer's grade. Both run from 0 to 1, and smaller values mean shorter migrations; see :doc:`/user_guide/vintage`.
+
+   Maturity adjustment
+      The factor :math:`(1 + (M - 2.5)\,b) / (1 - 1.5\,b)` of the corporate risk-weight function, with the effective maturity :math:`M` in years and :math:`b` a function of the PD, which raises the capital of longer exposures. Retail exposures have none; see :doc:`/user_guide/capital`.
 
    Migration matrix
       The transition matrix of the grades of a rating system over a period, usually a year: the share of the customers of each grade at the beginning that are in each grade at the end. Customers who defaulted or left count among the customers of their grade at the beginning, so the shares of a row may add up to less than 1; see :doc:`/user_guide/vintage`.
@@ -194,6 +242,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Monthly status panel
       A table with one row per loan and month and the status of the loan at the month end, such as its delinquency bucket. :func:`~kivi.vintage.delinquency_panel` builds one from repayment schedules and payments, and :func:`~kivi.features.panel_features` summarizes it before each observation time; see :doc:`/user_guide/vintage`.
 
+   Most prudent estimate
+      Pluto and Tasche's upper bound for the PD of a grade: the largest PD that the defaults of the grade and of all riskier grades do not reject at a confidence level, assuming that the PD does not fall from one grade to the next riskier one; see :doc:`/user_guide/capital`.
+
    Observation
       In :mod:`kivi.features`, an entity and an observation time, such as an applicant and the date of the application: one row of the table ``observations``, for which every window is computed. An entity may have several observations, such as one per month end; see :doc:`/user_guide/features`.
 
@@ -203,8 +254,14 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Observation time
       The time at which a feature is computed, such as the date of an application. Events at or after it are not used, unless ``closed="right"`` admits those at that very time; see :doc:`/user_guide/features`.
 
+   One-factor model
+      Vasicek's model of portfolio credit risk, behind the IRB risk-weight functions: a borrower defaults when its assets, a mix of a systematic factor that all borrowers share and a factor of its own, fall below a threshold that its PD sets. Given the factor, defaults are independent; see :doc:`/user_guide/capital`.
+
    Outcome window
       The time after which the outcome of an observation is known, such as twelve months after a loan was granted. Until it has passed, the target is missing and the outcome counts as unknown; see :doc:`/user_guide/monitoring`.
+
+   Output floor
+      The rule that the risk-weighted assets of the IRB approach may not fall below 72.5% of those of the standardized approach. It applies to a whole portfolio, and kivi leaves it out; see :doc:`/user_guide/capital`.
 
    Outstanding amount
       The unpaid amount of all the instalments of a loan at a month end, whether they have fallen due or not: the ``outstanding`` column of :func:`~kivi.vintage.delinquency_panel`. It includes interest, while the ``balance`` column, given the principal of each instalment, counts only the unpaid principal; see :doc:`/user_guide/vintage`.
@@ -239,6 +296,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Probability of default (PD)
       The probability that a borrower defaults within a given horizon, usually twelve months. kivi calls a predicted PD, or any other predicted event probability, ``probability``; see :doc:`/user_guide/calibration`.
 
+   Qualifying revolving retail exposure (QRRE)
+      Revolving, unsecured retail credit such as credit cards and overdrafts, within limits on the size of each exposure, which the IRB approach weights with a fixed asset correlation of 0.04; ``asset_class="revolving"`` in :mod:`kivi.capital`; see :doc:`/user_guide/capital`.
+
    Random index (RI)
       The average consistency index of pairwise comparison matrices filled with random judgments on the Saaty scale, which depends only on the number of factors. kivi uses the table of Tone (1986) for 3 to 15 factors; see :doc:`/user_guide/expert`.
 
@@ -260,6 +320,12 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Reporting date
       The date at which a loss allowance is measured. Period 1 of an expected credit loss is the first period after it; see :doc:`/user_guide/lifetime`.
 
+   Risk set
+      The accounts at risk of default in a period: already observed and with neither a default nor another exit before it. The accounts censored in the period still belong to it; see :doc:`/user_guide/lifetime`.
+
+   Risk weight
+      The capital requirement times 12.5, the share of an exposure that counts as risk-weighted assets (RWA), so that the minimum capital ratio of 8% of the RWA gives back the capital requirement; see :doc:`/user_guide/capital`.
+
    ROC curve
       The true positive rate, the share of events flagged, against the false positive rate, the share of non-events flagged, as the threshold moves through the scores from the riskiest down. The area under it is the AUC, and its largest vertical distance from the diagonal is the KS; see :doc:`/user_guide/metrics`.
 
@@ -277,6 +343,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Significant increase in credit risk (SICR)
       The IFRS 9 criterion that moves a loan from stage 1 to stage 2: its risk of default has risen significantly since initial recognition. Each lender sets the test in its own policy, for example as relative and absolute increases of the PD; see :doc:`/user_guide/lifetime`.
+
+   SME adjustment
+      The reduction of the corporate asset correlation for small and medium-sized enterprises by up to 0.04, according to their annual sales within a range: 5 to 50 million euros in the Basel framework and 30 to 300 million yuan in China's rules; see :doc:`/user_guide/capital`.
 
    Smoothing
       The value that replaces an empty count before shares are computed, 0.5 by default, so that the WOE, the IV and the PSI of a group stay finite. Counts are reported as observed, and only the shares are smoothed; see :doc:`/user_guide/woe_iv`.
@@ -296,8 +365,17 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Standard error and confidence interval
       The standard error measures how much an estimate, such as an AUC, would vary from sample to sample. A confidence interval at a level such as 95% is a range around the estimate that would cover the true value in that share of samples; see :doc:`/user_guide/metrics`.
 
+   Stressed PD
+      The PD of the one-factor model in a bad economy, such as the PD at the 99.9% quantile of the systematic factor that the IRB capital requirement uses, or the PD of a downturn scenario; :func:`~kivi.capital.conditional_pd` gives it; see :doc:`/user_guide/capital`.
+
    Swap set
       The four groups of applicants that two scores, each with its cut-off, approve or decline. The swap-outs are approved only by the current score and the swap-ins only by the new one; see :doc:`/user_guide/strategy`.
+
+   Systematic factor
+      The state of the economy in the one-factor model, a standard normal variable that all borrowers share, positive in years better than the median and negative in worse ones. A default rate implies its value given the PD and the asset correlation; see :doc:`/user_guide/capital`.
+
+   Through-the-cycle PD (TTC)
+      A PD that averages over the states of the economy, such as the long-run PD of the one-factor model, the mean of the yearly default rates. A point-in-time PD follows the economy of the moment instead, the PD given the systematic factor; this sense differs from the point-in-time features of :mod:`kivi.features`; see :doc:`/user_guide/capital`.
 
    Tolerance
       How far a value may miss a rule and still count as meeting it. :func:`~kivi.vintage.delinquency_panel` counts an instalment as paid once at most ``tolerance``, an amount, remains unpaid of it and the older instalments together, so that a rounding difference does not make a loan past due; see :doc:`/user_guide/vintage`. :func:`~kivi.expert.ahp_weights` and :func:`~kivi.expert.ahp_consistency` accept a pairwise comparison matrix whose diagonal is 1 and whose entries are reciprocal within the relative tolerance ``rtol``, so that 0.3333 passes for 1 / 3; see :doc:`/user_guide/expert`.

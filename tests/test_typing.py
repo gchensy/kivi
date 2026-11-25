@@ -23,7 +23,16 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from kivi import binning, calibration, lifetime, reject_inference, scorecard, strategy, woe
+from kivi import (
+    binning,
+    calibration,
+    capital,
+    lifetime,
+    reject_inference,
+    scorecard,
+    strategy,
+    woe,
+)
 
 SERIES = pd.Series([0.1, 0.2, 0.4], index=[3, 5, 7], name="probability")
 LIST = [0.1, 0.2, 0.4]
@@ -171,6 +180,126 @@ CASES = {
     "assign_stages-list": (
         "lifetime.assign_stages([False, True], [0, 45])",
         "npt.NDArray[np.int64]",
+    ),
+    "asset_correlation-series": (
+        "capital.asset_correlation(SERIES, asset_class='corporate')",
+        "pd.Series",
+    ),
+    "asset_correlation-turnover-series": (
+        "capital.asset_correlation(LIST, asset_class='corporate', turnover=SERIES * 100)",
+        "pd.Series",
+    ),
+    "asset_correlation-float": (
+        "capital.asset_correlation(0.01, asset_class='corporate', turnover=10.0)",
+        "float",
+    ),
+    "asset_correlation-list": (
+        "capital.asset_correlation(LIST, asset_class='other_retail')",
+        "npt.NDArray[np.float64]",
+    ),
+    "asset_correlation-array": (
+        "capital.asset_correlation(ARRAY, asset_class='corporate', turnover=[10.0, 20.0, 60.0])",
+        "npt.NDArray[np.float64]",
+    ),
+    "capital_requirement-series": (
+        "capital.capital_requirement(SERIES, 0.45, asset_class='corporate')",
+        "pd.Series",
+    ),
+    "capital_requirement-lgd-series": (
+        "capital.capital_requirement(LIST, pd.Series([0.45, 0.4, 0.3]), asset_class='mortgage')",
+        "pd.Series",
+    ),
+    "capital_requirement-maturity-series": (
+        "capital.capital_requirement(LIST, 0.45, asset_class='corporate', maturity=SERIES * 10)",
+        "pd.Series",
+    ),
+    "capital_requirement-turnover-series": (
+        "capital.capital_requirement(LIST, 0.45, asset_class='corporate', turnover=SERIES * 100)",
+        "pd.Series",
+    ),
+    "capital_requirement-correlation-series": (
+        "capital.capital_requirement(LIST, 0.45, asset_class='mortgage', correlation=SERIES / 2)",
+        "pd.Series",
+    ),
+    "capital_requirement-float": (
+        "capital.capital_requirement(0.01, 0.45, asset_class='corporate', maturity=2.5)",
+        "float",
+    ),
+    "capital_requirement-list": (
+        "capital.capital_requirement(LIST, [0.45, 0.4, 0.3], asset_class='revolving')",
+        "npt.NDArray[np.float64]",
+    ),
+    "capital_requirement-array": (
+        "capital.capital_requirement(ARRAY, 0.45, asset_class='hvcre', maturity=ARRAY * 10)",
+        "npt.NDArray[np.float64]",
+    ),
+    "conditional_pd-series": (
+        "capital.conditional_pd(SERIES, correlation=0.12, factor=-1.0)",
+        "pd.Series",
+    ),
+    "conditional_pd-correlation-series": (
+        "capital.conditional_pd(LIST, correlation=pd.Series([0.1, 0.12, 0.15]), level=0.99)",
+        "pd.Series",
+    ),
+    "conditional_pd-factor-series": (
+        "capital.conditional_pd(0.02, correlation=0.12, factor=pd.Series([-1.0, 0.0, 1.0]))",
+        "pd.Series",
+    ),
+    "conditional_pd-level-series": (
+        "capital.conditional_pd(0.02, correlation=0.12, level=pd.Series([0.9, 0.99, 0.999]))",
+        "pd.Series",
+    ),
+    "conditional_pd-float": (
+        "capital.conditional_pd(0.02, correlation=0.12, level=0.999)",
+        "float",
+    ),
+    "conditional_pd-list": (
+        "capital.conditional_pd(LIST, correlation=0.12, factor=[-1.0, 0.0, 1.0])",
+        "npt.NDArray[np.float64]",
+    ),
+    "conditional_pd-array": (
+        "capital.conditional_pd(ARRAY, correlation=0.12, factor=0.0)",
+        "npt.NDArray[np.float64]",
+    ),
+    "systematic_factor-series": (
+        "capital.systematic_factor(SERIES, 0.2, correlation=0.12)",
+        "pd.Series",
+    ),
+    "systematic_factor-probability-series": (
+        "capital.systematic_factor(LIST, pd.Series([0.2, 0.2, 0.2]), correlation=0.12)",
+        "pd.Series",
+    ),
+    "systematic_factor-correlation-series": (
+        "capital.systematic_factor(LIST, 0.2, correlation=pd.Series([0.1, 0.12, 0.15]))",
+        "pd.Series",
+    ),
+    "systematic_factor-float": (
+        "capital.systematic_factor(0.03, 0.02, correlation=0.12)",
+        "float",
+    ),
+    "systematic_factor-list": (
+        "capital.systematic_factor(LIST, 0.2, correlation=0.12)",
+        "npt.NDArray[np.float64]",
+    ),
+    "systematic_factor-array": (
+        "capital.systematic_factor(ARRAY, ARRAY, correlation=0.12)",
+        "npt.NDArray[np.float64]",
+    ),
+    "most_prudent_pd-event-series": (
+        "capital.most_prudent_pd(pd.Series([0, 1, 2]), [100, 200, 300])",
+        "pd.Series",
+    ),
+    "most_prudent_pd-total-series": (
+        "capital.most_prudent_pd([0, 1, 2], pd.Series([100, 200, 300]))",
+        "pd.Series",
+    ),
+    "most_prudent_pd-list": (
+        "capital.most_prudent_pd([0, 1, 2], [100, 200, 300], level=0.9)",
+        "npt.NDArray[np.float64]",
+    ),
+    "most_prudent_pd-array": (
+        "capital.most_prudent_pd(np.zeros(2), np.ones(2) * 10, correlation=0.1)",
+        "npt.NDArray[np.float64]",
     ),
 }
 

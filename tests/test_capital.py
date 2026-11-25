@@ -465,18 +465,6 @@ def test_vasicek_fit_recovers_the_parameters_of_a_long_series():
     assert isinstance(probability, float) and isinstance(correlation, float)
 
 
-def test_vasicek_fit_solves_the_moment_equation():
-    stats = pytest.importorskip("scipy.stats")
-    rates = np.array([0.004, 0.012, 0.0, 0.031, 0.008, 0.015, 0.0, 0.022])
-    probability, correlation = vasicek_fit(rates)
-    assert probability == rates.mean()
-    threshold = stats.norm.ppf(probability)
-    joint = stats.multivariate_normal.cdf(
-        [threshold, threshold], cov=[[1, correlation], [correlation, 1]]
-    )
-    assert joint - probability**2 == pytest.approx(rates.var(ddof=1), rel=1e-10)
-
-
 def test_vasicek_fit_of_a_constant_series_has_no_correlation():
     assert vasicek_fit(pd.Series([0.02, 0.02, 0.02])) == (0.02, 0.0)
 
@@ -544,50 +532,6 @@ def test_most_prudent_pd_without_defaults_is_the_closed_form():
     assert np.round(100 * bounds, 4).tolist() == [0.2874, 0.3284, 0.7646]
 
 
-def test_most_prudent_pd_is_the_clopper_pearson_bound_of_the_pooled_grades():
-    stats = pytest.importorskip("scipy.stats")
-    event, total = np.array([1, 0, 4, 9, 20]), np.array([3000, 5000, 2000, 900, 400])
-    bounds = most_prudent_pd(event, total, level=0.95)
-    pooled_event, pooled_total = np.cumsum(event[::-1])[::-1], np.cumsum(total[::-1])[::-1]
-    expected = stats.beta.ppf(0.95, pooled_event + 1, pooled_total - pooled_event)
-    np.testing.assert_allclose(bounds, expected, rtol=1e-12)
-    np.testing.assert_allclose(
-        stats.binom.cdf(pooled_event, pooled_total, bounds), 0.05, rtol=1e-10
-    )
-
-
-def test_most_prudent_pd_with_correlation_matches_adaptive_quadrature():
-    integrate = pytest.importorskip("scipy.integrate")
-    optimize = pytest.importorskip("scipy.optimize")
-    stats = pytest.importorskip("scipy.stats")
-
-    def reference(defaults, obligors, level, rho):
-        def probability(p):
-            def integrand(z):
-                conditional = stats.norm.cdf(
-                    (stats.norm.ppf(p) - math.sqrt(rho) * z) / math.sqrt(1 - rho)
-                )
-                return stats.binom.cdf(defaults, obligors, conditional) * stats.norm.pdf(z)
-
-            return integrate.quad(integrand, -12, 12, epsabs=1e-15, epsrel=1e-12, limit=400)[0]
-
-        return optimize.brentq(lambda p: probability(p) - (1 - level), 1e-9, 1 - 1e-9, xtol=1e-16)
-
-    cases = [
-        ([0, 1, 3, 10], [2000, 3000, 1000, 500], 0.95, 0.2),
-        ([2, 30, 60], [10000, 30000, 4000], 0.99, 0.05),
-        ([0, 0], [100000, 50000], 0.999, 0.3),
-    ]
-    for event, total, level, rho in cases:
-        bounds = most_prudent_pd(event, total, level=level, correlation=rho)
-        pooled_event = np.cumsum(event[::-1])[::-1]
-        pooled_total = np.cumsum(total[::-1])[::-1]
-        expected = [
-            reference(*pair, level, rho) for pair in zip(pooled_event, pooled_total, strict=True)
-        ]
-        np.testing.assert_allclose(bounds, expected, rtol=1e-11)
-
-
 def test_correlation_and_level_raise_the_bounds():
     event, total = [0, 1, 2], [5000, 3000, 1000]
     independent = most_prudent_pd(event, total, level=0.9)
@@ -633,59 +577,3 @@ def test_most_prudent_pd_rejects_invalid_counts(event, total, options, match):
 def test_most_prudent_pd_rejects_series_with_different_indices():
     with pytest.raises(ValueError, match="event and total must have identical indices"):
         most_prudent_pd(pd.Series([0, 1], index=[1, 2]), pd.Series([10, 10], index=[2, 3]))
-
-
-# A SciPy reference of the risk-weight functions.
-
-
-def test_capital_requirement_matches_an_independent_scipy_implementation():
-    stats = pytest.importorskip("scipy.stats")
-    rng = np.random.default_rng(3)
-    probability = np.exp(rng.uniform(np.log(3e-4), np.log(0.5), 300))
-    lgd = rng.uniform(0.05, 1.0, 300)
-    maturity = rng.uniform(0.1, 7.0, 300)
-    turnover = np.exp(rng.uniform(np.log(1.0), np.log(80.0), 300))
-
-    def scipy_requirement(p, lgd, r, m=None):
-        k = (
-            lgd
-            * stats.norm.cdf(
-                (stats.norm.ppf(p) + np.sqrt(r) * stats.norm.ppf(0.999)) / np.sqrt(1 - r)
-            )
-            - p * lgd
-        )
-        if m is None:
-            return k
-        b = (0.11852 - 0.05478 * np.log(p)) ** 2
-        return k * (1 + (m - 2.5) * b) / (1 - 1.5 * b)
-
-    w50 = (1 - np.exp(-50 * probability)) / (1 - np.exp(-50))
-    w35 = (1 - np.exp(-35 * probability)) / (1 - np.exp(-35))
-    corporate = 0.12 * w50 + 0.24 * (1 - w50)
-    sme = corporate - 0.04 * (1 - (np.clip(turnover, 5, 50) - 5) / 45)
-    china = corporate - 0.04 * (1 - (np.clip(turnover, 3, 30) - 3) / 27)
-    cases = [
-        ({"asset_class": "corporate", "maturity": maturity}, corporate, maturity),
-        ({"asset_class": "corporate", "maturity": maturity, "turnover": turnover}, sme, maturity),
-        (
-            {"asset_class": "corporate", "turnover": turnover, "turnover_range": (3.0, 30.0)},
-            china,
-            2.5,
-        ),
-        ({"asset_class": "corporate", "financial": True}, 1.25 * corporate, 2.5),
-        ({"asset_class": "hvcre", "maturity": maturity}, 0.12 * w50 + 0.30 * (1 - w50), maturity),
-        ({"asset_class": "mortgage"}, np.full(300, 0.15), None),
-        ({"asset_class": "revolving"}, np.full(300, 0.04), None),
-        ({"asset_class": "other_retail"}, 0.03 * w35 + 0.16 * (1 - w35), None),
-    ]
-    for options, correlation, maturity_ in cases:
-        np.testing.assert_allclose(
-            asset_correlation(probability, **{k: v for k, v in options.items() if k != "maturity"}),
-            correlation,
-            rtol=1e-12,
-        )
-        np.testing.assert_allclose(
-            capital_requirement(probability, lgd, **options),
-            scipy_requirement(probability, lgd, correlation, maturity_),
-            rtol=1e-12,
-        )
