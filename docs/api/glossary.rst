@@ -162,7 +162,7 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       A scorecard whose weights are set by the judgment of credit analysts rather than fitted to outcomes, for portfolios with too few defaults to fit a model; see :doc:`/user_guide/expert`.
 
    Exposure at default (EAD)
-      The amount owed when a borrower defaults, such as the outstanding balance of a loan; see :doc:`/user_guide/strategy`.
+      The amount owed when a borrower defaults, such as the outstanding balance of a loan; see :doc:`/user_guide/lgd`.
 
    Feature specification
       The definitions of the window and repayment features of a model: the columns of the entities and of the observation times, groups of features with their tables, windows and aggregations, and ratios. Saved as versioned JSON, it lets production compute the same features as development. Unlike a binning specification, it is not fitted to data; see :doc:`/user_guide/features`.
@@ -219,7 +219,7 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       The event rate of a group divided by the event rate of the whole sample. A lift above 1 marks a group that is riskier than average; see :doc:`/user_guide/metrics`.
 
    Long-run average LGD
-      The average of the realized LGDs of the defaults of a long period, each default counted once and negative LGDs counted as 0, below which an LGD estimate may not fall; see :doc:`/user_guide/lgd`.
+      The default-weighted average LGD of all the defaults of a long period, each default counted once and negative LGDs counted as 0, with the open workouts included through an adjustment for their future recoveries. An LGD estimate may not fall below it; see :doc:`/user_guide/lgd`.
 
    Loss allowance
       The provision that IFRS 9 requires for the expected credit losses of a loan: the 12-month ECL in stage 1 and the lifetime ECL in stages 2 and 3; see :doc:`/user_guide/lifetime`.
@@ -318,7 +318,7 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       The average consistency index of pairwise comparison matrices filled with random judgments on the Saaty scale, which depends only on the number of factors. kivi uses the table of Tone (1986) for 3 to 15 factors; see :doc:`/user_guide/expert`.
 
    Realized LGD
-      The economic loss of a closed workout as a share of its exposure at default, with the cash flows discounted at the rate of its date of default. It is negative when the recoveries exceed the exposure and above 1 when the costs exceed the recoveries; see :doc:`/user_guide/lgd`.
+      The economic loss of a closed workout as a share of its exposure at default, with the cash flows discounted at the rate of its date of default. It is negative when the recoveries exceed the exposure and the costs, and above 1 when the costs exceed the recoveries; see :doc:`/user_guide/lgd`.
 
    Reason codes
       The variables that lowered an applicant's score most, compared with the best group of each variable, as given to a declined applicant; see :doc:`/user_guide/scorecard`.
@@ -348,7 +348,7 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       The capital requirement times 12.5, the share of an exposure that counts as risk-weighted assets (RWA), so that the minimum capital ratio of 8% of the RWA gives back the capital requirement; see :doc:`/user_guide/capital`.
 
    Robust standard error
-      A standard error from the sandwich estimator, the inverse information times the sum of the squared scores times the inverse information, which holds whatever the variance of the response, as for a fractional response; see :doc:`/user_guide/lgd`.
+      A standard error from the sandwich estimator, the inverse information times the sum of the outer products of the scores times the inverse information, which holds whatever the variance of the response, as for a fractional response; see :doc:`/user_guide/lgd`.
 
    ROC curve
       The true positive rate, the share of events flagged, against the false positive rate, the share of non-events flagged, as the threshold moves through the scores from the riskiest down. The area under it is the AUC, and its largest vertical distance from the diagonal is the KS; see :doc:`/user_guide/metrics`.

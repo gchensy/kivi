@@ -205,7 +205,7 @@ How it works
 
    .. grid-item-card:: Calibrate and decide
 
-      ``master_scale`` and ``assign_grades`` group the PDs into grades, and the binomial and Jeffreys tests check the PD of each grade. ``workout_lgd`` and ``conversion_factor`` give the realized LGDs and CCFs of defaulted loans, and ``lgd_table`` and ``fractional_regression`` model them. ``cutoff_table`` shows what each cut-off approves, ``confusion_table`` how many events it declines, and ``expected_loss_table`` adds up the expected loss of each grade. ``capital_requirement`` turns the PDs into the IRB capital requirement, and ``most_prudent_pd`` bounds the PDs of grades with too few defaults.
+      ``master_scale`` and ``assign_grades`` group the PDs into grades, and the binomial and Jeffreys tests check the PD of each grade. ``workout_lgd`` and ``conversion_factor`` give the realized LGDs and CCFs of defaulted loans, ``lgd_table`` summarizes them by group and ``fractional_regression`` models the LGDs. ``cutoff_table`` shows what each cut-off approves, ``confusion_table`` how many events it declines, and ``expected_loss_table`` adds up the expected loss of each grade. ``capital_requirement`` turns the PDs into the IRB capital requirement, and ``most_prudent_pd`` bounds the PDs of grades with too few defaults.
 
    .. grid-item-card:: Deploy, monitor and validate
 

@@ -186,7 +186,7 @@ revolving    438  0.6853  0.3512  0.0120  1.3985       0.000      0.1142
 
    kp.figure_lgd_distribution()
 
-The LGDs are bimodal within each segment, with the cures near 0 and the liquidations of unsecured loans near 1. ``zero_share`` holds the 38 secured loans whose collateral covered more than their exposure, which ``floor=None`` keeps negative; these values still tell the drivers of the loss apart:
+The LGDs of the unsecured loans and revolving lines are bimodal, with the cures near 0 and the liquidations near 1, while most secured loans lose less than 10%. ``zero_share`` holds the 38 secured loans whose collateral covered more than their exposure, which ``floor=None`` keeps negative; these values still tell the drivers of the loss apart:
 
 >>> lgd_table(loans.loc[closed, "segment"], realized["lgd"], floor=None)[["mean", "min"]].round(4)
              mean     min

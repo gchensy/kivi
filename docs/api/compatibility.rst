@@ -34,7 +34,7 @@ Results that are pairs of parameters, such as the ``(factor, offset)`` of :func:
 Tables
 ------
 
-The index name, the column names and the order of the columns of every table are public. A minor release may append columns at the end of a table, but renames, reorders or removes a column only after a deprecation, so select columns by name rather than by position. The ``attrs`` of :func:`~kivi.selection.logistic_regression` are set on the returned frame, and pandas drops them in many operations.
+The index name, the column names and the order of the columns of every table are public. A minor release may append columns at the end of a table, but renames, reorders or removes a column only after a deprecation, so select columns by name rather than by position. The ``attrs`` of :func:`~kivi.selection.logistic_regression` and :func:`~kivi.lgd.fractional_regression` are set on the returned frame, and pandas drops them in many operations.
 
 .. list-table::
    :header-rows: 1
@@ -203,7 +203,7 @@ The index name, the column names and the order of the columns of every table are
      - A range, sorted by default date
      - ``loan_id``, ``segment``, ``default_date``, ``ead``, ``limit``, ``drawn``, ``collateral_value``, ``discount_rate``, ``closing_date``
    * - :func:`~kivi.datasets.make_recoveries`
-     - A range, sorted by loan and date
+     - A range, in the order of the loans of ``defaults``, then by date
      - ``loan_id``, ``date``, ``amount``, ``kind``
    * - :func:`~kivi.datasets.load_bank`
      - A range
