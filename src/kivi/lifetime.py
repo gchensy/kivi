@@ -2,10 +2,12 @@
 
 ``convert_pd`` converts a PD term structure, such as the cumulative bad
 rates of ``kivi.vintage.vintage_table``, between cumulative, marginal and
-conditional PDs, and ``transition_pd`` projects cumulative PDs from a
-transition matrix. ``expected_credit_loss`` turns marginal PDs, LGDs and
-exposures into the discounted 12-month or lifetime expected credit loss of
-each account. ``significant_increase`` and ``assign_stages`` allocate the
+conditional PDs, ``transition_pd`` projects cumulative PDs from a
+transition matrix, and ``survival_table`` estimates them from accounts that
+are censored, repaid early or observed only from some age on.
+``expected_credit_loss`` turns marginal PDs, LGDs and exposures into the
+discounted 12-month or lifetime expected credit loss of each account.
+``significant_increase`` and ``assign_stages`` allocate the
 accounts to the three stages of IFRS 9, and ``stage_table`` summarizes the
 exposure and the loss allowance of each stage.
 
@@ -28,6 +30,7 @@ from . import _counts, _validation
 __all__ = [
     "convert_pd",
     "transition_pd",
+    "survival_table",
     "expected_credit_loss",
     "significant_increase",
     "assign_stages",
@@ -324,6 +327,250 @@ def transition_pd(
     result = np.minimum(np.maximum.accumulate(result, axis=1), 1.0)
     index = states.rename("state") if states.nlevels == 1 else states
     return pd.DataFrame(result, index=index, columns=pd.Index(steps, name="horizon"))
+
+
+def survival_table(
+    duration: npt.ArrayLike,
+    event: npt.ArrayLike,
+    *,
+    competing: npt.ArrayLike | None = None,
+    entry: npt.ArrayLike | None = None,
+    weights: npt.ArrayLike | None = None,
+) -> pd.DataFrame:
+    r"""Estimate a cumulative PD term structure from censored and truncated accounts.
+
+    Each account, such as a loan, is followed period by period from a
+    starting point, such as its origination, until it defaults, leaves for
+    another reason, such as an early repayment, or is last observed, when it
+    is censored. The table gives the number of accounts at risk in each
+    period, the hazard rate of default and, without `competing`, the
+    Kaplan–Meier estimate of the cumulative PD or, with it, the
+    Aalen–Johansen estimate of the cumulative incidence of default.
+
+    Parameters
+    ----------
+    duration : array_like
+        Period of each account's default, exit or last observation, a
+        positive whole number, such as the month on book of its last row in
+        a monthly panel.
+    event : array_like
+        Whether the account defaulted in period `duration`, as booleans or 0
+        and 1.
+    competing : array_like, optional
+        Whether the account left in period `duration` for another reason
+        that ends its risk of default, such as an early repayment, as
+        booleans or 0 and 1. It must not be 1 on a row where `event` is 1.
+        Without it, every account that did not default is censored.
+    entry : array_like, optional
+        Number of periods that had passed when each account came under
+        observation, a whole number from 0 to its `duration` − 1, by default
+        0. An account is at risk from period ``entry + 1`` on, so a loan
+        first observed at month on book 7 has an entry of 6. This handles
+        left truncation, such as a panel that starts after the loans were
+        originated.
+    weights : array_like, optional
+        Non-negative frequency weight of each account. Counts become sums of
+        weights, so integer weights give the same table as repeated
+        accounts, and accounts with weight 0 are left out. Series inputs
+        must have identical indices; otherwise the inputs are matched by
+        position.
+
+    Returns
+    -------
+    pandas.DataFrame
+        One row per period from 1 to the largest `duration`, indexed by
+        ``period``, with the columns ``at_risk``, ``event``, ``competing``
+        (only with `competing`), ``censored``, ``hazard``, ``survival`` and
+        ``cumulative_pd`` described in the Notes. The counts are integers
+        without `weights` and sums of weights with them.
+
+    Raises
+    ------
+    ValueError
+        If the inputs are empty, not one-dimensional, of different lengths
+        or Series with different indices. Also if `duration` is not real and
+        numeric or has a value that is not a positive whole number, `event`
+        or `competing` has a value other than 0 and 1, both are 1 on a row,
+        `entry` is not real and numeric or has a value that is not a whole
+        number from 0 to the account's duration − 1, or `weights` is not
+        numeric or does not give each account one finite, non-negative
+        weight with a positive total.
+
+    See Also
+    --------
+    convert_pd : Marginal and conditional PDs from ``cumulative_pd``.
+    expected_credit_loss : Expected credit loss from marginal PDs.
+    kivi.vintage.vintage_table : Cumulative bad rates by cohort and month on book.
+    kivi.datasets.make_loan_panel : Synthetic loan panel with early repayments.
+
+    Notes
+    -----
+    For an account :math:`i` with the duration :math:`T_i`, the entry
+    :math:`e_i` and the weight :math:`w_i`, 1 without `weights`, the columns
+    of period :math:`t` are:
+
+    - ``at_risk``: :math:`n_t = \sum_i w_i \, [e_i < t \le T_i]`, the
+      accounts at risk of default in the period;
+    - ``event``: :math:`d_t`, the weight of the accounts that defaulted in
+      the period;
+    - ``competing``: :math:`c_t`, that of the accounts that left for another
+      reason;
+    - ``censored``: that of the accounts last observed in the period without
+      a default or an exit;
+    - ``hazard``: :math:`h_t = d_t / n_t`, the share of the accounts at risk
+      that defaulted;
+    - ``survival``: :math:`S(t) = \prod_{s \le t} (1 - (d_s + c_s) / n_s)`,
+      the probability of neither a default nor an exit by the end of the
+      period, with :math:`S(0) = 1`;
+    - ``cumulative_pd``: the probability of a default by the end of the
+      period.
+
+    Without `competing`, :math:`c_t = 0`, and ``cumulative_pd`` is the
+    Kaplan–Meier estimate
+
+    .. math::
+
+       F(t) = 1 - \prod_{s \le t} (1 - h_s) = 1 - S(t).
+
+    With `competing`, it is the Aalen–Johansen estimate of the cumulative
+    incidence of default, which adds up the defaults of the accounts that
+    have neither defaulted nor left before:
+
+    .. math::
+
+       F(t) = \sum_{s \le t} S(s - 1) \, h_s.
+
+    The accounts censored in a period are at risk in that period: their
+    censoring comes after the defaults and the exits of the period. A
+    period without accounts at risk has a NaN hazard, and ``survival`` and
+    ``cumulative_pd`` are NaN from that period on, because the share of
+    accounts that get through it is not known. With `entry` this also
+    happens in the first periods if no account is observed in them; the
+    hazards of the later periods then give the PDs conditional on reaching
+    them.
+
+    An account that leaves early can no longer default. Counting it as
+    censored, as 1 − Kaplan–Meier does, estimates the PD of an account that
+    stays on book until its default, and overstates the share of the
+    accounts that default: pass the early exits as `competing` instead. If
+    every account is observed from period 1 until it defaults or leaves,
+    or until a last period common to all of them, the cumulative incidence
+    is the share of the accounts that defaulted by each period, the
+    cumulative bad rate of `kivi.vintage.vintage_table`.
+
+    ``cumulative_pd`` is a cumulative term structure for `convert_pd`.
+    Without `competing`, its conditional PDs are the hazards. With
+    `competing`, they are conditional on no default before, also counting
+    the accounts that left, as in a vintage table, while the hazards are
+    conditional on the account being still on book.
+
+    References
+    ----------
+    .. [1] E. L. Kaplan and P. Meier, "Nonparametric estimation from
+       incomplete observations", Journal of the American Statistical
+       Association, 53(282), pp. 457-481, 1958.
+    .. [2] O. O. Aalen and S. Johansen, "An empirical transition matrix for
+       non-homogeneous Markov chains based on censored observations",
+       Scandinavian Journal of Statistics, 5(3), pp. 141-150, 1978.
+
+    Examples
+    --------
+    Eight loans over three months: three default, two repay early and three
+    are still on book when the observation ends.
+
+    >>> from kivi.lifetime import survival_table
+    >>> duration = [1, 1, 2, 2, 2, 3, 3, 3]
+    >>> event = [1, 0, 1, 0, 0, 1, 0, 0]
+    >>> repaid = [0, 1, 0, 1, 0, 0, 0, 0]
+    >>> survival_table(duration, event, competing=repaid).round(4)
+            at_risk  event  competing  censored  hazard  survival  cumulative_pd
+    period
+    1             8      1          1         0  0.1250    0.7500         0.1250
+    2             6      1          1         1  0.1667    0.5000         0.2500
+    3             3      1          0         2  0.3333    0.3333         0.4167
+
+    In the third month, half of the loans are still on book, and a third of
+    them default: 0.25 + 0.5 × 1/3 = 0.4167. Counting the early repayments
+    as censored gives the Kaplan–Meier estimate 1 − (7/8)(5/6)(2/3), which
+    is higher:
+
+    >>> survival_table(duration, event)["cumulative_pd"].round(4)
+    period
+    1    0.1250
+    2    0.2708
+    3    0.5139
+    Name: cumulative_pd, dtype: float64
+    """
+    inputs = {
+        "duration": duration,
+        "event": event,
+        "competing": competing,
+        "entry": entry,
+        "weights": weights,
+    }
+    _validation.shared_index(inputs)
+    exit_period = _whole_numbers(duration, "duration", lowest=1)
+    defaulted = _flag_vector(event, "event", exit_period)
+    left = np.zeros(len(exit_period), dtype=bool)
+    if competing is not None:
+        left = _flag_vector(competing, "competing", exit_period)
+        both = defaulted & left
+        if both.any():
+            raise ValueError(
+                "event and competing must not both be 1 on a row, because an account that "
+                f"defaulted did not leave for another reason; got both on {both.sum()} row(s)"
+            )
+    start = np.zeros(len(exit_period), dtype=np.int64)
+    if entry is not None:
+        start = _whole_numbers(entry, "entry", lowest=0)
+        _same_length(exit_period, start, ("duration", "entry"))
+        late = start >= exit_period
+        if late.any():
+            raise ValueError(
+                "entry must be smaller than duration, because an account is at risk from period "
+                f"entry + 1 on; got an entry of {start[late][0]} with a duration of "
+                f"{exit_period[late][0]}"
+            )
+    mass = _validation.as_weights(
+        weights,
+        duration,
+        of="duration",
+        others={"event": event, "competing": competing, "entry": entry},
+    )
+    if mass is not None:
+        kept = mass > 0
+        exit_period, start, mass = exit_period[kept], start[kept], mass[kept]
+        defaulted, left = defaulted[kept], left[kept]
+
+    periods = int(exit_period.max())
+
+    def by_period(rows: npt.NDArray[np.bool_]) -> np.ndarray:
+        """Count or weight of the given accounts by the period in which they stop."""
+        return np.bincount(
+            exit_period[rows] - 1,
+            weights=None if mass is None else mass[rows],
+            minlength=periods,
+        )
+
+    at_risk = _at_risk(start + 1, exit_period + 1, mass, periods)
+    events = by_period(defaulted)
+    exits = by_period(left)
+    censored = by_period(~defaulted & ~left)
+    # A ratio may round above 1 when all accounts at risk stop; NaN marks an empty risk set.
+    hazard = np.minimum(_counts.ratio(events, at_risk), 1.0)
+    survival = np.cumprod(np.maximum(1.0 - _counts.ratio(events + exits, at_risk), 0.0))
+    if competing is None:
+        cumulative = 1.0 - survival
+    else:
+        before = np.concatenate([[1.0], survival[:-1]])
+        cumulative = np.minimum(np.cumsum(before * hazard), 1.0)
+    columns = {"at_risk": at_risk, "event": events}
+    if competing is not None:
+        columns["competing"] = exits
+    columns.update(
+        {"censored": censored, "hazard": hazard, "survival": survival, "cumulative_pd": cumulative}
+    )
+    return pd.DataFrame(columns, index=pd.Index(np.arange(1, periods + 1), name="period"))
 
 
 @typing.overload
@@ -1234,6 +1481,74 @@ def _vector(values: npt.ArrayLike, name: str, *, booleans: bool = False) -> npt.
     if not len(series):
         raise ValueError(f"{name} must not be empty")
     return _validation.as_real(series, name, booleans=booleans)
+
+
+def _whole_numbers(values: npt.ArrayLike, name: str, *, lowest: int) -> npt.NDArray[np.int64]:
+    """Whole numbers of periods from `lowest` on as integers; booleans and missing values raise."""
+    series = _missing_as_float(_validation.as_series(values, name))
+    if not len(series):
+        raise ValueError(f"{name} must not be empty")
+    array = _validation.as_real(series, name)
+    invalid = ~np.isfinite(array) | (array != np.round(array)) | (array < lowest)
+    if invalid.any():
+        kind = "positive" if lowest == 1 else "non-negative"
+        raise ValueError(
+            f"{name} must hold {kind} whole numbers of periods, got "
+            f"{_validation.shown(series[invalid])}"
+        )
+    return array.astype(np.int64)
+
+
+def _flag_vector(
+    values: npt.ArrayLike, name: str, durations: npt.NDArray[np.int64]
+) -> npt.NDArray[np.bool_]:
+    """0/1 or boolean flags with one value per duration, as a bool array."""
+    flags = _validation.as_series(values, name)
+    if len(flags) != len(durations):
+        raise ValueError(
+            f"duration and {name} must have the same length, got {len(durations)} and {len(flags)}"
+        )
+    return _validation.as_flags(flags, name)
+
+
+def _at_risk(
+    first: npt.NDArray[np.int64],
+    stop: npt.NDArray[np.int64],
+    weights: npt.NDArray[np.float64] | None,
+    periods: int,
+) -> np.ndarray:
+    """Count or weight of the accounts at risk in each period from 1 to `periods`.
+
+    Account i is at risk in the periods ``first[i] <= t < stop[i]``. Its weight goes into the
+    aligned blocks of 2**k periods that make up that range, at most two at each k, and every
+    period adds up the blocks that hold it. The result is a sum of non-negative weights, so a
+    large weight that has left the risk set never rounds away the small weights that remain, as
+    a difference of cumulative sums could; without weights the counts are integers.
+    """
+    period = np.arange(1, periods + 1)
+    total = np.zeros(periods, dtype=np.int64 if weights is None else np.float64)
+    low, high, mass = first, stop, weights
+    level = 0
+    while len(low):
+        blocks = []
+        # A block that starts at an odd position is not part of a block twice as long: count it
+        # here. Likewise for one that ends at an odd position. The rest moves up a level.
+        start = (low & 1) == 1
+        blocks.append((low[start], None if mass is None else mass[start]))
+        low = low + start
+        end = (high & 1) == 1
+        high = high - end
+        blocks.append((high[end], None if mass is None else mass[end]))
+        size = ((periods + 1) >> level) + 1
+        for position, block_weights in blocks:
+            sums = np.bincount(position, weights=block_weights, minlength=size)
+            total += sums[period >> level]
+        low, high = low >> 1, high >> 1
+        active = low < high
+        low, high = low[active], high[active]
+        mass = None if mass is None else mass[active]
+        level += 1
+    return total
 
 
 def _same_length(first: np.ndarray, second: np.ndarray, names: tuple[str, str]) -> None:
