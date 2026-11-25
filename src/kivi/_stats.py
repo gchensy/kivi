@@ -1,4 +1,4 @@
-"""Distribution functions for the calibration tests and the metrics, using only NumPy and math.
+"""Distribution functions for the calibration tests, the metrics and capital, using NumPy and math.
 
 The regularized incomplete beta and gamma functions follow the series and
 continued fractions of Press et al., "Numerical Recipes", 3rd ed., sections
@@ -15,10 +15,14 @@ at ``x = df / (df + t**2)``, and near the centre ``1 / 2 - I_y(1 / 2, df / 2) / 
 ``y = 1 - x`` (Abramowitz and Stegun, 26.5.27 and 26.7.1). From 100 degrees of freedom
 on, the continued fractions lose about ``log10(df)`` digits where ``x`` is close to the
 mean of its beta distribution, so there the tail is an expansion in incomplete gamma
-functions of half-integer order instead, which start from ``erfc``.
+functions of half-integer order instead, which start from ``erfc``. The beta quantile
+inverts the incomplete beta function by a safeguarded Newton method, and the bivariate
+normal distribution function integrates Plackett's identity by Gauss-Legendre quadrature
+as A. Genz (2004) does.
 """
 
 import math
+import typing
 from fractions import Fraction
 
 import numpy as np
@@ -73,9 +77,18 @@ def _log_front(
         a_, b_, x_ = a[both], b[both], x[both]
         total = a_ + b_
         p0, q0 = a_ / total, b_ / total
+        lower = a_ * _log1pmx((x_ - p0) / p0)
+        upper = b_ * _log1pmx((p0 - x_) / q0)
+        # Far from the mean x - p0 rounds to -p0 once x / p0 is below 1e-16, and 1 - x - q0 to
+        # -q0. There a ln(x / p0) - (total x - a), the same quantity, subtracts a large logarithm
+        # from a small term and loses nothing; likewise for 1 - x, whose logarithm is log1p(-x).
+        far = x_ < p0 / 2
+        lower[far] = (a_ * (np.log(x_) - np.log(p0)) - (total * x_ - a_))[far]
+        near = 1 - x_ < q0 / 2
+        upper[near] = (b_ * (np.log1p(-x_) - np.log(q0)) - (total * (1 - x_) - b_))[near]
         result[both] = (
-            a_ * _log1pmx((x_ - p0) / p0)
-            + b_ * _log1pmx((p0 - x_) / q0)
+            lower
+            + upper
             + 0.5 * (np.log(a_) + np.log(b_) - np.log(total))
             - _HALF_LOG_2PI
             + _stirling_correction(total)
@@ -147,6 +160,147 @@ def _beta_fraction(
     raise ArithmeticError("the incomplete beta function did not converge")
 
 
+def beta_quantile(
+    a: npt.ArrayLike, b: npt.ArrayLike, probability: npt.ArrayLike
+) -> npt.NDArray[np.float64]:
+    """Return the quantile of the beta distribution Beta(a, b), elementwise.
+
+    ``a`` and ``b`` must be finite and positive and ``probability`` between 0
+    and 1; 0 gives 0, 1 gives 1 and a missing probability gives NaN. The
+    result ``x`` solves ``betainc(a, b, x) = probability``, in closed form for
+    ``a = 1`` or ``b = 1``. Otherwise Newton's method starts from the
+    approximation of Numerical Recipes, 3rd ed., section 6.14.6, safeguarded
+    as in its ``rtsafe``: a step that would leave the bracket of the root or
+    not halve the previous step bisects the bracket instead, geometrically in
+    ``x`` below 1/2 and in ``1 - x`` above, so that a quantile near 0 or 1 is
+    reached in a few bisections. The residual ``I_x(a, b) - probability`` is
+    computed from the tail that `betainc` evaluates without taking ``1 - x``:
+    the lower tail below its switch near the mean and the upper tail
+    ``I_{1-x}(b, a)`` above, which keeps the digits of a probability close
+    to 1. A small ``x`` above the switch, as for a few defaults among many
+    obligors, makes ``1 - x`` round, and the first-order correction by the
+    density restores the digits that this costs.
+    """
+    a, b, p = np.broadcast_arrays(*(np.asarray(v, dtype=float) for v in (a, b, probability)))
+    if not (np.isfinite(a) & (a > 0) & np.isfinite(b) & (b > 0)).all():
+        raise ValueError("the beta distribution's shape parameters must be finite and positive")
+    outside = (p < 0) | (p > 1)
+    if outside.any():
+        raise ValueError(
+            f"probability must be between 0 and 1, got {_validation.shown(p[outside][0])}"
+        )
+    result = np.where(np.isnan(p), np.nan, np.where(p >= 1, 1.0, 0.0))
+    inside = (p > 0) & (p < 1)
+    # I_x(1, b) = 1 - (1 - x)**b and I_x(a, 1) = x**a.
+    first = inside & (a == 1)
+    result[first] = -np.expm1(np.log1p(-p[first]) / b[first])
+    second = inside & ~first & (b == 1)
+    result[second] = np.exp(np.log(p[second]) / a[second])
+    other = inside & ~first & ~second
+    if other.any():
+        result[other] = _beta_root(a[other], b[other], p[other])
+    return result
+
+
+# Newton's method converges quadratically: after a step this small relative to x or 1 - x,
+# whichever is smaller, the error left is below double precision.
+_BETA_STEP = 1e-10
+# Enough for the bisections from the whole bracket down to adjacent numbers and the Newton steps.
+_BETA_ITERATIONS = 200
+# The bracket that a bisection splits: the smallest normal number and the largest number below 1.
+_BETA_LOW = float(np.finfo(float).tiny)
+_BETA_HIGH = float(np.nextafter(1.0, 0.0))
+
+
+def _beta_root(
+    a: npt.NDArray[np.float64], b: npt.NDArray[np.float64], p: npt.NDArray[np.float64]
+) -> npt.NDArray[np.float64]:
+    """Solve I_x(a, b) = p for 0 < p < 1 by Newton's method, safeguarded by bisection."""
+    x = np.clip(_beta_start(a, b, p), _BETA_LOW, _BETA_HIGH)
+    low, high = np.zeros_like(x), np.ones_like(x)
+    # The previous step, or the bracket at first, which the next Newton step must halve.
+    previous = high - low
+    todo = np.arange(len(x))
+    for _ in range(_BETA_ITERATIONS):
+        a_, b_, p_, x_ = a[todo], b[todo], p[todo], x[todo]
+        y = 1 - x_
+        with np.errstate(over="ignore"):
+            # The density exp(ln[x**a (1 - x)**b / B(a, b)]) / (x (1 - x)), from x alone.
+            density = np.exp(_log_front(a_, b_, x_) - np.log(x_) - np.log1p(-x_))
+        # I_x(a, b) - p, from the upper tail I_{1-x}(b, a) where betainc would take 1 - x itself.
+        # y = 1 - x misses 1 - x by (1 - y) - x, which is exact, and the first term of the Taylor
+        # series in it restores the digits of a small x: b times that error in the upper tail.
+        above = x_ > (a_ + 1) / (a_ + b_ + 2)
+        tail = betainc(np.where(above, b_, a_), np.where(above, a_, b_), np.where(above, y, x_))
+        error = (1 - y) - x_
+        with np.errstate(invalid="ignore"):  # an infinite density where 1 - x is exact
+            upper = tail + np.where(error == 0, 0.0, error * density)
+        residual = np.where(above, (1 - p_) - upper, tail - p_)
+        low[todo] = np.where(residual < 0, x_, low[todo])
+        high[todo] = np.where(residual > 0, x_, high[todo])
+        with np.errstate(over="ignore", invalid="ignore", divide="ignore"):
+            step = residual / density
+        new = x_ - step
+        newton = (new > low[todo]) & (new < high[todo]) & (np.abs(step) <= previous[todo] / 2)
+        new = np.where(newton, new, _beta_split(low[todo], high[todo]))
+        previous[todo] = np.abs(new - x_)
+        x[todo] = new
+        # A bracket that no number splits is as narrow as it gets.
+        small = np.minimum(new, 1 - new)
+        done = (residual == 0) | (newton & (np.abs(step) <= _BETA_STEP * small)) | (new == x_)
+        todo = todo[~done]
+        if not len(todo):
+            return x
+    raise ArithmeticError("the beta quantile did not converge")
+
+
+def _beta_split(
+    low: npt.NDArray[np.float64], high: npt.NDArray[np.float64]
+) -> npt.NDArray[np.float64]:
+    """Return a point between low and high: the geometric mean of x or of 1 - x near 0 or 1."""
+    low, high = np.maximum(low, _BETA_LOW), np.minimum(high, _BETA_HIGH)
+    middle = (low + high) / 2
+    # Square roots before the products, which could underflow.
+    near_zero = np.sqrt(low) * np.sqrt(high)
+    near_one = 1 - np.sqrt(1 - low) * np.sqrt(1 - high)
+    return np.where(high <= 0.5, near_zero, np.where(low >= 0.5, near_one, middle))
+
+
+def _beta_start(
+    a: npt.NDArray[np.float64], b: npt.NDArray[np.float64], p: npt.NDArray[np.float64]
+) -> npt.NDArray[np.float64]:
+    """Return the starting point of Numerical Recipes for the quantile of Beta(a, b)."""
+    x = np.empty_like(p)
+    large = (a >= 1) & (b >= 1)
+    if large.any():
+        a_, b_, p_ = a[large], b[large], p[large]
+        # Abramowitz and Stegun 26.5.22, with the upper normal quantile y of 26.2.22.
+        t = np.sqrt(-2 * np.log(np.minimum(p_, 1 - p_)))
+        y = t - (2.30753 + 0.27061 * t) / (1 + t * (0.99229 + 0.04481 * t))
+        y = np.where(p_ < 0.5, y, -y)
+        shape = (y * y - 3) / 6
+        h = 2 / (1 / (2 * a_ - 1) + 1 / (2 * b_ - 1))
+        w = y * np.sqrt(shape + h) / h - (1 / (2 * b_ - 1) - 1 / (2 * a_ - 1)) * (
+            shape + 5 / 6 - 2 / (3 * h)
+        )
+        with np.errstate(over="ignore"):
+            x[large] = a_ / (a_ + b_ * np.exp(2 * w))
+    small = ~large
+    if small.any():
+        a_, b_, p_ = a[small], b[small], p[small]
+        # The two tails of the density as powers of x and 1 - x, scaled to the same total.
+        first = np.exp(a_ * np.log(a_ / (a_ + b_))) / a_
+        second = np.exp(b_ * np.log(b_ / (a_ + b_))) / b_
+        total = first + second
+        with np.errstate(divide="ignore"):
+            x[small] = np.where(
+                p_ < first / total,
+                np.exp(np.log(a_ * total * p_) / a_),
+                -np.expm1(np.log(b_ * total * (1 - p_)) / b_),
+            )
+    return x
+
+
 def normal_cdf(x: npt.ArrayLike) -> npt.NDArray[np.float64]:
     """Return the distribution function of the standard normal distribution, elementwise.
 
@@ -155,6 +309,141 @@ def normal_cdf(x: npt.ArrayLike) -> npt.NDArray[np.float64]:
     """
     values = np.asarray(x, dtype=float)
     return np.asarray(0.5 * _erfc(-values / math.sqrt(2)), dtype=float)
+
+
+def bivariate_normal_cdf(
+    x: npt.ArrayLike, y: npt.ArrayLike, rho: npt.ArrayLike
+) -> npt.NDArray[np.float64]:
+    """Return P(X <= x, Y <= y) for standard normal X and Y with correlation rho, elementwise.
+
+    ``rho`` must lie in [-1, 1], ``x`` and ``y`` may be infinite, and a missing
+    argument gives NaN. The algorithm is that of A. Genz, "Numerical
+    computation of rectangular bivariate and trivariate normal and t
+    probabilities", Statistics and Computing 14 (2004), which refines Drezner
+    and Wesolowsky (1990): it integrates Plackett's identity
+    ``d/d rho P(X <= x, Y <= y) = phi_2(x, y; rho)`` by Gauss-Legendre
+    quadrature, from rho = 0 for ``|rho| < 0.925`` and from rho = 1 or -1
+    above, where the closed form of the first terms of a series takes out the
+    singularity of the density. The absolute error is below 2e-16. With
+    rho >= 0 nothing cancels, and probabilities above 1e-10 keep a relative
+    error of about 1e-14.
+    """
+    x, y, rho = np.broadcast_arrays(*(np.asarray(v, dtype=float) for v in (x, y, rho)))
+    if ((rho < -1) | (rho > 1)).any():
+        raise ValueError("the correlation must lie between -1 and 1")
+    result = np.full(x.shape, np.nan)
+    known = ~(np.isnan(x) | np.isnan(y) | np.isnan(rho))
+    # An infinite limit leaves one variable or none.
+    empty = known & ((x == -np.inf) | (y == -np.inf))
+    result[empty] = 0.0
+    only_y = known & ~empty & (x == np.inf)
+    result[only_y] = normal_cdf(y[only_y])
+    only_x = known & ~empty & ~only_y & (y == np.inf)
+    result[only_x] = normal_cdf(x[only_x])
+    finite = known & np.isfinite(x) & np.isfinite(y)
+    # Genz computes P(X > h, Y > k), which is the lower probability at h = -x and k = -y.
+    h, k, r = -x[finite], -y[finite], rho[finite]
+    value = np.empty(h.shape)
+    near = np.abs(r) >= _GENZ_NEAR_ONE
+    value[~near] = _upper_normal_from_zero(h[~near], k[~near], r[~near])
+    value[near] = _upper_normal_from_one(h[near], k[near], r[near])
+    result[finite] = np.clip(value, 0.0, 1.0)
+    return result
+
+
+# From this correlation on, bivariate_normal_cdf integrates from a correlation of 1 or -1.
+_GENZ_NEAR_ONE = 0.925
+# Gauss-Legendre nodes on (-1, 1) and their weights. Genz uses 20; with 30, a correlation from 0 to
+# 0.925 keeps the relative error near 1e-14 instead of 1e-12 for probabilities above 1e-10.
+_LEGENDRE_NODES, _LEGENDRE_WEIGHTS = np.polynomial.legendre.leggauss(30)
+# Genz leaves out the terms of an exponent below this, which keeps exp from overflowing.
+_GENZ_EXPONENT = -100.0
+
+
+def _upper_normal_from_zero(
+    h: npt.NDArray[np.float64], k: npt.NDArray[np.float64], r: npt.NDArray[np.float64]
+) -> npt.NDArray[np.float64]:
+    """Return P(X > h, Y > k) for |r| < 0.925, integrating from a correlation of 0.
+
+    With r = sin(theta), Plackett's identity gives Phi(-h) Phi(-k) plus the
+    integral over theta from 0 to asin(r) of
+    exp(-(h**2 + k**2 - 2 h k sin(theta)) / (2 cos(theta)**2)) / (2 pi), which is smooth.
+    """
+    half = np.arcsin(r)[:, None] / 2
+    sine = np.sin(half * (1 + _LEGENDRE_NODES))
+    exponent = (sine * (h * k)[:, None] - ((h * h + k * k) / 2)[:, None]) / (1 - sine * sine)
+    integral = half[:, 0] * (np.exp(exponent) * _LEGENDRE_WEIGHTS).sum(axis=1)
+    return integral / (2 * math.pi) + normal_cdf(-h) * normal_cdf(-k)
+
+
+def _upper_normal_from_one(
+    h: npt.NDArray[np.float64], k: npt.NDArray[np.float64], r: npt.NDArray[np.float64]
+) -> npt.NDArray[np.float64]:
+    """Return P(X > h, Y > k) for |r| >= 0.925, integrating from a correlation of 1 or -1.
+
+    For r > 0, P(X > h, Y > k) = Phi(-max(h, k)) minus the integral of the
+    density from r to 1, and the substitution s**2 = 1 - rho**2 turns that
+    integral into one over s from 0 to sqrt(1 - r**2) of
+    exp(-(h - k)**2 / (2 s**2) - h k / 2) e(s**2) / (2 pi), with
+    e(u) = exp(-(h k / 2) u / (1 + sqrt(1 - u))**2) / sqrt(1 - u). The terms
+    1 + c u + 5 c d u**2 of the Taylor series of e are integrated in closed form
+    and the rest by Gauss-Legendre quadrature. A negative r uses the same
+    integral for -k and P(X > h, Y > k) = Phi(-h) - P(X > h, -Y > -k).
+    """
+    negative = r < 0
+    k = np.where(negative, -k, k)
+    hk = h * k
+    bvn = np.zeros_like(h)
+    # 1 - r**2 without cancellation; it is 0 for |r| = 1, where the integral vanishes.
+    square = (1 - np.abs(r)) * (1 + np.abs(r))
+    inner = square > 0
+    if inner.any():
+        bvn[inner] = _genz_integral(h[inner], k[inner], hk[inner], square[inner])
+    edge = normal_cdf(-np.maximum(h, k))
+    # For r < 0 and h < k, Phi(-h) - Phi(-k), taken from the tail with the smaller values.
+    band = np.where(h < 0, normal_cdf(k) - normal_cdf(h), normal_cdf(-h) - normal_cdf(-k))
+    return np.where(negative, np.where(h >= k, -bvn, band - bvn), bvn + edge)
+
+
+def _genz_integral(
+    h: npt.NDArray[np.float64],
+    k: npt.NDArray[np.float64],
+    hk: npt.NDArray[np.float64],
+    square: npt.NDArray[np.float64],
+) -> npt.NDArray[np.float64]:
+    """Return minus the integral of `_upper_normal_from_one` for 0 < 1 - r**2 = square."""
+    bound = np.sqrt(square)
+    bs = (h - k) ** 2
+    c = (4 - hk) / 8
+    d = (12 - hk) / 80
+    with np.errstate(over="ignore", invalid="ignore"):
+        exponent = -(bs / square + hk) / 2
+        closed = np.where(
+            exponent > _GENZ_EXPONENT,
+            bound
+            * np.exp(exponent)
+            * (1 - c * (bs - square) * (1 - d * bs) / 3 + c * d * square * square),
+            0.0,
+        )
+        b = np.sqrt(bs)
+        closed -= np.where(
+            hk > _GENZ_EXPONENT,
+            np.exp(-hk / 2)
+            * math.sqrt(2 * math.pi)
+            * normal_cdf(-b / bound)
+            * b
+            * (1 - c * bs * (1 - d * bs) / 3),
+            0.0,
+        )
+        half = bound[:, None] / 2
+        u = (half * (1 + _LEGENDRE_NODES)) ** 2
+        exponent = -(bs[:, None] / u + hk[:, None]) / 2
+        root = np.sqrt(1 - u)
+        series = 1 + c[:, None] * u * (1 + 5 * d[:, None] * u)
+        exact = np.exp(-(hk[:, None] / 2) * u / (1 + root) ** 2) / root
+        terms = np.where(exponent > _GENZ_EXPONENT, np.exp(exponent) * (series - exact), 0.0)
+    numeric = half[:, 0] * (terms * _LEGENDRE_WEIGHTS).sum(axis=1)
+    return (numeric - closed) / (2 * math.pi)
 
 
 def student_t_sf(t: npt.ArrayLike, dof: npt.ArrayLike) -> npt.NDArray[np.float64]:
@@ -304,7 +593,36 @@ def gammaincc(a: float, x: float) -> float:
     raise ArithmeticError("the incomplete gamma function did not converge")
 
 
-def normal_quantile(probability: float) -> float:
+@typing.overload
+def normal_quantile(probability: float) -> float: ...
+@typing.overload
+def normal_quantile(probability: npt.ArrayLike) -> float | npt.NDArray[np.float64]: ...
+def normal_quantile(probability: npt.ArrayLike) -> float | npt.NDArray[np.float64]:
+    """Return the quantile of the standard normal distribution.
+
+    A scalar must lie strictly between 0 and 1 and gives a float. An array
+    gives an array of its shape, in which a missing value gives NaN and every
+    other value must lie strictly between 0 and 1; each element is exactly the
+    float that the scalar gives.
+    """
+    if np.ndim(probability) == 0:
+        return _normal_quantile(typing.cast(float, probability))
+    values = np.asarray(probability, dtype=float)
+    known = ~np.isnan(values)
+    outside = known & ~((values > 0) & (values < 1))
+    if outside.any():
+        raise ValueError(
+            f"probability must be between 0 and 1, got {_validation.shown(values[outside][0])}"
+        )
+    result = np.full(values.shape, np.nan)
+    # Each distinct value once: the probabilities of a portfolio often repeat those of its grades.
+    distinct, position = np.unique(values[known], return_inverse=True)
+    quantiles = np.array([_normal_quantile(value) for value in distinct.tolist()], dtype=float)
+    result[known] = quantiles[position.ravel()]
+    return result
+
+
+def _normal_quantile(probability: float) -> float:
     """Return the quantile of the standard normal distribution, for 0 < probability < 1."""
     if not 0 < probability < 1:
         raise ValueError(
@@ -312,7 +630,7 @@ def normal_quantile(probability: float) -> float:
         )
     if probability > 0.5:
         # 1 - p is exact for p >= 0.5, and the lower tail keeps full relative accuracy.
-        return -normal_quantile(1 - probability)
+        return -_normal_quantile(1 - probability)
     if probability < _ACKLAM_LOW:
         q = math.sqrt(-2 * math.log(probability))
         x = _horner(_ACKLAM_C, q) / _horner(_ACKLAM_D, q)
