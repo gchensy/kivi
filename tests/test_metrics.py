@@ -11,6 +11,7 @@ from kivi.datasets import load_bank
 from kivi.metrics import (
     brier_score,
     delong_test,
+    expected_maximum_profit,
     gains_table,
     generalized_auc,
     gini,
@@ -1114,3 +1115,297 @@ def test_generalized_auc_requires_identical_indices():
         generalized_auc(pd.Series([1, 2]), pd.Series([1, 2], index=[5, 6]))
     with pytest.raises(ValueError, match="realized and weights must have identical indices"):
         generalized_auc([1, 2], pd.Series([1, 2]), weights=pd.Series([1, 1], index=[5, 6]))
+
+
+# The EMP examples of the design document, kivi-1.7-rules-profit.md.
+EMP_SCORE = [0.1, 0.2, 0.3, 0.4, 0.5, 0.7, 0.8, 0.9]
+EMP_TARGET = [0, 1, 0, 1, 0, 1, 0, 1]
+# Three tied scores of 0.3 hold two defaults and a good applicant, two of 0.6 one of each.
+TIED_SCORE = [0.1, 0.2, 0.2, 0.3, 0.3, 0.3, 0.5, 0.6, 0.6, 0.7, 0.8, 0.9]
+TIED_TARGET = [0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1]
+TIED_WEIGHTS = [1, 2, 0, 3, 1, 1, 2, 1, 1, 4, 1, 2]
+
+
+def brute_force_emp(score, target, no_loss, full_loss, roi, weights=None, grid=100_000):
+    """Integrate the best profit over a midpoint grid of losses, at every distinct cut-off.
+
+    The best cut-off for each loss is searched over all thresholds between distinct scores,
+    without a convex hull; ties go to the cut-off that rejects the fewest applicants.
+    """
+    score, target = np.asarray(score, dtype=float), np.asarray(target)
+    weights = np.ones(len(score)) if weights is None else np.asarray(weights, dtype=float)
+    bad, good = weights * (target == 1), weights * (target == 0)
+    # Reject the scores at or above each threshold; infinity rejects nobody.
+    thresholds = np.r_[np.inf, np.unique(score)[::-1]]
+    rejected_bad = np.array([bad[score >= t].sum() for t in thresholds]) / weights.sum()
+    rejected_good = np.array([good[score >= t].sum() for t in thresholds]) / weights.sum()
+
+    def best(losses):
+        profit = losses[:, None] * rejected_bad - roi * rejected_good
+        choice = np.argmax(profit, axis=1)
+        return profit[np.arange(len(losses)), choice], (rejected_bad + rejected_good)[choice]
+
+    losses = (np.arange(grid) + 0.5) / grid
+    profit, rejected = zip(*(best(chunk) for chunk in np.array_split(losses, 20)), strict=True)
+    ends = best(np.array([0.0, 1.0]))
+    uniform = 1 - no_loss - full_loss
+    emp = uniform * np.concatenate(profit).mean() + no_loss * ends[0][0] + full_loss * ends[0][1]
+    share = (
+        uniform * np.concatenate(rejected).mean() + no_loss * ends[1][0] + full_loss * ends[1][1]
+    )
+    return emp, share
+
+
+# Computed once with empulse 0.14.0 in a throwaway environment, not a test dependency:
+#   from empulse.metrics import empcs_score
+#   options = dict(success_rate=no_loss_share, default_rate=full_loss_share, roi=roi)
+#   empcs_score(target, score, **options), empcs_score.optimal_rate(target, score, **options)
+# The weighted case repeats each row as often as its weight says.
+@pytest.mark.parametrize(
+    ("score", "target", "options", "emp", "rejected_share"),
+    [
+        (EMP_SCORE, EMP_TARGET, {}, 0.0974701705, 0.324345),
+        ([0, 1, 0, 1], [0, 1, 0, 1], {}, 0.1375, 0.225),
+        (TIED_SCORE, TIED_TARGET, {}, 0.06426867433333333, 0.296825),
+        (
+            TIED_SCORE,
+            TIED_TARGET,
+            {"no_loss_share": 0.3, "full_loss_share": 0.2, "roi": 0.5},
+            0.05937500000000001,
+            0.3291666666666667,
+        ),
+        (
+            TIED_SCORE,
+            TIED_TARGET,
+            {"no_loss_share": 0.0, "full_loss_share": 1.0, "roi": 0.5},
+            0.16666666666666666,
+            0.9166666666666666,
+        ),
+        (
+            TIED_SCORE,
+            TIED_TARGET,
+            {"no_loss_share": 0.0, "full_loss_share": 0.0, "roi": 0.1},
+            0.16208333333333336,
+            0.7916666666666666,
+        ),
+        (
+            TIED_SCORE,
+            TIED_TARGET,
+            {"no_loss_share": 0.2, "full_loss_share": 0.0, "roi": 2.0},
+            0.03333333333333334,
+            0.06666666666666668,
+        ),
+        (
+            TIED_SCORE,
+            TIED_TARGET,
+            {"weights": TIED_WEIGHTS},
+            0.029455234175438588,
+            0.1289270175438596,
+        ),
+        (list(range(10)), [1] + [0] * 9, {}, 0.0, 0.0),
+    ],
+)
+def test_expected_maximum_profit_matches_empulse(score, target, options, emp, rejected_share):
+    result = expected_maximum_profit(score, target, **options)
+    assert result.index.tolist() == ["emp", "rejected_share"]
+    assert result.index.name == "statistic"
+    assert result.name is None
+    assert result.dtype == np.float64
+    assert result["emp"] == pytest.approx(emp, rel=1e-12, abs=1e-15)
+    assert result["rejected_share"] == pytest.approx(rejected_share, rel=1e-12, abs=1e-15)
+
+
+def test_expected_maximum_profit_of_the_design_example_by_hand():
+    # In (F_g, F_d) the hull runs through (0, 0), (0, 1/4), (3/4, 1) and (1, 1): the points
+    # (1/4, 1/2) and (1/2, 3/4) lie on the segment from (0, 1/4) to (3/4, 1), whose lambda is
+    # 0.2644 * 3 / 3. The last segment has no defaults, so k is the vertex (3/4, 1). Each vertex
+    # holds the rejected goods and defaults per applicant and the losses it is best for.
+    roi, uniform, full_loss = 0.2644, 0.35, 0.1
+    vertices = [(0.0, 0.0, 0.0, 0.0), (0.0, 1 / 8, 0.0, roi), (3 / 8, 4 / 8, roi, 1.0)]
+    emp = rejected = 0.0
+    for good, bad, low, high in vertices:
+        emp += uniform * (bad * (high**2 - low**2) / 2 - roi * good * (high - low))
+        rejected += uniform * (bad + good) * (high - low)
+    emp += full_loss * (4 / 8 - roi * 3 / 8)
+    rejected += full_loss * 7 / 8
+    result = expected_maximum_profit(EMP_SCORE, EMP_TARGET)
+    assert result["emp"] == pytest.approx(emp, rel=1e-14)
+    assert result["rejected_share"] == pytest.approx(rejected, rel=1e-14)
+    # Equation 15 of the paper takes the full loss at the next vertex, (1, 1): 0.09417.
+    erratum = emp - full_loss * (4 / 8 - roi * 3 / 8) + full_loss * (4 / 8 - roi * 4 / 8)
+    assert round(erratum, 5) == 0.09417
+
+
+@pytest.mark.parametrize("default_rate", [0.1, 0.5, 0.8])
+@pytest.mark.parametrize(
+    ("no_loss", "full_loss"), [(0.55, 0.1), (0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (0.3, 0.7)]
+)
+def test_expected_maximum_profit_of_perfect_separation(default_rate, no_loss, full_loss):
+    # Every default scores above every good applicant, so the best cut-off rejects exactly the
+    # defaults for any positive loss, and earns the loss on each of them.
+    target = np.r_[np.zeros(100 - int(100 * default_rate)), np.ones(int(100 * default_rate))]
+    result = expected_maximum_profit(
+        target, target, no_loss_share=no_loss, full_loss_share=full_loss
+    )
+    uniform = 1 - no_loss - full_loss
+    assert result["emp"] == pytest.approx(default_rate * (uniform / 2 + full_loss), abs=1e-15)
+    assert result["rejected_share"] == pytest.approx(default_rate * (1 - no_loss), abs=1e-15)
+
+
+@pytest.mark.parametrize("seed", range(6))
+def test_expected_maximum_profit_matches_brute_force(seed):
+    rng = np.random.default_rng(seed)
+    size = int(rng.integers(20, 200))
+    target = (rng.random(size) < rng.uniform(0.1, 0.6)).astype(int)
+    target[:2] = [0, 1]
+    # Rounding leaves many tied scores, and some scores run the wrong way.
+    score = np.round(rng.normal(size=size) + rng.uniform(0, 2) * target, int(seed % 3))
+    no_loss = rng.uniform(0, 1)
+    full_loss = rng.uniform(0, 1 - no_loss)
+    roi = rng.uniform(0.05, 2)
+    weights = rng.uniform(0, 3, size) if seed % 2 else None
+    result = expected_maximum_profit(
+        score, target, no_loss_share=no_loss, full_loss_share=full_loss, roi=roi, weights=weights
+    )
+    emp, rejected = brute_force_emp(score, target, no_loss, full_loss, roi, weights)
+    # The grid integrates the profit, piecewise linear in the loss, to about 1e-11, and the
+    # rejected share, a step function, to half a grid step.
+    assert result["emp"] == pytest.approx(emp, abs=1e-9)
+    assert result["rejected_share"] == pytest.approx(rejected, abs=5e-6)
+
+
+def test_expected_maximum_profit_rejects_tied_scores_together():
+    # Constant scores leave the diagonal: reject everybody or nobody.
+    target = [0, 1, 0, 1, 0, 0]
+    roi, uniform, full_loss = 0.2644, 0.35, 0.1
+    bound = roi * 4 / 2
+    result = expected_maximum_profit(np.zeros(6), target)
+    emp = uniform * (2 / 6 * (1 - bound**2) / 2 - roi * 4 / 6 * (1 - bound)) + full_loss * (
+        2 / 6 - roi * 4 / 6
+    )
+    assert result["emp"] == pytest.approx(emp, rel=1e-14)
+    assert result["rejected_share"] == pytest.approx(uniform * (1 - bound) + full_loss, rel=1e-14)
+    # Breaking the tie in favour of the defaults can only raise the profit.
+    broken = expected_maximum_profit([0, 1e-9, 0, 1e-9, 0, 0], target)
+    assert broken["emp"] > result["emp"]
+
+
+def test_expected_maximum_profit_depends_only_on_the_order_of_the_scores():
+    rng = np.random.default_rng(4)
+    score = rng.normal(size=300)
+    target = (rng.random(300) < 1 / (1 + np.exp(1 - score))).astype(int)
+    expected = expected_maximum_profit(score, target)
+    pd.testing.assert_series_equal(expected_maximum_profit(np.exp(3 * score), target), expected)
+    pd.testing.assert_series_equal(
+        expected_maximum_profit(pd.Series(score, index=np.arange(300) * 2), target), expected
+    )
+
+
+def test_expected_maximum_profit_integer_weights_equal_repeated_rows():
+    rng = np.random.default_rng(9)
+    score = rng.integers(0, 15, 80) / 5
+    target = (rng.random(80) < 0.3).astype(int)
+    target[:2] = [0, 1]
+    weights = rng.integers(0, 4, 80)
+    weights[:2] = 1
+    repeat = np.repeat(np.arange(80), weights)
+    options = {"no_loss_share": 0.4, "full_loss_share": 0.25, "roi": 0.6}
+    weighted = expected_maximum_profit(score, target, weights=weights, **options)
+    repeated = expected_maximum_profit(score[repeat], target[repeat], **options)
+    pd.testing.assert_series_equal(weighted, repeated, rtol=1e-14, atol=0)
+
+
+def test_expected_maximum_profit_ignores_the_scale_of_the_weights():
+    rng = np.random.default_rng(2)
+    score = rng.normal(size=100)
+    target = (rng.random(100) < 0.4).astype(int)
+    weights = rng.uniform(0.5, 2, 100)
+    expected = expected_maximum_profit(score, target, weights=weights)
+    for scale in (2.0**-1000, 1e-300, 1e300):
+        pd.testing.assert_series_equal(
+            expected_maximum_profit(score, target, weights=weights * scale),
+            expected,
+            rtol=1e-13,
+            atol=0,
+        )
+
+
+def test_expected_maximum_profit_parameter_boundaries():
+    # Without any loss, rejecting nobody is best.
+    nothing = expected_maximum_profit(EMP_SCORE, EMP_TARGET, no_loss_share=1.0, full_loss_share=0.0)
+    assert nothing.tolist() == [0.0, 0.0]
+    # A certain full loss gives the best profit of a single cut-off at a loss of 1: rejecting
+    # the scores above 0.1 catches all 4 defaults and 3 of the 4 good applicants.
+    full = expected_maximum_profit(EMP_SCORE, EMP_TARGET, no_loss_share=0.0, full_loss_share=1.0)
+    assert full["emp"] == pytest.approx((4 - 0.2644 * 3) / 8, rel=1e-14)
+    assert full["rejected_share"] == pytest.approx(7 / 8, rel=1e-14)
+    # A large return on good loans leaves only the rejection of the highest score, a default
+    # without a good applicant: it pays for any positive loss.
+    costly = expected_maximum_profit(EMP_SCORE, EMP_TARGET, roi=1e6)
+    assert costly["emp"] == pytest.approx((0.35 / 2 + 0.1) / 8, rel=1e-14)
+    assert costly["rejected_share"] == pytest.approx(0.45 / 8, rel=1e-14)
+
+
+def test_expected_maximum_profit_matches_series_by_index_and_does_not_mutate_inputs():
+    score = pd.Series(EMP_SCORE, index=list("abcdefgh"))
+    target = pd.Series(EMP_TARGET, index=list("abcdefgh"))
+    weights = np.ones(8)
+    expected = expected_maximum_profit(EMP_SCORE, EMP_TARGET)
+    pd.testing.assert_series_equal(
+        expected_maximum_profit(score, target, weights=weights), expected
+    )
+    pd.testing.assert_series_equal(score, pd.Series(EMP_SCORE, index=list("abcdefgh")))
+    np.testing.assert_array_equal(weights, np.ones(8))
+    with pytest.raises(ValueError, match="score and target must have identical indices"):
+        expected_maximum_profit(score, target.reset_index(drop=True))
+    with pytest.raises(ValueError, match="target and weights must have identical indices"):
+        expected_maximum_profit(EMP_SCORE, target, weights=pd.Series(weights))
+
+
+@pytest.mark.parametrize("name", ["no_loss_share", "full_loss_share"])
+@pytest.mark.parametrize("value", [-0.1, 1.1, np.nan, True, np.True_, "0.5", None, [0.5]])
+def test_expected_maximum_profit_rejects_invalid_shares(name, value):
+    message = f"{name} must be a number between 0 and 1, got {_shown(value)}"
+    with pytest.raises(ValueError, match=re.escape(message)):
+        expected_maximum_profit(EMP_SCORE, EMP_TARGET, **{name: value})
+
+
+def _shown(value):
+    return repr(value.item() if isinstance(value, np.generic) else value)
+
+
+def test_expected_maximum_profit_rejects_shares_above_one_together():
+    message = "no_loss_share and full_loss_share must add up to at most 1, got 0.6 and 0.5"
+    with pytest.raises(ValueError, match=re.escape(message)):
+        expected_maximum_profit(EMP_SCORE, EMP_TARGET, no_loss_share=0.6, full_loss_share=0.5)
+    # Shares that add up to exactly 1 leave no uniform part.
+    result = expected_maximum_profit(
+        EMP_SCORE, EMP_TARGET, no_loss_share=0.45, full_loss_share=0.55
+    )
+    assert result["emp"] == pytest.approx(0.55 * (4 - 0.2644 * 3) / 8, rel=1e-14)
+    assert result["rejected_share"] == pytest.approx(0.55 * 7 / 8, rel=1e-14)
+
+
+@pytest.mark.parametrize("roi", [0, -0.5, np.inf, np.nan, True, "0.2", None])
+def test_expected_maximum_profit_rejects_invalid_roi(roi):
+    message = f"roi must be a positive finite number, got {_shown(roi)}"
+    with pytest.raises(ValueError, match=re.escape(message)):
+        expected_maximum_profit(EMP_SCORE, EMP_TARGET, roi=roi)
+
+
+@pytest.mark.parametrize(
+    ("score", "target", "weights", "message"),
+    [
+        ([0.1, 0.2], [0, 0], None, "target must contain both 0 and 1, got only 0"),
+        ([0.1, 0.2], [0, 2], None, "target must contain only 0 and 1, got 2"),
+        ([0.1, np.inf], [0, 1], None, "score must be finite"),
+        (["a", "b"], [0, 1], None, "score must be numeric"),
+        ([0.1, 0.2], [0, 1, 1], None, "score and target must have the same length, got 2 and 3"),
+        ([], [], None, "score and target must not be empty"),
+        ([0.1, 0.2], [0, 1], [1, 0], "weights must give both target classes a positive total"),
+        ([0.1, 0.2], [0, 1], [1, -1], "weights must be finite and non-negative"),
+    ],
+)
+def test_expected_maximum_profit_rejects_invalid_inputs(score, target, weights, message):
+    with pytest.raises(ValueError, match=re.escape(message)):
+        expected_maximum_profit(score, target, weights=weights)

@@ -25,6 +25,7 @@ __all__ = [
     "generalized_auc",
     "gains_table",
     "brier_score",
+    "expected_maximum_profit",
 ]
 
 
@@ -1090,6 +1091,213 @@ def brier_score(
     return float(np.average((values - labels) ** 2, weights=mass))
 
 
+def expected_maximum_profit(
+    score: npt.ArrayLike,
+    target: npt.ArrayLike,
+    *,
+    no_loss_share: float = 0.55,
+    full_loss_share: float = 0.1,
+    roi: float = 0.2644,
+    weights: npt.ArrayLike | None = None,
+) -> pd.Series:
+    r"""Compute the expected maximum profit of a credit score.
+
+    The expected maximum profit (EMP) of Verbraken, Bravo, Weber and
+    Baesens [1]_ is the profit per applicant of the best cut-off of a score,
+    averaged over the uncertain loss of a default. Rejecting a default saves
+    the share of the loan it would lose, and rejecting a good applicant gives
+    up the return on the loan, so the best cut-off depends on that loss.
+
+    The score comes first and the target second, as in `kivi.woe.woe_table`.
+
+    Parameters
+    ----------
+    score : array_like
+        Finite numeric scores that are higher for a higher risk, such as a
+        PD. Negate scorecard points, which are higher for a lower risk.
+    target : array_like
+        Binary labels, with 1 indicating a default. Both classes must be
+        present. If `score` and `target` are both pandas Series, they must
+        have identical indices; otherwise they are matched by position.
+    no_loss_share : float, default 0.55
+        Probability that a default loses nothing, :math:`p_0` in [1]_. It
+        must lie between 0 and 1.
+    full_loss_share : float, default 0.1
+        Probability that a default loses the whole loan, :math:`p_1` in
+        [1]_. It must lie between 0 and 1, and together with
+        `no_loss_share` add up to at most 1. The remaining probability is
+        spread evenly over the losses between 0 and the whole loan.
+    roi : float, default 0.2644
+        Return on investment of a good loan, as a share of the loan amount:
+        the profit given up by rejecting a good applicant. It must be a
+        positive finite number.
+    weights : array_like, optional
+        Non-negative frequency weight of each observation, such as the
+        inverse of its sampling rate, matched like `target`. Every count
+        becomes a sum of weights, so integer weights give the same result
+        as repeating rows.
+
+    Returns
+    -------
+    pandas.Series
+        Two values in an index named ``statistic``: ``emp``, the expected
+        maximum profit per applicant as a share of the loan amount, and
+        ``rejected_share``, the share of applicants that the best cut-off
+        rejects, averaged in the same way.
+
+    Raises
+    ------
+    ValueError
+        If the inputs are empty or not one-dimensional, their indices or
+        lengths do not match, `target` has a label other than 0 and 1 or
+        lacks one of them, or `score` is not real and numeric or has a
+        missing or infinite value. Also if `no_loss_share` or
+        `full_loss_share` is not a number between 0 and 1 or they add up to
+        more than 1, `roi` is not a positive finite number, or `weights` is
+        not numeric, does not give each observation one finite, non-negative
+        weight, has an index other than that of `score`, or leaves a class
+        without weight.
+
+    See Also
+    --------
+    kivi.strategy.cutoff_table : Revenue, losses and profit of the approved book at each cut-off.
+    roc_table : The ROC curve, whose convex hull holds the best cut-offs.
+    roc_auc : Ranking quality, which weighs every cut-off alike.
+
+    Notes
+    -----
+    Let :math:`\pi_d` be the share of defaults and :math:`\pi_g = 1 - \pi_d`
+    that of good applicants, and let :math:`F_d(t)` and :math:`F_g(t)` be
+    the shares of defaults and of good applicants that score above a cut-off
+    :math:`t` and are rejected. A default loses the share :math:`\lambda` of
+    its loan and a good loan earns the return :math:`\mathrm{ROI}`, both as
+    shares of the loan amount. Compared with approving everyone, the profit
+    of the cut-off per applicant is
+
+    .. math::
+
+       P(t; \lambda) = \lambda \, \pi_d F_d(t) - \mathrm{ROI} \, \pi_g F_g(t).
+
+    The loss :math:`\lambda` is 0 with probability :math:`p_0`, 1 with
+    probability :math:`p_1`, and otherwise uniform between 0 and 1, with the
+    density :math:`\alpha = 1 - p_0 - p_1`. The EMP averages the profit of
+    the best cut-off for each loss over this distribution :math:`H`,
+
+    .. math::
+
+       \mathrm{EMP} = \int_0^1 \max_t P(t; \lambda) \, dH(\lambda),
+
+    and ``rejected_share`` averages the share :math:`\pi_d F_d + \pi_g F_g`
+    that the best cut-off rejects in the same way.
+
+    The best cut-off is a vertex of the upper convex hull of the ROC curve,
+    the points :math:`(F_g, F_d)` of the cut-offs between distinct scores,
+    so tied scores are always rejected together. Let
+    :math:`(F_{g,i}, F_{d,i})` for :math:`i = 0, \ldots, m` be its vertices
+    from (0, 0) to (1, 1). Vertex :math:`i` is the best cut-off for the
+    losses from :math:`\lambda_i` to :math:`\lambda_{i+1}`, where
+    :math:`\lambda_0 = 0` and
+
+    .. math::
+
+       \lambda_i = \frac{\mathrm{ROI} \, \pi_g \, (F_{g,i} - F_{g,i-1})}
+       {\pi_d \, (F_{d,i} - F_{d,i-1})},
+
+    which is infinite for a segment without defaults. With :math:`k` the
+    last vertex such that :math:`\lambda_k < 1`, and :math:`\lambda_{k+1}`
+    replaced by 1,
+
+    .. math::
+
+       \mathrm{EMP} = \alpha \sum_{i=0}^{k} \left[ \pi_d F_{d,i}
+       \frac{\lambda_{i+1}^2 - \lambda_i^2}{2} - \mathrm{ROI} \, \pi_g
+       F_{g,i} (\lambda_{i+1} - \lambda_i) \right] + p_1 \left[ \pi_d F_{d,k}
+       - \mathrm{ROI} \, \pi_g F_{g,k} \right],
+
+    and ``rejected_share`` replaces each profit by the share rejected at the
+    same vertex, :math:`\pi_d F_{d,i} + \pi_g F_{g,i}`, integrated over the
+    same losses. A default that loses nothing makes rejecting nobody the
+    best decision, so the mass :math:`p_0` adds nothing to either value, and
+    the EMP is never negative. Equation 15 of [1]_ evaluates the term of
+    :math:`p_1` at vertex :math:`k + 1`; the best cut-off for a full loss is
+    vertex :math:`k`, as in the R package ``EMP`` [2]_ and the Python
+    package ``empulse`` [3]_, whose results this function reproduces.
+
+    The defaults of `no_loss_share`, `full_loss_share` and `roi` are those
+    of both packages, and the return of 0.2644 is that of the example in
+    [1]_. Both packages, like kivi, take 1 as the default and a score that
+    rises with the risk. The EMP depends only on the order of the scores,
+    as the AUC does, but weighs the cut-offs by the profit they earn.
+
+    References
+    ----------
+    .. [1] T. Verbraken, C. Bravo, R. Weber and B. Baesens, "Development and
+       application of consumer credit scoring models using profit-based
+       classification measures", European Journal of Operational Research,
+       238(2), pp. 505-513, 2014.
+    .. [2] R package ``EMP``, version 2.0.6, function ``empCreditScoring``,
+       2025.
+    .. [3] Python package ``empulse``, version 0.14.0, function
+       ``empulse.metrics.empcs_score``, 2026.
+
+    Examples
+    --------
+    >>> from kivi.metrics import expected_maximum_profit
+    >>> score = [0.1, 0.2, 0.3, 0.4, 0.5, 0.7, 0.8, 0.9]
+    >>> target = [0, 1, 0, 1, 0, 1, 0, 1]
+    >>> expected_maximum_profit(score, target).round(4)
+    statistic
+    emp               0.0975
+    rejected_share    0.3243
+    dtype: float64
+    """
+    values, labels, mass = _validation.scores_and_labels(score, target, "score", weights=weights)
+    no_loss = _share(no_loss_share, "no_loss_share")
+    full_loss = _share(full_loss_share, "full_loss_share")
+    if no_loss + full_loss > 1:
+        raise ValueError(
+            "no_loss_share and full_loss_share must add up to at most 1, got "
+            f"{no_loss!r} and {full_loss!r}"
+        )
+    if (
+        isinstance(roi, (bool, np.bool_))
+        or not _validation.is_real(roi)
+        or not math.isfinite(roi)
+        or roi <= 0
+    ):
+        raise ValueError(
+            f"roi must be a positive finite number, got {_validation.shown_argument(roi)}"
+        )
+    if mass is not None:
+        # Scaling by a power of two is exact and keeps the products of the hull finite.
+        mass = np.ldexp(mass, -int(np.frexp(mass.max())[1]))
+    # Cumulative good and bad counts, rejecting from the highest score down.
+    counts = _distinct_counts(labels, values, mass)[::-1].astype(float)
+    good, bad = np.concatenate([np.zeros((1, 2)), np.cumsum(counts, axis=0)]).T
+    good, bad = _upper_hull(good, bad)
+    total = good[-1] + bad[-1]
+    # lambda_i = ROI pi_g dF_g / (pi_d dF_d) = ROI dG / dD; a segment without defaults never pays.
+    step_good, step_bad = np.diff(good), np.diff(bad)
+    ratio = np.divide(step_good, step_bad, out=np.full(len(step_bad), np.inf), where=step_bad > 0)
+    bounds = np.concatenate([[0.0], float(roi) * ratio])
+    last = int(np.flatnonzero(bounds < 1)[-1])
+    lower = bounds[: last + 1]
+    upper = np.append(bounds[1 : last + 1], 1.0)
+    width = upper - lower
+    # Profit and rejected share per applicant at each vertex, as shares of the loan amount.
+    rejected_bad, rejected_good = bad[: last + 1] / total, good[: last + 1] / total
+    uniform = 1.0 - (no_loss + full_loss)
+    emp = uniform * np.sum(
+        rejected_bad * width * (upper + lower) / 2 - float(roi) * rejected_good * width
+    ) + full_loss * (rejected_bad[-1] - float(roi) * rejected_good[-1])
+    rejected = uniform * np.sum((rejected_bad + rejected_good) * width) + full_loss * (
+        rejected_bad[-1] + rejected_good[-1]
+    )
+    return pd.Series(
+        [float(emp), float(rejected)], index=pd.Index(["emp", "rejected_share"], name="statistic")
+    )
+
+
 def _auc(values: np.ndarray, labels: np.ndarray, weights: np.ndarray | None) -> float:
     """AUC from validated scores, labels and weights, with ties counted as one half."""
     if weights is not None:
@@ -1228,3 +1436,40 @@ def _distinct_counts(
 ) -> npt.NDArray[np.int64] | npt.NDArray[np.float64]:
     """(non_event, event) counts at each distinct score, from the lowest score to the highest."""
     return _score_counts(values, labels, weights)[1]
+
+
+def _share(value: float, name: str) -> float:
+    """Return a probability from 0 to 1 as a float, or raise a ValueError naming the argument."""
+    if (
+        isinstance(value, (bool, np.bool_))
+        or not _validation.is_real(value)
+        or not 0 <= float(value) <= 1
+    ):
+        raise ValueError(
+            f"{name} must be a number between 0 and 1, got {_validation.shown_argument(value)}"
+        )
+    return float(value)
+
+
+def _upper_hull(
+    x: npt.NDArray[np.float64], y: npt.NDArray[np.float64]
+) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+    """Vertices of the upper convex hull of points sorted by x, then by y.
+
+    Andrew's monotone chain: a point on or below the chord from the vertex before it to the next
+    point is dropped, so collinear points and repeated points are not vertices.
+    """
+    hull_x: list[float] = []
+    hull_y: list[float] = []
+    for a, b in zip(x.tolist(), y.tolist(), strict=True):
+        while (
+            len(hull_x) > 1
+            and (hull_x[-1] - hull_x[-2]) * (b - hull_y[-2])
+            - (hull_y[-1] - hull_y[-2]) * (a - hull_x[-2])
+            >= 0
+        ):
+            hull_x.pop()
+            hull_y.pop()
+        hull_x.append(a)
+        hull_y.append(b)
+    return np.array(hull_x), np.array(hull_y)

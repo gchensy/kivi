@@ -57,7 +57,7 @@ EL_COLUMNS = [
 ]
 
 
-def brute_force_cutoffs(score, target, cutoffs, loss=None, weights=None):
+def brute_force_cutoffs(score, target, cutoffs, loss=None, weights=None, revenue=None):
     """Recompute every column of cutoff_table with one mask per cut-off."""
     score, target = np.asarray(score, dtype=float), np.asarray(target)
     weights = np.ones(len(score)) if weights is None else np.asarray(weights, dtype=float)
@@ -78,6 +78,10 @@ def brute_force_cutoffs(score, target, cutoffs, loss=None, weights=None):
         }
         if loss is not None:
             row["approved_loss"] = (weights * np.asarray(loss))[approved].sum()
+        if revenue is not None:
+            row["approved_revenue"] = (weights * np.asarray(revenue))[approved].sum()
+        if loss is not None and revenue is not None:
+            row["profit"] = row["approved_revenue"] - row["approved_loss"]
         rows.append(row)
     return pd.DataFrame(rows, index=pd.Index(np.asarray(cutoffs, dtype=float), name="cutoff"))
 
@@ -109,10 +113,13 @@ def test_cutoff_table_matches_brute_force_on_random_scores():
     score = rng.integers(0, 30, 500) / 10
     target = (rng.random(500) < 0.1 + 0.25 * (score > 1.5)).astype(int)
     loss = rng.gamma(2.0, 100.0, 500)
+    revenue = rng.uniform(0.0, 40.0, 500)
     cutoffs = [-1.0, 0.0, 0.55, 1.5, 2.2, 2.9, 10.0]
-    table = cutoff_table(score, target, cutoffs=cutoffs, loss=loss)
+    table = cutoff_table(score, target, cutoffs=cutoffs, loss=loss, revenue=revenue)
     pd.testing.assert_frame_equal(
-        table, brute_force_cutoffs(score, target, cutoffs, loss), check_dtype=False
+        table,
+        brute_force_cutoffs(score, target, cutoffs, loss, revenue=revenue),
+        check_dtype=False,
     )
 
 
@@ -169,21 +176,87 @@ def test_cutoff_table_loss_sums_the_approved_losses():
     assert table["approved_loss"].tolist() == [60.0, 150.0, 360.0]
 
 
+# Revenue is highest for the good applicant at 0.5, and the events lose more than they earn.
+REVENUE = [4.0, 6.0, 2.0, 8.0, 30.0, 3.0, 1.0, 5.0]
+LOSS = [0.0, 0.0, 30.0, 0.0, 0.0, 25.0, 40.0, 50.0]
+
+
+def test_cutoff_table_revenue_and_profit_match_hand_calculation():
+    table = cutoff_table(SCORE, TARGET, cutoffs=[0.1, 0.3, 0.5, 1.0], loss=LOSS, revenue=REVENUE)
+    assert table.columns.tolist() == [
+        *CUTOFF_COLUMNS,
+        "approved_loss",
+        "approved_revenue",
+        "profit",
+    ]
+    # At 0.3 the rows 0-3 are approved, with the event at 0.2 that loses 30.
+    assert table["approved_revenue"].tolist() == [4.0, 20.0, 50.0, 59.0]
+    assert table["approved_loss"].tolist() == [0.0, 30.0, 30.0, 145.0]
+    assert table["profit"].tolist() == [4.0, -10.0, 20.0, -86.0]
+    assert table["profit"].idxmax() == 0.5
+
+
+def test_cutoff_table_revenue_without_loss_has_no_profit():
+    table = cutoff_table(SCORE, TARGET, cutoffs=[0.2, 1.0], revenue=REVENUE)
+    assert table.columns.tolist() == [*CUTOFF_COLUMNS, "approved_revenue"]
+    assert table["approved_revenue"].tolist() == [12.0, 59.0]
+    assert table["approved_revenue"].dtype == np.float64
+
+
+def test_cutoff_table_revenue_leaves_the_other_columns_unchanged():
+    cutoffs = [0.15, 0.3, 0.7, 1.0]
+    default = cutoff_table(SCORE, TARGET, cutoffs=cutoffs)
+    with_loss = cutoff_table(SCORE, TARGET, cutoffs=cutoffs, loss=LOSS)
+    both = cutoff_table(SCORE, TARGET, cutoffs=cutoffs, loss=LOSS, revenue=REVENUE)
+    revenue_only = cutoff_table(SCORE, TARGET, cutoffs=cutoffs, revenue=REVENUE)
+    pd.testing.assert_frame_equal(both[CUTOFF_COLUMNS], default, check_exact=True)
+    pd.testing.assert_frame_equal(revenue_only[CUTOFF_COLUMNS], default, check_exact=True)
+    pd.testing.assert_frame_equal(both[with_loss.columns], with_loss, check_exact=True)
+    pd.testing.assert_series_equal(
+        both["approved_revenue"], revenue_only["approved_revenue"], check_exact=True
+    )
+
+
+def test_cutoff_table_profit_is_the_difference_of_the_weighted_sums():
+    rng = np.random.default_rng(8)
+    score = rng.normal(size=300)
+    target = (rng.random(300) < 1 / (1 + np.exp(2 - score))).astype(int)
+    loss = target * rng.uniform(50, 100, 300)
+    revenue = rng.uniform(5, 15, 300)
+    weights = rng.uniform(0, 2, 300)
+    table = cutoff_table(score, target, cutoffs=8, loss=loss, revenue=revenue, weights=weights)
+    np.testing.assert_array_equal(
+        table["profit"], table["approved_revenue"] - table["approved_loss"]
+    )
+    pd.testing.assert_frame_equal(
+        table,
+        brute_force_cutoffs(score, target, table.index, loss, weights, revenue),
+        check_dtype=False,
+    )
+
+
 def test_cutoff_table_integer_weights_equal_repeated_rows():
     rng = np.random.default_rng(11)
     score = rng.integers(0, 12, 60) / 4
     target = (rng.random(60) < 0.3).astype(int)
     target[:2] = [0, 1]
     loss = rng.uniform(0, 50, 60)
+    revenue = rng.uniform(0, 10, 60)
     weights = rng.integers(0, 4, 60)
     weights[:2] = 1
     repeat = np.repeat(np.arange(60), weights)
     cutoffs = [0.5, 1.0, 1.75, 3.0]
-    weighted = cutoff_table(score, target, cutoffs=cutoffs, loss=loss, weights=weights)
-    repeated = cutoff_table(score[repeat], target[repeat], cutoffs=cutoffs, loss=loss[repeat])
+    weighted = cutoff_table(
+        score, target, cutoffs=cutoffs, loss=loss, revenue=revenue, weights=weights
+    )
+    repeated = cutoff_table(
+        score[repeat], target[repeat], cutoffs=cutoffs, loss=loss[repeat], revenue=revenue[repeat]
+    )
     pd.testing.assert_frame_equal(weighted, repeated, check_dtype=False)
     pd.testing.assert_frame_equal(
-        weighted, brute_force_cutoffs(score, target, cutoffs, loss, weights), check_dtype=False
+        weighted,
+        brute_force_cutoffs(score, target, cutoffs, loss, weights, revenue),
+        check_dtype=False,
     )
 
 
@@ -211,16 +284,25 @@ def test_cutoff_table_matches_series_by_index_and_arrays_by_position():
         cutoff_table(SCORE, target, cutoffs=[0.3], loss=pd.Series(np.ones(8)))
     with pytest.raises(ValueError, match="target and weights must have identical indices"):
         cutoff_table(SCORE, target, cutoffs=[0.3], weights=pd.Series(np.ones(8)))
+    with pytest.raises(ValueError, match="score and revenue must have identical indices"):
+        cutoff_table(score, target, cutoffs=[0.3], revenue=pd.Series(np.ones(8)))
+    revenue = pd.Series(REVENUE, index=list("abcdefgh"))
+    pd.testing.assert_frame_equal(
+        cutoff_table(score, target, cutoffs=[0.3, 1.0], revenue=revenue),
+        cutoff_table(SCORE, TARGET, cutoffs=[0.3, 1.0], revenue=REVENUE),
+    )
 
 
 def test_cutoff_table_does_not_mutate_inputs():
     score = pd.Series(SCORE)
     target = pd.Series(TARGET)
     loss = np.arange(8.0)
-    cutoff_table(score, target, cutoffs=[0.3], loss=loss)
+    revenue = pd.Series(REVENUE)
+    cutoff_table(score, target, cutoffs=[0.3], loss=loss, revenue=revenue)
     pd.testing.assert_series_equal(score, pd.Series(SCORE))
     pd.testing.assert_series_equal(target, pd.Series(TARGET))
     np.testing.assert_array_equal(loss, np.arange(8.0))
+    pd.testing.assert_series_equal(revenue, pd.Series(REVENUE))
 
 
 @pytest.mark.parametrize(
@@ -247,6 +329,9 @@ def test_cutoff_table_rejects_invalid_cutoffs(cutoffs):
 def test_cutoff_table_rejects_invalid_loss(loss, message):
     with pytest.raises(ValueError, match=message):
         cutoff_table(SCORE, TARGET, cutoffs=[0.5], loss=loss)
+    # Revenue is checked in the same way, also next to a valid loss.
+    with pytest.raises(ValueError, match=message.replace("loss", "revenue")):
+        cutoff_table(SCORE, TARGET, cutoffs=[0.5], loss=LOSS, revenue=loss)
 
 
 def test_cutoff_table_rejects_invalid_scores_and_targets():
