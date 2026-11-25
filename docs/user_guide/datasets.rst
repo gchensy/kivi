@@ -65,7 +65,21 @@ Each loan is repaid in equal monthly instalments at 1% interest a month. Its sta
 * a delinquent loan pays all its arrears and becomes current, pays one instalment and keeps its status, or pays nothing and rolls to the next bucket, also after its term, and the later the bucket, the less likely it cures and the more likely it rolls;
 * a ``90+`` loan pays nothing more, so its status and balance stay the same.
 
-A loan leaves the panel in the month it pays its last instalment, which can come after its term if it was behind. Loans are not charged off or prepaid.
+A loan leaves the panel in the month it pays its last instalment, which can come after its term if it was behind. Loans are not charged off, and they repay early only with ``prepayment``.
+
+Early repayments
+^^^^^^^^^^^^^^^^
+
+``prepayment`` is the monthly probability that a current loan repays its whole balance before its last instalment is due, for the survival tables in :doc:`lifetime`. The default, 0, gives the panel above, the same as in earlier releases. Every month, a loan that was current at the end of the month before, as every loan is at origination, and that has more instalments left than the one now due repays early with that probability, whatever its risk. Its balance is 0 in that month, and it has no rows after it, so the columns stay the same: a balance of 0 before the term marks an early repayment, and a balance of 0 at or after the term a repayment on schedule.
+
+>>> repaying = make_loan_panel(n_loans=5000, n_months=24, prepayment=0.02, rng=0)
+>>> last = repaying.groupby("loan_id").tail(1)
+>>> repaid = last["balance"] == 0
+>>> early = repaid & (last["month_on_book"] < last["term"])
+>>> int(early.sum()), int((repaid & ~early).sum()), int((last["status"] == "90+").sum())
+(962, 454, 182)
+
+A 2% chance a month repays 962 of the 5,000 loans early. The early repayments use random numbers of their own, drawn after all the others, so with the same ``rng`` every loan follows the same path as without ``prepayment`` until it repays early. Fewer loans therefore stay on book long enough to reach their term or 90+: 454 loans repay on schedule and 182 reach 90+, against 584 and 205 without early repayments.
 
 Synthetic loan applications
 ---------------------------
