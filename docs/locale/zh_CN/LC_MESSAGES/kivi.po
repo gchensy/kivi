@@ -2569,6 +2569,623 @@ msgid ""
 "is not missing falls into a band."
 msgstr "与 ``pandas.cut`` 一样，各分段为右闭区间：等于某个内部边界的评分取该边界下方分段的概率。由于两端边界为无穷，每个非缺失的评分都会落入某个分段。"
 
+msgid "Regulatory capital"
+msgstr "监管资本"
+
+msgid ""
+"Compute the regulatory capital of credit exposures under the internal ratings-based approach. "
+":func:`~kivi.capital.asset_correlation` and :func:`~kivi.capital.capital_requirement` evaluate "
+"the risk-weight functions of the Basel framework and of China's 2023 capital rules, "
+":func:`~kivi.capital.conditional_pd`, :func:`~kivi.capital.systematic_factor` and "
+":func:`~kivi.capital.vasicek_fit` work with the one-factor model behind them, and "
+":func:`~kivi.capital.most_prudent_pd` bounds the PDs of a portfolio with few defaults."
+msgstr ""
+"按内部评级法计算信用风险敞口的监管资本。 :func:`~kivi.capital.asset_correlation` 和 "
+":func:`~kivi.capital.capital_requirement` 计算巴塞尔框架和中国 2023 年资本规则的风险权重函数， "
+":func:`~kivi.capital.conditional_pd` 、 :func:`~kivi.capital.systematic_factor` 和 "
+":func:`~kivi.capital.vasicek_fit` 处理其背后的单因子模型， :func:`~kivi.capital.most_prudent_pd` 给出违约很少的组合的 "
+"PD 上界。"
+
+msgid "See :doc:`/user_guide/capital` for examples and the parameters of both jurisdictions."
+msgstr "示例和两地的参数见 :doc:`/user_guide/capital` 。"
+
+msgid ""
+":py:obj:`asset_correlation <kivi.capital.asset_correlation>`\\ \\(probability\\, \\*\\, "
+"asset\\_class\\)"
+msgstr ""
+":py:obj:`asset_correlation <kivi.capital.asset_correlation>`\\ \\(probability\\, \\*\\, "
+"asset\\_class\\)"
+
+msgid "Compute the asset correlation of the IRB risk-weight function."
+msgstr "计算内部评级法风险权重函数中的资产相关系数。"
+
+msgid ""
+":py:obj:`capital_requirement <kivi.capital.capital_requirement>`\\ \\(probability\\, lgd\\, "
+"\\*\\, ...\\)"
+msgstr ""
+":py:obj:`capital_requirement <kivi.capital.capital_requirement>`\\ \\(probability\\, lgd\\, "
+"\\*\\, ...\\)"
+
+msgid "Compute the capital requirement K of the IRB approach, as a share of the exposure."
+msgstr "计算内部评级法的资本要求 K，以占敞口的比例表示。"
+
+msgid ":py:obj:`conditional_pd <kivi.capital.conditional_pd>`\\ \\(probability\\, \\*\\, correlation\\)"
+msgstr ":py:obj:`conditional_pd <kivi.capital.conditional_pd>`\\ \\(probability\\, \\*\\, correlation\\)"
+
+msgid "Compute the PD of the one-factor model given the state of the economy."
+msgstr "计算单因子模型在给定经济状态下的 PD。"
+
+msgid ""
+":py:obj:`systematic_factor <kivi.capital.systematic_factor>`\\ \\(default\\_rate\\, "
+"probability\\, ...\\)"
+msgstr ""
+":py:obj:`systematic_factor <kivi.capital.systematic_factor>`\\ \\(default\\_rate\\, "
+"probability\\, ...\\)"
+
+msgid "Compute the systematic factor that an observed default rate implies."
+msgstr "计算观察到的违约率所对应的系统因子。"
+
+msgid ":py:obj:`vasicek_fit <kivi.capital.vasicek_fit>`\\ \\(default\\_rate\\)"
+msgstr ":py:obj:`vasicek_fit <kivi.capital.vasicek_fit>`\\ \\(default\\_rate\\)"
+
+msgid "Estimate the long-run PD and the asset correlation from a series of default rates."
+msgstr "由一段违约率序列估计长期 PD 和资产相关系数。"
+
+msgid ""
+":py:obj:`most_prudent_pd <kivi.capital.most_prudent_pd>`\\ \\(event\\, total\\, \\*\\[\\, "
+"level\\, ...\\]\\)"
+msgstr ""
+":py:obj:`most_prudent_pd <kivi.capital.most_prudent_pd>`\\ \\(event\\, total\\, \\*\\[\\, "
+"level\\, ...\\]\\)"
+
+msgid "Compute the most prudent upper bounds of Pluto and Tasche for the PD of each grade."
+msgstr "计算 Pluto 和 Tasche 的最审慎估计：每个等级 PD 的上界。"
+
+msgid ""
+"The asset correlation :math:`R` is the share of the variance of a borrower's assets that the "
+"economy as a whole explains. The IRB approach fixes it by asset class, falling with the PD for "
+"corporate exposures and for other retail exposures."
+msgstr "资产相关系数 :math:`R` 是借款人资产的方差中由整体经济解释的比例。内部评级法按资产类别规定它；公司敞口和其他零售敞口的相关系数随 PD 上升而下降。"
+
+msgid "Probabilities of default, from 0 to 1. Missing values give missing correlations."
+msgstr "违约概率，取值在 0 与 1 之间。缺失值得到缺失的相关系数。"
+
+msgid "**asset_class**"
+msgstr "**asset_class**"
+
+#, python-brace-format
+msgid "{\"corporate\", \"hvcre\", \"mortgage\", \"revolving\", \"other_retail\"}"
+msgstr "{\"corporate\", \"hvcre\", \"mortgage\", \"revolving\", \"other_retail\"}"
+
+msgid ""
+"``\"corporate\"`` for corporate, sovereign and bank exposures, ``\"hvcre\"`` for high-volatility "
+"commercial real estate, ``\"mortgage\"`` for residential mortgages, ``\"revolving\"`` for "
+"qualifying revolving retail exposures and ``\"other_retail\"`` for other retail exposures."
+msgstr ""
+"``\"corporate\"`` 表示公司、主权和银行敞口， ``\"hvcre\"`` 表示高波动商业房地产， ``\"mortgage\"`` 表示个人住房抵押贷款， "
+"``\"revolving\"`` 表示合格循环零售敞口， ``\"other_retail\"`` 表示其他零售敞口。"
+
+msgid "**turnover**"
+msgstr "**turnover**"
+
+msgid ""
+"Annual sales of each corporate borrower, in the units of `turnover_range`, such as millions of "
+"euros. Values below the upper bound of the range lower the correlation, as for small and medium-"
+"sized enterprises; ``numpy.inf`` marks a borrower without that adjustment. Only for "
+"``asset_class=\"corporate\"``; must not be missing."
+msgstr ""
+"每个公司借款人的年销售额，单位与 `turnover_range` 相同，例如百万欧元。低于区间上限的值会降低相关系数，用于中小企业； ``numpy.inf`` "
+"表示不做这项调整的借款人。只适用于 ``asset_class=\"corporate\"`` ；不能缺失。"
+
+msgid "**turnover_range**"
+msgstr "**turnover_range**"
+
+msgid "tuple of float, default (5.0, 50.0)"
+msgstr "tuple of float，默认 (5.0, 50.0)"
+
+msgid ""
+"The lower and upper bound of the turnover adjustment. The default is the Basel range in millions "
+"of euros; China's rules use (3.0, 30.0) in tens of millions of yuan."
+msgstr "营业收入调整的下限和上限。默认值是巴塞尔的区间，单位为百万欧元；中国的规则使用 (3.0, 30.0)，单位为千万元人民币。"
+
+msgid "**financial**"
+msgstr "**financial**"
+
+msgid ""
+"Whether the borrowers are financial institutions whose correlation is multiplied by 1.25. Only "
+"for ``asset_class=\"corporate\"``, and not together with a turnover below the upper bound of "
+"`turnover_range`."
+msgstr "借款人是否为相关系数乘以 1.25 的金融机构。只适用于 ``asset_class=\"corporate\"`` ，且不能与低于 `turnover_range` 上限的营业收入同时给出。"
+
+msgid ""
+"Correlations with the broadcast shape of `probability` and `turnover`. If an input is a Series, "
+"the result is a Series with its index, named ``correlation``; scalar inputs give a float."
+msgstr ""
+"相关系数，形状为 `probability` 与 `turnover` 广播后的形状。若某个输入是 Series，结果是带有其索引、名为 ``correlation`` 的 "
+"Series；标量输入得到 float。"
+
+msgid ""
+"If `asset_class` is not one of the five classes, `probability` is not real and numeric or is "
+"outside [0, 1], or the inputs cannot be broadcast together or have different Series indices. Also"
+" if `turnover` or `financial` is given for another class than ``\"corporate\"``, `turnover` is "
+"missing, negative or not numeric, `turnover_range` is not two finite numbers with ``0 <= lower < "
+"upper``, `financial` is not a boolean, or `financial` comes with a turnover below the upper "
+"bound."
+msgstr ""
+"如果 `asset_class` 不是五个类别之一， `probability` 不是实数数值或超出 [0, 1]，或者输入无法一起广播或 Series 索引不同。此外，如果对 "
+"``\"corporate\"`` 以外的类别给出 `turnover` 或 `financial` ， `turnover` 缺失、为负或不是数值， `turnover_range` 不是满足"
+" ``0 <= lower < upper`` 的两个有限数， `financial` 不是布尔值，或者 `financial` 与低于上限的营业收入同时给出。"
+
+msgid ":obj:`capital_requirement`"
+msgstr ":obj:`capital_requirement`"
+
+msgid "The capital requirement that uses the correlation."
+msgstr "使用该相关系数的资本要求。"
+
+msgid ":obj:`conditional_pd`"
+msgstr ":obj:`conditional_pd`"
+
+msgid "The PD of the one-factor model given the state of the economy."
+msgstr "单因子模型在给定经济状态下的 PD。"
+
+msgid ""
+"For corporate exposures, and with weights of 35 instead of 50 and the bounds 0.03 and 0.16 for "
+"other retail exposures,"
+msgstr "公司敞口的相关系数如下；其他零售敞口把权重中的 50 换成 35，界限换成 0.03 和 0.16："
+
+msgid ""
+"w = \\frac{1 - e^{-50\\,\\mathrm{PD}}}{1 - e^{-50}}, \\qquad\n"
+"R = 0.12\\,w + 0.24\\,(1 - w)."
+msgstr ""
+"w = \\frac{1 - e^{-50\\,\\mathrm{PD}}}{1 - e^{-50}}, \\qquad\n"
+"R = 0.12\\,w + 0.24\\,(1 - w)."
+
+msgid ""
+"High-volatility commercial real estate uses 0.30 instead of 0.24, residential mortgages :math:`R "
+"= 0.15` and qualifying revolving retail exposures :math:`R = 0.04`. A turnover :math:`S` with the"
+" range :math:`[l, u]` lowers a corporate correlation by :math:`0.04\\,(1 - (\\min(\\max(S, l), u)"
+" - l) / (u - l))`, which is 0.04 at :math:`S \\le l` and 0 at :math:`S \\ge u`, and `financial` "
+"multiplies it by 1.25 (Basel CRE31.5–31.16; China, annex 6 and annex 8)."
+msgstr ""
+"高波动商业房地产用 0.30 代替 0.24，个人住房抵押贷款 :math:`R = 0.15` ，合格循环零售敞口 :math:`R = 0.04` 。区间为 :math:`[l, u]` "
+"时，营业收入 :math:`S` 使公司敞口的相关系数降低 :math:`0.04\\,(1 - (\\min(\\max(S, l), u) - l) / (u - l))` ，在 "
+":math:`S \\le l` 时为 0.04，在 :math:`S \\ge u` 时为 0；`financial` 使其乘以 1.25（巴塞尔 CRE31.5–31.16；中国，附件 6 "
+"和附件 8）。"
+
+msgid ""
+"K covers the unexpected loss of an exposure that is not in default: the loss at the `level` "
+"quantile of the one-factor model minus the expected loss. The risk-weighted assets are ``12.5 * K"
+" * EAD`` and the risk weight ``12.5 * K``."
+msgstr "K 覆盖未违约敞口的非预期损失：单因子模型在 `level` 分位数处的损失减去预期损失。风险加权资产为 ``12.5 * K * EAD`` ，风险权重为 ``12.5 * K`` 。"
+
+msgid ""
+"Probabilities of default strictly between 0 and 1, after any PD floor. Missing values give "
+"missing requirements."
+msgstr "违约概率，严格介于 0 与 1 之间，已施加 PD 下限。缺失值得到缺失的资本要求。"
+
+msgid "**lgd**"
+msgstr "**lgd**"
+
+msgid ""
+"Loss given default as a share of the exposure, from 0 to 1. Missing values give missing "
+"requirements."
+msgstr "违约损失率，即损失占敞口的比例，取值在 0 与 1 之间。缺失值得到缺失的资本要求。"
+
+msgid ""
+"The asset class, as in `asset_correlation`. It also decides whether the maturity adjustment "
+"applies: for ``\"corporate\"`` and ``\"hvcre\"``, not for the three retail classes."
+msgstr "资产类别，同 `asset_correlation` 。它也决定是否做期限调整： ``\"corporate\"`` 和 ``\"hvcre\"`` 做，三个零售类别不做。"
+
+msgid "**maturity**"
+msgstr "**maturity**"
+
+msgid ""
+"Effective maturity in years, positive and finite, for ``\"corporate\"`` and ``\"hvcre\"`` only. "
+"The default is 2.5 years. It is not clipped to the range of 1 to 5 years, which has exceptions "
+"for short-term exposures, and must not be missing."
+msgstr ""
+"有效期限，单位为年，必须为正且有限，只适用于 ``\"corporate\"`` 和 ``\"hvcre\"`` 。默认为 2.5 年。它不会被截到 1 至 5 "
+"年的区间，因为短期敞口有例外；不能缺失。"
+
+msgid "Annual sales of corporate borrowers, as in `asset_correlation`."
+msgstr "公司借款人的年销售额，同 `asset_correlation` 。"
+
+msgid "The bounds of the turnover adjustment, as in `asset_correlation`."
+msgstr "营业收入调整的界限，同 `asset_correlation` 。"
+
+msgid "Whether the 1.25 multiplier for financial institutions applies, as in `asset_correlation`."
+msgstr "是否对金融机构乘以 1.25，同 `asset_correlation` 。"
+
+msgid "**correlation**"
+msgstr "**correlation**"
+
+msgid ""
+"Asset correlations from 0 to 1 (exclusive) that replace those of the formula, as for economic "
+"capital; then `turnover` and `financial` must not be given. Must not be missing."
+msgstr "取值从 0 到 1（不含 1）的资产相关系数，用来替代公式中的相关系数，例如用于经济资本；此时不能给出 `turnover` 和 `financial` 。不能缺失。"
+
+msgid "**level**"
+msgstr "**level**"
+
+msgid "float, default 0.999"
+msgstr "float，默认 0.999"
+
+msgid "The confidence level of the one-factor model, strictly between 0 and 1."
+msgstr "单因子模型的置信水平，严格介于 0 与 1 之间。"
+
+msgid "**scaling**"
+msgstr "**scaling**"
+
+msgid "float, default 1.0"
+msgstr "float，默认 1.0"
+
+msgid ""
+"A positive factor applied to K. Only the Basel II framework of 2006 multiplied the risk-weighted "
+"assets by 1.06; the current Basel framework and China's 2023 rules do not."
+msgstr "乘在 K 上的正数因子。只有 2006 年的巴塞尔 II 框架把风险加权资产乘以 1.06；现行巴塞尔框架和中国 2023 年的规则都不乘。"
+
+msgid ""
+"Capital requirements with the broadcast shape of the inputs. If an input is a Series, the result "
+"is a Series with its index, named ``capital_requirement``; scalar inputs give a float."
+msgstr "资本要求，形状为输入广播后的形状。若某个输入是 Series，结果是带有其索引、名为 ``capital_requirement`` 的 Series；标量输入得到 float。"
+
+msgid ""
+"If an input is not real and numeric, the inputs cannot be broadcast together or have different "
+"Series indices, `probability` is outside the open interval (0, 1), or is at or below about "
+"2.927e-6 for ``\"corporate\"`` or ``\"hvcre\"``, or `lgd` is outside [0, 1]. Also if `maturity` "
+"is given for a retail class, missing, not positive or not finite, `correlation` is missing, "
+"outside [0, 1) or given together with `turnover` or `financial`, `level` is outside (0, 1), "
+"`scaling` is not positive and finite, or an argument is invalid as in `asset_correlation`."
+msgstr ""
+"如果某个输入不是实数数值，输入无法一起广播或 Series 索引不同， `probability` 超出开区间 (0, 1)，或者对 ``\"corporate\"`` 或 "
+"``\"hvcre\"`` 不高于约 2.927e-6，或者 `lgd` 超出 [0, 1]。此外，如果对零售类别给出 `maturity` ，或其缺失、非正或非有限， "
+"`correlation` 缺失、超出 [0, 1) 或与 `turnover` 或 `financial` 同时给出， `level` 超出 (0, 1)， `scaling` "
+"不是正的有限数，或者某个参数像 `asset_correlation` 中那样无效。"
+
+msgid ":obj:`asset_correlation`"
+msgstr ":obj:`asset_correlation`"
+
+msgid "The correlation of each asset class."
+msgstr "每个资产类别的相关系数。"
+
+msgid "The PD at the level of the one-factor model."
+msgstr "单因子模型在该置信水平下的 PD。"
+
+msgid ":obj:`kivi.strategy.expected_loss`"
+msgstr ":obj:`kivi.strategy.expected_loss`"
+
+msgid "The expected loss PD x LGD x EAD that K leaves out."
+msgstr "K 所不包含的预期损失 PD x LGD x EAD。"
+
+#, python-brace-format
+msgid ""
+"With the standard normal distribution function :math:`\\Phi`, its quantile function "
+":math:`\\Phi^{-1}`, the correlation :math:`R` of `asset_correlation` and the level :math:`q`,"
+msgstr ""
+"记 :math:`\\Phi` 为标准正态分布函数， :math:`\\Phi^{-1}` 为其分位数函数， :math:`R` 为 `asset_correlation` 的相关系数， "
+":math:`q` 为置信水平，"
+
+msgid ""
+"K = \\mathrm{LGD} \\left[ \\Phi\\!\\left(\n"
+"\\frac{\\Phi^{-1}(\\mathrm{PD}) + \\sqrt{R}\\,\\Phi^{-1}(q)}{\\sqrt{1 - R}}\n"
+"\\right) - \\mathrm{PD} \\right] \\frac{1 + (M - 2.5)\\,b}{1 - 1.5\\,b},\n"
+"\\qquad b = (0.11852 - 0.05478 \\ln \\mathrm{PD})^2,"
+msgstr ""
+"K = \\mathrm{LGD} \\left[ \\Phi\\!\\left(\n"
+"\\frac{\\Phi^{-1}(\\mathrm{PD}) + \\sqrt{R}\\,\\Phi^{-1}(q)}{\\sqrt{1 - R}}\n"
+"\\right) - \\mathrm{PD} \\right] \\frac{1 + (M - 2.5)\\,b}{1 - 1.5\\,b},\n"
+"\\qquad b = (0.11852 - 0.05478 \\ln \\mathrm{PD})^2,"
+
+msgid ""
+"where the maturity factor applies to ``\"corporate\"`` and ``\"hvcre\"`` only (Basel "
+"CRE31.5–31.16; China, annex 6). Then K is multiplied by `scaling`."
+msgstr "其中期限因子只适用于 ``\"corporate\"`` 和 ``\"hvcre\"`` （巴塞尔 CRE31.5–31.16；中国，附件 6）。然后 K 乘以 `scaling` 。"
+
+msgid ""
+"The maturity factor divides by :math:`1 - 1.5\\,b`, which reaches 0 at a PD of about 2.927e-6, so"
+" these PDs raise an error; well before that, below a PD of about 1e-5, the factor grows so fast "
+"that the risk weight rises again as the PD falls. The PD floors of 0.05% (Basel CRE32.4, China "
+"article 91) stay above both; only sovereign exposures have none."
+msgstr ""
+"期限因子要除以 :math:`1 - 1.5\\,b` ，它在 PD 约为 2.927e-6 时等于 0，因此这些 PD 会报错；在此之前，PD 低于约 1e-5 时，该因子增长很快，风险权重随"
+" PD 下降反而上升。0.05% 的 PD 下限（巴塞尔 CRE32.4，中国第九十一条）高于这两个值；只有主权敞口没有下限。"
+
+#, python-brace-format
+msgid ""
+"A defaulted exposure (PD = 1) raises an error too: its requirement is :math:`\\max(0, "
+"\\mathrm{LGD} - \\mathrm{ELBE})` with the best estimate of its expected loss (Basel CRE31.3; "
+"China, annex 6, part II)."
+msgstr ""
+"已违约敞口（PD = 1）也会报错：它的资本要求是 :math:`\\max(0, \\mathrm{LGD} - \\mathrm{ELBE})` ，其中用到其预期损失的最佳估计（巴塞尔 "
+"CRE31.3；中国，附件 6 第二部分）。"
+
+msgid ""
+"In the one-factor model of Vasicek, behind the IRB risk-weight functions, a borrower defaults "
+"when its assets fall below a threshold set by its long-run PD, and the assets of all borrowers "
+"share one systematic factor. Given that factor, defaults are independent and occur with the "
+"conditional PD. It turns a through-the-cycle PD into a point-in-time PD for a scenario of the "
+"economy, and gives the stressed PD of `capital_requirement` at its level."
+msgstr ""
+"内部评级法风险权重函数背后是 Vasicek 的单因子模型：借款人的资产低于由其长期 PD 决定的阈值时违约，所有借款人的资产共享一个系统因子。给定该因子时，违约相互独立，按条件 PD "
+"发生。它把跨周期（TTC）PD 转换为某个经济情景下的时点（PIT）PD，并在其置信水平下给出 `capital_requirement` 中的压力 PD。"
+
+msgid ""
+"Long-run (unconditional) probabilities of default, strictly between 0 and 1. Missing values give "
+"missing PDs."
+msgstr "长期（无条件）违约概率，严格介于 0 与 1 之间。缺失值得到缺失的 PD。"
+
+msgid ""
+"Asset correlations from 0 to 1 (exclusive), such as those of `asset_correlation`. Must not be "
+"missing."
+msgstr "取值从 0 到 1（不含 1）的资产相关系数，例如 `asset_correlation` 的结果。不能缺失。"
+
+msgid "**factor**"
+msgstr "**factor**"
+
+msgid ""
+"Values of the standard normal systematic factor, finite; positive values stand for a better "
+"economy than on average and give PDs below the long-run PD. Missing values give missing PDs."
+msgstr "标准正态的系统因子取值，必须有限；正值表示经济好于平均，得到低于长期 PD 的 PD。缺失值得到缺失的 PD。"
+
+msgid ""
+"Instead of `factor`, the probability strictly between 0 and 1 that the economy is better than the"
+" scenario: the factor is the lower ``1 - level`` quantile, ``-Phi^-1(level)``. Missing values "
+"give missing PDs. Exactly one of `factor` and `level` must be given."
+msgstr ""
+"代替 `factor` ：经济好于该情景的概率，严格介于 0 与 1 之间；因子是下侧 ``1 - level`` 分位数 ``-Phi^-1(level)`` 。缺失值得到缺失的 PD。 "
+"`factor` 和 `level` 必须恰好给出一个。"
+
+msgid ""
+"Conditional PDs with the broadcast shape of the inputs. If an input is a Series, the result is a "
+"Series with its index, named ``conditional_pd``; scalar inputs give a float."
+msgstr "条件 PD，形状为输入广播后的形状。若某个输入是 Series，结果是带有其索引、名为 ``conditional_pd`` 的 Series；标量输入得到 float。"
+
+msgid ""
+"If not exactly one of `factor` and `level` is given, an input is not real and numeric, the inputs"
+" cannot be broadcast together or have different Series indices, `probability` or `level` is "
+"outside the open interval (0, 1), `correlation` is missing or outside [0, 1), or `factor` is "
+"infinite."
+msgstr ""
+"如果没有恰好给出 `factor` 和 `level` 中的一个，某个输入不是实数数值，输入无法一起广播或 Series 索引不同， `probability` 或 `level` 超出开区间 "
+"(0, 1)， `correlation` 缺失或超出 [0, 1)，或者 `factor` 为无穷。"
+
+msgid ":obj:`systematic_factor`"
+msgstr ":obj:`systematic_factor`"
+
+msgid "The factor that a default rate implies, the inverse of this function."
+msgstr "违约率所对应的因子，即本函数的逆运算。"
+
+msgid ":obj:`vasicek_fit`"
+msgstr ":obj:`vasicek_fit`"
+
+msgid "Estimate the long-run PD and the correlation from default rates."
+msgstr "由违约率估计长期 PD 和相关系数。"
+
+msgid "The capital requirement, which uses the PD at the level 0.999."
+msgstr "资本要求，它使用置信水平 0.999 下的 PD。"
+
+msgid ""
+"With the standard normal distribution function :math:`\\Phi`, the correlation :math:`\\rho` and "
+"the factor :math:`z`,"
+msgstr "记标准正态分布函数为 :math:`\\Phi` ，相关系数为 :math:`\\rho` ，因子为 :math:`z` ，"
+
+msgid ""
+"\\mathrm{PD}(z) = \\Phi\\!\\left(\n"
+"\\frac{\\Phi^{-1}(\\mathrm{PD}) - \\sqrt{\\rho}\\,z}{\\sqrt{1 - \\rho}} \\right),"
+msgstr ""
+"\\mathrm{PD}(z) = \\Phi\\!\\left(\n"
+"\\frac{\\Phi^{-1}(\\mathrm{PD}) - \\sqrt{\\rho}\\,z}{\\sqrt{1 - \\rho}} \\right),"
+
+#, python-brace-format
+msgid ""
+"and `level` :math:`q` stands for :math:`z = -\\Phi^{-1}(q)`, so that ``level=0.999`` gives the PD"
+" of the IRB formula. Averaged over the standard normal :math:`z`, the conditional PD is the long-"
+"run PD."
+msgstr ""
+"`level` :math:`q` 相当于 :math:`z = -\\Phi^{-1}(q)` ，因此 ``level=0.999`` 给出内部评级法公式中的 PD。对标准正态的 "
+":math:`z` 取平均，条件 PD 等于长期 PD。"
+
+msgid ""
+"This inverts `conditional_pd`: it gives the value of the systematic factor under which the "
+"conditional PD equals the default rate, such as the default rate of a portfolio in each year. A "
+"negative factor marks a year worse than on average."
+msgstr "本函数是 `conditional_pd` 的逆运算：给出使条件 PD 等于违约率（例如某组合每年的违约率）的系统因子取值。因子为负表示该年差于平均。"
+
+msgid "**default_rate**"
+msgstr "**default_rate**"
+
+msgid "Observed default rates, strictly between 0 and 1. Missing values give missing factors."
+msgstr "观察到的违约率，严格介于 0 与 1 之间。缺失值得到缺失的因子。"
+
+msgid ""
+"Long-run probabilities of default, strictly between 0 and 1, such as the first result of "
+"`vasicek_fit`. Missing values give missing factors."
+msgstr "长期违约概率，严格介于 0 与 1 之间，例如 `vasicek_fit` 的第一个结果。缺失值得到缺失的因子。"
+
+msgid ""
+"Asset correlations strictly between 0 and 1, such as the second result of `vasicek_fit`. Must not"
+" be missing."
+msgstr "资产相关系数，严格介于 0 与 1 之间，例如 `vasicek_fit` 的第二个结果。不能缺失。"
+
+msgid ""
+"Factors with the broadcast shape of the inputs. If an input is a Series, the result is a Series "
+"with its index, named ``factor``; scalar inputs give a float."
+msgstr "因子，形状为输入广播后的形状。若某个输入是 Series，结果是带有其索引、名为 ``factor`` 的 Series；标量输入得到 float。"
+
+msgid ""
+"If an input is not real and numeric, the inputs cannot be broadcast together or have different "
+"Series indices, `default_rate` or `probability` is outside the open interval (0, 1), or "
+"`correlation` is missing or outside (0, 1). A default rate of 0 or 1 has no finite factor."
+msgstr ""
+"如果某个输入不是实数数值，输入无法一起广播或 Series 索引不同， `default_rate` 或 `probability` 超出开区间 (0, 1)，或者 `correlation` "
+"缺失或超出 (0, 1)。违约率为 0 或 1 时没有有限的因子。"
+
+msgid "The PD given the factor, the inverse of this function."
+msgstr "给定因子时的 PD，即本函数的逆运算。"
+
+#, python-brace-format
+msgid "With the default rate :math:`\\mathrm{DR}`,"
+msgstr "记违约率为 :math:`\\mathrm{DR}` ，"
+
+msgid ""
+"z = \\frac{\\Phi^{-1}(\\mathrm{PD}) - \\sqrt{1 - "
+"\\rho}\\,\\Phi^{-1}(\\mathrm{DR})}{\\sqrt{\\rho}}."
+msgstr ""
+"z = \\frac{\\Phi^{-1}(\\mathrm{PD}) - \\sqrt{1 - "
+"\\rho}\\,\\Phi^{-1}(\\mathrm{DR})}{\\sqrt{\\rho}}."
+
+msgid ""
+"In the one-factor model, the default rate of a large portfolio varies from year to year with the "
+"systematic factor, and its variance grows with the asset correlation. The method of moments "
+"matches the mean and the variance of the observed default rates. Default rates of 0 count, as in "
+"years without defaults."
+msgstr "在单因子模型中，大型组合的违约率随系统因子逐年变化，其方差随资产相关系数增大。矩估计使观察到的违约率的均值和方差得到匹配。违约率为 0 的年份（没有违约的年份）也计入。"
+
+msgid ""
+"Default rates of a portfolio in successive periods, such as years, from 0 to 1, at least two and "
+"without missing values."
+msgstr "一个组合在连续各期（例如各年）的违约率，取值在 0 与 1 之间，至少两个，且没有缺失值。"
+
+msgid "The long-run PD, the mean of the default rates."
+msgstr "长期 PD，即违约率的均值。"
+
+msgid "The asset correlation, from 0 to 1. A constant series gives 0."
+msgstr "资产相关系数，取值在 0 与 1 之间。常数序列得到 0。"
+
+msgid ""
+"If `default_rate` is not real and numeric, not one-dimensional, has fewer than two values, "
+"missing values or values outside [0, 1], its mean is 0 or 1, or its variance is at least ``mean *"
+" (1 - mean)``, the variance of a correlation of 1."
+msgstr ""
+"如果 `default_rate` 不是实数数值、不是一维、少于两个值、有缺失值或超出 [0, 1] 的值，其均值为 0 或 1，或者其方差不小于 ``mean * (1 - mean)`` "
+"，即相关系数为 1 时的方差。"
+
+msgid "The PD given the factor, with the fitted parameters."
+msgstr "给定因子时的 PD，使用拟合的参数。"
+
+msgid "The factor of each period, with the fitted parameters."
+msgstr "每一期的因子，使用拟合的参数。"
+
+msgid ""
+"With the mean :math:`m` and the variance :math:`s^2` of the default rates (with ``ddof=1``), the "
+"correlation :math:`\\rho` solves"
+msgstr "记违约率的均值为 :math:`m` 、方差为 :math:`s^2` （ ``ddof=1`` ），相关系数 :math:`\\rho` 满足"
+
+#, python-brace-format
+msgid "\\Phi_2\\!\\left(\\Phi^{-1}(m), \\Phi^{-1}(m); \\rho\\right) - m^2 = s^2,"
+msgstr "\\Phi_2\\!\\left(\\Phi^{-1}(m), \\Phi^{-1}(m); \\rho\\right) - m^2 = s^2,"
+
+msgid ""
+"where :math:`\\Phi_2` is the bivariate standard normal distribution function: two borrowers of "
+"the portfolio default together with probability :math:`\\Phi_2`. Its left side rises with "
+":math:`\\rho`, from 0 to :math:`m (1 - m)`, and is solved by bisection. The moments describe a "
+"portfolio large enough for its default rate to equal the conditional PD, so the binomial noise of"
+" a small portfolio raises the estimate."
+msgstr ""
+"其中 :math:`\\Phi_2` 是二元标准正态分布函数：组合中两个借款人同时违约的概率为 :math:`\\Phi_2` 。左边随 :math:`\\rho` 从 0 增大到 "
+":math:`m (1 - m)` ，用二分法求解。这些矩描述的是足够大、违约率等于条件 PD 的组合，因此小组合的二项噪声会使估计偏高。"
+
+msgid ""
+"A portfolio with few or no defaults, such as banks or large corporates, gives default rates too "
+"small to calibrate a PD on. The most prudent estimate of a grade is the largest PD that the "
+"defaults observed in it and in all riskier grades do not reject at the confidence `level`, "
+"assuming that the PDs do not fall from one grade to the next riskier one."
+msgstr ""
+"违约很少或没有违约的组合（例如银行或大型企业）的违约率太小，无法据以校准 PD。一个等级的最审慎估计，是该等级及所有更差等级中观察到的违约在置信水平 `level` 下不会拒绝的最大 "
+"PD，其前提是 PD 从一个等级到下一个更差等级不会下降。"
+
+msgid ""
+"Number of defaults in each grade, a non-negative whole number, with the grades from the least to "
+"the most risky. Must not be missing."
+msgstr "每个等级的违约数，为非负整数，等级按风险从低到高排列。不能缺失。"
+
+msgid ""
+"Number of obligors in each grade, a whole number not below `event`, matched by position or, for "
+"two Series, by identical indices."
+msgstr "每个等级的债务人数，为不小于 `event` 的整数；按位置对应，两者都是 Series 时按相同的索引对应。"
+
+msgid "float, default 0.95"
+msgstr "float，默认 0.95"
+
+msgid "The confidence level, strictly between 0 and 1."
+msgstr "置信水平，严格介于 0 与 1 之间。"
+
+msgid "float, default 0.0"
+msgstr "float，默认 0.0"
+
+msgid ""
+"The asset correlation of the one-factor model, from 0 to 1 (exclusive). With 0, defaults are "
+"independent; a positive correlation makes the same defaults compatible with higher PDs."
+msgstr "单因子模型的资产相关系数，取值从 0 到 1（不含 1）。为 0 时违约相互独立；正的相关系数使同样的违约与更高的 PD 相容。"
+
+msgid ""
+"The upper bound of the PD of each grade. If an input is a Series, the result is a Series with its"
+" index, named ``most_prudent_pd``."
+msgstr "每个等级 PD 的上界。若某个输入是 Series，结果是带有其索引、名为 ``most_prudent_pd`` 的 Series。"
+
+msgid ""
+"If `event` or `total` is not real and numeric, not one-dimensional, empty or of different "
+"lengths, their Series indices differ, a count is missing or not a non-negative whole number, "
+"`event` exceeds `total`, `level` is outside (0, 1) or `correlation` is outside [0, 1)."
+msgstr ""
+"如果 `event` 或 `total` 不是实数数值、不是一维、为空或长度不同，它们的 Series 索引不同，某个计数缺失或不是非负整数， `event` 超过 `total` ， "
+"`level` 超出 (0, 1)，或者 `correlation` 超出 [0, 1)。"
+
+msgid ":obj:`kivi.calibration.binomial_test`"
+msgstr ":obj:`kivi.calibration.binomial_test`"
+
+msgid "Test the PD of each grade against its default count."
+msgstr "检验每个等级的 PD 与其违约数是否相符。"
+
+msgid "The PD of the one-factor model given the factor."
+msgstr "单因子模型在给定因子下的 PD。"
+
+#, python-brace-format
+msgid ""
+"Grade :math:`k` pools the obligors :math:`n_k = \\sum_{i \\ge k} N_i` and the defaults :math:`d_k"
+" = \\sum_{i \\ge k} D_i` of itself and all riskier grades. Its bound :math:`p_k` is the largest "
+"PD for which :math:`P(D \\le d_k) \\ge 1 - q` at the level :math:`q`. With independent defaults, "
+":math:`D` is binomial with :math:`n_k` and :math:`p_k`, so :math:`p_k` is the :math:`q` quantile "
+"of the beta distribution with :math:`d_k + 1` and :math:`n_k - d_k`, and without defaults "
+":math:`p_k = 1 - (1 - q)^{1/n_k}`. With a correlation :math:`\\rho`, the defaults are binomial "
+"given the factor,"
+msgstr ""
+"等级 :math:`k` 合并它自身及所有更差等级的债务人 :math:`n_k = \\sum_{i \\ge k} N_i` 和违约 :math:`d_k = \\sum_{i \\ge "
+"k} D_i` 。它的上界 :math:`p_k` 是置信水平 :math:`q` 下满足 :math:`P(D \\le d_k) \\ge 1 - q` 的最大 PD。违约相互独立时， "
+":math:`D` 服从参数为 :math:`n_k` 和 :math:`p_k` 的二项分布，因此 :math:`p_k` 是参数为 :math:`d_k + 1` 和 :math:`n_k "
+"- d_k` 的贝塔分布的 :math:`q` 分位数；没有违约时 :math:`p_k = 1 - (1 - q)^{1/n_k}` 。相关系数为 :math:`\\rho` "
+"时，给定因子的违约服从二项分布，"
+
+#, python-brace-format
+msgid ""
+"P(D \\le d_k) = \\int P\\left(\\mathrm{Bin}(n_k, \\mathrm{PD}(z)) \\le d_k\\right)\n"
+"\\varphi(z) \\, dz,"
+msgstr ""
+"P(D \\le d_k) = \\int P\\left(\\mathrm{Bin}(n_k, \\mathrm{PD}(z)) \\le d_k\\right)\n"
+"\\varphi(z) \\, dz,"
+
+msgid ""
+"with the conditional PD of `conditional_pd`, integrated by composite Gauss-Legendre quadrature "
+"over the factor from -9 to 9 (64 panels of 8 nodes) and solved by bisection. A grade whose pooled"
+" obligors all defaulted, or which pools none, gets 1. The bounds are those of one period; with "
+"factors correlated over several years they need simulation, which kivi leaves out. Pluto and "
+"Tasche [Ra3c7650a73eb-1]_ compute the same bounds for their examples, with a correlation of 0.12 "
+"for the correlated one."
+msgstr ""
+"其中条件 PD 来自 `conditional_pd` ；积分在因子的 -9 到 9 之间用复合 Gauss-Legendre 求积（64 段，每段 8 "
+"个节点），再用二分法求解。合并后的债务人全部违约或没有债务人的等级得到 1。这些上界针对单期；若因子在多年间相关，就需要模拟，kivi 不做。Pluto 和 Tasche "
+"[Ra3c7650a73eb-1]_ 对其算例算出了同样的上界，相关的算例取相关系数 0.12。"
+
+msgid ""
+"K. Pluto and D. Tasche, \"Estimating probabilities of default for low default portfolios\", arXiv"
+":cond-mat/0411699, 2004; also \"Thinking positively\", Risk 18 (8), 2005, pp. 72-78."
+msgstr ""
+"K. Pluto and D. Tasche, \"Estimating probabilities of default for low default portfolios\", arXiv"
+":cond-mat/0411699, 2004; also \"Thinking positively\", Risk 18 (8), 2005, pp. 72-78."
+
+msgid "[Ra3c7650a73eb-1]_"
+msgstr "[Ra3c7650a73eb-1]_"
+
 msgid "Compatibility"
 msgstr "兼容性"
 
@@ -4155,9 +4772,6 @@ msgstr "放款月份数，从 2024 年 1 月开始。最早的批次观测 `n_mo
 
 msgid "**prepayment**"
 msgstr "**prepayment**"
-
-msgid "float, default 0.0"
-msgstr "float，默认 0.0"
 
 msgid ""
 "Monthly probability that a current loan repays its whole balance before its last instalment is "
@@ -7243,9 +7857,6 @@ msgstr ""
 "边际 PD，每个账户一行，报告日之后每一期一列：第 :math:`t` 列是在报告日看来该账户在第 :math:`t` 期违约的概率。每行之和至多为 1。 `convert_pd` "
 "可由累计或条件期限结构得到边际 PD。布尔值按 0 和 1 计。"
 
-msgid "**lgd**"
-msgstr "**lgd**"
-
 msgid "float, array_like or pandas.DataFrame"
 msgstr "float、array_like 或 pandas.DataFrame"
 
@@ -7331,9 +7942,6 @@ msgstr ":obj:`stage_table`"
 
 msgid "Exposure and expected credit loss by stage."
 msgstr "按阶段汇总的敞口和预期信用损失。"
-
-msgid ":obj:`kivi.strategy.expected_loss`"
-msgstr ":obj:`kivi.strategy.expected_loss`"
 
 msgid "Expected loss over a single horizon."
 msgstr "单一期限内的预期损失。"
@@ -8030,12 +8638,6 @@ msgid ""
 msgstr ""
 "二分类标签，1 表示事件。不使用 `weights` 时，至少要有两个事件和两个非事件。如果 `score` 和 `target` 都是 pandas "
 "Series，二者的索引必须完全相同；否则按位置对应。"
-
-msgid "**level**"
-msgstr "**level**"
-
-msgid "float, default 0.95"
-msgstr "float，默认 0.95"
 
 msgid "Confidence level of the interval, between 0 and 1."
 msgstr "区间的置信水平，介于 0 和 1 之间。"
@@ -9415,9 +10017,6 @@ msgstr "如果 `table` 不是 DataFrame、缺少所需的列或没有任何行�
 msgid ":obj:`kivi.calibration.calibration_table`"
 msgstr ":obj:`kivi.calibration.calibration_table`"
 
-msgid ":obj:`kivi.calibration.binomial_test`"
-msgstr ":obj:`kivi.calibration.binomial_test`"
-
 msgid "Test the default rate of each grade."
 msgstr "检验每个等级的违约率。"
 
@@ -9660,9 +10259,6 @@ msgstr "拒绝申请人在仅用获批申请人拟合的模型下的 PD 作为�
 
 msgid "PD of each rejected applicant under the accepts-only model, between 0 and 1."
 msgstr "每个拒绝申请人在仅用通过样本拟合的模型下的 PD，介于 0 和 1 之间。"
-
-msgid "**factor**"
-msgstr "**factor**"
 
 msgid "float, default 1"
 msgstr "float，默认 1"
@@ -14958,6 +15554,44 @@ msgstr "上次发布以来合并的改动。"
 
 msgid "New"
 msgstr "新增"
+
+msgid ""
+"The new module ``kivi.capital`` computes the regulatory capital of the internal ratings-based "
+"approach. ``asset_correlation`` and ``capital_requirement`` evaluate the risk-weight functions of"
+" the Basel framework (CRE31) and of China's capital rules of 2023 for corporate exposures, high-"
+"volatility commercial real estate, residential mortgages, qualifying revolving and other retail "
+"exposures, with the SME adjustment of ``turnover`` over a ``turnover_range`` that takes either "
+"jurisdiction's bounds, the 1.25 multiplier of ``financial`` institutions and the maturity "
+"adjustment. They reproduce the 152 risk weights of Annex 5 of Basel II."
+msgstr ""
+"新模块 ``kivi.capital`` 按内部评级法计算监管资本。 ``asset_correlation`` 和 ``capital_requirement`` "
+"计算巴塞尔框架（CRE31）和中国 2023 年资本规则中公司敞口、高波动商业房地产、个人住房抵押贷款、合格循环零售敞口和其他零售敞口的风险权重函数，包括按 ``turnover`` 和 "
+"``turnover_range`` （可取任一辖区的界限）所做的中小企业调整、对 ``financial`` 金融机构乘以 1.25，以及期限调整。它们复现了巴塞尔 II 附件 5 的 152"
+" 个风险权重。"
+
+msgid ""
+"``kivi.capital.conditional_pd`` gives the PD of the one-factor model of Vasicek in a scenario of "
+"the economy, ``systematic_factor`` the factor that an observed default rate implies, and "
+"``vasicek_fit`` estimates the long-run PD and the asset correlation from a series of default "
+"rates by the method of moments, which allows years without defaults."
+msgstr ""
+"``kivi.capital.conditional_pd`` 给出 Vasicek 单因子模型在某个经济情景下的 PD， ``systematic_factor`` "
+"给出观察到的违约率所对应的因子， ``vasicek_fit`` 用矩估计由违约率序列估计长期 PD 和资产相关系数，允许出现没有违约的年份。"
+
+msgid ""
+"``kivi.capital.most_prudent_pd`` gives the most prudent upper bounds of Pluto and Tasche for the "
+"PDs of a portfolio with few or no defaults, with independent or correlated defaults, and "
+"reproduces the tables of their paper."
+msgstr ""
+"``kivi.capital.most_prudent_pd`` 给出 Pluto 和 Tasche 对违约很少或没有违约的组合的 PD "
+"的最审慎上界，可假设违约独立或相关，并复现了其论文中的表格。"
+
+msgid ""
+"The new guide to regulatory capital lists the parameters of the Basel framework and of China's "
+"rules side by side, with their paragraphs and articles: the SME range and unit, the financial-"
+"institution multiplier, the PD and LGD floors, the foundation LGDs, the maturity, the scope of "
+"the advanced approach and the output floor."
+msgstr "新的监管资本指南并列给出巴塞尔框架和中国规则的参数及其条款：中小企业的区间和单位、金融机构乘数、PD 和 LGD 下限、初级法的 LGD、期限、高级法的适用范围以及输出下限。"
 
 msgid ""
 "``kivi.lifetime.survival_table`` estimates a cumulative PD term structure from the duration of "
@@ -20586,6 +21220,550 @@ msgstr ""
 ":func:`~kivi.calibration.concentration_test` 接受的是各等级的计数或敞口，而不是权重。"
 
 msgid ""
+"A bank that uses the internal ratings-based (IRB) approach sets its capital requirement for "
+"credit risk from its own estimates of the probability of default (PD), the loss given default "
+"(LGD), the exposure at default (EAD) and the maturity of each exposure. Capital covers the "
+"unexpected loss: the loss of a year in which the economy is as bad as once in a thousand years, "
+"minus the expected loss that pricing and provisions already cover. The risk-weight functions that"
+" turn the estimates into that requirement are fixed by the Basel framework and by national rules "
+"such as China's capital rules of 2023, and both rest on the one-factor model of Vasicek."
+msgstr ""
+"采用内部评级法（IRB）的银行，根据自己对每笔敞口的违约概率（PD）、违约损失率（LGD）、违约风险敞口（EAD）和期限的估计来确定信用风险的资本要求。资本覆盖非预期损失：千年一遇的坏年份中的损失，减去定价和拨备已经覆盖的预期损失。把这些估计转换为资本要求的风险权重函数，由巴塞尔框架以及中国"
+" 2023 年资本规则等各国规则规定，两者都以 Vasicek 的单因子模型为基础。"
+
+msgid ""
+"The PDs come from the master scale of :doc:`calibration`, and the expected loss that capital "
+"leaves out is that of :doc:`strategy`; :doc:`lifetime` turns the same PDs into the loss allowance"
+" of IFRS 9. :func:`~kivi.capital.asset_correlation` gives the asset correlation of each asset "
+"class and :func:`~kivi.capital.capital_requirement` the capital requirement. "
+":func:`~kivi.capital.conditional_pd` gives the PD of the one-factor model in a scenario of the "
+"economy, :func:`~kivi.capital.systematic_factor` the state of the economy that an observed "
+"default rate implies, and :func:`~kivi.capital.vasicek_fit` estimates the long-run PD and the "
+"correlation from a series of default rates. :func:`~kivi.capital.most_prudent_pd` bounds the PDs "
+"of a portfolio with too few defaults to calibrate them."
+msgstr ""
+"PD 来自 :doc:`calibration` 的主标尺，资本不包含的预期损失见 :doc:`strategy` ； :doc:`lifetime` 用同样的 PD 计算 IFRS 9 "
+"的损失准备。 :func:`~kivi.capital.asset_correlation` 给出每个资产类别的资产相关系数， "
+":func:`~kivi.capital.capital_requirement` 给出资本要求。 :func:`~kivi.capital.conditional_pd` "
+"给出单因子模型在某个经济情景下的 PD， :func:`~kivi.capital.systematic_factor` 给出观察到的违约率所对应的经济状态， "
+":func:`~kivi.capital.vasicek_fit` 由违约率序列估计长期 PD 和相关系数。 :func:`~kivi.capital.most_prudent_pd` "
+"给出违约太少、无法校准的组合的 PD 上界。"
+
+msgid "Definitions"
+msgstr "定义"
+
+#, python-brace-format
+msgid ""
+"In the one-factor model, the assets of a borrower are :math:`\\sqrt{\\rho}\\,Z + \\sqrt{1 - "
+"\\rho}\\,\\varepsilon`, with a systematic factor :math:`Z` that all borrowers share, an "
+"idiosyncratic factor :math:`\\varepsilon`, both standard normal, and the asset correlation "
+":math:`\\rho`. The borrower defaults when its assets fall below :math:`\\Phi^{-1}(\\mathrm{PD})`,"
+" where :math:`\\Phi` is the standard normal distribution function. Given the factor :math:`z`, "
+"defaults are independent and occur with the conditional PD"
+msgstr ""
+"在单因子模型中，借款人的资产为 :math:`\\sqrt{\\rho}\\,Z + \\sqrt{1 - \\rho}\\,\\varepsilon` ，其中 :math:`Z` "
+"是所有借款人共享的系统因子， :math:`\\varepsilon` 是特质因子，两者都服从标准正态分布， :math:`\\rho` 是资产相关系数。资产低于 "
+":math:`\\Phi^{-1}(\\mathrm{PD})` 时借款人违约，其中 :math:`\\Phi` 是标准正态分布函数。给定因子 :math:`z` ，违约相互独立，按条件 PD "
+"发生："
+
+msgid ""
+"\\mathrm{PD}(z) = \\Phi\\!\\left( \\frac{\\Phi^{-1}(\\mathrm{PD}) - \\sqrt{\\rho}\\,z}{\\sqrt{1 -"
+" \\rho}} \\right)."
+msgstr ""
+"\\mathrm{PD}(z) = \\Phi\\!\\left( \\frac{\\Phi^{-1}(\\mathrm{PD}) - \\sqrt{\\rho}\\,z}{\\sqrt{1 -"
+" \\rho}} \\right)."
+
+#, python-brace-format
+msgid ""
+"A positive :math:`z` stands for an economy better than on average. In a large portfolio the "
+"default rate equals the conditional PD, so the loss at the :math:`q` quantile of the economy is "
+"that of :math:`z = -\\Phi^{-1}(q)`. The IRB approach takes :math:`q = 0.999` and sets the capital"
+" requirement :math:`K`, as a share of the EAD, to that loss minus the expected loss:"
+msgstr ""
+"正的 :math:`z` 表示经济好于平均。在大型组合中违约率等于条件 PD，因此经济在 :math:`q` 分位数处的损失就是 :math:`z = -\\Phi^{-1}(q)` "
+"时的损失。内部评级法取 :math:`q = 0.999` ，把资本要求 :math:`K` （以占 EAD 的比例表示）定为该损失减去预期损失："
+
+msgid ""
+"K = \\mathrm{LGD} \\left[ \\Phi\\!\\left(\n"
+"\\frac{\\Phi^{-1}(\\mathrm{PD}) + \\sqrt{R}\\,\\Phi^{-1}(0.999)}{\\sqrt{1 - R}}\n"
+"\\right) - \\mathrm{PD} \\right] \\frac{1 + (M - 2.5)\\,b}{1 - 1.5\\,b},\n"
+"\\qquad b = (0.11852 - 0.05478 \\ln \\mathrm{PD})^2."
+msgstr ""
+"K = \\mathrm{LGD} \\left[ \\Phi\\!\\left(\n"
+"\\frac{\\Phi^{-1}(\\mathrm{PD}) + \\sqrt{R}\\,\\Phi^{-1}(0.999)}{\\sqrt{1 - R}}\n"
+"\\right) - \\mathrm{PD} \\right] \\frac{1 + (M - 2.5)\\,b}{1 - 1.5\\,b},\n"
+"\\qquad b = (0.11852 - 0.05478 \\ln \\mathrm{PD})^2."
+
+msgid ""
+"The asset correlation :math:`R` depends on the asset class, and for corporate exposures falls "
+"from 0.24 to 0.12 as the PD rises:"
+msgstr "资产相关系数 :math:`R` 取决于资产类别；公司敞口的相关系数随 PD 上升从 0.24 降到 0.12："
+
+msgid "w = \\frac{1 - e^{-50\\,\\mathrm{PD}}}{1 - e^{-50}}, \\qquad R = 0.12\\,w + 0.24\\,(1 - w)."
+msgstr "w = \\frac{1 - e^{-50\\,\\mathrm{PD}}}{1 - e^{-50}}, \\qquad R = 0.12\\,w + 0.24\\,(1 - w)."
+
+#, python-brace-format
+msgid ""
+"The last factor is the maturity adjustment, with the effective maturity :math:`M` in years; "
+"retail exposures have none. The risk-weighted assets are :math:`\\mathrm{RWA} = "
+"12.5\\,K\\,\\mathrm{EAD}`, and :math:`12.5\\,K` is the risk weight: the capital ratio of 8% "
+"applied to the RWA gives back :math:`K\\,\\mathrm{EAD}`."
+msgstr ""
+"最后一个因子是期限调整， :math:`M` 是以年计的有效期限；零售敞口没有期限调整。风险加权资产为 :math:`\\mathrm{RWA} = "
+"12.5\\,K\\,\\mathrm{EAD}` ， :math:`12.5\\,K` 是风险权重：8% 的资本充足率乘以 RWA 又得到 :math:`K\\,\\mathrm{EAD}` "
+"。"
+
+msgid "A worked example"
+msgstr "计算示例"
+
+msgid "A corporate loan with a PD of 1%, an LGD of 45% and an effective maturity of 2.5 years:"
+msgstr "一笔公司贷款，PD 为 1%，LGD 为 45%，有效期限为 2.5 年："
+
+#, python-brace-format, python-format
+msgid ""
+"With :math:`w = (1 - e^{-0.5}) / (1 - e^{-50}) = 0.3935`, the correlation is 0.12 × 0.3935 + 0.24"
+" × 0.6065 = 0.1928. In the worst year of a thousand, 14.03% of such loans default instead of 1%, "
+"so the loss beyond the expected one is 0.45 × (0.1403 − 0.01) = 0.0586 of the EAD. At 2.5 years "
+"the maturity adjustment is :math:`1 / (1 - 1.5\\,b) = 1.2598` with :math:`b = 0.1375`, which "
+"gives K = 0.0739 and a risk weight of 92.32%, the value of Annex 5 of Basel II. An exposure of "
+"1,000,000 has an RWA of 923,168 and needs 73,853 of capital."
+msgstr ""
+"由 :math:`w = (1 - e^{-0.5}) / (1 - e^{-50}) = 0.3935` ，相关系数为 0.12 × 0.3935 + 0.24 × 0.6065 = "
+"0.1928。在千年一遇的最坏年份中，这类贷款有 14.03% 违约，而不是 1%，因此超出预期的损失为 EAD 的 0.45 × (0.1403 − 0.01) = 0.0586。期限为 "
+"2.5 年时，期限调整为 :math:`1 / (1 - 1.5\\,b) = 1.2598` ，其中 :math:`b = 0.1375` ，由此得到 K = 0.0739 和 92.32% "
+"的风险权重，即巴塞尔 II 附件 5 中的数值。1,000,000 的敞口对应 923,168 的 RWA，需要 73,853 的资本。"
+
+msgid "Asset classes"
+msgstr "资产类别"
+
+msgid "The ``asset_class`` argument selects the correlation and whether the maturity adjustment applies:"
+msgstr "参数 ``asset_class`` 选择相关系数，并决定是否做期限调整："
+
+msgid ""
+"``\"corporate\"``: corporate, sovereign and bank exposures, with the correlation above and the "
+"maturity adjustment. ``turnover`` lowers the correlation of small and medium-sized enterprises "
+"(SMEs) by up to 0.04, and ``financial=True`` multiplies it by 1.25 for large or unregulated "
+"financial institutions."
+msgstr ""
+"``\"corporate\"`` ：公司、主权和银行敞口，使用上面的相关系数并做期限调整。 ``turnover`` 使中小企业的相关系数最多降低 0.04， "
+"``financial=True`` 对大型或无监管的金融机构把它乘以 1.25。"
+
+msgid ""
+"``\"hvcre\"``: high-volatility commercial real estate, with 0.30 instead of 0.24 and the maturity"
+" adjustment."
+msgstr "``\"hvcre\"`` ：高波动商业房地产，用 0.30 代替 0.24，并做期限调整。"
+
+msgid "``\"mortgage\"``: residential mortgages, with :math:`R = 0.15`."
+msgstr "``\"mortgage\"`` ：个人住房抵押贷款， :math:`R = 0.15` 。"
+
+msgid ""
+"``\"revolving\"``: qualifying revolving retail exposures, such as credit cards, with :math:`R = "
+"0.04`."
+msgstr "``\"revolving\"`` ：合格循环零售敞口，例如信用卡， :math:`R = 0.04` 。"
+
+msgid ""
+"``\"other_retail\"``: other retail exposures, with weights :math:`e^{-35\\,\\mathrm{PD}}` and "
+"bounds 0.03 and 0.16 instead of 0.12 and 0.24."
+msgstr "``\"other_retail\"`` ：其他零售敞口，权重为 :math:`e^{-35\\,\\mathrm{PD}}` ，界限用 0.03 和 0.16 代替 0.12 和 0.24。"
+
+msgid "At a PD of 1% and an LGD of 45%, the classes differ by a factor of seven:"
+msgstr "在 PD 为 1%、LGD 为 45% 时，各类别之间相差可达七倍："
+
+msgid ""
+"A turnover :math:`S` within the range :math:`[l, u]` of ``turnover_range`` lowers the corporate "
+"correlation by :math:`0.04\\,(1 - (S - l) / (u - l))`: by the full 0.04 at or below the lower "
+"bound, and not at all from the upper bound on. Pass ``numpy.inf`` for the borrowers of a "
+"portfolio that are not SMEs. With ``financial=True``, a turnover below the upper bound raises an "
+"error, because the printed formula for financial institutions has no turnover term in either "
+"jurisdiction."
+msgstr ""
+"``turnover_range`` 的区间为 :math:`[l, u]` 时，区间内的营业收入 :math:`S` 使公司敞口的相关系数降低 :math:`0.04\\,(1 - (S - "
+"l) / (u - l))` ：在下限及以下降低整整 0.04，从上限起不再降低。组合中不是中小企业的借款人传入 ``numpy.inf`` 。 ``financial=True`` "
+"时，低于上限的营业收入会报错，因为两地印出的金融机构公式都没有营业收入项。"
+
+msgid "Parameters of Basel and China"
+msgstr "巴塞尔与中国的参数"
+
+msgid ""
+"The risk-weight functions are the same in the current Basel framework (the CRE chapters in force "
+"since 1 January 2023) and in China's *Rules on capital management of commercial banks* (NFRA "
+"order 2023 No. 4). The parameters around them differ, and kivi builds in neither set: the "
+"keywords take the Basel values by default, and the other rules are applied to the inputs before "
+"the call, such as a PD floor with ``numpy.maximum``."
+msgstr ""
+"现行巴塞尔框架（自 2023 年 1 月 1 日起生效的 CRE 各章）与中国的《商业银行资本管理办法》（国家金融监督管理总局令 2023 年第 4 "
+"号）中的风险权重函数相同。函数之外的参数有所不同，kivi 不内置任何一套：关键字默认取巴塞尔的值，其他规则在调用之前施加于输入，例如用 ``numpy.maximum`` 施加 PD 下限。"
+
+msgid "Parameter"
+msgstr "参数"
+
+msgid "Basel framework"
+msgstr "巴塞尔框架"
+
+msgid "China, 2023 rules"
+msgstr "中国，2023 年规则"
+
+msgid "Scaling factor 1.06"
+msgstr "调整系数 1.06"
+
+msgid ""
+"Not applied; only Basel II of 2006 multiplied the RWA by 1.06, which the reforms of December 2017"
+" removed (d424, footnote 3 of the table in the introduction). ``scaling`` defaults to 1.0."
+msgstr "不适用；只有 2006 年的巴塞尔 II 把 RWA 乘以 1.06，2017 年 12 月的改革将其取消（d424，引言中表格的脚注 3）。 ``scaling`` 默认为 1.0。"
+
+msgid "Not applied: RWA = K × 12.5 × EAD (annex 6, part I (4))."
+msgstr "不适用：RWA = K × 12.5 × EAD（附件 6 一（四））。"
+
+msgid "SME adjustment"
+msgstr "中小企业调整"
+
+msgid ""
+":math:`-0.04\\,(1 - (S - 5) / 45)`, with :math:`S` the annual sales in millions of euros, clipped"
+" to [5, 50] (CRE31.8); supervisors may allow total assets instead (CRE31.9). "
+"``turnover_range=(5.0, 50.0)``."
+msgstr ""
+":math:`-0.04\\,(1 - (S - 5) / 45)` ，其中 :math:`S` 是以百万欧元计的年销售额，截到 [5, "
+"50]（CRE31.8）；监管机构可允许用总资产代替（CRE31.9）。 ``turnover_range=(5.0, 50.0)`` 。"
+
+msgid ""
+":math:`-0.04\\,(1 - (S - 3) / 27)`, with :math:`S` the average operating revenue of the last "
+"three years in tens of millions of yuan, and 3 below 3 (annex 6); an SME has at most 300 million "
+"yuan (annex 4, part II (3)). ``turnover_range=(3.0, 30.0)``."
+msgstr ""
+":math:`-0.04\\,(1 - (S - 3) / 27)` ，其中 :math:`S` 是近三年营业收入的算术平均，以千万元人民币计，低于 3 按 3 计（附件 "
+"6）；中小企业的营业收入不超过 3 亿元（附件 4 二（三））。 ``turnover_range=(3.0, 30.0)`` 。"
+
+msgid "Financial institutions, × 1.25"
+msgstr "金融机构，× 1.25"
+
+msgid ""
+"Regulated financial institutions with total assets of at least USD 100 billion, and unregulated "
+"financial institutions of any size (CRE31.7)."
+msgstr "总资产不低于 1000 亿美元的受监管金融机构，以及任何规模的无监管金融机构（CRE31.7）。"
+
+msgid ""
+"Every financial institution except non-systemically important banks, which use the corporate "
+"correlation, with no threshold on assets (annex 6, part I (1) 2)."
+msgstr "除非系统重要性银行外的所有金融机构，没有资产门槛；非系统重要性银行使用公司的相关系数（附件 6 一（一）2）。"
+
+msgid "High-volatility commercial real estate"
+msgstr "高波动商业房地产"
+
+msgid ":math:`R = 0.12\\,w + 0.30\\,(1 - w)` (CRE31.11)."
+msgstr ":math:`R = 0.12\\,w + 0.30\\,(1 - w)` （CRE31.11）。"
+
+msgid "The same (annex 8, part I (2))."
+msgstr "相同（附件 8 一（二））。"
+
+msgid "PD floors"
+msgstr "PD 下限"
+
+#, python-format
+msgid ""
+"0.05% for all exposures except sovereigns (CRE32.4); for retail 0.05%, and 0.1% for revolving "
+"QRRE (CRE32.58). Basel II had 0.03%."
+msgstr "除主权外的所有敞口为 0.05%（CRE32.4）；零售为 0.05%，合格循环零售中的循环账户为 0.1%（CRE32.58）。巴塞尔 II 为 0.03%。"
+
+#, python-format
+msgid ""
+"0.05% for corporate exposures and financial institutions, none for sovereigns (article 91); for "
+"retail 0.05%, and 0.1% for general revolving retail. The rules of 2012 had 0.03%."
+msgstr "公司和金融机构为 0.05%，主权没有下限（第九十一条）；零售为 0.05%，一般循环零售为 0.1%。2012 年的规则为 0.03%。"
+
+msgid "LGD floors of the advanced approach"
+msgstr "高级法的 LGD 下限"
+
+msgid ""
+"Unsecured corporate 25%; secured by financial collateral 0%, by receivables or real estate 10%, "
+"by other physical collateral 15% (CRE32.16–32.17). Residential mortgages 5%, QRRE 50%, other "
+"unsecured retail 30% (CRE32.58–32.59)."
+msgstr ""
+"无担保公司敞口 25%；有担保时，金融质押 0%，应收账款或房地产 10%，其他实物抵押 15%（CRE32.16–32.17）。个人住房抵押贷款 5%，合格循环零售 50%，其他无担保零售 "
+"30%（CRE32.58–32.59）。"
+
+#, python-format
+msgid "The same, except 10% for residential mortgages (article 92)."
+msgstr "相同，但个人住房抵押贷款为 10%（第九十二条）。"
+
+msgid "LGDs of the foundation approach"
+msgstr "初级法的 LGD"
+
+msgid ""
+"Senior unsecured exposures to sovereigns, banks, securities firms and other financial "
+"institutions 45%, to other corporates 40%; subordinated exposures 75% (CRE32.6–32.7)."
+msgstr "对主权、银行、证券公司和其他金融机构的优先无担保敞口为 45%，对其他公司为 40%；次级敞口为 75%（CRE32.6–32.7）。"
+
+msgid "The same: 45%, 40% and 75%."
+msgstr "相同：45%、40% 和 75%。"
+
+msgid "Effective maturity"
+msgstr "有效期限"
+
+msgid ""
+"2.5 years in the foundation approach, 0.5 years for repo-style transactions (CRE32.44); otherwise"
+" clipped to [1, 5] years (CRE32.46), with exceptions down to one day for short-term exposures "
+"(CRE32.51–32.54); 2.5 years when no other rule applies (CRE32.55)."
+msgstr ""
+"初级法为 2.5 年，回购类交易为 0.5 年（CRE32.44）；其他情况截到 [1, 5] 年（CRE32.46），短期敞口有低至一天的例外（CRE32.51–32.54）；没有其他规定时为"
+" 2.5 年（CRE32.55）。"
+
+msgid ""
+"2.5 years in the foundation approach, 0.5 years for repo-style transactions; in the advanced "
+"approach the larger of the internal estimate and one year, at most five years, and 2.5 years "
+"allowed for SMEs (article 94)."
+msgstr "初级法为 2.5 年，回购类交易为 0.5 年；高级法取内部估计值与一年中的较大者，最长五年，中小企业可用 2.5 年（第九十四条）。"
+
+msgid "Scope of the advanced approach"
+msgstr "高级法的适用范围"
+
+msgid ""
+"Not for corporates with consolidated revenues above 500 million euros, nor for banks and other "
+"financial institutions (CRE30.34–30.35)."
+msgstr "合并收入超过 5 亿欧元的公司、银行和其他金融机构不得使用（CRE30.34–30.35）。"
+
+msgid ""
+"Not for financial institutions, nor for corporates with annual revenues above 3 billion yuan "
+"(article 89)."
+msgstr "金融机构和年营业收入超过 30 亿元的公司不得使用（第八十九条）。"
+
+msgid "Output floor"
+msgstr "输出下限"
+
+#, python-format
+msgid "The RWA of the IRB approach may not fall below 72.5% of those of the standardized approach."
+msgstr "内部评级法的 RWA 不得低于标准法 RWA 的 72.5%。"
+
+msgid "RWA = max(RWA of the IRB approach, 72.5% × RWA of the standardized approach) (annex 21, part IV)."
+msgstr "RWA = max(内部评级法的 RWA, 72.5% × 标准法的 RWA)（附件 21 四）。"
+
+msgid ""
+"``maturity`` is not clipped to [1, 5] years, because of the short-term exceptions, so clip it "
+"with ``numpy.clip`` where the rules ask for it. The output floor applies to a whole portfolio and"
+" needs the RWA of the standardized approach, so kivi leaves it out."
+msgstr ""
+"由于短期敞口的例外， ``maturity`` 不会被截到 [1, 5] 年，规则要求时请用 ``numpy.clip`` 截断。输出下限作用于整个组合，并且需要标准法的 RWA，因此 kivi"
+" 不做。"
+
+msgid "The SME adjustment of China's rules, with ``turnover`` in tens of millions of yuan:"
+msgstr "中国规则的中小企业调整， ``turnover`` 以千万元人民币计："
+
+msgid "Risk-weighted assets of a portfolio"
+msgstr "组合的风险加权资产"
+
+msgid ""
+"The value-by-value functions take arrays and Series, so one call per asset class covers a "
+"portfolio. A small book of corporate loans, mortgages and credit cards, with the PD floor of "
+"0.05% applied first:"
+msgstr "逐值计算的函数接受数组和 Series，因此每个资产类别调用一次即可覆盖整个组合。下面是一个由公司贷款、住房抵押贷款和信用卡组成的小账簿，先施加 0.05% 的 PD 下限："
+
+#, python-format
+msgid ""
+"The first loan has a PD of 0.03%, below the floor, so it is weighted at 0.05%, and its maturity "
+"of one year gives it a risk weight of 11.22% instead of the 19.65% of 2.5 years. The capital "
+"requirement is 8% of the RWA, 233,596 in total. :func:`~kivi.strategy.expected_loss` gives the "
+"expected loss of the same exposures, which the IRB approach compares with the provisions."
+msgstr ""
+"第一笔贷款的 PD 为 0.03%，低于下限，因此按 0.05% 计算；其一年的期限使风险权重为 11.22%，而 2.5 年时为 19.65%。资本要求是 RWA 的 8%，合计 "
+"233,596。 :func:`~kivi.strategy.expected_loss` 给出同样敞口的预期损失，内部评级法把它与拨备比较。"
+
+msgid "Stressed PDs and the systematic factor"
+msgstr "压力 PD 与系统因子"
+
+#, python-brace-format
+msgid ""
+"The conditional PD of the one-factor model turns a long-run PD into the PD of a scenario of the "
+"economy. A factor of 0 is the median economy, which is better than the average one, and the 0.1% "
+"worst economy has :math:`z = -\\Phi^{-1}(0.999) = -3.09`:"
+msgstr ""
+"单因子模型的条件 PD 把长期 PD 转换为某个经济情景下的 PD。因子为 0 是中位数经济，它好于平均经济；最差 0.1% 的经济对应 :math:`z = "
+"-\\Phi^{-1}(0.999) = -3.09` ："
+
+msgid ""
+"``level=0.999`` gives the PD that the capital formula uses. The factor of each year follows from "
+"its default rate with :func:`~kivi.capital.systematic_factor`, the inverse of "
+":func:`~kivi.capital.conditional_pd`, and :func:`~kivi.capital.vasicek_fit` estimates the long-"
+"run PD and the correlation from the mean and the variance of the default rates. Twenty years of a"
+" portfolio of 5,000 borrowers, simulated with a long-run PD of 2% and a correlation of 0.1:"
+msgstr ""
+"``level=0.999`` 给出资本公式所用的 PD。每年的因子可以用 :func:`~kivi.capital.systematic_factor` （ "
+":func:`~kivi.capital.conditional_pd` 的逆运算）由当年的违约率求得， :func:`~kivi.capital.vasicek_fit` "
+"则由违约率的均值和方差估计长期 PD 和相关系数。下面模拟一个 5,000 个借款人的组合 20 年的数据，长期 PD 为 2%，相关系数为 0.1："
+
+msgid ""
+"Twenty years estimate the correlation only roughly: repeated simulations of this portfolio give "
+"estimates that scatter by about a third of the true correlation. The implied factors follow the "
+"simulated ones closely, and a scenario for the factor, such as a recession of :math:`z = -2`, "
+"gives the stressed PD of each grade with :func:`~kivi.capital.conditional_pd`."
+msgstr ""
+"20 年的数据只能粗略地估计相关系数：对这个组合反复模拟，估计值的离散程度约为真实相关系数的三分之一。推出的因子与模拟的因子非常接近；给定因子的情景，例如 :math:`z = -2` "
+"的衰退，用 :func:`~kivi.capital.conditional_pd` 即可得到每个等级的压力 PD。"
+
+msgid "Most prudent PDs"
+msgstr "最审慎 PD"
+
+msgid ""
+"A portfolio of banks, sovereigns or large corporates has so few defaults that its default rates "
+"cannot calibrate a PD. Pluto and Tasche bound the PD of each grade by the largest PD that the "
+"defaults observed in the grade and in all riskier grades do not reject at a confidence level, "
+"assuming only that the PD does not fall from one grade to the next riskier one. With :math:`n_k` "
+"obligors and :math:`d_k` defaults in grade :math:`k` and the riskier grades together, the bound "
+":math:`p_k` solves"
+msgstr ""
+"由银行、主权或大型企业组成的组合违约极少，其违约率无法用来校准 PD。Pluto 和 Tasche 用这样的最大 PD 作为每个等级 PD "
+"的上界：在给定置信水平下，该等级及所有更差等级中观察到的违约不会拒绝它；唯一的假设是 PD 从一个等级到下一个更差等级不会下降。记等级 :math:`k` 与所有更差等级合计的债务人数为 "
+":math:`n_k` 、违约数为 :math:`d_k` ，上界 :math:`p_k` 满足"
+
+#, python-brace-format
+msgid "P(D \\le d_k) = 1 - q, \\qquad D \\sim \\mathrm{Bin}(n_k, p_k),"
+msgstr "P(D \\le d_k) = 1 - q, \\qquad D \\sim \\mathrm{Bin}(n_k, p_k),"
+
+#, python-brace-format
+msgid ""
+"at the level :math:`q`, so that without defaults :math:`p_k = 1 - (1 - q)^{1/n_k}`. The example "
+"of their paper has three grades of 100, 400 and 300 obligors:"
+msgstr ""
+"其中 :math:`q` 为置信水平，因此没有违约时 :math:`p_k = 1 - (1 - q)^{1/n_k}` 。他们论文中的例子有三个等级，分别有 100、400 和 300 "
+"个债务人："
+
+msgid ""
+"Without defaults, grade A pools all 800 obligors: 1 − 0.1^(1/800) = 0.29%. Two defaults in B and "
+"one in C raise the bounds of every grade from C down, because they belong to the pooled grades. "
+"With the correlation of 0.12 that the paper takes from the Basel corporate formula, a year "
+"without defaults is less informative, since a good year makes defaults rare for all borrowers at "
+"once. The numbers are those of tables 1 to 9 of the paper at 90%."
+msgstr ""
+"没有违约时，等级 A 合并全部 800 个债务人：1 − 0.1^(1/800) = 0.29%。B 中的两笔违约和 C 中的一笔违约提高了从 C "
+"往下每个等级的上界，因为它们属于合并的等级。论文取巴塞尔公司公式中的相关系数 0.12；有相关时，没有违约的一年所含的信息更少，因为好年份会让所有借款人同时很少违约。这些数值就是论文表 1 至表"
+" 9 中 90% 一列的数值。"
+
+msgid "Reading the result"
+msgstr "解读结果"
+
+msgid "Result"
+msgstr "结果"
+
+msgid "``correlation``"
+msgstr "``correlation``"
+
+msgid ""
+"The asset correlation :math:`R` of each exposure. A higher correlation means that defaults "
+"cluster in bad years, which raises the capital requirement."
+msgstr "每笔敞口的资产相关系数 :math:`R` 。相关系数越高，违约越集中在坏年份，资本要求也越高。"
+
+msgid "``capital_requirement``"
+msgstr "``capital_requirement``"
+
+msgid ""
+":math:`K` as a share of the EAD. Multiply by 12.5 for the risk weight, by 12.5 × EAD for the RWA "
+"and by the EAD for the capital. It rises with the PD up to a PD of about 30% to 40%, beyond which"
+" the expected loss takes over the loss of the worst year, and in proportion to the LGD; for "
+"``\"corporate\"`` and ``\"hvcre\"`` it also rises with the maturity."
+msgstr ""
+":math:`K` ，以占 EAD 的比例表示。乘以 12.5 得到风险权重，乘以 12.5 × EAD 得到 RWA，乘以 EAD 得到资本。它随 PD 上升，直到 PD 约为 30% 至 "
+"40%，此后预期损失超过最坏年份的损失增量；它与 LGD 成正比；对 ``\"corporate\"`` 和 ``\"hvcre\"`` ，它还随期限上升。"
+
+msgid "``conditional_pd``"
+msgstr "``conditional_pd``"
+
+msgid ""
+"The PD in the scenario of the factor or the level. It lies below the long-run PD at a factor of "
+"0, the median economy, and above it in bad enough years."
+msgstr "因子或置信水平所对应情景下的 PD。因子为 0（中位数经济）时它低于长期 PD，在足够坏的年份高于长期 PD。"
+
+msgid "``factor``"
+msgstr "``factor``"
+
+msgid ""
+"The state of the economy that a default rate implies, in standard deviations; negative in years "
+"worse than on average."
+msgstr "违约率所对应的经济状态，以标准差计；差于平均的年份为负。"
+
+msgid "``vasicek_fit``"
+msgstr "``vasicek_fit``"
+
+msgid ""
+"The long-run PD and the asset correlation that the default rates imply, for comparison with the "
+"regulatory correlation or as inputs of a stress test."
+msgstr "违约率所对应的长期 PD 和资产相关系数，可与监管的相关系数比较，或用作压力测试的输入。"
+
+msgid "``most_prudent_pd``"
+msgstr "``most_prudent_pd``"
+
+msgid ""
+"An upper bound of the PD of each grade at the level. Compare it with the PD of the grade: a PD "
+"above the bound is prudent enough for the data, and the bound shrinks as defaults stay absent and"
+" obligors accumulate."
+msgstr "每个等级 PD 在该置信水平下的上界。把它与该等级的 PD 比较：高于上界的 PD 对这些数据而言足够审慎；随着违约持续不出现、债务人不断积累，上界会缩小。"
+
+msgid ""
+"The value-by-value functions give a missing result for a missing PD, LGD, default rate, factor or"
+" level, so a portfolio with gaps keeps its shape. A missing ``turnover``, ``maturity`` or "
+"``correlation`` raises an error instead, because it decides the formula: pass ``numpy.inf`` as "
+"the turnover of a borrower that is not an SME, and the maturity that the rules prescribe where it"
+" is unknown. Sums such as the RWA of a portfolio skip missing values in pandas, so check them "
+"before adding up. :func:`~kivi.capital.vasicek_fit` and :func:`~kivi.capital.most_prudent_pd` fit"
+" their inputs as a whole and raise on missing values."
+msgstr ""
+"逐值计算的函数对缺失的 PD、LGD、违约率、因子或置信水平给出缺失的结果，因此有缺口的组合仍保持其形状。缺失的 ``turnover`` 、 ``maturity`` 或 "
+"``correlation`` 则会报错，因为它们决定公式：不是中小企业的借款人传入 ``numpy.inf`` 作为营业收入，期限未知时传入规则规定的期限。pandas 求和（例如组合的 "
+"RWA）会跳过缺失值，所以求和之前请先检查。 :func:`~kivi.capital.vasicek_fit` 和 :func:`~kivi.capital.most_prudent_pd` "
+"对输入整体拟合，遇到缺失值会报错。"
+
+#, python-brace-format
+msgid ""
+"The functions compute the risk-weight functions of exposures that are not in default. A defaulted"
+" exposure needs :math:`K = \\max(0, \\mathrm{LGD} - \\mathrm{ELBE})` with the best estimate of "
+"its expected loss (CRE31.3; China, annex 6, part II), which the bank computes directly."
+msgstr ""
+"这些函数计算未违约敞口的风险权重函数。已违约敞口需要 :math:`K = \\max(0, \\mathrm{LGD} - \\mathrm{ELBE})` "
+"，其中用到其预期损失的最佳估计（CRE31.3；中国，附件 6 第二部分），由银行直接计算。"
+
+msgid ""
+"Credit risk mitigation, the substitution approach for guarantees, the EAD and its credit "
+"conversion factors, purchased receivables, specialized lending slotting and the output floor are "
+"outside kivi."
+msgstr "信用风险缓释、保证的替代法、EAD 及其信用转换系数、购入应收账款、专业贷款的监管分类法以及输出下限都不在 kivi 的范围内。"
+
+msgid ""
+":func:`~kivi.capital.vasicek_fit` assumes a portfolio large enough for its default rate to equal "
+"the conditional PD. The binomial noise of a small portfolio adds to the variance, and a short "
+"series estimates the correlation with a large error."
+msgstr ":func:`~kivi.capital.vasicek_fit` 假设组合足够大，违约率等于条件 PD。小组合的二项噪声会增大方差，短序列估计的相关系数误差很大。"
+
+msgid ""
+":func:`~kivi.capital.most_prudent_pd` gives the bounds of one period. Over several years with "
+"correlated factors, the bounds of Pluto and Tasche need simulation, which kivi leaves out."
+msgstr ":func:`~kivi.capital.most_prudent_pd` 给出单期的上界。在因子相关的多年情形下，Pluto 和 Tasche 的上界需要模拟，kivi 不做。"
+
+msgid ""
+"**A PD at or below about 2.927e-6 for the corporate classes.** The maturity adjustment divides by"
+" :math:`1 - 1.5\\,b`, which reaches 0 there, and below a PD of about 1e-5 the risk weight rises "
+"again as the PD falls: 2.8% at 1e-5, 46% at 3e-6 and 145% at 2.95e-6. Earlier versions of the "
+"framework set a negative requirement of a sovereign to zero; the current text has no such rule, "
+"so kivi raises an error. Apply the PD floor first, such as ``numpy.maximum(probability, "
+"0.0005)``; sovereigns, which have no floor, still need a PD above the bound."
+msgstr ""
+"**公司类别中不高于约 2.927e-6 的 PD。** 期限调整要除以 :math:`1 - 1.5\\,b` ，它在此处等于 0；PD 低于约 1e-5 时，风险权重随 PD "
+"下降反而上升：1e-5 时为 2.8%，3e-6 时为 46%，2.95e-6 时为 145%。框架的早期版本把主权敞口为负的资本要求记为零；现行文本没有这条规定，因此 kivi 报错。请先施加"
+" PD 下限，例如 ``numpy.maximum(probability, 0.0005)`` ；没有下限的主权敞口也需要高于该界限的 PD。"
+
+msgid "**A PD of 1.** The error names the formula of defaulted exposures above."
+msgstr "**PD 为 1。** 错误信息给出上面已违约敞口的公式。"
+
+msgid ""
+"**financial=True with a turnover below the upper bound.** The formula for financial institutions "
+"has no SME term in either jurisdiction, so the two adjustments do not combine."
+msgstr "**financial=True 且营业收入低于上限。** 两地的金融机构公式都没有中小企业项，因此两种调整不能同时使用。"
+
+msgid ""
+"**turnover, financial or maturity for a class that does not use them.** ``turnover`` and "
+"``financial`` belong to ``\"corporate\"`` only, and ``maturity`` to ``\"corporate\"`` and "
+"``\"hvcre\"``."
+msgstr ""
+"**对不使用它们的类别给出 turnover、financial 或 maturity。** ``turnover`` 和 ``financial`` 只属于 ``\"corporate\"``"
+" ， ``maturity`` 只属于 ``\"corporate\"`` 和 ``\"hvcre\"`` 。"
+
+msgid ""
 ":mod:`kivi.datasets` provides four kinds of example data: real bank marketing data with one row "
 "per customer and a binary target, a synthetic panel of loans with one row per loan and month, "
 "synthetic loan applications with one row per applicant and an approval decision, and synthetic "
@@ -21041,9 +22219,6 @@ msgstr ""
 ":func:`~kivi.expert.ahp_consistency` 度量各项比较的吻合程度， :func:`~kivi.expert.combine_weights` "
 "把因子和子因子的权重合成为全局权重。"
 
-msgid "Definitions"
-msgstr "定义"
-
 #, python-brace-format
 msgid ""
 "A comparison is a judgment on Saaty's scale. For two factors :math:`i` and :math:`j`, "
@@ -21140,9 +22315,6 @@ msgstr ""
 "0.05，四个因子 0.08。3 到 15 个因子对应的随机一致性指标，按 Obata 和 Shiraishi 列出的 Tone（1986 年）的表，依次为 "
 "0.58、0.90、1.12、1.24、1.32、1.41、1.45、1.49、1.51、1.53、1.56、1.57 和 1.59。Saaty 的著作中 12 个因子的数值印的是 "
 "1.48，一般认为这是印刷错误。一个或两个因子的比较必然一致，因此其比率为 0。"
-
-msgid "A worked example"
-msgstr "计算示例"
 
 msgid ""
 "Three factors of a corporate scorecard are compared. The analyst judges sales to be twice as "
@@ -21332,9 +22504,6 @@ msgid ""
 "matrix does not tell whether the experts agree. Compare their weights, and discuss the "
 "comparisons where they differ most."
 msgstr "一致矩阵的几何平均仍是一致矩阵，所以群体矩阵的一致性比率并不能说明专家们是否意见一致。请比较他们的权重，并讨论分歧最大的那些比较。"
-
-msgid "Reading the result"
-msgstr "解读结果"
 
 msgid ""
 ":func:`~kivi.expert.ahp_weights` returns one weight per factor, positive, summing to 1 and in the"
