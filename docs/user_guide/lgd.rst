@@ -54,44 +54,13 @@ A year after default, the flows of loan A are worth 55 / 1.1 = 50 and 11 / 1.1 =
 Workout LGD
 -----------
 
-The defaulted loans come as one table with a row per loan and the cash flows of their workouts as another, with a row per flow, as a bank's systems record them. Each loan here has its own discount rate, the 3-month interbank rate at its date of default plus 5 percentage points as the EBA asks, and a closing date when its workout has ended:
+The defaulted loans come as one table with a row per loan, and the cash flows of their workouts as another with a row per flow, as a bank's systems record them. :func:`~kivi.datasets.make_defaults` and :func:`~kivi.datasets.make_recoveries` simulate such tables, which :doc:`datasets` describes. Each loan has its own ``discount_rate``, the money-market rate of its month of default plus 5 percentage points as paragraph 143 of the EBA's guidelines asks, so it is passed as ``rate``:
 
 >>> import numpy as np
 >>> import pandas as pd
->>> defaults = pd.DataFrame(
-...     {
-...         "loan_id": [1, 2, 3, 4, 5, 6],
-...         "segment": ["secured"] * 3 + ["unsecured"] * 3,
-...         "default_date": pd.to_datetime(
-...             ["2021-03-15", "2021-06-30", "2022-01-10", "2021-09-01", "2022-02-14", "2023-05-20"]
-...         ),
-...         "ead": [120_000.0, 80_000.0, 150_000.0, 15_000.0, 8_000.0, 12_000.0],
-...         "discount_rate": [0.0545, 0.0546, 0.0542, 0.0545, 0.0547, 0.0835],
-...         "closing_date": pd.to_datetime(
-...             ["2022-09-30", "2021-10-31", "2024-03-31", "2023-12-31", "2023-06-30", None]
-...         ),
-...     }
-... )
->>> flows = pd.DataFrame(
-...     {
-...         "loan_id": [1, 1, 1, 2, 3, 3, 4, 4, 4, 5, 5, 6],
-...         "date": pd.to_datetime(
-...             [
-...                 "2021-02-01", "2022-09-15", "2022-09-15", "2021-10-31",
-...                 "2023-01-05", "2024-02-20", "2022-01-01", "2022-03-01",
-...                 "2023-06-01", "2022-06-01", "2023-01-15", "2023-09-01",
-...             ]
-...         ),
-...         "amount": [
-...             -1_500.0, 110_000.0, -4_000.0, 80_000.0, -2_000.0, 175_000.0,
-...             1_000.0, -500.0, 2_000.0, -1_200.0, 300.0, 2_000.0,
-...         ],
-...         "kind": [
-...             "cost", "recovery", "cost", "cure", "cost", "recovery",
-...             "recovery", "cost", "recovery", "cost", "recovery", "recovery",
-...         ],
-...     }
-... )
+>>> from kivi.datasets import make_defaults, make_recoveries
+>>> defaults = make_defaults(rng=0)
+>>> flows = make_recoveries(defaults, rng=0)
 >>> result = workout_lgd(
 ...     defaults["loan_id"],
 ...     defaults["default_date"],
@@ -101,27 +70,26 @@ The defaulted loans come as one table with a row per loan and the cash flows of 
 ...     flows["amount"],
 ...     rate=defaults["discount_rate"],
 ... )
->>> result.round({"recovery": 0, "cost": 0, "lgd": 4})
-           ead  recovery    cost     lgd
+>>> result.head().round(4)
+            ead     recovery       cost     lgd
 loan
-1     120000.0  101561.0  5202.0  0.1970
-2      80000.0   78580.0     0.0  0.0178
-3     150000.0  156537.0  1899.0 -0.0309
-4      15000.0    2805.0   487.0  0.8455
-5       8000.0     286.0  1181.0  1.1120
-6      12000.0    1955.0     0.0  0.8371
+1     307147.39  221340.3613  9282.0042  0.3096
+2       2471.68     392.8536   190.9515  0.9183
+3      23456.26   22385.7845    26.7730  0.0468
+4      14235.26    2049.2144   508.3363  0.8918
+5       7642.49     227.7722   236.7750  1.0012
 
-Loan 1 paid a legal cost of 1,500 six weeks before its default, which counts compounded to the date of default. Loan 3 sold its collateral for more than its exposure, so its LGD is negative, and the costs of loan 5 exceed its recoveries, so it lost more than its exposure.
+These are the LGDs that :doc:`datasets` computes with pandas, flow by flow. The secured loan 1 sold its collateral after a year and a half, the unsecured loan 3 cured, and the costs of loan 5 exceeded its recoveries, so it lost more than its exposure. The legal costs that 101 loans paid before their default count compounded to the date of default.
 
 Closed workouts
 ^^^^^^^^^^^^^^^
 
-:func:`~kivi.lgd.workout_lgd` does not know whether a workout has ended and gives the loss of the flows so far, as for loan 6. The realized LGD exists only for a closed workout: the long-run average and the back-tests use the defaults whose recovery process has closed, by the bank's definition of its end, and leave out the expected future recoveries of the others. Select them before going on:
+:func:`~kivi.lgd.workout_lgd` does not know whether a workout has ended and gives the loss of the flows so far. The realized LGD exists only for a closed workout: the long-run average and the back-tests use the defaults whose recovery process has closed, by the bank's definition of its end, and leave out the expected future recoveries of the others. Here the workouts with a ``closing_date`` have closed:
 
->>> closed = defaults["closing_date"].notna().to_numpy()
->>> realized = result[closed]
->>> realized.index.tolist()
-[1, 2, 3, 4, 5]
+>>> loans = defaults.set_index("loan_id")
+>>> closed = loans["closing_date"].notna()
+>>> int(closed.sum()), int((~closed).sum())
+(1722, 278)
 
 The open workouts still count in the long-run average of the regulations, which adjusts for them; kivi leaves that adjustment to the bank's own estimate of the future recoveries.
 
@@ -130,7 +98,7 @@ Drawings, write-offs and cures
 
 The flows and the exposure are the caller's to choose, and the EBA's guidelines say how:
 
-- **A cure** returns the loan to performing. It counts as a recovery of the amount outstanding on the date of the cure, as for loan 2, which cured after four months.
+- **A cure** returns the loan to performing. It counts as a recovery of the amount outstanding on the date of the cure, as the flows of ``kind`` ``"cure"`` of the simulated data do.
 - **An amount written off** at or before default belongs in the exposure, so that it counts in the loss and in the EAD alike.
 - **Interest and fees capitalized after default** are not flows, but their recoveries are.
 - **A drawing after default** is a negative flow, like a cost, so that it counts in the loss. Where the CCF includes the drawings, the EBA counts them in the exposure as well. Then add their present value to ``ead`` instead of passing them as flows, because the exposure counts in the loss too.
@@ -160,61 +128,80 @@ The drawing still counts once in the loss, and now also in the exposure, so the 
 Credit conversion factors
 -------------------------
 
-The CCF of a defaulted credit line compares the amount drawn at default with the limit and the amount drawn at a reference date. The regulations take the reference date 12 months before default, the fixed-horizon approach, and the limit at that date, the larger of the advised and the unadvised limit; a limit raised later stays out of the denominator. Five revolving lines:
+The CCF of a defaulted credit line compares the amount drawn at default with the limit and the amount drawn at a reference date. The regulations take the reference date 12 months before default, the fixed-horizon approach, and the limit at that date, the larger of the advised and the unadvised limit; a limit raised later stays out of the denominator. The revolving lines of the simulated defaults have their ``limit`` and ``drawn`` amount of that date:
 
 >>> from kivi.lgd import conversion_factor
->>> lines = pd.DataFrame(
-...     {
-...         "limit": [10_000.0, 5_000.0, 8_000.0, 3_000.0, 6_000.0],
-...         "drawn": [4_000.0, 4_500.0, 8_000.0, 1_000.0, 6_500.0],
-...         "ead": [9_000.0, 5_200.0, 8_100.0, 600.0, 6_400.0],
-...     }
-... )
->>> lines["ccf"] = conversion_factor(lines["ead"], lines["drawn"], lines["limit"])
->>> lines
-     limit   drawn     ead       ccf
-0  10000.0  4000.0  9000.0  0.833333
-1   5000.0  4500.0  5200.0  1.400000
-2   8000.0  8000.0  8100.0       NaN
-3   3000.0  1000.0   600.0 -0.200000
-4   6000.0  6500.0  6400.0       NaN
+>>> revolving = loans[loans["segment"] == "revolving"]
+>>> ccf = conversion_factor(revolving["ead"], revolving["drawn"], revolving["limit"])
+>>> ccf.describe().round(3)
+count    464.000
+mean       0.553
+std        0.707
+min       -3.263
+25%        0.291
+50%        0.554
+75%        0.823
+max        9.332
+Name: ccf, dtype: float64
 
-The first line drew 5,000 of its 6,000 undrawn. The second drew 700 although only 500 were undrawn, after its limit was raised, and the fourth repaid 400. The third and fifth lines were fully drawn or overdrawn at the reference date, so they have no undrawn part and no CCF: the formula would divide by 0, or by a negative amount and reverse the sign. The EBA's consultation on CCF estimation measures such lines by the amount drawn at default over the limit, and the ECB's validation report back-tests their EAD instead of a CCF:
+The median line drew 55% of its undrawn limit by default. A negative CCF comes from a line that repaid part of its balance before default, and a CCF above 1 from a line that ended above its limit. The 25 other lines were fully drawn or overdrawn at the reference date, so they have no undrawn part and no CCF: the formula would divide by 0, or by a negative amount and reverse the sign. The EBA's consultation on CCF estimation measures such lines by the amount drawn at default over the limit, and the ECB's validation report back-tests their EAD instead of a CCF:
 
->>> fully_drawn = lines["limit"] <= lines["drawn"]
->>> (lines["ead"] / lines["limit"])[fully_drawn].round(4)
-2    1.0125
-4    1.0667
-dtype: float64
+>>> fully_drawn = revolving["limit"] <= revolving["drawn"]
+>>> int(fully_drawn.sum())
+25
+>>> print(round((revolving["ead"] / revolving["limit"])[fully_drawn].median(), 4))
+1.0943
 
-A negative CCF still ranks the risk of the lines, but the quantification of the CRR3 counts it as 0, and no CCF may be capped at 1:
+A negative CCF still ranks the risk of the lines, but the quantification of the CRR3 counts it as 0, and no CCF may be capped at 1. :func:`~kivi.lgd.lgd_table`, whose floor of 0 does just that, gives the CCFs by the usage of the lines at the reference date:
 
->>> np.maximum(lines["ccf"], 0).round(4).tolist()
-[0.8333, 1.4, nan, 0.0, nan]
+>>> from kivi.lgd import lgd_table
+>>> undrawn = ccf.notna()
+>>> usage = pd.cut(revolving["drawn"] / revolving["limit"], [0, 0.5, 0.75, 1])[undrawn]
+>>> lgd_table(usage, ccf[undrawn])[["total", "mean", "zero_share", "full_share"]].round(3)
+             total   mean  zero_share  full_share
+bin
+(0.0, 0.5]     138  0.582       0.094       0.109
+(0.5, 0.75]    203  0.555       0.103       0.084
+(0.75, 1.0]    123  0.719       0.073       0.106
+
+The lines that had drawn more than three quarters of their limit by the reference date drew more of what was left.
 
 LGD tables
 ----------
 
-:func:`~kivi.lgd.lgd_table` summarizes the realized LGDs of each group: the number of defaults, the average LGD, its standard deviation, its range and the shares of defaults without loss and with a total loss. The average counts every default once, as the regulations ask of the long-run average LGD, and negative LGDs count as 0 by default:
+:func:`~kivi.lgd.lgd_table` summarizes the realized LGDs of each group: the number of defaults, the average LGD, its standard deviation, its range and the shares of defaults without loss and with a total loss. The average counts every default once, as the regulations ask of the long-run average LGD, and negative LGDs count as 0 by default. The closed workouts by segment:
 
->>> from kivi.lgd import lgd_table
->>> segment = defaults.loc[closed, "segment"].to_numpy()
->>> table = lgd_table(segment, realized["lgd"])
+>>> realized = result[closed]
+>>> table = lgd_table(loans.loc[closed, "segment"], realized["lgd"])
 >>> table.drop(columns="total_share").round(4)
-           total    mean     std     min    max  zero_share  full_share
+           total    mean     std     min     max  zero_share  full_share
 bin
-secured        3  0.0716  0.1090  0.0000  0.197      0.3333         0.0
-unsecured      2  0.9787  0.1885  0.8455  1.112      0.0000         0.5
+secured      704  0.0957  0.1176  0.0000  0.6555       0.054      0.0000
+unsecured    580  0.7773  0.2961  0.0136  1.2490       0.000      0.1190
+revolving    438  0.6853  0.3512  0.0120  1.3985       0.000      0.1142
 
-Loan 3, with its negative LGD, counts as a default without loss. ``floor=None`` keeps the negative values, which still tell the drivers of the loss apart:
+The LGDs are bimodal within each segment, with the cures near 0 and the liquidations of unsecured loans near 1. ``zero_share`` holds the 38 secured loans whose collateral covered more than their exposure, which ``floor=None`` keeps negative; these values still tell the drivers of the loss apart:
 
->>> lgd_table(segment, realized["lgd"], floor=None)[["mean", "min"]].round(4)
+>>> lgd_table(loans.loc[closed, "segment"], realized["lgd"], floor=None)[["mean", "min"]].round(4)
              mean     min
 bin
-secured    0.0613 -0.0309
-unsecured  0.9787  0.8455
+secured    0.0941 -0.0950
+unsecured  0.7773  0.0136
+revolving  0.6853  0.0120
 
-The table works like :func:`~kivi.woe.woe_table` for a continuous target: pass the bins of a driver from :func:`~kivi.binning.cut`, such as the loan-to-value ratio, to see how the average LGD changes from bin to bin. LGDs are often bimodal, with many loans that recover everything and many that recover nothing, so ``zero_share`` and ``full_share`` say more than the standard deviation about the shape within a group.
+The table works like :func:`~kivi.woe.woe_table` for a continuous target: pass the bins of a driver, such as the loan-to-value ratio of the secured loans, to see how the average LGD changes from bin to bin. The bins may also come from :func:`~kivi.binning.bin_edges` and :func:`~kivi.binning.cut`:
+
+>>> secured = closed & (loans["segment"] == "secured")
+>>> ltv = pd.cut((loans["ead"] / loans["collateral_value"])[secured], [0, 0.6, 0.8, 1, np.inf])
+>>> lgd_table(ltv, realized.loc[secured[closed], "lgd"])[["total", "mean", "zero_share"]].round(3)
+            total   mean  zero_share
+bin
+(0.0, 0.6]    156  0.040       0.141
+(0.6, 0.8]    235  0.053       0.055
+(0.8, 1.0]    191  0.115       0.016
+(1.0, inf]    122  0.220       0.000
+
+The loans that owe more than their collateral is worth lose five times as much as those with a loan-to-value ratio of 60% or less.
 
 Fractional regression
 ---------------------
@@ -225,67 +212,67 @@ Fractional regression
 
    E(\mathrm{LGD} \mid x) = \frac{1}{1 + e^{-(\beta_0 + \sum_j \beta_j x_j)}}.
 
-The response must lie between 0 and 1, with 0 and 1 included, so cap the LGDs at 1 and floor them at 0 first. The coefficients maximize the same likelihood as :func:`~kivi.selection.logistic_regression` and are read in the same way: a positive coefficient raises the mean LGD. The standard errors are robust, because the variance of a fractional response around its mean is not that of a binary one. A simulated sample of 2,000 closed workouts, whose mean LGD rises with the loan-to-value ratio and is higher for unsecured loans:
+The response must lie between 0 and 1, with 0 and 1 included, so cap the LGDs at 1 and floor them at 0 first. The coefficients maximize the same likelihood as :func:`~kivi.selection.logistic_regression` and are read in the same way: a positive coefficient raises the mean LGD. The standard errors are robust, because the variance of a fractional response around its mean is not that of a binary one. A model of the closed workouts of the loans that defaulted from 2018 to 2020, on the segment and the coverage of the exposure by collateral:
 
 >>> from kivi.lgd import fractional_regression
->>> rng = np.random.default_rng(0)
->>> sample = pd.DataFrame(
-...     {"ltv": rng.uniform(0.3, 1.3, 2000), "unsecured": rng.integers(0, 2, 2000)}
+>>> features = pd.DataFrame(
+...     {
+...         "unsecured": (loans["segment"] == "unsecured").astype(int),
+...         "revolving": (loans["segment"] == "revolving").astype(int),
+...         "coverage": loans["collateral_value"] / loans["ead"],
+...     }
 ... )
->>> mean = 1 / (1 + np.exp(-(-3.0 + 2.5 * sample["ltv"] + 1.5 * sample["unsecured"])))
->>> lgd = pd.Series(rng.beta(0.8 * mean, 0.8 * (1 - mean)))
->>> sample["lgd"] = lgd.mask(lgd < 0.01, 0.0).mask(lgd > 0.99, 1.0)
->>> model = fractional_regression(sample[["ltv", "unsecured"]], sample["lgd"])
+>>> response = result["lgd"].clip(0, 1)
+>>> development = closed & (loans["default_date"] < "2021-01-01")
+>>> model = fractional_regression(features[development], response[development])
 >>> model.round(4)
-             coef      se        z  p_value
+             coef      se       z  p_value
 variable
-intercept -3.0652  0.1326 -23.1146      0.0
-ltv        2.5750  0.1382  18.6276      0.0
-unsecured  1.4868  0.0766  19.4091      0.0
+intercept  0.1951  0.3182  0.6131   0.5398
+unsecured  1.1444  0.3345  3.4214   0.0006
+revolving  0.8236  0.3345  2.4621   0.0138
+coverage  -1.9216  0.2479 -7.7513   0.0000
 
-The LGDs below 1% are set to 0 and those above 99% to 1, as cures and total losses give them, and the coefficients come close to those of the simulation. The fitted mean LGD of each loan follows from the coefficients:
+Collateral lowers the LGD, and an unsecured loan loses more than a revolving line. The fitted mean LGD of each loan follows from the coefficients, and on the development sample the fitted means average to its mean LGD, as the means of a logit with an intercept do:
 
->>> eta = (
-...     model.loc["intercept", "coef"]
-...     + model.loc["ltv", "coef"] * sample["ltv"]
-...     + model.loc["unsecured", "coef"] * sample["unsecured"]
+>>> eta = model.loc["intercept", "coef"] + sum(
+...     model.loc[column, "coef"] * features[column] for column in features
 ... )
->>> sample["estimated"] = 1 / (1 + np.exp(-eta))
->>> print(f"{sample['estimated'].mean():.4f} {sample['lgd'].mean():.4f}")
-0.4435 0.4435
-
-The fitted means average to the mean LGD of the sample, as the means of a logit with an intercept do.
+>>> estimated = 1 / (1 + np.exp(-eta))
+>>> print(f"{estimated[development].mean():.4f} {response[development].mean():.4f}")
+0.4840 0.4840
 
 Back-testing
 ------------
 
-LGD and CCF estimates are back-tested against the realized values of closed workouts with the t-test of :func:`~kivi.calibration.backtest_table`, and their ranking is measured with the generalized AUC of :func:`~kivi.metrics.generalized_auc`, as the ECB's validation report asks. A model with a continuous LGD is tested in the twelve LGD segments of the report:
+LGD and CCF estimates are back-tested against the realized values of closed workouts with the t-test of :func:`~kivi.calibration.backtest_table`, and their ranking is measured with the generalized AUC of :func:`~kivi.metrics.generalized_auc`, as the ECB's validation report asks. The closed workouts of the loans that defaulted from 2021 on validate the model:
 
 >>> from kivi.calibration import backtest_table
+>>> validation = closed & (loans["default_date"] >= "2021-01-01")
+>>> backtest_table(
+...     loans.loc[validation, "segment"], result.loc[validation, "lgd"], estimated[validation]
+... ).round(4)
+           total  estimated  realized  difference  variance  statistic  p_value
+bin
+secured      364     0.0940    0.0920     -0.0020    0.0099    -0.3807   0.6482
+unsecured    329     0.7924    0.7633     -0.0291    0.0979    -1.6891   0.9539
+revolving    224     0.7347    0.6324     -0.1023    0.1493    -3.9646   1.0000
+
+No segment rejects the estimates, whose p-values test whether they are too low, but the revolving lines realize 10 points less than estimated. The recent defaults that have closed are the short workouts, since the long ones are still open, and a quarter of the closed revolving lines of 2021 to 2024 cured, against an eighth of those of 2018 to 2020. This is why the long-run average adjusts for the open workouts.
+
+The gAUC compares the ranking of the estimates with that of the realized LGDs in the twelve LGD segments of the report, with the realized LGDs floored at 0 so that every one falls into a segment:
+
 >>> from kivi.metrics import generalized_auc
 >>> segments = [0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, np.inf]
->>> estimated_segment = pd.cut(sample["estimated"], segments, right=False)
->>> backtest = backtest_table(estimated_segment, sample["lgd"], sample["estimated"])
->>> backtest[["total", "estimated", "realized", "p_value"]].round(3)
-             total  estimated  realized  p_value
-bin
-[0.05, 0.1)     44      0.095     0.074    0.760
-[0.1, 0.2)     307      0.145     0.133    0.788
-[0.2, 0.3)     194      0.246     0.247    0.482
-[0.3, 0.4)     344      0.351     0.365    0.235
-[0.4, 0.5)     332      0.450     0.444    0.596
-[0.5, 0.6)     281      0.543     0.553    0.311
-[0.6, 0.7)     168      0.649     0.683    0.102
-[0.7, 0.8)     187      0.753     0.723    0.892
-[0.8, 0.9)     143      0.829     0.814    0.738
->>> realized_segment = pd.cut(sample["lgd"], segments, right=False)
+>>> estimated_segment = pd.cut(estimated[validation], segments, right=False)
+>>> realized_segment = pd.cut(result.loc[validation, "lgd"].clip(lower=0), segments, right=False)
 >>> generalized_auc(estimated_segment, realized_segment).round(4)
            estimate      se   lower   upper
 statistic
-gauc         0.7184  0.0066  0.7054  0.7313
-somers_d     0.4367  0.0132  0.4109  0.4626
+gauc         0.8384  0.0098  0.8191  0.8576
+somers_d     0.6767  0.0196  0.6383  0.7152
 
-The estimates are back-tested on the sample that fitted them, so no segment rejects them; a validation uses the defaults that closed after the development. :doc:`validation` explains the tests and the segments of the report, and the comparison of the gAUC with that of the initial validation. Back-test realized CCFs in the same way, and the EAD of the fully drawn lines with the amount drawn at default as the realized value.
+:doc:`validation` explains the tests and the segments of the report, and the comparison of the gAUC with that of the initial validation. Back-test realized CCFs in the same way, and the EAD of the fully drawn lines with the amount drawn at default as the realized value.
 
 Rules of Basel, the EBA and China
 ---------------------------------
