@@ -1,7 +1,7 @@
 Example data
 ============
 
-:mod:`kivi.datasets` provides four kinds of example data: real bank marketing data with one row per customer and a binary target, a synthetic panel of loans with one row per loan and month, synthetic loan applications with one row per applicant and an approval decision, and synthetic account transactions of the applicants with one row per transaction. :func:`~kivi.datasets.load_bank`, :func:`~kivi.datasets.make_loan_panel`, :func:`~kivi.datasets.make_applications` and :func:`~kivi.datasets.make_transactions` return them.
+:mod:`kivi.datasets` provides five kinds of example data: real bank marketing data with one row per customer and a binary target, a synthetic panel of loans with one row per loan and month, synthetic loan applications with one row per applicant and an approval decision, synthetic account transactions of the applicants with one row per transaction, and synthetic defaulted loans with one row per loan and the cash flows of their workouts with one row per cash flow. :func:`~kivi.datasets.load_bank`, :func:`~kivi.datasets.make_loan_panel`, :func:`~kivi.datasets.make_applications`, :func:`~kivi.datasets.make_transactions`, :func:`~kivi.datasets.make_defaults` and :func:`~kivi.datasets.make_recoveries` return them.
 
 Bank marketing data
 -------------------
@@ -248,7 +248,178 @@ Other window features are weaker or stronger. With the default five bins, the IV
 
    The transactions depend on ``risk``, which no lender has: it exists only in simulated applications. Use the transactions to learn how window features work, not to estimate how well behaviour predicts default.
 
+Synthetic defaults and recoveries
+---------------------------------
+
+:func:`~kivi.datasets.make_defaults` simulates loans that defaulted from 2018 to 2024, and :func:`~kivi.datasets.make_recoveries` the cash flows of their workouts: the recoveries, the costs and the cures from which the realized LGD of each loan follows. The revolving lines also have their limit and drawn amount 12 months before default, from which their realized CCF follows. The data is generated, not taken from a real portfolio, and the same ``rng`` seed always gives the same loans and cash flows:
+
+>>> from kivi.datasets import make_defaults, make_recoveries
+>>> defaults = make_defaults(n_defaults=2000, rng=0)
+>>> defaults.shape
+(2000, 9)
+>>> columns = ["loan_id", "segment", "default_date", "ead", "collateral_value", "closing_date"]
+>>> defaults[columns].head(3)
+   loan_id    segment default_date        ead  collateral_value closing_date
+0        1    secured   2018-01-01  307147.39          312800.0   2019-08-17
+1        2  revolving   2018-01-01    2471.68               0.0   2020-11-21
+2        3  unsecured   2018-01-01   23456.26               0.0   2018-12-29
+>>> revolving = defaults[defaults["segment"] == "revolving"]
+>>> revolving[["loan_id", "ead", "limit", "drawn", "discount_rate"]].head(3)
+    loan_id       ead    limit     drawn  discount_rate
+1         2   2471.68   5100.0   2043.04           0.05
+5         6   3545.43   4700.0   2119.49           0.05
+15       16  21057.35  21500.0  20902.37           0.05
+
+The columns of the defaults are:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 75
+
+   * - Column
+     - Meaning
+   * - ``loan_id``
+     - Identifier of the loan, from 1 and increasing with the default date.
+   * - ``segment``
+     - A categorical: ``secured``, ``unsecured`` or ``revolving``, about 40%, 35% and 25% of the loans.
+   * - ``default_date``
+     - Date of default, from 2018 to 2024.
+   * - ``ead``
+     - Exposure at default, the amount outstanding on the default date, rounded to cents.
+   * - ``limit``
+     - Limit of a revolving line on the reference date, 12 months before default, rounded to hundreds; missing for the other segments.
+   * - ``drawn``
+     - Amount drawn on a revolving line on the reference date, rounded to cents; missing for the other segments.
+   * - ``collateral_value``
+     - Value of the collateral of a secured loan at default, rounded to hundreds; 0 for the other segments.
+   * - ``discount_rate``
+     - Annual rate at which to discount the cash flows of the workout to the default date: a simulated three-month money-market rate of the month of default plus five percentage points, as paragraph 143 of EBA/GL/2017/16 prescribes.
+   * - ``closing_date``
+     - Date the workout ended, with the cure, the sale of the collateral or the write-off of what was not recovered; missing for the workouts still open at the data cut-off, 30 June 2025.
+
+:func:`~kivi.datasets.make_recoveries` takes the defaults and returns one row per cash flow, sorted by loan and date. The first loan is secured: after three legal costs and two payments by the borrower, the collateral was sold on the closing date, at a cost of 3% of the proceeds:
+
+>>> flows = make_recoveries(defaults, rng=0)
+>>> flows.shape
+(11497, 4)
+>>> flows.head(7)
+   loan_id       date     amount      kind
+0        1 2018-04-10    -808.71      cost
+1        1 2018-11-01   -1543.90      cost
+2        1 2019-05-14    -552.91      cost
+3        1 2019-07-11    3595.22  recovery
+4        1 2019-08-02    2012.10  recovery
+5        1 2019-08-17  233970.35  recovery
+6        1 2019-08-17   -7019.11      cost
+
+The columns of the cash flows are:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 75
+
+   * - Column
+     - Meaning
+   * - ``loan_id``
+     - The ``loan_id`` of the loan in the defaults.
+   * - ``date``
+     - Date of the cash flow.
+   * - ``amount``
+     - Amount, rounded to cents: positive for recoveries and cures, negative for costs.
+   * - ``kind``
+     - A categorical: ``recovery``, ``cost`` or ``cure``.
+
+A ``cure`` is the amount outstanding on the closing date of a loan that returned to performing status. Paragraph 135 of EBA/GL/2017/16 treats it as if the borrower had repaid that amount on the closing date, so it is a cash flow like a recovery. :func:`~kivi.datasets.make_recoveries` reads only the columns ``loan_id``, ``segment``, ``default_date``, ``ead``, ``collateral_value`` and ``closing_date``, so it also simulates the workouts of a subset of the defaults or of loans with other identifiers. The dates must have a datetime64 dtype.
+
+How the workouts are simulated
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A workout lasts at least three months, the probation of a cure. About 30% of the secured loans, 10% of the unsecured loans and 15% of the revolving lines cure, after seven months on average, and the others are liquidated:
+
+* a cured loan pays part of its arrears during the workout, sometimes with a small cost, and the cure follows on the closing date;
+* a secured loan pays a little during the workout, and its collateral is sold on the closing date. The bank recovers the proceeds up to its claim, the exposure plus default interest of 4% to 10% a year, and pays 3% of the proceeds as the costs of the sale and a few legal costs. The workout lasts about two and a half years on average;
+* an unsecured loan or a revolving line recovers about 17% or 22% of its exposure on average, in several payments, with a few collection costs. The workout lasts a year and a half or 15 months on average.
+
+About 5% of the loans also have a legal cost up to 90 days before default, which paragraph 144 of EBA/GL/2017/16 counts in the economic loss, and 3% of the liquidations have litigation costs of 10% to 40% of the exposure. The secured loans have a median loan-to-value ratio of 75% at default, and some owe more than their collateral is worth. The cash flows stop at the data cut-off, 30 June 2025: a workout still open then has its cash flows up to the cut-off and none after it.
+
+Realized LGDs
+^^^^^^^^^^^^^
+
+The realized LGD of a loan is its economic loss over its exposure at default, ``(ead + PV(costs) - PV(recoveries)) / ead``, where the cures count as recoveries and the present values discount each cash flow to the default date at the annual ``discount_rate`` over the days in between, divided by 365. Because the costs are negative amounts, the LGD is one minus the present value of all the cash flows over the exposure. It is computed here with pandas:
+
+>>> dated = flows.merge(defaults[["loan_id", "default_date", "discount_rate"]], on="loan_id")
+>>> years = (dated["date"] - dated["default_date"]).dt.days / 365
+>>> present_value = dated["amount"] * (1 + dated["discount_rate"]) ** -years
+>>> loans = defaults.set_index("loan_id")
+>>> net = present_value.groupby(dated["loan_id"]).sum().reindex(loans.index, fill_value=0)
+>>> lgd = (1 - net / loans["ead"]).rename("lgd")
+
+Only the workouts that have closed have a realized LGD. Their LGDs are bimodal: most secured loans lose less than 10% of their exposure, and most unsecured loans and revolving lines more than 70%:
+
+>>> import numpy as np
+>>> import pandas as pd
+>>> closed = loans["closing_date"].notna()
+>>> labels = ["below 0", "0-0.1", "0.1-0.3", "0.3-0.7", "0.7-0.9", "0.9-1", "1 and above"]
+>>> edges = [-np.inf, 0, 0.1, 0.3, 0.7, 0.9, 1, np.inf]
+>>> band = pd.cut(lgd[closed], edges, right=False, labels=labels)
+>>> pd.crosstab(band, loans.loc[closed, "segment"])
+segment      secured  unsecured  revolving
+lgd
+below 0           38          0          0
+0-0.1            478         68         82
+0.1-0.3          121          1          3
+0.3-0.7           67         49         62
+0.7-0.9            0        210        155
+0.9-1              0        183         86
+1 and above        0         69         50
+
+The cures make the mode near 0 in every segment. A cured loan loses only the discounting of the time until the cure and a few costs, while the loans that are liquidated keep the shape of their segment:
+
+>>> cured = pd.Series(loans.index.isin(flows.loc[flows["kind"] == "cure", "loan_id"]), loans.index)
+>>> by_outcome = lgd[closed].groupby([loans["segment"], cured.rename("cured")], observed=True)
+>>> by_outcome.agg(["size", "mean", "median"]).round(3)
+                 size   mean  median
+segment   cured
+secured   False   442  0.130   0.069
+          True    262  0.034   0.029
+unsecured False   511  0.877   0.899
+          True     69  0.039   0.033
+revolving False   356  0.835   0.869
+          True     82  0.035   0.031
+
+The 38 negative LGDs are secured loans whose collateral covered the claim with its default interest, so that they recovered more than their exposure is worth at the discount rate. The 119 LGDs above 1 are loans whose costs exceeded their recoveries. Paragraphs 160 and 162 of EBA/GL/2017/16 keep both in the data: a negative LGD counts as 0 in the averages, and an LGD far above 1 calls for an explanation. Neither is clipped here.
+
+An open workout is not over, so the LGD of its cash flows so far is not a realized LGD. Above all, no collateral of an open workout has been sold yet:
+
+>>> workout = closed.map({True: "closed", False: "open"}).rename("workout")
+>>> lgd.groupby([loans["segment"], workout], observed=True).mean().unstack().round(3)
+workout    closed   open
+segment
+secured     0.094  1.000
+unsecured   0.777  0.924
+revolving   0.685  0.903
+
+The long workouts are the ones still open, so the closed workouts also hold more cures than all the workouts do. Leave out the open workouts before averaging or back-testing realized LGDs, as paragraph 154 of EBA/GL/2017/16 and the back-tests of the European Central Bank in :doc:`validation` ask.
+
+Realized CCFs
+^^^^^^^^^^^^^
+
+The realized CCF of a revolving line is the share of its undrawn limit on the reference date that it drew by default, ``(ead - drawn) / (limit - drawn)``, with the limit and the drawn amount of the reference date. It is undefined for a line drawn to or beyond its limit:
+
+>>> undrawn = revolving["limit"] - revolving["drawn"]
+>>> ccf = ((revolving["ead"] - revolving["drawn"]) / undrawn).where(undrawn > 0)
+>>> int(ccf.isna().sum()), int((ccf < 0).sum()), int(ccf.between(0, 1).sum()), int((ccf > 1).sum())
+(25, 43, 376, 45)
+>>> print(round(ccf.median(), 3))
+0.554
+
+Of the 464 lines that had an undrawn limit on the reference date, 376 have a CCF from 0 to 1, with a median of 0.55. A line with a negative CCF repaid part of its balance before default, and a line with a CCF above 1 ended above its limit. Article 182(1) of CRR3 counts negative CCFs as 0 when the CCF is estimated, while the CCFs above 1 stay, since the reference data must not be capped at 100%.
+
+.. warning::
+
+   The defaults and their cash flows are simulated to show the computations of realized LGDs and CCFs, with effects whose size is set by the simulation. Use them to learn how the computations work, not to estimate the LGDs or CCFs of a real portfolio.
+
 Dataset and attribution
 -----------------------
 
-Bank Marketing by S. Moro, P. Rita and P. Cortez (2014) is distributed under CC BY 4.0. The bundled CSV was converted from the legacy workbook. The loader encodes subscription as 1 and non-subscription as 0. See the `dataset record <https://doi.org/10.24432/C5K306>`_ and `license <https://creativecommons.org/licenses/by/4.0/>`_. The loan panel, the applications and the transactions are synthetic and have no source to attribute.
+Bank Marketing by S. Moro, P. Rita and P. Cortez (2014) is distributed under CC BY 4.0. The bundled CSV was converted from the legacy workbook. The loader encodes subscription as 1 and non-subscription as 0. See the `dataset record <https://doi.org/10.24432/C5K306>`_ and `license <https://creativecommons.org/licenses/by/4.0/>`_. The loan panel, the applications, the transactions, the defaults and their cash flows are synthetic and have no source to attribute.
