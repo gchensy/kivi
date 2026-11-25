@@ -346,8 +346,10 @@ def random_lgds(seed, n=600):
 
 
 def grouped(groups, lgd):
-    frame = pd.DataFrame({"group": groups, "lgd": lgd})
-    by = frame.groupby("group", dropna=False, sort=False)["lgd"]
+    """The columns of lgd_table by a pandas groupby, in the order in which the groups appear."""
+    # Group by the codes of first appearance: pandas 2.0 puts the missing group last.
+    codes, _ = pd.factorize(groups, use_na_sentinel=False)
+    by = pd.Series(lgd.to_numpy()).groupby(codes)
     return pd.DataFrame(
         {
             "total": by.size(),
@@ -369,7 +371,8 @@ def test_lgd_table_matches_a_groupby_after_flooring(seed, floor):
     floored = lgd if floor is None else lgd.clip(lower=floor)
     expected = grouped(groups, floored)
     assert table.index.name == "bin"
-    assert table.index.tolist()[:3] == expected.index.tolist()[:3]
+    labels = groups.drop_duplicates()
+    assert table.index.equals(pd.Index(labels)) and table.index.isna().sum() == 1
     assert table.columns.tolist() == [
         "total", "total_share", "mean", "std", "min", "max", "zero_share", "full_share"
     ]  # fmt: skip
@@ -391,7 +394,7 @@ def test_lgd_table_integer_weights_equal_repeated_rows():
     weighted = lgd_table(groups, lgd, weights=weights)
     repeated = lgd_table(groups.repeat(weights), lgd.repeat(weights))
     # Zero weights do not count in min and max, nor in the order of the rows here.
-    assert weighted.index.tolist() == repeated.index.tolist()
+    pd.testing.assert_index_equal(weighted.index, repeated.index)
     np.testing.assert_allclose(weighted.to_numpy(), repeated.to_numpy(), rtol=1e-12, atol=0)
 
 

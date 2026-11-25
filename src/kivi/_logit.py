@@ -4,14 +4,21 @@
 returns the maximum likelihood estimates with their Wald statistics. The
 target may be fractional, which gives the quasi-likelihood fit of a
 fractional logit. The public wrappers in `kivi.selection`,
-`kivi.calibration` and `kivi.lgd` validate the inputs and label the result.
+`kivi.calibration` and `kivi.lgd` validate the inputs and label the result,
+with the checks of a design matrix below `fit`, which name the columns of
+`X` in their messages.
 """
 
 import math
 import typing
+import warnings
+from collections import abc
 
 import numpy as np
 import numpy.typing as npt
+import pandas as pd
+
+from . import _validation
 
 # A fitted probability within 1e-10 of 0 or 1 means |eta| > 23.
 _EXTREME_ETA = -math.log(1e-10)
@@ -242,6 +249,108 @@ def dependent_column(design: npt.NDArray[np.float64]) -> int | None:
     if len(dependent):
         return int(dependent[0])
     return rows if rows < columns else None
+
+
+def as_frame(
+    X: pd.DataFrame | npt.ArrayLike, *, example: str = ""
+) -> tuple[pd.DataFrame, npt.NDArray[np.float64]]:
+    """Return `X` as a DataFrame, without copying one, and its float values.
+
+    `X` needs at least 2 rows and one column, unique column labels and
+    numeric, finite values. `example` names typical values in the message
+    for a column that is not numeric, such as ``"WOE values from
+    woe_transform"``.
+    """
+    if isinstance(X, pd.DataFrame):
+        frame = X
+    else:
+        if np.ndim(X) != 2:
+            raise ValueError(f"X must be two-dimensional, got {np.ndim(X)} dimensions")
+        frame = pd.DataFrame(X)  # type: ignore[arg-type]  # a two-dimensional array_like
+    if len(frame) < 2:
+        raise ValueError(f"X must have at least 2 rows, got {len(frame)}")
+    if not frame.shape[1]:
+        raise ValueError("X must have at least one column")
+    if frame.columns.has_duplicates:
+        label: abc.Hashable = frame.columns[frame.columns.duplicated()][0]
+        raise ValueError(
+            f"X must have unique column labels, got {_validation.shown(label)} more than once"
+        )
+    hint = f", such as {example}" if example else ""
+    for label, dtype in frame.dtypes.items():
+        if not pd.api.types.is_numeric_dtype(dtype):
+            raise ValueError(
+                f"X column {_validation.shown(label)} must be numeric{hint}, got dtype {dtype}"
+            )
+    values = frame.to_numpy(dtype=float, na_value=np.nan)
+    finite = np.isfinite(values).all(axis=0)
+    if not finite.all():
+        label = frame.columns[np.argmin(finite)]  # type: ignore[call-overload]  # a NumPy integer selects one label
+        raise ValueError(
+            f"X column {_validation.shown(label)} must not contain missing or infinite values"
+        )
+    return frame, values
+
+
+def with_intercept(values: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+    """Return the design matrix of `values` with a column of ones in front."""
+    return np.column_stack([np.ones(len(values)), values])
+
+
+def check_not_constant(
+    columns: pd.Index, values: npt.NDArray[np.float64], reason: str, where: str = ""
+) -> None:
+    """Require every column of `values`, labelled by `columns`, to vary."""
+    constant = np.ptp(values, axis=0) == 0
+    if constant.any():
+        label = columns[int(np.argmax(constant))]
+        raise ValueError(f"X column {_validation.shown(label)} is constant{where}; {reason}")
+
+
+def check_independent(
+    columns: pd.Index, values: npt.NDArray[np.float64], *, weighted: bool
+) -> None:
+    """Require the columns of `values` to vary and to be independent of those before them."""
+    where = " on the rows with positive weight" if weighted else ""
+    check_not_constant(columns, values, "it cannot be told apart from the intercept", where)
+    dependent = dependent_column(with_intercept(values))
+    if dependent is not None:
+        raise ValueError(
+            f"X column {_validation.shown(columns[dependent - 1])} is a linear combination "
+            f"of the intercept and the columns before it{where}"
+        )
+
+
+def singular_column(error: SingularError, columns: pd.Index, model: str = "") -> ValueError:
+    """Return the error that names the column of `X` at which a fit was singular.
+
+    The design is the intercept followed by `columns`. `model` names the model
+    in the message, such as ``" in the model of step 2"``.
+    """
+    label = "intercept" if error.column == 0 else columns[error.column - 1]
+    return ValueError(
+        f"X column {_validation.shown(label)} is so close to a linear combination of the "
+        f"intercept and the other columns that its coefficient cannot be estimated{model}"
+    )
+
+
+def warn_not_converged(
+    fitted: LogitFit,
+    stacklevel: int,
+    *,
+    model: str = "logistic regression",
+    step: int | None = None,
+) -> None:
+    """Warn that `fitted` stopped before it converged, at `stacklevel` frames above the caller.
+
+    `step` names the step of `kivi.selection.selection_path` in the message.
+    """
+    of = "" if step is None else f" of step {step}"
+    warnings.warn(
+        f"{model}{of} did not converge after {fitted.n_iter} iterations",
+        RuntimeWarning,
+        stacklevel=stacklevel + 1,
+    )
 
 
 def _standardize(

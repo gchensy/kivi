@@ -14,7 +14,6 @@ averaging, as the regulations ask for long-run averages.
 
 import math
 import typing
-import warnings
 from collections import abc
 
 import numpy as np
@@ -655,11 +654,9 @@ def fractional_regression(
     over the four secured rows.
     """
     frame, values, responses, mass = _model_inputs(X, response, weights)
-    weighted = mass is not None
-    _check_independent(frame.columns, values, weighted=weighted)
-    design = np.column_stack([np.ones(len(values)), values])
+    _logit.check_independent(frame.columns, values, weighted=mass is not None)
     try:
-        fitted = _logit.fit(design, responses, weights=mass, robust=True)
+        fitted = _logit.fit(_logit.with_intercept(values), responses, weights=mass, robust=True)
     except _logit.SeparationError:
         raise _logit.SeparationError(
             "X separates the responses of 0 from those of 1: some fitted means tend to 0 or 1 "
@@ -667,17 +664,9 @@ def fractional_regression(
             "exist; merge the groups or drop the variables that predict response without error"
         ) from None
     except _logit.SingularError as error:
-        label = "intercept" if error.column == 0 else frame.columns[error.column - 1]
-        raise ValueError(
-            f"X column {_validation.shown(label)} is so close to a linear combination of the "
-            "intercept and the other columns that its coefficient cannot be estimated"
-        ) from None
+        raise _logit.singular_column(error, frame.columns) from None
     if not fitted.converged:
-        warnings.warn(
-            f"fractional regression did not converge after {fitted.n_iter} iterations",
-            RuntimeWarning,
-            stacklevel=2,
-        )
+        _logit.warn_not_converged(fitted, stacklevel=2, model="fractional regression")
     table = pd.DataFrame(
         {"coef": fitted.coef, "se": fitted.se, "z": fitted.z, "p_value": fitted.p_value},
         index=pd.Index(["intercept"]).append(frame.columns).rename("variable"),
@@ -855,7 +844,9 @@ def _model_inputs(
         if isinstance(X, pd.DataFrame) and isinstance(values, pd.Series):
             if not X.index.equals(values.index):
                 raise ValueError(f"X and {name} must have identical indices")
-    frame, values = _design(X)
+    frame, values = _logit.as_frame(X)
+    if "intercept" in frame.columns:
+        raise ValueError("X must not have a column labelled 'intercept'")
     raw_response = response
     series = _validation.as_series(response, "response")
     if len(series) != len(frame):
@@ -889,56 +880,3 @@ def _model_inputs(
         if (responses == bound).all():
             raise ValueError(f"response must not be {bound} for every row{where}")
     return frame, values, responses, mass
-
-
-def _design(X: pd.DataFrame | npt.ArrayLike) -> tuple[pd.DataFrame, npt.NDArray[np.float64]]:
-    """Return `X` as a DataFrame, without copying one, and its float values."""
-    if isinstance(X, pd.DataFrame):
-        frame = X
-    else:
-        if np.ndim(X) != 2:
-            raise ValueError(f"X must be two-dimensional, got {np.ndim(X)} dimensions")
-        frame = pd.DataFrame(X)  # type: ignore[arg-type]  # a two-dimensional array_like
-    if len(frame) < 2:
-        raise ValueError(f"X must have at least 2 rows, got {len(frame)}")
-    if not frame.shape[1]:
-        raise ValueError("X must have at least one column")
-    if frame.columns.has_duplicates:
-        label: abc.Hashable = frame.columns[frame.columns.duplicated()][0]
-        raise ValueError(
-            f"X must have unique column labels, got {_validation.shown(label)} more than once"
-        )
-    if "intercept" in frame.columns:
-        raise ValueError("X must not have a column labelled 'intercept'")
-    for label, dtype in frame.dtypes.items():
-        if not pd.api.types.is_numeric_dtype(dtype):
-            shown = _validation.shown(label)
-            raise ValueError(f"X column {shown} must be numeric, got dtype {dtype}")
-    values = frame.to_numpy(dtype=float, na_value=np.nan)
-    finite = np.isfinite(values).all(axis=0)
-    if not finite.all():
-        label = frame.columns[np.argmin(finite)]  # type: ignore[call-overload]  # a NumPy integer selects one label
-        raise ValueError(
-            f"X column {_validation.shown(label)} must not contain missing or infinite values"
-        )
-    return frame, values
-
-
-def _check_independent(
-    columns: pd.Index, values: npt.NDArray[np.float64], *, weighted: bool
-) -> None:
-    """Require the columns of `values` to vary and to be independent of those before them."""
-    where = " on the rows with positive weight" if weighted else ""
-    constant = np.ptp(values, axis=0) == 0
-    if constant.any():
-        label = columns[int(np.argmax(constant))]
-        raise ValueError(
-            f"X column {_validation.shown(label)} is constant{where}; it cannot be told apart "
-            "from the intercept"
-        )
-    dependent = _logit.dependent_column(np.column_stack([np.ones(len(values)), values]))
-    if dependent is not None:
-        raise ValueError(
-            f"X column {_validation.shown(columns[dependent - 1])} is a linear combination "
-            f"of the intercept and the columns before it{where}"
-        )
