@@ -8,6 +8,28 @@ Changes merged since the last release.
 
 .. release-fragments::
 
+1.5.0 (2026-11-24)
+------------------
+
+New
+^^^
+
+* The new module ``kivi.capital`` computes the regulatory capital of the internal ratings-based approach. ``asset_correlation`` and ``capital_requirement`` evaluate the risk-weight functions of the Basel framework (CRE31) and of China's capital rules of 2023 for corporate exposures, high-volatility commercial real estate, residential mortgages, qualifying revolving and other retail exposures, with the SME adjustment of ``turnover`` over a ``turnover_range`` that takes either jurisdiction's bounds, the 1.25 multiplier of ``financial`` institutions and the maturity adjustment. They reproduce the 152 risk weights of Annex 5 of Basel II.
+* ``kivi.capital.conditional_pd`` gives the PD of the one-factor model of Vasicek in a scenario of the economy, ``systematic_factor`` the factor that an observed default rate implies, and ``vasicek_fit`` estimates the long-run PD and the asset correlation from a series of default rates by the method of moments, which allows years without defaults.
+* ``kivi.capital.most_prudent_pd`` gives the most prudent upper bounds of Pluto and Tasche for the PDs of a portfolio with few or no defaults, with independent or correlated defaults, and reproduces the tables of their paper.
+* The new guide to regulatory capital lists the parameters of the Basel framework and of China's rules side by side, with their paragraphs and articles: the SME range and unit, the financial-institution multiplier, the PD and LGD floors, the foundation LGDs, the maturity, the scope of the advanced approach and the output floor.
+
+* ``kivi.lifetime.survival_table`` estimates a cumulative PD term structure from the duration of each loan until it defaults, leaves for another reason or is last observed. It gives the loans at risk, the defaults, the other exits and the censored loans of each period, the hazard rate, the probability of being still on book and the cumulative PD: the Kaplan–Meier estimate, or with ``competing``, such as early repayments, the Aalen–Johansen estimate of the cumulative incidence of default, which does not overstate the PD as 1 − Kaplan–Meier does when repaid loans count as censored. ``entry`` handles left truncation, such as a panel that starts after the loans were originated, and ``weights`` are frequency weights. Its ``cumulative_pd`` converts with ``convert_pd`` like a vintage curve.
+* ``kivi.datasets.make_loan_panel`` takes ``prepayment``, the monthly probability that a current loan repays its whole balance early. A loan that repays early has a balance of 0 in that month and no rows after it, so the columns stay the same. The default, 0, gives the same panel as before for every ``rng``.
+* The lifetime guide shows how to derive durations, defaults and repayments from a monthly loan panel, why the cumulative incidence and not 1 − Kaplan–Meier is the lifetime PD when loans repay early, how ``entry`` corrects for a panel that starts late, and a discrete-time hazard model fitted with ``logistic_regression`` on a person-period table.
+
+Changed
+^^^^^^^
+
+* The guide to regulatory capital comes after the guide to model validation. The home page, the index of the user guide and both READMEs describe ``kivi.capital`` and ``survival_table``, with charts of the risk weight of each asset class against the PD and of the cumulative PD with early repayments as a competing risk or as censored.
+* The lifetime guide weights the expected credit loss over economic scenarios: ``conditional_pd`` shifts the PDs of each delinquency state to an upside, a base case and a downturn, and the probability-weighted ECL comes out above that of the base case.
+* The conventions page describes ``asset_class``, the ``level`` of the capital functions, and ``event``, ``duration`` and ``entry`` of ``survival_table``. The compatibility page lists the table of ``survival_table``, the result of ``most_prudent_pd`` and the tuple of ``vasicek_fit``, and the glossary defines the IRB approach, the asset class and asset correlation, the capital requirement, the risk weight, the maturity and SME adjustments, HVCRE and QRRE, the one-factor model, the systematic factor, stressed and through-the-cycle PDs, most prudent estimates of low-default portfolios, the output floor, censoring, left truncation, the risk set, competing risks, early repayment, the cumulative incidence, the Kaplan–Meier and Aalen–Johansen estimators, discrete-time hazard models and economic scenarios.
+
 1.4.0 (2026-11-24)
 ------------------
 
