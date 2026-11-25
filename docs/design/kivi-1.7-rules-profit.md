@@ -1,6 +1,6 @@
 # kivi 1.7 实施计划：策略规则与收益
 
-2026-11-25 起草 · 待审定：第 6 节的 6 项
+2026-11-25 起草 · 2026-11-25 审定：第 6 节的 6 项全部采用推荐
 
 ## 1. 目标与范围
 
@@ -137,7 +137,7 @@ expected_maximum_profit(score, target, *, no_loss_share=0.55, full_loss_share=0.
 
 流程：
 
-1. 本稿审定。
+1. 本稿审定：2026-11-25 已确认，第 6 节的 6 项全部采用推荐。
 2. 两个会话开工。我逐个评审，按你的指示合并。
 3. 集成 PR 由我来写：
    - README、首页和指南索引：`rules` 指南的位置由集成 PR 定，建议放在 `strategy` 之后；
@@ -157,9 +157,9 @@ expected_maximum_profit(score, target, *, no_loss_share=0.55, full_loss_share=0.
 
 ## 6. 决定
 
-以下 6 项待审定，推荐方案在前。
+2026-11-25，以下 6 项全部采用推荐方案。
 
-| # | 问题 | 推荐 | 其他选项 |
+| # | 问题 | 决定 | 未采用的选项 |
 | --- | --- | --- | --- |
 | 1 | EMP 的参数名 | `no_loss_share`、`full_loss_share`、`roi`，描述性，docstring 写明对应论文的 p0、p1 | 草稿和 R 包的 `p0`、`p1`、`roi`；empulse 的 `success_rate`、`default_rate`（后者与 kivi 中"违约率"的含义冲突） |
 | 2 | 规则分析的目标 | 可以不给；缺失的标签是未知结果，与 `swap_set` 相同，规则可以对全部申请人评估 | 草稿：必须给出、只能是 0 与 1 |
