@@ -8,6 +8,34 @@ Changes merged since the last release.
 
 .. release-fragments::
 
+1.8.0 (2026-11-25)
+------------------
+
+New
+^^^
+
+* ``kivi.vintage.default_rate_table`` gives the one-year default rate of each grade by the cohort approach of the EBA guidelines on PD estimation, from quarter-end start months by default. A loan in default at a start month belongs to no cohort, the grade is the one at the start month, a loan that defaults twice in a year counts once, and loans that leave the panel during the year without defaulting stay in the cohort and are counted in ``exited``. ``probability`` adds the mean PD of each cohort.
+* ``kivi.calibration.central_tendency_shift`` returns the shift of the log odds that brings the mean PD of a calibration sample to a central tendency, such as the long-run average default rate, without changing the order of the PDs: the scaled likelihood ratio of Tasche (2013).
+* ``kivi.calibration.quasi_moment_fit`` fits a logistic PD curve to a central tendency and an accuracy ratio, the quasi moment matching of Tasche (2009), and returns the slope and the intercept that ``kivi.calibration.platt_predict`` applies.
+
+* ``kivi.binning.optimal_edges`` fits the edges with the largest information value over the merges of fine quantile bins, found exactly by dynamic programming, under a maximum number of bins, a minimum share (``min_bin_share``) and a minimum number of events and of non-events (``min_bin_events``) in every bin, and a ``trend`` of the WOE: ``"increasing"``, ``"decreasing"``, ``"u_shaped"``, ``"inverted_u"``, ``"any"``, or by default ``"auto"``, the better of the two monotonic trends. ``kivi.spec.fit_spec`` fits it with ``method="optimal"``.
+* ``kivi.binning.chimerge_edges`` and ``kivi.binning.monotonic_edges`` take ``min_bin_share``: before the other merges, a bin smaller than that share of the fitted values is merged with the neighbour whose chi-square statistic with it is smaller. The default, 0, keeps the results of earlier versions.
+* The guide to WOE and IV explains why the information value of supervised bins on their development sample is optimistic, and how to measure it on a validation sample or with a permutation test.
+
+* :mod:`kivi.plotting` draws five more result tables: :func:`~kivi.plotting.survival_chart` (the steps of ``cumulative_pd`` or ``survival``, with both causes under competing risks for ``cumulative_pd``), :func:`~kivi.plotting.transition_chart` (a transition matrix as a heatmap with the diagonal outlined), :func:`~kivi.plotting.rule_set_chart` (the ``new_hits`` of each rule with the ``approval_rate``), :func:`~kivi.plotting.profit_chart` (``profit`` against ``approval_rate`` with the best cut-off marked) and :func:`~kivi.plotting.lgd_chart` (``mean``, ``zero_share`` and ``full_share`` of each group).
+
+* :func:`kivi.rules.rule_candidates` searches the numeric columns of a frame for single-threshold policy rules: it fits cut points with :func:`kivi.binning.tree_edges` or :func:`kivi.binning.ks_edges`, keeps for each threshold the side with the higher event rate and lists the rules that meet ``min_hit_rate`` and ``min_lift`` from the highest lift down. Its counts equal those of :func:`kivi.rules.rule_table` for the same rule, and missing values and special codes hit no rule.
+
+* ``kivi.binning.variance_edges`` fits the edges of a driver to a continuous response, such as a realized LGD or CCF: over the merges of fine quantile bins it finds exactly, by the dynamic programming of ``optimal_edges``, the binning with the smallest sum of squares of the response within the bins, under a maximum number of bins, a minimum share of the values in every bin and a ``trend`` of the bin means. The response may leave [0, 1] but must not be missing, and ``weights`` are frequency weights. Group the values with ``kivi.binning.cut`` and summarize them with ``kivi.lgd.lgd_table``; the guide to LGD and EAD fits the bands of the loan-to-value ratio of the secured loans in this way.
+
+Changed
+^^^^^^^
+
+* The home page, the index of the user guide and both READMEs describe ``optimal_edges``, ``variance_edges`` and the ``min_bin_share`` of ChiMerge and monotonic binning, ``rule_candidates``, ``default_rate_table``, ``central_tendency_shift``, ``quasi_moment_fit`` and the five new charts. The guide to binning shows in a diagram how ``optimal_edges`` finds the best path through the candidate bins, the guide to vintage analysis draws the one-year default rates of the start months with their mean, the observed average default rate, and their pooled rate; the validation guide counts the N, D and PD of the Jeffreys test of each grade with ``default_rate_table``; and the risk modeling workflow points to the constraints of ``optimal_edges`` and to the optimistic information value of the development sample.
+* The conventions page adds the ``response`` of ``variance_edges`` and ``fractional_regression`` next to the binary ``target``, the options and the missing values of the new functions, the start months of ``default_rate_table`` and the slope and intercept of ``quasi_moment_fit`` among the parameters that another function applies. The compatibility page lists the tables of ``rule_candidates`` and ``default_rate_table``, the pair of ``quasi_moment_fit``, the float of ``central_tendency_shift`` and what the five new charts draw, and states that the ``response`` argument and values such as the ``method="optimal"`` of ``fit_spec`` are public. The glossary defines the accuracy ratio, the calibration sample and the calibration segment, the central tendency, the cohort approach, the start month, the one-year, observed average and long-run average default rates, optimal binning, the permutation test, quasi moment matching and the scaled likelihood ratio, and the candidate rule now covers the thresholds that ``rule_candidates`` finds.
+
+* kivi 1.9 will require Python 3.11 or newer, because Python 3.10 reached the end of its life in October 2026. NumPy 1.24 and pandas 2.0 stay the oldest supported versions.
+
 1.7.0 (2026-11-25)
 ------------------
 
