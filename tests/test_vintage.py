@@ -7,8 +7,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from kivi.calibration import calibration_table
 from kivi.datasets import make_loan_panel
+from kivi.lifetime import survival_table
 from kivi.vintage import (
+    default_rate_table,
     delinquency_panel,
     migration_bandwidth,
     migration_test,
@@ -1675,3 +1678,418 @@ def test_migration_inputs_must_share_an_index():
         migration_test(before, after, grades=GRADES)
     with pytest.raises(ValueError, match="weights must be finite and non-negative"):
         migration_bandwidth(["A", "B"], ["B", "A"], grades=GRADES, weights=[1, -1])
+
+
+# One-year default rates. Loan 1 defaults in May and cures in July; loan 2 is repaid after
+# April; loan 3 moves from grade B to A in August; loan 4 defaults from August; loan 5 enters
+# the panel in May. With a horizon of 3 months the quarter ends March and June start cohorts.
+RATE_MONTHS = [f"2024-{number:02d}" for number in range(1, 10)]
+RATE_ROWS = (
+    [(1, month, "A", month in ("2024-05", "2024-06")) for month in RATE_MONTHS]
+    + [(2, month, "A", False) for month in RATE_MONTHS[:4]]
+    + [(3, month, "B" if month < "2024-08" else "A", False) for month in RATE_MONTHS]
+    + [(4, month, "B", month >= "2024-08") for month in RATE_MONTHS]
+    + [(5, month, "A", False) for month in RATE_MONTHS[4:]]
+)
+
+
+def rate_panel():
+    panel = pd.DataFrame(RATE_ROWS, columns=["loan", "month", "grade", "defaulted"])
+    panel["month"] = pd.PeriodIndex(panel["month"], freq="M")
+    return panel
+
+
+def rate_columns(panel):
+    return panel["loan"], panel["month"], panel["grade"], panel["defaulted"]
+
+
+def rate_index(starts, grades):
+    return pd.MultiIndex.from_arrays(
+        [pd.PeriodIndex(starts, freq="M"), pd.Index(grades)], names=["start", "grade"]
+    )
+
+
+def test_default_rate_table_matches_hand_calculation():
+    table = default_rate_table(*rate_columns(rate_panel()), horizon=3)
+    expected = pd.DataFrame(
+        {
+            "total": [2, 2, 1, 2],
+            "event": [1, 0, 0, 1],
+            "exited": [1, 0, 0, 0],
+            "event_rate": [0.5, 0.0, 0.0, 0.5],
+        },
+        index=rate_index(["2024-03", "2024-03", "2024-06", "2024-06"], ["A", "B", "A", "B"]),
+    )
+    pd.testing.assert_frame_equal(table, expected)
+
+
+def test_default_rate_table_counts_each_cohort_loan_once():
+    # Loan 1 defaults twice in the window, loan 2 is in default at the start and stays out of
+    # the cohort, and loan 3 defaults only after the window.
+    loan = [1] * 5 + [2] * 5 + [3] * 5
+    month = pd.PeriodIndex(["2024-03", "2024-04", "2024-05", "2024-06", "2024-07"] * 3, freq="M")
+    defaulted = [0, 1, 0, 1, 0] + [1, 0, 0, 0, 0] + [0, 0, 0, 0, 1]
+    table = default_rate_table(loan, month, ["A"] * 15, defaulted, horizon=3, starts=["2024-03"])
+    assert table.loc[(pd.Period("2024-03", "M"), "A")].tolist() == [2, 1, 0, 0.5]
+
+
+def test_default_rate_table_takes_the_grade_of_the_start_month():
+    table = default_rate_table(*rate_columns(rate_panel()), horizon=3, starts=["2024-06"])
+    # Loan 3 moves to grade A in August but stays in the B cohort of June.
+    assert table.loc[(pd.Period("2024-06", "M"), "B"), "total"] == 2
+
+
+def test_default_rate_table_reports_missing_grades_last():
+    panel = rate_panel()
+    panel.loc[(panel["loan"] == 3) & (panel["month"] == pd.Period("2024-03", "M")), "grade"] = None
+    grades = pd.Categorical(panel["grade"], categories=["B", "A"], ordered=True)
+    table = default_rate_table(panel["loan"], panel["month"], grades, panel["defaulted"], horizon=3)
+    assert table.index.get_level_values("grade").tolist()[:3] == ["B", "A", np.nan]
+    assert table["total"].tolist() == [1, 2, 1, 2, 1]
+    assert isinstance(table.index.levels[1], pd.CategoricalIndex)
+    # Grades that are not categorical are sorted.
+    reverse = default_rate_table(
+        panel["loan"],
+        panel["month"],
+        panel["grade"].map({"A": 2, "B": 1}),
+        panel["defaulted"],
+        horizon=3,
+    )
+    assert reverse.index.get_level_values("grade")[:3].tolist()[:2] == [1.0, 2.0]
+
+
+def test_default_rate_table_keeps_exits_in_the_cohort():
+    # Two loans of three leave before the end of the window without a default.
+    loan = [1, 1, 2, 3, 3, 3, 3]
+    month = pd.PeriodIndex(
+        ["2024-03", "2024-04", "2024-03", "2024-03", "2024-04", "2024-05", "2024-06"], freq="M"
+    )
+    table = default_rate_table(loan, month, ["A"] * 7, [False] * 7, horizon=3, starts=["2024-03"])
+    assert table[["total", "event", "exited"]].iloc[0].tolist() == [3, 0, 2]
+
+
+def brute_default_rates(loan, month, grade, defaulted, horizon, starts, weights=None):
+    """One row per cohort loan: start, grade, event, exited and weight, by looping."""
+    frame = pd.DataFrame(
+        {
+            "loan": loan,
+            "month": month,
+            "grade": grade,
+            "defaulted": defaulted,
+            "weight": 1.0 if weights is None else weights,
+        }
+    )
+    records = []
+    for start in starts:
+        cohort = frame[(frame["month"] == start) & ~frame["defaulted"]]
+        for row in cohort.itertuples():
+            own = frame[frame["loan"] == row.loan]
+            window = own[(own["month"] > start) & (own["month"] <= start + horizon)]
+            event = bool(window["defaulted"].any())
+            exited = not event and own["month"].max() < start + horizon
+            records.append((start, row.grade, event, exited, row.weight))
+    return pd.DataFrame(records, columns=["start", "grade", "event", "exited", "weight"])
+
+
+def random_rate_panel(rng, loans=60, months=30):
+    records = []
+    for number in range(loans):
+        first = int(rng.integers(0, months - 1))
+        length = int(rng.integers(1, months - first + 1))
+        grade = rng.choice(["A", "B", "C", None])
+        for offset in range(length):
+            if rng.random() < 0.15:  # a month without a row
+                continue
+            if rng.random() < 0.1:
+                grade = rng.choice(["A", "B", "C", None])
+            records.append((f"L{number}", first + offset, grade, bool(rng.random() < 0.1)))
+    panel = pd.DataFrame(records, columns=["loan", "offset", "grade", "defaulted"])
+    calendar = pd.period_range("2020-01", periods=months, freq="M")
+    panel["month"] = calendar[panel["offset"].to_numpy()]
+    return panel
+
+
+@pytest.mark.parametrize("seed", range(8))
+def test_default_rate_table_matches_brute_force(seed):
+    rng = np.random.default_rng(seed)
+    panel = random_rate_panel(rng)
+    horizon = int(rng.integers(1, 13))
+    first, last = panel["month"].min(), panel["month"].max()
+    candidates = pd.period_range(first, last - horizon, freq="M")
+    starts = list(rng.choice(candidates, size=min(5, len(candidates)), replace=False))
+    table = default_rate_table(
+        panel["loan"],
+        panel["month"],
+        panel["grade"],
+        panel["defaulted"],
+        horizon=horizon,
+        starts=starts,
+    )
+    rows = brute_default_rates(
+        panel["loan"], panel["month"], panel["grade"], panel["defaulted"], horizon, starts
+    )
+    expected = (
+        rows.groupby(["start", "grade"], dropna=False, sort=False)
+        .agg(total=("event", "size"), event=("event", "sum"), exited=("exited", "sum"))
+        .reset_index()
+    )
+    expected["grade_order"] = expected["grade"].map({"A": 0, "B": 1, "C": 2}).fillna(3)
+    expected = expected.sort_values(["start", "grade_order"]).drop(columns="grade_order")
+    got = table.reset_index()
+    assert got["start"].tolist() == expected["start"].tolist()
+    assert got["grade"].fillna("missing").tolist() == expected["grade"].fillna("missing").tolist()
+    for column in ("total", "event", "exited"):
+        assert got[column].tolist() == expected[column].astype(np.int64).tolist()
+    np.testing.assert_array_equal(got["event_rate"], got["event"] / got["total"])
+
+
+def test_default_rate_table_default_starts_are_complete_quarter_ends():
+    rng = np.random.default_rng(3)
+    panel = random_rate_panel(rng, months=40)
+    table = default_rate_table(panel["loan"], panel["month"], panel["grade"], panel["defaulted"])
+    starts = table.index.get_level_values("start").unique()
+    last = panel["month"].max()
+    expected = [
+        month
+        for month in pd.period_range(panel["month"].min(), last, freq="M")
+        if month.month % 3 == 0 and month + 12 <= last
+    ]
+    assert starts.tolist() == expected
+
+
+def test_default_rate_table_integer_weights_equal_repeated_loans():
+    rng = np.random.default_rng(5)
+    panel = random_rate_panel(rng)
+    times = pd.Series(
+        rng.integers(0, 4, size=panel["loan"].nunique()), index=panel["loan"].unique()
+    )
+    weights = panel["loan"].map(times).to_numpy(dtype=float)
+    weighted = default_rate_table(
+        panel["loan"],
+        panel["month"],
+        panel["grade"],
+        panel["defaulted"],
+        horizon=6,
+        weights=weights,
+    )
+    copies = [
+        panel[panel["loan"] == loan].assign(loan=f"{loan}-{copy}")
+        for loan, count in times.items()
+        for copy in range(count)
+    ]
+    repeated = pd.concat(copies, ignore_index=True)
+    plain = default_rate_table(
+        repeated["loan"],
+        repeated["month"],
+        repeated["grade"],
+        repeated["defaulted"],
+        horizon=6,
+        starts=weighted.index.get_level_values("start").unique(),
+    )
+    pd.testing.assert_frame_equal(weighted, plain.astype(float), check_index_type=False)
+
+
+def test_default_rate_table_leaves_out_groups_without_weight():
+    table = default_rate_table(
+        *rate_columns(rate_panel()),
+        horizon=3,
+        starts=["2024-03"],
+        weights=np.where(rate_panel()["grade"] == "B", 0.0, 1.5),
+    )
+    assert table.index.get_level_values("grade").tolist() == ["A"]
+    assert table.dtypes.tolist() == [np.float64] * 4
+    assert table["total"].tolist() == [3.0]
+
+
+def test_default_rate_table_one_start_equals_calibration_table():
+    panel = make_loan_panel(rng=0)
+    start = pd.Period("2024-09", "M")
+    defaulted = panel["status"] == "90+"
+    probability = panel["month_on_book"] / 100
+    table = default_rate_table(
+        panel["loan_id"],
+        panel["month"],
+        panel["status"],
+        defaulted,
+        starts=[start],
+        probability=probability,
+    )
+    rows = brute_default_rates(
+        panel["loan_id"], panel["month"], panel["status"], defaulted, 12, [start]
+    )
+    cohort = panel[(panel["month"] == start) & ~defaulted]
+    expected = calibration_table(
+        cohort["status"].cat.remove_unused_categories(),
+        rows["event"].to_numpy(dtype=int),
+        probability[cohort.index].to_numpy(),
+    )
+    assert table.loc[start, ["total", "event"]].to_numpy().tolist() == (
+        expected[["total", "event"]].to_numpy().tolist()
+    )
+    np.testing.assert_allclose(
+        table.loc[start, "mean_probability"], expected["mean_probability"], rtol=1e-15
+    )
+
+
+def test_default_rate_table_without_exits_equals_kaplan_meier():
+    # Every loan has a row in each month of the window, so no loan is censored.
+    rng = np.random.default_rng(11)
+    loans, months = 300, 13
+    defaulted = rng.random((loans, months)) < 0.02
+    defaulted[:, 0] = False
+    panel = pd.DataFrame(
+        {
+            "loan": np.repeat(np.arange(loans), months),
+            "month": np.tile(pd.period_range("2023-12", periods=months, freq="M"), loans),
+            "defaulted": defaulted.ravel(),
+        }
+    )
+    table = default_rate_table(
+        panel["loan"], panel["month"], ["all"] * len(panel), panel["defaulted"]
+    )
+    first = np.where(defaulted[:, 1:].any(axis=1), defaulted[:, 1:].argmax(axis=1) + 1, 12)
+    curve = survival_table(first, defaulted[:, 1:].any(axis=1).astype(int))
+    assert table["event_rate"].iloc[0] == pytest.approx(
+        curve["cumulative_pd"].iloc[-1], rel=1e-12, abs=0
+    )
+    assert table["exited"].iloc[0] == 0
+
+
+def test_default_rate_table_on_the_simulated_loan_book():
+    panel = make_loan_panel(rng=0)
+    table = default_rate_table(
+        panel["loan_id"], panel["month"], panel["status"], panel["status"] == "90+"
+    )
+    starts = table.index.get_level_values("start").unique()
+    assert starts.tolist() == list(pd.period_range("2024-03", "2024-12", freq="Q-DEC").asfreq("M"))
+    assert "90+" not in table.index.get_level_values("grade")
+    portfolio = table.groupby(level="start")[["total", "event"]].sum()
+    rate = portfolio["event"] / portfolio["total"]
+    assert rate.round(4).tolist() == [0.0683, 0.0626, 0.0564, 0.052]
+    current = table.xs("current", level="grade")
+    assert current.loc[pd.Period("2024-12", "M"), ["total", "event", "exited"]].tolist() == [
+        2146,
+        73,
+        413,
+    ]
+
+
+def test_default_rate_table_reads_datetimes_and_strings():
+    panel = rate_panel()
+    expected = default_rate_table(*rate_columns(panel), horizon=3)
+    timestamps = panel["month"].dt.to_timestamp(how="end")
+    for month in (timestamps, timestamps.dt.tz_localize("Asia/Shanghai")):
+        table = default_rate_table(
+            panel["loan"],
+            month,
+            panel["grade"],
+            panel["defaulted"],
+            horizon=3,
+            starts=[
+                "2024Q1",
+                np.datetime64("2024-06-30"),
+            ],
+        )
+        pd.testing.assert_frame_equal(table, expected)
+    starts = pd.PeriodIndex(["2024-06", "2024-03"], freq="M")
+    pd.testing.assert_frame_equal(
+        default_rate_table(*rate_columns(panel), horizon=3, starts=starts), expected
+    )
+
+
+def test_default_rate_table_mean_probability():
+    panel = rate_panel()
+    probability = np.where(panel["defaulted"], np.nan, 0.01 * panel["loan"])
+    table = default_rate_table(*rate_columns(panel), horizon=3, probability=probability)
+    assert table["mean_probability"].round(10).tolist() == [0.015, 0.035, 0.05, 0.035]
+    weighted = default_rate_table(
+        *rate_columns(panel), horizon=3, probability=probability, weights=panel["loan"]
+    )
+    assert weighted["mean_probability"].iloc[0] == pytest.approx((0.01 + 0.04) / 3, rel=1e-12)
+
+
+def test_default_rate_table_errors():
+    panel = rate_panel()
+    loan, month, grade, defaulted = rate_columns(panel)
+    with pytest.raises(ValueError, match="^loan, month, grade and defaulted must have the same"):
+        default_rate_table(loan.tolist()[:-1], month, grade, defaulted)
+    with pytest.raises(ValueError, match="^loan, month, grade and defaulted must not be empty$"):
+        default_rate_table([], [], [], [])
+    with pytest.raises(ValueError, match="^loan and month must have identical indices$"):
+        default_rate_table(
+            loan, month.reset_index(drop=True).set_axis(month.index + 1), grade, defaulted
+        )
+    with pytest.raises(ValueError, match="^horizon must be a positive integer, got 0$"):
+        default_rate_table(loan, month, grade, defaulted, horizon=0)
+    with pytest.raises(ValueError, match="^horizon must be a positive integer, got True$"):
+        default_rate_table(loan, month, grade, defaulted, horizon=True)
+    with pytest.raises(ValueError, match="^loan must not contain missing values, got 5$"):
+        default_rate_table(loan.where(loan != 5), month, grade, defaulted, horizon=3)
+    with pytest.raises(
+        ValueError, match="^month must hold monthly periods or datetimes, got dtype"
+    ):
+        default_rate_table(loan, month.astype(str), grade, defaulted, horizon=3)
+    with pytest.raises(ValueError, match="^month must hold monthly periods or datetimes"):
+        default_rate_table(loan, month.dt.asfreq("D"), grade, defaulted, horizon=3)
+    with pytest.raises(ValueError, match="^month must not contain missing values, got 5$"):
+        default_rate_table(loan, month.where(loan != 5), grade, defaulted, horizon=3)
+    with pytest.raises(ValueError, match="^defaulted must contain only booleans or 0 and 1"):
+        default_rate_table(loan, month, grade, defaulted.astype(int) * 2, horizon=3)
+    with pytest.raises(
+        ValueError, match="^each loan must have at most one row per month, got two rows for loan 5"
+    ):
+        default_rate_table(
+            pd.concat([loan, loan.tail(1)]),
+            pd.concat([month, month.tail(1)]),
+            pd.concat([grade, grade.tail(1)]),
+            pd.concat([defaulted, defaulted.tail(1)]),
+            horizon=3,
+        )
+
+
+def test_default_rate_table_start_errors():
+    columns = rate_columns(rate_panel())
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "the panel must cover a quarter end and the 12 months after it, got 2024-01 to "
+            "2024-09; pass starts or a smaller horizon"
+        ),
+    ):
+        default_rate_table(*columns)
+    with pytest.raises(ValueError, match="^starts must be a list of months, got '2024-03'$"):
+        default_rate_table(*columns, horizon=3, starts="2024-03")
+    with pytest.raises(ValueError, match="^starts must not be empty$"):
+        default_rate_table(*columns, horizon=3, starts=[])
+    with pytest.raises(ValueError, match="^starts must be a date or a month, got 3$"):
+        default_rate_table(*columns, horizon=3, starts=[3])
+    with pytest.raises(ValueError, match="^starts must not repeat a month, got 2024-03 more than"):
+        default_rate_table(*columns, horizon=3, starts=["2024-03", "2024Q1"])
+    with pytest.raises(
+        ValueError,
+        match="^starts must not be before the first month of the panel, 2024-01, got 2023-12$",
+    ):
+        default_rate_table(*columns, horizon=3, starts=["2023-12"])
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "starts must be followed by 1 month of the panel, which ends in 2024-09, got 2024-09"
+        ),
+    ):
+        default_rate_table(*columns, horizon=1, starts=["2024-09"])
+
+
+def test_default_rate_table_probability_and_weight_errors():
+    columns = rate_columns(rate_panel())
+    size = len(columns[0])
+    with pytest.raises(ValueError, match="^probability must have one value per row of loan, got 2"):
+        default_rate_table(*columns, horizon=3, probability=[0.1, 0.2])
+    with pytest.raises(ValueError, match="^probability must be between 0 and 1, got 1.5$"):
+        default_rate_table(*columns, horizon=3, probability=[1.5] * size)
+    with pytest.raises(
+        ValueError,
+        match="^probability must not be missing at the start month of a cohort, got 7 missing",
+    ):
+        default_rate_table(*columns, horizon=3, probability=[np.nan] * size)
+    with pytest.raises(ValueError, match="^weights must be finite and non-negative, got -1.0$"):
+        default_rate_table(*columns, horizon=3, weights=[-1.0] * size)
