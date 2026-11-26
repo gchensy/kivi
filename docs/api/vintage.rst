@@ -3,7 +3,7 @@ Vintage and roll-rate analysis
 
 .. module:: kivi.vintage
 
-Analyse a loan panel as the loans age. :func:`~kivi.vintage.delinquency_panel` builds the panel from instalment schedules and payments, :func:`~kivi.vintage.vintage_table` gives the cumulative bad rate of each cohort by month on book, and :func:`~kivi.vintage.transition_matrix` and :func:`~kivi.vintage.roll_rates` show how loans move between delinquency buckets or grades. :func:`~kivi.vintage.migration_bandwidth` and :func:`~kivi.vintage.migration_test` summarize and test the migrations between rating grades.
+Analyse a loan panel as the loans age. :func:`~kivi.vintage.delinquency_panel` builds the panel from instalment schedules and payments, :func:`~kivi.vintage.vintage_table` gives the cumulative bad rate of each cohort by month on book, :func:`~kivi.vintage.default_rate_table` the one-year default rate of each grade from a series of start months, and :func:`~kivi.vintage.transition_matrix` and :func:`~kivi.vintage.roll_rates` show how loans move between delinquency buckets or grades. :func:`~kivi.vintage.migration_bandwidth` and :func:`~kivi.vintage.migration_test` summarize and test the migrations between rating grades.
 
 See :doc:`/user_guide/vintage` for examples on a synthetic loan panel, on a few repayment schedules and on simulated rating migrations.
 
@@ -11,6 +11,7 @@ See :doc:`/user_guide/vintage` for examples on a synthetic loan panel, on a few 
 
    delinquency_panel
    vintage_table
+   default_rate_table
    transition_matrix
    roll_rates
    migration_bandwidth
@@ -19,6 +20,8 @@ See :doc:`/user_guide/vintage` for examples on a synthetic loan panel, on a few 
 .. autofunction:: delinquency_panel
 
 .. autofunction:: vintage_table
+
+.. autofunction:: default_rate_table
 
 .. autofunction:: transition_matrix
 

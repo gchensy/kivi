@@ -2,7 +2,9 @@
 
 ``delinquency_panel`` builds a monthly loan panel from the instalment
 schedules and the payments of the loans. ``vintage_table`` follows the
-cumulative bad rate of each cohort as it ages. ``transition_matrix`` counts
+cumulative bad rate of each cohort as it ages, and ``default_rate_table``
+gives the one-year default rate of each grade from a series of start
+months, as PD calibration uses it. ``transition_matrix`` counts
 the movements of loans or obligors between delinquency buckets or rating
 grades, and ``roll_rates`` reduces it to the share of each bucket that rolls
 to the next worse one. ``migration_bandwidth`` and ``migration_test`` summarize
@@ -24,6 +26,7 @@ from . import _stats, _validation
 __all__ = [
     "delinquency_panel",
     "vintage_table",
+    "default_rate_table",
     "transition_matrix",
     "roll_rates",
     "migration_bandwidth",
@@ -617,6 +620,308 @@ def vintage_table(
         index=cohort_label[keep].rename("cohort"),
         columns=pd.Index(columns, name="month_on_book"),
     )
+
+
+def default_rate_table(
+    loan: npt.ArrayLike,
+    month: npt.ArrayLike,
+    grade: npt.ArrayLike,
+    defaulted: npt.ArrayLike,
+    *,
+    horizon: int = 12,
+    starts: npt.ArrayLike | None = None,
+    probability: npt.ArrayLike | None = None,
+    weights: npt.ArrayLike | None = None,
+) -> pd.DataFrame:
+    r"""Tabulate the one-year default rate of each grade by the cohort approach.
+
+    Each start month forms a cohort of the loans that are not in default at
+    its end, grouped by their grade at that month. The default rate of a
+    grade is the share of its cohort that is in default in at least one
+    month of the `horizon` months that follow, as the one-year default rate
+    of IRB PD calibration and validation counts it. Loans that leave the
+    panel during those months stay in the cohort.
+
+    Parameters
+    ----------
+    loan : array_like
+        Identifier of the loan of each row of a monthly panel, or of the
+        obligor where the definition of default applies to obligors. A loan
+        has at most one row per month, and its rows need not be sorted.
+    month : array_like
+        Month of each row, for the status at its end: monthly periods, or
+        datetimes, which stand for their month on their own calendar, such
+        as the ``month`` of `delinquency_panel`.
+    grade : array_like
+        Grade or pool of each row. Only the row of a start month counts, so
+        later migrations do not move a loan to another grade. Categorical
+        grades follow the order of their categories and other grades are
+        sorted. A missing grade forms a row of its own, listed last.
+    defaulted : array_like
+        Whether the loan is in default in that month, as booleans or 0 and
+        1, such as ``status == "90+"``.
+    horizon : int, default 12
+        Number of months that follow each start month, 12 for the one-year
+        default rate.
+    starts : array_like, optional
+        Start months of the cohorts, as periods, dates or strings, which are
+        read as a `pandas.Period` and stand for its last month, so
+        ``"2024Q2"`` is June 2024. The `horizon` months after each one must
+        lie in the panel. By default, every quarter end from the first month
+        of the panel whose `horizon` months end at the last month of the
+        panel or before.
+    probability : array_like, optional
+        PD of each row, between 0 and 1. The table then gives the mean PD
+        of each cohort at its start month. Only the rows of the cohorts are
+        checked for missing values, so defaulted rows may leave it empty.
+    weights : array_like, optional
+        Non-negative frequency weight of each row, such as the inverse of a
+        sampling rate; the weight of the start row of a loan counts. Groups
+        whose weights sum to zero are left out. Do not weight by exposure for
+        PD calibration, which counts obligors (Basel CRE36.78).
+
+    Returns
+    -------
+    pandas.DataFrame
+        One row per start month and grade with obligors in the cohort, with
+        a MultiIndex of ``start``, monthly periods, and ``grade``, sorted by
+        start month and then by grade. The columns are:
+
+        - ``total``: the loans of the cohort, or their weight;
+        - ``event``: those in default in at least one of the `horizon`
+          months after the start month;
+        - ``exited``: those not in default in those months whose last row
+          is before the last of them, such as loans repaid, sold or written
+          off; they count in ``total``;
+        - ``event_rate``: ``event / total``, the default rate;
+        - ``mean_probability``: the mean PD of the cohort at the start
+          month, only with `probability`.
+
+        The counts are integers without `weights` and sums of weights with
+        them.
+
+    Raises
+    ------
+    ValueError
+        If the inputs are empty, not one-dimensional or of different lengths,
+        or Series with different indices. Also if `loan` or `month` has a
+        missing value, a loan has two rows in one month, `month` does not
+        hold monthly periods or datetimes, `defaulted` has a value other
+        than 0 and 1, `horizon` is not a positive integer, `starts` is not a
+        list of distinct months whose `horizon` months lie in the panel, the
+        panel covers no quarter end and the `horizon` months after it, or
+        `probability` or `weights` is not valid.
+
+    See Also
+    --------
+    vintage_table : Cumulative bad rates by origination cohort and month on book.
+    transition_matrix : Movements between grades from one month to another.
+    kivi.calibration.jeffreys_test : Test the PD of each grade against its default rate.
+    kivi.calibration.central_tendency_shift : Shift PDs to a long-run average default rate.
+    kivi.capital.vasicek_fit : Long-run PD and asset correlation from yearly default rates.
+
+    Notes
+    -----
+    Let :math:`C_{r,g}` be the loans that have a row at start month
+    :math:`r`, are not in default in it and have grade :math:`g` there, and
+    :math:`w_i` the weight of the row of loan :math:`i` at :math:`r`, 1
+    without `weights`. With :math:`h` the `horizon`, the default rate is
+
+    .. math::
+
+       \mathrm{DR}_{r,g} = \frac{\sum_{i \in C_{r,g}} w_i \,
+           [\text{loan } i \text{ is in default in a month } m,\ r < m \le r + h]}
+           {\sum_{i \in C_{r,g}} w_i}.
+
+    This is the one-year default rate of the EBA guidelines on PD estimation
+    [1]_ (paragraphs 73 to 77) and of the ECB's validation reporting [2]_
+    (section 2.3): the denominator holds every obligor not in default at the
+    start, the numerator those with at least one default in the year, and an
+    obligor that defaults twice counts once. Loans that migrate to another
+    grade or model, are repaid, sold or written off during the year stay in
+    the denominator, and their defaults count as long as the panel keeps
+    their rows (paragraph 76). A loan without a row in some months of the
+    window counts as not in default in them, so it is not censored as in a
+    survival curve, which gives a higher rate when many loans leave: the
+    ``exited`` column shows how many did, for the analysis of the bias that
+    paragraphs 76 and 80 ask for. A missing grade is reported on its own row,
+    as paragraph 75 asks for obligors without a rating at the start; the
+    ECB's reporting leaves them out (section 2.5.1).
+
+    The guidelines evaluate the one-year default rates at least quarterly
+    (paragraph 78), which the default `starts` do, and leave the choice
+    between overlapping windows, such as these, and non-overlapping ones,
+    one start month a year, to an analysis of their bias (paragraph 80).
+    The observed average default rate is the arithmetic mean of the
+    one-year default rates (paragraph 81), and the long-run average is that
+    mean over a period that is representative of the likely range of
+    default rates, at least five years (paragraphs 82 to 86).
+
+    Month-end statuses miss a default that starts and ends within one month,
+    so `defaulted` should flag a month in which the loan was in default at
+    any time, including the probation period after it. Leave out technical
+    defaults and other defaults recorded in error.
+
+    References
+    ----------
+    .. [1] European Banking Authority, "Guidelines on PD estimation, LGD
+       estimation and the treatment of defaulted exposures",
+       EBA/GL/2017/16, section 5.3, 2017.
+    .. [2] European Central Bank, "Instructions for reporting the validation
+       results of internal models: IRB Pillar I models for credit risk",
+       February 2019.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from kivi.vintage import default_rate_table
+    >>> months = [f"2024-{number:02d}" for number in range(1, 10)]
+    >>> rows = (
+    ...     [(1, month, "A", month in ("2024-05", "2024-06")) for month in months]
+    ...     + [(2, month, "A", False) for month in months[:4]]
+    ...     + [(3, month, "B" if month < "2024-08" else "A", False) for month in months]
+    ...     + [(4, month, "B", month >= "2024-08") for month in months]
+    ...     + [(5, month, "A", False) for month in months[4:]]
+    ... )
+    >>> panel = pd.DataFrame(rows, columns=["loan", "month", "grade", "defaulted"])
+    >>> panel["month"] = pd.PeriodIndex(panel["month"], freq="M")
+    >>> default_rate_table(
+    ...     panel["loan"], panel["month"], panel["grade"], panel["defaulted"], horizon=3
+    ... )
+                   total  event  exited  event_rate
+    start   grade
+    2024-03 A          2      1       1         0.5
+            B          2      0       0         0.0
+    2024-06 A          1      0       0         0.0
+            B          2      1       0         0.5
+
+    Loan 1 defaults in May and is not in the June cohort; loan 2 is repaid
+    after April and counts as not in default; loan 3 stays in grade B
+    although it moves to A in August; loan 5 enters the panel in May.
+    """
+    inputs = {
+        "loan": loan,
+        "month": month,
+        "grade": grade,
+        "defaulted": defaulted,
+        "probability": probability,
+        "weights": weights,
+    }
+    _validation.shared_index(inputs)
+    raw_loan = loan
+    names = ("loan", "month", "grade", "defaulted")
+    loan, month, grade, defaulted = (
+        _validation.as_series(values, name)
+        for values, name in zip((loan, month, grade, defaulted), names, strict=True)
+    )
+    lengths = [len(loan), len(month), len(grade), len(defaulted)]
+    if len(set(lengths)) > 1:
+        raise ValueError(
+            f"loan, month, grade and defaulted must have the same length, got "
+            f"{', '.join(map(str, lengths[:-1]))} and {lengths[-1]}"
+        )
+    if not lengths[0]:
+        raise ValueError("loan, month, grade and defaulted must not be empty")
+    horizon = _validation.check_count(horizon, "horizon")
+    mass = _validation.as_weights(weights, raw_loan, "weights", "loan")
+    loan_code, loan_label = pd.factorize(loan)
+    _check_not_missing(loan_code, "loan")
+    months = _panel_months(month, "month")
+    flag = _validation.as_flags(defaulted, "defaulted")
+    chance = None
+    if probability is not None:
+        chance = _validation.as_real(
+            _validation.as_series(probability, "probability"), "probability", booleans=True
+        )
+        if len(chance) != len(loan):
+            raise ValueError(
+                f"probability must have one value per row of loan, got {len(chance)} for "
+                f"{len(loan)}"
+            )
+        outside = (chance < 0) | (chance > 1)
+        if outside.any():
+            raise ValueError(
+                f"probability must be between 0 and 1, got {_validation.shown(chance[outside][0])}"
+            )
+
+    # Rows by loan and month: two rows of a loan in one month are adjacent.
+    order = np.lexsort((months, loan_code))
+    sorted_loan, sorted_month = loan_code[order], months[order]
+    repeated = np.flatnonzero((np.diff(sorted_loan) == 0) & (np.diff(sorted_month) == 0))
+    if len(repeated):
+        row = order[repeated[0]]
+        raise ValueError(
+            f"each loan must have at most one row per month, got two rows for loan "
+            f"{_validation.shown(loan.iloc[row])} in {_month_label(months[row])}"
+        )
+    first, last = int(months.min()), int(months.max())
+    start_months = _start_months(starts, first, last, horizon)
+
+    # The cohort rows: a row of a start month that is not in default.
+    start_of = np.searchsorted(start_months, months)
+    found = start_of < len(start_months)
+    found[found] = start_months[start_of[found]] == months[found]
+    rows = np.flatnonzero(found & ~flag)
+    if chance is not None:
+        unknown = np.isnan(chance[rows])
+        if unknown.any():
+            raise ValueError(
+                f"probability must not be missing at the start month of a cohort, got "
+                f"{unknown.sum()} missing value(s)"
+            )
+    # Defaults of a loan up to a month: a running count of defaulted rows in the order of loan
+    # and month, looked up with a key that orders the rows the same way.
+    span = last - first + horizon + 1
+    key = sorted_loan.astype(np.int64) * span + (sorted_month - first)
+    defaults_before = np.r_[0, np.cumsum(flag[order])]
+    row_key = loan_code[rows].astype(np.int64) * span + (months[rows] - first)
+    event = (
+        defaults_before[np.searchsorted(key, row_key + horizon, side="right")]
+        > defaults_before[np.searchsorted(key, row_key, side="right")]
+    )
+    last_month = np.full(len(loan_label), first, dtype=np.int64)
+    np.maximum.at(last_month, loan_code, months)
+    exited = ~event & (last_month[loan_code[rows]] < months[rows] + horizon)
+
+    grade_code, grade_label = _grade_codes(grade)
+    width = len(grade_label) + 1  # the last column of each start month is the missing grade
+    row_grade = grade_code[rows]
+    cell = start_of[rows] * width + np.where(row_grade < 0, width - 1, row_grade)
+    size = len(start_months) * width
+    row_mass = None if mass is None else mass[rows]
+
+    def tally(selected: npt.NDArray[np.bool_]) -> np.ndarray:
+        if row_mass is None:
+            return np.bincount(cell[selected], minlength=size)
+        # NumPy < 2 counts an empty selection as integers, also with weights.
+        return np.bincount(cell[selected], weights=row_mass[selected], minlength=size).astype(float)
+
+    everyone = np.ones(len(rows), dtype=bool)
+    total = tally(everyone)
+    keep = np.flatnonzero(total > 0)
+    columns: dict[str, np.ndarray] = {
+        "total": total[keep],
+        "event": tally(event)[keep],
+        "exited": tally(exited)[keep],
+    }
+    columns["event_rate"] = columns["event"] / columns["total"]
+    if chance is not None:
+        row_weight = np.ones(len(rows)) if row_mass is None else row_mass
+        weight_sum = np.bincount(cell, weights=row_weight, minlength=size)[keep]
+        mean = np.bincount(cell, weights=row_weight * chance[rows], minlength=size)[keep]
+        columns["mean_probability"] = mean / weight_sum
+    grade_position = keep % width
+    # Levels and codes, not labels: building the index from labels would hash interval grades,
+    # which warns on NumPy < 2.2.
+    index = pd.MultiIndex(
+        levels=[_month_periods(start_months), grade_label],  # type: ignore[list-item]  # an Index is a valid level
+        codes=[
+            (keep // width).tolist(),
+            np.where(grade_position == width - 1, -1, grade_position).tolist(),
+        ],
+        names=["start", "grade"],
+    ).remove_unused_levels()
+    return pd.DataFrame(columns, index=index)
 
 
 def transition_matrix(
@@ -1238,12 +1543,16 @@ def _whole_numbers(values: pd.Series, name: str) -> npt.NDArray[np.int64]:
     return array.astype(np.int64)
 
 
-def _end_month(end: object) -> int:
-    """Return the month of ``end`` as months since January 1970, raising a ValueError."""
+def _end_month(end: object, name: str = "end") -> int:
+    """Return the month of ``end`` as months since January 1970, raising a ValueError.
+
+    A string is read as a `pandas.Period` and stands for its last month, so
+    ``"2024Q1"`` is March 2024. ``name`` is the argument shown in the error.
+    """
     # NumPy shows a missing datetime64 as None.
     missing_date = isinstance(end, np.datetime64) and np.isnat(end)
     shown = "NaT" if missing_date else _validation.shown_argument(end)
-    message = f"end must be a date or a month, got {shown}"
+    message = f"{name} must be a date or a month, got {shown}"
     if isinstance(end, (numbers.Number, np.bool_)) or _validation.is_missing(end):
         # pandas.Timestamp reads a number as nanoseconds since 1970.
         raise ValueError(message)
@@ -1265,6 +1574,85 @@ def _end_month(end: object) -> int:
     if _validation.is_missing(period):
         raise ValueError(message)
     return int(period.asfreq("M").ordinal)
+
+
+def _panel_months(values: pd.Series, name: str) -> npt.NDArray[np.int64]:
+    """Months since January 1970 of monthly periods or datetimes, each on its own calendar."""
+    dtype = values.dtype
+    monthly = isinstance(dtype, pd.PeriodDtype) and dtype == pd.PeriodDtype("M")
+    if not (monthly or pd.api.types.is_datetime64_any_dtype(dtype)):
+        advice = (
+            "convert other periods with .dt.asfreq('M'), which takes their last month"
+            if isinstance(dtype, pd.PeriodDtype)
+            else "convert strings with pandas.PeriodIndex(values, freq='M')"
+        )
+        raise ValueError(
+            f"{name} must hold monthly periods or datetimes, got dtype {dtype}; {advice}"
+        )
+    missing = values.isna().to_numpy(dtype=bool)
+    if missing.any():
+        raise ValueError(f"{name} must not contain missing values, got {missing.sum()}")
+    if getattr(dtype, "tz", None) is not None:
+        values = values.dt.tz_localize(None)
+    years = values.dt.year.to_numpy(dtype=np.int64)
+    return years * 12 + values.dt.month.to_numpy(dtype=np.int64) - 1 - 1970 * 12
+
+
+def _start_months(
+    starts: npt.ArrayLike | None, first: int, last: int, horizon: int
+) -> npt.NDArray[np.int64]:
+    """Return the sorted start months, whose ``horizon`` months must lie in the panel."""
+    if starts is None:
+        months = np.arange(first, last - horizon + 1, dtype=np.int64)
+        # Months count from January 1970, so March, June, September and December are 2 mod 3.
+        months = months[months % 3 == 2]
+        if not len(months):
+            raise ValueError(
+                f"the panel must cover a quarter end and the {_month_count(horizon)} after it, got "
+                f"{_month_label(first)} to {_month_label(last)}; pass starts or a smaller horizon"
+            )
+        return months
+    if isinstance(starts, (str, bytes)) or np.ndim(starts) != 1:
+        raise ValueError(
+            f"starts must be a list of months, got {_validation.shown_argument(starts)}"
+        )
+    values = list(typing.cast(abc.Iterable[object], starts))
+    if not values:
+        raise ValueError("starts must not be empty")
+    months = np.array([_end_month(value, "starts") for value in values], dtype=np.int64)
+    unique, count = np.unique(months, return_counts=True)
+    if (count > 1).any():
+        raise ValueError(
+            f"starts must not repeat a month, got {_month_label(unique[count > 1][0])} more "
+            "than once"
+        )
+    if unique[0] < first:
+        raise ValueError(
+            f"starts must not be before the first month of the panel, {_month_label(first)}, "
+            f"got {_month_label(unique[0])}"
+        )
+    if unique[-1] + horizon > last:
+        raise ValueError(
+            f"starts must be followed by {_month_count(horizon)} of the panel, which ends in "
+            f"{_month_label(last)}, got {_month_label(unique[-1])}; the default rate of an "
+            "incomplete window would be too low"
+        )
+    return unique
+
+
+def _grade_codes(grade: pd.Series) -> tuple[npt.NDArray[np.intp], pd.Index]:
+    """Code of each grade in its order, -1 for a missing grade, and the grades.
+
+    Categorical grades follow their categories and others are sorted; pandas
+    sorts numbers before strings when a column holds both.
+    """
+    codes, labels = pd.factorize(grade, sort=True)
+    return codes.astype(np.intp), labels
+
+
+def _month_count(months: int) -> str:
+    """Return a number of months as text, such as ``"1 month"`` or ``"12 months"``."""
+    return f"{months} month" if months == 1 else f"{months} months"
 
 
 def _origination_days(

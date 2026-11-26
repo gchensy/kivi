@@ -1,5 +1,6 @@
 import math
 import re
+import statistics
 from fractions import Fraction
 
 import numpy as np
@@ -13,6 +14,7 @@ from kivi.calibration import (
     binomial_test,
     brier_decomposition,
     calibration_table,
+    central_tendency_shift,
     concentration_test,
     corrected_intercept,
     fit_grade_pd,
@@ -25,10 +27,11 @@ from kivi.calibration import (
     platt_fit,
     platt_predict,
     prior_correction,
+    quasi_moment_fit,
     spiegelhalter_test,
 )
 from kivi.datasets import load_bank
-from kivi.metrics import brier_score
+from kivi.metrics import brier_score, gini
 from kivi.selection import SeparationError
 
 INF = np.inf
@@ -1728,3 +1731,491 @@ def test_backtest_table_requires_identical_indices():
         backtest_table(
             ["a", "a"], pd.Series([0.1, 0.2]), [0.2, 0.2], weights=pd.Series([1, 1], index=[1, 2])
         )
+
+
+# Tasche (2013), table 2: S&P corporate issuers rated at the start of each year and their
+# defaults during it, from AAA to CCC-C.
+TASCHE_RATED = {
+    2009: [81, 37, 188, 245, 340, 510, 546, 498, 541, 459, 266, 295, 441, 438, 482, 303, 190],
+    2010: [72, 25, 143, 209, 353, 474, 528, 457, 583, 430, 254, 276, 379, 393, 436, 290, 220],
+    2011: [51, 36, 120, 207, 357, 470, 560, 473, 549, 508, 260, 319, 403, 509, 586, 301, 138],
+}
+TASCHE_DEFAULTS = {
+    2009: [0, 0, 0, 0, 1, 2, 0, 2, 1, 5, 0, 3, 4, 24, 48, 52, 92],
+    2010: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 2, 0, 3, 6, 49],
+    2011: [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 7, 12, 22],
+}
+# Table 5: the PDs (%) of 2009 smoothed by quasi moment matching.
+TASCHE_SMOOTHED = [
+    0.003,
+    0.006,
+    0.012,
+    0.025,
+    0.047,
+    0.091,
+    0.173,
+    0.299,
+    0.495,
+    0.797,
+    1.138,
+    1.518,
+    2.280,
+    3.943,
+    7.999,
+    19.557,
+    48.355,
+]
+# Table 7: the PDs (%) forecast for 2010 and 2011 with an invariant accuracy ratio and with a
+# scaled likelihood ratio.
+TASCHE_INVARIANT_AR = {
+    2010: [
+        0.0004,
+        0.0009,
+        0.0018,
+        0.0040,
+        0.0086,
+        0.0183,
+        0.0366,
+        0.0652,
+        0.1145,
+        0.1955,
+        0.2827,
+        0.3806,
+        0.5631,
+        0.9460,
+        1.8843,
+        4.5164,
+        14.5179,
+    ],
+    2011: [
+        0.0003,
+        0.0006,
+        0.0013,
+        0.0027,
+        0.0058,
+        0.0120,
+        0.0236,
+        0.0416,
+        0.0691,
+        0.1147,
+        0.1662,
+        0.2219,
+        0.3248,
+        0.5567,
+        1.2710,
+        3.7941,
+        13.3871,
+    ],
+}
+TASCHE_SCALED_LR = {
+    2010: [
+        0.0005,
+        0.0012,
+        0.0023,
+        0.0049,
+        0.0093,
+        0.0180,
+        0.0342,
+        0.0590,
+        0.0979,
+        0.1581,
+        0.2263,
+        0.3029,
+        0.4576,
+        0.8023,
+        1.6844,
+        4.5716,
+        15.5760,
+    ],
+    2011: [
+        0.0004,
+        0.0009,
+        0.0018,
+        0.0039,
+        0.0074,
+        0.0143,
+        0.0271,
+        0.0468,
+        0.0777,
+        0.1256,
+        0.1797,
+        0.2405,
+        0.3635,
+        0.6378,
+        1.3414,
+        3.6627,
+        12.7721,
+    ],
+}
+
+
+def tasche_scores(counts):
+    """Robust logit scores of the grades AAA to CCC-C (Tasche 2013, eq. A.8 and A.9).
+
+    The normal quantile of the mid-distribution function of ``counts``, counted from the worst
+    grade, rises with the rating; it is negated so that the score rises with the risk.
+    """
+    worst_first = np.asarray(counts, dtype=float)[::-1]
+    share = worst_first / worst_first.sum()
+    middle = np.cumsum(share) - share / 2
+    quantile = np.array([statistics.NormalDist().inv_cdf(value) for value in middle])
+    return -quantile[::-1]
+
+
+def implied_gini(score, probability, weights):
+    """Accuracy ratio of the sample of events and non-events that PDs imply."""
+    score, probability, weights = (
+        np.asarray(values, dtype=float) for values in (score, probability, weights)
+    )
+    target = np.r_[np.ones(len(score)), np.zeros(len(score))]
+    return gini(
+        np.r_[score, score],
+        target,
+        weights=np.r_[weights * probability, weights * (1 - probability)],
+    )
+
+
+def shifted(probability, shift):
+    return probability / (probability + (1 - probability) * np.exp(-shift))
+
+
+def tasche_accuracy_ratio():
+    rated, defaults = np.array(TASCHE_RATED[2009]), np.array(TASCHE_DEFAULTS[2009])
+    score = np.tile(np.arange(1.0, 18), 2)  # from AAA to CCC-C, the riskiest
+    weights = np.r_[defaults, rated - defaults]
+    target = np.r_[np.ones(17), np.zeros(17)]
+    return gini(score[weights > 0], target[weights > 0], weights=weights[weights > 0])
+
+
+def test_quasi_moment_fit_reproduces_tasche_table_5():
+    rated, defaults = np.array(TASCHE_RATED[2009]), np.array(TASCHE_DEFAULTS[2009])
+    accuracy_ratio = tasche_accuracy_ratio()
+    assert round(accuracy_ratio, 3) == 0.827  # table 4
+    # Robust logit on the survivors (eq. 3.5c), the targets of table 4.
+    score = tasche_scores(rated - defaults)
+    slope, intercept = quasi_moment_fit(
+        score,
+        central_tendency=defaults.sum() / rated.sum(),
+        accuracy_ratio=accuracy_ratio,
+        weights=rated,
+    )
+    curve = 100 * platt_predict(score, slope, intercept)
+    printed = np.array(TASCHE_SMOOTHED)
+    # BB (1.5186) and CCC-C (48.3537) differ from the table in the last printed digit, which
+    # the tolerance of the paper's solver explains; the other 15 grades agree to every digit.
+    differ = np.flatnonzero(np.round(curve, 3) != printed)
+    assert differ.tolist() == [11, 16]
+    assert np.abs(curve - printed).max() < 0.0015
+
+
+@pytest.mark.parametrize("year", [2010, 2011])
+def test_quasi_moment_fit_reproduces_tasche_invariant_accuracy_ratio(year):
+    # Table 7: the unconditional profile of the year stands in for its survivors (section 4.2.2).
+    rated, defaults = np.array(TASCHE_RATED[year]), np.array(TASCHE_DEFAULTS[year])
+    score = tasche_scores(rated)
+    slope, intercept = quasi_moment_fit(
+        score,
+        central_tendency=defaults.sum() / rated.sum(),
+        accuracy_ratio=tasche_accuracy_ratio(),
+        weights=rated,
+    )
+    curve = 100 * platt_predict(score, slope, intercept)
+    assert np.abs(curve - np.array(TASCHE_INVARIANT_AR[year])).max() < 0.0005
+
+
+@pytest.mark.parametrize("year", [2010, 2011])
+def test_central_tendency_shift_reproduces_tasche_scaled_likelihood_ratio(year):
+    # Table 7 from the PDs of table 5, which are printed to three decimals only.
+    rated, defaults = np.array(TASCHE_RATED[year]), np.array(TASCHE_DEFAULTS[year])
+    probability = np.array(TASCHE_SMOOTHED) / 100
+    shift = central_tendency_shift(
+        probability, central_tendency=defaults.sum() / rated.sum(), weights=rated
+    )
+    forecast = 100 * shifted(probability, shift)
+    assert np.abs(forecast - np.array(TASCHE_SCALED_LR[year])).max() < 0.0004
+
+
+@pytest.mark.parametrize("seed", range(6))
+def test_central_tendency_shift_reaches_the_target_and_keeps_the_order(seed):
+    rng = np.random.default_rng(seed)
+    probability = rng.beta(0.5, 8, size=200)
+    weights = rng.integers(0, 5, size=200) if seed % 2 else None
+    target = rng.uniform(0.005, 0.5)
+    shift = central_tendency_shift(probability, central_tendency=target, weights=weights)
+    moved = shifted(probability, shift)
+    assert np.average(moved, weights=weights) == pytest.approx(target, rel=1e-12, abs=0)
+    order = np.argsort(probability, kind="stable")
+    assert (np.diff(moved[order]) >= 0).all()
+
+
+def test_central_tendency_shift_closed_forms():
+    logit = lambda value: math.log(value / (1 - value))  # noqa: E731
+    assert central_tendency_shift([0.2], central_tendency=0.05) == pytest.approx(
+        logit(0.05) - logit(0.2), rel=1e-14, abs=0
+    )
+    # A sample whose mean PD already equals the target is not shifted at all.
+    for probability, target in (([0.5], 0.5), ([0.1, 0.3], 0.2)):
+        shift = central_tendency_shift(probability, central_tendency=target)
+        assert shift == 0.0
+        assert type(shift) is float
+    # A prior correction with the same odds ratio gives the same PDs.
+    probability = np.array([0.01, 0.04, 0.2])
+    shift = central_tendency_shift(probability, central_tendency=0.03)
+    corrected = prior_correction(
+        probability, sample_rate=0.5, population_rate=1 / (1 + math.exp(-shift))
+    )
+    np.testing.assert_allclose(corrected, shifted(probability, shift), rtol=1e-14, atol=0)
+
+
+def test_central_tendency_shift_keeps_pds_of_zero_and_one():
+    probability = np.array([0.0, 0.02, 0.1, 1.0])
+    shift = central_tendency_shift(probability, central_tendency=0.3, weights=[3, 2, 4, 1])
+    moved = shifted(probability, shift)
+    assert moved[[0, 3]].tolist() == [0.0, 1.0]
+    assert np.average(moved, weights=[3, 2, 4, 1]) == pytest.approx(0.3, rel=1e-12, abs=0)
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "central_tendency must lie strictly between 0.1 and 0.7, the mean PDs that a shift "
+            "can reach given the PDs of 0 and 1, got 0.05"
+        ),
+    ):
+        central_tendency_shift(probability, central_tendency=0.05, weights=[3, 2, 4, 1])
+
+
+def test_central_tendency_shift_extreme_probabilities():
+    probability = np.array([1e-300, 0.5, 1 - 1e-16])
+    for target in (1e-9, 0.2, 0.6):
+        shift = central_tendency_shift(probability, central_tendency=target)
+        assert shifted(probability, shift).mean() == pytest.approx(target, rel=1e-9, abs=0)
+
+
+def test_central_tendency_shift_integer_weights_equal_repeated_rows():
+    rng = np.random.default_rng(2)
+    probability = rng.uniform(0.001, 0.4, size=50)
+    weights = rng.integers(0, 4, size=50)
+    weighted = central_tendency_shift(probability, central_tendency=0.05, weights=weights)
+    repeated = central_tendency_shift(np.repeat(probability, weights), central_tendency=0.05)
+    assert weighted == pytest.approx(repeated, rel=1e-12, abs=1e-15)
+
+
+def test_central_tendency_shift_matches_scipy():
+    optimize = pytest.importorskip("scipy.optimize")
+    special = pytest.importorskip("scipy.special")
+    rng = np.random.default_rng(4)
+    probability = rng.beta(0.4, 10, size=500)
+    weights = rng.uniform(0, 3, size=500)
+    shift = central_tendency_shift(probability, central_tendency=0.04, weights=weights)
+
+    def excess(value):
+        return np.average(special.expit(special.logit(probability) + value), weights=weights) - 0.04
+
+    expected = optimize.brentq(excess, -20, 20, xtol=1e-15)
+    assert shift == pytest.approx(expected, rel=1e-12, abs=0)
+
+
+def test_central_tendency_shift_errors():
+    with pytest.raises(
+        ValueError, match="^central_tendency must be strictly between 0 and 1, got 0$"
+    ):
+        central_tendency_shift([0.1], central_tendency=0)
+    with pytest.raises(
+        ValueError, match="central_tendency must be strictly between 0 and 1, got True"
+    ):
+        central_tendency_shift([0.1], central_tendency=True)
+    with pytest.raises(
+        ValueError, match="central_tendency must be strictly between 0 and 1, got '0.1'"
+    ):
+        central_tendency_shift([0.1], central_tendency="0.1")
+    with pytest.raises(ValueError, match="^probability must not be empty$"):
+        central_tendency_shift([], central_tendency=0.1)
+    with pytest.raises(ValueError, match="^probability must not contain missing values, got 1$"):
+        central_tendency_shift([0.1, np.nan], central_tendency=0.1)
+    with pytest.raises(ValueError, match="^probability must be between 0 and 1, got 1.5$"):
+        central_tendency_shift([0.1, 1.5], central_tendency=0.1)
+    with pytest.raises(ValueError, match="^probability must be real and numeric"):
+        central_tendency_shift(["a"], central_tendency=0.1)
+    with pytest.raises(ValueError, match="^probability must hold a PD strictly between 0 and 1"):
+        central_tendency_shift([0.0, 1.0, 0.3], central_tendency=0.4, weights=[1, 1, 0])
+    with pytest.raises(ValueError, match="^probability and weights must have identical indices$"):
+        central_tendency_shift(
+            pd.Series([0.1, 0.2]), central_tendency=0.1, weights=pd.Series([1, 1], index=[5, 6])
+        )
+
+
+@pytest.mark.parametrize("seed", range(6))
+def test_quasi_moment_fit_matches_its_targets(seed):
+    rng = np.random.default_rng(seed)
+    if seed % 3 == 0:
+        score = rng.normal(size=300)
+    elif seed % 3 == 1:
+        score = rng.integers(1, 9, size=300).astype(float)  # grades with many ties
+    else:
+        score = rng.exponential(size=300) ** 2 * 100 + 500
+    weights = rng.integers(0, 4, size=300) if seed % 2 else None
+    target = rng.uniform(0.01, 0.3)
+    largest_limit = 0.9 if seed % 3 != 1 else 0.6
+    accuracy_ratio = rng.uniform(0.2, largest_limit)
+    slope, intercept = quasi_moment_fit(
+        score, central_tendency=target, accuracy_ratio=accuracy_ratio, weights=weights
+    )
+    assert slope > 0
+    curve = platt_predict(score, slope, intercept)
+    mass = np.ones(300) if weights is None else weights
+    assert np.average(curve, weights=mass) == pytest.approx(target, rel=1e-12, abs=0)
+    assert implied_gini(score, curve, mass) == pytest.approx(accuracy_ratio, rel=1e-12, abs=0)
+
+
+def test_quasi_moment_fit_does_not_depend_on_the_scale_of_the_score():
+    rng = np.random.default_rng(7)
+    score = rng.normal(size=100)
+    first = quasi_moment_fit(score, central_tendency=0.05, accuracy_ratio=0.6)
+    second = quasi_moment_fit(3 * score - 20, central_tendency=0.05, accuracy_ratio=0.6)
+    np.testing.assert_allclose(
+        platt_predict(score, *first), platt_predict(3 * score - 20, *second), rtol=1e-10, atol=0
+    )
+    assert second[0] == pytest.approx(first[0] / 3, rel=1e-10, abs=0)
+
+
+def test_quasi_moment_fit_closed_forms():
+    slope, intercept = quasi_moment_fit([1, 2, 3], central_tendency=0.2, accuracy_ratio=0)
+    assert (slope, intercept) == (0.0, math.log(0.2 / 0.8))
+    # Two scores of equal weight and a central tendency of 0.25: the steepest curve gives the
+    # riskier score a PD of 0.5 and the other 0, an accuracy ratio of 2/3.
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "accuracy_ratio must be below 0.6666666666666666, the largest that the scores allow "
+            "for this central_tendency, got 0.7"
+        ),
+    ):
+        quasi_moment_fit([0, 1], central_tendency=0.25, accuracy_ratio=0.7)
+    slope, intercept = quasi_moment_fit([0, 1], central_tendency=0.25, accuracy_ratio=0.66)
+    curve = platt_predict([0.0, 1.0], slope, intercept)
+    assert curve.mean() == pytest.approx(0.25, rel=1e-12, abs=0)
+    assert implied_gini([0, 1], curve, [1, 1]) == pytest.approx(0.66, rel=1e-12, abs=0)
+
+
+def test_quasi_moment_fit_integer_weights_equal_repeated_rows():
+    rng = np.random.default_rng(8)
+    score = rng.integers(1, 12, size=80).astype(float)
+    weights = rng.integers(0, 4, size=80)
+    weighted = quasi_moment_fit(score, central_tendency=0.03, accuracy_ratio=0.5, weights=weights)
+    repeated = quasi_moment_fit(
+        np.repeat(score, weights), central_tendency=0.03, accuracy_ratio=0.5
+    )
+    np.testing.assert_allclose(weighted, repeated, rtol=1e-12, atol=0)
+
+
+def test_quasi_moment_fit_matches_scipy_and_scikit_learn():
+    optimize = pytest.importorskip("scipy.optimize")
+    special = pytest.importorskip("scipy.special")
+    metrics = pytest.importorskip("sklearn.metrics")
+    rng = np.random.default_rng(9)
+    score = np.round(rng.normal(size=400), 1)  # with ties
+    weights = rng.uniform(0.5, 2, size=400)
+    slope, intercept = quasi_moment_fit(
+        score, central_tendency=0.08, accuracy_ratio=0.55, weights=weights
+    )
+
+    def equations(parameters):
+        curve = special.expit(parameters[0] * score + parameters[1])
+        target = np.r_[np.ones(400), np.zeros(400)]
+        auc = metrics.roc_auc_score(
+            target, np.r_[score, score], sample_weight=np.r_[weights * curve, weights * (1 - curve)]
+        )
+        return [np.average(curve, weights=weights) - 0.08, 2 * auc - 1 - 0.55]
+
+    solution = optimize.root(equations, [1.0, -2.5], tol=1e-14)
+    assert solution.success
+    np.testing.assert_allclose([slope, intercept], solution.x, rtol=1e-8, atol=0)
+
+
+def test_quasi_moment_fit_errors():
+    with pytest.raises(
+        ValueError, match="^central_tendency must be strictly between 0 and 1, got 1$"
+    ):
+        quasi_moment_fit([1, 2], central_tendency=1, accuracy_ratio=0.5)
+    for value in (-0.1, 1, True, "0.5", math.nan):
+        with pytest.raises(ValueError, match="^accuracy_ratio must be at least 0 and below 1, got"):
+            quasi_moment_fit([1, 2], central_tendency=0.1, accuracy_ratio=value)
+    with pytest.raises(ValueError, match="^score must not be empty$"):
+        quasi_moment_fit([], central_tendency=0.1, accuracy_ratio=0.5)
+    with pytest.raises(ValueError, match="^score must be finite, got 1 missing or infinite"):
+        quasi_moment_fit([1, np.nan], central_tendency=0.1, accuracy_ratio=0.5)
+    with pytest.raises(ValueError, match="^score must be real and numeric, got dtype"):
+        quasi_moment_fit(["a", "b"], central_tendency=0.1, accuracy_ratio=0.5)
+    with pytest.raises(
+        ValueError,
+        match="^score must take at least two values with a positive weight for a positive "
+        "accuracy_ratio, got only 2.0$",
+    ):
+        quasi_moment_fit([1, 2, 2], central_tendency=0.1, accuracy_ratio=0.5, weights=[0, 1, 1])
+    with pytest.raises(ValueError, match="^weights must have one weight per value of score"):
+        quasi_moment_fit([1, 2], central_tendency=0.1, accuracy_ratio=0.5, weights=[1])
+
+
+def test_central_tendency_shift_returns_a_float_and_rejects_rounded_targets():
+    shift = central_tendency_shift(np.array([0.1, 0.3]), central_tendency=0.15)
+    assert type(shift) is float
+    # 1/3 + 2^-54 lies above the mean PD that the PD of 1 holds, but asks the PDs of 0.5 for a
+    # sum that rounds to 0.
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "central_tendency must lie strictly between 0.3333333333333333 and 1.0, the mean PDs "
+            "that a shift can reach given the PDs of 0 and 1, got 0.33333333333333337"
+        ),
+    ):
+        central_tendency_shift([1, 0.5, 0.5], central_tendency=0.33333333333333337)
+
+
+def test_quasi_moment_fit_returns_floats():
+    slope, intercept = quasi_moment_fit(
+        np.array([0.0, 1.0, 2.0]), central_tendency=0.1, accuracy_ratio=0.3
+    )
+    assert type(slope) is float
+    assert type(intercept) is float
+    assert quasi_moment_fit([1, 2], central_tendency=0.1, accuracy_ratio=0) == (
+        0.0,
+        math.log(0.1 / 0.9),
+    )
+
+
+@pytest.mark.parametrize(
+    ("score", "central_tendency", "accuracy_ratio"),
+    [
+        # Just below the largest accuracy ratio of 5/9, where a gap is exactly 0.
+        ([0, 1], 0.1, 0.5555555555555554),
+        # A subnormal slope of the mean PD in the intercept.
+        ([0, 1, 1000], 0.4, 0.925),
+        # (1 + ratio) / 2 rounds to 1.
+        ([0, 1], 0.5, 0.9999999999999999),
+    ],
+)
+def test_quasi_moment_fit_edge_cases_meet_the_targets(score, central_tendency, accuracy_ratio):
+    slope, intercept = quasi_moment_fit(
+        score, central_tendency=central_tendency, accuracy_ratio=accuracy_ratio
+    )
+    curve = platt_predict(np.asarray(score, dtype=float), slope, intercept)
+    assert curve.mean() == pytest.approx(central_tendency, rel=1e-12, abs=0)
+    assert implied_gini(score, curve, np.ones(len(score))) == pytest.approx(
+        accuracy_ratio, rel=1e-12, abs=0
+    )
+
+
+@pytest.mark.parametrize("size", [1e-200, 1e200])
+def test_quasi_moment_fit_scales_tiny_and_huge_scores(size):
+    expected = quasi_moment_fit([0, 1], central_tendency=0.1, accuracy_ratio=0.3)
+    slope, intercept = quasi_moment_fit([0, size], central_tendency=0.1, accuracy_ratio=0.3)
+    assert slope * size == pytest.approx(expected[0], rel=1e-12, abs=0)
+    assert intercept == pytest.approx(expected[1], rel=1e-12, abs=0)
+
+
+def test_quasi_moment_fit_rejects_a_rounded_central_tendency():
+    with pytest.raises(
+        ValueError,
+        match="^central_tendency is too close to 0 or 1 to be matched with the total weight of "
+        "score, got 5e-324$",
+    ):
+        quasi_moment_fit([0, 1], central_tendency=5e-324, accuracy_ratio=0.1, weights=[0.25, 0.25])
