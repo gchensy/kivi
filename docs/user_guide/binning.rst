@@ -305,6 +305,12 @@ The information value is a sum over the bins, so dynamic programming finds the b
 >>> optimal_edges(balance, target)
 array([   -inf,   68.75,  125.7 ,  895.7 , 1136.6 ,     inf])
 
+.. plot::
+   :alt: A triangle of the candidate bins of balance, one cell for each run of fine bins from the lower edge of its row to the upper edge of its column, with five cells too small to qualify crossed out and the five bins of the result in amber, joined row to row; next to it the WOE table of the five bins, whose IV adds up to 0.124
+   :caption: How ``optimal_edges`` chooses. Tied quantiles leave 19 fine bins of ``balance``, so every candidate bin is a cell of the triangle, from the fine bin of its row to that of its column; the crossed-out cells hold less than 5% of the reference. A binning is a path that starts each bin where the last one stopped, and dynamic programming finds the path with the largest sum of ``iv`` among those whose WOE rises or falls throughout, here the five amber bins with a rising WOE.
+
+   kd.figure_optimal_edges()
+
 The constraints make the difference. On the call ``duration``, monotonic binning leaves the shortest calls in a bin without a single subscriber, whose WOE comes from the smoothing alone:
 
 >>> duration = reference["duration"]

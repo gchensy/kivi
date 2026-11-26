@@ -38,7 +38,7 @@
 - 🔍 **结果透明。** 各类表格返回每箱、每个等级、每个截断点或每个筛选步骤的原始计数、平滑后的占比和单项贡献，而不只是一个总数。
 - 📏 **看得见的不确定性。** `roc_auc_interval` 给出 AUC 和 Gini 的 DeLong 置信区间，`delong_test` 检验两个评分在同一样本上的排序能力是否相同。
 - 🏛️ **按监管要求验证模型。** 提供欧洲央行内部评级法模型验证报告说明中的工具：`backtest_table` 用其 t 检验回测 LGD、ELBE 和 CCF，`generalized_auc` 衡量它们的排序能力，`migration_bandwidth` 和 `migration_test` 检查等级之间的迁移，`concentration_test` 检查等级的集中度；此外还有在 `default_rate_table` 按队列法统计的一年违约率上对各等级 PD 做的 Jeffreys 检验、Spiegelhalter 检验和 Brier 分数分解。
-- 💧 **由现金流计算 LGD 与 EAD。** `workout_lgd` 按违约日的折现率把每次清收的回收和费用换算为实际 LGD，`conversion_factor` 给出每个信用额度的实际 CCF，`lgd_table` 按违约笔数平均 LGD 并把负值记为 0，`fractional_regression` 对其建模，口径与 EBA 指引和中国 2023 年规则一致。
+- 💧 **由现金流计算 LGD 与 EAD。** `workout_lgd` 按违约日的折现率把每次清收的回收和费用换算为实际 LGD，`conversion_factor` 给出每个信用额度的实际 CCF，`lgd_table` 按违约笔数平均 LGD 并把负值记为 0，`variance_edges` 按 LGD 为驱动变量拟合分段，`fractional_regression` 对其建模，口径与 EBA 指引和中国 2023 年规则一致。
 - 💰 **利润与政策规则。** `cutoff_table` 汇总每个截断点所通过资产的收益、损失和利润，`expected_maximum_profit` 用评分最优截断点的利润衡量信用评分，算法与 R 包 EMP 和 empulse 一致。`rule_table` 给出每条政策规则的命中、事件率、提升度和独有命中，`rule_set_table` 给出规则集的决策瀑布表，在只有通过申请人才有结果时同样适用，`rule_candidates` 则在数值变量中搜索能构成高风险规则的阈值。
 - 🧮 **按监管规则计算资本。** `capital_requirement` 计算巴塞尔框架和中国 2023 年规则的内部评级法风险权重函数，包括中小企业调整、金融机构乘数和期限调整，并能重现巴塞尔 II 附件 5 的 152 个风险权重。`conditional_pd` 和 `vasicek_fit` 基于其背后的单因子模型，`most_prudent_pd` 给出违约很少的组合的 PD 上界。
 - 💾 **生产环境可复现。** `FeatureSpec` 保存时间窗特征和还款行为特征的定义，`fit_spec` 一次对整个数据框分箱，`BinningSpec` 保存边界和 WOE 表，都是带版本号的 JSON，生产环境对新数据的计算和分组与开发时完全一致。
@@ -149,7 +149,7 @@
 | 筛选与拟合 | `kivi.selection`、`kivi.reject_inference` | `vif_filter`、`selection_path`、`stepwise`、`logistic_regression`、`fuzzy_augmentation` |
 | 刻度与评估 | `kivi.scorecard`、`kivi.metrics` | `points_table`、`roc_auc`、`roc_auc_interval`、`gains_table`、`expected_maximum_profit` |
 | 校准 | `kivi.calibration` | `master_scale`、`assign_grades`、`jeffreys_test`、`central_tendency_shift` |
-| 估计 LGD 与 EAD | `kivi.lgd` | `workout_lgd`、`conversion_factor`、`lgd_table`、`fractional_regression` |
+| 估计 LGD 与 EAD | `kivi.lgd`、`kivi.binning` | `workout_lgd`、`conversion_factor`、`variance_edges`、`lgd_table`、`fractional_regression` |
 | 决策 | `kivi.strategy`、`kivi.rules` | `cutoff_table`、`confusion_table`、`swap_set`、`expected_loss_table`、`rule_candidates`、`rule_table`、`rule_set_table` |
 | 部署与监控 | `kivi.spec`、`kivi.monitoring`、`kivi.stability` | `fit_spec`、`monitoring_table`、`stability_table`、`csi_table` |
 | 验证 | `kivi.calibration`、`kivi.metrics`、`kivi.vintage` | `default_rate_table`、`backtest_table`、`generalized_auc`、`migration_test`、`concentration_test` |
@@ -231,6 +231,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 | [`kivi.binning.ks_edges`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.ks_edges) | Best-KS 分箱：在事件与非事件累计占比相差最大处切分，并限制每箱的最小占比 |
 | [`kivi.binning.monotonic_edges`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.monotonic_edges) | 合并等频细分箱，直到 WOE 单调，并可限制每箱的最小占比 |
 | [`kivi.binning.optimal_edges`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.optimal_edges) | 在每箱的最小占比、最少事件数和非事件数，以及 WOE 单调上升、单调下降、U 形或倒 U 形的约束下，精确求出 IV 最大的等频细分箱合并方式 |
+| [`kivi.binning.variance_edges`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.variance_edges) | 按连续型响应（如实际 LGD 或 CCF）为驱动变量分箱，使各箱均值区分得最好：在每箱最小占比和箱均值趋势的约束下，精确求出箱内平方和最小的分箱 |
 | [`kivi.binning.category_groups`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.category_groups), [`kivi.binning.chimerge_groups`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.chimerge_groups), [`kivi.binning.group_categories`](https://gchensy.github.io/kivi/zh/api/binning.html#kivi.binning.group_categories) | 类别变量的分组：合并稀有类别或事件率相近的类别，再把分组用于每个样本 |
 | [`kivi.woe.woe_table`](https://gchensy.github.io/kivi/zh/api/woe.html#kivi.woe.woe_table) | 每组的计数、占比、WOE 与 IV |
 | [`kivi.woe.woe_transform`](https://gchensy.github.io/kivi/zh/api/woe.html#kivi.woe.woe_transform) | 用开发样本的 WOE 替换每个分组，未见过的分组需明确处理方式 |
@@ -347,7 +348,7 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 - ✅ 1.5：监管资本（巴塞尔框架和中国 2023 年规则的内部评级法风险权重函数、Vasicek 单因子模型、低违约组合的 Pluto-Tasche 估计）、用于存续期 PD 的含竞争风险和左截断的生存曲线、含提前还款的贷款面板，以及多种经济情景下的预期信用损失
 - ✅ 1.6：LGD 与 EAD：按每笔贷款折现的清收 LGD、实际信用转换系数、分组 LGD 表、带稳健标准误的分数 logit、模拟的违约与回收数据，以及并列给出的巴塞尔、EBA 和中国规则
 - ✅ 1.7：政策规则与利润：政策规则的命中率、独有命中和决策瀑布表，也可只在通过的申请人上衡量；各截断点的收益与利润；以及信用评分的期望最大利润
-- ✅ 1.8：在每箱占比、事件数和 WOE 形状（含 U 形）的约束下求 IV 最大的分箱，ChiMerge 和单调分箱的每箱最小占比，单阈值政策规则的搜索，按队列法计算的一年违约率，用 log odds 平移或准矩匹配校准到长期平均违约率，以及生存曲线、转移矩阵、决策瀑布、各截断点利润和分组 LGD 的图表
+- ✅ 1.8：在每箱占比、事件数和 WOE 形状（含 U 形）的约束下求 IV 最大的分箱，对 LGD 等连续型响应同样精确的分箱，ChiMerge 和单调分箱的每箱最小占比，单阈值政策规则的搜索，按队列法计算的一年违约率，用 log odds 平移或准矩匹配校准到长期平均违约率，以及生存曲线、转移矩阵、决策瀑布、各截断点利润和分组 LGD 的图表
 - 🔜 1.9：要求 Python 3.11 或更新版本，NumPy 1.24 和 pandas 2.0 仍受支持
 
 ## 🤝 参与贡献

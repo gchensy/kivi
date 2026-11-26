@@ -32,7 +32,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: binning
       :link-type: doc
 
-      Quantile, uniform and custom edges, special values, merging fine bins, supervised binning by ChiMerge, decision trees, Best-KS and monotonic WOE, optimal binning under constraints on the share, the events and the WOE shape of every bin, grouping the categories of categorical variables, and missing values.
+      Quantile, uniform and custom edges, special values, merging fine bins, supervised binning by ChiMerge, decision trees, Best-KS and monotonic WOE, optimal binning under constraints on the share, the events and the WOE shape of every bin, the same binning of a continuous response such as an LGD, grouping the categories of categorical variables, and missing values.
 
    .. grid-item-card:: Weight of evidence and information value
       :link: woe_iv
@@ -80,7 +80,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: lgd
       :link-type: doc
 
-      Realized LGDs from the cash flows of workouts with per-loan discount rates, realized CCFs of credit lines, LGD tables by segment, the fractional logit, and the rules of Basel, the EBA and China side by side.
+      Realized LGDs from the cash flows of workouts with per-loan discount rates, realized CCFs of credit lines, LGD tables by segment and by bands of a driver fitted to the LGDs, the fractional logit, and the rules of Basel, the EBA and China side by side.
 
    .. grid-item-card:: Credit strategy
       :link: strategy

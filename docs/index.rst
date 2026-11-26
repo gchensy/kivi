@@ -80,7 +80,7 @@ Built for risk teams
       :link: user_guide/binning
       :link-type: doc
 
-      Fine and coarse classing, special values, ChiMerge, decision-tree, Best-KS and monotonic binning, optimal binning under limits on the share, the events and the WOE shape of every bin, and grouped categories for logistic regression scorecards.
+      Fine and coarse classing, special values, ChiMerge, decision-tree, Best-KS and monotonic binning, optimal binning under limits on the share, the events and the WOE shape of every bin, binning of a continuous response such as an LGD, and grouped categories for logistic regression scorecards.
 
    .. grid-item-card:: WOE and IV
       :link: user_guide/woe_iv
@@ -128,7 +128,7 @@ Built for risk teams
       :link: user_guide/lgd
       :link-type: doc
 
-      Realized LGDs from the cash flows of workouts, realized CCFs of credit lines, LGD tables and the fractional logit, with the rules of Basel, the EBA and China.
+      Realized LGDs from the cash flows of workouts, realized CCFs of credit lines, LGD tables with bands of a driver fitted to the LGDs, and the fractional logit, with the rules of Basel, the EBA and China.
 
    .. grid-item-card:: Credit strategy
       :link: user_guide/strategy
@@ -211,7 +211,7 @@ How it works
 
    .. grid-item-card:: Calibrate and decide
 
-      ``master_scale`` and ``assign_grades`` group the PDs into grades, ``central_tendency_shift`` brings them to a long-run average default rate, and the binomial and Jeffreys tests check the PD of each grade. ``workout_lgd`` and ``conversion_factor`` give the realized LGDs and CCFs of defaulted loans, ``lgd_table`` summarizes them by group and ``fractional_regression`` models the LGDs. ``cutoff_table`` shows what each cut-off approves and, with the revenue and loss of each applicant, what it earns, ``confusion_table`` how many events it declines, and ``expected_loss_table`` adds up the expected loss of each grade. ``rule_candidates`` proposes policy rules, and ``rule_table`` and ``rule_set_table`` measure them next to the cut-off. ``capital_requirement`` turns the PDs into the IRB capital requirement, and ``most_prudent_pd`` bounds the PDs of grades with too few defaults.
+      ``master_scale`` and ``assign_grades`` group the PDs into grades, ``central_tendency_shift`` brings them to a long-run average default rate, and the binomial and Jeffreys tests check the PD of each grade. ``workout_lgd`` and ``conversion_factor`` give the realized LGDs and CCFs of defaulted loans, ``variance_edges`` fits the bands of a driver to the LGDs, ``lgd_table`` summarizes them by group and ``fractional_regression`` models the LGDs. ``cutoff_table`` shows what each cut-off approves and, with the revenue and loss of each applicant, what it earns, ``confusion_table`` how many events it declines, and ``expected_loss_table`` adds up the expected loss of each grade. ``rule_candidates`` proposes policy rules, and ``rule_table`` and ``rule_set_table`` measure them next to the cut-off. ``capital_requirement`` turns the PDs into the IRB capital requirement, and ``most_prudent_pd`` bounds the PDs of grades with too few defaults.
 
    .. grid-item-card:: Deploy, monitor and validate
 

@@ -79,6 +79,11 @@ CASES = {
         {"values": VALUES, "target": TARGET, "weights": WEIGHTS},
         {},
     ),
+    "variance_edges": (
+        binning.variance_edges,
+        {"values": VALUES, "response": SCORE, "weights": WEIGHTS},
+        {"min_bin_share": 0.1},
+    ),
     "category_groups": (binning.category_groups, {"values": GROUPS, "weights": WEIGHTS}, {}),
     "chimerge_groups": (
         binning.chimerge_groups,
@@ -830,6 +835,14 @@ def _option_cases():
         "optimal_edges-trend": lambda o: binning.optimal_edges(VALUES, TARGET, trend=o),
         "optimal_edges-initial_bins": lambda o: binning.optimal_edges(
             VALUES, TARGET, initial_bins=o
+        ),
+        "variance_edges-max_bins": lambda o: binning.variance_edges(VALUES, SCORE, max_bins=o),
+        "variance_edges-min_bin_share": lambda o: binning.variance_edges(
+            VALUES, SCORE, min_bin_share=o
+        ),
+        "variance_edges-trend": lambda o: binning.variance_edges(VALUES, SCORE, trend=o),
+        "variance_edges-initial_bins": lambda o: binning.variance_edges(
+            VALUES, SCORE, initial_bins=o
         ),
         "category_groups-min_share": lambda o: binning.category_groups(GROUPS, min_share=o),
         "category_groups-min_count": lambda o: binning.category_groups(GROUPS, min_count=o),

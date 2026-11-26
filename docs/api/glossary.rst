@@ -312,7 +312,7 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       The share of the obligors not in default at a start month that default at least once in the twelve months after it, counted by their grade at the start month; see :doc:`/user_guide/vintage`.
 
    Optimal binning
-      Supervised binning that returns, of all the ways to merge fine bins, the one with the largest information value that meets constraints at once, such as a minimum share and a minimum number of events in every bin and a shape of the WOE. The IV is a sum over the bins, so dynamic programming finds it exactly; see :doc:`/user_guide/binning`.
+      Supervised binning that returns, of all the ways to merge fine bins, the one with the largest information value that meets constraints at once, such as a minimum share and a minimum number of events in every bin and a shape of the WOE. The IV is a sum over the bins, so dynamic programming finds it exactly. For a continuous response, such as an LGD, the same search finds the bins with the smallest sum of squares of the response within them; see :doc:`/user_guide/binning`.
 
    Outcome window
       The time after which the outcome of an observation is known, such as twelve months after a loan was granted. Until it has passed, the target is missing and the outcome counts as unknown; see :doc:`/user_guide/monitoring`.
