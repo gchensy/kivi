@@ -126,9 +126,9 @@ def rule_candidates(
     -----
     A candidate is a rule that hits the rows with a searched value above
     (``">"``) or at or below (``"<="``) its ``threshold``. Missing values
-    and special codes hit neither side. The columns are a subset of those of
-    `rule_table`, in its order, and they are exactly what `rule_table`
-    reports, with the same weights, for the rule written as the boolean
+    and special codes hit neither side. The count columns, from ``hits`` to
+    ``lift``, are those of `rule_table`, in its order, and they are exactly
+    what `rule_table` reports, with the same weights, for the rule written as the boolean
     column ``((frame[variable] > threshold) & ~frame[variable].isin(codes))
     .fillna(False)`` (or ``<=``), where ``codes`` are the special codes of
     the column. Without the exclusion of the codes a special code on the

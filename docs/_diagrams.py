@@ -620,7 +620,7 @@ def figure_optimal_edges():
                 canvas.box(x, y, size, size, fill=BLUE_FILL, edge=CELL_FILL, radius=0.05)
             else:
                 canvas.box(x, y, size, size, fill=CELL_FILL, edge=CELL_EDGE, radius=0.05)
-                canvas.text(x + size / 2, y + size / 2, "×", size=7, color=FAINT)
+                canvas.text(x + size / 2, y + size / 2, "×", size=7, color=FAINT, z=5)
     for j in range(1, n + 1):
         canvas.ax.text(
             gx + (j - 0.5) * size,
