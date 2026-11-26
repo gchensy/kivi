@@ -1953,8 +1953,11 @@ def test_central_tendency_shift_closed_forms():
     assert central_tendency_shift([0.2], central_tendency=0.05) == pytest.approx(
         logit(0.05) - logit(0.2), rel=1e-14, abs=0
     )
-    assert central_tendency_shift([0.5], central_tendency=0.5) == 0
-    assert central_tendency_shift([0.1, 0.3], central_tendency=0.2) == pytest.approx(0, abs=1e-15)
+    # A sample whose mean PD already equals the target is not shifted at all.
+    for probability, target in (([0.5], 0.5), ([0.1, 0.3], 0.2)):
+        shift = central_tendency_shift(probability, central_tendency=target)
+        assert shift == 0.0
+        assert type(shift) is float
     # A prior correction with the same odds ratio gives the same PDs.
     probability = np.array([0.01, 0.04, 0.2])
     shift = central_tendency_shift(probability, central_tendency=0.03)
@@ -2150,3 +2153,69 @@ def test_quasi_moment_fit_errors():
         quasi_moment_fit([1, 2, 2], central_tendency=0.1, accuracy_ratio=0.5, weights=[0, 1, 1])
     with pytest.raises(ValueError, match="^weights must have one weight per value of score"):
         quasi_moment_fit([1, 2], central_tendency=0.1, accuracy_ratio=0.5, weights=[1])
+
+
+def test_central_tendency_shift_returns_a_float_and_rejects_rounded_targets():
+    shift = central_tendency_shift(np.array([0.1, 0.3]), central_tendency=0.15)
+    assert type(shift) is float
+    # 1/3 + 2^-54 lies above the mean PD that the PD of 1 holds, but asks the PDs of 0.5 for a
+    # sum that rounds to 0.
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "central_tendency must lie strictly between 0.3333333333333333 and 1.0, the mean PDs "
+            "that a shift can reach given the PDs of 0 and 1, got 0.33333333333333337"
+        ),
+    ):
+        central_tendency_shift([1, 0.5, 0.5], central_tendency=0.33333333333333337)
+
+
+def test_quasi_moment_fit_returns_floats():
+    slope, intercept = quasi_moment_fit(
+        np.array([0.0, 1.0, 2.0]), central_tendency=0.1, accuracy_ratio=0.3
+    )
+    assert type(slope) is float
+    assert type(intercept) is float
+    assert quasi_moment_fit([1, 2], central_tendency=0.1, accuracy_ratio=0) == (
+        0.0,
+        math.log(0.1 / 0.9),
+    )
+
+
+@pytest.mark.parametrize(
+    ("score", "central_tendency", "accuracy_ratio"),
+    [
+        # Just below the largest accuracy ratio of 5/9, where a gap is exactly 0.
+        ([0, 1], 0.1, 0.5555555555555554),
+        # A subnormal slope of the mean PD in the intercept.
+        ([0, 1, 1000], 0.4, 0.925),
+        # (1 + ratio) / 2 rounds to 1.
+        ([0, 1], 0.5, 0.9999999999999999),
+    ],
+)
+def test_quasi_moment_fit_edge_cases_meet_the_targets(score, central_tendency, accuracy_ratio):
+    slope, intercept = quasi_moment_fit(
+        score, central_tendency=central_tendency, accuracy_ratio=accuracy_ratio
+    )
+    curve = platt_predict(np.asarray(score, dtype=float), slope, intercept)
+    assert curve.mean() == pytest.approx(central_tendency, rel=1e-12, abs=0)
+    assert implied_gini(score, curve, np.ones(len(score))) == pytest.approx(
+        accuracy_ratio, rel=1e-12, abs=0
+    )
+
+
+@pytest.mark.parametrize("size", [1e-200, 1e200])
+def test_quasi_moment_fit_scales_tiny_and_huge_scores(size):
+    expected = quasi_moment_fit([0, 1], central_tendency=0.1, accuracy_ratio=0.3)
+    slope, intercept = quasi_moment_fit([0, size], central_tendency=0.1, accuracy_ratio=0.3)
+    assert slope * size == pytest.approx(expected[0], rel=1e-12, abs=0)
+    assert intercept == pytest.approx(expected[1], rel=1e-12, abs=0)
+
+
+def test_quasi_moment_fit_rejects_a_rounded_central_tendency():
+    with pytest.raises(
+        ValueError,
+        match="^central_tendency is too close to 0 or 1 to be matched with the total weight of "
+        "score, got 5e-324$",
+    ):
+        quasi_moment_fit([0, 1], central_tendency=5e-324, accuracy_ratio=0.1, weights=[0.25, 0.25])

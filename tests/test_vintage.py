@@ -2029,8 +2029,14 @@ def test_default_rate_table_errors():
         ValueError, match="^month must hold monthly periods or datetimes, got dtype"
     ):
         default_rate_table(loan, month.astype(str), grade, defaulted, horizon=3)
-    with pytest.raises(ValueError, match="^month must hold monthly periods or datetimes"):
-        default_rate_table(loan, month.dt.asfreq("D"), grade, defaulted, horizon=3)
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "month must hold monthly periods or datetimes, got dtype period[Q-DEC]; convert other "
+            "periods with .dt.asfreq('M'), which takes their last month"
+        ),
+    ):
+        default_rate_table(loan, month.dt.asfreq("Q"), grade, defaulted, horizon=3)
     with pytest.raises(ValueError, match="^month must not contain missing values, got 5$"):
         default_rate_table(loan, month.where(loan != 5), grade, defaulted, horizon=3)
     with pytest.raises(ValueError, match="^defaulted must contain only booleans or 0 and 1"):

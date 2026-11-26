@@ -1581,9 +1581,13 @@ def _panel_months(values: pd.Series, name: str) -> npt.NDArray[np.int64]:
     dtype = values.dtype
     monthly = isinstance(dtype, pd.PeriodDtype) and dtype == pd.PeriodDtype("M")
     if not (monthly or pd.api.types.is_datetime64_any_dtype(dtype)):
+        advice = (
+            "convert other periods with .dt.asfreq('M'), which takes their last month"
+            if isinstance(dtype, pd.PeriodDtype)
+            else "convert strings with pandas.PeriodIndex(values, freq='M')"
+        )
         raise ValueError(
-            f"{name} must hold monthly periods or datetimes, got dtype {dtype}; convert strings "
-            "with pandas.PeriodIndex(values, freq='M')"
+            f"{name} must hold monthly periods or datetimes, got dtype {dtype}; {advice}"
         )
     missing = values.isna().to_numpy(dtype=bool)
     if missing.any():

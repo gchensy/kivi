@@ -209,7 +209,8 @@ def central_tendency_shift(
     -------
     float
         The shift :math:`\Delta` of the log odds, negative if the mean PD
-        lies above the central tendency. A PD :math:`p` becomes
+        lies above the central tendency and exactly 0 if it equals it. A PD
+        :math:`p` becomes
         ``p / (p + (1 - p) * numpy.exp(-shift))``, the intercept of a
         logistic model becomes ``intercept + shift``, and the points of a
         scorecard fall by ``factor * shift``.
@@ -301,15 +302,19 @@ def central_tendency_shift(
             "probability must hold a PD strictly between 0 and 1 with a positive weight, so that "
             "a shift can move the mean"
         )
+    inner_values, inner_mass = values[inner], mass[inner]
+    # The sum of the PDs strictly between 0 and 1 that the target asks for.
+    wanted = float(target * total - certain)
     low, high = float(certain / total), float((total - never) / total)
-    if not low < target < high:
+    if not (low < target < high and 0 < wanted < float(inner_mass.sum())):
         raise ValueError(
             f"central_tendency must lie strictly between {low!r} and {high!r}, the mean PDs that "
             f"a shift can reach given the PDs of 0 and 1, got {target!r}"
         )
-    inner_values = values[inner]
+    if float(inner_mass @ inner_values) == wanted:
+        return 0.0
     log_odds = np.log(inner_values) - np.log1p(-inner_values)
-    return _log_odds_shift(log_odds, mass[inner], target * total - certain)
+    return _log_odds_shift(log_odds, inner_mass, wanted)
 
 
 def quasi_moment_fit(
@@ -359,7 +364,8 @@ def quasi_moment_fit(
     ValueError
         If `score` is empty, not one-dimensional, not real, or has a missing
         or infinite value; if `central_tendency` is not strictly between 0
-        and 1; if `accuracy_ratio` is not at least 0 and below the largest
+        and 1, or so close to either that it rounds away when multiplied by
+        the total weight; if `accuracy_ratio` is not at least 0 and below the largest
         accuracy ratio that the scores allow for that central tendency, which
         the message gives, or is positive while the scores take only one
         value; or if `weights` is not valid.
@@ -462,17 +468,26 @@ def quasi_moment_fit(
             "score must take at least two values with a positive weight for a positive "
             f"accuracy_ratio, got only {_validation.shown(distinct[0])}"
         )
-    wanted = target * mass_of.sum()
+    total = float(mass_of.sum())
+    wanted = target * total
+    if not 0 < wanted < total:
+        raise ValueError(
+            "central_tendency is too close to 0 or 1 to be matched with the total weight of "
+            f"score, got {target!r}"
+        )
     largest = _accuracy_ratio(_step_probabilities(mass_of, wanted), mass_of)
     if ratio >= largest:
         raise ValueError(
             f"accuracy_ratio must be below {largest!r}, the largest that the scores allow for "
             f"this central_tendency, got {ratio!r}"
         )
-    # Standardized scores keep the slope and the log odds of moderate size.
-    center = float(np.average(distinct, weights=mass_of))
-    spread = float(np.sqrt(np.average((distinct - center) ** 2, weights=mass_of)))
-    standard = (distinct - center) / spread
+    # Standardized scores keep the slope and the log odds of moderate size. Scaling by a power
+    # of two first is exact and keeps squares of huge or tiny scores from overflowing.
+    exponent = int(np.frexp(np.abs(distinct).max())[1])
+    scaled = np.ldexp(distinct, -exponent)
+    center = float(np.average(scaled, weights=mass_of))
+    spread = float(np.sqrt(np.average((scaled - center) ** 2, weights=mass_of)))
+    standard = (scaled - center) / spread
 
     def gap(slope: float) -> tuple[float, float]:
         """Accuracy ratio of the slope minus the target, and the intercept of the slope."""
@@ -483,7 +498,7 @@ def quasi_moment_fit(
         ) - ratio, intercept
 
     # The binormal model with equal variances: A.6 and A.7 of Tasche (2013) for unit variance.
-    distance = math.sqrt(2) * _stats.normal_quantile((ratio + 1) / 2)
+    distance = -math.sqrt(2) * _stats.normal_quantile((1 - ratio) / 2)
     upper = distance * math.sqrt(1 + target * (1 - target) * distance**2)
     lower, lower_gap, lower_intercept = 0.0, -ratio, math.log(target) - math.log1p(-target)
     upper_gap, upper_intercept = gap(upper)
@@ -494,7 +509,7 @@ def quasi_moment_fit(
     slope, intercept = _regula_falsi(
         gap, (lower, lower_gap, lower_intercept), (upper, upper_gap, upper_intercept)
     )
-    return slope / spread, intercept - slope * center / spread
+    return float(math.ldexp(slope / spread, -exponent)), float(intercept - slope * center / spread)
 
 
 def platt_fit(
@@ -2571,8 +2586,9 @@ def _log_odds_shift(
     by Newton steps safeguarded by bisection until the bracket holds no
     float between its ends.
     """
-    level = wanted / mass.sum()
-    base = math.log(level) - math.log1p(-level)
+    wanted = float(wanted)
+    # The log odds of the level wanted / total, without rounding the level to 1.
+    base = math.log(wanted) - math.log(float(mass.sum()) - wanted)
     # Every PD lies at or below the level at the lower end and at or above it at the upper end.
     lower, upper = base - float(log_odds.max()), base - float(log_odds.min())
     shift = base - float(np.average(log_odds, weights=mass))
@@ -2586,11 +2602,11 @@ def _log_odds_shift(
         slope = float(mass @ (probability * _logistic(-(log_odds + shift))))
         step = shift - excess / slope if slope > 0 else math.nan
         if step == shift:
-            return shift
+            return float(shift)
         if not lower < step < upper:
             step = 0.5 * (lower + upper)
             if not lower < step < upper:
-                return shift
+                return float(shift)
         shift = step
 
 
@@ -2641,7 +2657,10 @@ def _regula_falsi(
     moved = 0
     steps, width = 0, high - low
     while True:
-        point = high - high_weight * (high - low) / (high_weight - low_weight)
+        # The kept gaps can both be 0 once a gap is exactly 0 and the other end has been
+        # halved to 0; bisect then.
+        spread = high_weight - low_weight
+        point = high - high_weight * (high - low) / spread if spread > 0 else math.nan
         if steps == 2:
             bisect, steps, width = high - low > 0.5 * width, 0, high - low
         else:
