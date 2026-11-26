@@ -3,7 +3,7 @@ LGD and EAD
 
 When a borrower defaults, the bank loses the part of the exposure that the workout does not recover. The loss given default (LGD) is that loss as a share of the exposure at default (EAD), and for a credit line the EAD includes what the borrower draws between a reference date and the default, which the credit conversion factor (CCF) measures. With the PD, the LGD and the EAD make up the expected loss and the capital requirement of each exposure.
 
-The PDs come from :doc:`calibration`, the previous guide, the expected loss that the three parameters give is that of :doc:`strategy`, the next guide, :doc:`validation` back-tests LGD and CCF estimates as supervisors ask, and :doc:`capital` turns them into the capital requirement. :func:`~kivi.lgd.workout_lgd` gives the realized LGD of each defaulted loan from the cash flows of its workout, and :func:`~kivi.lgd.conversion_factor` the realized CCF of each credit line. :func:`~kivi.lgd.lgd_table` summarizes realized LGDs by group, and :func:`~kivi.lgd.fractional_regression` models them on several drivers at once.
+The PDs come from :doc:`calibration`, the previous guide, the expected loss that the three parameters give is that of :doc:`strategy`, the next guide, :doc:`validation` back-tests LGD and CCF estimates as supervisors ask, and :doc:`capital` turns them into the capital requirement. :func:`~kivi.lgd.workout_lgd` gives the realized LGD of each defaulted loan from the cash flows of its workout, and :func:`~kivi.lgd.conversion_factor` the realized CCF of each credit line. :func:`~kivi.lgd.lgd_table` summarizes realized LGDs by group, :func:`~kivi.binning.variance_edges` fits the bins of a driver to them, and :func:`~kivi.lgd.fractional_regression` models them on several drivers at once.
 
 Definitions
 -----------
@@ -214,6 +214,38 @@ bin
    kp.figure_lgd_ltv()
 
 The loans that owe more than their collateral is worth lose five times as much as those with a loan-to-value ratio of 60% or less.
+
+Bands of a driver fitted to the LGDs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The four bands above are a judgement. :func:`~kivi.binning.variance_edges` fits the bands to the LGDs instead: of the merges of 20 quantile bins of the ratio, it returns the bins whose mean LGDs explain the largest share of the variance of the LGDs, with at least 5% of the loans in each bin and a mean that rises, or falls, from bin to bin. Floor the LGDs at 0 first, as :func:`~kivi.lgd.lgd_table` does, so that the bands are fitted to the LGDs that the table averages:
+
+>>> from kivi.binning import cut, variance_edges
+>>> ratio = (loans["ead"] / loans["collateral_value"])[secured]
+>>> secured_lgd = realized.loc[secured[closed], "lgd"].clip(lower=0)
+>>> edges = variance_edges(ratio, secured_lgd)
+>>> edges.round(3)
+array([ -inf, 0.76 , 0.897, 0.972, 1.189,   inf])
+>>> fitted = lgd_table(cut(ratio, edges), secured_lgd)
+>>> fitted[["total", "mean", "std", "zero_share"]].round(3)
+                total   mean    std  zero_share
+bin
+(-inf, 0.76]      352  0.044  0.048       0.091
+(0.76, 0.897]     141  0.086  0.082       0.043
+(0.897, 0.972]     70  0.131  0.117       0.000
+(0.972, 1.189]    105  0.203  0.145       0.000
+(1.189, inf]       36  0.253  0.221       0.000
+
+The mean LGD rises from 4% to 25%, and the fitted bands put a cut near a ratio of 1, where the collateral stops covering the exposure. They explain more of the variance of the LGDs than the four fixed bands:
+
+>>> def explained(groups):
+...     means = secured_lgd.groupby(groups.cat.codes).transform("mean")
+...     squares = ((secured_lgd - means) ** 2).sum()
+...     return 1 - squares / ((secured_lgd - secured_lgd.mean()) ** 2).sum()
+>>> print(f"{explained(cut(ratio, edges)):.3f} {explained(ltv):.3f}")
+0.321 0.295
+
+As with the information value of a binary target, the share explained on the loans that fitted the bands is optimistic; check the bands on later defaults before using them. ``max_bins``, ``min_bin_share`` and ``trend`` work as in :func:`~kivi.binning.optimal_edges`, and a ``special`` code of the driver gets a group of its own from :func:`~kivi.binning.cut`.
 
 Fractional regression
 ---------------------
