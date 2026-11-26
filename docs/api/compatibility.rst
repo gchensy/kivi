@@ -19,7 +19,7 @@ Before 1.0 a shorter rule applied: what 0.9 deprecated changed in 1.0, as :doc:`
 Supported versions
 ------------------
 
-kivi supports Python 3.10 or newer, NumPy 1.24 or newer and pandas 2.0 or newer, and its tests run on these oldest versions and on the newest releases. The charts of :mod:`kivi.plotting` also need matplotlib 3.7 or newer, which ``pip install "kivi[plot]"`` installs; no other module imports it. From 1.0, a minimum version rises only in a minor release, and the notes of the release before it announce the change. A patch release never raises a minimum.
+kivi supports Python 3.11 or newer, NumPy 1.24 or newer and pandas 2.0 or newer, and its tests run on these oldest versions and on the newest releases. The charts of :mod:`kivi.plotting` also need matplotlib 3.7 or newer, which ``pip install "kivi[plot]"`` installs; no other module imports it. From 1.0, a minimum version rises only in a minor release, and the notes of the release before it announce the change. A patch release never raises a minimum.
 
 What is public
 --------------
