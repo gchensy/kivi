@@ -9,8 +9,13 @@ non-event counts of a gains or WOE table,
 ``calibration_chart`` a ``kivi.calibration.calibration_table``,
 ``cutoff_chart`` a ``kivi.strategy.cutoff_table``, ``psi_chart`` a
 ``kivi.stability.psi_table``, ``monitoring_chart`` a column of a
-``kivi.monitoring.monitoring_table`` and ``vintage_chart`` a
-``kivi.vintage.vintage_table``.
+``kivi.monitoring.monitoring_table``, ``vintage_chart`` a
+``kivi.vintage.vintage_table``, ``survival_chart`` a
+``kivi.lifetime.survival_table``, ``transition_chart`` a
+``kivi.vintage.transition_matrix``, ``rule_set_chart`` a
+``kivi.rules.rule_set_table``, ``profit_chart`` a
+``kivi.strategy.cutoff_table`` with revenue and loss, and ``lgd_chart`` a
+``kivi.lgd.lgd_table``.
 
 A function draws on ``ax`` when one is given, such as a panel of a larger
 figure, and creates a figure otherwise. It returns the Axes it drew on, so
@@ -49,6 +54,11 @@ __all__ = [
     "psi_chart",
     "monitoring_chart",
     "vintage_chart",
+    "survival_chart",
+    "transition_chart",
+    "rule_set_chart",
+    "profit_chart",
+    "lgd_chart",
 ]
 
 _BLUE = "#2f5bd3"
@@ -1185,6 +1195,532 @@ def vintage_chart(
     return ax
 
 
+def survival_chart(
+    table: pd.DataFrame,
+    *,
+    column: typing.Literal["cumulative_pd", "survival"] = "cumulative_pd",
+    label: str | None = None,
+    ax: "matplotlib.axes.Axes | None" = None,
+) -> "matplotlib.axes.Axes":
+    """Draw the cumulative PD or the survival curve of a survival table as steps.
+
+    The curve starts at period 0 with 0 for ``cumulative_pd`` and 1 for
+    ``survival`` and changes at each period, as steps, which is how the
+    Kaplan-Meier estimate behaves between observations. When the table was
+    computed with competing risks, the cumulative incidence of the competing
+    cause is drawn next to that of the event.
+
+    Parameters
+    ----------
+    table : pandas.DataFrame
+        A table from `kivi.lifetime.survival_table`. It needs the column
+        named by `column`, and with competing risks, which is when it has a
+        ``competing`` column, also ``at_risk`` and ``survival``.
+    column : {'cumulative_pd', 'survival'}, default 'cumulative_pd'
+        Column to draw. ``survival`` is the all-cause survival, one curve
+        whether or not there are competing risks.
+    label : str, optional
+        Legend entry of the curve, in place of `column`. With competing
+        risks it is put in front of the name of each cause, as in
+        ``'high cumulative_pd'`` and ``'high competing'``.
+    ax : matplotlib.axes.Axes, optional
+        Axes to draw on. A new figure is created when it is not given.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        The Axes drawn on, `ax` when it is given.
+
+    Raises
+    ------
+    ImportError
+        If matplotlib is not installed.
+    ValueError
+        If `table` is not a DataFrame, lacks a column it needs or has no
+        rows, a column it needs is not numeric, `column` is neither
+        ``'cumulative_pd'`` nor ``'survival'``, or `ax` is not a matplotlib
+        Axes.
+
+    See Also
+    --------
+    kivi.lifetime.survival_table : The table that this chart draws.
+    vintage_chart : Cumulative bad rates by cohort.
+
+    Notes
+    -----
+    With competing risks and ``column='cumulative_pd'`` the legend names
+    the curves ``cumulative_pd`` and ``competing``. The cumulative
+    incidence of the competing cause is the sum of the all-cause survival
+    of the previous period times ``competing`` over ``at_risk``, as that of
+    the event is, so the two curves and the survival add up to 1. Periods
+    after the last one with accounts at risk have no value and end the
+    curves.
+
+    The curve starts one period before the first row of the table, so a
+    slice of a table starts at its own first period, and it is drawn one
+    period beyond the last row so that the last change is visible. The
+    limits of the axes cover every curve already drawn on `ax`, so the
+    curves of several tables, each with a `label`, can share one. A table
+    without a single value, which is what `kivi.lifetime.survival_table`
+    gives when nobody is at risk in its first period, draws an empty
+    chart: a flat line at the start value.
+
+    Examples
+    --------
+    >>> from kivi.lifetime import survival_table
+    >>> from kivi.plotting import survival_chart
+    >>> table = survival_table([1, 2, 3, 3, 4], [1, 0, 1, 1, 0])
+    >>> ax = survival_chart(table)
+    >>> ax.lines[0].get_ydata().round(3).tolist()
+    [0.0, 0.2, 0.2, 0.733, 0.733, 0.733]
+    >>> ax.get_xlabel(), ax.get_ylabel()
+    ('period', 'cumulative_pd')
+    """
+    if not isinstance(column, str) or column not in ("cumulative_pd", "survival"):  # type: ignore[redundant-expr]  # rejects non-str values
+        raise ValueError(
+            "column must be 'cumulative_pd' or 'survival', "
+            f"got {_validation.shown_argument(column)}"
+        )
+    source = "kivi.lifetime.survival_table"
+    needed: list[str] = [column]
+    if isinstance(table, pd.DataFrame) and "competing" in table.columns and column != "survival":  # type: ignore[redundant-expr]  # table may not be a DataFrame yet
+        needed += ["competing", "at_risk", "survival"]
+    table = _table(table, needed, source)
+    ax = _axes(ax, (6, 4))
+    index = table.index.to_numpy(dtype=float)
+    # One step before the first period, and one after the last so that its change is visible.
+    periods = np.r_[index[0] - 1, index, index[-1] + 1]
+    curves: list[tuple[str, float, np.ndarray]] = [
+        (column, 1.0 if column == "survival" else 0.0, table[column].to_numpy(dtype=float))
+    ]
+    if len(needed) > 1:
+        survival = table["survival"].to_numpy(dtype=float)
+        previous = np.r_[1.0, survival[:-1]]
+        with np.errstate(divide="ignore", invalid="ignore"):
+            share = table["competing"].to_numpy(dtype=float) / table["at_risk"].to_numpy(
+                dtype=float
+            )
+        curves.append(("competing", 0.0, np.cumsum(previous * share)))
+    for name, start, values in curves:
+        entry = name if label is None else f"{label} {name}" if len(curves) > 1 else label
+        ax.plot(
+            periods,
+            np.r_[start, values, values[-1]],
+            drawstyle="steps-post",
+            linewidth=2,
+            label=entry if len(curves) > 1 or label is not None else None,
+        )
+    # dataLim covers the finite points of every curve drawn on ax so far.
+    left, right = ax.dataLim.x0, ax.dataLim.x1
+    ax.set_xlim(left, right if right > left else left + 1)
+    if column == "survival":
+        ax.set_ylim(0, 1)
+    else:
+        upper = min(1.0, 1.1 * ax.dataLim.y1)
+        ax.set_ylim(0, upper if upper > 0 else 1.0)
+    _percent(ax.yaxis)
+    ax.set_xlabel("period" if table.index.name is None else str(table.index.name))
+    ax.set_ylabel(column)
+    if len(curves) > 1 or label is not None:
+        ax.legend(loc="best")
+    return ax
+
+
+def transition_chart(
+    table: pd.DataFrame, *, ax: "matplotlib.axes.Axes | None" = None
+) -> "matplotlib.axes.Axes":
+    """Draw a transition matrix as a heatmap with the value in each cell.
+
+    The rows are the states before and the columns the states after. The
+    shade of a cell is the share of its row that moved there, so that a
+    table of counts and one of shares look alike, and the diagonal, the
+    entities that stayed, is outlined in amber.
+
+    Parameters
+    ----------
+    table : pandas.DataFrame
+        A table from `kivi.vintage.transition_matrix`, counts or shares
+        (``normalize=True``), with the states before in its index and the
+        states after in its columns. Missing values leave their cells
+        empty.
+    ax : matplotlib.axes.Axes, optional
+        Axes to draw on. A new figure, sized to the number of states, is
+        created when it is not given.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        The Axes drawn on, `ax` when it is given.
+
+    Raises
+    ------
+    ImportError
+        If matplotlib is not installed.
+    ValueError
+        If `table` is not a DataFrame, has no rows or fewer than two
+        columns, has a column that is not numeric or a negative value, or
+        `ax` is not a matplotlib Axes.
+
+    See Also
+    --------
+    kivi.vintage.transition_matrix : The table that this chart draws.
+    kivi.vintage.roll_rates : The share of each state that moved to the
+        next worse one.
+    correlation_chart : A heatmap of a correlation matrix.
+
+    Notes
+    -----
+    A cell is outlined when its row label equals its column label, so a
+    matrix whose states before and after are not the same set has an
+    outline only where they meet. Whole numbers below 10,000 are written
+    in full, shares, when no value exceeds 1, with two decimals, and any
+    other value with three significant digits and a suffix ``K``, ``M`` or
+    ``B``, so that weighted counts fit their cells. The
+    heatmap is ``ax.images[0]``. The axes are labeled with the names of
+    the index and the columns, ``before`` and ``after`` for the output of
+    `kivi.vintage.transition_matrix`.
+
+    Examples
+    --------
+    >>> from kivi.plotting import transition_chart
+    >>> from kivi.vintage import transition_matrix
+    >>> before = ["a", "b", "a", "c", "b", "c", "a", "c"]
+    >>> after = ["a", "b", "b", "c", "c", "c", "a", "b"]
+    >>> ax = transition_chart(transition_matrix(before, after))
+    >>> [text.get_text() for text in ax.texts]
+    ['2', '1', '0', '0', '1', '1', '0', '1', '2']
+    >>> ax.get_xlabel(), ax.get_ylabel()
+    ('after', 'before')
+    """
+    if not isinstance(table, pd.DataFrame):
+        raise ValueError(
+            "table must be a DataFrame from kivi.vintage.transition_matrix, "
+            f"got {type(table).__name__}"
+        )
+    if not len(table) or not table.shape[1]:
+        raise ValueError("table must have at least one row and one column")
+    if table.shape[1] < 2:
+        raise ValueError(
+            "table must have at least two columns, one for each state after; "
+            "a Series such as the result of kivi.vintage.roll_rates is read as a table, "
+            "not drawn"
+        )
+    for column in range(table.shape[1]):
+        _validation.check_real_dtype(
+            table.iloc[:, column].dtype, f"column {_validation.shown(table.columns[column])}"
+        )
+    values = table.to_numpy(dtype=float)
+    if (values < 0).any():
+        raise ValueError(
+            f"table must not have negative values, got {_validation.shown(values[values < 0][0])}"
+        )
+    rows, columns = values.shape
+    ax = _axes(ax, (max(4.0, 0.7 * columns + 1.8), max(3.2, 0.7 * rows + 1.2)), "compressed")
+    import matplotlib.colors
+    import matplotlib.patches
+
+    totals = np.nansum(values, axis=1, keepdims=True)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        shares = np.where(totals > 0, values / totals, 0.0)
+    colors = matplotlib.colors.LinearSegmentedColormap.from_list(
+        "kivi_transition", ["white", _BLUE]
+    )
+    ax.imshow(np.where(np.isnan(values), np.nan, shares), cmap=colors, vmin=0, vmax=1)
+    finite = values[np.isfinite(values)]
+    whole = bool(np.all(finite == np.round(finite)))
+    share = bool(finite.size and finite.max() <= 1)
+    for (row, column), value in np.ndenumerate(values):
+        if np.isfinite(value):
+            ax.text(
+                column,
+                row,
+                _cell(value, whole, share),
+                ha="center",
+                va="center",
+                fontsize="small",
+                color="white" if shares[row, column] > 0.6 else _TEXT,
+            )
+    for row, state in enumerate(table.index):
+        for column, other in enumerate(table.columns):
+            if state == other:
+                ax.add_patch(
+                    matplotlib.patches.Rectangle(
+                        (column - 0.5, row - 0.5),
+                        1,
+                        1,
+                        fill=False,
+                        edgecolor=_AMBER,
+                        linewidth=2.5,
+                    )
+                )
+    _ticks(ax, np.arange(columns), _labels(table.columns))
+    ax.set_yticks(np.arange(rows), _labels(table.index))
+    ax.set_xlabel("" if table.columns.name is None else str(table.columns.name))
+    ax.set_ylabel("" if table.index.name is None else str(table.index.name))
+    ax.tick_params(length=0)
+    ax.grid(False)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    return ax
+
+
+def rule_set_chart(
+    table: pd.DataFrame, *, ax: "matplotlib.axes.Axes | None" = None
+) -> "matplotlib.axes.Axes":
+    """Draw the share of the book that each rule declines and the approval rate left.
+
+    A rule set is a waterfall: each rule declines only the applicants that
+    no earlier rule declined. The bars show the ``new_hits`` of each rule,
+    in the order of the table, as a share of all rows, and a line shows the
+    ``approval_rate`` of the book after the rule, on the same axis. The
+    approval rate after a rule is therefore the one before it minus its
+    bar, and the first starts from 100%.
+
+    Parameters
+    ----------
+    table : pandas.DataFrame
+        A table from `kivi.rules.rule_set_table`. It needs the columns
+        ``new_hits``, ``approved`` and ``approval_rate``.
+    ax : matplotlib.axes.Axes, optional
+        Axes to draw on. A new figure is created when it is not given.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        The Axes drawn on, `ax` when it is given.
+
+    Raises
+    ------
+    ImportError
+        If matplotlib is not installed.
+    ValueError
+        If `table` is not a DataFrame, lacks a column it needs or has no
+        rows, a column it needs is not numeric, or `ax` is not a matplotlib
+        Axes.
+
+    See Also
+    --------
+    kivi.rules.rule_set_table : The table that this chart draws.
+    cutoff_chart : The same trade-off for a score instead of rules.
+
+    Notes
+    -----
+    The total that the bars are shares of is the ``approved`` of the first
+    rule plus its ``new_hits``, so it counts every row of the rules,
+    outcomes known or not, and is a total weight when the table was
+    computed with weights. The tick labels are the rule names of the index.
+    The legend sits at the top of the Axes, where it covers no bar and no
+    point.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from kivi.plotting import rule_set_chart
+    >>> from kivi.rules import rule_set_table
+    >>> rules = pd.DataFrame(
+    ...     {"high_debt": [True, False, True, False], "young": [False, False, True, True]}
+    ... )
+    >>> ax = rule_set_chart(rule_set_table(rules))
+    >>> [float(patch.get_height()) for patch in ax.patches]
+    [0.5, 0.25]
+    >>> ax.lines[0].get_ydata().tolist()
+    [0.5, 0.25]
+    """
+    table = _table(table, ["new_hits", "approved", "approval_rate"], "kivi.rules.rule_set_table")
+    ax = _axes(ax, (7, 4))
+    x = np.arange(len(table))
+    hits = table["new_hits"].to_numpy(dtype=float)
+    total = hits[0] + float(table["approved"].iloc[0])
+    with np.errstate(divide="ignore", invalid="ignore"):
+        shares = hits / total
+    rates = table["approval_rate"].to_numpy(dtype=float)
+    bars = ax.bar(x, shares, width=0.6, color=_LIGHT_BLUE, label="new_hits")
+    (curve,) = ax.plot(x, rates, color=_AMBER, marker="o", linewidth=2, label="approval_rate")
+    columns = _legend_columns(ax, ["new_hits", "approval_rate"])
+    ax.set_ylim(0, _top(np.r_[shares, rates], 0.0, _legend_room(ax, 1 + 2 // columns)))
+    _percent(ax.yaxis)
+    ax.set_ylabel("new_hits, approval_rate")
+    _xlabel(ax, table.index)
+    _ticks(ax, x, _labels(table.index))
+    ax.legend([bars, curve], ["new_hits", "approval_rate"], loc="upper left", ncols=columns)
+    return ax
+
+
+def profit_chart(
+    table: pd.DataFrame,
+    *,
+    label: str | None = None,
+    ax: "matplotlib.axes.Axes | None" = None,
+) -> "matplotlib.axes.Axes":
+    """Draw the profit against the approval rate and mark the best cut-off.
+
+    Each cut-off of the table is one point, with ``approval_rate`` on the
+    x-axis and ``profit``, the revenue minus the loss of the approved book,
+    on the y-axis. The cut-off with the highest profit is marked in amber
+    and labeled with its value and its profit, and a dotted line marks
+    zero profit.
+
+    Parameters
+    ----------
+    table : pandas.DataFrame
+        A table from `kivi.strategy.cutoff_table` computed with both
+        `loss` and `revenue`. It needs the columns ``approval_rate`` and
+        ``profit``.
+    label : str, optional
+        Legend entry of the curve. A legend is drawn only when a curve has
+        a label.
+    ax : matplotlib.axes.Axes, optional
+        Axes to draw on. A new figure is created when it is not given.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        The Axes drawn on, `ax` when it is given.
+
+    Raises
+    ------
+    ImportError
+        If matplotlib is not installed.
+    ValueError
+        If `table` is not a DataFrame, lacks a column it needs or has no
+        rows, a column it needs is not numeric, no row has a profit, or
+        `ax` is not a matplotlib Axes.
+
+    See Also
+    --------
+    kivi.strategy.cutoff_table : The table that this chart draws.
+    kivi.metrics.expected_maximum_profit : The profit of the best cut-off
+        under a loss distribution.
+    cutoff_chart : The event rate against the approval rate.
+
+    Notes
+    -----
+    The best cut-off is the first row with the largest profit, in the
+    order of the table, and rows with a missing profit are left out. Its
+    label shows the index of the row, the cut-off, with four significant
+    digits. The curve takes the next color of the Axes' color cycle, so
+    that the tables of a current and a new score can be compared on one
+    `ax`, each with a `label`; the best cut-off of each is marked in amber.
+
+    Examples
+    --------
+    >>> from kivi.plotting import profit_chart
+    >>> from kivi.strategy import cutoff_table
+    >>> score = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+    >>> target = [0, 0, 0, 1, 0, 1]
+    >>> loss = [0, 0, 0, 5, 0, 5]
+    >>> table = cutoff_table(score, target, cutoffs=[0.2, 0.3, 0.6], loss=loss, revenue=[1] * 6)
+    >>> ax = profit_chart(table)
+    >>> ax.texts[0].get_text()
+    'cutoff = 0.3, profit = 3'
+    """
+    table = _table(table, ["approval_rate", "profit"], "kivi.strategy.cutoff_table")
+    profit = table["profit"].to_numpy(dtype=float)
+    if np.isnan(profit).all():
+        raise ValueError("table must have at least one row with a profit")
+    ax = _axes(ax, (5.6, 4.2))
+    rate = table["approval_rate"].to_numpy(dtype=float)
+    ax.plot(rate, profit, marker="o", markersize=4, linewidth=2, label=label)
+    ax.axhline(0, color=_GRAY, linestyle=":", linewidth=1)
+    best = int(np.nanargmax(profit))
+    ax.plot([rate[best]], [profit[best]], marker="o", markersize=9, color=_AMBER, linestyle="")
+    name = "cutoff" if table.index.name is None else str(table.index.name)
+    ax.annotate(
+        f"{name} = {_cutoff_label(table.index[best])}, profit = {profit[best]:,.10g}",
+        (rate[best], profit[best]),
+        xytext=(0, 10),
+        textcoords="offset points",
+        ha="center",
+        fontsize="small",
+        color=_AMBER,
+    )
+    ax.margins(y=0.15)
+    _percent(ax.xaxis)
+    ax.set_xlabel("approval_rate")
+    ax.set_ylabel("profit")
+    if label is not None:
+        ax.legend(loc="best")
+    return ax
+
+
+def lgd_chart(
+    table: pd.DataFrame, *, ax: "matplotlib.axes.Axes | None" = None
+) -> "matplotlib.axes.Axes":
+    """Draw the mean LGD of each group with its shares of zero and full losses.
+
+    Each group of the table gets three bars: ``mean``, the average LGD,
+    ``zero_share``, the share of its exposures that lost nothing, and
+    ``full_share``, the share that lost everything or more. The shares make
+    visible the bimodal shape that a mean hides.
+
+    Parameters
+    ----------
+    table : pandas.DataFrame
+        A table from `kivi.lgd.lgd_table`. It needs the columns ``mean``,
+        ``zero_share`` and ``full_share``.
+    ax : matplotlib.axes.Axes, optional
+        Axes to draw on. A new figure is created when it is not given.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        The Axes drawn on, `ax` when it is given.
+
+    Raises
+    ------
+    ImportError
+        If matplotlib is not installed.
+    ValueError
+        If `table` is not a DataFrame, lacks a column it needs or has no
+        rows, a column it needs is not numeric, or `ax` is not a matplotlib
+        Axes.
+
+    See Also
+    --------
+    kivi.lgd.lgd_table : The table that this chart draws.
+    kivi.lgd.workout_lgd : The realized LGDs of the loans.
+    psi_chart : Bars of two shares side by side for each group.
+
+    Notes
+    -----
+    All three bars are on one percent axis, which runs below 0 or above
+    100% when a mean LGD does, as realized LGDs can. The tick labels are
+    the group labels of the index, and the legend sits at the top, where it
+    covers no bar. A group with a missing ``mean`` has no such bar.
+
+    Examples
+    --------
+    >>> from kivi.lgd import lgd_table
+    >>> from kivi.plotting import lgd_chart
+    >>> table = lgd_table(["a", "a", "b", "b"], [0.0, 0.5, 1.0, 1.2])
+    >>> ax = lgd_chart(table)
+    >>> [round(float(patch.get_height()), 3) for patch in ax.patches]
+    [0.25, 1.1, 0.5, 0.0, 0.0, 1.0]
+    """
+    table = _table(table, ["mean", "zero_share", "full_share"], "kivi.lgd.lgd_table")
+    ax = _axes(ax, (7, 4))
+    x = np.arange(len(table))
+    series = [
+        ("mean", _BLUE, -0.27),
+        ("zero_share", _GRAY, 0.0),
+        ("full_share", _AMBER, 0.27),
+    ]
+    values = np.concatenate([table[name].to_numpy(dtype=float) for name, _, _ in series])
+    for name, color, shift in series:
+        ax.bar(x + shift, table[name].to_numpy(dtype=float), width=0.26, color=color, label=name)
+    ax.axhline(0, color=_TEXT, linewidth=0.8)
+    columns = _legend_columns(ax, [name for name, _, _ in series])
+    room = _legend_room(ax, 1 + 3 // columns - 1)
+    low = min(0.0, float(np.nanmin(values))) if np.isfinite(values).any() else 0.0
+    ax.set_ylim(low, _top(values, low, room))
+    _percent(ax.yaxis)
+    ax.set_ylabel("mean, zero_share, full_share")
+    _xlabel(ax, table.index)
+    _ticks(ax, x, _labels(table.index))
+    ax.legend(loc="upper left", ncols=columns)
+    return ax
+
+
 def _axes(
     ax: "matplotlib.axes.Axes | None",
     size: tuple[float, float],
@@ -1222,6 +1758,26 @@ def _table(table: pd.DataFrame, columns: abc.Sequence[str], source: str) -> pd.D
     for column in columns:
         _validation.check_real_dtype(table[column].dtype, f"{column} of table")
     return table
+
+
+def _cutoff_label(cutoff: object) -> str:
+    """Return a cut-off with four significant digits, or a label as text."""
+    if _validation.is_real(cutoff) and not isinstance(cutoff, (bool, np.bool_)):
+        return f"{cutoff:.4g}"
+    return str(cutoff)
+
+
+def _cell(value: float, whole: bool, share: bool) -> str:
+    """Return the text of a heatmap cell that fits it: whole numbers, shares or K, M, B."""
+    if whole and abs(value) < 10_000:
+        return f"{value:.0f}"
+    if share and not whole:
+        return f"{value:.2f}"
+    magnitude = abs(value)
+    for scale, suffix in ((1e9, "B"), (1e6, "M"), (1e3, "K")):
+        if magnitude >= scale:
+            return f"{value / scale:.3g}{suffix}"
+    return f"{value:.3g}"
 
 
 def _levels(levels: float | abc.Sequence[float]) -> list[float]:
