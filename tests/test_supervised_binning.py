@@ -1501,23 +1501,6 @@ def test_variance_leaves_out_missing_and_special_values_and_keeps_the_inputs():
     )
 
 
-@pytest.mark.parametrize("leaf", [1, 3, 7, 15])
-def test_variance_two_bins_match_a_regression_stump(leaf):
-    tree = pytest.importorskip("sklearn.tree")
-    rng = np.random.default_rng(leaf)
-    values = rng.integers(0, 40, 300).astype(float)
-    response = np.where(values > 23, 0.6, 0.2) + rng.normal(scale=0.3, size=300)
-    stump = tree.DecisionTreeRegressor(max_depth=1, min_samples_leaf=leaf).fit(
-        values[:, None], response
-    )
-    threshold = stump.tree_.threshold[0]
-    edges = variance_edges(
-        values, response, max_bins=2, min_bin_share=leaf / 300, trend="any", initial_bins=40
-    )
-    # Compare the partitions: scikit-learn's threshold is the midpoint of two values.
-    np.testing.assert_equal(values <= edges[1], values <= threshold)
-
-
 @pytest.mark.parametrize(
     "options,message",
     [

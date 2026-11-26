@@ -74,6 +74,16 @@ CASES = {
         {"values": VALUES, "target": TARGET, "weights": WEIGHTS},
         {},
     ),
+    "optimal_edges": (
+        binning.optimal_edges,
+        {"values": VALUES, "target": TARGET, "weights": WEIGHTS},
+        {},
+    ),
+    "variance_edges": (
+        binning.variance_edges,
+        {"values": VALUES, "response": SCORE, "weights": WEIGHTS},
+        {"min_bin_share": 0.1},
+    ),
     "category_groups": (binning.category_groups, {"values": GROUPS, "weights": WEIGHTS}, {}),
     "chimerge_groups": (
         binning.chimerge_groups,
@@ -155,6 +165,16 @@ CASES = {
         {"score": SCORE, "target": TARGET, "weights": WEIGHTS},
         {},
     ),
+    "central_tendency_shift": (
+        calibration.central_tendency_shift,
+        {"probability": SCORE, "weights": WEIGHTS},
+        {"central_tendency": 0.3},
+    ),
+    "quasi_moment_fit": (
+        calibration.quasi_moment_fit,
+        {"score": SCORE, "weights": WEIGHTS},
+        {"central_tendency": 0.3, "accuracy_ratio": 0.5},
+    ),
     "logistic_regression": (
         selection.logistic_regression,
         {"X": {"x": SCORE}, "target": TARGET, "weights": WEIGHTS},
@@ -195,6 +215,11 @@ CASES = {
         strategy.swap_set,
         {"current": SCORE, "new": NEW, "target": TARGET, "weights": WEIGHTS},
         {"current_cutoff": 0.5, "new_cutoff": 0.5},
+    ),
+    "rule_candidates": (
+        rules.rule_candidates,
+        {"frame": FRAME, "target": TARGET, "weights": WEIGHTS},
+        {"min_hit_rate": 0.1, "min_lift": 1.0},
     ),
     "rule_table": (
         rules.rule_table,
@@ -357,6 +382,18 @@ CASES = {
             "weights": [1.0, 1.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0],
         },
         {},
+    ),
+    "default_rate_table": (
+        vintage.default_rate_table,
+        {
+            "loan": [1, 1, 1, 1, 2, 2, 2, 2],
+            "month": list(pd.period_range("2024-01", periods=4, freq="M")) * 2,
+            "grade": ["a", "a", "b", "b", "b", "a", "a", "a"],
+            "defaulted": [0, 1, 0, 0, 0, 0, 1, 0],
+            "probability": [0.1, np.nan, 0.2, 0.2, 0.2, 0.1, np.nan, 0.1],
+            "weights": WEIGHTS,
+        },
+        {"horizon": 1, "starts": ["2024-01", "2024-02"]},
     ),
     "transition_matrix": (
         vintage.transition_matrix,
@@ -771,6 +808,9 @@ def _option_cases():
         "chimerge_edges-initial_bins": lambda o: binning.chimerge_edges(
             VALUES, TARGET, initial_bins=o
         ),
+        "chimerge_edges-min_bin_share": lambda o: binning.chimerge_edges(
+            VALUES, TARGET, min_bin_share=o
+        ),
         "tree_edges-max_bins": lambda o: binning.tree_edges(VALUES, TARGET, max_bins=o),
         "tree_edges-min_bin_share": lambda o: binning.tree_edges(VALUES, TARGET, min_bin_share=o),
         "tree_edges-criterion": lambda o: binning.tree_edges(VALUES, TARGET, criterion=o),
@@ -782,6 +822,28 @@ def _option_cases():
             VALUES, TARGET, initial_bins=o
         ),
         "monotonic_edges-smoothing": lambda o: binning.monotonic_edges(VALUES, TARGET, smoothing=o),
+        "monotonic_edges-min_bin_share": lambda o: binning.monotonic_edges(
+            VALUES, TARGET, min_bin_share=o
+        ),
+        "optimal_edges-max_bins": lambda o: binning.optimal_edges(VALUES, TARGET, max_bins=o),
+        "optimal_edges-min_bin_share": lambda o: binning.optimal_edges(
+            VALUES, TARGET, min_bin_share=o
+        ),
+        "optimal_edges-min_bin_events": lambda o: binning.optimal_edges(
+            VALUES, TARGET, min_bin_events=o
+        ),
+        "optimal_edges-trend": lambda o: binning.optimal_edges(VALUES, TARGET, trend=o),
+        "optimal_edges-initial_bins": lambda o: binning.optimal_edges(
+            VALUES, TARGET, initial_bins=o
+        ),
+        "variance_edges-max_bins": lambda o: binning.variance_edges(VALUES, SCORE, max_bins=o),
+        "variance_edges-min_bin_share": lambda o: binning.variance_edges(
+            VALUES, SCORE, min_bin_share=o
+        ),
+        "variance_edges-trend": lambda o: binning.variance_edges(VALUES, SCORE, trend=o),
+        "variance_edges-initial_bins": lambda o: binning.variance_edges(
+            VALUES, SCORE, initial_bins=o
+        ),
         "category_groups-min_share": lambda o: binning.category_groups(GROUPS, min_share=o),
         "category_groups-min_count": lambda o: binning.category_groups(GROUPS, min_count=o),
         "category_groups-rare_label": lambda o: binning.category_groups(GROUPS, rare_label=o),
@@ -832,6 +894,15 @@ def _option_cases():
             0.0, sample_rate=0.5, population_rate=o
         ),
         "fit_grade_pd-smoothing": lambda o: calibration.fit_grade_pd(event, total, smoothing=o),
+        "central_tendency_shift-central_tendency": lambda o: calibration.central_tendency_shift(
+            SCORE, central_tendency=o
+        ),
+        "quasi_moment_fit-central_tendency": lambda o: calibration.quasi_moment_fit(
+            SCORE, central_tendency=o, accuracy_ratio=0.5
+        ),
+        "quasi_moment_fit-accuracy_ratio": lambda o: calibration.quasi_moment_fit(
+            SCORE, central_tendency=0.3, accuracy_ratio=o
+        ),
         # capital
         "asset_correlation-asset_class": lambda o: capital.asset_correlation(0.01, asset_class=o),
         "asset_correlation-turnover_range": lambda o: capital.asset_correlation(
@@ -967,6 +1038,12 @@ def _option_cases():
             SCORE, NEW, current_cutoff=0.5, new_cutoff=o
         ),
         "profile_table-bins": lambda o: univariate.profile_table(frame, bins=o),
+        "rule_candidates-method": lambda o: rules.rule_candidates(frame, TARGET, method=o),
+        "rule_candidates-max_bins": lambda o: rules.rule_candidates(frame, TARGET, max_bins=o),
+        "rule_candidates-min_hit_rate": lambda o: rules.rule_candidates(
+            frame, TARGET, min_hit_rate=o
+        ),
+        "rule_candidates-min_lift": lambda o: rules.rule_candidates(frame, TARGET, min_lift=o),
         "expected_maximum_profit-no_loss_share": lambda o: metrics.expected_maximum_profit(
             SCORE, TARGET, no_loss_share=o
         ),
@@ -990,6 +1067,9 @@ def _option_cases():
         ),
         "delinquency_panel-tolerance": lambda o: vintage.delinquency_panel(
             GROUPS[:2], ["2024-01-15"] * 2, [1.0, 1.0], [], [], [], end="2024-02", tolerance=o
+        ),
+        "default_rate_table-horizon": lambda o: vintage.default_rate_table(
+            [1, 1], pd.PeriodIndex(["2024-01", "2024-02"], freq="M"), GROUPS[:2], [0, 0], horizon=o
         ),
         # datasets
         "make_applications-n_applicants": lambda o: datasets.make_applications(n_applicants=o),

@@ -15,6 +15,7 @@ The colors keep one meaning in every diagram:
 * the reference sample in blue, the current sample in teal.
 """
 
+import itertools
 import json
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -27,7 +28,7 @@ import pandas as pd
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 from matplotlib.ticker import FixedLocator
 
-from kivi.binning import bin_edges, ks_edges
+from kivi.binning import bin_edges, ks_edges, optimal_edges
 from kivi.calibration import isotonic_fit
 from kivi.datasets import load_bank, make_applications, make_loan_panel
 from kivi.expert import ahp_consistency, ahp_weights
@@ -539,6 +540,151 @@ def figure_ks_second_cut():
         color=RESULT_TEXT,
         bold=True,
     )
+    return canvas.fig
+
+
+def _optimal_example(min_bin_share=0.05, min_bin_events=1, initial_bins=20):
+    """The fine bins of balance and the best binning of optimal_edges, found by brute force.
+
+    Every way to join at most five adjacent fine bins is tried: the bins must hold
+    ``min_bin_share`` of the reference and ``min_bin_events`` of each class, and their WOE must
+    rise or fall throughout, as ``trend="auto"`` asks.
+    """
+    reference = load_bank().iloc[:3000]
+    balance, target = reference["balance"], reference["target"]
+    interior = np.unique(np.quantile(balance, np.linspace(0, 1, initial_bins + 1)))[1:-1]
+    edges = np.r_[-np.inf, interior, np.inf]
+    codes = pd.cut(balance, edges).cat.codes.to_numpy()
+    event = np.bincount(codes, weights=target.to_numpy(), minlength=len(edges) - 1)
+    total = np.bincount(codes, minlength=len(edges) - 1).astype(float)
+    if not (total > 0).all():
+        raise AssertionError("an empty fine bin would be joined to the next one")
+    n, events, rows = len(total), event.sum(), total.sum()
+    non_events = rows - events
+    slack = 1 - 1e-10
+    feasible = np.zeros((n, n + 1), dtype=bool)
+    woe = np.full((n, n + 1), np.nan)
+    iv = np.full((n, n + 1), np.nan)
+    for i in range(n):
+        for j in range(i + 1, n + 1):
+            e, t = event[i:j].sum(), total[i:j].sum()
+            if t >= min_bin_share * rows * slack and min(e, t - e) >= min_bin_events * slack:
+                feasible[i, j] = True
+                woe[i, j] = np.log((e / events) / ((t - e) / non_events))
+                iv[i, j] = (e / events - (t - e) / non_events) * woe[i, j]
+    best = None
+    for k in range(5):
+        for cuts in itertools.combinations(range(1, n), k):
+            bins = list(zip((0, *cuts), (*cuts, n), strict=True))
+            if not all(feasible[i, j] for i, j in bins):
+                continue
+            steps = np.diff([woe[i, j] for i, j in bins])
+            if not ((steps > 0).all() or (steps < 0).all()):
+                continue
+            value = sum(iv[i, j] for i, j in bins)
+            if best is None or value > best[0] * (1 + 1e-10):
+                best = (value, bins)
+    fitted = optimal_edges(balance, target)
+    path = best[1]
+    if list(fitted) != [edges[0], *(edges[j] for _, j in path)]:
+        raise AssertionError("the drawn binning is not that of optimal_edges")
+    table = woe_table(pd.cut(balance, fitted), target)
+    if not np.isclose(table["iv"].sum(), best[0], rtol=1e-12, atol=0):
+        raise AssertionError("the drawn information value is not that of woe_table")
+    return edges, total, feasible, path, fitted, table
+
+
+def figure_optimal_edges():
+    """The candidate bins of optimal_edges on balance, and the path of the best binning."""
+    edges, total, feasible, path, fitted, table = _optimal_example()
+    n = len(total)
+    small = {(i, j) for i in range(n) for j in range(i + 1, n + 1) if total[i:j].sum() < 150}
+    if small != {(i, j) for i in range(n) for j in range(i + 1, n + 1) if not feasible[i, j]}:
+        raise AssertionError("a candidate bin is left out for another reason than its size")
+    size, gx, gy = 0.6, 3.0, 3.5
+
+    canvas = Canvas(height=gy + n * size + 1.4)
+    left, right = canvas.call(0.6, 0.15, "optimal_edges(balance, target)")
+    shown = ", ".join(["-inf", *(f"{edge:g}" for edge in fitted[1:-1]), "inf"])
+    canvas.note(right + 0.4, 0.65, f"-> array([{shown}])", size=9, color=RESULT_TEXT, bold=True)
+
+    # The candidate bins: row i starts at fine bin i, column j - 1 stops after fine bin j - 1.
+    on_path = set(path)
+    for i in range(n):
+        canvas.text(gx - 0.15, gy + (i + 0.5) * size, f"{edges[i]:g}", size=6.3, ha="right")
+        for j in range(i + 1, n + 1):
+            x, y = gx + (j - 1) * size, gy + i * size
+            if (i, j) in on_path:
+                canvas.box(x, y, size, size, fill=RESULT_FILL, edge=AMBER, radius=0.05, z=2)
+            elif feasible[i, j]:
+                canvas.box(x, y, size, size, fill=BLUE_FILL, edge=CELL_FILL, radius=0.05)
+            else:
+                canvas.box(x, y, size, size, fill=CELL_FILL, edge=CELL_EDGE, radius=0.05)
+                canvas.text(x + size / 2, y + size / 2, "×", size=7, color=FAINT, z=5)
+    for j in range(1, n + 1):
+        canvas.ax.text(
+            gx + (j - 0.5) * size,
+            gy - 0.15,
+            f"{edges[j]:g}",
+            fontsize=6.3,
+            color=INK,
+            family=MONO,
+            rotation=90,
+            ha="center",
+            va="bottom",
+        )
+    canvas.note(gx - 0.15, gy - 0.35, "bin.left", ha="right", color=MUTED, size=8)
+    canvas.note(gx + n * size + 0.2, gy - 0.35, "bin.right", ha="left", color=MUTED, size=8)
+    # The next bin starts where the last one stopped: down to its row, then right to its stop.
+    for (i, j), (_, k) in zip(path[:-1], path[1:], strict=True):
+        x, y = gx + (j - 0.5) * size, gy + (j + 0.5) * size
+        canvas.line(x, gy + (i + 1) * size, x, y, color=AMBER, linewidth=1.2, z=3)
+        canvas.arrow((x, y), (gx + (k - 1) * size, y), color=AMBER, linewidth=1.2, z=3)
+
+    # The bins of the best path, as woe_table gives them.
+    labels = [str(interval) for interval in table.index]
+    styles = dict(zip(labels, ramp(len(labels)), strict=True))
+    tx = gx + n * size + 1.5
+    out = canvas.table(
+        tx,
+        gy,
+        [
+            group_column("bin", labels, 5.4, styles),
+            Column("event", [str(int(v)) for v in table["event"]], 2.0, color=EVENT),
+            Column("non_event", [str(int(v)) for v in table["non_event"]], 2.9),
+            Column("woe", [number(v) for v in table["woe"]], 2.3),
+            result("iv", [number(v) for v in table["iv"]], 2.1),
+        ],
+    )
+    total_iv = f"iv.sum() = {number(table['iv'].sum())}"
+    canvas.box(
+        out.right - text_width(total_iv) - 0.8,
+        out.bottom + 0.3,
+        text_width(total_iv) + 0.8,
+        CELL,
+        fill=RESULT_FILL,
+        edge=RESULT_EDGE,
+    )
+    canvas.text(
+        out.right - 0.4,
+        out.bottom + 0.3 + CELL / 2,
+        total_iv,
+        color=RESULT_TEXT,
+        bold=True,
+        ha="right",
+    )
+    y = out.bottom + 2.2
+    legend = [
+        (BLUE_FILL, CELL_FILL, "", "min_bin_share=0.05, min_bin_events=1"),
+        (CELL_FILL, CELL_EDGE, "×", "total < 0.05 * 3000"),
+        (RESULT_FILL, AMBER, "", "max(iv.sum()), trend='increasing'"),
+    ]
+    for fill, edge, mark, text in legend:
+        canvas.box(tx, y - size / 2, size, size, fill=fill, edge=edge, radius=0.05)
+        if mark:
+            canvas.text(tx + size / 2, y, mark, size=7, color=FAINT)
+        canvas.note(tx + size + 0.4, y, text)
+        y += 1.0
     return canvas.fig
 
 

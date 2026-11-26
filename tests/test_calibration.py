@@ -1999,21 +1999,6 @@ def test_central_tendency_shift_integer_weights_equal_repeated_rows():
     assert weighted == pytest.approx(repeated, rel=1e-12, abs=1e-15)
 
 
-def test_central_tendency_shift_matches_scipy():
-    optimize = pytest.importorskip("scipy.optimize")
-    special = pytest.importorskip("scipy.special")
-    rng = np.random.default_rng(4)
-    probability = rng.beta(0.4, 10, size=500)
-    weights = rng.uniform(0, 3, size=500)
-    shift = central_tendency_shift(probability, central_tendency=0.04, weights=weights)
-
-    def excess(value):
-        return np.average(special.expit(special.logit(probability) + value), weights=weights) - 0.04
-
-    expected = optimize.brentq(excess, -20, 20, xtol=1e-15)
-    assert shift == pytest.approx(expected, rel=1e-12, abs=0)
-
-
 def test_central_tendency_shift_errors():
     with pytest.raises(
         ValueError, match="^central_tendency must be strictly between 0 and 1, got 0$"
@@ -2105,30 +2090,6 @@ def test_quasi_moment_fit_integer_weights_equal_repeated_rows():
         np.repeat(score, weights), central_tendency=0.03, accuracy_ratio=0.5
     )
     np.testing.assert_allclose(weighted, repeated, rtol=1e-12, atol=0)
-
-
-def test_quasi_moment_fit_matches_scipy_and_scikit_learn():
-    optimize = pytest.importorskip("scipy.optimize")
-    special = pytest.importorskip("scipy.special")
-    metrics = pytest.importorskip("sklearn.metrics")
-    rng = np.random.default_rng(9)
-    score = np.round(rng.normal(size=400), 1)  # with ties
-    weights = rng.uniform(0.5, 2, size=400)
-    slope, intercept = quasi_moment_fit(
-        score, central_tendency=0.08, accuracy_ratio=0.55, weights=weights
-    )
-
-    def equations(parameters):
-        curve = special.expit(parameters[0] * score + parameters[1])
-        target = np.r_[np.ones(400), np.zeros(400)]
-        auc = metrics.roc_auc_score(
-            target, np.r_[score, score], sample_weight=np.r_[weights * curve, weights * (1 - curve)]
-        )
-        return [np.average(curve, weights=weights) - 0.08, 2 * auc - 1 - 0.55]
-
-    solution = optimize.root(equations, [1.0, -2.5], tol=1e-14)
-    assert solution.success
-    np.testing.assert_allclose([slope, intercept], solution.x, rtol=1e-8, atol=0)
 
 
 def test_quasi_moment_fit_errors():

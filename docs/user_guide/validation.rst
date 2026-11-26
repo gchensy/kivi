@@ -3,7 +3,7 @@ Model validation
 
 A bank that sets its capital requirements with internal ratings validates each model at least once a year and reports the results to its supervisor. For the PD, LGD and CCF models of the IRB approach, the European Central Bank prescribes the quantitative tools of that report in its "Instructions for reporting the validation results of internal models" of February 2019: back-tests of the estimates, the discriminatory power against that of the initial validation, and the stability of the ratings. This guide maps each tool to a kivi function and computes them on simulated data, in the order of the report.
 
-A validation reviews once a year a model that :doc:`monitoring` follows period by period, and :doc:`capital`, the next guide, turns the validated PDs into the capital that they require, before :doc:`vintage` follows the loans that the model approves. The tools belong to several steps of a model: :doc:`calibration` back-tests the estimates, :doc:`metrics` measures the ranking and :doc:`vintage` follows the migrations between grades, and those guides explain each function in detail. :func:`~kivi.calibration.jeffreys_test`, :func:`~kivi.metrics.roc_auc_interval`, :func:`~kivi.vintage.migration_bandwidth`, :func:`~kivi.vintage.migration_test`, :func:`~kivi.calibration.concentration_test`, :func:`~kivi.calibration.backtest_table` and :func:`~kivi.metrics.generalized_auc` compute the statistics of the report, and :func:`~kivi.calibration.spiegelhalter_test` and :func:`~kivi.calibration.brier_decomposition` add two checks that it does not ask for.
+A validation reviews once a year a model that :doc:`monitoring` follows period by period, and :doc:`capital`, the next guide, turns the validated PDs into the capital that they require, before :doc:`vintage` follows the loans that the model approves. The tools belong to several steps of a model: :doc:`calibration` back-tests the estimates, :doc:`metrics` measures the ranking and :doc:`vintage` follows the migrations between grades, and those guides explain each function in detail. :func:`~kivi.calibration.jeffreys_test`, :func:`~kivi.metrics.roc_auc_interval`, :func:`~kivi.vintage.migration_bandwidth`, :func:`~kivi.vintage.migration_test`, :func:`~kivi.calibration.concentration_test`, :func:`~kivi.calibration.backtest_table` and :func:`~kivi.metrics.generalized_auc` compute the statistics of the report, :func:`~kivi.vintage.default_rate_table` counts the customers and the defaults of each grade from a monthly panel, and :func:`~kivi.calibration.spiegelhalter_test` and :func:`~kivi.calibration.brier_decomposition` add two checks that it does not ask for.
 
 The tools of the report
 -----------------------
@@ -17,7 +17,7 @@ The tools of the report
      - kivi
    * - 2.5.3.1
      - Back-testing of the PD of each grade and of the portfolio with the Jeffreys test
-     - :func:`~kivi.calibration.jeffreys_test` on the counts of :func:`~kivi.calibration.calibration_table`
+     - :func:`~kivi.calibration.jeffreys_test` on the counts of :func:`~kivi.calibration.calibration_table`, or of :func:`~kivi.vintage.default_rate_table` for the grades of a monthly panel
    * - 2.5.4.1, annex 3.1
      - Current AUC against the AUC of the initial validation
      - The estimate and the standard error of :func:`~kivi.metrics.roc_auc_interval`, as below
@@ -92,6 +92,32 @@ all    0.000022
 dtype: float64
 
 The incumbent PDs understate the default rate of the current period: grade D defaults at 10.5% against a PD of 8%, and the portfolio at 10.1% against a mean PD of 8.1%.
+
+The report defines its counts at the beginning of the observation period: N holds the customers of a grade that are not in default then, D those of them that default at least once during the period, also after they move to another grade or model, and the PD is that of the grade at the beginning (section 2.3). Where the grades come from a monthly panel, :func:`~kivi.vintage.default_rate_table` with the month before the observation period as its only start month gives N as ``total``, D as ``event`` and, with ``probability``, the PD of each grade at that month as ``mean_probability``. Here the loans of the simulated loan book of :doc:`vintage` are pooled by their delinquency status, each pool with one PD, and the observation period is 2025, so the start month is December 2024:
+
+>>> from kivi.datasets import make_loan_panel
+>>> from kivi.vintage import default_rate_table
+>>> panel = make_loan_panel(rng=0)
+>>> pool_pd = pd.Series({"current": 0.04, "1-29": 0.25, "30-59": 0.5, "60-89": 0.8})
+>>> counts = default_rate_table(
+...     panel["loan_id"],
+...     panel["month"],
+...     panel["status"],
+...     panel["status"] == "90+",
+...     starts=["2024-12"],
+...     probability=panel["status"].map(pool_pd).astype(float),
+... )
+>>> counts.assign(
+...     jeffreys=jeffreys_test(counts["event"], counts["total"], counts["mean_probability"])
+... ).round(3)
+                 total  event  exited  event_rate  mean_probability  jeffreys
+start   grade
+2024-12 current   2146     73     413       0.034              0.04     0.924
+        1-29        65     17      12       0.262              0.25     0.406
+        30-59       23     16       0       0.696              0.50     0.029
+        60-89       15     11       0       0.733              0.80     0.753
+
+The loans already in default in December, the 90+ pool, belong to no grade, so their missing PD does not matter. The 30-59 pool defaults at 69.6% against a PD of 50%, which the test rejects at the 5% level; the other pools pass. The 413 loans of the ``current`` pool that left the book during 2025 without a default stay in N, as the report counts them.
 
 Current AUC against the initial AUC
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -7,7 +7,7 @@ Credit risk modeling with pandas
 
 .. container:: kivi-lead
 
-   kivi is a pandas toolkit for credit risk and financial modeling. It computes point-in-time features from transactions and repayment histories, profiles the candidate variables, bins them and groups their categories, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard or weighs the factors of an expert scorecard, infers the outcomes of rejected applicants, scales the model to points, evaluates it and calibrates it on a master scale, estimates the loss given default and the exposure at default from workouts and credit lines, prices the cut-offs by their expected loss and profit, and measures the policy rules that decline applicants whatever their score. Once the model is live, it monitors the score period by period, validates the model with the tests that supervisors ask of internal rating models, computes the regulatory capital of its PDs, follows how the approved loans repay and perform, and estimates their lifetime PDs and expected credit loss under IFRS 9. Tables come back as pandas DataFrames with one row per bin, grade, cut-off, rule, period or variable, and :mod:`kivi.plotting` draws them as charts.
+   kivi is a pandas toolkit for credit risk and financial modeling. It computes point-in-time features from transactions and repayment histories, profiles the candidate variables, bins them and groups their categories, measures how well each bin separates a binary outcome such as default, selects the variables and fits a logistic scorecard or weighs the factors of an expert scorecard, infers the outcomes of rejected applicants, scales the model to points, evaluates it and calibrates it on a master scale and to a long-run average default rate, estimates the loss given default and the exposure at default from workouts and credit lines, prices the cut-offs by their expected loss and profit, and measures and searches for the policy rules that decline applicants whatever their score. Once the model is live, it monitors the score period by period, validates the model with the tests that supervisors ask of internal rating models, computes the regulatory capital of its PDs, follows how the approved loans repay and perform, and estimates their lifetime PDs and expected credit loss under IFRS 9. Tables come back as pandas DataFrames with one row per bin, grade, cut-off, rule, period or variable, and :mod:`kivi.plotting` draws them as charts.
 
 .. container:: kivi-actions
 
@@ -80,13 +80,13 @@ Built for risk teams
       :link: user_guide/binning
       :link-type: doc
 
-      Fine and coarse classing, special values, ChiMerge, decision-tree, Best-KS and monotonic binning, and grouped categories for logistic regression scorecards.
+      Fine and coarse classing, special values, ChiMerge, decision-tree, Best-KS and monotonic binning, optimal binning under limits on the share, the events and the WOE shape of every bin, binning of a continuous response such as an LGD, and grouped categories for logistic regression scorecards.
 
    .. grid-item-card:: WOE and IV
       :link: user_guide/woe_iv
       :link-type: doc
 
-      The WOE and IV of every bin, with smoothing that leaves the counts alone, the trend of the WOE over the bins and the WOE encoding of new data.
+      The WOE and IV of every bin, with smoothing that leaves the counts alone, the trend of the WOE over the bins, the WOE encoding of new data and why supervised bins overstate the IV of their own sample.
 
    .. grid-item-card:: Variable selection
       :link: user_guide/selection
@@ -122,13 +122,13 @@ Built for risk teams
       :link: user_guide/calibration
       :link-type: doc
 
-      Prior correction, master scales, binomial, Jeffreys and Hosmer-Lemeshow tests per grade, Spiegelhalter's test, the Brier decomposition, and Platt and isotonic recalibration.
+      Prior correction, master scales, binomial, Jeffreys and Hosmer-Lemeshow tests per grade, Spiegelhalter's test, the Brier decomposition, Platt and isotonic recalibration, and PDs brought to a long-run average default rate.
 
    .. grid-item-card:: LGD and EAD
       :link: user_guide/lgd
       :link-type: doc
 
-      Realized LGDs from the cash flows of workouts, realized CCFs of credit lines, LGD tables and the fractional logit, with the rules of Basel, the EBA and China.
+      Realized LGDs from the cash flows of workouts, realized CCFs of credit lines, LGD tables with bands of a driver fitted to the LGDs, and the fractional logit, with the rules of Basel, the EBA and China.
 
    .. grid-item-card:: Credit strategy
       :link: user_guide/strategy
@@ -140,7 +140,7 @@ Built for risk teams
       :link: user_guide/rules
       :link-type: doc
 
-      Hits, event rates and unique hits of each policy rule, and the decision waterfall of a rule set, measured also where only the approved applicants have outcomes.
+      Hits, event rates and unique hits of each policy rule, the decision waterfall of a rule set, measured also where only the approved applicants have outcomes, and a search for new single-threshold rules.
 
    .. grid-item-card:: Binning specifications
       :link: user_guide/spec
@@ -176,7 +176,7 @@ Built for risk teams
       :link: user_guide/vintage
       :link-type: doc
 
-      Monthly delinquency panels from repayment schedules, vintage curves by origination cohort, roll rates and transition matrices between delinquency buckets, and the migrations between rating grades.
+      Monthly delinquency panels from repayment schedules, vintage curves by origination cohort, one-year default rates by the cohort approach, roll rates and transition matrices between delinquency buckets, and the migrations between rating grades.
 
    .. grid-item-card:: Lifetime PD and expected credit loss
       :link: user_guide/lifetime
@@ -188,7 +188,7 @@ Built for risk teams
       :link: user_guide/plotting
       :link-type: doc
 
-      WOE, ROC, precision-recall, gains, distribution, calibration, cut-off, PSI, monitoring and vintage charts drawn straight from kivi's tables with matplotlib.
+      WOE, ROC, precision-recall, gains, distribution, calibration, cut-off, profit, PSI, monitoring, vintage, survival, transition-matrix, rule-set and LGD charts drawn straight from kivi's tables with matplotlib.
 
 How it works
 ------------
@@ -199,7 +199,7 @@ How it works
 
    .. grid-item-card:: Derive, profile and bin
 
-      ``window_features`` and ``panel_features`` turn transactions and monthly repayment statuses into candidates, using only what was known at each application date. ``profile_table`` gives a first look at every candidate. ``bin_edges``, or a supervised method such as ``monotonic_edges``, fits edges on the development sample once, and ``chimerge_groups`` groups the categories of a categorical variable. Every later sample is cut with the same edges and groups, and the outer edges are infinite, so later values always fall into a bin.
+      ``window_features`` and ``panel_features`` turn transactions and monthly repayment statuses into candidates, using only what was known at each application date. ``profile_table`` gives a first look at every candidate. ``bin_edges``, or a supervised method such as ``monotonic_edges`` or ``optimal_edges``, fits edges on the development sample once, and ``chimerge_groups`` groups the categories of a categorical variable. Every later sample is cut with the same edges and groups, and the outer edges are infinite, so later values always fall into a bin.
 
    .. grid-item-card:: Encode and fit
 
@@ -211,11 +211,11 @@ How it works
 
    .. grid-item-card:: Calibrate and decide
 
-      ``master_scale`` and ``assign_grades`` group the PDs into grades, and the binomial and Jeffreys tests check the PD of each grade. ``workout_lgd`` and ``conversion_factor`` give the realized LGDs and CCFs of defaulted loans, ``lgd_table`` summarizes them by group and ``fractional_regression`` models the LGDs. ``cutoff_table`` shows what each cut-off approves and, with the revenue and loss of each applicant, what it earns, ``confusion_table`` how many events it declines, and ``expected_loss_table`` adds up the expected loss of each grade. ``rule_table`` and ``rule_set_table`` measure the policy rules next to the cut-off. ``capital_requirement`` turns the PDs into the IRB capital requirement, and ``most_prudent_pd`` bounds the PDs of grades with too few defaults.
+      ``master_scale`` and ``assign_grades`` group the PDs into grades, ``central_tendency_shift`` brings them to a long-run average default rate, and the binomial and Jeffreys tests check the PD of each grade. ``workout_lgd`` and ``conversion_factor`` give the realized LGDs and CCFs of defaulted loans, ``variance_edges`` fits the bands of a driver to the LGDs, ``lgd_table`` summarizes them by group and ``fractional_regression`` models the LGDs. ``cutoff_table`` shows what each cut-off approves and, with the revenue and loss of each applicant, what it earns, ``confusion_table`` how many events it declines, and ``expected_loss_table`` adds up the expected loss of each grade. ``rule_candidates`` proposes policy rules, and ``rule_table`` and ``rule_set_table`` measure them next to the cut-off. ``capital_requirement`` turns the PDs into the IRB capital requirement, and ``most_prudent_pd`` bounds the PDs of grades with too few defaults.
 
    .. grid-item-card:: Deploy, monitor and validate
 
-      ``FeatureSpec`` and ``BinningSpec`` save the features and the binning as JSON for production. ``monitoring_table`` and ``stability_table`` compare every period with the development sample, and ``csi_table`` measures each variable's effect on the score. Once a year, ``backtest_table``, ``generalized_auc``, ``migration_test`` and ``concentration_test`` give the tests of the ECB's validation report.
+      ``FeatureSpec`` and ``BinningSpec`` save the features and the binning as JSON for production. ``monitoring_table`` and ``stability_table`` compare every period with the development sample, and ``csi_table`` measures each variable's effect on the score. Once a year, ``default_rate_table`` counts the one-year default rates of the grades, and ``backtest_table``, ``generalized_auc``, ``migration_test`` and ``concentration_test`` give the tests of the ECB's validation report.
 
    .. grid-item-card:: Follow the loans
 

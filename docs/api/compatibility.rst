@@ -26,10 +26,10 @@ What is public
 
 * The names that a public module lists in its ``__all__``: :mod:`kivi.features`, :mod:`kivi.binning`, :mod:`kivi.woe`, :mod:`kivi.stability`, :mod:`kivi.univariate`, :mod:`kivi.selection`, :mod:`kivi.scorecard`, :mod:`kivi.expert`, :mod:`kivi.metrics`, :mod:`kivi.calibration`, :mod:`kivi.lgd`, :mod:`kivi.strategy`, :mod:`kivi.rules`, :mod:`kivi.reject_inference`, :mod:`kivi.spec`, :mod:`kivi.monitoring`, :mod:`kivi.capital`, :mod:`kivi.vintage`, :mod:`kivi.lifetime`, :mod:`kivi.plotting` and :mod:`kivi.datasets`. Each has a page in this reference that documents every such name. ``kivi.__version__`` is public too.
 * The documented members of :class:`~kivi.spec.BinningSpec`: its fields, ``FORMAT_VERSION``, ``format_version`` and ``columns``, its methods, and its equality, hashing, pickling and ``dataclasses.replace``. The same holds for :class:`~kivi.features.FeatureSpec`, which has ``FORMAT_VERSION`` and ``columns`` but no ``format_version``, because its format has one version so far. :exc:`~kivi.selection.SeparationError`, which :func:`~kivi.calibration.platt_fit` raises as well, stays in :mod:`kivi.selection`.
-* The names of the arguments. A keyword is part of a call, so renaming an argument needs a deprecation, even one that is usually passed by position.
+* The names of the arguments, such as the ``response`` of :func:`~kivi.binning.variance_edges` and :func:`~kivi.lgd.fractional_regression`, and the values of an option that selects a method or a shape, such as the ``method`` of :func:`~kivi.spec.fit_spec`, with ``"optimal"`` from 1.8, and the ``trend`` of :func:`~kivi.binning.optimal_edges` and :func:`~kivi.binning.variance_edges`. A keyword is part of a call, so renaming an argument needs a deprecation, even one that is usually passed by position. A minor release may add a keyword whose default keeps the earlier results, as the ``min_bin_share`` of :func:`~kivi.binning.chimerge_edges` and :func:`~kivi.binning.monotonic_edges` does from 1.8.
 * Everything else is private: the modules and names that start with an underscore, and the modules that a public module imports, such as ``kivi.binning.np``. They can change in any release.
 
-Results that are pairs of parameters, such as the ``(factor, offset)`` of :func:`~kivi.scorecard.score_scaling`, the ``(slope, intercept)`` of :func:`~kivi.calibration.platt_fit`, the ``(edges, probability)`` of :func:`~kivi.calibration.isotonic_fit`, the ``(statistic, p_value)`` of :func:`~kivi.calibration.hosmer_lemeshow` and :func:`~kivi.calibration.spiegelhalter_test` and the ``(probability, correlation)`` of :func:`~kivi.capital.vasicek_fit`, are tuples. A minor release may turn them into named tuples, which unpack in the same way.
+Results that are pairs of parameters, such as the ``(factor, offset)`` of :func:`~kivi.scorecard.score_scaling`, the ``(slope, intercept)`` of :func:`~kivi.calibration.platt_fit` and :func:`~kivi.calibration.quasi_moment_fit`, the ``(edges, probability)`` of :func:`~kivi.calibration.isotonic_fit`, the ``(statistic, p_value)`` of :func:`~kivi.calibration.hosmer_lemeshow` and :func:`~kivi.calibration.spiegelhalter_test` and the ``(probability, correlation)`` of :func:`~kivi.capital.vasicek_fit`, are tuples. A minor release may turn them into named tuples, which unpack in the same way. A fitted number that another call applies, such as the shift of the log odds of :func:`~kivi.calibration.central_tendency_shift`, is a Python ``float``.
 
 Tables
 ------
@@ -142,6 +142,9 @@ The index name, the column names and the order of the columns of every table are
    * - :func:`~kivi.strategy.swap_set`
      - ``current`` and ``new``, four rows
      - ``total``, ``share``, and with a target ``known``, ``event``, ``event_rate``
+   * - :func:`~kivi.rules.rule_candidates`
+     - ``rule``: the rule as text, such as ``"age <= 25.0"``, from the highest ``lift`` down
+     - ``variable``, ``operator``, ``threshold``, ``hits``, ``hit_rate``, ``known``, ``event``, ``event_rate``, ``lift``
    * - :func:`~kivi.rules.rule_table`
      - ``rule``: the columns of ``rules``, in their order
      - ``hits``, ``hit_rate``, ``unique_hits``, and with a target ``known``, ``event``, ``event_rate``, ``lift``, ``recall``, ``unique_event``
@@ -178,6 +181,9 @@ The index name, the column names and the order of the columns of every table are
    * - :func:`~kivi.vintage.vintage_table`
      - ``cohort``
      - One per month on book, in columns named ``month_on_book``
+   * - :func:`~kivi.vintage.default_rate_table`
+     - ``start``, monthly periods, and ``grade``, sorted by start month and then by grade, a missing grade last
+     - ``total``, ``event``, ``exited``, ``event_rate``, and with ``probability`` ``mean_probability``
    * - :func:`~kivi.vintage.transition_matrix`
      - ``before``
      - One per state, in columns named ``after``
@@ -229,7 +235,17 @@ The random indices of :func:`~kivi.expert.ahp_consistency`, the table of Tone (1
 Charts
 ------
 
-The functions of :mod:`kivi.plotting` keep the data that they draw from each table, which column goes on which axis, their arguments, the errors they raise and what they return: every function returns the ``matplotlib.axes.Axes`` it drew on, except :func:`~kivi.plotting.woe_chart`, the one chart with two y-axes, which returns the pair of Axes of its bars and its line. :func:`~kivi.plotting.distribution_chart` draws the shares of the raw ``non_event`` and ``event`` counts, not the smoothed share columns of a WOE table, and :func:`~kivi.plotting.precision_recall_chart` draws the rows of a ROC table that have a precision and a line at the precision of its last row, the event rate. Colors, line styles, figure sizes, the placement of legends and annotations, tick formats and the number of matplotlib artists that make up a chart may change in any release, so that a release can improve how the charts look. Code that styles a chart further should work on the returned Axes rather than on the artists inside it.
+The functions of :mod:`kivi.plotting` keep the data that they draw from each table, which column goes on which axis, their arguments, the errors they raise and what they return: every function returns the ``matplotlib.axes.Axes`` it drew on, except :func:`~kivi.plotting.woe_chart`, the one chart with two y-axes, which returns the pair of Axes of its bars and its line. :func:`~kivi.plotting.rule_set_chart` draws its bars and its line on one axis and returns that Axes. Some charts promise more about their data:
+
+* :func:`~kivi.plotting.distribution_chart` draws the shares of the raw ``non_event`` and ``event`` counts, not the smoothed share columns of a WOE table.
+* :func:`~kivi.plotting.precision_recall_chart` draws the rows of a ROC table that have a precision and a line at the precision of its last row, the event rate.
+* :func:`~kivi.plotting.survival_chart` draws ``cumulative_pd`` or ``survival`` as steps that start one period before the first row, at 0 or 1, and with a ``competing`` column the cumulative incidence of the competing cause, computed from ``survival``, ``competing`` and ``at_risk``, next to ``cumulative_pd``.
+* :func:`~kivi.plotting.transition_chart` shades each cell of a transition matrix by its share of the row, writes its value and outlines the cells whose row and column labels are equal.
+* :func:`~kivi.plotting.rule_set_chart` draws the ``new_hits`` of each rule as a share of all rows and the ``approval_rate`` after it.
+* :func:`~kivi.plotting.profit_chart` draws ``profit`` against ``approval_rate`` and marks the first row with the largest profit.
+* :func:`~kivi.plotting.lgd_chart` draws the ``mean``, ``zero_share`` and ``full_share`` of each group.
+
+Colors, line styles, figure sizes, the placement of legends and annotations, tick formats and the number of matplotlib artists that make up a chart may change in any release, so that a release can improve how the charts look. Code that styles a chart further should work on the returned Axes rather than on the artists inside it.
 
 Errors and warnings
 -------------------

@@ -84,6 +84,8 @@ retired, student                                                  209       0.21
 
 The three groups of ``job`` hold between 209 and 1,581 development customers each, and their WOE rises from -0.420 to 0.709. ``tables`` holds one :func:`~kivi.woe.woe_table` result per variable. Review each one as a WOE chart (see :doc:`woe_iv`) before moving on. ``pdays`` and ``poutcome`` both describe the previous campaign, so check how strongly they are correlated before keeping both.
 
+The ``balance`` bins above join ten quantile bins by hand. :func:`~kivi.binning.optimal_edges` searches every such merge for the one with the largest IV that also keeps a minimum share of the customers and a minimum number of events and non-events in each bin and gives the WOE a required shape, increasing, decreasing or U-shaped; :doc:`binning` compares it with the other methods. Edges chosen with the target, by any supervised method, make the IV of the development sample optimistic, so rank the variables by their IV on a validation sample, as :ref:`development-iv` shows.
+
 Encode with WOE
 ---------------
 

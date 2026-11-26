@@ -17,10 +17,11 @@ import pandas as pd
 import pytest
 
 from kivi import _stats
-from kivi.binning import chimerge_edges, chimerge_groups, ks_edges, tree_edges
+from kivi.binning import chimerge_edges, chimerge_groups, ks_edges, tree_edges, variance_edges
 from kivi.calibration import (
     backtest_table,
     binomial_test,
+    central_tendency_shift,
     concentration_test,
     fit_grade_pd,
     hosmer_lemeshow,
@@ -28,6 +29,7 @@ from kivi.calibration import (
     isotonic_predict,
     jeffreys_test,
     platt_fit,
+    quasi_moment_fit,
     spiegelhalter_test,
 )
 from kivi.capital import asset_correlation, capital_requirement, most_prudent_pd, vasicek_fit
@@ -130,6 +132,23 @@ def test_tree_edges_with_weights_match_scikit_learn_sample_weights(bank, column,
         values, target, max_bins=6, min_bin_share=0.04, criterion=criterion, weights=weights
     )
     np.testing.assert_array_equal(edges, split_edges(model, values))
+
+
+@pytest.mark.parametrize("leaf", [1, 3, 7, 15])
+def test_variance_two_bins_match_a_regression_stump(leaf):
+    tree = pytest.importorskip("sklearn.tree")
+    rng = np.random.default_rng(leaf)
+    values = rng.integers(0, 40, 300).astype(float)
+    response = np.where(values > 23, 0.6, 0.2) + rng.normal(scale=0.3, size=300)
+    stump = tree.DecisionTreeRegressor(max_depth=1, min_samples_leaf=leaf).fit(
+        values[:, None], response
+    )
+    threshold = stump.tree_.threshold[0]
+    edges = variance_edges(
+        values, response, max_bins=2, min_bin_share=leaf / 300, trend="any", initial_bins=40
+    )
+    # Compare the partitions: scikit-learn's threshold is the midpoint of two values.
+    np.testing.assert_equal(values <= edges[1], values <= threshold)
 
 
 def isotonic_case(name):
@@ -886,6 +905,50 @@ def test_capital_requirement_matches_an_independent_scipy_implementation():
             scipy_requirement(probability, lgd, correlation, maturity_),
             rtol=1e-12,
         )
+
+
+# The calibration of PDs to a central tendency: the shift of the log odds against SciPy's
+# root finder, and quasi moment matching against SciPy's equation solver with the accuracy
+# ratio from scikit-learn's AUC of the sample that the curve implies.
+
+
+def test_central_tendency_shift_matches_scipy():
+    optimize = pytest.importorskip("scipy.optimize")
+    special = pytest.importorskip("scipy.special")
+    rng = np.random.default_rng(4)
+    probability = rng.beta(0.4, 10, size=500)
+    weights = rng.uniform(0, 3, size=500)
+    shift = central_tendency_shift(probability, central_tendency=0.04, weights=weights)
+
+    def excess(value):
+        return np.average(special.expit(special.logit(probability) + value), weights=weights) - 0.04
+
+    expected = optimize.brentq(excess, -20, 20, xtol=1e-15)
+    assert shift == pytest.approx(expected, rel=1e-12, abs=0)
+
+
+def test_quasi_moment_fit_matches_scipy_and_scikit_learn():
+    optimize = pytest.importorskip("scipy.optimize")
+    special = pytest.importorskip("scipy.special")
+    metrics = pytest.importorskip("sklearn.metrics")
+    rng = np.random.default_rng(9)
+    score = np.round(rng.normal(size=400), 1)  # with ties
+    weights = rng.uniform(0.5, 2, size=400)
+    slope, intercept = quasi_moment_fit(
+        score, central_tendency=0.08, accuracy_ratio=0.55, weights=weights
+    )
+
+    def equations(parameters):
+        curve = special.expit(parameters[0] * score + parameters[1])
+        target = np.r_[np.ones(400), np.zeros(400)]
+        auc = metrics.roc_auc_score(
+            target, np.r_[score, score], sample_weight=np.r_[weights * curve, weights * (1 - curve)]
+        )
+        return [np.average(curve, weights=weights) - 0.08, 2 * auc - 1 - 0.55]
+
+    solution = optimize.root(equations, [1.0, -2.5], tol=1e-14)
+    assert solution.success
+    np.testing.assert_allclose([slope, intercept], solution.x, rtol=1e-8, atol=0)
 
 
 # ----------------------------------------------------------------------------- statsmodels

@@ -324,6 +324,12 @@ Freq: M, dtype: float64
 >>> print(f"{segment_rate.mean():.4f}")
 0.0598
 
+.. plot::
+   :alt: One-year default rate of the calibration segment for the start months March, June, September and December 2024, with the number of loans of each cohort, their mean of 5.98% and the pooled rate of 5.68%
+   :caption: The one-year default rates of the four start months fall as the young book grows. Their mean, the observed average default rate, counts every start month once; pooling the counts gives the large cohorts of late 2024 more weight and a lower rate.
+
+   kp.figure_default_rates()
+
 Every start month counts once, however many loans its cohort holds, and adding the counts of all the start months would give another number, the pooled rate. For retail exposures the guidelines also allow a weighted average that gives recent years more weight, ``numpy.average(segment_rate, weights=...)``. Quarterly windows overlap, so a year in the middle of the history enters four averages and a year at either end fewer; paragraph 80 asks for an analysis of that and of the other biases of the chosen start months.
 
 The long-run average default rate is this average over a historical observation period that reflects the likely range of variability of the default rates: at least five years, with a representative mix of good and bad years (paragraphs 82 to 84; Basel CRE36.79). Two years of a growing book, as here, are not enough. Where bad years are missing, the average is adjusted upwards; where they are overrepresented, it may be adjusted downwards, but an adjusted rate below the larger of two averages, over the last five years and over all years, needs a specific justification (paragraphs 85 and 86). With quarterly start months, the last five years are the last 20 rates. These adjustments are the lender's judgement and are not computed here. The long-run average is the central tendency to which :doc:`calibration` brings the PDs, and :func:`~kivi.capital.vasicek_fit` in :doc:`capital` estimates the asset correlation from the same series; pass it rates of non-overlapping windows, one start month a year, because overlapping windows make neighbouring rates move together.

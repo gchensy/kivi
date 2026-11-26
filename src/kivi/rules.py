@@ -126,9 +126,9 @@ def rule_candidates(
     -----
     A candidate is a rule that hits the rows with a searched value above
     (``">"``) or at or below (``"<="``) its ``threshold``. Missing values
-    and special codes hit neither side. The columns are a subset of those of
-    `rule_table`, in its order, and they are exactly what `rule_table`
-    reports, with the same weights, for the rule written as the boolean
+    and special codes hit neither side. The count columns, from ``hits`` to
+    ``lift``, are those of `rule_table`, in its order, and they are exactly
+    what `rule_table` reports, with the same weights, for the rule written as the boolean
     column ``((frame[variable] > threshold) & ~frame[variable].isin(codes))
     .fillna(False)`` (or ``<=``), where ``codes`` are the special codes of
     the column. Without the exclusion of the codes a special code on the
@@ -181,7 +181,7 @@ def rule_candidates(
         )
     if not len(frame):
         raise ValueError("frame must have at least one row")
-    if method not in ("tree", "ks"):
+    if not isinstance(method, str) or method not in ("tree", "ks"):  # type: ignore[redundant-expr]  # rejects non-str values
         raise ValueError(f"method must be 'tree' or 'ks', got {_validation.shown_argument(method)}")
     _validation.check_count(max_bins, "max_bins")
     if (
