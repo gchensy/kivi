@@ -372,9 +372,14 @@ def vif_filter(
     frame, values = _logit.as_frame(X, example=_WOE)
     _logit.check_not_constant(frame.columns, values, "its VIF is undefined")
     rank = _priority(priority, frame.columns)
-    kept = np.arange(values.shape[1])
+    standardized = _standardized(values)
+    rows, columns = standardized.shape
+    # Z = QR leaves the singular values and right singular vectors of every set of columns
+    # unchanged, so each round decomposes columns of the small R instead of the rows of Z.
+    reduced = np.linalg.qr(standardized, mode="r") if rows > columns else standardized
+    kept = np.arange(columns)
     while len(kept) > 1:
-        factors = _vif(values[:, kept])
+        factors = _standardized_vif(reduced[:, kept], rows)
         largest = factors.max()
         if largest <= threshold:
             break
@@ -388,13 +393,28 @@ def vif_filter(
 
 def _vif(values: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
     """Return the VIF of every column of non-constant, finite `values`."""
+    standardized = _standardized(values)
+    return _standardized_vif(standardized, standardized.shape[0])
+
+
+def _standardized(values: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+    """Return the columns of `values` centred and scaled to unit length."""
     centered = values - values.mean(axis=0)
+    return centered / np.linalg.norm(centered, axis=0)
+
+
+def _standardized_vif(matrix: npt.NDArray[np.float64], rows: int) -> npt.NDArray[np.float64]:
+    """Return the VIFs of standardized columns from a matrix with their singular values.
+
+    `matrix` is the standardized columns Z or the matching columns of R from Z = QR, which
+    has the same singular values and right singular vectors, and `rows` is the number of
+    observations, which sets the rank tolerance in both cases.
+    """
     # With unit-length centred columns Z, Z'Z is the correlation matrix and its inverse,
     # whose diagonal holds the VIFs, is V diag(1 / s^2) V' from the SVD Z = U diag(s) V'.
-    standardized = centered / np.linalg.norm(centered, axis=0)
-    rows, columns = standardized.shape
+    columns = matrix.shape[1]
     # With fewer rows than columns, only the full V has a row for every direction.
-    singular, vt = np.linalg.svd(standardized, full_matrices=rows < columns)[1:]
+    singular, vt = np.linalg.svd(matrix, full_matrices=matrix.shape[0] < columns)[1:]
     eps = np.finfo(float).eps
     rank = int((singular > max(rows, columns) * eps * singular[0]).sum())
     result = ((vt[:rank] / singular[:rank, None]) ** 2).sum(axis=0)

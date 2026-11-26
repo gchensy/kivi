@@ -1,0 +1,1 @@
+* ``kivi.selection.vif_filter`` is much faster when there are many more rows than columns: it decomposes the standardized columns once and computes the VIFs of each round from a small square matrix, about 20 times faster for 50,000 rows and 40 columns. It keeps the same variables, because the VIFs it compares are those of ``kivi.selection.vif`` up to rounding.

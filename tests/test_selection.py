@@ -517,6 +517,44 @@ def test_vif_filter_rounds_follow_repeated_vif_calls():
     assert len(results) == 4
 
 
+@pytest.mark.parametrize("rows", [3, 6, 9, 40, 2000])
+@pytest.mark.parametrize("design", ["independent", "combination", "near", "correlated"])
+def test_vif_filter_matches_repeated_vif_calls_on_random_designs(rows, design):
+    # vif_filter decomposes the standardized columns once (Z = QR) when there are more rows
+    # than columns; every round must still drop what repeated vif calls on X[kept] drop.
+    rng = np.random.default_rng([rows, len(design)])
+    for _ in range(10):
+        width = int(rng.integers(2, 9))
+        values = rng.normal(size=(rows, width))
+        if design == "combination" and width >= 3:
+            values[:, -1] = values[:, 0] + values[:, 1]
+        elif design == "near" and width >= 3:
+            values[:, -1] = values[:, 0] + values[:, 1] + 1e-6 * rng.normal(size=rows)
+        elif design == "correlated":
+            values[:, 1:] += 3 * values[:, [0]]
+        X = pd.DataFrame(values, columns=[f"x{i}" for i in range(width)])
+        priority = pd.Series(rng.random(width), index=X.columns)
+        for threshold in [1.5, 5.0, 50.0]:
+            expected, _ = reference_vif_filter(X, threshold, priority)
+            assert vif_filter(X, threshold=threshold, priority=priority).tolist() == expected
+
+
+def test_vif_of_the_reduced_columns_equals_vif_of_the_columns():
+    # Z = QR keeps the singular values and right singular vectors of every set of columns.
+    rng = np.random.default_rng(7)
+    values = rng.normal(size=(500, 6))
+    values[:, 4] = values[:, 0] - values[:, 2]
+    values[:, 5] = values[:, 1] + 0.1 * rng.normal(size=500)
+    reduced = np.linalg.qr(selection._standardized(values), mode="r")
+    for kept in [[0, 1], [0, 2, 3], [0, 2, 4], [1, 3, 5], list(range(6))]:
+        expected = selection._vif(values[:, kept])
+        got = selection._standardized_vif(reduced[:, kept], 500)
+        np.testing.assert_array_equal(np.isinf(got), np.isinf(expected))
+        finite = np.isfinite(expected)
+        assert got[finite] == pytest.approx(expected[finite], rel=1e-9, abs=0)
+    assert np.isinf(selection._standardized_vif(reduced[:, [0, 2, 4]], 500)).all()
+
+
 def test_vif_filter_drops_an_exact_combination_by_priority():
     Z = pd.DataFrame({"a": NEAR_SUM["a"], "d": NEAR_SUM["d"], "e": NEAR_SUM["a"] + NEAR_SUM["d"]})
     np.testing.assert_equal(vif(Z).to_numpy(), np.inf)
