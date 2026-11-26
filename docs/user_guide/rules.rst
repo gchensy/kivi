@@ -3,7 +3,7 @@ Policy rules
 
 Besides a score, a credit policy has rules that decline or refer an applicant whatever the score: a debt-to-income ratio above a cap, an applicant below a minimum age, too many recent credit inquiries. Each rule raises the same questions: how many applicants it hits, how risky they are, which declines rest on it alone, and what it adds to the rules before it. :mod:`kivi.rules` answers them: :func:`~kivi.rules.rule_table` counts the hits and the events of each rule, and :func:`~kivi.rules.rule_set_table` applies the rules in order, as a decision waterfall, and reports the book they leave approved with the columns of :func:`~kivi.strategy.cutoff_table`.
 
-Rules belong to the credit strategy of :doc:`strategy`, which chooses the cut-off of the score, and come before the :doc:`binning specifications <spec>` that take the model to production.
+Rules belong to the credit strategy of :doc:`strategy`, the previous guide, which chooses the cut-off of the score, and come before the :doc:`binning specifications <spec>`, the next guide, which take the model to production.
 
 Definitions
 -----------
@@ -59,6 +59,12 @@ young             1          0         4                 0.25
 inquiries         1          1         3                 0.00
 
 ``young`` adds only applicant 2, and ``inquiries`` only applicant 3, the last event. The three approved applicants that remain, 4, 6 and 7, have no event.
+
+.. plot::
+   :alt: The three rule columns and the target of the eight applicants next to the table of rule_set_table, with the first hit of each applicant marked
+   :caption: The waterfall of the worked example. Each applicant's first hit, marked, counts in the ``new_hits`` of its rule, and a later hit of the same applicant, such as that of ``young`` on applicant 1, counts only in the hits of :func:`~kivi.rules.rule_table`. The applicants hit by no rule stay approved.
+
+   kd.figure_rule_set_table()
 
 Rules on the applications
 -------------------------
@@ -192,6 +198,12 @@ low_income        0.161
 Name: rejected_non_event_share, dtype: float64
 
 The first row is ``high_debt`` on its own. ``young`` adds 364 applicants, the 377 it hits less the 13 that ``high_debt`` has already declined. After all four rules, 8,120 applicants, 81.2%, are approved, with an event rate of 13.3% instead of 16.1%. The rules decline 32.9% of the events and 16.1% of the non-events.
+
+.. plot::
+   :alt: Floating bars of the applicants that each of the four rules declines, stepping down from 10,000 to 8,120 approved applicants, next to the event rate of the approved book after each rule
+   :caption: The decision waterfall of the four rules. Each bar is the ``new_hits`` of a rule, from the applicants the rules before it left approved; the line is the ``approved_event_rate`` after the rule, against the event rate of all applicants, dashed.
+
+   kp.figure_rule_waterfall()
 
 .. list-table::
    :header-rows: 1

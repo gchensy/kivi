@@ -54,10 +54,11 @@ from kivi.lifetime import convert_pd, survival_table, transition_pd
 from kivi.metrics import delong_test, gains_table, gini, roc_table
 from kivi.monitoring import monitoring_table, stability_table
 from kivi.reject_inference import fuzzy_augmentation
+from kivi.rules import rule_set_table
 from kivi.selection import correlation_filter, logistic_regression, selection_path
 from kivi.spec import fit_spec
 from kivi.stability import psi_table
-from kivi.strategy import cutoff_table
+from kivi.strategy import cutoff_table, expected_loss
 from kivi.univariate import profile_table
 from kivi.vintage import transition_matrix, vintage_table
 from kivi.woe import woe_table, woe_transform
@@ -1064,6 +1065,119 @@ def lgd_band_bars(table: pd.DataFrame):
     return fig
 
 
+def rule_waterfall(table: pd.DataFrame, total: float, event_rate: float):
+    """The decision waterfall of a rule_set_table: what each rule declines, and the book it leaves.
+
+    The left panel steps down from ``total`` applicants by the ``new_hits`` of each rule, the
+    right panel shows the ``approved_event_rate`` after each rule against ``event_rate``, the
+    event rate of all known outcomes.
+    """
+    fig, (left, right) = plt.subplots(1, 2, figsize=(9, 3.6), gridspec_kw={"width_ratios": [3, 2]})
+    x = np.arange(len(table))
+    approved = table["approved"].to_numpy(dtype=float)
+    before = np.r_[total, approved[:-1]]
+    left.bar(x, before - approved, bottom=approved, width=0.6, color=AMBER, label="new_hits")
+    for i, (high, low) in enumerate(zip(before, approved, strict=True)):
+        left.annotate(
+            f"{high - low:,.0f}",
+            (i, high),
+            xytext=(0, 3),
+            textcoords="offset points",
+            ha="center",
+            fontsize=8.5,
+            color=AMBER,
+        )
+        left.plot(
+            [i - 0.3, i + 1.3 if i + 1 < len(x) else i + 0.6],
+            [low, low],
+            color=GRAY,
+            linewidth=0.9,
+            linestyle="--",
+        )
+    left.plot([-0.6, 0.3], [total, total], color=GRAY, linewidth=0.9, linestyle="--")
+    left.annotate(
+        f"approved {approved[-1]:,.0f}",
+        (len(x) - 0.4, approved[-1]),
+        xytext=(0, -12),
+        textcoords="offset points",
+        ha="right",
+        fontsize=8.5,
+        color=BLUE,
+    )
+    span = total - approved[-1]
+    left.set_ylim(approved[-1] - 0.25 * span, total + 0.1 * span)
+    left.set_xlim(-0.6, len(x) - 0.4)
+    left.yaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:,.0f}"))
+    left.set_ylabel("approved")
+    left.legend(loc="upper right")
+    rate = table["approved_event_rate"].to_numpy(dtype=float)
+    right.plot(x, rate, color=BLUE, linewidth=2, marker="o", label="approved_event_rate")
+    for i, value in enumerate(rate):
+        right.annotate(
+            f"{value:.1%}",
+            (i, value),
+            xytext=(0, -15),
+            textcoords="offset points",
+            ha="center",
+            fontsize=8.5,
+            color=BLUE,
+        )
+    right.axhline(event_rate, color=GRAY, linewidth=0.9, linestyle="--")
+    right.annotate(
+        f"{event_rate:.1%}",
+        (len(x) - 1, event_rate),
+        xytext=(0, 4),
+        textcoords="offset points",
+        ha="right",
+        fontsize=8.5,
+        color=MUTED,
+    )
+    right.set_xlim(-0.5, len(x) - 0.5)
+    top = np.ceil(event_rate * 1.2 / 0.05) * 0.05
+    right.set_ylim(0, top)
+    right.set_yticks(np.arange(0, top + 0.01, 0.05))
+    right.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+    right.legend(loc="lower left")
+    for ax in (left, right):
+        ax.set_xticks(x, _labels(table.index), rotation=20, ha="right", fontsize=8.5)
+    fig.tight_layout()
+    return fig
+
+
+def profit_curves(table: pd.DataFrame, break_even: float):
+    """Revenue, loss and profit of the approved book at each cut-off of a cutoff_table."""
+    fig, ax = plt.subplots(figsize=(8, 3.6))
+    cutoff = table.index.to_numpy(dtype=float)
+    ax.plot(cutoff, table["approved_revenue"], color=TEAL, linewidth=1.6, label="approved_revenue")
+    ax.plot(cutoff, table["approved_loss"], color=AMBER, linewidth=1.6, label="approved_loss")
+    ax.plot(cutoff, table["profit"], color=BLUE, linewidth=2.4, label="profit")
+    best = table["profit"].idxmax()
+    ax.scatter(best, table.loc[best, "profit"], color=BLUE, s=36, zorder=3)
+    ax.annotate(
+        f"cutoff={best:g}",
+        (best, table.loc[best, "profit"]),
+        xytext=(8, 8),
+        textcoords="offset points",
+        fontsize=8.5,
+        color=BLUE,
+    )
+    ax.axhline(0, color=GRAY, linewidth=0.9)
+    ax.axvline(break_even, color=GRAY, linewidth=0.9, linestyle="--")
+    ax.annotate(
+        f"0.04 / 0.45 = {break_even:.3f}",
+        (break_even, ax.get_ylim()[1]),
+        xytext=(5, -12),
+        textcoords="offset points",
+        fontsize=8.5,
+        color=MUTED,
+    )
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:,.0f}"))
+    ax.set_xlabel("cutoff")
+    ax.legend(loc="center right")
+    fig.tight_layout()
+    return fig
+
+
 def selection_path_chart(path: pd.DataFrame):
     """The development and validation AUC of every step of a selection path."""
     fig, ax = plt.subplots(figsize=(8, 3.6))
@@ -1629,6 +1743,35 @@ def figure_cutoff_curves():
     return cutoff_curves(tables, marks)
 
 
+def figure_profit_curves():
+    _, new, y = _strategy_scores()
+    ead = load_bank().iloc[3000:]["balance"].clip(lower=0)
+    el = expected_loss(new, 0.45, ead)
+    fine = cutoff_table(
+        new, y, cutoffs=np.arange(0.02, 0.4, 0.01).round(2), loss=el, revenue=0.04 * ead
+    )
+    return profit_curves(fine, 0.04 / 0.45)
+
+
+def _rules_example():
+    """The four rules of the rules guide on the simulated applications, with the target."""
+    applications = make_applications(rng=0)
+    rules = pd.DataFrame(
+        {
+            "high_debt": applications["debt_to_income"] > 0.6,
+            "young": applications["age"] < 21,
+            "many_inquiries": applications["inquiries"] >= 3,
+            "low_income": applications["income"] < 1500,
+        }
+    )
+    return rules, applications["target"]
+
+
+def figure_rule_waterfall():
+    rules, target = _rules_example()
+    return rule_waterfall(rule_set_table(rules, target), len(rules), float(target.mean()))
+
+
 def figure_reject_factor():
     applications = make_applications(rng=0)
     population = applications[~applications["policy_decline"]]
@@ -1831,6 +1974,8 @@ README_FIGURES = {
     "readme-survival.svg": figure_survival_competing,
     "readme-lgd.svg": figure_lgd_distribution,
     "readme-lgd-ltv.svg": figure_lgd_ltv,
+    "readme-rules.svg": figure_rule_waterfall,
+    "readme-profit.svg": figure_profit_curves,
 }
 
 

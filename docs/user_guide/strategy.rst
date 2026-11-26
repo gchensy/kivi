@@ -3,7 +3,7 @@ Credit strategy
 
 A scorecard ranks applicants; a credit strategy decides whom to approve. :mod:`kivi.strategy` supports the decisions that follow: :func:`~kivi.strategy.cutoff_table` shows what each candidate cut-off approves, how many bad outcomes it lets through and, with the revenue and losses of each applicant, what it earns, :func:`~kivi.strategy.confusion_table` counts the right and the wrong decisions of each cut-off, :func:`~kivi.strategy.swap_set` compares the decisions of a current and a new score, and :func:`~kivi.strategy.expected_loss` and :func:`~kivi.strategy.expected_loss_table` turn PDs, LGDs and exposures into the expected loss of each applicant and of each grade.
 
-The strategy follows :doc:`calibration`, which gives PDs and grades, and :doc:`lgd`, which gives the LGDs and EADs of the expected loss, and comes before the :doc:`binning specifications <spec>` that take the model to production.
+The strategy follows :doc:`calibration`, which gives PDs and grades, and :doc:`lgd`, which gives the LGDs and EADs of the expected loss, and comes before :doc:`rules`, which measures the rules that decline applicants whatever their score.
 
 Score direction and the approval rule
 -------------------------------------
@@ -313,6 +313,12 @@ Approving everyone loses 32,623, because the margin does not cover the expected 
         approval_rate  approved_event_rate    profit
 cutoff
 0.09            0.473                0.049  15393.88
+
+.. plot::
+   :alt: The revenue, the expected loss and the profit of the approved book against the PD cut-off, with the most profitable cut-off and the break-even PD marked
+   :caption: Revenue, expected loss and profit of the approved book at each cut-off of the finer grid. The profit is highest at 0.09, next to the break-even PD of 0.04 / 0.45, dashed, and falls below zero from a cut-off of 0.18 on.
+
+   kp.figure_profit_curves()
 
 The profit adds up whatever is passed in. With expected losses it is the expected profit of the approved book; with the realized losses of a past cohort, the profit the cut-offs would have earned on it. ``revenue``, like ``loss``, must be non-negative, so put costs such as funding, acquisition or servicing into ``loss``. :func:`~kivi.metrics.expected_maximum_profit` measures the profit of the best cut-off of a score when the loss of a default is uncertain, as a share of the loan amount; :doc:`metrics` describes it.
 

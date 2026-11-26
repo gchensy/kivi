@@ -274,7 +274,7 @@ C              0.795                0.079                 0.451
 D              0.941                0.093                 0.231
 E              1.000                0.114                 0.000
 
-Approving the grades up to C, a PD of at most 14.1%, approves 79.5% of the applicants at a bad rate of 7.9% and turns away 45.1% of the events. Approving grade D as well approves 94.1% at a bad rate of 9.3%. Which row to choose is a business decision; the table shows its price.
+Approving the grades up to C, a PD of at most 14.1%, approves 79.5% of the applicants at a bad rate of 7.9% and turns away 45.1% of the events. Approving grade D as well approves 94.1% at a bad rate of 9.3%. Which row to choose is a business decision; the table shows its price. With the revenue and the loss of each applicant, ``cutoff_table`` also adds up the profit of each cut-off, as :doc:`strategy` shows, and :doc:`rules` measures the policy rules that decline applicants whatever their score.
 
 The expected loss of an exposure is its PD times its loss given default times its exposure at default. :func:`~kivi.strategy.expected_loss_table` adds it up for each grade. The bank data have no loan amounts, so the example takes the balance, floored at zero, as the exposure and one LGD of 45%; :doc:`lgd` estimates LGDs from the workouts of defaulted loans:
 

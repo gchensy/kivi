@@ -36,6 +36,7 @@ from kivi.lifetime import assign_stages, convert_pd, expected_credit_loss
 from kivi.metrics import generalized_auc, roc_auc, roc_table
 from kivi.monitoring import monitoring_table
 from kivi.reject_inference import fuzzy_augmentation, parceling, reweighting
+from kivi.rules import rule_set_table
 from kivi.scorecard import score_scaling, woe_to_points
 from kivi.selection import correlation_filter, logistic_regression, stepwise
 from kivi.spec import BinningSpec, fit_spec
@@ -2610,6 +2611,92 @@ def figure_swap_set():
             "observed = y.where(current <= 0.1)",
         ],
     )
+    return canvas.fig
+
+
+# Policy rules
+
+
+def figure_rule_set_table():
+    """The worked example of the rules guide: the first rule that hits each row gets the decline."""
+    example = pd.DataFrame(
+        {
+            "high_debt": [1, 1, 0, 0, 0, 1, 0, 0],
+            "young": [0, 1, 1, 0, 0, 0, 0, 0],
+            "inquiries": [0, 0, 1, 1, 0, 0, 0, 0],
+        }
+    )
+    example_target = [1, 1, 0, 1, 0, 0, 0, 0]
+    table = rule_set_table(example, example_target)
+    names = list(example.columns)
+    hits = example.to_numpy(dtype=bool)
+    first = np.where(hits.any(axis=1), hits.argmax(axis=1), -1)
+    if [int((first == j).sum()) for j in range(len(names))] != table["new_hits"].tolist():
+        raise AssertionError("the first hits drawn do not match rule_set_table")
+    # Leave out the orange tint, which would read as the amber of the first hits.
+    styles = dict(zip(names, [CATEGORY[0], CATEGORY[1], CATEGORY[3]], strict=True))
+
+    def rule_column(j: int, width: float) -> Column:
+        tint, text = styles[names[j]]
+        cells = [str(int(value)) for value in hits[:, j]]
+        credited = first == j
+        return Column(
+            names[j],
+            cells,
+            width,
+            fill=[
+                RESULT_FILL if c else tint if h else CELL_FILL
+                for c, h in zip(credited, hits[:, j], strict=True)
+            ],
+            color=[
+                RESULT_TEXT if c else text if h else FAINT
+                for c, h in zip(credited, hits[:, j], strict=True)
+            ],
+            bold=list(credited),
+            edge=[RESULT_EDGE if c else None for c in credited],
+            header_color=text,
+        )
+
+    canvas = Canvas(height=12.0)
+    inputs = canvas.table(
+        0.6,
+        1.4,
+        [
+            Column("index", [str(i) for i in example.index], 1.6, color=MUTED),
+            rule_column(0, 2.9),
+            rule_column(1, 2.0),
+            rule_column(2, 2.9),
+            target_column(example_target, 2.2, name="target"),
+        ],
+    )
+    x = 13.9
+    canvas.call(x, 0.15, "rule_set_table(example, example_target)")
+    out = canvas.table(
+        x,
+        1.4,
+        [
+            group_column("rule", table.index, 3.0, styles),
+            result("new_hits", [str(v) for v in table["new_hits"]], 2.6),
+            Column("new_event", [str(v) for v in table["new_event"]], 2.9),
+            Column("approved", [str(v) for v in table["approved"]], 2.6),
+            Column(
+                "approved_event_rate", [number(v, 2) for v in table["approved_event_rate"]], 5.9
+            ),
+        ],
+    )
+    canvas.arrow((inputs.right + 0.2, out.rows[1]), (out.left - 0.2, out.rows[1]))
+    canvas.notes(
+        x,
+        out.bottom + 0.9,
+        [
+            "first     = rules.idxmax(axis=1).where(rules.any(axis=1))",
+            "new_hits  = first.value_counts()[rules.columns]",
+            "new_event = target.groupby(first).sum()[rules.columns]",
+            "approved  = len(rules) - new_hits.cumsum()",
+        ],
+    )
+    approved = ", ".join(str(i) for i in example.index[first == -1])
+    canvas.note(0.6, inputs.bottom + 0.7, f"list(first[first.isna()].index) == [{approved}]")
     return canvas.fig
 
 

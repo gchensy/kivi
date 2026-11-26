@@ -1,7 +1,7 @@
 User guide
 ==========
 
-The user guide follows the steps of a credit risk model in the order of a project: compute features of the applicants from their transactions and repayment histories, profile and bin the candidate variables, encode them with WOE, select the variables and fit the model, infer the outcomes of rejected applicants, scale the model to a scorecard, or weigh the factors of an expert scorecard where there are too few defaults to fit one, evaluate and calibrate it, estimate the loss given default and the exposure at default of its loans, set the cut-offs, save the binning for production, monitor the model period by period, validate it as supervisors ask of internal rating models, compute the regulatory capital that its PDs require, follow the loans that it approves from their repayment schedules, and estimate their lifetime PDs and expected credit loss under IFRS 9. :doc:`plotting` draws the tables of every step. :doc:`risk_workflow` runs the steps from the profile to the stability report on the bundled data, leaving out the features of event data and reject inference, and the :doc:`/tutorial/index` follows a whole project from the first applications to the loss allowance.
+The user guide follows the steps of a credit risk model in the order of a project: compute features of the applicants from their transactions and repayment histories, profile and bin the candidate variables, encode them with WOE, select the variables and fit the model, infer the outcomes of rejected applicants, scale the model to a scorecard, or weigh the factors of an expert scorecard where there are too few defaults to fit one, evaluate and calibrate it, estimate the loss given default and the exposure at default of its loans, set the cut-offs and the policy rules, save the binning for production, monitor the model period by period, validate it as supervisors ask of internal rating models, compute the regulatory capital that its PDs require, follow the loans that it approves from their repayment schedules, and estimate their lifetime PDs and expected credit loss under IFRS 9. :doc:`plotting` draws the tables of every step. :doc:`risk_workflow` runs the steps from the profile to the stability report on the bundled data, leaving out the features of event data and reject inference, and the :doc:`/tutorial/index` follows a whole project from the first applications to the loss allowance.
 
 kivi keeps fitting and applying apart. Bin edges, category groupings, WOE tables, master scales and cut-offs are fitted on the development sample and then applied unchanged to every later sample, so that counts and rates stay comparable. The tables take the groups as they are, so category labels can be passed directly.
 
@@ -68,7 +68,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: metrics
       :link-type: doc
 
-      AUC, Gini, KS, gains and ROC tables, with the score oriented so that higher means riskier, the confidence interval and DeLong test of an AUC, and the generalized AUC of ordered outcomes such as LGDs.
+      AUC, Gini, KS, gains and ROC tables, with the score oriented so that higher means riskier, the confidence interval and DeLong test of an AUC, the generalized AUC of ordered outcomes such as LGDs, and the expected maximum profit of a credit score.
 
    .. grid-item-card:: Calibration
       :link: calibration
@@ -86,7 +86,13 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: strategy
       :link-type: doc
 
-      Approval and bad rates of each cut-off, the confusion matrix, precision, recall and F1 of a cut-off, swap sets between two scores, and expected loss by grade.
+      Approval and bad rates of each cut-off, its revenue and profit, the confusion matrix, precision, recall and F1 of a cut-off, swap sets between two scores, and expected loss by grade.
+
+   .. grid-item-card:: Policy rules
+      :link: rules
+      :link-type: doc
+
+      Hits, event rates, lift and unique hits of each policy rule, the overlap of two rules, and the decision waterfall of a rule set with the book it leaves approved.
 
    .. grid-item-card:: Binning specifications
       :link: spec
@@ -159,6 +165,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
    calibration
    lgd
    strategy
+   rules
    spec
    psi
    monitoring
