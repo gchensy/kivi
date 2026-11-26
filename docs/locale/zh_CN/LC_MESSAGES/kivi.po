@@ -13924,11 +13924,15 @@ msgid ""
 "Turn a logistic regression on WOE values into points. :func:`~kivi.scorecard.score_scaling`, "
 ":func:`~kivi.scorecard.pd_to_score` and :func:`~kivi.scorecard.score_to_pd` set and apply the "
 "scale, :func:`~kivi.scorecard.points_table` and :func:`~kivi.scorecard.woe_to_points` give the "
-"points, and :func:`~kivi.scorecard.reason_codes` lists the variables that lowered a score most."
+"points, and :func:`~kivi.scorecard.reason_codes` lists the variables that lowered a score most. "
+":class:`~kivi.scorecard.ScorecardSpec` keeps the binning, the points, the scaling, a calibration "
+"and a master scale together, scores, calibrates and grades any sample with them, and saves them "
+"as versioned JSON."
 msgstr ""
 "把基于 WOE 的逻辑回归转换为分值。 :func:`~kivi.scorecard.score_scaling` 、 :func:`~kivi.scorecard.pd_to_score` 和"
 " :func:`~kivi.scorecard.score_to_pd` 设定并应用刻度， :func:`~kivi.scorecard.points_table` 和 "
-":func:`~kivi.scorecard.woe_to_points` 给出分值， :func:`~kivi.scorecard.reason_codes` 列出使评分降低最多的变量。"
+":func:`~kivi.scorecard.woe_to_points` 给出分值， :func:`~kivi.scorecard.reason_codes` 列出使评分降低最多的变量。 "
+":class:`~kivi.scorecard.ScorecardSpec` 把分箱、分值、刻度、校准和主标尺放在一起，用它们为任意样本评分、校准和分级，并保存为带版本号的 JSON。"
 
 msgid "See :doc:`/user_guide/scorecard` for a scorecard built on the bundled data."
 msgstr "基于内置数据构建的评分卡见 :doc:`/user_guide/scorecard` 。"
@@ -13988,6 +13992,16 @@ msgstr ""
 
 msgid "Name the variables that cost each applicant the most points."
 msgstr "列出让每个申请人失分最多的变量。"
+
+msgid ""
+":py:obj:`ScorecardSpec <kivi.scorecard.ScorecardSpec>`\\ \\(binning\\, table\\, \\*\\, pdo\\, "
+"...\\[\\, ...\\]\\)"
+msgstr ""
+":py:obj:`ScorecardSpec <kivi.scorecard.ScorecardSpec>`\\ \\(binning\\, table\\, \\*\\, pdo\\, "
+"...\\[\\, ...\\]\\)"
+
+msgid "A whole scorecard, to score, calibrate and grade any sample the same way."
+msgstr "完整的评分卡，用同样的方式为任意样本评分、校准和分级。"
 
 msgid ""
 "A scorecard score is linear in the log of the good:bad odds. It equals `base_score` at odds of "
@@ -14346,6 +14360,450 @@ msgid ""
 msgstr ""
 "某个申请人的住房状况在开发样本中从未出现，因此用 ``woe_transform(..., unseen=0.0)`` 编码。WOE 为 0 时的分值，就是对一行全零调用 "
 "`woe_to_points` 的结果，每个变量都是相同的基础分值。把这些分值作为 `unseen_points` 传入后，housing 不在该申请人的原因之中："
+
+msgid ""
+"A scorecard specification holds what scoring in production needs: the `kivi.spec.BinningSpec` "
+"that groups and encodes each characteristic, the points of every group, the scaling of the score,"
+" the points of values whose group was not in development, and optionally a calibration of the "
+"probability and a master scale. `points`, `score`, `probability`, `grade` and `reason_codes` "
+"apply it to any sample, and `to_json` and `from_json` save and load it. Build a specification "
+"with `from_model` from a logistic regression on the WOE values, or with the constructor from a "
+"points table whose points were rounded or adjusted."
+msgstr ""
+"评分卡方案包含生产环境评分所需的一切：对每个特征分组和编码的 `kivi.spec.BinningSpec` "
+"、每个分组的分值、评分的刻度、所在分组在开发样本中没有出现的取值的分值，以及可选的概率校准和主标尺。 `points` 、 `score` 、 `probability` 、 `grade` 和"
+" `reason_codes` 把它应用于任意样本， `to_json` 和 `from_json` 保存并加载它。可以用 `from_model` 由基于 WOE "
+"值的逻辑回归构建方案，也可以用构造函数由分值经过取整或调整的分值表构建方案。"
+
+msgid ""
+"A specification is immutable. ``table`` and ``scale`` return a new copy on each access, and "
+"``unseen_points`` and ``calibration`` are read-only mappings. To change a field, use "
+"`dataclasses.replace`, which validates the result again."
+msgstr ""
+"评分卡方案不可变。 ``table`` 和 ``scale`` 每次访问都返回新副本， ``unseen_points`` 和 ``calibration`` "
+"是只读映射。若要修改某个字段，请使用 `dataclasses.replace` ，它会重新校验结果。"
+
+msgid "**binning**"
+msgstr "**binning**"
+
+msgid "kivi.spec.BinningSpec"
+msgstr "kivi.spec.BinningSpec"
+
+msgid ""
+"Binning and WOE of the characteristics of the scorecard, and of no other column, such as the "
+"result of `kivi.spec.BinningSpec.select`."
+msgstr "评分卡各特征的分箱和 WOE，不含其他列，例如 `kivi.spec.BinningSpec.select` 的结果。"
+
+msgid ""
+"Points of every group, as returned by `points_table` for the tables of `binning`: indexed by "
+"``variable``, with the columns ``bin``, ``woe`` and ``points``. The points may be rounded or "
+"changed, but ``bin`` and ``woe`` must equal the groups and the WOE of `binning` row for row, with"
+" the variables in the order of its columns."
+msgstr ""
+"每个分组的分值，即 `points_table` 对 `binning` 的各表返回的结果：索引为 ``variable`` ，列为 ``bin`` 、 ``woe`` 和 ``points``"
+" 。分值可以取整或修改，但 ``bin`` 和 ``woe`` 必须逐行等于 `binning` 的分组和 WOE，变量按其列的顺序排列。"
+
+msgid "mapping or pandas.Series, optional"
+msgstr "mapping 或 pandas.Series，可选"
+
+msgid ""
+"Points of values whose group is not in their column's table, for each column whose unseen policy "
+"in `binning` is a WOE, and only for those. A column whose policy is ``\"raise\"`` raises an error"
+" for such values, and a column whose policy names a group gives them the points of that group."
+msgstr ""
+"所在分组不在其列的表中的取值的分值：只为 `binning` 中未见分组策略为 WOE 的列给出，且每个这样的列都要给出。策略为 ``\"raise\"`` "
+"的列遇到这类取值会报错，策略指定某个分组的列则给这类取值该分组的分值。"
+
+msgid "**calibration**"
+msgstr "**calibration**"
+
+#, python-brace-format
+msgid ""
+"Calibration of `probability`, one of ``{\"kind\": \"shift\", \"shift\": shift}``, ``{\"kind\": "
+"\"platt\", \"slope\": slope, \"intercept\": intercept}`` and ``{\"kind\": \"isotonic\", "
+"\"edges\": edges, \"probability\": probability}``; see the Notes. By default the probability is "
+"the one that the scaling gives the score."
+msgstr ""
+"`probability` 的校准，取 ``{\"kind\": \"shift\", \"shift\": shift}`` 、 ``{\"kind\": \"platt\", "
+"\"slope\": slope, \"intercept\": intercept}`` 和 ``{\"kind\": \"isotonic\", \"edges\": edges, "
+"\"probability\": probability}`` 之一；见“说明”。默认的概率是刻度为评分给出的概率。"
+
+msgid "Master scale of `grade`, as returned by `kivi.calibration.master_scale`."
+msgstr "`grade` 使用的主标尺，即 `kivi.calibration.master_scale` 返回的结果。"
+
+msgid "Version of kivi that built the specification. By default, or if None, the installed version."
+msgstr "构建该方案的 kivi 版本。默认或为 None 时取已安装的版本。"
+
+msgid ""
+"If `binning` is not a `kivi.spec.BinningSpec`; if `table` is not a `points_table` result with one"
+" row per group of every column of `binning`, in its order, and the groups and WOE of `binning`, "
+"or has points that are not finite numbers; if the scaling arguments are invalid; if "
+"`unseen_points` lacks a column whose unseen policy is a WOE, has another column or has points "
+"that are not finite numbers; if `calibration` is not one of the three kinds with finite "
+"parameters, a slope that is not negative and, for ``\"isotonic\"``, edges from ``-inf`` to "
+"``inf`` and probabilities between 0 and 1 that do not rise with the score; if `scale` is not a "
+"master scale with the columns ``lower``, ``probability`` and ``upper`` and labels that are "
+"strings, integers, finite floats or booleans; or if `kivi_version` is not a string."
+msgstr ""
+"如果 `binning` 不是 `kivi.spec.BinningSpec` ；如果 `table` 不是 `points_table` 的结果，没有按 `binning` "
+"的列顺序为其每一列的每个分组各给一行并带有 `binning` 的分组和 WOE，或含有不是有限数值的分值；如果刻度参数无效；如果 `unseen_points` 缺少某个未见分组策略为 WOE"
+" 的列、含有其他列，或含有不是有限数值的分值；如果 `calibration` 不是三种校准之一，或者其参数不是有限的数、斜率为负，或对 ``\"isotonic\"`` 而言，边界不是从 "
+"``-inf`` 到 ``inf`` 、概率不在 0 到 1 之间或随评分上升；如果 `scale` 不是带有 ``lower`` 、 ``probability`` 和 ``upper`` "
+"列、标签为字符串、整数、有限浮点数或布尔值的主标尺；或者如果 `kivi_version` 不是字符串。"
+
+msgid ":obj:`from_model`"
+msgstr ":obj:`from_model`"
+
+msgid "Build the specification from a logistic regression."
+msgstr "由逻辑回归构建方案。"
+
+msgid "The binning, which the specification includes."
+msgstr "分箱方案，评分卡方案包含它。"
+
+msgid ""
+"With the factor and offset of `score_scaling`, a score :math:`s` stands for the log odds of the "
+"event"
+msgstr "设 `score_scaling` 的因子和偏移量，评分 :math:`s` 代表事件的对数几率"
+
+msgid "\\ell = \\frac{\\mathrm{offset} - s}{\\mathrm{factor}},"
+msgstr "\\ell = \\frac{\\mathrm{offset} - s}{\\mathrm{factor}},"
+
+#, python-brace-format
+msgid ""
+"which `probability` computes from the score directly, so that it does not round a PD near 0 or 1 "
+"first. Without calibration, the probability is :math:`\\sigma(\\ell) = 1 / (1 + e^{-\\ell})`, the"
+" result of `score_to_pd`. The calibrations give"
+msgstr ""
+"`probability` 直接由评分计算它，因此不会先把接近 0 或 1 的 PD 舍入。不校准时，概率为 :math:`\\sigma(\\ell) = 1 / (1 + "
+"e^{-\\ell})` ，即 `score_to_pd` 的结果。各种校准给出"
+
+msgid ""
+"``\"shift\"``: :math:`\\sigma(\\ell + \\Delta)`, for the shift :math:`\\Delta` of "
+"`kivi.calibration.central_tendency_shift` fitted to the uncalibrated probabilities;"
+msgstr ""
+"``\"shift\"`` ： :math:`\\sigma(\\ell + \\Delta)` ，其中平移量 :math:`\\Delta` 由 "
+"`kivi.calibration.central_tendency_shift` 对未校准的概率拟合得到；"
+
+msgid ""
+"``\"platt\"``: :math:`\\sigma(a \\ell + b)`, for the slope :math:`a` and intercept :math:`b` of "
+"`kivi.calibration.platt_fit` or `kivi.calibration.quasi_moment_fit` fitted to the log odds "
+":math:`\\ell`, as `kivi.calibration.platt_predict` gives;"
+msgstr ""
+"``\"platt\"`` ： :math:`\\sigma(a \\ell + b)` ，其中斜率 :math:`a` 和截距 :math:`b` 由 "
+"`kivi.calibration.platt_fit` 或 `kivi.calibration.quasi_moment_fit` 对对数几率 :math:`\\ell` 拟合得到，与 "
+"`kivi.calibration.platt_predict` 给出的相同；"
+
+msgid ""
+"``\"isotonic\"``: the probability of the band of the score, as "
+"`kivi.calibration.isotonic_predict` gives for the edges and probabilities of "
+"`kivi.calibration.isotonic_fit` fitted to the scores with ``increasing=False``, because a higher "
+"score means a lower risk."
+msgstr ""
+"``\"isotonic\"`` ：评分所在分段的概率，与 `kivi.calibration.isotonic_predict` 按 "
+"`kivi.calibration.isotonic_fit` 以 ``increasing=False`` 在评分上拟合的边界和概率给出的相同，因为评分越高风险越低。"
+
+msgid ""
+"The specification stores points rather than coefficients: the points table is the scorecard that "
+"production uses, and once its points are rounded, the probability follows from the rounded score,"
+" as in production. Feature definitions such as those of `kivi.features.FeatureSpec` are not part "
+"of it, because the features are computed from other tables before the scorecard scores them; save"
+" the two specifications side by side."
+msgstr ""
+"方案保存的是分值而不是系数：分值表就是生产环境使用的评分卡，分值一旦取整，概率就由取整后的评分得出，与生产环境一致。 `kivi.features.FeatureSpec` "
+"等特征定义不在其中，因为特征在评分卡评分之前由其他表计算；请把两个方案并列保存。"
+
+msgid ""
+"Two scorecard specifications are equal when `to_json` gives the same text for both, which "
+"includes `kivi_version`."
+msgstr "当 `to_json` 为两个评分卡方案给出相同的文本时，二者相等；文本中包含 `kivi_version` 。"
+
+msgid ""
+"A housing status that development did not have gets the WOE 0, whose points are kept with the "
+"table:"
+msgstr "开发样本中没有的住房状况得到 WOE 0，其分值与分值表一起保存："
+
+msgid "Build the specification of a logistic regression on the WOE values of a binning."
+msgstr "由基于分箱 WOE 值的逻辑回归构建方案。"
+
+msgid ""
+"The specification keeps the columns of `binning` that have a coefficient, in the order of "
+"`coefficients`, and the points that `points_table` gives their groups. The points of values in "
+"groups that development did not have, for the columns whose unseen policy is a WOE, are those "
+"that `woe_to_points` gives that WOE."
+msgstr ""
+"方案保留 `binning` 中有系数的列，按 `coefficients` 的顺序排列，并保留 `points_table` 为其分组给出的分值。对未见分组策略为 WOE "
+"的列，所在分组在开发样本中没有出现的取值的分值，是 `woe_to_points` 为该 WOE 给出的分值。"
+
+msgid "Binning and WOE of every column of the model, and possibly of other columns."
+msgstr "模型每一列的分箱和 WOE，也可以包含其他列。"
+
+msgid ""
+"Logistic regression coefficient of each column's WOE, for a model of the event probability, "
+"without the intercept."
+msgstr "事件概率模型中各列 WOE 的逻辑回归系数，不含截距。"
+
+msgid "**decimals**"
+msgstr "**decimals**"
+
+msgid ""
+"Number of decimals to round the points and the unseen points to, with pandas ``round``, which "
+"rounds halves to even. By default the points are not rounded."
+msgstr "分值和未见分组分值取整的小数位数，用 pandas 的 ``round`` 取整，即逢五取偶。默认不取整。"
+
+msgid "Calibration of the probability, as for the constructor."
+msgstr "概率的校准，与构造函数相同。"
+
+msgid "Master scale of `grade`, as for the constructor."
+msgstr "`grade` 使用的主标尺，与构造函数相同。"
+
+msgid "ScorecardSpec"
+msgstr "ScorecardSpec"
+
+msgid "The specification of the model's columns."
+msgstr "模型各列的方案。"
+
+msgid ""
+"If `binning` is not a `kivi.spec.BinningSpec` or lacks a column of `coefficients`, `decimals` is "
+"not an integer, or for the reasons that `points_table` and the constructor give."
+msgstr ""
+"如果 `binning` 不是 `kivi.spec.BinningSpec` 或缺少 `coefficients` 中的某一列、 `decimals` 不是整数，或出于 "
+"`points_table` 和构造函数给出的原因。"
+
+msgid "The points of each applicant from its WOE values."
+msgstr "由 WOE 值得到每个申请人的分值。"
+
+msgid "Give each row of a sample the points of its group in every column."
+msgstr "给样本的每一行赋予其在每一列中所在分组的分值。"
+
+msgid ""
+"Each column is grouped as by `kivi.spec.BinningSpec.woe_transform` and each group gets its points"
+" in `table`. A value whose group is not in its column's table gets the points of the column's "
+"unseen group or its `unseen_points`, or raises an error if the column's unseen policy is "
+"``\"raise\"``, as `kivi.spec.BinningSpec.woe_transform` does."
+msgstr ""
+"每一列按 `kivi.spec.BinningSpec.woe_transform` 的方式分组，每个分组得到它在 `table` "
+"中的分值。所在分组不在其列的表中的取值，得到该列未见分组的分值或其 `unseen_points` ；若该列的未见分组策略为 ``\"raise\"`` ，则与 "
+"`kivi.spec.BinningSpec.woe_transform` 一样报错。"
+
+msgid "Sample that has every column of the scorecard. Other columns are ignored."
+msgstr "包含评分卡所有列的样本。其他列会被忽略。"
+
+msgid "Float points of each column of the scorecard, in its order, with the index of `frame`."
+msgstr "评分卡每一列的浮点分值，按评分卡的顺序排列，索引与 `frame` 相同。"
+
+msgid ""
+"For the reasons that `kivi.spec.BinningSpec.woe_transform` gives, such as a missing column or a "
+"value whose group is not in the table of a column with the unseen policy ``\"raise\"``."
+msgstr "出于 `kivi.spec.BinningSpec.woe_transform` 给出的原因，例如缺少某一列，或者未见分组策略为 ``\"raise\"`` 的列中有取值所在的分组不在其表中。"
+
+msgid ":obj:`score`"
+msgstr ":obj:`score`"
+
+msgid "The sum of the points."
+msgstr "分值之和。"
+
+msgid "The points of WOE values."
+msgstr "WOE 值的分值。"
+
+msgid "Score each row of a sample."
+msgstr "为样本的每一行评分。"
+
+msgid ""
+"The score of a row is the sum of its `points`, added column by column in the order of the "
+"scorecard rather than by a matrix product, so that rows with the same groups get exactly the same"
+" score on every processor."
+msgstr "每一行的评分是其 `points` 之和，按评分卡的列顺序逐列相加，而不是用矩阵乘积计算，因此分组相同的行在任何处理器上都得到完全相同的评分。"
+
+msgid "Float scores named ``score``, with the index of `frame`."
+msgstr "名为 ``score`` 的浮点评分，索引与 `frame` 相同。"
+
+msgid "For the reasons that `points` gives."
+msgstr "出于 `points` 给出的原因。"
+
+msgid ":obj:`points`"
+msgstr ":obj:`points`"
+
+msgid "The points of each column."
+msgstr "每一列的分值。"
+
+msgid ":obj:`probability`"
+msgstr ":obj:`probability`"
+
+msgid "The probability of the event of each row."
+msgstr "每一行的事件概率。"
+
+msgid "Give each row of a sample the probability of the event, such as its PD."
+msgstr "给样本的每一行赋予事件概率，例如其 PD。"
+
+msgid ""
+"The probability follows from the `score` of the row through the scaling and, if the specification"
+" has one, its calibration; see the Notes of `ScorecardSpec`."
+msgstr "概率由该行的 `score` 经刻度得出；如果方案带有校准，再经过校准。见 `ScorecardSpec` 的“说明”。"
+
+msgid "Probabilities named ``probability``, with the index of `frame`."
+msgstr "名为 ``probability`` 的概率，索引与 `frame` 相同。"
+
+msgid "The score of each row."
+msgstr "每一行的评分。"
+
+msgid ":obj:`grade`"
+msgstr ":obj:`grade`"
+
+msgid "The grade of each probability on the master scale."
+msgstr "每个概率在主标尺上的等级。"
+
+msgid "The probability of a score without calibration."
+msgstr "未经校准时评分对应的概率。"
+
+msgid "With a shift of the log odds, such as one from `kivi.calibration.central_tendency_shift`:"
+msgstr "使用对数几率的平移，例如由 `kivi.calibration.central_tendency_shift` 得到的平移："
+
+msgid "Give each row of a sample the grade of its probability on the master scale."
+msgstr "给样本的每一行赋予其概率在主标尺上的等级。"
+
+msgid ""
+"The grades are those that `kivi.calibration.assign_grades` gives the `probability` of each row on"
+" `scale`."
+msgstr "等级就是 `kivi.calibration.assign_grades` 按 `scale` 为每一行的 `probability` 给出的等级。"
+
+msgid ""
+"Grades named ``grade``, an ordered categorical of the labels of the scale from the lowest risk to"
+" the highest, with the index of `frame`."
+msgstr "名为 ``grade`` 的等级，为有序分类变量，其类别是标尺的标签，从风险最低到最高排列，索引与 `frame` 相同。"
+
+msgid "If the specification has no master scale, or for the reasons that `points` gives."
+msgstr "如果方案没有主标尺，或出于 `points` 给出的原因。"
+
+msgid "The probability of each row."
+msgstr "每一行的概率。"
+
+msgid ":obj:`kivi.calibration.master_scale`"
+msgstr ":obj:`kivi.calibration.master_scale`"
+
+msgid "Build a master scale."
+msgstr "构建主标尺。"
+
+msgid "Name the columns that cost each row of a sample the most points."
+msgstr "列出让样本每一行失分最多的列。"
+
+msgid ""
+"The reasons are those of the module function `reason_codes` for the `points` of each row and "
+"`table`. Values whose group was not in development cost nothing in the columns with "
+"`unseen_points`, so those columns are not their reasons."
+msgstr ""
+"原因与模块函数 `reason_codes` 对每一行的 `points` 和 `table` 给出的相同。在有 `unseen_points` "
+"的列中，所在分组在开发样本中没有出现的取值不失分，因此这些列不是它们的原因。"
+
+msgid "Number of reasons per row."
+msgstr "每一行列出的原因个数。"
+
+msgid ""
+"Largest difference, in points, between the points of a row and those of a group for the row to be"
+" in that group."
+msgstr "一行的分值与某个分组的分值之间允许的最大差值（以分计），差值在此范围内时该行属于该分组。"
+
+msgid ""
+"Column names in columns ``reason_1`` to ``reason_<top>``, with the index of `frame`. A row with "
+"fewer costly columns has None in the remaining columns."
+msgstr "列名位于 ``reason_1`` 到 ``reason_<top>`` 各列，索引与 `frame` 相同。造成失分的列较少的行，其余各列为 None。"
+
+msgid "For the reasons that `points` and the module function `reason_codes` give."
+msgstr "出于 `points` 和模块函数 `reason_codes` 给出的原因。"
+
+msgid "Return the scorecard specification as a dict of JSON types."
+msgstr "以由 JSON 类型构成的 dict 返回评分卡方案。"
+
+msgid ""
+"The result holds only dicts, lists, strings, numbers, booleans and None, so ``json.dumps`` can "
+"write it without further conversion. Its keys are always in the same order. `to_json` writes this"
+" dict."
+msgstr "结果只包含 dict、list、字符串、数值、布尔值和 None，因此 ``json.dumps`` 无需额外转换即可写出。其键的顺序始终相同。 `to_json` 写出的就是这个 dict。"
+
+msgid ""
+"The keys ``format``, ``format_version``, ``kivi_version``, ``scaling``, ``binning``, ``points``, "
+"``unseen_points``, ``calibration`` and ``scale``, with None for an unset field. See the user "
+"guide for the format."
+msgstr ""
+"包含键 ``format`` 、 ``format_version`` 、 ``kivi_version`` 、 ``scaling`` 、 ``binning`` 、 ``points`` 、"
+" ``unseen_points`` 、 ``calibration`` 和 ``scale`` ，未设置的字段为 None。格式说明见用户指南。"
+
+msgid "Rebuild the scorecard specification."
+msgstr "重建评分卡方案。"
+
+msgid "Rebuild a scorecard specification from the result of `to_dict`."
+msgstr "由 `to_dict` 的结果重建评分卡方案。"
+
+msgid ""
+"The dict is checked before the specification is built, so that a damaged or hand-edited file "
+"fails with a message that names the problem instead of scoring with wrong values."
+msgstr "构建方案之前会先检查该 dict，因此损坏或被手工改动的文件会报错并指明问题，而不会用错误的值评分。"
+
+msgid ""
+"A dict in the format of `to_dict`, for example from ``json.load``. Every key that `to_dict` "
+"writes must be present."
+msgstr "符合 `to_dict` 格式的 dict，例如来自 ``json.load`` 。 `to_dict` 写出的每个键都必须存在。"
+
+msgid "The scorecard specification, equal to the one that wrote `data`."
+msgstr "评分卡方案，与写出 `data` 的那个相等。"
+
+msgid ""
+"If `data` is not a kivi scorecard specification, has a ``format_version`` newer than this version"
+" of kivi reads, lacks a key or has an unknown one, or holds an invalid value, including an "
+"invalid binning for `kivi.spec.BinningSpec.from_dict`."
+msgstr ""
+"如果 `data` 不是 kivi 评分卡方案、其 ``format_version`` 比当前 kivi 版本能读取的更新、缺少某个键或含有未知的键，或含有无效的值，包括 "
+"`kivi.spec.BinningSpec.from_dict` 认为无效的分箱。"
+
+msgid "Read the scorecard specification from JSON text."
+msgstr "从 JSON 文本读取评分卡方案。"
+
+msgid "Return the scorecard specification as JSON text."
+msgstr "以 JSON 文本返回评分卡方案。"
+
+msgid ""
+"The text is the dict of `to_dict` written by ``json.dumps``. The same scorecard specification "
+"always gives the same text, so saved specifications can be compared and kept under version "
+"control. Non-ASCII labels are written as they are, so save the text as UTF-8."
+msgstr ""
+"该文本就是由 ``json.dumps`` 写出的 `to_dict` 的 dict。同一个评分卡方案总是得到相同的文本，因此保存的方案可以相互比较，并纳入版本控制。非 ASCII "
+"标签按原样写出，因此请以 UTF-8 保存文本。"
+
+msgid "JSON text that `from_json` reads back into an equal scorecard specification."
+msgstr "JSON 文本， `from_json` 可将其读回为相等的评分卡方案。"
+
+msgid "Read the scorecard specification back."
+msgstr "读回评分卡方案。"
+
+msgid "Write the text to a file with ``Path(\"scorecard.json\").write_text(text, encoding=\"utf-8\")``."
+msgstr "用 ``Path(\"scorecard.json\").write_text(text, encoding=\"utf-8\")`` 把文本写入文件。"
+
+msgid "Read a scorecard specification from the JSON text of `to_json`."
+msgstr "从 `to_json` 写出的 JSON 文本读取评分卡方案。"
+
+msgid ""
+"The loaded specification scores, calibrates and grades every sample exactly as the one that was "
+"saved. A file written by a newer version of the format is rejected rather than read in part, and "
+"so is a JSON object that repeats a key, which ``json.loads`` would otherwise read as its last "
+"value."
+msgstr ""
+"加载后的方案为每个样本评分、校准和分级的结果与保存时的方案完全相同。由更新版本的格式写出的文件会被拒绝，而不会只读取其中一部分；重复某个键的 JSON 对象也会被拒绝，否则 "
+"``json.loads`` 只会读到其最后一个值。"
+
+msgid "The scorecard specification, equal to the one that wrote `text`."
+msgstr "评分卡方案，与写出 `text` 的那个相等。"
+
+msgid ""
+"If `text` is neither a str nor bytes, is not valid JSON, repeats a key of an object, contains "
+"``NaN`` or ``Infinity``, or does not describe a valid specification; see `from_dict`."
+msgstr ""
+"如果 `text` 既不是 str 也不是 bytes、不是有效的 JSON、对象中有重复的键、含有 ``NaN`` 或 ``Infinity`` ，或没有描述一个有效的方案；参见 "
+"`from_dict` 。"
+
+msgid "Write the scorecard specification."
+msgstr "写出评分卡方案。"
+
+msgid "Rebuild the scorecard specification from a dict."
+msgstr "由 dict 重建评分卡方案。"
 
 msgid "Variable selection"
 msgstr "变量筛选"
@@ -15506,12 +15964,6 @@ msgstr "保存分箱方案。"
 
 msgid "Return the specification as a dict of JSON types."
 msgstr "以由 JSON 类型构成的 dict 返回分箱方案。"
-
-msgid ""
-"The result holds only dicts, lists, strings, numbers, booleans and None, so ``json.dumps`` can "
-"write it without further conversion. Its keys are always in the same order. `to_json` writes this"
-" dict."
-msgstr "结果只包含 dict、list、字符串、数值、布尔值和 None，因此 ``json.dumps`` 无需额外转换即可写出。其键的顺序始终相同。 `to_json` 写出的就是这个 dict。"
 
 msgid ""
 "The keys ``format``, ``format_version``, ``kivi_version``, ``smoothing`` and ``variables``, a "
@@ -19211,6 +19663,31 @@ msgstr "未发布"
 msgid "Changes merged since the last release."
 msgstr "上次发布以来合并的改动。"
 
+msgid "New"
+msgstr "新增"
+
+msgid ""
+"``kivi.scorecard.ScorecardSpec`` keeps a whole scorecard for production: the ``BinningSpec`` of "
+"its characteristics, the points of every group, possibly rounded or adjusted by hand, the "
+"scaling, the points of groups that development did not have, and optionally a calibration of the "
+"PD and a master scale. The calibration is a shift or a Platt scaling of the log odds, or an "
+"isotonic calibration of the score. ``points``, ``score``, ``probability``, ``grade`` and "
+"``reason_codes`` apply the scorecard to any sample, and ``score`` adds the points column by "
+"column, so applicants in the same groups get exactly the same score on every computer."
+msgstr ""
+"``kivi.scorecard.ScorecardSpec`` 为生产环境保存完整的评分卡：其各特征的 ``BinningSpec`` "
+"、每个分组的分值（可以取整或手工调整）、刻度、开发样本中没有的分组的分值，以及可选的 PD 校准和主标尺。校准可以是对数几率的平移或 Platt 缩放，也可以是评分的保序校准。 "
+"``points`` 、 ``score`` 、 ``probability`` 、 ``grade`` 和 ``reason_codes`` 把评分卡应用于任意样本； ``score`` "
+"逐列相加分值，因此分组相同的申请人在任何计算机上都得到完全相同的评分。"
+
+msgid ""
+"``ScorecardSpec.from_model`` builds the specification from the coefficients of a logistic "
+"regression on the WOE values, and ``to_json`` and ``from_json`` save and load it as versioned "
+"JSON, format version 1. Reading rejects repeated keys and ``NaN`` or ``Infinity`` in the text."
+msgstr ""
+"``ScorecardSpec.from_model`` 由基于 WOE 值的逻辑回归的系数构建方案， ``to_json`` 和 ``from_json`` 把它保存和加载为带版本号的 "
+"JSON（格式版本 1）。读取时拒绝重复的键以及文本中的 ``NaN`` 或 ``Infinity`` 。"
+
 msgid "1.9.0 (2026-11-26)"
 msgstr "1.9.0（2026-11-26）"
 
@@ -19227,9 +19704,6 @@ msgstr ""
 
 msgid "1.8.0 (2026-11-25)"
 msgstr "1.8.0（2026-11-25）"
-
-msgid "New"
-msgstr "新增"
 
 msgid ""
 "``kivi.vintage.default_rate_table`` gives the one-year default rate of each grade by the cohort "
@@ -32973,14 +33447,16 @@ msgid ""
 "are too few defaults to fit a model, :doc:`expert` weighs the factors by judgment instead. "
 ":func:`~kivi.scorecard.score_scaling`, :func:`~kivi.scorecard.pd_to_score` and "
 ":func:`~kivi.scorecard.score_to_pd` set the scale, :func:`~kivi.scorecard.points_table` and "
-":func:`~kivi.scorecard.woe_to_points` give the points, and :func:`~kivi.scorecard.reason_codes` "
-"explains a score."
+":func:`~kivi.scorecard.woe_to_points` give the points, :func:`~kivi.scorecard.reason_codes` "
+"explains a score, and :class:`~kivi.scorecard.ScorecardSpec` keeps the whole scorecard for "
+"production and saves it as versioned JSON."
 msgstr ""
 "评分卡位于 :doc:`变量筛选 <selection>` 和 :doc:`reject_inference` 之后（它们给出系数），位于 :doc:`metrics` "
 "之前（后者评估评分）。违约太少、无法拟合模型时， :doc:`expert` 改为根据判断确定各因子的权重。 :func:`~kivi.scorecard.score_scaling` 、 "
 ":func:`~kivi.scorecard.pd_to_score` 和 :func:`~kivi.scorecard.score_to_pd` 设定刻度， "
 ":func:`~kivi.scorecard.points_table` 和 :func:`~kivi.scorecard.woe_to_points` 给出分值， "
-":func:`~kivi.scorecard.reason_codes` 解释评分。"
+":func:`~kivi.scorecard.reason_codes` 解释评分， :class:`~kivi.scorecard.ScorecardSpec` "
+"为生产环境保留完整的评分卡，并将其保存为带版本号的 JSON。"
 
 msgid "Scaling"
 msgstr "刻度"
@@ -33095,6 +33571,11 @@ msgstr ""
 "的每个分值与 :func:`~kivi.scorecard.points_table` 的计算方式完全一致，因此取整后的结果也相同。取整后的总分与精确分数之差，每个变量最多半分。"
 
 msgid ""
+":class:`~kivi.scorecard.ScorecardSpec` keeps the rounded points table and scores with it; see "
+":ref:`scorecard-saving`."
+msgstr ":class:`~kivi.scorecard.ScorecardSpec` 保存取整后的分值表并用它评分；见 :ref:`scorecard-saving` 。"
+
+msgid ""
 "A declined applicant is told which variables lowered the score most. "
 ":func:`~kivi.scorecard.reason_codes` matches the points of each variable to a group of the points"
 " table, compares them with those of the variable's best group and lists the variables from the "
@@ -33152,6 +33633,229 @@ msgid ""
 msgstr ""
 "如果开发样本对坏结果做了过采样或欠采样，模型的截距只适用于该样本。在构建分值表之前，请用 :func:`kivi.calibration.corrected_intercept` 校正截距；参见"
 " :doc:`calibration` 。"
+
+msgid "Saving the scorecard"
+msgstr "保存评分卡"
+
+msgid ""
+"Production needs more than the points table: the binning that groups each characteristic, the "
+"scaling, the points of values that development did not have and, often, a calibration of the PD "
+"and a master scale. :class:`~kivi.scorecard.ScorecardSpec` keeps them in one object, which scores"
+" any sample and saves itself as versioned JSON. :meth:`~kivi.scorecard.ScorecardSpec.from_model` "
+"builds it from a :class:`~kivi.spec.BinningSpec` and the coefficients of the model. "
+":func:`~kivi.spec.fit_spec` with the age edges of the example gives the groups and the WOE of the"
+" tables above, and here gives housing statuses that development did not have a WOE of 0:"
+msgstr ""
+"生产环境需要的不只是分值表，还有对每个特征分组的分箱、刻度、开发样本中没有出现的取值的分值，通常还有 PD 的校准和主标尺。 "
+":class:`~kivi.scorecard.ScorecardSpec` 把它们放在一个对象中，该对象可为任意样本评分，并把自己保存为带版本号的 JSON。 "
+":meth:`~kivi.scorecard.ScorecardSpec.from_model` 由 :class:`~kivi.spec.BinningSpec` "
+"和模型的系数构建它。用示例中的年龄边界调用 :func:`~kivi.spec.fit_spec` ，得到的分组和 WOE 与上面的表相同；这里还让开发样本中没有的住房状况取 WOE 0："
+
+msgid ""
+"``from_model`` keeps the columns of the binning that have a coefficient, in the order of the "
+"coefficients, gives their groups the points of :func:`~kivi.scorecard.points_table` and rounds "
+"them to ``decimals`` with pandas ``round``, which rounds halves to even. To deploy points "
+"adjusted by hand, change the ``points`` column of ``card.table`` and pass the table back with "
+"``dataclasses.replace``, which checks that ``bin`` and ``woe`` are still those of the binning."
+msgstr ""
+"``from_model`` 保留分箱中有系数的列，按系数的顺序排列，给其分组赋予 :func:`~kivi.scorecard.points_table` 的分值，并用 pandas 的 "
+"``round`` 取整到 ``decimals`` 位小数，即逢五取偶。若要部署手工调整过的分值，请修改 ``card.table`` 的 ``points`` 列，再用 "
+"``dataclasses.replace`` 把表传回，它会检查 ``bin`` 和 ``woe`` 仍与分箱一致。"
+
+msgid ""
+":meth:`~kivi.scorecard.ScorecardSpec.score` adds the rounded points column by column rather than "
+"with a matrix product, so applicants in the same groups get exactly the same score on every "
+"computer:"
+msgstr ":meth:`~kivi.scorecard.ScorecardSpec.score` 逐列相加取整后的分值，而不是用矩阵乘积计算，因此分组相同的申请人在任何计算机上都得到完全相同的评分："
+
+msgid ""
+"These scores differ from the exact ones above, 545.2, 579.7 and 554.9, by less than half a point "
+"per variable, and the PD follows from the rounded score, as in production."
+msgstr "这些评分与上面的精确评分 545.2、579.7 和 554.9 相差不到每个变量半分，PD 由取整后的评分得出，与生产环境一致。"
+
+msgid "Unseen groups"
+msgstr "未见分组"
+
+msgid ""
+"A value whose group is not in its column's table is treated as the ``unseen`` policy of the "
+"binning says. A column with the policy ``\"raise\"`` raises an error, as "
+":meth:`~kivi.spec.BinningSpec.woe_transform` does, and a grouped column whose policy names a "
+"group gives the value the points of that group. A column with an unseen WOE needs points for it, "
+"and rounded points cannot be turned back into a coefficient, so the specification keeps them in "
+"``unseen_points``. :meth:`~kivi.scorecard.ScorecardSpec.from_model` computes them with "
+":func:`~kivi.scorecard.woe_to_points` and rounds them with the table:"
+msgstr ""
+"所在分组不在其列的表中的取值，按分箱的 ``unseen`` 策略处理。策略为 ``\"raise\"`` 的列会报错，与 "
+":meth:`~kivi.spec.BinningSpec.woe_transform` 相同；策略指定某个分组的已分组列，给该取值这个分组的分值。未见分组策略为 WOE "
+"的列需要为该取值指定分值，而取整后的分值无法反推回系数，因此方案把这些分值保存在 ``unseen_points`` 中。 "
+":meth:`~kivi.scorecard.ScorecardSpec.from_model` 用 :func:`~kivi.scorecard.woe_to_points` "
+"计算它们，并与分值表一起取整："
+
+msgid ""
+":meth:`~kivi.scorecard.ScorecardSpec.reason_codes` passes ``unseen_points`` to "
+":func:`~kivi.scorecard.reason_codes`, so the rented home of the first applicant is not one of "
+"their reasons."
+msgstr ""
+":meth:`~kivi.scorecard.ScorecardSpec.reason_codes` 把 ``unseen_points`` 传给 "
+":func:`~kivi.scorecard.reason_codes` ，因此第一位申请人的租房不是其原因之一。"
+
+#, python-brace-format
+msgid ""
+"A score :math:`s` stands for the log odds of the event :math:`\\ell = (\\mathrm{offset} - s) / "
+"\\mathrm{factor}`. :meth:`~kivi.scorecard.ScorecardSpec.probability` computes them from the score"
+" directly, so that a PD near 0 or 1 is not rounded first, and without calibration gives "
+":math:`\\sigma(\\ell) = 1 / (1 + e^{-\\ell})`, the PD of :func:`~kivi.scorecard.score_to_pd`. A "
+"calibration changes the PD and leaves the points as they are:"
+msgstr ""
+"评分 :math:`s` 代表事件的对数几率 :math:`\\ell = (\\mathrm{offset} - s) / \\mathrm{factor}` 。 "
+":meth:`~kivi.scorecard.ScorecardSpec.probability` 直接由评分计算它，因此不会先把接近 0 或 1 的 PD 舍入；不校准时，概率为 "
+":math:`\\sigma(\\ell) = 1 / (1 + e^{-\\ell})` ，即 :func:`~kivi.scorecard.score_to_pd` 给出的 PD。校准改变 "
+"PD，分值保持不变："
+
+msgid "``calibration``"
+msgstr "``calibration``"
+
+msgid "PD"
+msgstr "PD"
+
+msgid "Fitted with"
+msgstr "拟合方法"
+
+#, python-brace-format
+msgid "``{\"kind\": \"shift\", \"shift\": shift}``"
+msgstr "``{\"kind\": \"shift\", \"shift\": shift}``"
+
+#, python-brace-format
+msgid ":math:`\\sigma(\\ell + \\mathrm{shift})`"
+msgstr ":math:`\\sigma(\\ell + \\mathrm{shift})`"
+
+msgid ":func:`~kivi.calibration.central_tendency_shift` of the uncalibrated PDs"
+msgstr ":func:`~kivi.calibration.central_tendency_shift` 对未校准 PD 的拟合"
+
+#, python-brace-format
+msgid "``{\"kind\": \"platt\", \"slope\": slope, \"intercept\": intercept}``"
+msgstr "``{\"kind\": \"platt\", \"slope\": slope, \"intercept\": intercept}``"
+
+#, python-brace-format
+msgid ":math:`\\sigma(\\mathrm{slope} \\cdot \\ell + \\mathrm{intercept})`"
+msgstr ":math:`\\sigma(\\mathrm{slope} \\cdot \\ell + \\mathrm{intercept})`"
+
+msgid ""
+":func:`~kivi.calibration.platt_fit` or :func:`~kivi.calibration.quasi_moment_fit` of the log odds"
+" :math:`\\ell`"
+msgstr ""
+":func:`~kivi.calibration.platt_fit` 或 :func:`~kivi.calibration.quasi_moment_fit` 对对数几率 "
+":math:`\\ell` 的拟合"
+
+#, python-brace-format
+msgid "``{\"kind\": \"isotonic\", \"edges\": edges, \"probability\": probability}``"
+msgstr "``{\"kind\": \"isotonic\", \"edges\": edges, \"probability\": probability}``"
+
+msgid ""
+"The ``probability`` of the band of :math:`s`, as :func:`~kivi.calibration.isotonic_predict` gives"
+" it"
+msgstr ":math:`s` 所在分段的 ``probability`` ，与 :func:`~kivi.calibration.isotonic_predict` 给出的相同"
+
+msgid ""
+":func:`~kivi.calibration.isotonic_fit` of the scores with ``increasing=False``, because a higher "
+"score means a lower risk"
+msgstr ":func:`~kivi.calibration.isotonic_fit` 以 ``increasing=False`` 对评分的拟合，因为评分越高风险越低"
+
+#, python-format
+msgid ""
+"A Platt calibration fitted to the scores rather than to :math:`\\ell` would differ only by the "
+"linear conversion between the two, so the specification takes the one on the log odds alone. "
+"``scale``, a :func:`~kivi.calibration.master_scale` result, gives "
+":meth:`~kivi.scorecard.ScorecardSpec.grade` the grade of each calibrated PD. Below, the PDs are "
+"shifted to a long-run average default rate of 15%, above the 11.6% of the development sample:"
+msgstr ""
+"在评分上而不是在 :math:`\\ell` 上拟合的 Platt 校准，与之只差两者之间的线性换算，因此方案只采用对数几率上的那一种。 ``scale`` 是 "
+":func:`~kivi.calibration.master_scale` 的结果，供 :meth:`~kivi.scorecard.ScorecardSpec.grade` 给出每个校准后 "
+"PD 的等级。下面把 PD 平移到 15% 的长期平均违约率，高于开发样本的 11.6%："
+
+msgid "``dataclasses.replace`` checks the new specification again, as the constructor does."
+msgstr "``dataclasses.replace`` 会像构造函数一样重新检查新的方案。"
+
+msgid "Saving and loading"
+msgstr "保存和加载"
+
+msgid ""
+":meth:`~kivi.scorecard.ScorecardSpec.to_json` writes the whole scorecard as JSON text, and "
+":meth:`~kivi.scorecard.ScorecardSpec.from_json` reads it back into an equal specification, which "
+"scores, calibrates and grades every sample identically:"
+msgstr ""
+":meth:`~kivi.scorecard.ScorecardSpec.to_json` 把整张评分卡写成 JSON 文本， "
+":meth:`~kivi.scorecard.ScorecardSpec.from_json` 将其读回为相等的方案，它为每个样本评分、校准和分级的结果完全相同："
+
+msgid ""
+"Two specifications are equal when their JSON text is the same, which includes the version of "
+"kivi. Save the text as UTF-8, as for a :class:`~kivi.spec.BinningSpec`; see :ref:`spec-saving`. "
+"The time-window features of a :class:`~kivi.features.FeatureSpec` are computed from other tables "
+"before the scorecard scores an application, so they are not part of the specification; save the "
+"two files side by side."
+msgstr ""
+"两个方案的 JSON 文本相同时二者相等，文本中包含 kivi 的版本。与 :class:`~kivi.spec.BinningSpec` 一样，请以 UTF-8 保存文本；见 :ref"
+":`spec-saving` 。 :class:`~kivi.features.FeatureSpec` 的时间窗特征在评分卡为申请评分之前由其他表计算，因此不在方案之中；请把两个文件并列保存。"
+
+msgid "The text always has these keys, with ``null`` for a field that is not set:"
+msgstr "文本始终包含以下键，未设置的字段为 ``null`` ："
+
+msgid "Always ``\"kivi.ScorecardSpec\"``."
+msgstr "始终为 ``\"kivi.ScorecardSpec\"`` 。"
+
+msgid ""
+"Version of the format, 1. ``ScorecardSpec.FORMAT_VERSION`` is the newest version. A file with a "
+"newer version raises an error that asks for a newer kivi, instead of being read in part."
+msgstr "格式的版本，为 1。 ``ScorecardSpec.FORMAT_VERSION`` 是最新的版本。格式版本较新的文件会引发错误，提示升级 kivi，而不会只读取其中一部分。"
+
+msgid "Version of kivi that built the specification."
+msgstr "构建该方案的 kivi 版本。"
+
+msgid "``scaling``"
+msgstr "``scaling``"
+
+msgid "``pdo``, ``base_score`` and ``base_odds``."
+msgstr "``pdo`` 、 ``base_score`` 和 ``base_odds`` 。"
+
+msgid "``binning``"
+msgstr "``binning``"
+
+msgid "The binning as :meth:`~kivi.spec.BinningSpec.to_dict` writes it, with its own format version."
+msgstr "按 :meth:`~kivi.spec.BinningSpec.to_dict` 写出的分箱，带有其自己的格式版本。"
+
+msgid "``points``"
+msgstr "``points``"
+
+msgid ""
+"For each column, the list of the points of its groups, in the order of the rows of its table in "
+"``binning``."
+msgstr "每一列其各分组分值的列表，按 ``binning`` 中该列表格各行的顺序排列。"
+
+msgid "``unseen_points``"
+msgstr "``unseen_points``"
+
+msgid "The points of unseen groups, by column."
+msgstr "按列给出的未见分组的分值。"
+
+#, python-brace-format
+msgid ""
+"The calibration, with ``{\"float\": \"inf\"}`` and ``{\"float\": \"-inf\"}`` for the infinite "
+"outer edges of an isotonic calibration."
+msgstr "校准；保序校准两端的无穷边界写成 ``{\"float\": \"inf\"}`` 和 ``{\"float\": \"-inf\"}`` 。"
+
+msgid "``scale``"
+msgstr "``scale``"
+
+msgid "One entry per grade, with its label ``grade`` and its ``lower``, ``probability`` and ``upper``."
+msgstr "每个等级一项，包含其标签 ``grade`` 及其 ``lower`` 、 ``probability`` 和 ``upper`` 。"
+
+msgid ""
+":meth:`~kivi.scorecard.ScorecardSpec.from_json` checks every value and rejects ``NaN`` and "
+"``Infinity`` in the text and objects that repeat a key, so a damaged or hand-edited file fails "
+"with a message instead of scoring with wrong values."
+msgstr ""
+":meth:`~kivi.scorecard.ScorecardSpec.from_json` 检查每个值，拒绝文本中的 ``NaN`` 和 ``Infinity`` "
+"以及有重复键的对象，因此损坏或被手工改动的文件会报错，而不会用错误的值评分。"
 
 msgid ""
 "A scorecard is a logistic regression on a short list of WOE-encoded variables. "

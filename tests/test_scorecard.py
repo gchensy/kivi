@@ -1,11 +1,43 @@
+"""Tests of kivi.scorecard against hand calculations, the functions it builds on and saved files.
+
+The golden files in ``tests/data`` were written by this module run as a script,
+``PYTHONPATH=src python tests/test_scorecard.py``, with the code that introduced
+version 1 of the format of `ScorecardSpec` (kivi 1.10.0):
+``scorecard_spec_1.10.0.json`` with ``to_json(indent=2)`` of `golden_spec`, and
+``scorecard_spec_1.10.0.scores.json`` with the rows of `golden_frame` and the
+points, scores, probabilities, grades and reason codes that the loaded
+specification gives them. Later releases must read the file and score the
+rows exactly as saved, so the files must not change; a change that breaks
+them needs a new format version.
+"""
+
+import copy
+import dataclasses
+import functools
+import json
 import math
+import pathlib
+import pickle
+import sys
 
 import numpy as np
 import pandas as pd
 import pytest
 
+import kivi
+from kivi.calibration import (
+    assign_grades,
+    central_tendency_shift,
+    isotonic_fit,
+    isotonic_predict,
+    master_scale,
+    platt_fit,
+    platt_predict,
+    quasi_moment_fit,
+)
 from kivi.datasets import load_bank
 from kivi.scorecard import (
+    ScorecardSpec,
     pd_to_score,
     points_table,
     reason_codes,
@@ -13,6 +45,7 @@ from kivi.scorecard import (
     score_to_pd,
     woe_to_points,
 )
+from kivi.spec import fit_spec
 from kivi.woe import woe_table, woe_transform
 
 SCALE = {"pdo": 20, "base_score": 600, "base_odds": 50}
@@ -619,3 +652,1112 @@ def test_invalid_unseen_points(unseen_points, message):
     )
     with pytest.raises(ValueError, match=message):
         reason_codes(points, table, unseen_points=unseen_points)
+
+
+# ScorecardSpec
+
+COLUMNS = ["age", "balance", "pdays", "housing", "contact", "job", "education"]
+# Not in the order of the binning, which from_model follows.
+BANK_MODEL = (
+    {
+        "pdays": 0.9,
+        "age": 0.7,
+        "balance": 0.6,
+        "housing": 0.8,
+        "contact": 0.65,
+        "job": 0.55,
+        "education": 0.5,
+    },
+    -2.1,
+)
+
+
+@functools.cache
+def _bank_fit():
+    """A binning of every kind of column, fitted on the first 3,000 bank rows.
+
+    ``balance`` has missing values, ``pdays`` the special code -1, ``job`` and
+    ``education`` are grouped, and the columns have each unseen policy: a WOE
+    for ``balance`` and ``contact``, the group ``"other"`` for ``job`` and
+    ``"raise"`` for the others. ``duration`` is not in the model.
+    """
+    data = load_bank().iloc[:3000].copy()
+    data.loc[data.index[::40], "balance"] = np.nan
+    binning = fit_spec(
+        data[[*COLUMNS, "duration"]],
+        data["target"],
+        method={"age": "chimerge", "pdays": "tree", "job": "rare", "education": "chimerge"},
+        bins={"balance": 4},
+        special={"pdays": [-1]},
+        options={"job": {"min_share": 0.05}},
+        unseen={"balance": 0.1, "contact": 0.0, "job": {"group": "other"}},
+    )
+    return binning, data
+
+
+def bank_binning():
+    return _bank_fit()[0]
+
+
+def development():
+    return _bank_fit()[1].copy()
+
+
+def scoring_frame():
+    """Later rows with an unseen contact, an unseen job, missing and infinite balances."""
+    frame = load_bank().iloc[3000:3300][[*COLUMNS, "duration"]].copy()
+    frame["balance"] = frame["balance"].astype(float)
+    frame.iloc[0, frame.columns.get_loc("contact")] = "satellite"
+    frame.iloc[1, frame.columns.get_loc("job")] = "astronaut"
+    frame.iloc[2, frame.columns.get_loc("balance")] = np.nan
+    frame.iloc[3, frame.columns.get_loc("balance")] = np.inf
+    frame.iloc[4, frame.columns.get_loc("balance")] = -np.inf
+    return frame
+
+
+def bank_card(**options):
+    return ScorecardSpec.from_model(bank_binning(), *BANK_MODEL, **SCALE, **options)
+
+
+def model_woe(frame):
+    """The WOE of the model's columns, in the order of its coefficients."""
+    return bank_binning().woe_transform(frame)[list(BANK_MODEL[0])]
+
+
+def model_log_odds(frame):
+    """The log odds of the model, summed column by column."""
+    woe = model_woe(frame)
+    log_odds = np.full(len(frame), BANK_MODEL[1])
+    for name, coefficient in BANK_MODEL[0].items():
+        log_odds = log_odds + coefficient * woe[name].to_numpy()
+    return log_odds
+
+
+def test_unrounded_card_matches_points_table_and_woe_to_points():
+    card = bank_card()
+    assert list(card.binning.columns) == list(BANK_MODEL[0])
+    assert card.binning == bank_binning().select(list(BANK_MODEL[0]))
+    expected = points_table(card.binning.tables, *BANK_MODEL, **SCALE)
+    pd.testing.assert_frame_equal(card.table, expected, check_index_type=False)
+    frame = scoring_frame()
+    points = card.points(frame)
+    reference = woe_to_points(model_woe(frame), *BANK_MODEL, **SCALE)
+    assert list(points.columns) == list(BANK_MODEL[0])
+    assert points.index.equals(frame.index)
+    np.testing.assert_allclose(points.to_numpy(), reference.to_numpy(), rtol=1e-12, atol=0)
+    log_odds = model_log_odds(frame)
+    probability = 1 / (1 + np.exp(-log_odds))
+    score = card.score(frame)
+    assert score.name == "score" and score.index.equals(frame.index)
+    np.testing.assert_allclose(score, pd_to_score(probability, **SCALE), rtol=1e-12, atol=0)
+    result = card.probability(frame)
+    assert result.name == "probability" and result.index.equals(frame.index)
+    np.testing.assert_allclose(result, probability, rtol=1e-12, atol=0)
+
+
+def test_unseen_points_of_from_model_are_those_of_woe_to_points():
+    card = bank_card()
+    assert list(card.unseen_points) == ["balance", "contact"]
+    row = pd.DataFrame({name: [0.0] for name in BANK_MODEL[0]}).assign(balance=0.1)
+    expected = woe_to_points(row, *BANK_MODEL, **SCALE).iloc[0]
+    assert card.unseen_points["balance"] == expected["balance"]
+    assert card.unseen_points["contact"] == expected["contact"]
+    points = card.points(scoring_frame())
+    assert points["contact"].iloc[0] == expected["contact"]
+    assert points["balance"].iloc[3] == points["balance"].iloc[4] == expected["balance"]
+
+
+def test_uncalibrated_probability_is_score_to_pd_of_the_score():
+    for card in (bank_card(), bank_card(decimals=0)):
+        frame = scoring_frame()
+        score = card.score(frame)
+        assert card.probability(frame).equals(score_to_pd(score, **SCALE).rename("probability"))
+
+
+def test_identical_rows_get_bit_identical_scores():
+    card = bank_card()
+    frame = scoring_frame()
+    # Each row many times, interleaved with the others and in another order.
+    repeated = pd.concat([frame] * 20).sample(frac=1.0, random_state=0)
+    score = card.score(repeated)
+    alone = card.score(frame)
+    for label in frame.index:
+        values = score.loc[[label]].to_numpy()
+        assert (values == alone[label]).all(), label
+    probability = card.probability(repeated)
+    assert probability.groupby(level=0).nunique().eq(1).all()
+
+
+@pytest.mark.parametrize("decimals", [0, 1, -1])
+def test_rounded_scores_are_column_sums_of_the_rounded_table(decimals):
+    card = bank_card(decimals=decimals)
+    unrounded = bank_card()
+    np.testing.assert_array_equal(
+        card.table["points"], unrounded.table.round({"points": decimals})["points"]
+    )
+    assert (
+        dict(card.unseen_points)
+        == pd.Series(dict(unrounded.unseen_points)).round(decimals).to_dict()
+    )
+    frame = scoring_frame()
+    points = card.points(frame)
+    expected = woe_to_points(model_woe(frame), *BANK_MODEL, **SCALE).round(decimals)
+    np.testing.assert_array_equal(points.to_numpy(), expected.to_numpy())
+    total = np.zeros(len(frame))
+    for name in card.binning.columns:
+        total = total + expected[name].to_numpy()
+    np.testing.assert_array_equal(card.score(frame).to_numpy(), total)
+    np.testing.assert_array_equal(card.probability(frame).to_numpy(), score_to_pd(total, **SCALE))
+
+
+@pytest.mark.parametrize("base_score,rounded", [(600.5, 600.0), (601.5, 602.0), (-0.5, -0.0)])
+def test_rounding_halves_to_even_as_pandas_does(base_score, rounded):
+    # With base odds of 1 and no intercept, a WOE of 0 has exactly the base score as points.
+    binning = fit_spec(
+        pd.DataFrame({"x": [1.0, 2.0, 3.0, 4.0]}), [0, 1, 1, 0], bins=2, unseen={"x": 0.0}
+    )
+    scaling = {"pdo": 20, "base_score": base_score, "base_odds": 1}
+    card = ScorecardSpec.from_model(binning, {"x": 1.0}, 0.0, **scaling, decimals=0)
+    unrounded = ScorecardSpec.from_model(binning, {"x": 1.0}, 0.0, **scaling)
+    assert unrounded.unseen_points["x"] == base_score
+    assert card.unseen_points["x"] == rounded
+    assert card.table["points"].tolist() == unrounded.table["points"].round().tolist()
+
+
+def test_from_model_keeps_the_columns_of_the_coefficients():
+    model = ({"housing": 0.8, "age": 0.7}, -2.0)
+    card = ScorecardSpec.from_model(bank_binning(), *model, **SCALE)
+    assert list(card.binning.columns) == ["housing", "age"]
+    assert card.unseen_points is None
+    series = ScorecardSpec.from_model(bank_binning(), pd.Series(model[0]), model[1], **SCALE)
+    assert series == card
+
+
+# Calibration
+
+
+def development_log_odds(card, frame):
+    factor, offset = score_scaling(**SCALE)
+    return (offset - card.score(frame)) / factor
+
+
+def test_shift_calibration_moves_the_mean_probability_to_the_central_tendency():
+    card = bank_card(decimals=0)
+    sample = development()
+    shift = central_tendency_shift(card.probability(sample), central_tendency=0.2)
+    shifted = dataclasses.replace(card, calibration={"kind": "shift", "shift": shift})
+    probability = shifted.probability(sample)
+    assert probability.mean() == pytest.approx(0.2, rel=1e-12, abs=0)
+    uncalibrated = card.probability(sample)
+    expected = uncalibrated / (uncalibrated + (1 - uncalibrated) * np.exp(-shift))
+    np.testing.assert_allclose(probability, expected, rtol=1e-12, atol=0)
+    frame = scoring_frame()
+    np.testing.assert_array_equal(
+        shifted.probability(frame),
+        platt_predict(development_log_odds(card, frame).to_numpy(), 1.0, shift),
+    )
+
+
+def test_platt_calibration_is_platt_predict_of_the_log_odds():
+    card = bank_card(decimals=0)
+    sample = development()
+    log_odds = development_log_odds(card, sample)
+    slope, intercept = platt_fit(log_odds, sample["target"])
+    fitted = dataclasses.replace(
+        card, calibration={"kind": "platt", "slope": slope, "intercept": intercept}
+    )
+    frame = scoring_frame()
+    np.testing.assert_array_equal(
+        fitted.probability(frame),
+        platt_predict(development_log_odds(card, frame), slope, intercept),
+    )
+    slope, intercept = quasi_moment_fit(log_odds, central_tendency=0.15, accuracy_ratio=0.3)
+    matched = dataclasses.replace(
+        card, calibration={"kind": "platt", "slope": slope, "intercept": intercept}
+    )
+    assert matched.probability(sample).mean() == pytest.approx(0.15, rel=1e-9)
+
+
+def test_isotonic_calibration_is_isotonic_predict_of_the_score():
+    card = bank_card(decimals=0)
+    sample = development()
+    edges, probability = isotonic_fit(card.score(sample), sample["target"], increasing=False)
+    fitted = dataclasses.replace(
+        card, calibration={"kind": "isotonic", "edges": edges, "probability": probability}
+    )
+    frame = scoring_frame()
+    np.testing.assert_array_equal(
+        fitted.probability(frame), isotonic_predict(card.score(frame), edges, probability)
+    )
+    stored = fitted.calibration
+    np.testing.assert_array_equal(stored["edges"], edges)
+    assert not stored["edges"].flags.writeable and not stored["probability"].flags.writeable
+
+
+def test_grades_are_assign_grades_of_the_calibrated_probability():
+    scale = master_scale(np.geomspace(0.02, 0.32, 5), labels=list("ABCDE"))
+    card = bank_card(decimals=0, calibration={"kind": "shift", "shift": -0.3}, scale=scale)
+    frame = scoring_frame()
+    grades = card.grade(frame)
+    assert grades.name == "grade" and grades.index.equals(frame.index)
+    expected = assign_grades(card.probability(frame), scale)
+    assert grades.astype(object).tolist() == expected.astype(object).tolist()
+    assert grades.dtype == expected.dtype
+    pd.testing.assert_frame_equal(card.scale, scale)
+
+
+def test_grade_needs_a_scale():
+    with pytest.raises(ValueError, match="^grade needs a master scale; build the specification"):
+        bank_card().grade(scoring_frame())
+
+
+# Unseen groups and the binning
+
+
+def test_points_follow_the_groups_of_binning_woe_transform():
+    card = bank_card(decimals=0)
+    frame = scoring_frame()
+    points = card.points(frame)
+    woe = card.binning.woe_transform(frame)
+    table = card.table
+    for name in card.binning.columns:
+        rows = table.loc[[name]]
+        for value, woe_value in zip(points[name], woe[name], strict=True):
+            matches = rows["points"][rows["woe"] == woe_value]
+            if name in card.unseen_points and woe_value == card.binning.unseen[name]:
+                assert value == card.unseen_points[name] or value in matches.tolist()
+            else:
+                assert value in matches.tolist(), name
+
+
+def test_a_raise_column_raises_as_binning_woe_transform_does():
+    card = bank_card()
+    frame = scoring_frame()
+    for column, value in (("housing", "rented"), ("age", np.inf), ("education", "doctorate")):
+        changed = frame.copy()
+        if column == "age":
+            changed[column] = changed[column].astype(float)
+        changed.iloc[5, changed.columns.get_loc(column)] = value
+        with pytest.raises(ValueError) as expected:
+            card.binning.woe_transform(changed)
+        with pytest.raises(ValueError, match=f"^column '{column}': ") as raised:
+            card.points(changed)
+        assert str(raised.value) == str(expected.value)
+
+
+def test_a_missing_value_without_a_missing_group_raises():
+    frame = scoring_frame()
+    frame["age"] = frame["age"].astype(float)
+    frame.iloc[0, frame.columns.get_loc("age")] = np.nan
+    with pytest.raises(ValueError, match="^column 'age': 1 group.*not in table, such as nan"):
+        bank_card().score(frame)
+
+
+def test_an_unseen_group_column_gives_the_points_of_its_group():
+    card = bank_card(decimals=0)
+    frame = scoring_frame()
+    other = _points_of(card.table, "job", "other")
+    assert card.points(frame)["job"].iloc[1] == other
+    assert (
+        card.binning.woe_transform(frame)["job"].iloc[1]
+        == card.binning.tables["job"].loc[["other"], "woe"].iloc[0]
+    )
+
+
+def test_missing_values_get_the_points_of_the_missing_group():
+    card = bank_card()
+    missing = card.table.loc[["balance"]]
+    missing = missing["points"][missing["bin"].isna()].iloc[0]
+    assert card.points(scoring_frame())["balance"].iloc[2] == missing
+
+
+def test_reason_codes_pass_the_unseen_points():
+    card = bank_card(decimals=0)
+    frame = scoring_frame()
+    points = card.points(frame)
+    expected = reason_codes(points, card.table, unseen_points=dict(card.unseen_points))
+    assert card.reason_codes(frame).equals(expected)
+    assert card.reason_codes(frame, top=2, atol=0.5).equals(
+        reason_codes(points, card.table, top=2, atol=0.5, unseen_points=card.unseen_points)
+    )
+    # The unseen contact costs nothing, so it is not a reason of the first row.
+    assert "contact" not in card.reason_codes(frame, top=7).iloc[0].tolist()
+    with pytest.raises(ValueError, match="points of 'balance' must match a group of table"):
+        reason_codes(points, card.table)
+
+
+# Immutability, equality and the JSON format
+
+
+def test_fields_are_read_only_copies():
+    scale = master_scale([0.05, 0.2, 0.5])
+    card = bank_card(scale=scale)
+    table = card.table
+    table.loc[:, "points"] = 0.0
+    assert (card.table["points"] != 0).all()
+    copied = card.scale
+    copied.loc[:, "probability"] = 0.3
+    pd.testing.assert_frame_equal(card.scale, scale)
+    with pytest.raises(TypeError):
+        card.unseen_points["contact"] = 1.0
+    with pytest.raises(dataclasses.FrozenInstanceError):
+        card.table = table
+    with pytest.raises(dataclasses.FrozenInstanceError):
+        card.pdo = 30.0
+
+
+def test_replace_validates_again():
+    card = bank_card()
+    assert dataclasses.replace(card, pdo=40).pdo == 40.0
+    with pytest.raises(ValueError, match="^pdo must be positive"):
+        dataclasses.replace(card, pdo=-1)
+    with pytest.raises(ValueError, match="unseen_points lacks the points of \\['contact'\\]"):
+        dataclasses.replace(card, unseen_points={"balance": 1.0})
+
+
+def test_scaling_is_stored_as_floats():
+    card = bank_card()
+    assert (card.pdo, card.base_score, card.base_odds) == (20.0, 600.0, 50.0)
+    assert all(type(value) is float for value in (card.pdo, card.base_score, card.base_odds))
+    assert card == ScorecardSpec.from_model(
+        bank_binning(), *BANK_MODEL, pdo=20.0, base_score=np.int64(600), base_odds=50.0
+    )
+
+
+def test_equality_hash_pickle_and_repr():
+    card = bank_card(decimals=0)
+    same = bank_card(decimals=0)
+    assert card == same and hash(card) == hash(same) and len({card, same}) == 1
+    assert card != bank_card(decimals=1)
+    assert card != "card"
+    assert pickle.loads(pickle.dumps(card)) == card
+    assert copy.deepcopy(card) == card
+    assert repr(card) == (
+        "ScorecardSpec(columns=['pdays', 'age', 'balance', 'housing', 'contact', 'job', "
+        "'education'])"
+    )
+
+
+def full_card():
+    """A card with every optional field set."""
+    card = bank_card(decimals=0)
+    edges, probability = isotonic_fit(
+        card.score(development()), development()["target"], increasing=False
+    )
+    return dataclasses.replace(
+        card,
+        calibration={"kind": "isotonic", "edges": edges, "probability": probability},
+        scale=master_scale(np.geomspace(0.02, 0.32, 5), labels=list("ABCDE")),
+    )
+
+
+@pytest.mark.parametrize(
+    "calibration",
+    [
+        None,
+        {"kind": "shift", "shift": -0.25},
+        {"kind": "platt", "slope": 0.9, "intercept": 0.1},
+        "isotonic",
+    ],
+)
+@pytest.mark.parametrize("labels", [list("ABCDE"), None, [1.5, 2.5, 3.5, 4.5, 5.5]])
+def test_json_round_trip(calibration, labels):
+    card = full_card() if calibration == "isotonic" else bank_card(calibration=calibration)
+    card = dataclasses.replace(card, scale=master_scale(np.geomspace(0.02, 0.32, 5), labels=labels))
+    text = card.to_json()
+    loaded = ScorecardSpec.from_json(text)
+    assert loaded == card and loaded.to_json() == text
+    assert ScorecardSpec.from_json(text.encode()) == card
+    assert ScorecardSpec.from_dict(json.loads(card.to_json(indent=2))) == card
+    pd.testing.assert_frame_equal(loaded.table, card.table)
+    pd.testing.assert_frame_equal(loaded.scale, card.scale)
+    frame = scoring_frame()
+    assert loaded.score(frame).equals(card.score(frame))
+    assert loaded.probability(frame).equals(card.probability(frame))
+    assert loaded.grade(frame).equals(card.grade(frame))
+
+
+def test_to_dict_has_every_key_with_null_for_unset_fields():
+    model = ({"housing": 0.8}, -2.0)
+    data = ScorecardSpec.from_model(bank_binning(), *model, **SCALE).to_dict()
+    assert list(data) == [
+        "format",
+        "format_version",
+        "kivi_version",
+        "scaling",
+        "binning",
+        "points",
+        "unseen_points",
+        "calibration",
+        "scale",
+    ]
+    assert data["format"] == "kivi.ScorecardSpec" and data["format_version"] == 1
+    assert data["kivi_version"] == kivi.__version__
+    assert data["scaling"] == {"pdo": 20.0, "base_score": 600.0, "base_odds": 50.0}
+    assert data["binning"] == bank_binning().select(["housing"]).to_dict()
+    assert list(data["points"]) == ["housing"] and len(data["points"]["housing"]) == 2
+    assert data["unseen_points"] is None and data["calibration"] is None
+    assert data["scale"] is None
+    card = full_card()
+    full = card.to_dict()
+    assert full["unseen_points"] == dict(card.unseen_points)
+    assert list(full["unseen_points"]) == ["balance", "contact"]
+    edges = card.calibration["edges"]
+    assert full["calibration"] == {
+        "kind": "isotonic",
+        "edges": [{"float": "-inf"}, *edges[1:-1].tolist(), {"float": "inf"}],
+        "probability": card.calibration["probability"].tolist(),
+    }
+    scale = card.scale
+    assert full["scale"][0] == {
+        "grade": "A",
+        "lower": 0.0,
+        "probability": scale["probability"].iloc[0],
+        "upper": scale["upper"].iloc[0],
+    }
+    assert [row["grade"] for row in full["scale"]] == list("ABCDE")
+
+
+def test_kivi_version_is_kept():
+    card = ScorecardSpec(
+        bank_binning().select(["housing"]),
+        bank_card().table.loc[["housing"]],
+        **SCALE,
+        kivi_version="1.10.0",
+    )
+    assert card.kivi_version == "1.10.0"
+    assert ScorecardSpec.from_json(card.to_json()).kivi_version == "1.10.0"
+
+
+# Errors
+
+
+def small_inputs():
+    """The binning and the points table of a card on housing and age."""
+    binning = bank_binning().select(["housing", "age"])
+    table = points_table(binning.tables, {"housing": 0.8, "age": 0.7}, -2.0, **SCALE)
+    return binning, table
+
+
+def test_binning_must_be_a_binning_spec():
+    binning, table = small_inputs()
+    message = "^binning must be a BinningSpec, such as a fit_spec result, got dict$"
+    with pytest.raises(ValueError, match=message):
+        ScorecardSpec({}, table, **SCALE)
+    with pytest.raises(ValueError, match=message):
+        ScorecardSpec.from_model({}, {"housing": 0.8}, -2.0, **SCALE)
+
+
+def test_invalid_scaling_of_the_card():
+    binning, table = small_inputs()
+    with pytest.raises(ValueError, match="^base_odds must be positive, got 0$"):
+        ScorecardSpec(binning, table, **{**SCALE, "base_odds": 0})
+
+
+def reordered(table):
+    return pd.concat([table.loc[["age"]], table.loc[["housing"]]])
+
+
+def interleaved(table):
+    return table.iloc[[0, 2, 1, 3, 4]]
+
+
+@pytest.mark.parametrize(
+    "change,message",
+    [
+        (
+            lambda table: table.reset_index(),
+            "^table must be a points_table result, got a DataFrame",
+        ),
+        (lambda table: table["points"], "^table must be a points_table result, got Series$"),
+        (
+            lambda table: table.assign(iv=0.0),
+            r"^table must have the columns 'bin', 'woe' and 'points' of a points_table result, "
+            r"got \['bin', 'woe', 'points', 'iv'\]$",
+        ),
+        (
+            lambda table: table.drop(columns="woe"),
+            r"^table must have the columns .*, got \['bin', 'points'\]$",
+        ),
+        (
+            lambda table: pd.concat([table, table.loc[["age"]].rename(index={"age": "pdays"})]),
+            r"^table has rows for variables that binning lacks: \['pdays'\]$",
+        ),
+        (
+            lambda table: table.loc[["housing"]],
+            r"^table has no rows for the columns \['age'\] of binning; keep only the columns of "
+            r"the model with BinningSpec.select$",
+        ),
+        (
+            lambda table: table.iloc[:-1],
+            r"^table has 2 row\(s\) for 'age', whose table in binning has 3$",
+        ),
+        (
+            reordered,
+            r"^table must list the groups of each variable together, in the order of the columns "
+            r"of binning \['housing', 'age'\]$",
+        ),
+        (interleaved, "^table must list the groups of each variable together"),
+        (
+            lambda table: table.assign(woe=table["woe"].astype(str)),
+            "^woe of table must be real and numeric, got dtype",
+        ),
+        (
+            lambda table: table.assign(points=table["points"] > 270),
+            "^points of table must be real and numeric, got dtype bool$",
+        ),
+        (
+            lambda table: table.assign(bin=["yes", "no", *table["bin"].iloc[2:]]),
+            r"^bin of table must list the groups of binning in their order, got 'yes' where the "
+            r"table of 'housing' in binning has 'no'$",
+        ),
+        (
+            lambda table: table.assign(bin=[np.nan, *table["bin"].iloc[1:]]),
+            "^bin of table must list the groups of binning in their order, got nan where",
+        ),
+        (
+            lambda table: table.assign(bin=[np.array([1, 2]), *table["bin"].iloc[1:]]),
+            r"^bin of table must list the groups of binning in their order, got array\(\[1, 2\]\)",
+        ),
+        (
+            lambda table: table.assign(woe=table["woe"].round(2)),
+            r"^woe of table must equal the WOE of binning, got 0\.33 where binning has "
+            r"0\.33.* for the group 'no' of 'housing'; round only the points column$",
+        ),
+        (
+            lambda table: table.assign(points=[1.0, 2.0, np.inf, 3.0, 4.0]),
+            r"^points of table must be finite, got inf for the group Interval\(-inf, 29\.0, "
+            r"closed='right'\) of 'age'$",
+        ),
+        (
+            lambda table: table.assign(points=[np.nan, 2.0, 1.0, 3.0, 4.0]),
+            "^points of table must be finite, got nan for the group 'no' of 'housing'$",
+        ),
+    ],
+)
+def test_invalid_tables(change, message):
+    binning, table = small_inputs()
+    with pytest.raises(ValueError, match=message):
+        ScorecardSpec(binning, change(table), **SCALE)
+
+
+def test_labels_must_keep_booleans_apart_from_numbers():
+    frame = pd.DataFrame({"flag": [True, False, True, False, True, False]})
+    binning = fit_spec(frame, [1, 0, 0, 0, 1, 1])
+    table = points_table(binning.tables, {"flag": 0.5}, -1.0, **SCALE)
+    card = ScorecardSpec(binning, table, **SCALE)
+    assert card.table["bin"].tolist() == [True, False]
+    with pytest.raises(ValueError, match="got 1 where the table of 'flag' in binning has True$"):
+        ScorecardSpec(binning, table.assign(bin=[1, 0]), **SCALE)
+
+
+def test_a_table_with_equal_labels_gets_the_labels_of_binning():
+    binning, table = small_inputs()
+    labels = table["bin"].tolist()
+    labels[2] = pd.Interval(-np.inf, 29, closed="right")
+    card = ScorecardSpec(binning, table.assign(bin=labels).iloc[:, [2, 0, 1]], **SCALE)
+    assert card.table.columns.tolist() == ["bin", "woe", "points"]
+    assert card.table["bin"].iloc[2] == binning.tables["age"].index[0]
+    assert ScorecardSpec(binning, table, **SCALE) == card
+
+
+@pytest.mark.parametrize(
+    "unseen_points,message",
+    [
+        (
+            None,
+            r"^unseen_points must give the points of unseen groups of the columns whose unseen "
+            r"policy in binning is a WOE, got None for \['balance', 'contact'\]$",
+        ),
+        (
+            pd.Series([1.0, 2.0, 3.0], index=["balance", "contact", "contact"]),
+            "^unseen_points must name each column once, got 'contact' twice$",
+        ),
+        ([1.0, 2.0], "^unseen_points must be a mapping or Series by column, got list$"),
+        (
+            {"balance": 1.0, "contact": 2.0, "job": 3.0},
+            r"^unseen_points has points for columns whose unseen policy in binning is not a WOE: "
+            r"\['job'\]$",
+        ),
+        (
+            {"balance": 1.0},
+            r"^unseen_points lacks the points of \['contact'\], whose unseen policy in binning "
+            "is a WOE$",
+        ),
+        (
+            {"balance": 1.0, "contact": np.nan},
+            "^unseen_points must be finite numbers, got nan for 'contact'$",
+        ),
+        (
+            {"balance": True, "contact": 2.0},
+            "^unseen_points must be finite numbers, got True for 'balance'$",
+        ),
+        (
+            {"balance": "1", "contact": 2.0},
+            "^unseen_points must be finite numbers, got '1' for 'balance'$",
+        ),
+    ],
+)
+def test_invalid_unseen_points_of_the_card(unseen_points, message):
+    card = bank_card()
+    with pytest.raises(ValueError, match=message):
+        dataclasses.replace(card, unseen_points=unseen_points)
+
+
+def test_unseen_points_as_a_series_or_empty_mapping():
+    card = bank_card()
+    series = pd.Series(dict(card.unseen_points)).iloc[::-1]
+    replaced = dataclasses.replace(card, unseen_points=series)
+    assert replaced == card and list(replaced.unseen_points) == ["balance", "contact"]
+    binning, table = small_inputs()
+    assert ScorecardSpec(binning, table, **SCALE, unseen_points={}).unseen_points is None
+
+
+@pytest.mark.parametrize(
+    "calibration,message",
+    [
+        ([0.1], "^calibration must be a mapping with a kind, got list$"),
+        (
+            {"kind": "beta"},
+            r"^the kind of calibration must be one of \('shift', 'platt', 'isotonic'\), got "
+            "'beta'$",
+        ),
+        ({"shift": 0.1}, "^the kind of calibration must be one of .*, got None$"),
+        (
+            {"kind": "shift", "delta": 0.1},
+            r"^a shift calibration must have the keys \['kind', 'shift'\], got \['kind', "
+            r"'delta'\]$",
+        ),
+        (
+            {"kind": "platt", "slope": 1.0},
+            r"^a platt calibration must have the keys \['kind', 'slope', 'intercept'\]",
+        ),
+        (
+            {"kind": "shift", "shift": np.nan},
+            "^the shift of a shift calibration must be a finite number, got nan$",
+        ),
+        (
+            {"kind": "platt", "slope": 1.0, "intercept": True},
+            "^the intercept of a platt calibration must be a finite number, got True$",
+        ),
+        (
+            {"kind": "platt", "slope": "1", "intercept": 0.0},
+            "^the slope of a platt calibration must be a finite number, got '1'$",
+        ),
+        (
+            {"kind": "platt", "slope": -0.5, "intercept": 0.0},
+            "^the slope of a platt calibration must not be negative, which would give higher "
+            r"scores a higher probability, got -0\.5$",
+        ),
+        (
+            {"kind": "isotonic", "edges": [0.0, 500.0, np.inf], "probability": [0.2, 0.1]},
+            r"^isotonic calibration: edges must increase from -inf to inf, got \[0\.0, 500\.0, "
+            r"inf\]$",
+        ),
+        (
+            {"kind": "isotonic", "edges": [-np.inf, 500.0, np.inf], "probability": [0.2]},
+            "^isotonic calibration: probability must give one value for each of the 2 band",
+        ),
+        (
+            {"kind": "isotonic", "edges": [-np.inf, 500.0, np.inf], "probability": [1.2, 0.1]},
+            "^isotonic calibration: probability must be",
+        ),
+        (
+            {"kind": "isotonic", "edges": [-np.inf, 500.0, np.inf], "probability": [0.1, 0.2]},
+            r"^isotonic calibration: probability must not rise with the score, as isotonic_fit "
+            r"gives it with increasing=False, got 0\.1 followed by 0\.2$",
+        ),
+    ],
+)
+def test_invalid_calibrations(calibration, message):
+    with pytest.raises(ValueError, match=message):
+        dataclasses.replace(bank_card(), calibration=calibration)
+
+
+def test_calibrations_are_stored_with_floats():
+    card = dataclasses.replace(
+        bank_card(), calibration={"kind": "platt", "slope": np.float32(0.5), "intercept": 1}
+    )
+    assert dict(card.calibration) == {"kind": "platt", "slope": 0.5, "intercept": 1.0}
+    assert type(card.calibration["intercept"]) is float
+    flat = dataclasses.replace(
+        bank_card(), calibration={"kind": "platt", "slope": 0, "intercept": -1.0}
+    )
+    assert flat.probability(scoring_frame()).nunique() == 1
+    single = dataclasses.replace(
+        bank_card(),
+        calibration={"kind": "isotonic", "edges": (-np.inf, np.inf), "probability": [0.1]},
+    )
+    assert (single.probability(scoring_frame()) == 0.1).all()
+    with pytest.raises(TypeError):
+        card.calibration["slope"] = 1.0
+
+
+def test_scales_are_checked():
+    scale = master_scale([0.05, 0.2, 0.5], labels=["A", "B", "C"])
+    card = bank_card()
+    for invalid, message in [
+        ([0.1], "^scale must be a DataFrame from master_scale, got list$"),
+        (
+            scale[["lower", "upper"]],
+            r"^scale must have the columns 'lower', 'probability' and 'upper' of a master_scale "
+            r"result, got \['lower', 'upper'\]$",
+        ),
+        (scale.assign(upper=[0.1, 0.3, 0.9]), "^scale must cover"),
+        (
+            scale.assign(probability=[0.05, 0.2, 1.0]),
+            r"^probability of scale must be strictly between 0 and 1, got 1\.0$",
+        ),
+        (
+            scale.set_axis(pd.to_datetime(["2024-01-01", "2024-02-01", "2024-03-01"])),
+            "^scale must be labelled by strings, integers, finite floats or booleans, got "
+            "Timestamp",
+        ),
+        (
+            scale.set_axis([1.0, 2.0, np.inf]),
+            "^scale must be labelled by strings, integers, finite floats or booleans, got inf "
+            "of type float$",
+        ),
+    ]:
+        with pytest.raises(ValueError, match=message):
+            dataclasses.replace(card, scale=invalid)
+
+
+def test_scales_keep_their_labels():
+    card = bank_card()
+    for labels in (
+        [True, False],
+        np.array([3, 1], dtype=np.int32),
+        ["low", "high"],
+        [0.5, 1.5],
+    ):
+        scale = master_scale([0.05, 0.5], labels=labels)
+        stored = dataclasses.replace(card, scale=scale).scale
+        assert stored.index.name == "grade"
+        assert stored.index.tolist() == list(labels)
+        assert ScorecardSpec.from_json(dataclasses.replace(card, scale=scale).to_json()) == (
+            dataclasses.replace(card, scale=scale)
+        )
+
+
+def test_kivi_version_must_be_a_string():
+    binning, table = small_inputs()
+    with pytest.raises(ValueError, match="^kivi_version must be a string, got 1.1$"):
+        ScorecardSpec(binning, table, **SCALE, kivi_version=1.1)
+
+
+@pytest.mark.parametrize(
+    "decimals,message",
+    [
+        (True, "^decimals must be an integer, got True$"),
+        (1.5, "^decimals must be an integer, got 1.5$"),
+        ("0", "^decimals must be an integer, got '0'$"),
+    ],
+)
+def test_invalid_decimals(decimals, message):
+    with pytest.raises(ValueError, match=message):
+        bank_card(decimals=decimals)
+
+
+def test_from_model_needs_every_column_of_the_coefficients():
+    with pytest.raises(ValueError, match="^binning has no entry for 1 variable\\(s\\): 'loan'$"):
+        ScorecardSpec.from_model(bank_binning(), {"age": 0.5, "loan": 0.3}, -2.0, **SCALE)
+    with pytest.raises(ValueError, match="^coefficients has an 'intercept' entry; drop it"):
+        ScorecardSpec.from_model(bank_binning(), {"age": 0.5, "intercept": -2.0}, -2.0, **SCALE)
+    with pytest.raises(ValueError, match="^intercept must be a finite number, got nan$"):
+        ScorecardSpec.from_model(bank_binning(), {"age": 0.5}, np.nan, **SCALE)
+
+
+def card_dict():
+    return json.loads(full_card().to_json())
+
+
+def changed(path, value):
+    """The dict of `full_card` with the value at ``path`` replaced, or removed for KeyError."""
+    data = card_dict()
+    target = data
+    for key in path[:-1]:
+        target = target[key]
+    if value is KeyError:
+        del target[path[-1]]
+    else:
+        target[path[-1]] = value
+    return data
+
+
+@pytest.mark.parametrize(
+    "data,message",
+    [
+        ([1], "^data must be a mapping, got list$"),
+        (
+            changed(["format"], "kivi.BinningSpec"),
+            "^data is not a kivi scorecard specification: format must be 'kivi.ScorecardSpec', "
+            "got 'kivi.BinningSpec'$",
+        ),
+        (
+            changed(["format_version"], True),
+            "^format_version must be a positive integer, got True$",
+        ),
+        (changed(["format_version"], 0), "^format_version must be a positive integer, got 0$"),
+        (changed(["format_version"], "1"), "^format_version must be a positive integer, got '1'$"),
+        (
+            changed(["format_version"], 2),
+            "^format_version 2 is newer than 1, the newest that kivi .* reads; upgrade kivi to "
+            "load this specification$",
+        ),
+        (changed(["scale"], KeyError), r"^the specification lacks \['scale'\]$"),
+        (
+            {**card_dict(), "notes": "", "extra": 1},
+            r"^the specification has unknown keys \['extra', 'notes'\]$",
+        ),
+        (changed(["kivi_version"], None), "^kivi_version must be a string, got None$"),
+        (changed(["scaling"], [20, 600, 50]), "^scaling must be a mapping, got a list$"),
+        (changed(["scaling", "pdo"], KeyError), r"^scaling lacks \['pdo'\]$"),
+        (changed(["scaling", "pdo"], "20"), "^pdo of scaling must be numbers, got '20'$"),
+        (changed(["scaling", "pdo"], -20), "^pdo must be positive, got -20$"),
+        (
+            changed(["binning", "format_version"], 3),
+            "^binning: format_version 3 is newer than 2",
+        ),
+        (changed(["binning"], None), "^binning: data must be a mapping, got NoneType$"),
+        (changed(["points"], None), "^points must be a mapping by column, got null$"),
+        (changed(["points", "age"], KeyError), r"^points lacks \['age'\]$"),
+        (changed(["points", "duration"], [1.0]), r"^points has unknown keys \['duration'\]$"),
+        (
+            changed(["points", "age"], {"0": 1.0}),
+            "^points of 'age' must be a list, got an object$",
+        ),
+        (
+            changed(["points", "age"], [1.0]),
+            "^points of 'age' must have one value per group of its table in binning, 3, got 1$",
+        ),
+        (
+            changed(["points", "housing"], [1.0, True]),
+            "^points of 'housing' must be numbers, got True$",
+        ),
+        (
+            changed(["points", "housing"], [1.0, {"float": "nan"}]),
+            r"^points of 'housing' must be numbers, got \{'float': 'nan'\}$",
+        ),
+        (
+            changed(["points", "housing"], [1.0, {"float": "inf"}]),
+            "^points of table must be finite, got inf for the group 'yes' of 'housing'$",
+        ),
+        (
+            changed(["unseen_points"], [1.0]),
+            "^unseen_points must be a mapping or null, got a list$",
+        ),
+        (
+            changed(["unseen_points", "contact"], "1"),
+            "^unseen_points must be numbers, got '1'$",
+        ),
+        (
+            changed(["unseen_points", "contact"], KeyError),
+            r"^unseen_points lacks the points of \['contact'\]",
+        ),
+        (
+            changed(["calibration"], "shift"),
+            "^calibration must be a mapping or null, got a string$",
+        ),
+        (
+            changed(["calibration", "edges"], {"0": 1}),
+            "^edges of the isotonic calibration must be a list, got an object$",
+        ),
+        (
+            changed(["calibration", "probability"], ["0.1"]),
+            "^probability of the isotonic calibration must be numbers, got '0.1'$",
+        ),
+        (
+            changed(["calibration", "edges"], KeyError),
+            r"^an? isotonic calibration must have the keys \['kind', 'edges', 'probability'\]",
+        ),
+        (
+            changed(["calibration"], {"kind": "shift", "shift": "0.1"}),
+            "^the shift of a shift calibration must be a finite number, got '0.1'$",
+        ),
+        (changed(["scale"], []), "^scale must be a non-empty list of grades or null, got a list$"),
+        (
+            changed(["scale"], {}),
+            "^scale must be a non-empty list of grades or null, got an object$",
+        ),
+        (changed(["scale", 1], "B"), r"^scale\[1\] must be a mapping, got a string$"),
+        (changed(["scale", 1, "upper"], KeyError), r"^scale\[1\] lacks \['upper'\]$"),
+        (
+            changed(["scale", 1, "grade"], None),
+            r"^the grade of scale\[1\] must be a string, number or boolean, got null$",
+        ),
+        (
+            changed(["scale", 1, "grade"], ["B"]),
+            r"^the grade of scale\[1\] must be a string, number or boolean, got a list$",
+        ),
+        (
+            changed(["scale", 1, "lower"], None),
+            r"^lower of scale\[1\] must be numbers, got None$",
+        ),
+        (changed(["scale", 1, "grade"], "A"), "^scale must be indexed by unique"),
+    ],
+)
+def test_invalid_dicts(data, message):
+    with pytest.raises(ValueError, match=message):
+        ScorecardSpec.from_dict(data)
+
+
+def test_isotonic_edges_are_written_and_read_as_tagged_infinities():
+    data = card_dict()
+    assert data["calibration"]["edges"][0] == {"float": "-inf"}
+    data["calibration"]["edges"][0] = {"float": "inf"}
+    with pytest.raises(ValueError, match="^isotonic calibration: edges must increase"):
+        ScorecardSpec.from_dict(data)
+    data["calibration"]["edges"][0] = 4
+    with pytest.raises(ValueError, match=r"^isotonic calibration: edges must increase .*\[4\.0, "):
+        ScorecardSpec.from_dict(data)
+
+
+@pytest.mark.parametrize(
+    "text,message",
+    [
+        (None, "^text must be JSON text as a str or bytes, got NoneType; read a file first"),
+        ("{", "^Expecting property name"),
+        (
+            '{"format": "kivi.ScorecardSpec", "format": "kivi.ScorecardSpec"}',
+            "^JSON objects must not repeat a key, got 'format' twice$",
+        ),
+        (
+            '{"format": NaN}',
+            "^JSON must not contain NaN; kivi writes missing labels as null and infinite numbers "
+            'as {"float": "inf"}$',
+        ),
+        ('{"format": -Infinity}', "^JSON must not contain -Infinity"),
+    ],
+)
+def test_invalid_json(text, message):
+    with pytest.raises(ValueError, match=message):
+        ScorecardSpec.from_json(text)
+
+
+def test_nested_binnings_reject_repeated_keys_too():
+    text = full_card().to_json()
+    repeated = text.replace('"smoothing": 0.5', '"smoothing": 0.5, "smoothing": 0.25', 1)
+    with pytest.raises(ValueError, match="^JSON objects must not repeat a key, got 'smoothing'"):
+        ScorecardSpec.from_json(repeated)
+
+
+# Golden files
+
+DATA = pathlib.Path(__file__).parent / "data"
+GOLDEN = DATA / "scorecard_spec_1.10.0.json"
+GOLDEN_SCORES = DATA / "scorecard_spec_1.10.0.scores.json"
+
+
+def golden_spec():
+    """The specification of the golden file.
+
+    Its binning has numeric columns with a special code and with missing
+    values, grouped categorical columns and every unseen policy; the card
+    has rounded points, unseen points, an isotonic calibration, whose edges
+    are infinite at both ends, and a master scale.
+    """
+    binning = dataclasses.replace(bank_binning(), kivi_version="1.10.0")
+    card = ScorecardSpec.from_model(binning, *BANK_MODEL, **SCALE, decimals=0)
+    sample = development()
+    edges, probability = isotonic_fit(card.score(sample), sample["target"], increasing=False)
+    return dataclasses.replace(
+        card,
+        calibration={"kind": "isotonic", "edges": edges, "probability": probability},
+        scale=master_scale(np.geomspace(0.02, 0.32, 5), labels=list("ABCDE")),
+        kivi_version="1.10.0",
+    )
+
+
+def golden_frame():
+    """The rows that the golden scores belong to, with every kind of value."""
+    return scoring_frame().iloc[:40]
+
+
+def encoded(value):
+    if isinstance(value, float) and math.isnan(value):
+        return None
+    if isinstance(value, float) and math.isinf(value):
+        return {"float": "inf" if value > 0 else "-inf"}
+    return value
+
+
+def decoded(value):
+    if value is None:
+        return np.nan
+    if isinstance(value, dict):
+        return float(value["float"])
+    return value
+
+
+def saved_frame(saved, binning):
+    """The rows of the scores file, with float numeric columns and object categorical ones."""
+    columns = {}
+    for name, values in saved["columns"].items():
+        values = [decoded(value) for value in values]
+        numeric = name not in binning.kinds or binning.kinds[name] == "numeric"
+        columns[name] = np.array(values, dtype=float if numeric else object)
+    return pd.DataFrame(columns, index=saved["index"])
+
+
+def test_the_golden_file_loads_and_scores_as_saved():
+    text = GOLDEN.read_text(encoding="utf-8")
+    card = ScorecardSpec.from_json(text)
+    assert card.to_json(indent=2) + "\n" == text
+    assert card.kivi_version == "1.10.0" and card.binning.kivi_version == "1.10.0"
+    # The file has what it is meant to cover.
+    binning = card.binning
+    assert list(binning.columns) == list(BANK_MODEL[0])
+    assert binning.special["pdays"] == (-1,)
+    assert binning.tables["balance"].index.isna().any()
+    assert set(binning.groups) == {"job", "education"}
+    assert {name: type(binning.unseen[name]).__name__ for name in binning.columns} == {
+        "pdays": "str",
+        "age": "str",
+        "balance": "float",
+        "housing": "str",
+        "contact": "float",
+        "job": "dict",
+        "education": "str",
+    }
+    assert list(card.unseen_points) == ["balance", "contact"]
+    assert card.calibration["kind"] == "isotonic"
+    assert card.scale.index.tolist() == list("ABCDE")
+    saved = json.loads(GOLDEN_SCORES.read_text(encoding="utf-8"))
+    frame = saved_frame(saved["frame"], binning)
+    points = card.points(frame)
+    assert list(points.columns) == list(saved["points"])
+    for name, values in saved["points"].items():
+        assert points[name].tolist() == values, name
+    assert card.score(frame).tolist() == saved["score"]
+    # An isotonic calibration looks the probability up, so it is exact on every processor.
+    assert card.probability(frame).tolist() == saved["probability"]
+    assert card.grade(frame).astype(object).tolist() == saved["grade"]
+    assert card.reason_codes(frame).to_numpy().tolist() == saved["reasons"]
+
+
+def write_golden_files():
+    """Write the golden files from `golden_spec` and `golden_frame`."""
+    GOLDEN.write_text(golden_spec().to_json(indent=2) + "\n", encoding="utf-8")
+    card = ScorecardSpec.from_json(GOLDEN.read_text(encoding="utf-8"))
+    frame = golden_frame()
+    points = card.points(frame)
+    saved = {
+        "frame": {
+            "index": frame.index.tolist(),
+            "columns": {
+                name: [encoded(value) for value in frame[name].tolist()] for name in frame.columns
+            },
+        },
+        "points": {name: points[name].tolist() for name in points.columns},
+        "score": card.score(frame).tolist(),
+        "probability": card.probability(frame).tolist(),
+        "grade": card.grade(frame).astype(object).tolist(),
+        "reasons": card.reason_codes(frame).to_numpy().tolist(),
+    }
+    GOLDEN_SCORES.write_text(json.dumps(saved, indent=1) + "\n", encoding="utf-8")
+
+
+if __name__ == "__main__":
+    write_golden_files()
+    sys.exit(0)

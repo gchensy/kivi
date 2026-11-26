@@ -516,6 +516,32 @@ def check_finite_column(values: pd.Series, codes: tuple[float, ...], name: str) 
         )
 
 
+def unique_keys(pairs: list[tuple[str, typing.Any]]) -> dict[str, typing.Any]:
+    """Return the pairs of a JSON object as a dict, rejecting a repeated key.
+
+    Pass it as ``object_pairs_hook`` to ``json.loads``, which would otherwise
+    keep the last value of a repeated key.
+    """
+    result: dict[str, typing.Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"JSON objects must not repeat a key, got {shown(key)} twice")
+        result[key] = value
+    return result
+
+
+def reject_constant(name: str) -> typing.NoReturn:
+    """Reject the ``NaN``, ``Infinity`` and ``-Infinity`` literals of JSON text.
+
+    Pass it as ``parse_constant`` to ``json.loads``, which would otherwise read
+    them as floats although they are not standard JSON.
+    """
+    raise ValueError(
+        f"JSON must not contain {name}; kivi writes missing labels as null and infinite "
+        'numbers as {"float": "inf"}'
+    )
+
+
 def shown(value: object) -> str:
     """Return the repr of a value for an error message.
 
