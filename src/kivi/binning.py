@@ -339,9 +339,9 @@ def chimerge_edges(
     where cells with :math:`E_{ij} = 0` contribute nothing. A pair stays
     separate when the p-value of :math:`\chi^2` is below ``alpha``.
 
-    A bin smaller than ``min_bin_share`` is merged first, whatever its
-    chi-square statistics, so every final bin holds at least that share
-    unless a single bin is left. Of several small bins, the smallest is
+    Bins smaller than ``min_bin_share`` are merged before any chi-square
+    merge, whatever their statistics, so every final bin holds at least that
+    share unless a single bin is left. Of several small bins, the smallest is
     merged first, and of bins whose totals agree to a relative 1e-10, the
     first; a small bin merges into its left neighbour when the two
     statistics agree to a relative 1e-10, as in `chimerge_groups`.
@@ -358,7 +358,10 @@ def chimerge_edges(
     array([-inf,   4.,   9.,  inf])
 
     With four bins, the value 9 forms a bin of its own, 1/12 of the values.
-    ``min_bin_share=0.1`` merges it first:
+    ``min_bin_share`` applies to the initial bins, before any chi-square
+    merge. Here each value is an initial bin of 1/12 of the values, so with
+    ``min_bin_share=0.1`` they are first joined until each bin holds at
+    least two values, and ChiMerge then merges those bins:
 
     >>> chimerge_edges(values, target, max_bins=4, alpha=None)
     array([-inf,   4.,   8.,   9.,  inf])
@@ -876,7 +879,8 @@ def optimal_edges(
         ``"increasing"`` on a tie, as :func:`monotonic_edges` does.
     initial_bins : int, default 20
         Number of quantile bins to start from. Tied quantiles can reduce it.
-        The fit takes time in proportion to the cube of this number.
+        The fit takes time in proportion to the cube of this number and
+        memory in proportion to its square.
     special : array_like, optional
         Special values, such as codes for "not applicable", that are omitted
         with their labels when the edges are fitted. Pass the same values to
@@ -936,19 +940,23 @@ def optimal_edges(
     for each initial bin that can start a bin, each initial bin that can
     end it and each number of bins, the best binning of the values above it
     is kept, and the shape of the WOE is checked between neighbouring bins.
-    This takes time in proportion to :math:`n^3 k` for :math:`n` initial
-    bins and :math:`k` bins, a fraction of a second for 200 initial bins.
+    This takes time in proportion to :math:`n^3 k` and memory in proportion
+    to :math:`n^2 k`, twice that for a U shape, for :math:`n` initial bins
+    and :math:`k` bins, the most that the constraints allow up to
+    ``max_bins``: a fraction of a second and a few megabytes for 200 initial
+    bins, and a few seconds and about 50 megabytes for 1000.
 
     A step from one bin to the next rises or falls when the two WOE values
-    differ by more than a relative 1e-10, as in `kivi.woe.woe_trend`, so the
-    trend of the fitted table is the one requested, or a simpler one: a
-    ``"u_shaped"`` fit can be increasing, decreasing or a single bin. Two
-    binnings whose information values agree to a relative 1e-10 count as
-    equal. Of equal binnings, the one with fewer bins is returned, and of
-    those with the same number of bins, the one whose lowest edge is
-    smallest, then the one whose next edge is smallest, and so on. A single
-    bin, with an information value of 0, meets every constraint, so a
-    result always exists.
+    differ by more than a relative 1e-10, as in `kivi.woe.woe_trend`, and
+    by more than 1e-10, so that WOE values that rounding leaves near 0 are
+    level. The trend of the fitted table is therefore the one requested, or
+    a simpler one: a ``"u_shaped"`` fit can be increasing, decreasing or a
+    single bin. Two binnings whose information values agree to a relative
+    1e-10, or differ by less than 1e-20, count as equal. Of equal binnings,
+    the one with fewer bins is returned, and of those with the same number
+    of bins, the one whose lowest edge is smallest, then the one whose next
+    edge is smallest, and so on. A single bin, with an information value of
+    0, meets every constraint, so a result always exists.
 
     The information value of the fitted sample is the largest that the
     initial bins allow, so it overstates the information value that the
@@ -1002,7 +1010,8 @@ def optimal_edges(
             )
     shapes = ["increasing", "decreasing"] if trend == "auto" else [trend]
     fits = [_optimal(counts, shape, max_bins, min_bin_share, min_bin_events) for shape in shapes]
-    cuts = fits[_first_max(np.array([iv for _, iv in fits]))][0]
+    floor = _iv_floor(max(iv for _, iv in fits))
+    cuts = next(cuts for cuts, iv in fits if iv >= floor)
     return np.r_[-np.inf, interior[np.asarray(cuts, dtype=np.intp) - 1], np.inf]
 
 
@@ -1772,6 +1781,10 @@ def _monotonic(
 _TRENDS = ("auto", "increasing", "decreasing", "u_shaped", "inverted_u", "any")
 # A step from the WOE of one bin to that of the next, as kivi.woe.woe_trend reads it.
 _FALL, _FLAT, _RISE = -1, 0, 1
+# Information values that differ by less than this are equal whatever their size: bins with
+# equal event rates have WOE values of about 1e-16 instead of 0 when the weights round, and
+# splitting them gains an IV of about 1e-32 over a single bin.
+_IV_TIE = _TIE**2
 # The binnings of each trend, read from the last bin down: a single bin is in state 0, and
 # (step, state) -> state gives the state of a binning after a bin is added below its lowest bin,
 # with that step from the new bin to the old lowest one. Every state is an allowed shape.
@@ -1787,10 +1800,20 @@ _PREPEND: dict[str, dict[tuple[int, int], int]] = {
 
 
 def _steps(before: np.ndarray, after: np.ndarray) -> np.ndarray:
-    """Step from each WOE in `before` to that in `after`: a rise, a fall or, within a tie, flat."""
+    """Step from each WOE in `before` to that in `after`: a rise, a fall or, within a tie, flat.
+
+    A step is flat when it is within a relative `_TIE` of the larger WOE, as in
+    ``kivi.woe.woe_trend``, or within `_TIE` of zero, so that two WOE values of rounding size
+    around 0 are not a rise or a fall.
+    """
     change = after - before
-    scale = np.maximum(np.abs(before), np.abs(after))
+    scale = np.maximum(np.maximum(np.abs(before), np.abs(after)), 1.0)
     return np.where(np.abs(change) > _TIE * scale, np.sign(change), _FLAT).astype(np.intp)
+
+
+def _iv_floor(largest: float) -> float:
+    """Smallest information value that ties with `largest`."""
+    return largest - max(_TIE * abs(largest), _IV_TIE)
 
 
 def _optimal(
@@ -1798,10 +1821,12 @@ def _optimal(
 ) -> tuple[list[int], float]:
     """Cut positions among the (non_event, event) rows of the best binning, and its IV.
 
-    ``best[b, state, i, j]`` is the largest IV of a binning of rows ``i..n-1`` into ``b`` bins
+    ``best[b][state, i, j]`` is the largest IV of a binning of rows ``i..n-1`` into ``b`` bins
     whose lowest bin holds rows ``i..j-1`` and whose shape is in ``state`` (see `_PREPEND`).
     The IV of a binning is summed from its highest bin down, as the table is filled, so that
-    every binning has one IV, which the tie rule of `optimal_edges` compares.
+    every binning has one IV, which the tie rule of `optimal_edges` compares. Each table takes
+    ``8 * states * (n + 1) ** 2`` bytes, and there is one per number of bins that some binning
+    reaches.
     """
     n = len(counts)
     transitions = _PREPEND[trend]
@@ -1823,28 +1848,31 @@ def _optimal(
         non_event_share = non_event / cumulative[-1, 0]
         woe = np.where(feasible, np.log(event_share / non_event_share), 0.0)
     iv = np.where(feasible, (event_share - non_event_share) * woe, -np.inf)
-    limit = min(max_bins, n)
-    best = np.full((limit + 1, states, n + 1, n + 1), -np.inf)
-    best[1, 0, :, n] = iv[:, n]
-    for bins in range(2, limit + 1):
+    del non_event, event, event_share, non_event_share, feasible
+    # best[b] is allocated only while some binning has b bins, which the constraints limit.
+    first = np.full((states, n + 1, n + 1), -np.inf)
+    first[0, :, n] = iv[:, n]
+    best = [first[:0], first]
+    for bins in range(2, min(max_bins, n) + 1):
+        table = np.full((states, n + 1, n + 1), -np.inf)
         for stop in range(1, n):
-            above = best[bins - 1, :, stop, stop + 1 :]
+            above = best[bins - 1][:, stop, stop + 1 :]
             if not np.isfinite(above).any():
                 continue
             steps = _steps(woe[:stop, stop, None], woe[None, stop, stop + 1 :])
             for (step, state), new in transitions.items():
                 following = np.where(steps == step, above[state], -np.inf).max(axis=1)
                 np.maximum(
-                    best[bins, new, :stop, stop],
+                    table[new, :stop, stop],
                     iv[:stop, stop] + following,
-                    out=best[bins, new, :stop, stop],
+                    out=table[new, :stop, stop],
                 )
-        if not np.isfinite(best[bins]).any():
-            limit = bins - 1
+        if not np.isfinite(table).any():
             break
-    by_bins = best[1 : limit + 1, :, 0, :].max(axis=(1, 2))
+        best.append(table)
+    by_bins = np.array([table[:, 0, :].max() for table in best[1:]])
     largest = float(by_bins.max())
-    floor = largest - _TIE * abs(largest)
+    floor = _iv_floor(largest)
     bins = 1 + int(np.flatnonzero(by_bins >= floor)[0])
     # Choose the bins from the lowest up: each time the lowest stop from which a binning of the
     # rest, in a shape that the bins chosen so far allow, still reaches the floor.
@@ -1853,7 +1881,7 @@ def _optimal(
     chosen_steps: list[int] = []
     start, previous = 0, None
     for left in range(bins, 0, -1):
-        candidates = best[left, :, start, :]
+        candidates = best[left][:, start, :]
         if previous is not None:
             steps = _steps(previous, woe[start])
             allowed = np.zeros(candidates.shape, dtype=bool)

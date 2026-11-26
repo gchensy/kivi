@@ -1,6 +1,7 @@
 import itertools
 import math
 import re
+import tracemalloc
 
 import numpy as np
 import pandas as pd
@@ -502,6 +503,40 @@ def test_optimal_with_a_single_initial_bin_or_no_signal():
         np.testing.assert_equal(optimal_edges(values, target, trend=trend), [-np.inf, np.inf])
 
 
+@pytest.mark.parametrize("rows", [30, 90])
+def test_optimal_ignores_rounding_noise_between_equal_event_rates(rows):
+    # Both values have an event rate of exactly 1/3, but weights of 0.1 leave WOE values of
+    # about 1e-16 and an IV of about 1e-32 for the two bins, which must not beat one bin.
+    # Without an absolute tolerance, 30 rows split on the noise, and 90 turn "auto" to
+    # "decreasing".
+    values = np.r_[[1.0] * rows, [2.0] * 30]
+    target = np.r_[[1] * (rows // 3), [0] * (2 * rows // 3), [1] * 10, [0] * 20]
+    weights = np.r_[[0.1] * rows, [1.0] * 30]
+    split = woe_table(pd.cut(values, [-np.inf, 1, np.inf]), target, weights=weights)
+    assert 0 < np.abs(split["woe"]).max() < 1e-15
+    assert 0 < split["iv"].sum() < 1e-30
+    for trend in ("auto", "increasing", "decreasing", "u_shaped", "inverted_u", "any"):
+        np.testing.assert_equal(
+            optimal_edges(values, target, weights=weights, trend=trend), [-np.inf, np.inf]
+        )
+
+
+def test_optimal_allocates_tables_only_for_the_bin_counts_that_occur():
+    # A 5% minimum allows at most 20 bins, so max_bins=100 must not hold 100 tables of
+    # 301 x 301 initial bins (73 MB); 20 of them take 15 MB.
+    rng = np.random.default_rng(0)
+    values = rng.normal(size=20000)
+    target = (rng.random(20000) < 0.2).astype(int)
+    tracemalloc.start()
+    try:
+        edges = optimal_edges(values, target, initial_bins=300, max_bins=100, trend="any")
+        peak = tracemalloc.get_traced_memory()[1]
+    finally:
+        tracemalloc.stop()
+    assert len(edges) - 1 <= 20
+    assert peak < 30e6
+
+
 TIE = 1e-10
 
 
@@ -523,7 +558,8 @@ def exhaustive_edges(
             )
             for shape in ("increasing", "decreasing")
         ]
-        return fits[0] if fits[0][1] >= fits[1][1] - TIE * fits[1][1] else fits[1]
+        largest = max(fits[0][1], fits[1][1])
+        return fits[0] if fits[0][1] >= largest - max(TIE * largest, TIE**2) else fits[1]
     observed, labels, mass = _labeled(values, target, None, weights)
     interior, counts = _fine_bins(observed, labels, initial_bins, mass)
     total = counts.sum(axis=0)
@@ -539,7 +575,8 @@ def exhaustive_edges(
             event, non_event = bins[:, 1] / total[1], bins[:, 0] / total[0]
             woe = np.log(event / non_event)
             change = np.diff(woe)
-            scale = np.maximum(np.abs(woe[:-1]), np.abs(woe[1:]))
+            # A step is level within a relative TIE of the larger WOE or within TIE of 0.
+            scale = np.maximum(np.maximum(np.abs(woe[:-1]), np.abs(woe[1:])), 1)
             steps = "".join(
                 "+" if step > 0 else "-" if step < 0 else "="
                 for step in np.where(np.abs(change) > TIE * scale, np.sign(change), 0)
@@ -554,7 +591,8 @@ def exhaustive_edges(
             if re.fullmatch(allowed, steps):
                 found.append((((event - non_event) * woe).sum(), cuts))
     best = max(iv for iv, _ in found)
-    cuts = min((len(cuts), cuts) for iv, cuts in found if iv >= best - TIE * best)[1]
+    floor = best - max(TIE * best, TIE**2)
+    cuts = min((len(cuts), cuts) for iv, cuts in found if iv >= floor)[1]
     return np.r_[-np.inf, interior[np.array(cuts, dtype=int) - 1], np.inf], best
 
 

@@ -176,7 +176,7 @@ Five bins were allowed, but with five and with four bins some adjacent pair stil
 
    kp.figure_chimerge()
 
-A significant difference can keep a small bin apart. On ``age``, the 3.5% of customers over 59 subscribe so much more often that they keep a bin of their own. ``min_bin_share`` first merges every bin that holds less than that share of the reference into the neighbour whose chi-square statistic with it is smaller, and ChiMerge then goes on as before. The default, 0, merges no bin for its size:
+A significant difference can keep a small bin apart. On ``age``, the 3.5% of customers over 59 subscribe so much more often that they keep a bin of their own. ``min_bin_share`` applies to the fine bins, before any chi-square merge: while some fine bin holds less than that share of the reference, the smallest one is merged into the neighbour whose chi-square statistic with it is smaller. Nine of the twenty fine bins of ``age`` hold less than 5%, the one over 59 among them, so ChiMerge starts from eleven bins and no final bin holds less than 5%. The default, 0, merges no bin for its size:
 
 >>> age = reference["age"]
 >>> chimerge_edges(age, target)
@@ -287,7 +287,7 @@ The trend is checked with the same smoothing as :func:`~kivi.woe.woe_table`, so 
 
    kp.figure_monotonic()
 
-``min_bin_share`` merges small bins first here as well, as in ChiMerge, before the trend is checked.
+``min_bin_share`` merges small fine bins first here as well, as in ChiMerge, before the trend is checked.
 
 Optimal binning
 ^^^^^^^^^^^^^^^
@@ -643,7 +643,7 @@ Limits
 
 The information value of supervised bins on the sample that they were fitted on is optimistic. The edges are chosen to separate that sample, so even a variable unrelated to the target shows an IV above the usual threshold of 0.02. Screen variables by their IV on a validation sample, or by a permutation test, as :ref:`development-iv` shows.
 
-:func:`~kivi.binning.optimal_edges` is exact over the merges of its fine bins, but never tries an edge between two fine edges. Its time grows with the cube of ``initial_bins``, to a fraction of a second for 200 fine bins.
+:func:`~kivi.binning.optimal_edges` is exact over the merges of its fine bins, but never tries an edge between two fine edges. Its time grows with the cube of ``initial_bins`` and its memory with the square, to a fraction of a second and a few megabytes for 200 fine bins, and a few seconds and about 50 megabytes for 1000.
 
 :func:`~kivi.binning.chimerge_groups` merges one pair of groups at a time, so its time grows with the square of the number of categories: a few seconds for 20,000 categories. For a variable with that many labels, such as a postcode, pool the rarest ones with :func:`~kivi.binning.category_groups` first, group the pooled labels with ``chimerge_groups``, and combine the two dicts as ``{category: groups[pooled[category]] for category in pooled}``.
 
