@@ -946,7 +946,10 @@ def optimal_edges(
     to :math:`n^2 k`, twice that for a U shape, for :math:`n` initial bins
     and :math:`k` bins, the most that the constraints allow up to
     ``max_bins``: a fraction of a second and a few megabytes for 200 initial
-    bins, and a few seconds and about 50 megabytes for 1000.
+    bins, and a few seconds and about 50 megabytes for 1000. The counts of
+    a range of initial bins add aligned blocks of 1, 2, 4, ... initial bins,
+    so that a large weight in one bin does not round away the weights of
+    the others.
 
     A step from one bin to the next rises or falls when the two WOE values
     differ by more than a relative 1e-10, as in `kivi.woe.woe_trend`, and
@@ -1118,13 +1121,16 @@ def variance_edges(
     so the fit maximizes :math:`B`, the part of the sum of squares of the
     response that the bins explain. Each bin adds :math:`S_b^2 / W_b`, where
     :math:`S_b` is its weighted sum of the response less :math:`m`, so no
-    second moment is subtracted from another. Ties follow the rules of
-    `optimal_edges`: two means are level when they differ by at most a
-    relative 1e-10, or by at most 1e-10 times the root mean square of the
-    response, and two binnings tie when their :math:`B` agree to a relative
-    1e-10 or differ by less than 1e-20 times the weighted sum of the squared
-    responses. A response with the same mean in every bin therefore gives a
-    single bin.
+    second moment is subtracted from another. The response is first scaled
+    by a power of two, which changes no partition, so that its squares
+    neither overflow nor underflow, and the sums of a range of initial bins
+    add aligned blocks of initial bins, as in `optimal_edges`. Ties follow
+    the rules of `optimal_edges`: two means are level when they differ by at
+    most a relative 1e-10, or by at most 1e-10 times the root mean square of
+    the response, and two binnings tie when their :math:`B` agree to a
+    relative 1e-10 or differ by less than 1e-20 times the weighted sum of
+    the squared responses. A response with the same mean in every bin
+    therefore gives a single bin.
 
     A `kivi.spec.BinningSpec` holds the WOE of a binary target, so
     `kivi.spec.fit_spec` has no method for a continuous response; group the
@@ -1146,6 +1152,11 @@ def variance_edges(
     _check_trend(trend)
     _validation.check_count(initial_bins, "initial_bins")
     observed, responses, mass = _responded(values, response, special, weights)
+    largest = float(np.max(np.abs(responses)))
+    if largest > 0:
+        # A power of two changes no partition, and with the largest response between 1/2 and 1
+        # the squares neither overflow nor underflow.
+        responses = np.ldexp(responses, -np.frexp(largest)[1])
     interior, position, occupied = _fine_positions(observed, initial_bins, mass)
     weight = np.ones(len(observed)) if mass is None else mass
     centre = float(np.sum(weight * responses) / np.sum(weight))
@@ -2036,21 +2047,19 @@ def _optimal(
 ) -> tuple[list[int], float]:
     """Cut positions among the (non_event, event) rows of the binning with the largest IV."""
     n = len(counts)
-    cumulative = np.zeros((n + 1, 2))
-    cumulative[1:] = np.cumsum(counts, axis=0)
     # Rows i..j-1 for every start i (axis 0) and stop j (axis 1); only i < j are bins.
-    non_event = cumulative[None, :, 0] - cumulative[:, None, 0]
-    event = cumulative[None, :, 1] - cumulative[:, None, 1]
+    non_event, event = _range_sums(counts[:, 0]), _range_sums(counts[:, 1])
     slack = 1 - _TIE
     feasible = (
         np.triu(np.ones((n + 1, n + 1), dtype=bool), 1)
-        & (non_event + event >= min_share * cumulative[-1].sum() * slack)
+        & (non_event + event >= min_share * (non_event[0, n] + event[0, n]) * slack)
         & (non_event >= min_events * slack)
         & (event >= min_events * slack)
     )
     with np.errstate(divide="ignore", invalid="ignore"):
-        event_share = event / cumulative[-1, 1]
-        non_event_share = non_event / cumulative[-1, 0]
+        # The single bin has shares of exactly 1, so its IV is exactly 0.
+        event_share = event / event[0, n]
+        non_event_share = non_event / non_event[0, n]
         woe = np.where(feasible, np.log(event_share / non_event_share), 0.0)
     iv = np.where(feasible, (event_share - non_event_share) * woe, -np.inf)
     del non_event, event, event_share, non_event_share, feasible
@@ -2074,18 +2083,46 @@ def _between(
     adds ``S ** 2 / W`` to the between-bin sum of squares.
     """
     n = len(totals)
-    weight = np.r_[0.0, np.cumsum(totals)]
-    deviation = np.r_[0.0, np.cumsum(sums)]
-    total = weight[None, :] - weight[:, None]
-    summed = deviation[None, :] - deviation[:, None]
+    total, summed = _range_sums(totals), _range_sums(sums)
     feasible = np.triu(np.ones((n + 1, n + 1), dtype=bool), 1) & (
-        total >= min_share * weight[-1] * (1 - _TIE)
+        total >= min_share * total[0, n] * (1 - _TIE)
     )
     with np.errstate(divide="ignore", invalid="ignore"):
         mean = np.where(feasible, centre + summed / total, 0.0)
         gain = np.where(feasible, summed * (summed / total), -np.inf)
     del total, summed, feasible
     return _best_binning(gain, mean, trend, max_bins, unit=unit, absolute=absolute)
+
+
+def _range_sums(values: np.ndarray) -> npt.NDArray[np.float64]:
+    """Sum of ``values[i:j]`` for every ``i < j`` as the entry ``[i, j]`` of an (n + 1)-square.
+
+    Each range adds the aligned blocks of 1, 2, 4, ... values that lie inside it, read as a
+    segment tree from the leaves up, so that a large value outside a range never rounds away
+    the small ones inside it, as a difference of cumulative sums would. Each block sums two
+    blocks of half its length. The entries with ``i >= j`` are 0.
+    """
+    n = len(values)
+    blocks = [np.asarray(values, dtype=float)]
+    while len(blocks[-1]) > 1:
+        level = blocks[-1]
+        if len(level) % 2:
+            level = np.append(level, 0.0)
+        blocks.append(level[0::2] + level[1::2])
+    start, stop = np.triu_indices(n + 1, 1)
+    low, high = start.copy(), stop.copy()
+    sums = np.zeros(len(low))
+    for level in blocks:
+        left = (low & 1).astype(bool) & (low < high)
+        sums[left] += level[low[left]]
+        low = low + left
+        right = (high & 1).astype(bool) & (low < high)
+        high = high - right
+        sums[right] += level[high[right]]
+        low, high = low >> 1, high >> 1
+    result = np.zeros((n + 1, n + 1))
+    result[start, stop] = sums
+    return result
 
 
 def _best_binning(

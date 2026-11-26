@@ -11,6 +11,7 @@ from kivi.binning import (
     _fine_bins,
     _labeled,
     _pair_chi2,
+    _range_sums,
     bin_edges,
     chimerge_edges,
     cut,
@@ -1571,3 +1572,57 @@ def test_variance_response_weights_need_matching_index():
         variance_edges(VARIANCE_VALUES.to_numpy(), response, weights=weights),
         variance_edges(VARIANCE_VALUES, VARIANCE_RESPONSE),
     )
+
+
+@pytest.mark.parametrize("scale", [1e-300, 1e-170, 1e-20, 1.0, 1e155, 1e200, 1e300])
+def test_variance_does_not_depend_on_the_magnitude_of_the_response(scale):
+    # The squares of 1e-170 underflow and those of 1e155 overflow unless the response is scaled.
+    values = np.arange(12.0)
+    response = np.r_[np.zeros(6), np.full(6, scale)]
+    for trend in ("auto", "any"):
+        np.testing.assert_equal(variance_edges(values, response, trend=trend), [-np.inf, 5, np.inf])
+        np.testing.assert_equal(
+            variance_edges(values, -response, trend=trend), [-np.inf, 5, np.inf]
+        )
+
+
+def test_variance_edges_do_not_change_when_the_response_is_scaled():
+    rng = np.random.default_rng(5)
+    values = rng.integers(0, 30, 300).astype(float)
+    response = np.sqrt(values) + rng.normal(size=300)
+    expected = variance_edges(values, response, trend="any", max_bins=6)
+    assert len(expected) == 7
+    for factor in (2.0**-900, 2.0**600, 1e-150, 1e150):
+        np.testing.assert_equal(
+            variance_edges(values, response * factor, trend="any", max_bins=6), expected
+        )
+
+
+def test_a_huge_weight_does_not_round_away_the_other_bins():
+    # Differences of cumulative sums after a weight of 1e16 lose the weights of 1 behind it.
+    values = np.arange(12.0)
+    weights = np.r_[1e16, np.ones(11)]
+    np.testing.assert_equal(
+        variance_edges(
+            values, np.r_[np.zeros(6), np.ones(6)], weights=weights, min_bin_share=0, trend="any"
+        ),
+        [-np.inf, 5, np.inf],
+    )
+    # Only the bins 0-5 and 6-11 hold both classes: non-events at 0-4 and 11, events at 5-10.
+    target = np.r_[[0] * 5, [1] * 6, [0]]
+    np.testing.assert_equal(
+        optimal_edges(values, target, weights=weights, min_bin_share=0, trend="any"),
+        [-np.inf, 5, np.inf],
+    )
+
+
+def test_range_sums_are_as_precise_as_the_sum_of_each_range():
+    rng = np.random.default_rng(6)
+    values = rng.random(50) * 10.0 ** rng.integers(-10, 17, 50)
+    sums = _range_sums(values)
+    for start in range(50):
+        for stop in range(start + 1, 51):
+            exact = math.fsum(values[start:stop])
+            assert sums[start, stop] == pytest.approx(exact, rel=1e-15, abs=0)
+    np.testing.assert_equal(np.tril(sums), 0)
+    np.testing.assert_equal(_range_sums(np.array([3.0])), [[0, 3], [0, 0]])
