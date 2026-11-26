@@ -1,6 +1,6 @@
 # kivi 1.8 设计：一年违约率、长期平均违约率与对准中心趋势的校准
 
-2026-11-25 起草 · 待审定：第 6 节的 9 项
+2026-11-25 起草 · 2026-11-25 审定：第 6 节的 9 项全部采用推荐（“All as recommended”）
 
 ## 1. 目标与范围
 
@@ -329,13 +329,15 @@ benchmark = max(portfolio_rate.iloc[-20:].mean(), long_run)             # EBA 86
 
 流程：
 
-1. 本稿审定：等你对第 6 节的决定。
+1. 本稿审定：2026-11-25 已确认，第 6 节的 9 项全部采用推荐。
 2. 实现 PR：从最新的 master 分出，完成后开 ready PR，列出公共 API 和集成 PR 的注意事项。不合并。
 3. 集成 PR 和发布 1.8.0 由协调会话按你的指示进行。
 
 ## 6. 决定
 
-| # | 问题 | 推荐 | 其他选项 |
+2026-11-25，以下 9 项全部采用推荐方案。
+
+| # | 问题 | 决定 | 未采用的选项 |
 | --- | --- | --- | --- |
 | 1 | 函数名（路线图第 7 节第 10 项） | `default_rate_table`（与 `calibration_table`、`vintage_table` 同形）、`central_tendency_shift`（返回的就是平移量）、`quasi_moment_fit`（与 `platt_fit`、`isotonic_fit`、`vasicek_fit` 同形） | 草稿的 `quasi_moment_matching`：方法名，但它是唯一不带 `fit` 而返回参数的拟合函数 |
 | 2 | 观察起点 | 关键字 `starts`、索引层 `start`；默认取每个季末，只保留窗口完整的（EBA 78）；显式给出的起点窗口不完整时报错 | 草稿的 `reference`：与 PSI 的参照样本 `reference`、`reference_period` 冲突；`cohort`：与本模块中表示放款月份的 `cohort` 冲突；默认每月一个起点 |

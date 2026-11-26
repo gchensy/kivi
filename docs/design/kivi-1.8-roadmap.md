@@ -276,7 +276,7 @@ rule_candidates(frame, target, *, columns=None, method="tree", max_bins=5,
 | 7 | 多期检验和红绿灯法 | 2026-11-25 已定（“都按推荐”） | 继续等实际需求 |
 | 8 | 二维分箱 | 2026-11-25 已定（“都按推荐”） | 不排期，所以 SciPy 是否进入运行时依赖的问题暂不需要决定 |
 | 9 | 机器学习模型 | 2026-11-25 已定（“都按推荐”） | 维持不做 |
-| 10 | 新函数的名称 | 待定 | `variance_edges`、`default_rate_table`、`central_tendency_shift`、`quasi_moment_matching`、`rule_candidates` 都是暂名。`default-rates` 的 API 在原文核对后审定，其余在各会话开工前审定 |
+| 10 | 新函数的名称 | 部分已定 | `default_rate_table`、`central_tendency_shift`、`quasi_moment_fit` 2026-11-25 已定（“All as recommended”，见 `kivi-1.8-default-rates.md` 决定 1）。`variance_edges`、`rule_candidates` 仍是暂名，在各会话开工前审定 |
 
 ## 8. 协调
 
