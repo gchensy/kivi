@@ -195,35 +195,7 @@ variance_edges(values, response, *, max_bins=5, min_bin_share=0.05, trend="auto"
 
 `tests/test_typing.py` 归这个会话，因为四个会话中只有它的函数按输入决定返回类型，需要重载声明。
 
-**开工前先核对原文**，与 1.5–1.7 相同：
-
-- EBA/GL/2017/16 关于一年违约率和长期平均违约率的条款；
-- ECB 验证报告说明对观察违约率的定义；
-- Tasche 的 quasi moment matching，2009 年提出，2013 年的综述 “The art of probability-of-default curve calibration” 有讨论。
-
-核对结果和修订后的 API 补进本节，审定后再写代码。下面是草案：
-
-```python
-# kivi.vintage
-default_rate_table(loan, month, grade, defaulted, *, horizon=12, reference=None,
-                   weights=None)   # 暂名
-# -> DataFrame，索引 (reference, grade)：total、default、default_rate
-
-# kivi.calibration
-central_tendency_shift(probability, *, central_tendency, weights=None)   # 暂名
-# -> 形状同 probability
-quasi_moment_matching(score, *, central_tendency, accuracy_ratio, weights=None)   # 暂名
-# -> (intercept, slope)
-```
-
-- **`default_rate_table`：** 队列法。
-  - 在每个观察月，取当时未违约的借款人，按当时的等级分组，统计此后 `horizon` 个月内违约的比例。
-  - 输入是月度面板，例如 `delinquency_panel` 的输出，以 `status == "90+"` 作为 `defaulted`。
-  - 观察月默认取每个季度末。
-  - 观察期内结清或退出的借款人怎样计数，按原文核对后再定。
-- **长期平均违约率：** 各观察月违约率的算术平均。指南写法是 `table["default_rate"].groupby("grade").mean()`，不另设函数。
-- **`central_tendency_shift`：** 给所有 log odds 加同一个常数，使平均 PD 恰好等于 `central_tendency`，用二分法求解。排序和斜率都不变。现有的 `prior_correction` 只按事件率的比例缩放 odds，平均 PD 不一定等于目标值。
-- **`quasi_moment_matching`：** 拟合 PD = 1 / (1 + exp(−(a + b·score)))，使平均 PD 等于中心趋势、AR 等于目标值。
+原文核对、修订后的 API、测试依据和待定事项见 `docs/design/kivi-1.8-default-rates.md`。
 
 ### 3.4 会话 `rule-search`
 
@@ -304,7 +276,7 @@ rule_candidates(frame, target, *, columns=None, method="tree", max_bins=5,
 | 7 | 多期检验和红绿灯法 | 2026-11-25 已定（“都按推荐”） | 继续等实际需求 |
 | 8 | 二维分箱 | 2026-11-25 已定（“都按推荐”） | 不排期，所以 SciPy 是否进入运行时依赖的问题暂不需要决定 |
 | 9 | 机器学习模型 | 2026-11-25 已定（“都按推荐”） | 维持不做 |
-| 10 | 新函数的名称 | 待定 | `variance_edges`、`default_rate_table`、`central_tendency_shift`、`quasi_moment_matching`、`rule_candidates` 都是暂名。`default-rates` 的 API 在原文核对后审定，其余在各会话开工前审定 |
+| 10 | 新函数的名称 | 部分已定 | `default_rate_table`、`central_tendency_shift`、`quasi_moment_fit` 2026-11-25 已定（“All as recommended”，见 `kivi-1.8-default-rates.md` 决定 1）。`variance_edges`、`rule_candidates` 仍是暂名，在各会话开工前审定 |
 
 ## 8. 协调
 
