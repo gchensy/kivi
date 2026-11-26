@@ -5,7 +5,7 @@ Binning
 
 In credit scoring, binning is the classing step of scorecard development: a continuous variable becomes a handful of groups whose WOE can be read, explained to the business and monitored over time. This page compares the ways to choose the edges.
 
-Binning follows the :doc:`univariate profile <univariate>`, which ranks the candidates by a quick binning, and comes before the :doc:`weight of evidence <woe_iv>`, which measures and encodes the groups. ``bin_edges`` chooses the edges from the values alone; :func:`~kivi.binning.chimerge_edges`, :func:`~kivi.binning.tree_edges`, :func:`~kivi.binning.ks_edges` and :func:`~kivi.binning.monotonic_edges` also use the target, and :func:`~kivi.binning.cut` groups a sample, with a group of its own for each special code.
+Binning follows the :doc:`univariate profile <univariate>`, which ranks the candidates by a quick binning, and comes before the :doc:`weight of evidence <woe_iv>`, which measures and encodes the groups. ``bin_edges`` chooses the edges from the values alone; :func:`~kivi.binning.chimerge_edges`, :func:`~kivi.binning.tree_edges`, :func:`~kivi.binning.ks_edges`, :func:`~kivi.binning.monotonic_edges` and :func:`~kivi.binning.optimal_edges` also use the target, and :func:`~kivi.binning.cut` groups a sample, with a group of its own for each special code.
 
 Categorical variables are grouped in the same two steps: :func:`~kivi.binning.category_groups` pools rare categories, :func:`~kivi.binning.chimerge_groups` merges categories with similar event rates, and :func:`~kivi.binning.group_categories` applies the grouping to a sample.
 
@@ -132,7 +132,7 @@ Quantile and uniform edges ignore the target. The supervised methods use it to p
      - Main options
    * - :func:`~kivi.binning.chimerge_edges`
      - Merges adjacent fine bins whose event rates do not differ significantly.
-     - ``max_bins``, ``alpha``
+     - ``max_bins``, ``alpha``, ``min_bin_share``
    * - :func:`~kivi.binning.tree_edges`
      - Splits the values where a decision tree gains the most purity.
      - ``max_bins``, ``min_bin_share``, ``criterion``
@@ -141,7 +141,10 @@ Quantile and uniform edges ignore the target. The supervised methods use it to p
      - ``max_bins``, ``min_bin_share``
    * - :func:`~kivi.binning.monotonic_edges`
      - Merges adjacent fine bins until the WOE rises or falls steadily.
-     - ``max_bins``, ``direction``
+     - ``max_bins``, ``direction``, ``min_bin_share``
+   * - :func:`~kivi.binning.optimal_edges`
+     - Finds the merge of fine bins with the largest information value that meets every constraint.
+     - ``max_bins``, ``min_bin_share``, ``min_bin_events``, ``trend``
 
 As with ``bin_edges``, fit the edges on the reference sample only and apply the saved array to every other sample.
 
@@ -172,6 +175,14 @@ Five bins were allowed, but with five and with four bins some adjacent pair stil
    :caption: Left: the smallest chi-square between adjacent bins as the fine bins are merged, read from left to right. Merging stops at the first count no larger than max_bins at which every pair lies above the alpha line. Right: the WOE of the final bins rises with balance.
 
    kp.figure_chimerge()
+
+A significant difference can keep a small bin apart. On ``age``, the 3.5% of customers over 59 subscribe so much more often that they keep a bin of their own. ``min_bin_share`` applies to the fine bins, before any chi-square merge: while some fine bin holds less than that share of the reference, the smallest one is merged into the neighbour whose chi-square statistic with it is smaller. Nine of the twenty fine bins of ``age`` hold less than 5%, the one over 59 among them, so ChiMerge starts from eleven bins and no final bin holds less than 5%. The default, 0, merges no bin for its size:
+
+>>> age = reference["age"]
+>>> chimerge_edges(age, target)
+array([-inf,  29.,  59.,  inf])
+>>> chimerge_edges(age, target, min_bin_share=0.05)
+array([-inf,  29.,  56.,  inf])
 
 Decision tree
 ^^^^^^^^^^^^^
@@ -276,10 +287,82 @@ The trend is checked with the same smoothing as :func:`~kivi.woe.woe_table`, so 
 
    kp.figure_monotonic()
 
+``min_bin_share`` merges small fine bins first here as well, as in ChiMerge, before the trend is checked.
+
+Optimal binning
+^^^^^^^^^^^^^^^
+
+The methods above build the bins step by step, and each guarantees one property: ChiMerge the significance of neighbouring bins, the tree and Best KS a minimum share, monotonic binning a trend. None of them limits the events in a bin, and none fits a U shape. :func:`~kivi.binning.optimal_edges` starts from the same fine quantile bins as ChiMerge and returns, of all the ways to merge them, the binning with the largest information value that meets every constraint at once:
+
+* at most ``max_bins`` bins, 5 by default;
+* at least ``min_bin_share`` of the reference in every bin, 5% by default;
+* at least ``min_bin_events`` events and as many non-events in every bin, 1 by default;
+* a WOE that follows ``trend``: ``"increasing"``, ``"decreasing"``, ``"u_shaped"``, ``"inverted_u"`` or ``"any"``, or by default ``"auto"``, the better of the two monotonic trends.
+
+The information value is a sum over the bins, so dynamic programming finds the best binning exactly, without a solver. Every bin holds both classes, so no WOE rests on smoothing. On ``balance``, the result is that of :func:`~kivi.binning.monotonic_edges`: merging greedily already reaches the best monotonic binning here, so the reason to use ``optimal_edges`` is the constraints rather than a higher information value.
+
+>>> from kivi.binning import optimal_edges
+>>> optimal_edges(balance, target)
+array([   -inf,   68.75,  125.7 ,  895.7 , 1136.6 ,     inf])
+
+The constraints make the difference. On the call ``duration``, monotonic binning leaves the shortest calls in a bin without a single subscriber, whose WOE comes from the smoothing alone:
+
+>>> duration = reference["duration"]
+>>> by_calls = woe_table(pd.cut(duration, monotonic_edges(duration, target)), target)
+>>> by_calls[["event", "non_event", "woe"]].round(3)
+                 event  non_event    woe
+bin
+(-inf, 76.0]         0        458 -4.791
+(76.0, 205.0]       48       1151 -1.148
+(205.0, 585.1]     167        876  0.372
+(585.1, 765.05]     51         99  1.366
+(765.05, inf]       82         68  2.217
+>>> print(f"IV = {by_calls['iv'].sum():.3f}")
+IV = 1.830
+
+With ``min_bin_events=10`` every bin holds at least ten subscribers and ten non-subscribers:
+
+>>> calls = optimal_edges(duration, target, min_bin_events=10)
+>>> by_optimal = woe_table(pd.cut(duration, calls), target)
+>>> by_optimal[["event", "non_event", "woe"]].round(3)
+                 event  non_event    woe
+bin
+(-inf, 120.0]       14        887 -2.118
+(120.0, 205.0]      34        722 -1.025
+(205.0, 381.0]     103        642  0.201
+(381.0, 765.05]    115        333  0.968
+(765.05, inf]       82         68  2.218
+>>> print(f"IV = {by_optimal['iv'].sum():.3f}")
+IV = 1.477
+
+The lower information value is the more honest one: part of the 1.830 came from the empty cell, whose WOE of -4.791 is set by the smoothing value rather than by the data.
+
+Age has a U shape: the youngest and the oldest customers subscribe more often than the others. A monotonic trend can only cut it once, while ``trend="u_shaped"`` lets the WOE fall and then rise:
+
+>>> from kivi.woe import woe_trend
+>>> optimal_edges(age, target)
+array([-inf,  29.,  inf])
+>>> u_edges = optimal_edges(age, target, trend="u_shaped")
+>>> by_age = woe_table(pd.cut(age, u_edges), target)
+>>> by_age[["total_share", "event", "event_rate", "woe"]].round(3)
+              total_share  event  event_rate    woe
+bin
+(-inf, 29.0]        0.110     52       0.158  0.354
+(29.0, 38.0]        0.373    118       0.105 -0.107
+(38.0, 42.0]        0.123     33       0.089 -0.293
+(42.0, 56.0]        0.304    104       0.114 -0.021
+(56.0, inf]         0.089     41       0.153  0.319
+>>> woe_trend(by_age)
+'u_shaped'
+>>> print(f"IV = {by_age['iv'].sum():.3f}")
+IV = 0.040
+
+The information value doubles from the 0.018 of the two monotonic bins. ``"auto"`` never chooses a U shape: a U shape includes both monotonic trends, so it would almost always have the larger IV, and whether it can be explained is a judgement about the variable, such as the life cycle behind age. Ask for ``"u_shaped"`` or ``"inverted_u"`` where the business expects the shape, and ``"any"`` only to see the best binning without a trend.
+
 Comparing the methods
 ^^^^^^^^^^^^^^^^^^^^^
 
-Supervised edges are chosen to separate the sample they are fitted on, so the information value on that sample is optimistic. Compare the methods on a later sample as well, keeping the edges fixed. :func:`~kivi.binning.ks_edges` is left out, because on ``balance`` its edges are those of :func:`~kivi.binning.tree_edges`.
+Supervised edges are chosen to separate the sample they are fitted on, so the information value on that sample is optimistic. Compare the methods on a later sample as well, keeping the edges fixed. :func:`~kivi.binning.ks_edges` and :func:`~kivi.binning.optimal_edges` are left out, because on ``balance`` their edges are those of :func:`~kivi.binning.tree_edges` and of :func:`~kivi.binning.monotonic_edges`.
 
 >>> current = data.iloc[3000:]
 >>> fitted = {
@@ -305,7 +388,7 @@ chimerge_edges      3         0.122       0.016
 tree_edges          5         0.158       0.065
 monotonic_edges     5         0.124       0.020
 
-On the reference sample all three supervised methods beat five quantile bins. On the later sample they fall behind: much of the extra separation they found in balance was noise, which is common for a weak variable and a few hundred events. Validate supervised edges on a later or held-out sample before adopting them, and keep the variable under PSI monitoring once it is in use.
+On the reference sample all three supervised methods beat five quantile bins. On the later sample they fall behind: much of the extra separation they found in balance was noise, which is common for a weak variable and a few hundred events. Validate supervised edges on a later or held-out sample before adopting them, as :ref:`development-iv` describes, and keep the variable under PSI monitoring once it is in use.
 
 Applying the edges
 ------------------
@@ -515,7 +598,7 @@ bin
 >>> print(f"IV = {by_pdays['iv'].sum():.3f}")
 IV = 0.352
 
-Fitted on the contacted customers alone, the WOE falls steadily: the more recent the previous contact, the more likely a customer is to subscribe. ``max_bins`` and the trend apply to the intervals only, so each special group comes on top of them with a WOE of its own. :func:`~kivi.binning.chimerge_edges`, :func:`~kivi.binning.tree_edges` and :func:`~kivi.binning.ks_edges` take ``special`` in the same way, and ``min_bin_share`` counts only the values that are fitted.
+Fitted on the contacted customers alone, the WOE falls steadily: the more recent the previous contact, the more likely a customer is to subscribe. ``max_bins`` and the trend apply to the intervals only, so each special group comes on top of them with a WOE of its own. :func:`~kivi.binning.chimerge_edges`, :func:`~kivi.binning.tree_edges`, :func:`~kivi.binning.ks_edges` and :func:`~kivi.binning.optimal_edges` take ``special`` in the same way, and ``min_bin_share`` and ``min_bin_events`` count only the values that are fitted.
 
 Special values in category groups
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -551,12 +634,16 @@ array([-inf,  2.5,  inf])
 >>> bin_edges([1, 2, 3, 4], bins=2, weights=[1, 1, 1, 3])
 array([-inf,   3.,  inf])
 
-Observations with zero weight are left out; the supervised methods leave out their labels too. :doc:`woe_iv` shows the same weights in :func:`~kivi.woe.woe_table`.
+Observations with zero weight are left out; the supervised methods leave out their labels too. ``min_bin_share`` is then a share of the total weight, and the ``min_bin_events`` of :func:`~kivi.binning.optimal_edges` a sum of weights, so integer weights give the same edges as repeated rows. :doc:`woe_iv` shows the same weights in :func:`~kivi.woe.woe_table`.
 
 :func:`~kivi.binning.category_groups` and :func:`~kivi.binning.chimerge_groups` take ``weights`` as well. Shares, counts and the chi-square statistic then use sums of weights, so integer weights give the same grouping as repeated rows. A category whose rows all have zero weight is left out of the grouping, and :func:`~kivi.binning.group_categories` treats it as unseen.
 
 Limits
 ------
+
+The information value of supervised bins on the sample that they were fitted on is optimistic. The edges are chosen to separate that sample, so even a variable unrelated to the target shows an IV above the usual threshold of 0.02. Screen variables by their IV on a validation sample, or by a permutation test, as :ref:`development-iv` shows.
+
+:func:`~kivi.binning.optimal_edges` is exact over the merges of its fine bins, but never tries an edge between two fine edges. Its time grows with the cube of ``initial_bins`` and its memory with the square, to a fraction of a second and a few megabytes for 200 fine bins, and a few seconds and about 50 megabytes for 1000.
 
 :func:`~kivi.binning.chimerge_groups` merges one pair of groups at a time, so its time grows with the square of the number of categories: a few seconds for 20,000 categories. For a variable with that many labels, such as a postcode, pool the rarest ones with :func:`~kivi.binning.category_groups` first, group the pooled labels with ``chimerge_groups``, and combine the two dicts as ``{category: groups[pooled[category]] for category in pooled}``.
 
@@ -598,11 +685,12 @@ Invalid input
 
 :func:`~kivi.binning.cut` raises ``ValueError`` for an infinite value that is not a special value, because ``pandas.cut`` would count ``-inf`` as missing and put ``inf`` in the last interval. Pass infinite codes in ``special`` to give each one its own group.
 
-:func:`~kivi.binning.chimerge_edges`, :func:`~kivi.binning.tree_edges`, :func:`~kivi.binning.ks_edges` and :func:`~kivi.binning.monotonic_edges` raise ``ValueError`` for the same problems with the values, for an option outside its range, and when:
+:func:`~kivi.binning.chimerge_edges`, :func:`~kivi.binning.tree_edges`, :func:`~kivi.binning.ks_edges`, :func:`~kivi.binning.monotonic_edges` and :func:`~kivi.binning.optimal_edges` raise ``ValueError`` for the same problems with the values, for an option outside its range, and when:
 
 * ``values`` and ``target`` are Series without identical indices, or have different lengths;
 * ``target`` contains a label other than 0 and 1, or a missing label;
-* the observed values, apart from special values, do not cover both classes.
+* the observed values, apart from special values, do not cover both classes;
+* for ``optimal_edges``, ``min_bin_events`` exceeds the events or the non-events of the fitted values, so that not even a single bin meets it. Any smaller value has a solution, because a single bin meets the other constraints.
 
 :func:`~kivi.binning.category_groups` and :func:`~kivi.binning.chimerge_groups` raise ``ValueError`` for the same problems with the values and the target and for an option outside its range. :func:`~kivi.binning.category_groups` also raises it when ``rare_label`` is the label of a category that is not rare, and :func:`~kivi.binning.chimerge_groups` when the label of a merged group would be the label of another group, which can only happen when labels contain ``", "``.
 
