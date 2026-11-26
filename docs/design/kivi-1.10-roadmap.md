@@ -5,7 +5,8 @@
 1. 对 master（964e27db）的结构核对：模块规模、模块间的导入、公开名称、测试和文档（第 1 节）；
 2. 教程和指南里使用者要自己写的胶水代码（第 2 节）；
 3. 1.8 计划第 5、6 节中不排期和维持不做的事项，以及欧盟《人工智能法》的最新时间表；
-4. 一次本地测试：在 Python 3.14 上运行全部测试。
+4. 一次本地测试：在 Python 3.14 上运行全部测试；
+5. 同日的另一份草稿：分支 `design/post-1.9-improvements` 上未提交的 `kivi-1.10-scorecard-spec.md` 和 `kivi-1.11-workflow-and-perf.md`。用户要求不改那份草稿，“只吸取可以执行的部分即可，纳入你后续开发的范围”；吸收的内容在第 5.1、5.4 和 6.1 节，没有采纳的写在第 6.1 节和第 7 节，并附理由。
 
 第 3 节按优先级排定顺序：先做一个基础设施 PR（第 4 节），再做 1.10（第 5 节）。本稿不新增依赖。流程沿用 1.8：
 
@@ -180,43 +181,70 @@ kivi 已有其中三块：`transition_matrix`（计数）、`transition_pd`（�
 | --- | --- |
 | `scorecard-spec` | 可保存的整张评分卡：分箱、分数表、可选的校准和主标尺 |
 | `matrix-scenarios` | 转移矩阵的单因子模型：按因子平移整个矩阵，并从观察到的矩阵估计因子。与 `scorecard-spec` 并行，或推迟到以后 |
+| 协调会话 | `vif_filter` 提速，不改 API（第 5.4 节） |
 | 集成 PR | 教程和指南改用新对象，参考页和入口页 |
 
 ### 5.1 会话 `scorecard-spec`
 
-暂定 API：
+本节吸收了另一份草稿 `kivi-1.10-scorecard-spec.md` 中可执行的部分（来源见开头第 5 项）。暂定 API：
 
 ```python
 # kivi.scorecard
-ScorecardSpec(binning, points, *, pdo, base_score, base_odds,
-              calibration=None, scale=None, kivi_version=None)
+ScorecardSpec(binning, table, *, pdo, base_score, base_odds,
+              unseen_points=None, calibration=None, scale=None, kivi_version=None)
 # binning: 评分卡各特征的 BinningSpec（BinningSpec.select 的结果）
-# points: points_table 的结果，可以先取整
-# calibration: None、{"shift": Δ}（central_tendency_shift）或 {"slope": a, "intercept": b}（platt_fit）
+# table: points_table 的结果（索引 variable，列 bin、woe、points），可以先取整
+# unseen_points: 未见组按数值 WOE 处理的列 → 未见组的分值
+# calibration: None，或 {"kind": "shift", "shift": Δ}、
+#              {"kind": "platt", "slope": a, "intercept": b}、
+#              {"kind": "isotonic", "edges": [...], "probability": [...]}
 # scale: master_scale 的结果
 
-card.points(frame)        # DataFrame：每个特征一列
-card.score(frame)         # Series：逐列相加，相同的行分数相同
-card.probability(frame)   # score_to_pd，再按 calibration 平移或缩放 log odds
-card.grade(frame)         # 有 scale 时按 assign_grades 分级
-card.reason_codes(frame)  # 与 scorecard.reason_codes 相同
+ScorecardSpec.from_model(binning, coefficients, intercept, *, pdo, base_score, base_odds,
+                         decimals=None, calibration=None, scale=None)
+
+card.points(frame)                             # DataFrame：每个特征一列
+card.score(frame)                              # Series：逐列相加，相同的行分数相同
+card.probability(frame)                        # 见下文的校准口径
+card.grade(frame)                              # 按 assign_grades 分级；没有 scale 时报错
+card.reason_codes(frame, *, top=3, atol=1e-4)  # 自动传入 unseen_points
 card.to_json() / ScorecardSpec.from_json(text)
 ```
 
 设计要点（会话在实现前确认）：
 
 - **存分数表，不存系数：**
-  - 分数表就是部署出去的评分卡，可以取整；`scorecard.rst` 已经说明取整的做法。
+  - 分数表就是部署出去的评分卡，可以取整。`from_model` 的 `decimals` 与 pandas 的 `round()` 相同，逢五取偶，也就是 `scorecard.rst` 已说明的做法。
   - 取整后，PD 由取整后的分数换算，与生产系统一致。
-  - 未取整的分数表可以由 WOE 反推出系数，所以不必单独存系数。
+  - 用户手工调过分值时，直接用构造器；标准流程用 `from_model`，它调用 `points_table`，并在需要时先 `binning.select`。
+- **未见组的分值单独存（`unseen_points`）：** 取整后的分数表不能由 WOE 精确反推系数，所以未见组的分值不能在评分时现算。
+  - `unseen` 为 `"raise"` 的列：未见组报错，不需要分值；
+  - `{"group": label}` 的列：用该组的分值；
+  - 数值 WOE 的列：必须在 `unseen_points` 里给出分值，缺少或多给都报错；
+  - `from_model` 按 `woe_to_points` 的同一公式算出未取整的分值，再与分数表一起取整；
+  - `card.reason_codes` 把同一组 `unseen_points` 传给 `reason_codes`。
+- **字段叫 `table`，方法叫 `points(frame)`：** 草稿把两者都叫 `points`，同一个类里不能共存。
+- **校准写明作用在什么量上。** 设 s 为分数。未校准的 log-odds 直接按 (offset − s) / factor 计算，不先算 PD 再取 logit，以免极端分数处 PD 舍入成 0 或 1。三种校准：
+  - `shift`：σ(log-odds + Δ)，Δ 来自 `central_tendency_shift`；
+  - `platt`：σ(a · log-odds + b)，(a, b) 来自对 log-odds 拟合的 `platt_fit` 或 `quasi_moment_fit`，教程的校准一章正是这样拟合的；
+  - `isotonic`：`isotonic_predict(s, edges, probability)`，(edges, probability) 来自 `isotonic_fit(s, target, increasing=False)`，因为分数越高风险越低。
+  - 草稿另有一种直接在分数上做的 Platt 校准。log-odds 是分数的线性函数，两者只差一次换算；两种都提供，正好会造成草稿想避免的误用，所以只保留 log-odds 上的一种。
 - **不嵌入 `FeatureSpec`：** 特征从交易等其他表计算，生产中在评分之前完成。两份 JSON 并列存放，指南说明两者怎么配合。
 - **格式：**
-  - `format` 为 `kivi.ScorecardSpec`，`format_version` 为 1，`BinningSpec` 的字典原样嵌入，带它自己的格式版本。
-  - 与 `FeatureSpec` 一样拒绝重复的键，比较相等用 JSON 文本，并在 `tests/data/` 存一份固定文件，保证以后的版本能读。
-- **未见组：** 沿用 `BinningSpec` 的 `unseen` 设置，未见组的分数按其 WOE 换算。规则与 `reason_codes` 的 `unseen_points` 一致。
-- **文件：** `src/kivi/scorecard.py`、`tests/test_scorecard.py`、`docs/user_guide/scorecard.rst`、`docs/api/scorecard.rst` 和一个片段。
-  - 不改 `spec.py`，只用 `BinningSpec` 的公开方法。
-  - `FeatureSpec` 的 JSON 辅助函数是 `features.py` 的私有函数（`_unique_keys`）。如果需要同样的函数，移到 `_validation`，并在 PR 说明里写明。
+  - `format` 为 `kivi.ScorecardSpec`，`format_version` 为 1。顶层键固定为 `format`、`format_version`、`kivi_version`、`scaling`、`binning`、`points`、`unseen_points`、`calibration` 和 `scale`，未设置的写 `null`。
+  - `binning` 原样嵌入 `BinningSpec.to_dict()`，带它自己的格式版本。
+  - 分值按 `binning` 各列表格的行顺序存成列表，分组标签和 WOE 都不再重写。`table` 的 `bin` 和 `woe` 本来就必须与分箱的表格逐行相同，所以这样存不丢信息，也用不到 `spec.py` 的私有编码函数（公开模块不能导入另一个公开模块的私有函数），`spec.py` 不用改。
+  - 与 `FeatureSpec` 一样拒绝重复的键：`_unique_keys` 移到 `_validation`。另新写一个辅助函数，拒绝 `NaN` 和 `Infinity` 字面量；无穷写成 `{"float": "inf"}`。
+  - 比较相等用 JSON 文本。`tests/data/` 存一份固定文件和它的评分结果（`scorecard_spec_1.10.0.json`、`.scores.json`），覆盖数值列、特殊值、归组的类别列、缺失值、未见组、校准和主标尺，保证以后的版本能读。
+- **测试：**
+  - 未取整时，`points`、`score` 和 `probability` 与 `woe_to_points`、`pd_to_score` 和模型的概率一致，相对误差 1e-12；
+  - 相同的行分数按位相等；
+  - 取整时，分数等于取整后分数表的逐列和；
+  - 三种校准分别与对应函数对拍；
+  - 未见组的三种设置与 `BinningSpec.woe_transform` 和 `reason_codes` 一致；
+  - 覆盖全部错误分支。
+- **文件：** `src/kivi/scorecard.py`、`tests/test_scorecard.py`、`tests/test_typing.py`、`tests/data/scorecard_spec_1.10.0*.json`、`docs/user_guide/scorecard.rst`、`docs/api/scorecard.rst` 和一个片段；移动 `_unique_keys` 时还有 `_validation.py` 和 `features.py`。
+  - 不改 `spec.py`；`BinningSpec.from_json` 也不加重复键检查。
 
 ### 5.2 会话 `matrix-scenarios`
 
@@ -263,11 +291,57 @@ matrix_factor(counts, matrix, *, correlation, default_state=None)
   - 两种语言的 README、`docs/index.rst` 和 `user_guide/index.rst` 的卡片。
 - **CLAUDE.md：** 按第 4 节精简后的结构写入新模块的条目。
 
-### 5.4 发布
+### 5.4 `vif_filter` 提速
+
+协调会话的一个小 PR，来自草稿 `kivi-1.11-workflow-and-perf.md`。
+
+- **现状：** 每轮淘汰都对 n × k 的标准化矩阵重做一次 SVD。2026-11-26 在本机测得，50,000 行 × 40 列、删去 10 列需要 833 ms；草稿在另一台机器上测得 572 ms。
+- **做法：**
+  - 循环前对全部标准化列做一次薄 QR 分解 Z = QR，之后每轮只对 R 的列子集做 SVD。
+  - 正交变换不改变奇异值和右奇异向量，所以 VIF 在机器精度内不变。
+  - 判定秩时仍用原来的行数。
+- **不变的：** 公开 API 不变，平局规则（相对 1e-10）也不变。
+- **测试：** `tests/test_selection.py` 加入与逐轮重算的等价性测试，覆盖满秩、近奇异、完全共线和行数少于列数四种情形。另加一个 `changed` 片段，写明提速。
+- **随 1.10 发布：** 补丁版本只修错误，所以不出 1.9.1。
+- **文件：** `src/kivi/selection.py`、`tests/test_selection.py`，与 1.10 的两个会话都不重叠。
+
+### 5.5 发布
 
 1.10.0 等用户的指示。
 
 ## 6. 1.10 之后
+
+### 6.1 1.11 的候选
+
+以下候选来自草稿 `kivi-1.11-workflow-and-perf.md`，都是新增函数、新增方法或可选关键字，默认结果不变。开工前由用户审定 API。
+
+| 候选 | 解决的问题 | 文件 |
+| --- | --- | --- |
+| `rules.apply_rules(frame, candidates, *, special=None)` | 由 `rule_candidates` 的表生成每条规则的布尔列，代替手写 `((x > t) & ~x.isin(codes)).fillna(False)`；缺失值和特殊值不命中。在开发样本上，`rule_table` 的计数与候选表逐行相同 | `rules.py` |
+| `rule_candidates(..., include_missing=False)` | 缺失本身风险高时，检出“缺失”规则；默认关闭，1.8 的结果不变 | `rules.py` |
+| `BinningSpec.summary()` | 一张表看所有列：IV、箱数、WOE 趋势、最小的箱占比和事件数、缺失和特殊值的占比 | `spec.py` |
+| `BinningSpec.replace_column(column, frame, target, *, edges=None, groups=None, ...)` | 人工调整一列的切点或归组，用开发样本重算该列的 WOE，其余列不动 | `spec.py` |
+| `stepwise(..., include=None, max_variables=None)` | 业务上必须保留的变量，以及入模变量数的上限 | `selection.py` |
+
+安排：
+
+- `spec.py` 是热点文件，`summary` 和 `replace_column` 放在同一个会话里。
+- `apply_rules` 和 `include_missing` 放在一个 `rules` 会话里。
+- `stepwise` 的改动与第 5.4 节的提速是同一个文件，排在提速之后。
+
+需要用户先决定的：
+
+- **`stepwise(criterion="aic" | "bic")`：** 会重新打开 1.4 的决定。当时按指标选变量的需求由 `selection_path` 承担。
+- **评分卡的 SQL 导出：**
+  - CLAUDE.md 记录了用户的决定：不做 Spark 和 SQL 集成。
+  - 生成 SQL 文本与访问数据不是一回事，可以单独论证，但要由用户决定。
+  - 如果做，只生成分组、WOE 和分数的 `CASE` 表达式。PD 要用到 `exp`，各数据库的浮点和 `NULL` 语义不同，只用 sqlite3 测试不能保证与 Python 一致。
+- **按页面拆分 `kivi.po`：**
+  - 好处是消除并行 PR 在目录上的冲突。
+  - 代价是 `build.py` 的检查、`--update-po`、`--merge-po`、CLAUDE.md 和 `documentation.rst` 都要跟着改。
+  - 1.8 的冲突都由 `--merge-po` 自动解决了，等长期有三个以上并行会话时再评估。
+
+### 6.2 最低版本与公平性检查
 
 - **最低 Python 3.12：**
   - Python 3.11 的支持期到 2027 年 10 月结束（PEP 664）。
@@ -287,11 +361,15 @@ matrix_factor(counts, matrix, *, correlation, default_state=None)
 - 多期检验、带相关的二项检验和红绿灯法；
 - 多变量规则树：`rule_candidates` 1.8.0 才发布，还没有使用反馈。
 
-新增两项：
+新增的几项：
 
 | 内容 | 不排期的理由 |
 | --- | --- |
-| 公平性检查 | 见第 6 节 |
+| 公平性检查 | 见第 6.2 节 |
+| L2 正则化的 `logistic_regression`（草稿） | 以平滑后的 WOE 为输入，很少出现完全分离。加了惩罚，p 值就不再是 Wald 检验，与 `stepwise` 的判据冲突。草稿把惩罚记在 `table.attrs` 里，这是 kivi 里的新做法，兼容性承诺不覆盖。真需要处理分离时，信用风险实务更常用 Firth 偏差修正，到时再立项 |
+| 拆长函数（草稿：`rule_candidates`、`delinquency_panel`、`default_rate_table`、`fit_spec`） | 只改结构、不改行为，而这些文件正是 1.11 各会话要改的。只在已经拥有该文件的功能 PR 里顺带做 |
+| `_best_binning` 的 `trend="any"` 快速分支（草稿） | `optimal_edges` 用 20 到 300 个初始箱也只要 7 到 116 ms；另写一条路径要完全复现现有的平局规则，风险大于收益 |
+| `chimerge_groups` 的堆实现（草稿） | 3,000 个类别只要 125 ms，等有上万个类别的实际需求再做 |
 | 保守性调整（MoC）的量化 | EBA/GL/2017/16 第 4.4.4 节把量化方法留给机构自己决定。其中统计部分（一般估计误差）已有 `roc_auc_interval`、`jeffreys_test` 和 `most_prudent_pd` 等区间可用，以后可以写成指南的一节 |
 
 ## 8. 维持不做
@@ -310,22 +388,26 @@ matrix_factor(counts, matrix, *, correlation, default_state=None)
 | # | 问题 | 状态 | 建议 |
 | --- | --- | --- | --- |
 | 1 | 顺序 | 2026-11-26 已定（“按这个顺序改写，先开第 1 步的 PR”） | 第 3 节：先做第 1 步的基础设施 PR，再做 1.10；之后只按时间表提高最低 Python 版本 |
-| 2 | `ScorecardSpec` 的范围 | 待定 | 存分箱和分数表，校准和主标尺可选，不嵌入 `FeatureSpec`，逐列求和 |
+| 2 | `ScorecardSpec` 的范围 | 待定 | 第 5.1 节：存分箱、分数表和未见组的分值；校准三种（`shift`、`platt`、`isotonic`）和主标尺可选；不嵌入 `FeatureSpec`；逐列求和；`from_model` 一步生成 |
 | 3 | 转移矩阵单因子模型 | 待定 | 采用 Belkin–Suchower–Forest 模型，先核对原文，再审定 API；与 `scorecard-spec` 并行，或推迟到以后 |
 | 4 | 最新 Python 的 CI 任务 | 2026-11-26 已定，#114 已合并 | 增加 `newest-python` 任务，不设为必需检查 |
 | 5 | 精简 CLAUDE.md | 2026-11-26 已定，#114 已合并 | 精简到 40.0 KB（目标约 30 KB），算法细节留在 docstring、设计稿和测试里 |
 | 6 | 大模块 | 待定 | 不主动拆 |
 | 7 | 最低版本 | 待定 | Python 3.11 停止支持（2027 年 10 月）后提高到 3.12，由前一个版本预告；NumPy 和 pandas 不动 |
 | 8 | 公平性检查 | 待定 | 不排期，2027 年年中再评估 |
-| 9 | 暂定名称 | 待定 | `ScorecardSpec`、`shift_matrix`、`matrix_factor`，由用户在 PR 审阅时确认 |
+| 9 | 暂定名称 | 待定 | `ScorecardSpec`（字段 `table`、`unseen_points`，构造器 `from_model`）、`shift_matrix`、`matrix_factor`，由用户在 PR 审阅时确认 |
+| 10 | 草稿中可执行的部分 | 2026-11-26 已纳入（“只吸取可以执行的部分即可，纳入你后续开发的范围”） | 第 5.1 节的 `ScorecardSpec` 细节和第 5.4 节的 `vif_filter` 提速归入 1.10；第 6.1 节的五项列为 1.11 候选，API 开工前审定 |
+| 11 | `stepwise` 的 AIC/BIC 准则 | 待定 | 不做，除非有具体需求；按指标选变量已由 `selection_path` 承担 |
+| 12 | 评分卡的 SQL 导出 | 待定 | 维持用户此前“不做 SQL 集成”的决定；如果要做，只生成分组、WOE 和分数的 `CASE` 表达式 |
+| 13 | 拆分 `kivi.po` | 待定 | 维持单文件和 `--merge-po`，等长期有三个以上并行会话时再评估 |
 
 ## 10. 协调
 
 | 会话 | 拥有的文件 |
 | --- | --- |
-| `scorecard-spec` | `src/kivi/scorecard.py`、`tests/test_scorecard.py`、`tests/data/scorecard_spec_*.json`、`docs/user_guide/scorecard.rst`、`docs/api/scorecard.rst`；如需移动 `_unique_keys`，还有 `_validation.py` 和 `features.py` |
+| `scorecard-spec` | `src/kivi/scorecard.py`、`tests/test_scorecard.py`、`tests/test_typing.py`、`tests/data/scorecard_spec_*.json`、`docs/user_guide/scorecard.rst`、`docs/api/scorecard.rst`；如需移动 `_unique_keys`，还有 `_validation.py` 和 `features.py` |
 | `matrix-scenarios` | `src/kivi/lifetime.py`、`tests/test_lifetime.py`、`docs/user_guide/lifetime.rst`、`docs/api/lifetime.rst`、`docs/design/kivi-1.10-matrix-scenarios.md` |
-| 协调会话 | 本稿；第 1 步的 PR（`.github/workflows/docs.yml`、`CLAUDE.md`）；集成 PR；发布 |
+| 协调会话 | 本稿；第 1 步的 PR（`.github/workflows/docs.yml`、`CLAUDE.md`）；`vif_filter` 提速（`src/kivi/selection.py`、`tests/test_selection.py`）；集成 PR；发布 |
 
 - **共享文件：** `kivi.po` 是唯一的共享文件，冲突用 `--merge-po` 解决。
 - **合并顺序：** 第 1 步的 PR 合并之后，再开 1.10 的会话；功能 PR 都合并之后，再开集成 PR。
