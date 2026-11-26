@@ -8,6 +8,24 @@ Changes merged since the last release.
 
 .. release-fragments::
 
+1.7.0 (2026-11-25)
+------------------
+
+New
+^^^
+
+* ``kivi.strategy.cutoff_table`` takes ``revenue``, a non-negative revenue per observation such as the interest margin of a loan, and then adds the column ``approved_revenue``, the revenue of the approved book, and with ``loss`` also ``profit``, the revenue minus the losses. ``table["profit"].idxmax()`` gives the most profitable of the cut-offs. Without ``revenue`` the table is unchanged.
+* ``kivi.metrics.expected_maximum_profit`` gives the expected maximum profit (EMP) of a credit score of Verbraken, Bravo, Weber and Baesens (2014): the profit per applicant of the best cut-off, as a share of the loan amount, averaged over a loss of default that is 0 with the probability ``no_loss_share``, total with the probability ``full_loss_share`` and evenly spread in between, together with the share of applicants that the best cut-off rejects. The defaults and the results are those of the R package EMP and the Python package empulse, and ``weights`` are frequency weights.
+
+* The new module ``kivi.rules`` measures the policy rules of a credit strategy, passed as a DataFrame with one column of booleans, or of 0 and 1, per rule. ``rule_table`` gives the hits, the hit rate and the unique hits of each rule, those that no other rule of the set hits, and with a target the hits with a known outcome, the events, the event rate, the lift, the recall and the events among the unique hits. ``rule_set_table`` applies the rules in order, as a decision waterfall: each row gives the new hits of a rule and the events among them, and the book that the rules up to it leave approved, with the columns of ``kivi.strategy.cutoff_table``. Missing labels in the target are unknown outcomes, as in ``kivi.strategy.swap_set``, a missing value in a rule raises, and ``weights`` are frequency weights.
+* The new guide to policy rules measures the two policy rules and two candidate rules of the simulated applications: their hits and event rates, the overlap matrix of the rules, a waterfall that reproduces the approval decisions with the score cut-off as its last rule, what the order of the rules changes, and what the outcomes of the approved applicants alone can and cannot show.
+
+Changed
+^^^^^^^
+
+* The guide to policy rules comes after the credit strategy, which sets the cut-off that the rules complement, and before the binning specifications. The home page, the index of the user guide and both READMEs describe ``kivi.rules``, the revenue and profit of ``cutoff_table`` and ``expected_maximum_profit``, with a chart of the decision waterfall of the simulated applications and one of the revenue, expected loss and profit by cut-off. A diagram of the worked example shows how ``rule_set_table`` credits each decline to the first rule that hits it.
+* The conventions page describes the ``rules`` argument, the ``loss`` and ``revenue`` of ``cutoff_table`` and the parameters of ``expected_maximum_profit``, and adds the rule tables to the functions that read a missing label as an unknown outcome. The compatibility page lists the tables of ``rule_table`` and ``rule_set_table``, the new columns of ``cutoff_table`` and the statistics of ``expected_maximum_profit``, and the glossary defines the policy rule, the candidate rule, the hit rate, the unique hits, the new hits, the decision waterfall, the overlap matrix, the test group, the revenue and profit, the expected maximum profit, the return on investment and the ROC convex hull.
+
 1.6.0 (2026-11-25)
 ------------------
 
