@@ -14,7 +14,7 @@ Changes merged since the last release.
 New
 ^^^
 
-* ``kivi.vintage.default_rate_table`` gives the one-year default rate of each grade by the cohort approach of the EBA guidelines on PD estimation, from quarter-end start months by default. A loan in default at a start month belongs to no cohort, the grade is the one at the start month, a loan that defaults twice in a year counts once, and loans that leave the panel during the year stay in the cohort and are counted in ``exited``. ``probability`` adds the mean PD of each cohort.
+* ``kivi.vintage.default_rate_table`` gives the one-year default rate of each grade by the cohort approach of the EBA guidelines on PD estimation, from quarter-end start months by default. A loan in default at a start month belongs to no cohort, the grade is the one at the start month, a loan that defaults twice in a year counts once, and loans that leave the panel during the year without defaulting stay in the cohort and are counted in ``exited``. ``probability`` adds the mean PD of each cohort.
 * ``kivi.calibration.central_tendency_shift`` returns the shift of the log odds that brings the mean PD of a calibration sample to a central tendency, such as the long-run average default rate, without changing the order of the PDs: the scaled likelihood ratio of Tasche (2013).
 * ``kivi.calibration.quasi_moment_fit`` fits a logistic PD curve to a central tendency and an accuracy ratio, the quasi moment matching of Tasche (2009), and returns the slope and the intercept that ``kivi.calibration.platt_predict`` applies.
 
