@@ -3,7 +3,7 @@ Charts
 
 A risk report shows its tables as charts: the event rate of each bin, the ROC curve of a score, the shares that moved since development. :mod:`kivi.plotting` draws the result tables of the other modules with matplotlib, one function per table: :func:`~kivi.plotting.woe_chart` for a WOE table, :func:`~kivi.plotting.correlation_chart` for a correlation matrix, :func:`~kivi.plotting.roc_chart` and :func:`~kivi.plotting.precision_recall_chart` for a ROC table, :func:`~kivi.plotting.gains_chart` for a gains table, :func:`~kivi.plotting.distribution_chart` for the events and non-events of a gains or WOE table, :func:`~kivi.plotting.calibration_chart` for a calibration table, :func:`~kivi.plotting.cutoff_chart` for a cut-off table, :func:`~kivi.plotting.psi_chart` for a PSI table, :func:`~kivi.plotting.monitoring_chart` for a monitoring report, :func:`~kivi.plotting.vintage_chart` for a vintage table, :func:`~kivi.plotting.survival_chart` for a survival table, :func:`~kivi.plotting.transition_chart` for a transition matrix, :func:`~kivi.plotting.rule_set_chart` for a rule set table, :func:`~kivi.plotting.profit_chart` for a cut-off table with revenue and loss, and :func:`~kivi.plotting.lgd_chart` for an LGD table.
 
-The charts draw the tables of the earlier guides, from :doc:`woe_iv` to :doc:`vintage`, so this page comes last in the user guide, after :doc:`lifetime`.
+The charts draw the tables of the earlier guides, from :doc:`woe_iv` to :doc:`lifetime`, so this page comes last in the user guide.
 
 matplotlib is an optional dependency of kivi. Install it with the ``plot`` extra:
 

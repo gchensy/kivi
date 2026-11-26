@@ -181,7 +181,7 @@ def rule_candidates(
         )
     if not len(frame):
         raise ValueError("frame must have at least one row")
-    if method not in ("tree", "ks"):
+    if not isinstance(method, str) or method not in ("tree", "ks"):  # type: ignore[redundant-expr]  # rejects non-str values
         raise ValueError(f"method must be 'tree' or 'ks', got {_validation.shown_argument(method)}")
     _validation.check_count(max_bins, "max_bins")
     if (

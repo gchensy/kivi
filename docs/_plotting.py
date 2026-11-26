@@ -60,7 +60,7 @@ from kivi.spec import fit_spec
 from kivi.stability import psi_table
 from kivi.strategy import cutoff_table, expected_loss
 from kivi.univariate import profile_table
-from kivi.vintage import transition_matrix, vintage_table
+from kivi.vintage import default_rate_table, transition_matrix, vintage_table
 from kivi.woe import woe_table, woe_transform
 
 BLUE = "#2f5bd3"
@@ -1323,6 +1323,42 @@ def state_term_structures(cumulative: pd.DataFrame, vintage: pd.Series, state: s
     return fig
 
 
+def default_rate_bars(portfolio: pd.DataFrame):
+    """One-year default rate of each start month, with their mean and the pooled rate.
+
+    ``portfolio`` holds the ``total`` and ``event`` of each start month, summed over the grades
+    of a default_rate_table.
+    """
+    rate = portfolio["event"] / portfolio["total"]
+    mean, pooled = rate.mean(), portfolio["event"].sum() / portfolio["total"].sum()
+    fig, ax = plt.subplots(figsize=(8, 3.4))
+    x = np.arange(len(rate))
+    ax.bar(x, rate, color=BLUE, width=0.6)
+    for xi, value in zip(x, rate, strict=True):
+        ax.text(xi, value / 2, f"{value:.2%}", ha="center", va="center", color="white")
+    ax.axhline(
+        mean, color=AMBER, linestyle="--", linewidth=1.6, label=f"event_rate.mean() = {mean:.2%}"
+    )
+    ax.axhline(
+        pooled,
+        color=GRAY,
+        linestyle=":",
+        linewidth=1.6,
+        label=f"event.sum() / total.sum() = {pooled:.2%}",
+    )
+    labels = [
+        f"{start}\ntotal={n:,}" for start, n in zip(rate.index, portfolio["total"], strict=True)
+    ]
+    ax.set_xticks(x, labels, fontsize=8.5)
+    ax.set_xlabel("start")
+    ax.set_ylabel("event_rate")
+    ax.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+    ax.set_ylim(0, rate.max() * 1.3)
+    ax.legend(loc="upper right")
+    fig.tight_layout()
+    return fig
+
+
 # Recipes for the documentation pages ---------------------------------------
 
 
@@ -1812,6 +1848,14 @@ def figure_vintage():
         panel["loan_id"], panel["cohort"], panel["month_on_book"], panel["status"] == "90+"
     )
     return vintage_curves(ever_90.iloc[::3], "status == '90+'")
+
+
+def figure_default_rates():
+    panel = make_loan_panel(rng=0)
+    rates = default_rate_table(
+        panel["loan_id"], panel["month"], panel["status"], panel["status"] == "90+"
+    )
+    return default_rate_bars(rates.groupby(level="start")[["total", "event"]].sum())
 
 
 def _monitoring_samples():

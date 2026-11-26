@@ -14,6 +14,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Accepts and rejects
       The applicants that a previous policy approved and declined. The outcome is known only for the accepts, so a model developed on them alone may misjudge the rejects; see :doc:`/user_guide/reject_inference`.
 
+   Accuracy ratio (AR)
+      The name of the Gini coefficient in rating validation and PD calibration: twice the AUC minus 1, with tied scores counted as half. Quasi moment matching fits a PD curve to a target accuracy ratio; see :doc:`/user_guide/calibration`.
+
    Analytic hierarchy process (AHP)
       Saaty's method of weighing the factors of a decision, such as those of an expert scorecard, from comparisons of the factors two at a time. The weights are the principal eigenvector, or the geometric means of the rows, of the pairwise comparison matrix, and the consistency ratio checks that the comparisons agree with each other; see :doc:`/user_guide/expert`.
 
@@ -50,8 +53,14 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Brier decomposition
       The split of the Brier score of probabilities, by groups such as grades, into the reliability, how far the mean probability of each group lies from its event rate, the resolution, how far the event rates of the groups lie from the overall event rate, and the uncertainty, the variance of the outcomes. The Brier score is the reliability minus the resolution plus the uncertainty, plus two terms for probabilities that vary within a group; see :doc:`/user_guide/calibration`.
 
+   Calibration sample
+      The sample on which the PDs of a model are brought to their central tendency, such as the current portfolio. The EBA guidelines ask that it be comparable to the portfolio that the model rates; see :doc:`/user_guide/calibration`.
+
+   Calibration segment
+      The part of a portfolio whose PDs are calibrated to one long-run average default rate, such as the exposures of one rating system; the calibration of each grade within it is tested as well; see :doc:`/user_guide/calibration`.
+
    Candidate rule
-      A policy rule that is considered but not yet in force. Its event rate can be measured on the applicants that the current policy approved, which shows what adding it would change; see :doc:`/user_guide/rules`.
+      A policy rule that is considered but not yet in force, such as one that an analyst proposes or a threshold that :func:`~kivi.rules.rule_candidates` finds in the data. Its event rate can be measured on the applicants that the current policy approved, which shows what adding it would change, and a threshold found on the development sample is checked again on a validation sample; see :doc:`/user_guide/rules`.
 
    Capital requirement (K)
       The unexpected loss of an exposure as a share of its EAD: the loss in the economy that is worse only once in a thousand years, minus the expected loss. Its risk weight is 12.5 K, and its risk-weighted assets are 12.5 K times the EAD; see :doc:`/user_guide/capital`.
@@ -61,6 +70,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Censoring
       Losing sight of an account before its outcome is known, as when the data end while a loan is still on book. A censored account counts among the accounts at risk up to its last period, and its later outcome stays unknown; see :doc:`/user_guide/lifetime`.
+
+   Central tendency
+      The mean PD to which a model is calibrated, such as the long-run average default rate of its calibration segment, or the event rate of a new sample; see :doc:`/user_guide/calibration`.
 
    Characteristic stability index (CSI)
       The change of a variable's average scorecard points from a reference sample to a current one: the change of each group's share times the group's points, summed over the groups. Over all the variables of a scorecard, the CSI values add up to the change of the average score; see :ref:`characteristic-stability`.
@@ -75,7 +87,10 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       The standard deviation of values divided by their mean, as in the ``cv`` of :func:`~kivi.univariate.profile_table`. For the shares :math:`R_i` of :math:`K` grades it is :math:`\sqrt{K \sum_i (R_i - 1/K)^2}`, 0 for equally full grades and :math:`\sqrt{K - 1}` when one grade holds everybody, and the European Central Bank tests whether it has risen since the initial validation; see :doc:`/user_guide/calibration`.
 
    Cohort
-      The loans originated in the same period, usually a month, followed together as they age in a vintage table; see :doc:`/user_guide/vintage`.
+      The loans originated in the same period, usually a month, followed together as they age in a vintage table. The cohort approach to one-year default rates groups loans by a start month instead; see :doc:`/user_guide/vintage`.
+
+   Cohort approach
+      The count of the one-year default rate behind the PDs of an IRB model: the obligors not in default at a start month, by their grade at that month, and of them those that default at least once in the following year, including those that leave the portfolio during it; see :doc:`/user_guide/vintage`.
 
    Competing risk
       An exit that ends the risk of default without being a default, such as an early repayment. Counting it as censored, as 1 − Kaplan–Meier does, overstates the share of the accounts that default; see :doc:`/user_guide/lifetime`.
@@ -189,7 +204,7 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
       The AUC extended to ordered outcomes that are not binary, such as realized LGDs cut into segments: of two observations in different estimated segments, the probability that the one estimated higher also realized more, with ties counting as one half. It is Somers' D plus one, halved; see :doc:`/user_guide/metrics`.
 
    Gini coefficient
-      Twice the AUC minus 1: 0 for a score unrelated to the target and 1 for a score that ranks every event above every non-event. Scorecard development reports it more often than the AUC itself; see :doc:`/user_guide/metrics`.
+      Twice the AUC minus 1: 0 for a score unrelated to the target and 1 for a score that ranks every event above every non-event. Scorecard development reports it more often than the AUC itself, and rating validation calls it the accuracy ratio; see :doc:`/user_guide/metrics`.
 
    Global weight
       The weight of a sub-factor in a whole expert scorecard: the weight of its factor times its weight among the sub-factors of that factor. The global weights of all sub-factors sum to 1; see :doc:`/user_guide/expert`.
@@ -229,6 +244,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Lift
       The event rate of a group, such as a score band or the applicants that a policy rule hits, divided by the event rate of the whole sample. A lift above 1 marks a group that is riskier than average; see :doc:`/user_guide/metrics`.
+
+   Long-run average default rate
+      The average of the one-year default rates over a historical observation period of at least five years that reflects the likely range of default rates, with good and bad years. The PDs of an IRB model are calibrated to it, and the lender adjusts it upwards where bad years are missing; see :doc:`/user_guide/vintage`.
 
    Long-run average LGD
       The default-weighted average LGD of all the defaults of a long period, each default counted once and negative LGDs counted as 0, with the open workouts included through an adjustment for their future recoveries. An LGD estimate may not fall below it; see :doc:`/user_guide/lgd`.
@@ -284,8 +302,17 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Observation time
       The time at which a feature is computed, such as the date of an application. Events at or after it are not used, unless ``closed="right"`` admits those at that very time; see :doc:`/user_guide/features`.
 
+   Observed average default rate
+      The arithmetic mean of the one-year default rates of the start months of a historical observation period, for a grade or for a calibration segment, each start month counted once however many obligors it holds; see :doc:`/user_guide/vintage`.
+
    One-factor model
       Vasicek's model of portfolio credit risk, behind the IRB risk-weight functions: a borrower defaults when its assets, a mix of a systematic factor that all borrowers share and a factor of its own, fall below a threshold that its PD sets. Given the factor, defaults are independent; see :doc:`/user_guide/capital`.
+
+   One-year default rate
+      The share of the obligors not in default at a start month that default at least once in the twelve months after it, counted by their grade at the start month; see :doc:`/user_guide/vintage`.
+
+   Optimal binning
+      Supervised binning that returns, of all the ways to merge fine bins, the one with the largest information value that meets constraints at once, such as a minimum share and a minimum number of events in every bin and a shape of the WOE. The IV is a sum over the bins, so dynamic programming finds it exactly; see :doc:`/user_guide/binning`.
 
    Outcome window
       The time after which the outcome of an observation is known, such as twelve months after a loan was granted. Until it has passed, the target is missing and the outcome counts as unknown; see :doc:`/user_guide/monitoring`.
@@ -307,6 +334,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    PD term structure
       The PD of each period after a starting point, such as the origination of a loan or the reporting date, given as cumulative, marginal or conditional PDs; see :doc:`/user_guide/lifetime`.
+
+   Permutation test
+      A test that computes a statistic again on many shuffles of the target, which break any link between the target and the variable, refitting every step that used the target, such as supervised bins. The statistic of the real target is significant when few shuffles reach it; see :doc:`/user_guide/woe_iv`.
 
    Placement value
       For an event, the share of non-events that score below it, and for a non-event, the share of events that score above it, with ties counted as one half. The average over either class is the AUC, and their variances give its DeLong standard error; see :doc:`/user_guide/metrics`.
@@ -334,6 +364,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Qualifying revolving retail exposure (QRRE)
       Revolving, unsecured retail credit such as credit cards and overdrafts, within limits on the size of each exposure, which the IRB approach weights with a fixed asset correlation of 0.04; ``asset_class="revolving"`` in :mod:`kivi.capital`; see :doc:`/user_guide/capital`.
+
+   Quasi moment matching
+      Tasche's calibration of a logistic PD curve of a score to two targets: the mean PD equals a central tendency, and the accuracy ratio that the curve implies equals a target accuracy ratio, such as that of the development sample; see :doc:`/user_guide/calibration`.
 
    Random index (RI)
       The average consistency index of pairwise comparison matrices filled with random judgments on the Saaty scale, which depends only on the number of factors. kivi uses the table of Tone (1986) for 3 to 15 factors; see :doc:`/user_guide/expert`.
@@ -392,6 +425,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
    Saaty scale
       The scale of pairwise comparisons from 1, equally important, through 3, 5 and 7 to 9, extremely more important, with 2, 4, 6 and 8 in between and the reciprocals for the reverse comparisons; see :doc:`/user_guide/expert`.
 
+   Scaled likelihood ratio
+      Tasche's name for the calibration that multiplies the odds of every PD by one constant, the same shift of every log odds, chosen so that the mean PD of the calibration sample equals the central tendency. It keeps the order of the PDs and never leaves [0, 1]; see :doc:`/user_guide/calibration`.
+
    Selection path
       The models fitted on the first 1, 2, 3 and more variables of a fixed order, such as the variables sorted by IV, with the measures of each model on the development sample and on a validation sample, which show where adding variables stops paying off; see :doc:`/user_guide/selection`.
 
@@ -418,6 +454,9 @@ The terms of credit risk modeling as the guides and the docstrings use them. Eac
 
    Standard error and confidence interval
       The standard error measures how much an estimate, such as an AUC, would vary from sample to sample. A confidence interval at a level such as 95% is a range around the estimate that would cover the true value in that share of samples; see :doc:`/user_guide/metrics`.
+
+   Start month
+      The month at whose end a cohort of the cohort approach is formed; the defaults of the twelve months after it make its one-year default rates. The EBA guidelines ask for start months at least every quarter; see :doc:`/user_guide/vintage`.
 
    Stressed PD
       The PD of the one-factor model in a bad economy, such as the PD at the 0.1% quantile of the systematic factor, a ``level`` of 0.999, that the IRB capital requirement uses, or the PD of a downturn scenario; :func:`~kivi.capital.conditional_pd` gives it; see :doc:`/user_guide/capital`.

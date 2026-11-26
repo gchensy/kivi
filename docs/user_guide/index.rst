@@ -32,13 +32,13 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: binning
       :link-type: doc
 
-      Quantile, uniform and custom edges, special values, merging fine bins, supervised binning by ChiMerge, decision trees, Best-KS and monotonic WOE, grouping the categories of categorical variables, and missing values.
+      Quantile, uniform and custom edges, special values, merging fine bins, supervised binning by ChiMerge, decision trees, Best-KS and monotonic WOE, optimal binning under constraints on the share, the events and the WOE shape of every bin, grouping the categories of categorical variables, and missing values.
 
    .. grid-item-card:: Weight of evidence and information value
       :link: woe_iv
       :link-type: doc
 
-      Definitions, the smoothing rule for empty cells, how to read the result, the trend of the WOE over the bins and how to encode new data.
+      Definitions, the smoothing rule for empty cells, how to read the result, the trend of the WOE over the bins, how to encode new data, and the information value of supervised bins on a validation sample or by a permutation test.
 
    .. grid-item-card:: Variable selection
       :link: selection
@@ -74,7 +74,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: calibration
       :link-type: doc
 
-      Prior correction, master scales built from PDs or fitted to default rates, tests of each grade's PD and of single PDs, the Brier decomposition, grade concentration, back-tests of LGDs and CCFs, and Platt and isotonic recalibration.
+      Prior correction, master scales built from PDs or fitted to default rates, tests of each grade's PD and of single PDs, the Brier decomposition, grade concentration, back-tests of LGDs and CCFs, Platt and isotonic recalibration, and calibration to a central tendency by a shift of the log odds or by quasi moment matching.
 
    .. grid-item-card:: LGD and EAD
       :link: lgd
@@ -92,7 +92,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: rules
       :link-type: doc
 
-      Hits, event rates, lift and unique hits of each policy rule, the overlap of two rules, and the decision waterfall of a rule set with the book it leaves approved.
+      Hits, event rates, lift and unique hits of each policy rule, the overlap of two rules, the decision waterfall of a rule set with the book it leaves approved, and a search of the numeric variables for single-threshold rules.
 
    .. grid-item-card:: Binning specifications
       :link: spec
@@ -128,7 +128,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: vintage
       :link-type: doc
 
-      Monthly delinquency panels from repayment schedules, cumulative bad rates by cohort and month on book, roll rates and transition matrices between delinquency buckets, and the bandwidth and tests of rating migrations.
+      Monthly delinquency panels from repayment schedules, cumulative bad rates by cohort and month on book, one-year default rates by start month and their long-run average, roll rates and transition matrices between delinquency buckets, and the bandwidth and tests of rating migrations.
 
    .. grid-item-card:: Lifetime PD and expected credit loss
       :link: lifetime
@@ -140,7 +140,7 @@ Every function follows the rules of :doc:`/api/conventions`, such as the order o
       :link: plotting
       :link-type: doc
 
-      Draw WOE tables, ROC, precision-recall and gains curves, the distributions of events and non-events, calibration, cut-offs, PSI, monitoring reports and vintage curves with matplotlib.
+      Draw WOE tables, ROC, precision-recall and gains curves, the distributions of events and non-events, calibration, cut-offs and their profit, PSI, monitoring reports, vintage and survival curves, transition matrices, the decision waterfall of a rule set and LGDs by group with matplotlib.
 
    .. grid-item-card:: Example data
       :link: datasets
