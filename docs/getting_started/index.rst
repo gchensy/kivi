@@ -1,7 +1,7 @@
 Getting started
 ===============
 
-kivi needs Python 3.10 or newer with NumPy and pandas. Install it, then follow the quickstart to bin a variable, compute its weight of evidence and check its stability between two samples.
+kivi needs Python 3.11 or newer with NumPy and pandas. Install it, then follow the quickstart to bin a variable, compute its weight of evidence and check its stability between two samples.
 
 .. grid:: 1 1 2 2
    :gutter: 3

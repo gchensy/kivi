@@ -1239,7 +1239,7 @@ def test_delinquency_panel_leaves_out_loans_first_due_after_end():
         "2024Q1",
         "March 2024",
         "2024-03-15T10:00:00+08:00",
-        datetime.datetime(2024, 3, 2, tzinfo=datetime.timezone.utc),
+        datetime.datetime(2024, 3, 2, tzinfo=datetime.UTC),
     ],
 )
 def test_delinquency_panel_end_is_a_month_or_a_date_in_it(end):

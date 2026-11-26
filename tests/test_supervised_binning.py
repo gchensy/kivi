@@ -786,7 +786,7 @@ def test_optimal_matches_optbinning(reference, column, setting, trend):
     """Compare with the optimal binning of optbinning on the same initial bins.
 
     The expected edges and IVs were computed once with optbinning 1.1.0, which needs
-    Python >= 3.11 and NumPy >= 2.0.2 and is therefore no test dependency::
+    NumPy >= 2.0.2 (through ortools) and is therefore no test dependency::
 
         import numpy as np
         from optbinning import OptimalBinning

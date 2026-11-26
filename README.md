@@ -12,7 +12,7 @@ derive point-in-time features, screen and bin the variables, fit and scale the m
 [![PyPI](https://img.shields.io/pypi/v/kivi?logo=pypi&logoColor=white&color=2f5bd3)](https://pypi.org/project/kivi/)
 [![Downloads](https://img.shields.io/pypi/dm/kivi?color=0b7a70)](https://pypi.org/project/kivi/)
 [![Documentation](https://github.com/gchensy/kivi/actions/workflows/docs.yml/badge.svg)](https://github.com/gchensy/kivi/actions/workflows/docs.yml)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![pandas 2.0+](https://img.shields.io/badge/pandas-2.0%2B-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
 [![Docs: English | 中文](https://img.shields.io/badge/docs-English%20%7C%20%E4%B8%AD%E6%96%87-2f5bd3)](https://gchensy.github.io/kivi/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-0b7a70)](https://github.com/gchensy/kivi/blob/master/LICENSE)
@@ -169,7 +169,7 @@ The first steps show the pattern: define the features once and compute them for 
 pip install kivi
 ```
 
-Requires Python 3.10+, NumPy 1.24+ and pandas 2.0+. For the latest development version, use `pip install "git+https://github.com/gchensy/kivi"`.
+Requires Python 3.11+, NumPy 1.24+ and pandas 2.0+. For the latest development version, use `pip install "git+https://github.com/gchensy/kivi"`.
 
 The charts of `kivi.plotting` also need matplotlib 3.7+: install them with `pip install "kivi[plot]"`.
 
@@ -349,14 +349,14 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 - ✅ 1.6: LGD and EAD: workout LGDs with per-loan discount rates, realized credit conversion factors, LGD tables by group, the fractional logit with robust standard errors, simulated defaults and recoveries, and the rules of Basel, the EBA and China side by side
 - ✅ 1.7: policy rules and profit: hit rates, unique hits and decision waterfalls of policy rules, measured also on the approved applicants alone, revenue and profit by cut-off, and the expected maximum profit of a credit score
 - ✅ 1.8: binning with the largest IV under limits on the share and the events of every bin and the shape of its WOE, U shapes included, the same exact binning of a continuous response such as an LGD, minimum bin shares for ChiMerge and monotonic binning, a search for single-threshold policy rules, one-year default rates by the cohort approach, calibration to a long-run average default rate by a shift of the log odds or by quasi moment matching, and charts of survival curves, transition matrices, decision waterfalls, profit by cut-off and LGDs by group
-- 🔜 1.9: Python 3.11 or newer, with NumPy 1.24 and pandas 2.0 still supported
+- ✅ 1.9: Python 3.11 or newer, with NumPy 1.24 and pandas 2.0 still supported
 
 ## 🤝 Contributing
 
 ```bash
 git clone https://github.com/gchensy/kivi.git
 cd kivi
-python -m pip install -e '.[test,docs,lint]'              # the lint extra needs Python 3.11 or newer
+python -m pip install -e '.[test,docs,lint]'              # kivi with the test, docs and lint tools
 pre-commit install                                        # ruff and mypy before every commit
 python -m pytest --cov                                    # unit tests with branch coverage
 python -m sphinx -W -b doctest docs docs/_build/doctest   # documentation examples

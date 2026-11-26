@@ -12,7 +12,7 @@
 [![PyPI](https://img.shields.io/pypi/v/kivi?logo=pypi&logoColor=white&color=2f5bd3)](https://pypi.org/project/kivi/)
 [![Downloads](https://img.shields.io/pypi/dm/kivi?color=0b7a70)](https://pypi.org/project/kivi/)
 [![Documentation](https://github.com/gchensy/kivi/actions/workflows/docs.yml/badge.svg)](https://github.com/gchensy/kivi/actions/workflows/docs.yml)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![pandas 2.0+](https://img.shields.io/badge/pandas-2.0%2B-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
 [![文档：中文 | English](https://img.shields.io/badge/%E6%96%87%E6%A1%A3-%E4%B8%AD%E6%96%87%20%7C%20English-2f5bd3)](https://gchensy.github.io/kivi/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-0b7a70)](https://github.com/gchensy/kivi/blob/master/LICENSE)
@@ -169,7 +169,7 @@
 pip install kivi
 ```
 
-需要 Python 3.10+、NumPy 1.24+ 和 pandas 2.0+。如需最新开发版，可使用 `pip install "git+https://github.com/gchensy/kivi"`。
+需要 Python 3.11+、NumPy 1.24+ 和 pandas 2.0+。如需最新开发版，可使用 `pip install "git+https://github.com/gchensy/kivi"`。
 
 `kivi.plotting` 的图表还需要 matplotlib 3.7+，可用 `pip install "kivi[plot]"` 安装。
 
@@ -349,14 +349,14 @@ print(f"IV(job) = {jobs['iv'].sum():.3f}")      # IV(job) = 0.137
 - ✅ 1.6：LGD 与 EAD：按每笔贷款折现的清收 LGD、实际信用转换系数、分组 LGD 表、带稳健标准误的分数 logit、模拟的违约与回收数据，以及并列给出的巴塞尔、EBA 和中国规则
 - ✅ 1.7：政策规则与利润：政策规则的命中率、独有命中和决策瀑布表，也可只在通过的申请人上衡量；各截断点的收益与利润；以及信用评分的期望最大利润
 - ✅ 1.8：在每箱占比、事件数和 WOE 形状（含 U 形）的约束下求 IV 最大的分箱，对 LGD 等连续型响应同样精确的分箱，ChiMerge 和单调分箱的每箱最小占比，单阈值政策规则的搜索，按队列法计算的一年违约率，用 log odds 平移或准矩匹配校准到长期平均违约率，以及生存曲线、转移矩阵、决策瀑布、各截断点利润和分组 LGD 的图表
-- 🔜 1.9：要求 Python 3.11 或更新版本，NumPy 1.24 和 pandas 2.0 仍受支持
+- ✅ 1.9：要求 Python 3.11 或更新版本，NumPy 1.24 和 pandas 2.0 仍受支持
 
 ## 🤝 参与贡献
 
 ```bash
 git clone https://github.com/gchensy/kivi.git
 cd kivi
-python -m pip install -e '.[test,docs,lint]'              # lint 附加依赖需要 Python 3.11 或更新版本
+python -m pip install -e '.[test,docs,lint]'              # 安装 kivi 及测试、文档和代码检查工具
 pre-commit install                                        # 每次提交前运行 ruff 和 mypy
 python -m pytest --cov                                    # 单元测试，并统计分支覆盖率
 python -m sphinx -W -b doctest docs docs/_build/doctest   # 文档示例
