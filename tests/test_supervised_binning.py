@@ -11,6 +11,7 @@ from kivi.binning import (
     _fine_bins,
     _labeled,
     _pair_chi2,
+    _range_sums,
     bin_edges,
     chimerge_edges,
     cut,
@@ -18,6 +19,7 @@ from kivi.binning import (
     monotonic_edges,
     optimal_edges,
     tree_edges,
+    variance_edges,
 )
 from kivi.datasets import load_bank
 from kivi.metrics import gini, ks
@@ -1269,3 +1271,358 @@ def test_nullable_values_with_special_codes_in_supervised_binning():
     target = pd.Series([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0])
     expected = chimerge_edges(np.arange(1, 13), target[:12].to_numpy())
     np.testing.assert_equal(chimerge_edges(values, target, special=[-1]), expected)
+
+
+# Responses with the means 0.1, 0.5 and 0.95 over the values 1-4, 5-8 and 9-12.
+VARIANCE_VALUES = pd.Series(np.arange(1, 13, dtype=float))
+VARIANCE_RESPONSE = pd.Series([0.1, 0.0, 0.2, 0.1, 0.5, 0.4, 0.6, 0.5, 0.9, 1.0, 0.8, 1.1])
+
+
+def within_squares(values, response, edges, weights=None):
+    """Weighted sum of squares of the response around the mean of its bin."""
+    weights = np.ones(len(values)) if weights is None else np.asarray(weights, dtype=float)
+    groups = pd.cut(values, edges, labels=False)
+    total = 0.0
+    for group in np.unique(groups):
+        inside = groups == group
+        mean = np.average(response[inside], weights=weights[inside])
+        total += float(np.sum(weights[inside] * (response[inside] - mean) ** 2))
+    return total
+
+
+def test_variance_minimizes_the_squares_within_the_bins_by_hand():
+    edges = variance_edges(VARIANCE_VALUES, VARIANCE_RESPONSE, max_bins=3)
+    np.testing.assert_equal(edges, [-np.inf, 4, 8, np.inf])
+    # Squares around 0.1, 0.5 and 0.95: 0.02 + 0.02 + 0.05.
+    assert within_squares(VARIANCE_VALUES, VARIANCE_RESPONSE, edges) == pytest.approx(0.09)
+    values, response = VARIANCE_VALUES.to_numpy(), VARIANCE_RESPONSE.to_numpy()
+    for low, high in itertools.combinations(range(1, 12), 2):
+        assert within_squares(values, response, [-np.inf, low, high, np.inf]) >= 0.09 - 1e-12
+    groups = pd.cut(VARIANCE_VALUES, edges)
+    means = VARIANCE_RESPONSE.groupby(groups.cat.codes).mean()
+    np.testing.assert_allclose(means, [0.1, 0.5, 0.95])
+    # The means rise, so no decreasing binning has more than one bin.
+    np.testing.assert_equal(
+        variance_edges(VARIANCE_VALUES, VARIANCE_RESPONSE, trend="decreasing"), [-np.inf, np.inf]
+    )
+    np.testing.assert_equal(
+        variance_edges(VARIANCE_VALUES, VARIANCE_RESPONSE, max_bins=1), [-np.inf, np.inf]
+    )
+    # 25% of the 12 values is 3, so the bins of four values remain, and 40% allows two bins.
+    np.testing.assert_equal(
+        variance_edges(VARIANCE_VALUES, VARIANCE_RESPONSE, min_bin_share=0.25, max_bins=3), edges
+    )
+    np.testing.assert_equal(
+        variance_edges(VARIANCE_VALUES, VARIANCE_RESPONSE, min_bin_share=0.4),
+        [-np.inf, 6, np.inf],
+    )
+
+
+def test_variance_fits_each_trend():
+    # Means 0.8, 0.2, 0.2 and 0.8 over four values: a U shape.
+    values = np.repeat([1.0, 2.0, 3.0, 4.0], 5)
+    response = np.repeat([0.8, 0.2, 0.2, 0.8], 5) + np.tile([-0.02, -0.01, 0, 0.01, 0.02], 4)
+    np.testing.assert_equal(
+        variance_edges(values, response, trend="u_shaped"), [-np.inf, 1, 3, np.inf]
+    )
+    np.testing.assert_equal(variance_edges(values, response, trend="any"), [-np.inf, 1, 3, np.inf])
+    increasing = variance_edges(values, response, trend="increasing")
+    decreasing = variance_edges(values, response, trend="decreasing")
+    np.testing.assert_equal(increasing, [-np.inf, 3, np.inf])
+    np.testing.assert_equal(decreasing, [-np.inf, 1, np.inf])
+    # The two monotonic fits tie, so "auto" takes the increasing one, and an inverted U can
+    # only be monotonic here: of the two equal binnings the lower edge comes first.
+    assert within_squares(values, response, increasing) == pytest.approx(
+        within_squares(values, response, decreasing), rel=1e-12
+    )
+    np.testing.assert_equal(variance_edges(values, response), increasing)
+    np.testing.assert_equal(variance_edges(values, response, trend="inverted_u"), decreasing)
+    np.testing.assert_equal(
+        variance_edges(values, -response, trend="inverted_u"), [-np.inf, 1, 3, np.inf]
+    )
+
+
+@pytest.mark.parametrize("weighted", [False, True])
+def test_variance_gives_one_bin_without_signal(weighted):
+    values = np.repeat([1.0, 2.0, 3.0], 30)
+    weights = np.repeat([0.1, 1.0, 0.3], 30) if weighted else None
+    # Every value has the mean 1/3; with weights of 0.1 the bin means differ only by rounding.
+    response = np.tile(np.r_[np.ones(10), np.zeros(20)], 3)
+    for trend in ("auto", "increasing", "decreasing", "u_shaped", "inverted_u", "any"):
+        np.testing.assert_equal(
+            variance_edges(values, response, weights=weights, trend=trend), [-np.inf, np.inf]
+        )
+        np.testing.assert_equal(
+            variance_edges(values, np.full(90, 0.3), weights=weights, trend=trend),
+            [-np.inf, np.inf],
+        )
+    np.testing.assert_equal(variance_edges(values, np.zeros(90)), [-np.inf, np.inf])
+
+
+def exhaustive_variance_edges(
+    values, response, *, max_bins, min_bin_share, trend, initial_bins, special=None, weights=None
+):
+    """The edges of variance_edges by trying every binning of the initial bins."""
+    if trend == "auto":
+        fits = [
+            exhaustive_variance_edges(
+                values,
+                response,
+                max_bins=max_bins,
+                min_bin_share=min_bin_share,
+                trend=shape,
+                initial_bins=initial_bins,
+                special=special,
+                weights=weights,
+            )
+            for shape in ("increasing", "decreasing")
+        ]
+        largest = max(fits[0][1], fits[1][1])
+        floor = largest - max(TIE * largest, TIE**2 * fits[0][2])
+        return fits[0] if fits[0][1] >= floor else fits[1]
+    values, response = np.asarray(values, dtype=float), np.asarray(response, dtype=float)
+    weighted = weights is not None
+    weights = np.asarray(weights, dtype=float) if weighted else np.ones(len(values))
+    keep = ~np.isnan(values) & (weights > 0)
+    if special is not None:
+        keep &= ~np.isin(values, special)
+    values, response, weights = values[keep], response[keep], weights[keep]
+    # Unweighted quantiles interpolate, as in variance_edges without weights.
+    labels = np.zeros(len(values), dtype=int)
+    interior, _ = _fine_bins(values, labels, initial_bins, weights if weighted else None)
+    edges = np.r_[-np.inf, interior, np.inf]
+    fine = pd.cut(values, edges, labels=False)
+    mean, squares = np.average(response, weights=weights), np.sum(weights * response**2)
+    unit = np.sqrt(squares / weights.sum())
+    found = []
+    for size in range(min(max_bins, len(edges) - 1)):
+        for cuts in itertools.combinations(range(1, len(edges) - 1), size):
+            bounds = [0, *cuts, len(edges) - 1]
+            masks = [(fine >= a) & (fine < b) for a, b in itertools.pairwise(bounds)]
+            totals = np.array([weights[mask].sum() for mask in masks])
+            if (totals < min_bin_share * weights.sum() * (1 - TIE)).any():
+                continue
+            means = np.array([np.average(response[mask], weights=weights[mask]) for mask in masks])
+            change = np.diff(means)
+            scale = np.maximum(np.maximum(np.abs(means[:-1]), np.abs(means[1:])), unit)
+            steps = "".join(
+                "+" if step > 0 else "-" if step < 0 else "="
+                for step in np.where(np.abs(change) > TIE * scale, np.sign(change), 0)
+            )
+            allowed = {
+                "increasing": r"\+*",
+                "decreasing": r"-*",
+                "u_shaped": r"-*\+*",
+                "inverted_u": r"\+*-*",
+                "any": r"[-+=]*",
+            }[trend]
+            if re.fullmatch(allowed, steps):
+                found.append((float(np.sum(totals * (means - mean) ** 2)), cuts))
+    best = max(between for between, _ in found)
+    floor = best - max(TIE * best, TIE**2 * squares)
+    cuts = min((len(cuts), cuts) for between, cuts in found if between >= floor)[1]
+    return np.r_[-np.inf, interior[np.array(cuts, dtype=int) - 1], np.inf], best, squares
+
+
+@pytest.mark.parametrize("weighting", ["none", "integer", "fractional"])
+def test_variance_matches_an_exhaustive_search(weighting):
+    rng = np.random.default_rng({"none": 10, "integer": 11, "fractional": 12}[weighting])
+    checked = 0
+    for case in range(40):
+        size = int(rng.integers(15, 60))
+        values = rng.integers(0, int(rng.integers(3, 11)), size).astype(float)
+        shape = rng.normal(size=3)
+        scaled = (values - values.mean()) / 3
+        mean = shape[0] + shape[1] * scaled + shape[2] * scaled**2
+        if case % 3 == 0:
+            # Few distinct responses, so that bins tie on their means.
+            response = rng.choice([0.0, 0.5, 1.0], size)
+        else:
+            response = mean + rng.normal(scale=float(rng.choice([0.1, 1.0])), size=size)
+        values[rng.random(size) < 0.1] = -1.0
+        values[rng.random(size) < 0.05] = np.nan
+        weights = {
+            "none": None,
+            "integer": rng.integers(1, 4, size),
+            "fractional": rng.random(size) * 3,
+        }[weighting]
+        options = {
+            "max_bins": int(rng.integers(1, 6)),
+            "min_bin_share": float(rng.choice([0, 0.05, 0.1, 0.2])),
+            "initial_bins": int(rng.integers(3, 10)),
+        }
+        if not np.isfinite(values[values != -1]).any():
+            continue
+        for trend in ("auto", "increasing", "decreasing", "u_shaped", "inverted_u", "any"):
+            expected = exhaustive_variance_edges(
+                values, response, trend=trend, special=[-1.0], weights=weights, **options
+            )[0]
+            actual = variance_edges(
+                values, response, trend=trend, special=[-1], weights=weights, **options
+            )
+            np.testing.assert_equal(actual, expected)
+            checked += 1
+    assert checked >= 200
+
+
+@pytest.mark.parametrize("trend", ["auto", "u_shaped", "any"])
+def test_variance_integer_weights_match_repeated_rows(trend):
+    rng = np.random.default_rng(4)
+    values = rng.integers(0, 15, 200).astype(float)
+    response = 0.3 + 0.02 * (values - 7) ** 2 / 7 + rng.normal(scale=0.2, size=200)
+    weights = rng.integers(1, 5, 200)
+    options = {"trend": trend, "max_bins": 6, "min_bin_share": 0.04}
+    weighted = variance_edges(values, response, weights=weights, **options)
+    repeated_rows = variance_edges(
+        np.repeat(values, weights), np.repeat(response, weights), **options
+    )
+    np.testing.assert_equal(weighted, repeated_rows)
+    assert len(weighted) >= 3
+    shares = np.bincount(pd.cut(values, weighted, labels=False), weights=weights)
+    assert shares.min() >= 0.04 * weights.sum()
+
+
+def test_variance_leaves_out_missing_and_special_values_and_keeps_the_inputs():
+    values = pd.concat([VARIANCE_VALUES, pd.Series([-1.0, -1.0, np.nan], index=[20, 21, 22])])
+    response = pd.concat([VARIANCE_RESPONSE, pd.Series([5.0, -3.0, 9.0], index=[20, 21, 22])])
+    before = values.copy(), response.copy()
+    expected = variance_edges(VARIANCE_VALUES, VARIANCE_RESPONSE)
+    np.testing.assert_equal(variance_edges(values, response, special=[-1]), expected)
+    assert not np.array_equal(variance_edges(values, response), expected)
+    np.testing.assert_equal(
+        variance_edges(values.tolist(), response.to_numpy(), special=[-1]), expected
+    )
+    pd.testing.assert_series_equal(values, before[0])
+    pd.testing.assert_series_equal(response, before[1])
+    # A zero weight leaves out a row like a missing value.
+    np.testing.assert_equal(
+        variance_edges(values, response, special=[-1], weights=np.r_[np.ones(12), 1, 0, 1]),
+        expected,
+    )
+
+
+@pytest.mark.parametrize("leaf", [1, 3, 7, 15])
+def test_variance_two_bins_match_a_regression_stump(leaf):
+    tree = pytest.importorskip("sklearn.tree")
+    rng = np.random.default_rng(leaf)
+    values = rng.integers(0, 40, 300).astype(float)
+    response = np.where(values > 23, 0.6, 0.2) + rng.normal(scale=0.3, size=300)
+    stump = tree.DecisionTreeRegressor(max_depth=1, min_samples_leaf=leaf).fit(
+        values[:, None], response
+    )
+    threshold = stump.tree_.threshold[0]
+    edges = variance_edges(
+        values, response, max_bins=2, min_bin_share=leaf / 300, trend="any", initial_bins=40
+    )
+    # Compare the partitions: scikit-learn's threshold is the midpoint of two values.
+    np.testing.assert_equal(values <= edges[1], values <= threshold)
+
+
+@pytest.mark.parametrize(
+    "options,message",
+    [
+        ({"max_bins": 0}, "max_bins must be a positive integer, got 0"),
+        ({"initial_bins": 0}, "initial_bins must be a positive integer, got 0"),
+        ({"min_bin_share": 0.6}, "min_bin_share must be between 0 and 0.5, got 0.6"),
+        ({"trend": "flat"}, "trend must be one of 'auto', .*, got 'flat'"),
+        ({"special": [np.nan]}, "special must not contain missing values"),
+        ({"weights": np.ones(11)}, "weights must have one weight per value of values"),
+        (
+            {"weights": pd.Series(np.ones(12), index=np.arange(1, 13))},
+            "values and weights must have identical indices",
+        ),
+    ],
+)
+def test_invalid_variance_options(options, message):
+    with pytest.raises(ValueError, match=message):
+        variance_edges(VARIANCE_VALUES, VARIANCE_RESPONSE, **options)
+
+
+@pytest.mark.parametrize(
+    "values,response,message",
+    [
+        ([1, 2], [0.1, np.nan], "response must not contain missing values, got 1"),
+        ([1, 2], [0.1, None], "response must not contain missing values, got 1"),
+        ([1, 2], [0.1, np.inf], "response must be finite, got inf"),
+        ([1, 2], [True, False], "response must be real and numeric, got dtype bool"),
+        ([1, 2], ["a", "b"], "response must be real and numeric"),
+        ([1, 2, 3], [0.1, 0.2], "values and response must have the same length, got 3 and 2"),
+        (
+            pd.Series([1, 2]),
+            pd.Series([0.1, 0.2], index=[1, 0]),
+            "values and response must have identical indices",
+        ),
+        ([1, 2], np.ones((2, 2)), "response must be one-dimensional, got 2 dimensions"),
+        (["a", "b"], [0.1, 0.2], "values must be numbers or special values, got 'a'"),
+        ([np.nan, np.nan], [0.1, 0.2], "values have no finite observations"),
+        ([1.0, np.inf], [0.1, 0.2], "values must be finite or special values, got inf"),
+    ],
+)
+def test_invalid_variance_inputs(values, response, message):
+    with pytest.raises(ValueError, match=message):
+        variance_edges(values, response)
+
+
+def test_variance_response_weights_need_matching_index():
+    response = VARIANCE_RESPONSE.set_axis(VARIANCE_RESPONSE.index + 100)
+    weights = pd.Series(np.ones(12), index=response.index)
+    with pytest.raises(ValueError, match="response and weights must have identical indices"):
+        variance_edges(VARIANCE_VALUES.to_numpy(), response, weights=weights.set_axis(range(12)))
+    np.testing.assert_equal(
+        variance_edges(VARIANCE_VALUES.to_numpy(), response, weights=weights),
+        variance_edges(VARIANCE_VALUES, VARIANCE_RESPONSE),
+    )
+
+
+@pytest.mark.parametrize("scale", [1e-300, 1e-170, 1e-20, 1.0, 1e155, 1e200, 1e300])
+def test_variance_does_not_depend_on_the_magnitude_of_the_response(scale):
+    # The squares of 1e-170 underflow and those of 1e155 overflow unless the response is scaled.
+    values = np.arange(12.0)
+    response = np.r_[np.zeros(6), np.full(6, scale)]
+    for trend in ("auto", "any"):
+        np.testing.assert_equal(variance_edges(values, response, trend=trend), [-np.inf, 5, np.inf])
+        np.testing.assert_equal(
+            variance_edges(values, -response, trend=trend), [-np.inf, 5, np.inf]
+        )
+
+
+def test_variance_edges_do_not_change_when_the_response_is_scaled():
+    rng = np.random.default_rng(5)
+    values = rng.integers(0, 30, 300).astype(float)
+    response = np.sqrt(values) + rng.normal(size=300)
+    expected = variance_edges(values, response, trend="any", max_bins=6)
+    assert len(expected) == 7
+    for factor in (2.0**-900, 2.0**600, 1e-150, 1e150):
+        np.testing.assert_equal(
+            variance_edges(values, response * factor, trend="any", max_bins=6), expected
+        )
+
+
+def test_a_huge_weight_does_not_round_away_the_other_bins():
+    # Differences of cumulative sums after a weight of 1e16 lose the weights of 1 behind it.
+    values = np.arange(12.0)
+    weights = np.r_[1e16, np.ones(11)]
+    np.testing.assert_equal(
+        variance_edges(
+            values, np.r_[np.zeros(6), np.ones(6)], weights=weights, min_bin_share=0, trend="any"
+        ),
+        [-np.inf, 5, np.inf],
+    )
+    # Only the bins 0-5 and 6-11 hold both classes: non-events at 0-4 and 11, events at 5-10.
+    target = np.r_[[0] * 5, [1] * 6, [0]]
+    np.testing.assert_equal(
+        optimal_edges(values, target, weights=weights, min_bin_share=0, trend="any"),
+        [-np.inf, 5, np.inf],
+    )
+
+
+def test_range_sums_are_as_precise_as_the_sum_of_each_range():
+    rng = np.random.default_rng(6)
+    values = rng.random(50) * 10.0 ** rng.integers(-10, 17, 50)
+    sums = _range_sums(values)
+    for start in range(50):
+        for stop in range(start + 1, 51):
+            exact = math.fsum(values[start:stop])
+            assert sums[start, stop] == pytest.approx(exact, rel=1e-15, abs=0)
+    np.testing.assert_equal(np.tril(sums), 0)
+    np.testing.assert_equal(_range_sums(np.array([3.0])), [[0, 3], [0, 0]])

@@ -5,7 +5,7 @@ Binning
 
 In credit scoring, binning is the classing step of scorecard development: a continuous variable becomes a handful of groups whose WOE can be read, explained to the business and monitored over time. This page compares the ways to choose the edges.
 
-Binning follows the :doc:`univariate profile <univariate>`, which ranks the candidates by a quick binning, and comes before the :doc:`weight of evidence <woe_iv>`, which measures and encodes the groups. ``bin_edges`` chooses the edges from the values alone; :func:`~kivi.binning.chimerge_edges`, :func:`~kivi.binning.tree_edges`, :func:`~kivi.binning.ks_edges`, :func:`~kivi.binning.monotonic_edges` and :func:`~kivi.binning.optimal_edges` also use the target, and :func:`~kivi.binning.cut` groups a sample, with a group of its own for each special code.
+Binning follows the :doc:`univariate profile <univariate>`, which ranks the candidates by a quick binning, and comes before the :doc:`weight of evidence <woe_iv>`, which measures and encodes the groups. ``bin_edges`` chooses the edges from the values alone; :func:`~kivi.binning.chimerge_edges`, :func:`~kivi.binning.tree_edges`, :func:`~kivi.binning.ks_edges`, :func:`~kivi.binning.monotonic_edges` and :func:`~kivi.binning.optimal_edges` also use the target, :func:`~kivi.binning.variance_edges` uses a continuous response such as a realized LGD, and :func:`~kivi.binning.cut` groups a sample, with a group of its own for each special code.
 
 Categorical variables are grouped in the same two steps: :func:`~kivi.binning.category_groups` pools rare categories, :func:`~kivi.binning.chimerge_groups` merges categories with similar event rates, and :func:`~kivi.binning.group_categories` applies the grouping to a sample.
 
@@ -146,7 +146,7 @@ Quantile and uniform edges ignore the target. The supervised methods use it to p
      - Finds the merge of fine bins with the largest information value that meets every constraint.
      - ``max_bins``, ``min_bin_share``, ``min_bin_events``, ``trend``
 
-As with ``bin_edges``, fit the edges on the reference sample only and apply the saved array to every other sample.
+As with ``bin_edges``, fit the edges on the reference sample only and apply the saved array to every other sample. For a continuous response instead of a 0/1 target, :func:`~kivi.binning.variance_edges` takes the place of these methods; see :ref:`continuous-response`.
 
 ChiMerge
 ^^^^^^^^
@@ -389,6 +389,27 @@ tree_edges          5         0.158       0.065
 monotonic_edges     5         0.124       0.020
 
 On the reference sample all three supervised methods beat five quantile bins. On the later sample they fall behind: much of the extra separation they found in balance was noise, which is common for a weak variable and a few hundred events. Validate supervised edges on a later or held-out sample before adopting them, as :ref:`development-iv` describes, and keep the variable under PSI monitoring once it is in use.
+
+.. _continuous-response:
+
+Continuous responses
+^^^^^^^^^^^^^^^^^^^^
+
+The methods above separate the events from the non-events of a 0/1 target. For a continuous response, such as the realized LGD or CCF of defaulted loans, :func:`~kivi.binning.variance_edges` separates the means instead. Of the merges of the same fine quantile bins as :func:`~kivi.binning.optimal_edges`, it returns the binning that leaves the smallest sum of squares of the response within its bins. With :math:`W_b` the weight and :math:`m_b` the mean response of bin :math:`b`, and :math:`m` the mean of all the fitted values, that is the binning with the largest
+
+.. math::
+
+   B = \sum_b W_b \, (m_b - m)^2,
+
+the part of the variance of the response that the bins explain. The constraints are those of ``optimal_edges`` without the events: ``max_bins``, ``min_bin_share`` and a ``trend`` of the means, by default the better of the two monotonic trends. The response may leave [0, 1], as LGDs above 1 do, but it must not be missing. In this example the responses of the values 1 to 4, 5 to 8 and 9 to 12 have the means 0.1, 0.5 and 0.95:
+
+>>> from kivi.binning import variance_edges
+>>> driver = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+>>> loss = pd.Series([0.1, 0.0, 0.2, 0.1, 0.5, 0.4, 0.6, 0.5, 0.9, 1.0, 0.8, 1.1])
+>>> variance_edges(driver, loss, max_bins=3)
+array([-inf,   4.,   8.,  inf])
+
+The three bins leave squares of 0.02, 0.02 and 0.05 around their means, less than any other three bins. A response whose bins all have the same mean gives a single bin. :class:`~kivi.spec.BinningSpec` holds the WOE of a 0/1 target, so :func:`~kivi.spec.fit_spec` takes no continuous response: group the values with :func:`~kivi.binning.cut` and summarize each bin with :func:`~kivi.lgd.lgd_table`, as the bins of the loan-to-value ratio in :doc:`lgd` show.
 
 Applying the edges
 ------------------
@@ -643,7 +664,7 @@ Limits
 
 The information value of supervised bins on the sample that they were fitted on is optimistic. The edges are chosen to separate that sample, so even a variable unrelated to the target shows an IV above the usual threshold of 0.02. Screen variables by their IV on a validation sample, or by a permutation test, as :ref:`development-iv` shows.
 
-:func:`~kivi.binning.optimal_edges` is exact over the merges of its fine bins, but never tries an edge between two fine edges. Its time grows with the cube of ``initial_bins`` and its memory with the square, to a fraction of a second and a few megabytes for 200 fine bins, and a few seconds and about 50 megabytes for 1000.
+:func:`~kivi.binning.optimal_edges` and :func:`~kivi.binning.variance_edges` are exact over the merges of their fine bins, but never try an edge between two fine edges. Their time grows with the cube of ``initial_bins`` and their memory with the square, to a fraction of a second and a few megabytes for 200 fine bins, and a few seconds and about 50 megabytes for 1000. The share of the variance that the bins of ``variance_edges`` explain on the sample that they were fitted on is optimistic for the same reason as the information value.
 
 :func:`~kivi.binning.chimerge_groups` merges one pair of groups at a time, so its time grows with the square of the number of categories: a few seconds for 20,000 categories. For a variable with that many labels, such as a postcode, pool the rarest ones with :func:`~kivi.binning.category_groups` first, group the pooled labels with ``chimerge_groups``, and combine the two dicts as ``{category: groups[pooled[category]] for category in pooled}``.
 
@@ -691,6 +712,8 @@ Invalid input
 * ``target`` contains a label other than 0 and 1, or a missing label;
 * the observed values, apart from special values, do not cover both classes;
 * for ``optimal_edges``, ``min_bin_events`` exceeds the events or the non-events of the fitted values, so that not even a single bin meets it. Any smaller value has a solution, because a single bin meets the other constraints.
+
+:func:`~kivi.binning.variance_edges` raises ``ValueError`` for the same problems with the values and the options, and when ``response`` is not a real number on every row, being missing, infinite, boolean or text, or does not match ``values`` in length or, for two Series, in index.
 
 :func:`~kivi.binning.category_groups` and :func:`~kivi.binning.chimerge_groups` raise ``ValueError`` for the same problems with the values and the target and for an option outside its range. :func:`~kivi.binning.category_groups` also raises it when ``rare_label`` is the label of a category that is not rare, and :func:`~kivi.binning.chimerge_groups` when the label of a merged group would be the label of another group, which can only happen when labels contain ``", "``.
 

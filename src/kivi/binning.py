@@ -2,8 +2,9 @@
 
 ``bin_edges`` fits edges from the values alone. ``chimerge_edges``,
 ``tree_edges``, ``ks_edges``, ``monotonic_edges`` and ``optimal_edges`` also
-use a binary target. All of them return increasing edges with infinite endpoints for
-``pandas.cut``, or for ``cut``, which also gives each special value its own group.
+use a binary target, and ``variance_edges`` a continuous response. All of them return
+increasing edges with infinite endpoints for ``pandas.cut``, or for ``cut``, which also
+gives each special value its own group.
 
 ``category_groups`` pools rare categories and ``chimerge_groups`` merges
 categories with similar event rates. Both return a dict from category to
@@ -28,6 +29,7 @@ __all__ = [
     "ks_edges",
     "monotonic_edges",
     "optimal_edges",
+    "variance_edges",
     "category_groups",
     "chimerge_groups",
     "group_categories",
@@ -944,7 +946,10 @@ def optimal_edges(
     to :math:`n^2 k`, twice that for a U shape, for :math:`n` initial bins
     and :math:`k` bins, the most that the constraints allow up to
     ``max_bins``: a fraction of a second and a few megabytes for 200 initial
-    bins, and a few seconds and about 50 megabytes for 1000.
+    bins, and a few seconds and about 50 megabytes for 1000. The counts of
+    a range of initial bins add aligned blocks of 1, 2, 4, ... initial bins,
+    so that a large weight in one bin does not round away the weights of
+    the others.
 
     A step from one bin to the next rises or falls when the two WOE values
     differ by more than a relative 1e-10, as in `kivi.woe.woe_trend`, and
@@ -994,9 +999,7 @@ def optimal_edges(
             "min_bin_events must be a finite, positive number, got "
             f"{_validation.shown_argument(min_bin_events)}"
         )
-    if not isinstance(trend, str) or trend not in _TRENDS:  # type: ignore[redundant-expr]  # rejects non-str values
-        names = ", ".join(repr(name) for name in _TRENDS)
-        raise ValueError(f"trend must be one of {names}, got {_validation.shown_argument(trend)}")
+    _check_trend(trend)
     _validation.check_count(initial_bins, "initial_bins")
     observed, labels, mass = _labeled(values, target, special, weights)
     interior, counts = _fine_bins(observed, labels, initial_bins, mass)
@@ -1010,9 +1013,165 @@ def optimal_edges(
             )
     shapes = ["increasing", "decreasing"] if trend == "auto" else [trend]
     fits = [_optimal(counts, shape, max_bins, min_bin_share, min_bin_events) for shape in shapes]
-    floor = _iv_floor(max(iv for _, iv in fits))
-    cuts = next(cuts for cuts, iv in fits if iv >= floor)
+    cuts = _chosen(fits, _GAIN_TIE)
     return np.r_[-np.inf, interior[np.asarray(cuts, dtype=np.intp) - 1], np.inf]
+
+
+def variance_edges(
+    values: npt.ArrayLike,
+    response: npt.ArrayLike,
+    *,
+    max_bins: int = 5,
+    min_bin_share: float = 0.05,
+    trend: typing.Literal[
+        "auto", "increasing", "decreasing", "u_shaped", "inverted_u", "any"
+    ] = "auto",
+    initial_bins: int = 20,
+    special: npt.ArrayLike | None = None,
+    weights: npt.ArrayLike | None = None,
+) -> npt.NDArray[np.float64]:
+    r"""Fit the edges that best separate the means of a continuous response.
+
+    The values are first cut into ``initial_bins`` quantile bins, or into one
+    bin per distinct value if there are no more distinct values than that,
+    as in `optimal_edges`. Of all the ways to join adjacent ones into at most
+    ``max_bins`` bins that hold at least ``min_bin_share`` of the fitted
+    values, and whose mean response follows ``trend``, the one with the
+    smallest sum of squares of the response within the bins is returned.
+    Dynamic programming finds it exactly, as for `optimal_edges`.
+
+    Parameters
+    ----------
+    values : array_like
+        One-dimensional numeric values, such as a list, a NumPy array or a
+        pandas Series. Missing values and their responses are omitted.
+    response : array_like
+        Finite real response of each value, such as a realized LGD or CCF,
+        which may lie outside [0, 1]. If `values` and `response` are both
+        pandas Series, they must have identical indices; otherwise they are
+        matched by position.
+    max_bins : int, default 5
+        Maximum number of bins.
+    min_bin_share : float, default 0.05
+        Minimum share of the fitted values in every bin, from 0 to 0.5, or of
+        their total weight when `weights` is given. Missing and special values
+        do not count towards it.
+    trend : {"auto", "increasing", "decreasing", "u_shaped", "inverted_u", "any"}, default "auto"
+        Shape of the mean response as the values grow, as in
+        `optimal_edges`. ``"increasing"`` and ``"decreasing"`` require every
+        step from one bin to the next to rise, or to fall. ``"u_shaped"``
+        requires the mean to fall and then rise, and ``"inverted_u"`` to rise
+        and then fall; either part may be empty. ``"any"`` imposes no shape.
+        ``"auto"`` fits both monotonic trends and keeps the one with the
+        smaller sum of squares within the bins, preferring ``"increasing"``
+        on a tie.
+    initial_bins : int, default 20
+        Number of quantile bins to start from. Tied quantiles can reduce it.
+        The fit takes time in proportion to the cube of this number and
+        memory in proportion to its square.
+    special : array_like, optional
+        Special values, such as codes for "not applicable", that are omitted
+        with their responses when the edges are fitted. Pass the same values
+        to `cut` so that each one forms its own group. The constraints apply
+        to the intervals only.
+    weights : array_like, optional
+        Non-negative weight of each observation, matched like `response`.
+        Observations with zero weight are left out, and the means and sums of
+        squares of the bins are weighted. The initial quantile bins then use
+        weighted quantiles by the inverted CDF, so unit weights can give other
+        edges than no weights when there are more distinct values than
+        `initial_bins`.
+
+    Returns
+    -------
+    numpy.ndarray
+        Increasing edges with infinite endpoints, suitable for pandas.cut.
+
+    Raises
+    ------
+    ValueError
+        If `max_bins` or `initial_bins` is not a positive integer,
+        `min_bin_share` is not between 0 and 0.5, `trend` is not recognized,
+        `values` and `response` are not one-dimensional or their indices or
+        lengths do not match, `special` is not one-dimensional or contains a
+        missing value or a boolean, `values` is not numeric or has no finite
+        observations apart from missing and special values, or `response` is
+        not real and numeric, is boolean, or has a missing or an infinite
+        value.
+        Also if `weights` is not numeric, does not give each value one finite,
+        non-negative weight with a positive total, or has an index other than
+        that of `values`.
+
+    See Also
+    --------
+    optimal_edges : The same search for a binary target, by information value.
+    cut : Assign values to bins, with a separate group for each special value.
+    kivi.lgd.lgd_table : Summarize the response of each bin.
+
+    Notes
+    -----
+    With :math:`W_b` the weight of bin :math:`b` and :math:`m_b` its mean
+    response, and :math:`m` the mean of all the fitted values, the sum of
+    squares within the bins is the total sum of squares less
+
+    .. math::
+
+       B = \sum_b W_b \, (m_b - m)^2,
+
+    so the fit maximizes :math:`B`, the part of the sum of squares of the
+    response that the bins explain. Each bin adds :math:`S_b^2 / W_b`, where
+    :math:`S_b` is its weighted sum of the response less :math:`m`, so no
+    second moment is subtracted from another. The response is first scaled
+    by a power of two, which changes no partition, so that its squares
+    neither overflow nor underflow, and the sums of a range of initial bins
+    add aligned blocks of initial bins, as in `optimal_edges`. Ties follow
+    the rules of `optimal_edges`: two means are level when they differ by at
+    most a relative 1e-10, or by at most 1e-10 times the root mean square of
+    the response, and two binnings tie when their :math:`B` agree to a
+    relative 1e-10 or differ by less than 1e-20 times the weighted sum of
+    the squared responses. A response with the same mean in every bin
+    therefore gives a single bin.
+
+    A `kivi.spec.BinningSpec` holds the WOE of a binary target, so
+    `kivi.spec.fit_spec` has no method for a continuous response; group the
+    values with `cut` and summarize them with :func:`kivi.lgd.lgd_table`.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from kivi.binning import variance_edges
+    >>> values = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+    >>> response = pd.Series([0.1, 0.0, 0.2, 0.1, 0.5, 0.4, 0.6, 0.5, 0.9, 1.0, 0.8, 1.1])
+    >>> variance_edges(values, response, max_bins=3)
+    array([-inf,   4.,   8.,  inf])
+    >>> variance_edges(values, response, max_bins=3, trend="decreasing")
+    array([-inf,  inf])
+    """
+    _validation.check_count(max_bins, "max_bins")
+    _check_share(min_bin_share, "min_bin_share", 0.5)
+    _check_trend(trend)
+    _validation.check_count(initial_bins, "initial_bins")
+    observed, responses, mass = _responded(values, response, special, weights)
+    largest = float(np.max(np.abs(responses)))
+    if largest > 0:
+        # A power of two changes no partition, and with the largest response between 1/2 and 1
+        # the squares neither overflow nor underflow.
+        responses = np.ldexp(responses, -np.frexp(largest)[1])
+    interior, position, occupied = _fine_positions(observed, initial_bins, mass)
+    weight = np.ones(len(observed)) if mass is None else mass
+    centre = float(np.sum(weight * responses) / np.sum(weight))
+    size = len(interior) + 1
+    totals = np.bincount(position, weights=weight, minlength=size)[occupied]
+    sums = np.bincount(position, weights=weight * (responses - centre), minlength=size)[occupied]
+    squares = float(np.sum(weight * responses**2))
+    unit = math.sqrt(squares / float(np.sum(weight)))
+    shapes = ["increasing", "decreasing"] if trend == "auto" else [trend]
+    fits = [
+        _between(totals, sums, centre, shape, max_bins, min_bin_share, unit, _GAIN_TIE * squares)
+        for shape in shapes
+    ]
+    cuts = _chosen(fits, _GAIN_TIE * squares)
+    return np.r_[-np.inf, interior[occupied[:-1]][np.asarray(cuts, dtype=np.intp) - 1], np.inf]
 
 
 def category_groups(
@@ -1422,6 +1581,12 @@ def _check_share(value: float, name: str, upper: float) -> None:
         )
 
 
+def _check_trend(trend: object) -> None:
+    if not isinstance(trend, str) or trend not in _TRENDS:
+        names = ", ".join(repr(name) for name in _TRENDS)
+        raise ValueError(f"trend must be one of {names}, got {_validation.shown_argument(trend)}")
+
+
 def _python(value: object) -> typing.Any:
     """Return a NumPy number, boolean or string as the Python scalar it holds."""
     if isinstance(value, (np.number, np.bool_, np.str_)):
@@ -1658,6 +1823,49 @@ def _labeled(
     return observed, labels, mass
 
 
+def _responded(
+    values: npt.ArrayLike,
+    response: npt.ArrayLike,
+    special: npt.ArrayLike | None = None,
+    weights: npt.ArrayLike | None = None,
+) -> tuple[np.ndarray, npt.NDArray[np.float64], np.ndarray | None]:
+    """Observed values and their responses, matched by index or position like `_labeled`.
+
+    The response must be finite and real on every row. Rows whose value is missing, a special
+    value or has zero weight are left out together with their responses and weights.
+    """
+    raw_values, raw_response = values, response
+    if isinstance(values, pd.Series) and isinstance(response, pd.Series):
+        if not values.index.equals(response.index):
+            raise ValueError("values and response must have identical indices")
+    values = _validation.as_series(values, "values")
+    series = _validation.as_series(response, "response")
+    if len(values) != len(series):
+        raise ValueError(
+            f"values and response must have the same length, got {len(values)} and {len(series)}"
+        )
+    responses = _validation.as_real(series, "response")
+    missing = np.isnan(responses)
+    if missing.any():
+        raise ValueError(f"response must not contain missing values, got {int(missing.sum())}")
+    infinite = np.isinf(responses)
+    if infinite.any():
+        raise ValueError(
+            f"response must be finite, got {_validation.shown(responses[infinite][0])}"
+        )
+    mass = _validation.as_weights(weights, raw_values, others={"response": raw_response})
+    fitted = values.notna().to_numpy(dtype=bool, copy=True)
+    is_special = None
+    if special is not None:
+        special = _special.special_values(special)
+        is_special = _special.special_positions(values, special) >= 0
+        fitted &= ~is_special
+    if mass is not None:
+        fitted &= mass > 0
+    observed, mass = _edges.observed(values, special, mass, is_special=is_special)
+    return observed, responses[fitted], mass
+
+
 def _cumulative(
     observed: np.ndarray, labels: np.ndarray, mass: np.ndarray | None
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -1676,10 +1884,15 @@ def _cumulative(
     return unique, totals, events, non_events
 
 
-def _fine_bins(
-    observed: np.ndarray, labels: np.ndarray, bins: int, weights: np.ndarray | None = None
-) -> tuple[npt.NDArray[np.float64], np.ndarray]:
-    """Interior quantile edges and (non_event, event) counts of each non-empty bin."""
+def _fine_positions(
+    observed: np.ndarray, bins: int, weights: np.ndarray | None = None
+) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.intp], npt.NDArray[np.bool_]]:
+    """Interior quantile edges, the bin of each value and which bins hold values.
+
+    The values are cut into `bins` quantile bins, or one bin per distinct value when there
+    are no more distinct values than that. Interpolated quantiles can leave a bin empty, and
+    ``interior[occupied[:-1]]`` joins each empty bin to the next one.
+    """
     unique = np.unique(observed)
     if len(unique) <= bins:
         interior = unique[:-1]
@@ -1691,13 +1904,19 @@ def _fine_bins(
             quantiles = _edges.weighted_quantile(observed, weights, probabilities)
         interior = np.unique(quantiles)[1:-1]
     position = np.searchsorted(interior, observed, side="left")
+    occupied = np.bincount(position, minlength=len(interior) + 1) > 0
+    return interior, position, occupied
+
+
+def _fine_bins(
+    observed: np.ndarray, labels: np.ndarray, bins: int, weights: np.ndarray | None = None
+) -> tuple[npt.NDArray[np.float64], np.ndarray]:
+    """Interior quantile edges and (non_event, event) counts of each non-empty bin."""
+    interior, position, occupied = _fine_positions(observed, bins, weights)
     counts: np.ndarray = np.bincount(
         2 * position + labels, weights=weights, minlength=2 * (len(interior) + 1)
     )
-    counts = counts.reshape(-1, 2)
-    # Interpolated quantiles can leave a bin empty; join it to the next bin.
-    occupied = counts.sum(axis=1) > 0
-    return interior[occupied[:-1]], counts[occupied]
+    return interior[occupied[:-1]], counts.reshape(-1, 2)[occupied]
 
 
 def _merge(interior: np.ndarray, counts: np.ndarray, pair: int) -> tuple[np.ndarray, np.ndarray]:
@@ -1781,10 +2000,10 @@ def _monotonic(
 _TRENDS = ("auto", "increasing", "decreasing", "u_shaped", "inverted_u", "any")
 # A step from the WOE of one bin to that of the next, as kivi.woe.woe_trend reads it.
 _FALL, _FLAT, _RISE = -1, 0, 1
-# Information values that differ by less than this are equal whatever their size: bins with
-# equal event rates have WOE values of about 1e-16 instead of 0 when the weights round, and
-# splitting them gains an IV of about 1e-32 over a single bin.
-_IV_TIE = _TIE**2
+# Gains that differ by less than this share of their scale are equal whatever their size: bins
+# with equal event rates or means differ by about 1e-16 instead of 0 when the weights round, and
+# splitting them gains about 1e-32 of the scale over a single bin.
+_GAIN_TIE = _TIE**2
 # The binnings of each trend, read from the last bin down: a single bin is in state 0, and
 # (step, state) -> state gives the state of a binning after a bin is added below its lowest bin,
 # with that step from the new bin to the old lowest one. Every state is an allowed shape.
@@ -1792,66 +2011,139 @@ _PREPEND: dict[str, dict[tuple[int, int], int]] = {
     "increasing": {(_RISE, 0): 0},
     "decreasing": {(_FALL, 0): 0},
     "any": {(_RISE, 0): 0, (_FLAT, 0): 0, (_FALL, 0): 0},
-    # 0: the WOE only rises; 1: it falls, then rises.
+    # 0: the level only rises; 1: it falls, then rises.
     "u_shaped": {(_RISE, 0): 0, (_FALL, 0): 1, (_FALL, 1): 1},
-    # 0: the WOE only falls; 1: it rises, then falls.
+    # 0: the level only falls; 1: it rises, then falls.
     "inverted_u": {(_FALL, 0): 0, (_RISE, 0): 1, (_RISE, 1): 1},
 }
 
 
-def _steps(before: np.ndarray, after: np.ndarray) -> np.ndarray:
-    """Step from each WOE in `before` to that in `after`: a rise, a fall or, within a tie, flat.
+def _steps(before: np.ndarray, after: np.ndarray, unit: float = 1.0) -> np.ndarray:
+    """Step from each level in `before` to that in `after`: a rise, a fall or, within a tie, flat.
 
-    A step is flat when it is within a relative `_TIE` of the larger WOE, as in
-    ``kivi.woe.woe_trend``, or within `_TIE` of zero, so that two WOE values of rounding size
-    around 0 are not a rise or a fall.
+    A step is flat when it is within a relative `_TIE` of the larger level, as in
+    ``kivi.woe.woe_trend``, or within `_TIE` times `unit` of zero, so that two levels of
+    rounding size around 0 are not a rise or a fall. The unit is 1 for a WOE and the root mean
+    square of the response for a mean.
     """
     change = after - before
-    scale = np.maximum(np.maximum(np.abs(before), np.abs(after)), 1.0)
+    scale = np.maximum(np.maximum(np.abs(before), np.abs(after)), unit)
     return np.where(np.abs(change) > _TIE * scale, np.sign(change), _FLAT).astype(np.intp)
 
 
-def _iv_floor(largest: float) -> float:
-    """Smallest information value that ties with `largest`."""
-    return largest - max(_TIE * abs(largest), _IV_TIE)
+def _floor(largest: float, absolute: float) -> float:
+    """Smallest gain that ties with `largest`, within a relative `_TIE` or within `absolute`."""
+    return largest - max(_TIE * abs(largest), absolute)
+
+
+def _chosen(fits: list[tuple[list[int], float]], absolute: float) -> list[int]:
+    """Cuts of the first fit whose gain ties with the largest, so "auto" prefers increasing."""
+    floor = _floor(max(gain for _, gain in fits), absolute)
+    return next(cuts for cuts, gain in fits if gain >= floor)
 
 
 def _optimal(
     counts: np.ndarray, trend: str, max_bins: int, min_share: float, min_events: float
 ) -> tuple[list[int], float]:
-    """Cut positions among the (non_event, event) rows of the best binning, and its IV.
-
-    ``best[b][state, i, j]`` is the largest IV of a binning of rows ``i..n-1`` into ``b`` bins
-    whose lowest bin holds rows ``i..j-1`` and whose shape is in ``state`` (see `_PREPEND`).
-    The IV of a binning is summed from its highest bin down, as the table is filled, so that
-    every binning has one IV, which the tie rule of `optimal_edges` compares. Each table takes
-    ``8 * states * (n + 1) ** 2`` bytes, and there is one per number of bins that some binning
-    reaches.
-    """
+    """Cut positions among the (non_event, event) rows of the binning with the largest IV."""
     n = len(counts)
-    transitions = _PREPEND[trend]
-    states = 1 + max(transitions.values())
-    cumulative = np.zeros((n + 1, 2))
-    cumulative[1:] = np.cumsum(counts, axis=0)
     # Rows i..j-1 for every start i (axis 0) and stop j (axis 1); only i < j are bins.
-    non_event = cumulative[None, :, 0] - cumulative[:, None, 0]
-    event = cumulative[None, :, 1] - cumulative[:, None, 1]
+    non_event, event = _range_sums(counts[:, 0]), _range_sums(counts[:, 1])
     slack = 1 - _TIE
     feasible = (
         np.triu(np.ones((n + 1, n + 1), dtype=bool), 1)
-        & (non_event + event >= min_share * cumulative[-1].sum() * slack)
+        & (non_event + event >= min_share * (non_event[0, n] + event[0, n]) * slack)
         & (non_event >= min_events * slack)
         & (event >= min_events * slack)
     )
     with np.errstate(divide="ignore", invalid="ignore"):
-        event_share = event / cumulative[-1, 1]
-        non_event_share = non_event / cumulative[-1, 0]
+        # The single bin has shares of exactly 1, so its IV is exactly 0.
+        event_share = event / event[0, n]
+        non_event_share = non_event / non_event[0, n]
         woe = np.where(feasible, np.log(event_share / non_event_share), 0.0)
     iv = np.where(feasible, (event_share - non_event_share) * woe, -np.inf)
     del non_event, event, event_share, non_event_share, feasible
+    return _best_binning(iv, woe, trend, max_bins, unit=1.0, absolute=_GAIN_TIE)
+
+
+def _between(
+    totals: np.ndarray,
+    sums: np.ndarray,
+    centre: float,
+    trend: str,
+    max_bins: int,
+    min_share: float,
+    unit: float,
+    absolute: float,
+) -> tuple[list[int], float]:
+    """Cut positions of the binning with the largest between-bin sum of squares, and that sum.
+
+    `totals` are the weights of the fine bins and `sums` their weighted sums of the response
+    less `centre`, its mean, so a bin of weight W and sum S has the mean ``centre + S / W`` and
+    adds ``S ** 2 / W`` to the between-bin sum of squares.
+    """
+    n = len(totals)
+    total, summed = _range_sums(totals), _range_sums(sums)
+    feasible = np.triu(np.ones((n + 1, n + 1), dtype=bool), 1) & (
+        total >= min_share * total[0, n] * (1 - _TIE)
+    )
+    with np.errstate(divide="ignore", invalid="ignore"):
+        mean = np.where(feasible, centre + summed / total, 0.0)
+        gain = np.where(feasible, summed * (summed / total), -np.inf)
+    del total, summed, feasible
+    return _best_binning(gain, mean, trend, max_bins, unit=unit, absolute=absolute)
+
+
+def _range_sums(values: np.ndarray) -> npt.NDArray[np.float64]:
+    """Sum of ``values[i:j]`` for every ``i < j`` as the entry ``[i, j]`` of an (n + 1)-square.
+
+    Each range adds the aligned blocks of 1, 2, 4, ... values that lie inside it, read as a
+    segment tree from the leaves up, so that a large value outside a range never rounds away
+    the small ones inside it, as a difference of cumulative sums would. Each block sums two
+    blocks of half its length. The entries with ``i >= j`` are 0.
+    """
+    n = len(values)
+    blocks = [np.asarray(values, dtype=float)]
+    while len(blocks[-1]) > 1:
+        level = blocks[-1]
+        if len(level) % 2:
+            level = np.append(level, 0.0)
+        blocks.append(level[0::2] + level[1::2])
+    start, stop = np.triu_indices(n + 1, 1)
+    low, high = start.copy(), stop.copy()
+    sums = np.zeros(len(low))
+    for level in blocks:
+        left = (low & 1).astype(bool) & (low < high)
+        sums[left] += level[low[left]]
+        low = low + left
+        right = (high & 1).astype(bool) & (low < high)
+        high = high - right
+        sums[right] += level[high[right]]
+        low, high = low >> 1, high >> 1
+    result = np.zeros((n + 1, n + 1))
+    result[start, stop] = sums
+    return result
+
+
+def _best_binning(
+    gain: np.ndarray, level: np.ndarray, trend: str, max_bins: int, *, unit: float, absolute: float
+) -> tuple[list[int], float]:
+    """Cut positions of the binning with the largest sum of `gain` whose `level` follows `trend`.
+
+    ``gain[i, j]`` is what the bin of rows ``i..j-1`` adds, ``-inf`` where the constraints
+    rule it out, and ``level[i, j]`` its WOE or mean. ``best[b][state, i, j]`` is the largest
+    gain of a binning of rows ``i..n-1`` into ``b`` bins whose lowest bin holds rows ``i..j-1``
+    and whose shape is in ``state`` (see `_PREPEND`). The gain of a binning is summed from its
+    highest bin down, as the table is filled, so that every binning has one gain, which the
+    tie rule of `optimal_edges` compares. Each table takes ``8 * states * (n + 1) ** 2`` bytes,
+    and there is one per number of bins that some binning reaches.
+    """
+    n = gain.shape[0] - 1
+    transitions = _PREPEND[trend]
+    states = 1 + max(transitions.values())
     # best[b] is allocated only while some binning has b bins, which the constraints limit.
     first = np.full((states, n + 1, n + 1), -np.inf)
-    first[0, :, n] = iv[:, n]
+    first[0, :, n] = gain[:, n]
     best = [first[:0], first]
     for bins in range(2, min(max_bins, n) + 1):
         table = np.full((states, n + 1, n + 1), -np.inf)
@@ -1859,12 +2151,12 @@ def _optimal(
             above = best[bins - 1][:, stop, stop + 1 :]
             if not np.isfinite(above).any():
                 continue
-            steps = _steps(woe[:stop, stop, None], woe[None, stop, stop + 1 :])
+            steps = _steps(level[:stop, stop, None], level[None, stop, stop + 1 :], unit)
             for (step, state), new in transitions.items():
                 following = np.where(steps == step, above[state], -np.inf).max(axis=1)
                 np.maximum(
                     table[new, :stop, stop],
-                    iv[:stop, stop] + following,
+                    gain[:stop, stop] + following,
                     out=table[new, :stop, stop],
                 )
         if not np.isfinite(table).any():
@@ -1872,31 +2164,31 @@ def _optimal(
         best.append(table)
     by_bins = np.array([table[:, 0, :].max() for table in best[1:]])
     largest = float(by_bins.max())
-    floor = _iv_floor(largest)
+    floor = _floor(largest, absolute)
     bins = 1 + int(np.flatnonzero(by_bins >= floor)[0])
     # Choose the bins from the lowest up: each time the lowest stop from which a binning of the
     # rest, in a shape that the bins chosen so far allow, still reaches the floor.
     cuts: list[int] = []
-    chosen_iv: list[float] = []
+    chosen_gain: list[float] = []
     chosen_steps: list[int] = []
     start, previous = 0, None
     for left in range(bins, 0, -1):
         candidates = best[left][:, start, :]
         if previous is not None:
-            steps = _steps(previous, woe[start])
+            steps = _steps(previous, level[start], unit)
             allowed = np.zeros(candidates.shape, dtype=bool)
             for (step, state), new in transitions.items():
                 if _reaches(new, chosen_steps, transitions):
                     allowed[state] |= steps == step
             candidates = np.where(allowed, candidates, -np.inf)
         total = candidates.max(axis=0)
-        for value in reversed(chosen_iv):
+        for value in reversed(chosen_gain):
             total = value + total
         stop = int(np.flatnonzero(total >= floor)[0])
         if previous is not None:
             chosen_steps.append(int(steps[stop]))
-        chosen_iv.append(float(iv[start, stop]))
-        previous = woe[start, stop]
+        chosen_gain.append(float(gain[start, stop]))
+        previous = level[start, stop]
         cuts.append(stop)
         start = stop
     return cuts[:-1], largest
