@@ -10,10 +10,18 @@ import pytest
 from pandas.testing import assert_frame_equal
 
 import kivi
-from kivi.binning import bin_edges, chimerge_edges, cut, ks_edges, monotonic_edges, tree_edges
+from kivi.binning import (
+    bin_edges,
+    chimerge_edges,
+    cut,
+    ks_edges,
+    monotonic_edges,
+    optimal_edges,
+    tree_edges,
+)
 from kivi.datasets import load_bank
 from kivi.spec import BinningSpec, fit_spec
-from kivi.woe import woe_table, woe_transform
+from kivi.woe import woe_table, woe_transform, woe_trend
 
 INF = np.inf
 
@@ -360,6 +368,57 @@ def test_ks_method_matches_ks_edges(bank):
     assert_frame_equal(loaded.woe_transform(frame), spec.woe_transform(frame))
 
 
+def test_optimal_method_matches_optimal_edges(bank):
+    development, monitoring = bank
+    frame, target = development[["age", "balance", "pdays"]], development["target"]
+    spec = fit_spec(
+        frame,
+        target,
+        method="optimal",
+        bins={"balance": 4},
+        special={"pdays": [-1]},
+        options={
+            "age": {"trend": "u_shaped"},
+            "balance": {"min_bin_events": 20, "min_bin_share": 0.1, "initial_bins": 50},
+        },
+    )
+    expected = {
+        "age": optimal_edges(frame["age"], target, trend="u_shaped"),
+        "balance": optimal_edges(
+            frame["balance"],
+            target,
+            max_bins=4,
+            min_bin_events=20,
+            min_bin_share=0.1,
+            initial_bins=50,
+        ),
+        "pdays": optimal_edges(frame["pdays"], target, special=[-1]),
+    }
+    np.testing.assert_array_equal(expected["age"], [-INF, 29, 38, 42, 56, INF])
+    for column, edges in expected.items():
+        np.testing.assert_array_equal(spec.edges[column], edges)
+        special = [-1] if column == "pdays" else None
+        table = woe_table(cut(frame[column], edges, special=special), target)
+        assert spec.tables[column].index.tolist() == list(table.index)
+        np.testing.assert_array_equal(spec.tables[column].to_numpy(), table.to_numpy())
+    assert woe_trend(spec.tables["age"]) == "u_shaped"
+    balance = spec.tables["balance"]
+    assert len(balance) <= 4 and balance["total_share"].min() >= 0.1
+    assert balance["event"].min() >= 20 and balance["non_event"].min() >= 20
+    # Every bin has both classes, so the smoothing of the specification changes no WOE.
+    smoothed = fit_spec(frame, target, method="optimal", special={"pdays": [-1]}, smoothing=5.0)
+    for column in ("age", "balance"):
+        table = smoothed.tables[column]
+        assert (table[["event", "non_event"]] > 0).all(axis=None)
+        np.testing.assert_allclose(
+            table["woe"], woe_table(smoothed.cut(frame)[column], target)["woe"], rtol=1e-15
+        )
+    assert spec.format_version == 1
+    loaded = BinningSpec.from_json(spec.to_json())
+    assert loaded == spec
+    assert_frame_equal(loaded.woe_transform(monitoring), spec.woe_transform(monitoring))
+
+
 def test_monotonic_binning_uses_the_spec_smoothing(bank):
     development, _ = bank
     target = development["target"]
@@ -435,7 +494,7 @@ def test_column_without_values_to_fit_gets_one_interval():
         spec.woe_transform(frame.assign(empty=3.0))
 
 
-@pytest.mark.parametrize("method", ["tree", "ks"])
+@pytest.mark.parametrize("method", ["tree", "ks", "optimal"])
 def test_integer_weights_match_repeated_rows(method):
     weights = np.array([1, 2, 1, 3, 1, 1, 2, 1, 1, 2])
     weighted = _fit(method=method, weights=weights)
@@ -905,6 +964,25 @@ def test_repr_names_the_columns():
             "column 'x': min_bin_share must be between 0 and 0.5, got 0.6",
         ),
         ({"method": "monotonic", "options": {"x": {"smoothing": 1}}}, r"got \['smoothing'\]"),
+        ({"method": "kmeans"}, "'ks', 'monotonic', 'optimal', got 'kmeans'"),
+        (
+            {"method": "optimal", "options": {"x": {"smoothing": 1}}},
+            r"optimal_edges other than .* \(initial_bins, min_bin_events, min_bin_share, trend\), "
+            r"got \['smoothing'\]",
+        ),
+        (
+            {"method": "optimal", "options": {"x": {"trend": "up"}}},
+            "column 'x': trend must be one of 'auto', 'increasing', .*, got 'up'",
+        ),
+        (
+            {"method": "optimal", "options": {"x": {"min_bin_events": 5}}},
+            "column 'x': min_bin_events must not exceed the events of the fitted values, got 5 "
+            "and 4 events",
+        ),
+        (
+            {"method": "chimerge", "options": {"x": {"min_bin_share": 0.6}}},
+            "column 'x': min_bin_share must be between 0 and 0.5, got 0.6",
+        ),
         ({"method": "tree", "options": {"x": 1}}, "options of column 'x' must be a dict, got int"),
         ({"options": [1]}, "options must be a dict by column, got list"),
         ({"unseen": np.nan}, "unseen must be 'raise' or a finite number, got nan"),

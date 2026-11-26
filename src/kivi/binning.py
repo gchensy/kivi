@@ -1,9 +1,9 @@
 """Numeric bin boundaries, category groups and their assignment.
 
 ``bin_edges`` fits edges from the values alone. ``chimerge_edges``,
-``tree_edges``, ``ks_edges`` and ``monotonic_edges`` also use a binary
-target. All of them return increasing edges with infinite endpoints for ``pandas.cut``, or for
-``cut``, which also gives each special value its own group.
+``tree_edges``, ``ks_edges``, ``monotonic_edges`` and ``optimal_edges`` also
+use a binary target. All of them return increasing edges with infinite endpoints for
+``pandas.cut``, or for ``cut``, which also gives each special value its own group.
 
 ``category_groups`` pools rare categories and ``chimerge_groups`` merges
 categories with similar event rates. Both return a dict from category to
@@ -27,6 +27,7 @@ __all__ = [
     "tree_edges",
     "ks_edges",
     "monotonic_edges",
+    "optimal_edges",
     "category_groups",
     "chimerge_groups",
     "group_categories",
@@ -248,6 +249,7 @@ def chimerge_edges(
     max_bins: int = 5,
     alpha: float | None = 0.05,
     initial_bins: int = 20,
+    min_bin_share: float = 0.0,
     special: npt.ArrayLike | None = None,
     weights: npt.ArrayLike | None = None,
 ) -> npt.NDArray[np.float64]:
@@ -255,10 +257,12 @@ def chimerge_edges(
 
     The values are first cut into ``initial_bins`` quantile bins, or into one
     bin per distinct value if there are no more distinct values than that.
-    The adjacent pair with the smallest chi-square statistic, the pair whose
-    event rates are most alike, is then merged, and merging is repeated while
-    more than ``max_bins`` bins remain or while some adjacent pair is not
-    significantly different at level ``alpha``.
+    While some bin holds less than ``min_bin_share`` of the fitted values,
+    the smallest one is merged with the neighbour whose chi-square statistic
+    with it is smaller. The adjacent pair with the smallest chi-square
+    statistic, the pair whose event rates are most alike, is then merged, and
+    merging is repeated while more than ``max_bins`` bins remain or while
+    some adjacent pair is not significantly different at level ``alpha``.
 
     Parameters
     ----------
@@ -277,6 +281,10 @@ def chimerge_edges(
         None to merge down to ``max_bins`` only.
     initial_bins : int, default 20
         Number of quantile bins to start from. Tied quantiles can reduce it.
+    min_bin_share : float, default 0.0
+        Minimum share of the fitted values in every bin, from 0 to 0.5, or of
+        their total weight when `weights` is given. Missing and special values
+        do not count towards it. The default merges no bin for its size.
     special : array_like, optional
         Special values, such as codes for "not applicable", that are omitted
         with their labels when the edges are fitted. Pass the same values to
@@ -300,12 +308,13 @@ def chimerge_edges(
     ------
     ValueError
         If `max_bins` or `initial_bins` is not a positive integer, `alpha` is
-        neither None nor between 0 and 1, `values` and `target` are not
-        one-dimensional or their indices or lengths do not match, `special` is
-        not one-dimensional or contains a missing value or a boolean, `values`
-        is not numeric or has no finite observations apart from missing and
-        special values, or `target` has labels other than 0 and 1 or lacks one
-        of them in the rows that are fitted.
+        neither None nor between 0 and 1, `min_bin_share` is not between 0 and
+        0.5, `values` and `target` are not one-dimensional or their indices or
+        lengths do not match, `special` is not one-dimensional or contains a
+        missing value or a boolean, `values` is not numeric or has no finite
+        observations apart from missing and special values, or `target` has
+        labels other than 0 and 1 or lacks one of them in the rows that are
+        fitted.
         Also if `weights` is not numeric, does not give each value one finite,
         non-negative weight with a positive total, or has an index other than
         that of `values`.
@@ -314,6 +323,7 @@ def chimerge_edges(
     --------
     tree_edges : Split the values recursively instead of merging.
     monotonic_edges : Merge until the WOE is monotonic.
+    optimal_edges : The binning with the largest IV under constraints.
     cut : Assign values to bins, with a separate group for each special value.
 
     Notes
@@ -329,6 +339,13 @@ def chimerge_edges(
     where cells with :math:`E_{ij} = 0` contribute nothing. A pair stays
     separate when the p-value of :math:`\chi^2` is below ``alpha``.
 
+    A bin smaller than ``min_bin_share`` is merged first, whatever its
+    chi-square statistics, so every final bin holds at least that share
+    unless a single bin is left. Of several small bins, the smallest is
+    merged first, and of bins whose totals agree to a relative 1e-10, the
+    first; a small bin merges into its left neighbour when the two
+    statistics agree to a relative 1e-10, as in `chimerge_groups`.
+
     Examples
     --------
     >>> import pandas as pd
@@ -339,6 +356,14 @@ def chimerge_edges(
     array([-inf,   4.,  inf])
     >>> chimerge_edges(values, target, max_bins=3, alpha=None)
     array([-inf,   4.,   9.,  inf])
+
+    With four bins, the value 9 forms a bin of its own, 1/12 of the values.
+    ``min_bin_share=0.1`` merges it first:
+
+    >>> chimerge_edges(values, target, max_bins=4, alpha=None)
+    array([-inf,   4.,   8.,   9.,  inf])
+    >>> chimerge_edges(values, target, max_bins=4, alpha=None, min_bin_share=0.1)
+    array([-inf,   4.,   8.,  10.,  inf])
     """
     _validation.check_count(max_bins, "max_bins")
     _validation.check_count(initial_bins, "initial_bins")
@@ -346,8 +371,11 @@ def chimerge_edges(
         raise ValueError(
             f"alpha must be None or between 0 and 1, got {_validation.shown_argument(alpha)}"
         )
+    _check_share(min_bin_share, "min_bin_share", 0.5)
     observed, labels, mass = _labeled(values, target, special, weights)
-    interior, counts = _fine_bins(observed, labels, initial_bins, mass)
+    interior, counts = _merge_small(
+        *_fine_bins(observed, labels, initial_bins, mass), min_bin_share
+    )
     while len(counts) > 1:
         statistic = _pair_chi2(counts)
         pair = int(np.argmin(statistic))
@@ -668,6 +696,7 @@ def monotonic_edges(
     max_bins: int | None = 5,
     direction: typing.Literal["auto", "increasing", "decreasing"] = "auto",
     initial_bins: int = 20,
+    min_bin_share: float = 0.0,
     smoothing: float = 0.5,
     special: npt.ArrayLike | None = None,
     weights: npt.ArrayLike | None = None,
@@ -676,7 +705,10 @@ def monotonic_edges(
 
     The values are first cut into ``initial_bins`` quantile bins, or into one
     bin per distinct value if there are no more distinct values than that.
-    While two adjacent bins break the trend, the first such pair is merged and
+    While some bin holds less than ``min_bin_share`` of the fitted values,
+    the smallest one is merged with the neighbour whose chi-square statistic
+    with it is smaller, as in :func:`chimerge_edges`. Then, while two
+    adjacent bins break the trend, the first such pair is merged and
     the WOE is recomputed (pool adjacent violators), so the WOE of the final
     bins is strictly increasing or strictly decreasing. While more than ``max_bins``
     bins remain, the adjacent pair with the smallest chi-square statistic is
@@ -700,6 +732,10 @@ def monotonic_edges(
         ``"increasing"`` on a tie.
     initial_bins : int, default 20
         Number of quantile bins to start from. Tied quantiles can reduce it.
+    min_bin_share : float, default 0.0
+        Minimum share of the fitted values in every bin, from 0 to 0.5, or of
+        their total weight when `weights` is given. Missing and special values
+        do not count towards it. The default merges no bin for its size.
     smoothing : float, default 0.5
         Positive replacement for a zero count when calculating the WOE, as in
         :func:`kivi.woe.woe_table`. Use the same value there to see the same
@@ -727,13 +763,14 @@ def monotonic_edges(
     ------
     ValueError
         If `max_bins` is neither None nor a positive integer, `initial_bins` is
-        not a positive integer, `direction` is not recognized, `smoothing` is
-        not finite and positive, `values` and `target` are not one-dimensional
-        or their indices or lengths do not match, `special` is not
-        one-dimensional or contains a missing value or a boolean, `values` is
-        not numeric or has no finite observations apart from missing and
-        special values, or `target` has labels other than 0 and 1 or lacks one
-        of them in the rows that are fitted.
+        not a positive integer, `direction` is not recognized, `min_bin_share`
+        is not between 0 and 0.5, `smoothing` is not finite and positive,
+        `values` and `target` are not one-dimensional or their indices or
+        lengths do not match, `special` is not one-dimensional or contains a
+        missing value or a boolean, `values` is not numeric or has no finite
+        observations apart from missing and special values, or `target` has
+        labels other than 0 and 1 or lacks one of them in the rows that are
+        fitted.
         Also if `weights` is not numeric, does not give each value one finite,
         non-negative weight with a positive total, or has an index other than
         that of `values`.
@@ -742,6 +779,7 @@ def monotonic_edges(
     --------
     chimerge_edges : Merge fine bins by a chi-square test.
     tree_edges : Split the values recursively.
+    optimal_edges : The monotonic binning with the largest IV.
     cut : Assign values to bins, with a separate group for each special value.
 
     Examples
@@ -767,8 +805,9 @@ def monotonic_edges(
             "direction must be 'auto', 'increasing' or 'decreasing', got "
             f"{_validation.shown_argument(direction)}"
         )
+    _check_share(min_bin_share, "min_bin_share", 0.5)
     observed, labels, mass = _labeled(values, target, special, weights)
-    fine = _fine_bins(observed, labels, initial_bins, mass)
+    fine = _merge_small(*_fine_bins(observed, labels, initial_bins, mass), min_bin_share)
     smoothing = _validation.check_smoothing(smoothing)
     limit = len(fine[1]) if max_bins is None else max_bins
     if direction == "auto":
@@ -780,6 +819,191 @@ def monotonic_edges(
     else:
         interior = _monotonic(*fine, 1 if direction == "increasing" else -1, limit, smoothing)[0]
     return np.r_[-np.inf, interior, np.inf]
+
+
+def optimal_edges(
+    values: npt.ArrayLike,
+    target: npt.ArrayLike,
+    *,
+    max_bins: int = 5,
+    min_bin_share: float = 0.05,
+    min_bin_events: float = 1,
+    trend: typing.Literal[
+        "auto", "increasing", "decreasing", "u_shaped", "inverted_u", "any"
+    ] = "auto",
+    initial_bins: int = 20,
+    special: npt.ArrayLike | None = None,
+    weights: npt.ArrayLike | None = None,
+) -> npt.NDArray[np.float64]:
+    r"""Fit the edges with the largest information value under constraints.
+
+    The values are first cut into ``initial_bins`` quantile bins, or into one
+    bin per distinct value if there are no more distinct values than that,
+    as in `chimerge_edges`. Of all the ways to join adjacent ones into at
+    most ``max_bins`` bins that hold at least ``min_bin_share`` of the fitted
+    values and at least ``min_bin_events`` events and non-events each, and
+    whose WOE follows ``trend``, the one with the largest information value
+    is returned. Dynamic programming finds it exactly, without a solver.
+
+    Parameters
+    ----------
+    values : array_like
+        One-dimensional numeric values, such as a list, a NumPy array or a
+        pandas Series. Missing values and their labels are omitted.
+    target : array_like
+        Binary labels, with 1 indicating the event. If `values` and `target`
+        are both pandas Series, they must have identical indices; otherwise
+        they are matched by position.
+    max_bins : int, default 5
+        Maximum number of bins.
+    min_bin_share : float, default 0.05
+        Minimum share of the fitted values in every bin, from 0 to 0.5, or of
+        their total weight when `weights` is given. Missing and special values
+        do not count towards it.
+    min_bin_events : float, default 1
+        Minimum number of events, and of non-events, in every bin, or their
+        total weight when `weights` is given. It must be positive, so that no
+        bin has an empty class and its WOE needs no smoothing.
+    trend : {"auto", "increasing", "decreasing", "u_shaped", "inverted_u", "any"}, default "auto"
+        Shape of the WOE as the values grow, named as by
+        :func:`kivi.woe.woe_trend`. ``"increasing"`` and ``"decreasing"``
+        require every step from one bin to the next to rise, or to fall.
+        ``"u_shaped"`` requires the WOE to fall and then rise, and
+        ``"inverted_u"`` to rise and then fall; either part may be empty, so
+        a monotonic binning qualifies when its information value is larger.
+        ``"any"`` imposes no shape. ``"auto"`` fits both monotonic trends and
+        keeps the one with the larger information value, preferring
+        ``"increasing"`` on a tie, as :func:`monotonic_edges` does.
+    initial_bins : int, default 20
+        Number of quantile bins to start from. Tied quantiles can reduce it.
+        The fit takes time in proportion to the cube of this number.
+    special : array_like, optional
+        Special values, such as codes for "not applicable", that are omitted
+        with their labels when the edges are fitted. Pass the same values to
+        `cut` so that each one forms its own group. The constraints apply to
+        the intervals only; a special group can have any size and WOE.
+    weights : array_like, optional
+        Non-negative weight of each observation, for example the inverse of
+        its sampling rate, matched like `target`. Observations with zero
+        weight are left out, and the counts in each bin are sums of weights.
+        The initial quantile bins then use weighted quantiles by the inverted
+        CDF, so unit weights can give other edges than no weights when there
+        are more distinct values than `initial_bins`.
+
+    Returns
+    -------
+    numpy.ndarray
+        Increasing edges with infinite endpoints, suitable for pandas.cut.
+
+    Raises
+    ------
+    ValueError
+        If `max_bins` or `initial_bins` is not a positive integer,
+        `min_bin_share` is not between 0 and 0.5, `min_bin_events` is not a
+        finite, positive number or is larger than the number of events or of
+        non-events in the fitted values, `trend` is not recognized, `values`
+        and `target` are not one-dimensional or their indices or lengths do
+        not match, `special` is not one-dimensional or contains a missing
+        value or a boolean, `values` is not numeric or has no finite
+        observations apart from missing and special values, or `target` has
+        labels other than 0 and 1 or lacks one of them in the rows that are
+        fitted.
+        Also if `weights` is not numeric, does not give each value one finite,
+        non-negative weight with a positive total, or has an index other than
+        that of `values`.
+
+    See Also
+    --------
+    chimerge_edges : Merge fine bins by a chi-square test.
+    monotonic_edges : Merge fine bins until the WOE is monotonic.
+    kivi.woe.woe_trend : The shape of the WOE of a binning.
+    cut : Assign values to bins, with a separate group for each special value.
+
+    Notes
+    -----
+    With :math:`E_b` events and :math:`N_b` non-events in bin :math:`b`, out
+    of :math:`E` and :math:`N` in all the fitted values, the information
+    value
+
+    .. math::
+
+       \mathrm{IV} = \sum_b \left( \frac{E_b}{E} - \frac{N_b}{N} \right)
+       \ln \frac{E_b / E}{N_b / N}
+
+    is a sum over the bins, and every bin has both classes, so it equals the
+    IV of :func:`kivi.woe.woe_table` for the fitted values and no zero count
+    is smoothed. A sum over the bins can be maximized one bin at a time:
+    for each initial bin that can start a bin, each initial bin that can
+    end it and each number of bins, the best binning of the values above it
+    is kept, and the shape of the WOE is checked between neighbouring bins.
+    This takes time in proportion to :math:`n^3 k` for :math:`n` initial
+    bins and :math:`k` bins, a fraction of a second for 200 initial bins.
+
+    A step from one bin to the next rises or falls when the two WOE values
+    differ by more than a relative 1e-10, as in `kivi.woe.woe_trend`, so the
+    trend of the fitted table is the one requested, or a simpler one: a
+    ``"u_shaped"`` fit can be increasing, decreasing or a single bin. Two
+    binnings whose information values agree to a relative 1e-10 count as
+    equal. Of equal binnings, the one with fewer bins is returned, and of
+    those with the same number of bins, the one whose lowest edge is
+    smallest, then the one whose next edge is smallest, and so on. A single
+    bin, with an information value of 0, meets every constraint, so a
+    result always exists.
+
+    The information value of the fitted sample is the largest that the
+    initial bins allow, so it overstates the information value that the
+    edges will show on other samples; measure that on a validation sample.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from kivi.binning import optimal_edges
+    >>> from kivi.woe import woe_table
+    >>> values = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+    >>> target = pd.Series([1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1])
+    >>> optimal_edges(values, target)
+    array([-inf,   8.,  inf])
+    >>> edges = optimal_edges(values, target, trend="u_shaped")
+    >>> edges
+    array([-inf,   3.,   8.,  inf])
+    >>> woe_table(pd.cut(values, edges), target)["woe"].round(3).tolist()
+    [0.693, -1.386, 1.099]
+
+    With at least two events and two non-events in every bin, the low
+    values cannot keep a bin of their own:
+
+    >>> optimal_edges(values, target, trend="u_shaped", min_bin_events=2)
+    array([-inf,   5.,  inf])
+    """
+    _validation.check_count(max_bins, "max_bins")
+    _check_share(min_bin_share, "min_bin_share", 0.5)
+    if (
+        isinstance(min_bin_events, bool)
+        or not _validation.is_real(min_bin_events)
+        or not (math.isfinite(min_bin_events) and min_bin_events > 0)
+    ):
+        raise ValueError(
+            "min_bin_events must be a finite, positive number, got "
+            f"{_validation.shown_argument(min_bin_events)}"
+        )
+    if not isinstance(trend, str) or trend not in _TRENDS:  # type: ignore[redundant-expr]  # rejects non-str values
+        names = ", ".join(repr(name) for name in _TRENDS)
+        raise ValueError(f"trend must be one of {names}, got {_validation.shown_argument(trend)}")
+    _validation.check_count(initial_bins, "initial_bins")
+    observed, labels, mass = _labeled(values, target, special, weights)
+    interior, counts = _fine_bins(observed, labels, initial_bins, mass)
+    for side, name in ((1, "events"), (0, "non-events")):
+        available = counts[:, side].sum()
+        if available < min_bin_events * (1 - _TIE):
+            raise ValueError(
+                f"min_bin_events must not exceed the {name} of the fitted values, got "
+                f"{_validation.shown_argument(min_bin_events)} and "
+                f"{_validation.shown(available)} {name}"
+            )
+    shapes = ["increasing", "decreasing"] if trend == "auto" else [trend]
+    fits = [_optimal(counts, shape, max_bins, min_bin_share, min_bin_events) for shape in shapes]
+    cuts = fits[_first_max(np.array([iv for _, iv in fits]))][0]
+    return np.r_[-np.inf, interior[np.asarray(cuts, dtype=np.intp) - 1], np.inf]
 
 
 def category_groups(
@@ -1474,6 +1698,31 @@ def _merge(interior: np.ndarray, counts: np.ndarray, pair: int) -> tuple[np.ndar
     return np.delete(interior, pair), np.delete(counts, pair + 1, axis=0)
 
 
+def _merge_small(
+    interior: np.ndarray, counts: np.ndarray, min_share: float
+) -> tuple[np.ndarray, np.ndarray]:
+    """Merge the smallest bin below `min_share` into its more similar neighbour until none is left.
+
+    The neighbour is the one whose chi-square statistic with the bin is smaller, the left one
+    on a tie, and of several smallest bins the first is merged, as in ``chimerge_groups``.
+    """
+    while len(counts) > 1:
+        totals = counts.sum(axis=1)
+        small = np.flatnonzero(totals / totals.sum() < min_share)
+        if not len(small):
+            break
+        bin_ = int(small[_first_min(totals[small])])
+        if bin_ == 0:
+            pair = 0
+        elif bin_ == len(counts) - 1:
+            pair = bin_ - 1
+        else:
+            left, right = _pair_chi2(counts[bin_ - 1 : bin_ + 2])
+            pair = bin_ if right < left - _TIE * left else bin_ - 1
+        interior, counts = _merge(interior, counts, pair)
+    return interior, counts
+
+
 def _pair_chi2(counts: np.ndarray) -> np.ndarray:
     """Chi-square statistic of each adjacent pair of bins."""
     pairs = np.stack([counts[:-1], counts[1:]], axis=1).astype(float)
@@ -1517,3 +1766,118 @@ def _monotonic(
             break
         interior, counts = _merge(interior, counts, pair)
     return interior, counts
+
+
+# The trends of optimal_edges, in the order of its documentation.
+_TRENDS = ("auto", "increasing", "decreasing", "u_shaped", "inverted_u", "any")
+# A step from the WOE of one bin to that of the next, as kivi.woe.woe_trend reads it.
+_FALL, _FLAT, _RISE = -1, 0, 1
+# The binnings of each trend, read from the last bin down: a single bin is in state 0, and
+# (step, state) -> state gives the state of a binning after a bin is added below its lowest bin,
+# with that step from the new bin to the old lowest one. Every state is an allowed shape.
+_PREPEND: dict[str, dict[tuple[int, int], int]] = {
+    "increasing": {(_RISE, 0): 0},
+    "decreasing": {(_FALL, 0): 0},
+    "any": {(_RISE, 0): 0, (_FLAT, 0): 0, (_FALL, 0): 0},
+    # 0: the WOE only rises; 1: it falls, then rises.
+    "u_shaped": {(_RISE, 0): 0, (_FALL, 0): 1, (_FALL, 1): 1},
+    # 0: the WOE only falls; 1: it rises, then falls.
+    "inverted_u": {(_FALL, 0): 0, (_RISE, 0): 1, (_RISE, 1): 1},
+}
+
+
+def _steps(before: np.ndarray, after: np.ndarray) -> np.ndarray:
+    """Step from each WOE in `before` to that in `after`: a rise, a fall or, within a tie, flat."""
+    change = after - before
+    scale = np.maximum(np.abs(before), np.abs(after))
+    return np.where(np.abs(change) > _TIE * scale, np.sign(change), _FLAT).astype(np.intp)
+
+
+def _optimal(
+    counts: np.ndarray, trend: str, max_bins: int, min_share: float, min_events: float
+) -> tuple[list[int], float]:
+    """Cut positions among the (non_event, event) rows of the best binning, and its IV.
+
+    ``best[b, state, i, j]`` is the largest IV of a binning of rows ``i..n-1`` into ``b`` bins
+    whose lowest bin holds rows ``i..j-1`` and whose shape is in ``state`` (see `_PREPEND`).
+    The IV of a binning is summed from its highest bin down, as the table is filled, so that
+    every binning has one IV, which the tie rule of `optimal_edges` compares.
+    """
+    n = len(counts)
+    transitions = _PREPEND[trend]
+    states = 1 + max(transitions.values())
+    cumulative = np.zeros((n + 1, 2))
+    cumulative[1:] = np.cumsum(counts, axis=0)
+    # Rows i..j-1 for every start i (axis 0) and stop j (axis 1); only i < j are bins.
+    non_event = cumulative[None, :, 0] - cumulative[:, None, 0]
+    event = cumulative[None, :, 1] - cumulative[:, None, 1]
+    slack = 1 - _TIE
+    feasible = (
+        np.triu(np.ones((n + 1, n + 1), dtype=bool), 1)
+        & (non_event + event >= min_share * cumulative[-1].sum() * slack)
+        & (non_event >= min_events * slack)
+        & (event >= min_events * slack)
+    )
+    with np.errstate(divide="ignore", invalid="ignore"):
+        event_share = event / cumulative[-1, 1]
+        non_event_share = non_event / cumulative[-1, 0]
+        woe = np.where(feasible, np.log(event_share / non_event_share), 0.0)
+    iv = np.where(feasible, (event_share - non_event_share) * woe, -np.inf)
+    limit = min(max_bins, n)
+    best = np.full((limit + 1, states, n + 1, n + 1), -np.inf)
+    best[1, 0, :, n] = iv[:, n]
+    for bins in range(2, limit + 1):
+        for stop in range(1, n):
+            above = best[bins - 1, :, stop, stop + 1 :]
+            if not np.isfinite(above).any():
+                continue
+            steps = _steps(woe[:stop, stop, None], woe[None, stop, stop + 1 :])
+            for (step, state), new in transitions.items():
+                following = np.where(steps == step, above[state], -np.inf).max(axis=1)
+                np.maximum(
+                    best[bins, new, :stop, stop],
+                    iv[:stop, stop] + following,
+                    out=best[bins, new, :stop, stop],
+                )
+        if not np.isfinite(best[bins]).any():
+            limit = bins - 1
+            break
+    by_bins = best[1 : limit + 1, :, 0, :].max(axis=(1, 2))
+    largest = float(by_bins.max())
+    floor = largest - _TIE * abs(largest)
+    bins = 1 + int(np.flatnonzero(by_bins >= floor)[0])
+    # Choose the bins from the lowest up: each time the lowest stop from which a binning of the
+    # rest, in a shape that the bins chosen so far allow, still reaches the floor.
+    cuts: list[int] = []
+    chosen_iv: list[float] = []
+    chosen_steps: list[int] = []
+    start, previous = 0, None
+    for left in range(bins, 0, -1):
+        candidates = best[left, :, start, :]
+        if previous is not None:
+            steps = _steps(previous, woe[start])
+            allowed = np.zeros(candidates.shape, dtype=bool)
+            for (step, state), new in transitions.items():
+                if _reaches(new, chosen_steps, transitions):
+                    allowed[state] |= steps == step
+            candidates = np.where(allowed, candidates, -np.inf)
+        total = candidates.max(axis=0)
+        for value in reversed(chosen_iv):
+            total = value + total
+        stop = int(np.flatnonzero(total >= floor)[0])
+        if previous is not None:
+            chosen_steps.append(int(steps[stop]))
+        chosen_iv.append(float(iv[start, stop]))
+        previous = woe[start, stop]
+        cuts.append(stop)
+        start = stop
+    return cuts[:-1], largest
+
+
+def _reaches(state: int, steps: list[int], transitions: abc.Mapping[tuple[int, int], int]) -> bool:
+    """Whether the bins below a binning in `state` can come with `steps`, read from the top down."""
+    for step in reversed(steps):
+        if (step, state) not in transitions:
+            return False
+        state = transitions[step, state]
+    return True
