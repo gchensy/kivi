@@ -19211,6 +19211,9 @@ msgstr "未发布"
 msgid "Changes merged since the last release."
 msgstr "上次发布以来合并的改动。"
 
+msgid "1.9.0 (2026-11-26)"
+msgstr "1.9.0（2026-11-26）"
+
 msgid "Changed"
 msgstr "变更"
 
