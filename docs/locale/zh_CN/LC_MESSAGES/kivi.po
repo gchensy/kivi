@@ -19211,11 +19211,20 @@ msgstr "未发布"
 msgid "Changes merged since the last release."
 msgstr "上次发布以来合并的改动。"
 
-msgid "1.9.0 (2026-11-26)"
-msgstr "1.9.0（2026-11-26）"
-
 msgid "Changed"
 msgstr "变更"
+
+msgid ""
+"``kivi.selection.vif_filter`` is much faster when there are many more rows than columns: it "
+"decomposes the standardized columns once and computes the VIFs of each round from a small square "
+"matrix, about 20 times faster for 50,000 rows and 40 columns. It keeps the same variables, "
+"because the VIFs it compares are those of ``kivi.selection.vif`` up to rounding."
+msgstr ""
+"行数远多于列数时， ``kivi.selection.vif_filter`` 快得多：它只对标准化后的列分解一次，此后每一轮的 VIF 都由一个小方阵算出；50,000 行、40 列时约快 "
+"20 倍。保留的变量不变，因为它比较的 VIF 与 ``kivi.selection.vif`` 的结果只差舍入误差。"
+
+msgid "1.9.0 (2026-11-26)"
+msgstr "1.9.0（2026-11-26）"
 
 msgid ""
 "kivi requires Python 3.11 or newer, as the notes of 1.8 announced, because Python 3.10 reached "
