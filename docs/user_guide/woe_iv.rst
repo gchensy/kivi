@@ -234,6 +234,72 @@ Pass ``unseen`` to give such groups a WOE instead. A WOE of 0 is the neutral cho
 >>> woe_transform(new_jobs, jobs, unseen=0.0).round(3).tolist()
 [0.955, 0.0, 0.0]
 
+.. _development-iv:
+
+Information value after supervised binning
+------------------------------------------
+
+The information value on the sample that the bins were fitted on overstates the information value that the variable will show elsewhere. Even with bins fixed in advance, a variable unrelated to the target has a positive IV. With :math:`n_e` events and :math:`n_n` non-events among :math:`n` observations in :math:`k` bins,
+
+.. math::
+
+   \frac{n_e n_n}{n}\,\mathrm{IV} \approx \chi^2_{k-1},
+
+so the IV of such a variable averages :math:`(k - 1)\,n / (n_e n_n)`. With 348 subscribers among the 3,000 reference customers, that is 0.013 for 5 bins and 0.062 for 20:
+
+>>> events, rows = int(reference["target"].sum()), len(reference)
+>>> [round((bins - 1) * rows / (events * (rows - events)), 3) for bins in (5, 20)]
+[0.013, 0.062]
+
+The approximation holds for bins fixed without the target, such as the quantile bins of :func:`~kivi.univariate.profile_table`, whose ``chi2_p_value`` tests the IV in this way. The supervised methods of :doc:`binning` choose the edges to separate the classes of the sample, so the IV of noise is larger still. Shuffling the target breaks every link between a variable and the target. Five bins of :func:`~kivi.binning.tree_edges`, fitted again on each of 100 shuffles of the target, still give ``day`` an IV of 0.037 on average, nearly three times the 0.013 of five fixed bins, and above the usual threshold of 0.02 in most shuffles:
+
+>>> import numpy as np
+>>> from kivi.binning import tree_edges
+>>> def tree_iv(values, target):
+...     groups = pd.cut(values, tree_edges(values, target))
+...     return woe_table(groups, target)["iv"].sum()
+>>> target = reference["target"]
+>>> rng = np.random.default_rng(0)
+>>> shuffled = np.array([
+...     tree_iv(reference["day"], pd.Series(rng.permutation(target.to_numpy()), index=target.index))
+...     for _ in range(100)
+... ])
+>>> print(f"mean {shuffled.mean():.3f}, 95% quantile {np.quantile(shuffled, 0.95):.3f}")
+mean 0.037, 95% quantile 0.069
+>>> print(f"{(shuffled >= 0.02).mean():.0%} of the shuffles above 0.02")
+92% of the shuffles above 0.02
+
+These shuffles are a permutation test. The IV that the bins find with the true target is significant when few shuffles reach it, and none of the 100 reaches that of ``day``:
+
+>>> observed = tree_iv(reference["day"], target)
+>>> print(f"IV = {observed:.3f}, reached by {int((shuffled >= observed).sum())} of 100 shuffles")
+IV = 0.088, reached by 0 of 100 shuffles
+
+Fit the bins again on every shuffle, with the method and the options of the variable, because the optimism comes from the fit: fixed edges on shuffled targets show only the smaller bias of the approximation above.
+
+A validation sample measures the IV without the optimism of the fit. Fit the bins on the development sample, here with a :class:`~kivi.spec.BinningSpec`, group the validation sample with the same edges and compute its WOE table, ``woe_table(spec.cut(validation)[column], validation_target)``:
+
+>>> from kivi.spec import fit_spec
+>>> columns = ["age", "balance", "campaign", "day"]
+>>> spec = fit_spec(reference[columns], reference["target"], method="tree")
+>>> validation = spec.cut(current)
+>>> pd.DataFrame({
+...     "development": {column: spec.tables[column]["iv"].sum() for column in columns},
+...     "validation": {
+...         column: woe_table(validation[column], current["target"])["iv"].sum()
+...         for column in columns
+...     },
+... }).round(3)
+          development  validation
+age             0.105       0.272
+balance         0.158       0.065
+campaign        0.060       0.118
+day             0.088       0.042
+
+On the validation sample the edges are fixed, so the approximation applies again: with 173 subscribers among the 1,521 later customers, five bins of noise give 0.026 on average. ``balance`` and ``day`` keep less than half of their development IV, and ``day`` comes close to that level. ``age`` and ``campaign`` separate the later customers better than the reference ones, a change of population that :doc:`psi` measures. Rank and select variables by such an IV, or by a permutation test, rather than by the IV of the development sample.
+
+The WOE of each bin stays that of the development sample. Encoding each row with a WOE measured without it, out of fold, would give one bin several WOE values, while a scorecard gives each bin one number of points.
+
 Sample weights
 --------------
 

@@ -39,6 +39,7 @@ _FITTERS: dict[str, abc.Callable[..., npt.NDArray[np.float64]]] = {
     "tree": binning.tree_edges,
     "ks": binning.ks_edges,
     "monotonic": binning.monotonic_edges,
+    "optimal": binning.optimal_edges,
 }
 _GROUPERS: dict[str, abc.Callable[..., dict[abc.Hashable, abc.Hashable]]] = {
     "chimerge": binning.chimerge_groups,
@@ -933,9 +934,10 @@ def fit_spec(
     method : str or dict, default "quantile"
         Binning method of the numeric columns: ``"quantile"`` or
         ``"uniform"`` for `kivi.binning.bin_edges`, or ``"chimerge"``,
-        ``"tree"``, ``"ks"`` or ``"monotonic"`` for
+        ``"tree"``, ``"ks"``, ``"monotonic"`` or ``"optimal"`` for
         `kivi.binning.chimerge_edges`, `kivi.binning.tree_edges`,
-        `kivi.binning.ks_edges` or `kivi.binning.monotonic_edges`. A dict
+        `kivi.binning.ks_edges`, `kivi.binning.monotonic_edges` or
+        `kivi.binning.optimal_edges`. A dict
         maps columns to methods, and the numeric columns it leaves out use
         ``"quantile"``. A method applies only to the columns without edges
         in `bins`, so a dict must not name a column whose edges `bins`
@@ -961,7 +963,8 @@ def fit_spec(
     options : dict, optional
         Further keyword arguments for the binning or grouping function of
         each column, such as ``{"balance": {"alpha": None}}`` with
-        ``"chimerge"`` or ``{"job": {"min_share": 0.02}}`` with ``"rare"``.
+        ``"chimerge"``, ``{"age": {"trend": "u_shaped"}}`` with
+        ``"optimal"`` or ``{"job": {"min_share": 0.02}}`` with ``"rare"``.
         The special codes, the weights, the number of bins and, for
         ``"monotonic"`` and the grouping with ``"chimerge"``, the smoothing
         are passed by `fit_spec` and cannot be given here.
@@ -979,7 +982,8 @@ def fit_spec(
     smoothing : float, default 0.5
         Positive replacement for a zero count when calculating the WOE, as in
         `kivi.woe.woe_table`. ``"monotonic"`` binning uses the same value, so
-        its trend holds in the tables.
+        its trend holds in the tables. ``"optimal"`` binning needs none,
+        because each of its bins holds both classes.
     weights : array_like, optional
         Non-negative weight of each row, matched like `target`, for the
         binning functions and `kivi.woe.woe_table`. Counts are then sums of

@@ -65,7 +65,7 @@ bin
 (192.0, 356.0]    188       0.080 -0.414  0.009
 (356.0, inf]       68       0.191  0.588  0.010
 
-Special codes must be numbers, and infinite values must be special codes, as in :func:`~kivi.binning.bin_edges`. The methods are ``"quantile"`` and ``"uniform"`` for ``bin_edges`` and ``"chimerge"``, ``"tree"``, ``"ks"`` and ``"monotonic"`` for the supervised functions. ``bins`` is passed as ``bins`` to ``bin_edges`` and as ``max_bins`` to the others, and ``options`` holds their remaining arguments, such as ``alpha`` or ``min_bin_share``. ``"monotonic"`` uses the ``smoothing`` of the specification, so its trend holds in the tables. ``weights`` passes sample weights to every binning function and to :func:`~kivi.woe.woe_table`.
+Special codes must be numbers, and infinite values must be special codes, as in :func:`~kivi.binning.bin_edges`. The methods are ``"quantile"`` and ``"uniform"`` for ``bin_edges`` and ``"chimerge"``, ``"tree"``, ``"ks"``, ``"monotonic"`` and ``"optimal"`` for the supervised functions. ``bins`` is passed as ``bins`` to ``bin_edges`` and as ``max_bins`` to the others, and ``options`` holds their remaining arguments, such as ``alpha``, ``min_bin_share`` or the ``trend`` of :func:`~kivi.binning.optimal_edges`. ``"monotonic"`` uses the ``smoothing`` of the specification, so its trend holds in the tables; ``"optimal"`` needs none, because each of its bins holds both classes. ``weights`` passes sample weights to every binning function and to :func:`~kivi.woe.woe_table`.
 
 .. note::
 
