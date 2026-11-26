@@ -3,7 +3,7 @@ Vintage and roll-rate analysis
 
 Once a scorecard is in use, the loans it approves are monitored as they age. :mod:`kivi.vintage` covers the two standard views of a loan portfolio: vintage curves, which follow the bad rate of each origination cohort by month on book, and roll rates and transition matrices, which show how loans move between delinquency buckets from one month end to the next.
 
-Vintage analysis follows the loans themselves, where :doc:`monitoring` and the :doc:`population stability index <psi>` monitor the applicants, :doc:`validation` reviews the model once a year and :doc:`capital` sets the capital of its PDs. Its curves and matrices then give the PD term structures of :doc:`lifetime`, the last step of the user guide. :func:`~kivi.vintage.delinquency_panel` builds the monthly loan panel from the instalment schedules and the payments of the loans, :func:`~kivi.vintage.vintage_table` gives the vintage curves, and :func:`~kivi.vintage.transition_matrix` and :func:`~kivi.vintage.roll_rates` the movements between buckets. :func:`~kivi.vintage.migration_bandwidth` and :func:`~kivi.vintage.migration_test` summarize and test the migrations between rating grades, as the European Central Bank asks in the validation of PD models.
+Vintage analysis follows the loans themselves, where :doc:`monitoring` and the :doc:`population stability index <psi>` monitor the applicants, :doc:`validation` reviews the model once a year and :doc:`capital` sets the capital of its PDs. Its curves and matrices then give the PD term structures of :doc:`lifetime`, the last step of the user guide. :func:`~kivi.vintage.delinquency_panel` builds the monthly loan panel from the instalment schedules and the payments of the loans, :func:`~kivi.vintage.vintage_table` gives the vintage curves, :func:`~kivi.vintage.default_rate_table` the one-year default rates of the grades that calibrate a PD model, and :func:`~kivi.vintage.transition_matrix` and :func:`~kivi.vintage.roll_rates` the movements between buckets. :func:`~kivi.vintage.migration_bandwidth` and :func:`~kivi.vintage.migration_test` summarize and test the migrations between rating grades, as the European Central Bank asks in the validation of PD models.
 
 The loan panel
 --------------
@@ -269,6 +269,88 @@ cohort
 2025-10          NaN    NaN    NaN    NaN
 
 The weight must be the same on every row of a loan, so pass the amount lent rather than the outstanding balance.
+
+One-year default rates
+----------------------
+
+A vintage curve follows the loans from origination. The PD of an IRB model refers instead to the year after a given date, whatever the age of the loans, so its calibration and validation count defaults by cohorts of start dates. The cohort of a start date holds the obligors that are not in default at that date, grouped by their grade at that date, and its one-year default rate is the share of them that default at least once in the following year (EBA/GL/2017/16, paragraphs 73 to 77; the European Central Bank's validation reporting, section 2.3). :func:`~kivi.vintage.default_rate_table` forms these cohorts from a monthly panel. The synthetic panel has no rating grades, so the example takes the delinquency bucket at the start month as the pool of a retail loan and a status of 90+ as a default:
+
+>>> from kivi.vintage import default_rate_table
+>>> rates = default_rate_table(
+...     panel["loan_id"], panel["month"], panel["status"], panel["status"] == "90+"
+... )
+>>> rates.round(4)
+                 total  event  exited  event_rate
+start   grade
+2024-03 current    433     27      75      0.0624
+        1-29         5      3       0      0.6000
+        30-59        1      0       0      0.0000
+2024-06 current   1009     46     194      0.0456
+        1-29        31      7       5      0.2258
+        30-59       13     12       0      0.9231
+        60-89        1      1       0      1.0000
+2024-09 current   1557     65     281      0.0417
+        1-29        49      9       9      0.1837
+        30-59       16      9       3      0.5625
+        60-89       10      9       1      0.9000
+2024-12 current   2146     73     413      0.0340
+        1-29        65     17      12      0.2615
+        30-59       23     16       0      0.6957
+        60-89       15     11       0      0.7333
+
+The start months default to the quarter ends whose twelve following months lie in the panel, which ends in January 2026, so the last start is December 2024. The EBA guidelines ask for the one-year default rates at least quarterly (paragraph 78). ``total`` counts the loans of the cohort and ``event`` those in default in at least one month of the year after the start, so a loan that defaults, cures and defaults again counts once. Loans already in default at the start belong to no cohort, which is why the table has no 90+ rows. The grade is the one at the start month: a loan of the ``current`` pool that falls behind later still counts in the ``current`` pool. Pass ``starts`` to choose the months, such as one month a year for non-overlapping windows or the start of the observation period of a validation report, and ``horizon`` for windows of another length.
+
+Averages over the start months
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The observed average default rate is the arithmetic mean of the one-year default rates, for each grade and for the whole calibration segment (paragraphs 79 and 81). For the grades, average the rates of each grade; for the segment, add up the counts of each start month first:
+
+>>> rates["event_rate"].groupby(level="grade", observed=True).mean().round(4)
+grade
+current    0.0459
+1-29       0.3178
+30-59      0.5453
+60-89      0.8778
+Name: event_rate, dtype: float64
+>>> portfolio = rates.groupby(level="start")[["total", "event"]].sum()
+>>> segment_rate = portfolio["event"] / portfolio["total"]
+>>> segment_rate.round(4)
+start
+2024-03    0.0683
+2024-06    0.0626
+2024-09    0.0564
+2024-12    0.0520
+Freq: M, dtype: float64
+>>> print(f"{segment_rate.mean():.4f}")
+0.0598
+
+Every start month counts once, however many loans its cohort holds, and adding the counts of all the start months would give another number, the pooled rate. For retail exposures the guidelines also allow a weighted average that gives recent years more weight, ``numpy.average(segment_rate, weights=...)``. Quarterly windows overlap, so a year in the middle of the history enters four averages and a year at either end fewer; paragraph 80 asks for an analysis of that and of the other biases of the chosen start months.
+
+The long-run average default rate is this average over a historical observation period that reflects the likely range of variability of the default rates: at least five years, with a representative mix of good and bad years (paragraphs 82 to 84; Basel CRE36.79). Two years of a growing book, as here, are not enough. Where bad years are missing, the average is adjusted upwards; where they are overrepresented, it may be adjusted downwards, but an adjusted rate below the larger of two averages, over the last five years and over all years, needs a specific justification (paragraphs 85 and 86). With quarterly start months, the last five years are the last 20 rates. These adjustments are the lender's judgement and are not computed here. The long-run average is the central tendency to which :doc:`calibration` brings the PDs, and :func:`~kivi.capital.vasicek_fit` in :doc:`capital` estimates the asset correlation from the same series; pass it rates of non-overlapping windows, one start month a year, because overlapping windows make neighbouring rates move together.
+
+Loans that leave
+^^^^^^^^^^^^^^^^
+
+``exited`` counts the loans of a cohort that left the panel during the year without a default, here mostly loans repaid early. They stay in ``total``: the guidelines keep in the denominator the obligors whose loans were repaid, sold or written off during the year, and those that migrated to another grade or model, so that the defaults of all of them count (paragraph 76). A survival curve, such as the Kaplan-Meier curve of :func:`~kivi.lifetime.survival_table`, treats such loans as censored instead and gives a higher rate when many leave; in the ``current`` pool of December 2024, where 413 of 2,146 loans leave, the one-year default rate is 3.40% against about 3.9% for one minus the Kaplan-Meier survival. Paragraphs 76 and 80 ask the lender to analyse whether the loans that leave bias the default rate, and ``exited`` is where that analysis starts:
+
+>>> (rates["exited"] / rates["total"]).xs("current", level="grade").round(3)
+start
+2024-03    0.173
+2024-06    0.192
+2024-09    0.180
+2024-12    0.192
+Freq: M, dtype: float64
+
+A loan without a row in some months of the year counts as not in default in them. The panel should therefore keep the rows of loans that migrate to another model or approach, as the ECB's reporting counts their defaults as well.
+
+Defaults and grades
+^^^^^^^^^^^^^^^^^^^
+
+``defaulted`` flags a month in which the loan is in default. Month-end statuses miss a default that starts and ends within one month, so flag a month in which the loan was in default at any time, and include the probation period of the definition of default, during which a cured loan still counts as in default. Leave out technical defaults, which the ECB's reporting excludes, and defaults recorded in error (paragraph 71). The default definition applies to the obligor for most portfolios and may apply to the facility for retail ones; pass the identifier at that level as ``loan``.
+
+A missing grade forms a row of its own, listed after the grades. The guidelines ask for the default rate of the obligors without a rating at the start as well (paragraph 75), while the ECB's reporting leaves them out of the number of customers. Categorical grades keep the order of their categories, as the buckets above do, and other grades are sorted; pass ``observed=True`` to ``groupby`` to average only the grades of the table.
+
+With ``weights``, the counts are sums of the weights of the rows at the start month, and integer weights give the same table as repeating loans. Use them for sampling weights only: the PDs of a rating grade rest on default rates that count obligors, and weighting by exposure is not allowed for them (Basel CRE36.78). ``probability`` adds the mean PD of each cohort at the start month, ``mean_probability``, which the :doc:`validation` tests compare with the default rate.
 
 Roll rates
 ----------

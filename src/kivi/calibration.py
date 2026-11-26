@@ -3,6 +3,7 @@
 import math
 import typing
 import warnings
+from collections import abc
 
 import numpy as np
 import numpy.typing as npt
@@ -16,6 +17,7 @@ __all__ = [
     "binomial_test",
     "brier_decomposition",
     "calibration_table",
+    "central_tendency_shift",
     "concentration_test",
     "corrected_intercept",
     "fit_grade_pd",
@@ -28,6 +30,7 @@ __all__ = [
     "platt_fit",
     "platt_predict",
     "prior_correction",
+    "quasi_moment_fit",
     "spiegelhalter_test",
 ]
 
@@ -173,6 +176,340 @@ def corrected_intercept(intercept: float, *, sample_rate: float, population_rate
             f"intercept must be a finite number, got {_validation.shown_argument(intercept)}"
         )
     return intercept + math.log(_odds_ratio(sample_rate, population_rate))
+
+
+def central_tendency_shift(
+    probability: npt.ArrayLike,
+    *,
+    central_tendency: float,
+    weights: npt.ArrayLike | None = None,
+) -> float:
+    r"""Find the shift of the log odds that brings the mean PD to a central tendency.
+
+    Adding the same number to the log odds of every PD keeps their order and
+    moves their mean. The shift is fitted once, on a calibration sample such
+    as the current portfolio, so that its mean PD equals a target such as the
+    long-run average default rate, and then applied to the model.
+
+    Parameters
+    ----------
+    probability : array_like
+        PDs of the calibration sample, between 0 and 1, such as the PDs of a
+        model for the current portfolio, or one PD per grade with the number
+        of obligors of each grade as `weights`. PDs of 0 and 1 stay as they
+        are.
+    central_tendency : float
+        Target of the mean PD, strictly between 0 and 1, such as the
+        long-run average default rate of the calibration segment.
+    weights : array_like, optional
+        Non-negative frequency weight of each PD, matched like `probability`:
+        a weight of 2 counts a PD twice.
+
+    Returns
+    -------
+    float
+        The shift :math:`\Delta` of the log odds, negative if the mean PD
+        lies above the central tendency and exactly 0 if it equals it. A PD
+        :math:`p` becomes
+        ``p / (p + (1 - p) * numpy.exp(-shift))``, the intercept of a
+        logistic model becomes ``intercept + shift``, and the points of a
+        scorecard fall by ``factor * shift``.
+
+    Raises
+    ------
+    ValueError
+        If `probability` is empty, not one-dimensional or not real, has a
+        missing value or a value outside [0, 1], or has no PD strictly
+        between 0 and 1 with a positive weight; if `central_tendency` is not
+        strictly between 0 and 1 or lies outside the mean PDs that a shift
+        can reach, which the PDs of 0 and 1 bound; or if `weights` is not
+        valid.
+
+    See Also
+    --------
+    prior_correction : Correct for a development sample with another event rate.
+    quasi_moment_fit : Fit a PD curve to a central tendency and an accuracy ratio.
+    kivi.vintage.default_rate_table : One-year default rates for the long-run average.
+
+    Notes
+    -----
+    The shift :math:`\Delta` solves
+
+    .. math::
+
+       \frac{\sum_i w_i \, \sigma(\operatorname{logit} p_i + \Delta)}{\sum_i w_i} = \tau,
+       \qquad \sigma(z) = \frac{1}{1 + e^{-z}},
+
+    for the central tendency :math:`\tau`. The mean rises strictly with
+    :math:`\Delta`, so the solution is unique; it is found by Newton steps
+    safeguarded by bisection, to adjacent floats.
+
+    Multiplying the odds by :math:`e^{\Delta}` is the "scaled likelihood
+    ratio" calibration of Tasche [1]_ (eq. 4.5 and 4.8a), which he finds
+    theoretically sound and best performing on rating agency data, where
+    multiplying the PDs by a constant can exceed 1 and carries over the
+    default rate of the development period. It is also the adjustment of
+    the PDs of a recent sample to the long-run average default rate of the
+    calibration segment in the EBA guidelines on PD estimation [2]_ (the
+    "TTC B" approach of their rationale, and "TTC C" when the sample spans
+    the historical observation period). Calibrate before adding a margin of
+    conservatism or applying the PD floors (paragraph 89).
+
+    `prior_correction` multiplies the odds by a ratio fixed by two event
+    rates, the correction that applies when the scores of the current
+    portfolio are unknown; with the current portfolio at hand, this shift
+    makes its mean PD equal the target exactly.
+
+    References
+    ----------
+    .. [1] D. Tasche, "The art of probability-of-default curve calibration",
+       Journal of Credit Risk, vol. 9, no. 4, pp. 63-103, 2013.
+    .. [2] European Banking Authority, "Guidelines on PD estimation, LGD
+       estimation and the treatment of defaulted exposures",
+       EBA/GL/2017/16, section 5.3.5, 2017.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from kivi.calibration import central_tendency_shift
+    >>> probability = np.array([0.01, 0.02, 0.05, 0.1, 0.3])
+    >>> shift = central_tendency_shift(probability, central_tendency=0.05)
+    >>> print(f"{shift:.4f}")
+    -0.7805
+    >>> shifted = probability / (probability + (1 - probability) * np.exp(-shift))
+    >>> shifted.round(4)
+    array([0.0046, 0.0093, 0.0235, 0.0484, 0.1641])
+    >>> print(f"{shifted.mean():.4f}")
+    0.0500
+    """
+    target = _strict_rate(central_tendency, "central_tendency")
+    values = _validation.as_real(
+        _validation.as_series(probability, "probability"), "probability", booleans=True
+    )
+    if not len(values):
+        raise ValueError("probability must not be empty")
+    missing = np.isnan(values)
+    if missing.any():
+        raise ValueError(f"probability must not contain missing values, got {missing.sum()}")
+    _check_unit_interval(values, "probability")
+    mass = _validation.as_weights(weights, probability, "weights", "probability")
+    mass = np.ones(len(values)) if mass is None else mass
+    total = mass.sum()
+    certain, never = mass[values == 1].sum(), mass[values == 0].sum()
+    inner = (values > 0) & (values < 1) & (mass > 0)
+    if not inner.any():
+        raise ValueError(
+            "probability must hold a PD strictly between 0 and 1 with a positive weight, so that "
+            "a shift can move the mean"
+        )
+    inner_values, inner_mass = values[inner], mass[inner]
+    # The sum of the PDs strictly between 0 and 1 that the target asks for.
+    wanted = float(target * total - certain)
+    low, high = float(certain / total), float((total - never) / total)
+    if not (low < target < high and 0 < wanted < float(inner_mass.sum())):
+        raise ValueError(
+            f"central_tendency must lie strictly between {low!r} and {high!r}, the mean PDs that "
+            f"a shift can reach given the PDs of 0 and 1, got {target!r}"
+        )
+    if float(inner_mass @ inner_values) == wanted:
+        return 0.0
+    log_odds = np.log(inner_values) - np.log1p(-inner_values)
+    return _log_odds_shift(log_odds, inner_mass, wanted)
+
+
+def quasi_moment_fit(
+    score: npt.ArrayLike,
+    *,
+    central_tendency: float,
+    accuracy_ratio: float,
+    weights: npt.ArrayLike | None = None,
+) -> tuple[float, float]:
+    r"""Fit a logistic PD curve to a central tendency and an accuracy ratio.
+
+    Quasi moment matching chooses the slope and intercept of the PD curve
+    :math:`1 / (1 + \exp(-(a s + b)))` of a score so that, on a calibration
+    sample such as the current portfolio, the mean PD equals the central
+    tendency and the accuracy ratio that the curve implies equals a target,
+    such as the accuracy ratio of the development sample. `platt_predict`
+    applies the result.
+
+    Parameters
+    ----------
+    score : array_like
+        Finite numeric scores of the calibration sample that rise with the
+        risk, such as the log odds of a model or the number of a grade
+        counted from the best; negate a score that falls as the risk rises.
+        Equal scores, such as the grades of a rating scale, are allowed.
+    central_tendency : float
+        Target of the mean PD, strictly between 0 and 1, such as the
+        long-run average default rate.
+    accuracy_ratio : float
+        Target accuracy ratio, the Gini coefficient of `kivi.metrics.gini`,
+        at least 0 and below the largest that the scores allow. A ratio of 0
+        gives a flat curve.
+    weights : array_like, optional
+        Non-negative frequency weight of each score, matched like `score`,
+        such as the number of obligors of each grade.
+
+    Returns
+    -------
+    slope : float
+        Coefficient of the score in the log odds of default, positive unless
+        `accuracy_ratio` is 0.
+    intercept : float
+        Log odds of default at a score of 0.
+
+    Raises
+    ------
+    ValueError
+        If `score` is empty, not one-dimensional, not real, or has a missing
+        or infinite value; if `central_tendency` is not strictly between 0
+        and 1, or so close to either that it rounds away when multiplied by
+        the total weight; if `accuracy_ratio` is not at least 0 and below the largest
+        accuracy ratio that the scores allow for that central tendency, which
+        the message gives, or is positive while the scores take only one
+        value; or if `weights` is not valid.
+
+    See Also
+    --------
+    platt_predict : Apply the slope and intercept to scores.
+    platt_fit : Fit the same curve to observed defaults by maximum likelihood.
+    central_tendency_shift : Move the mean PD while keeping the shape of the curve.
+    kivi.metrics.gini : The accuracy ratio of a score on a sample with outcomes.
+
+    Notes
+    -----
+    With weights :math:`w_i`, the PDs :math:`p_i = \sigma(a s_i + b)` imply
+    a sample of events, each score with weight :math:`w_i p_i`, and of
+    non-events, each with weight :math:`w_i (1 - p_i)`. The slope and the
+    intercept solve
+
+    .. math::
+
+       \frac{\sum_i w_i p_i}{\sum_i w_i} = \tau, \qquad
+       \frac{\sum_{i, j} w_i p_i \, w_j (1 - p_j)
+             \left([s_i > s_j] - [s_i < s_j]\right)}
+            {\sum_i w_i p_i \sum_j w_j (1 - p_j)} = \mathrm{AR},
+
+    the accuracy ratio :math:`2\,\mathrm{AUC} - 1` with ties counted as
+    half, which `kivi.metrics.gini` gives on the implied sample. Tasche [1]_
+    introduced the method (equations 5.16 and 5.17) and calls it quasi
+    moment matching because the accuracy ratio is not a moment of the PDs;
+    unlike their variance, it does not depend on the share of defaulters,
+    so the accuracy ratio of a development sample can carry over to the
+    current portfolio. His equation 5.17 counts two different observations
+    with the same score in the order of the sample; here every tie counts
+    as half, as in his equations 5.16b and A.11b [2]_.
+
+    The curve is logistic in the score as given. Tasche [2]_ (appendix A)
+    fits a robust variant on rating grades, logistic in
+    :math:`\Phi^{-1}(\tilde F(x))`, where :math:`\tilde F` is the average
+    of the distribution function of the grades and its left limit, of the
+    survivors when the defaults are known and of the whole portfolio
+    otherwise (section 4.2.2); pass those transformed grades as `score` to
+    fit it.
+
+    For a fixed mean PD, the accuracy ratio rises with the slope, from 0 for
+    a flat curve to the limit of a step at which the riskiest scores have a
+    PD of 1; ties keep that limit below 1. This was checked numerically, not
+    proven. The intercept is solved for each slope as in
+    `central_tendency_shift`, and the slope by regula falsi safeguarded by
+    bisection, to adjacent floats, from the start that the binormal model
+    gives [2]_ (equation A.7).
+
+    References
+    ----------
+    .. [1] D. Tasche, "Estimating discriminatory power and PD curves when
+       the number of defaults is small", working paper, Lloyds Banking
+       Group, 2009, arXiv:0905.3928.
+    .. [2] D. Tasche, "The art of probability-of-default curve calibration",
+       Journal of Credit Risk, vol. 9, no. 4, pp. 63-103, 2013.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from kivi.calibration import platt_predict, quasi_moment_fit
+    >>> grade = np.arange(1, 8)
+    >>> obligors = np.array([60, 120, 200, 250, 200, 120, 50])
+    >>> slope, intercept = quasi_moment_fit(
+    ...     grade, central_tendency=0.02, accuracy_ratio=0.7, weights=obligors
+    ... )
+    >>> print(f"{slope:.4f} {intercept:.4f}")
+    1.0981 -9.4309
+    >>> curve = platt_predict(grade, slope, intercept)
+    >>> curve.round(4)
+    array([0.0002, 0.0007, 0.0022, 0.0064, 0.0191, 0.0551, 0.1487])
+    >>> print(f"{np.average(curve, weights=obligors):.4f}")
+    0.0200
+    """
+    target = _strict_rate(central_tendency, "central_tendency")
+    if (
+        isinstance(accuracy_ratio, (bool, np.bool_))
+        or not _validation.is_real(accuracy_ratio)
+        or not 0 <= accuracy_ratio < 1
+    ):
+        raise ValueError(
+            "accuracy_ratio must be at least 0 and below 1, got "
+            f"{_validation.shown_argument(accuracy_ratio)}"
+        )
+    ratio = float(accuracy_ratio)
+    series = _validation.as_series(score, "score")
+    if not len(series):
+        raise ValueError("score must not be empty")
+    values = _validation.finite_scores(series, "score")
+    mass = _validation.as_weights(weights, score, "weights", "score")
+    distinct, inverse = np.unique(values, return_inverse=True)
+    mass_of = np.bincount(inverse.ravel(), weights=mass, minlength=len(distinct)).astype(float)
+    distinct, mass_of = distinct[mass_of > 0], mass_of[mass_of > 0]
+    if ratio == 0:
+        return 0.0, math.log(target) - math.log1p(-target)
+    if len(distinct) < 2:
+        raise ValueError(
+            "score must take at least two values with a positive weight for a positive "
+            f"accuracy_ratio, got only {_validation.shown(distinct[0])}"
+        )
+    total = float(mass_of.sum())
+    wanted = target * total
+    if not 0 < wanted < total:
+        raise ValueError(
+            "central_tendency is too close to 0 or 1 to be matched with the total weight of "
+            f"score, got {target!r}"
+        )
+    largest = _accuracy_ratio(_step_probabilities(mass_of, wanted), mass_of)
+    if ratio >= largest:
+        raise ValueError(
+            f"accuracy_ratio must be below {largest!r}, the largest that the scores allow for "
+            f"this central_tendency, got {ratio!r}"
+        )
+    # Standardized scores keep the slope and the log odds of moderate size. Scaling by a power
+    # of two first is exact and keeps squares of huge or tiny scores from overflowing.
+    exponent = int(np.frexp(np.abs(distinct).max())[1])
+    scaled = np.ldexp(distinct, -exponent)
+    center = float(np.average(scaled, weights=mass_of))
+    spread = float(np.sqrt(np.average((scaled - center) ** 2, weights=mass_of)))
+    standard = (scaled - center) / spread
+
+    def gap(slope: float) -> tuple[float, float]:
+        """Accuracy ratio of the slope minus the target, and the intercept of the slope."""
+        intercept = _log_odds_shift(slope * standard, mass_of, wanted)
+        log_odds = slope * standard + intercept
+        return _accuracy_ratio(
+            _logistic(log_odds), mass_of, _logistic(-log_odds)
+        ) - ratio, intercept
+
+    # The binormal model with equal variances: A.6 and A.7 of Tasche (2013) for unit variance.
+    distance = -math.sqrt(2) * _stats.normal_quantile((1 - ratio) / 2)
+    upper = distance * math.sqrt(1 + target * (1 - target) * distance**2)
+    lower, lower_gap, lower_intercept = 0.0, -ratio, math.log(target) - math.log1p(-target)
+    upper_gap, upper_intercept = gap(upper)
+    while upper_gap < 0:
+        lower, lower_gap, lower_intercept = upper, upper_gap, upper_intercept
+        upper *= 2
+        upper_gap, upper_intercept = gap(upper)
+    slope, intercept = _regula_falsi(
+        gap, (lower, lower_gap, lower_intercept), (upper, upper_gap, upper_intercept)
+    )
+    return float(math.ldexp(slope / spread, -exponent)), float(intercept - slope * center / spread)
 
 
 def platt_fit(
@@ -2220,12 +2557,131 @@ def _numeric_values(
 
 
 def _odds_ratio(sample_rate: float, population_rate: float) -> float:
-    for name, rate in (("sample_rate", sample_rate), ("population_rate", population_rate)):
-        if isinstance(rate, bool) or not _validation.is_real(rate) or not 0 < rate < 1:
-            raise ValueError(
-                f"{name} must be strictly between 0 and 1, got {_validation.shown_argument(rate)}"
-            )
-    return (population_rate / (1 - population_rate)) / (sample_rate / (1 - sample_rate))
+    sample = _strict_rate(sample_rate, "sample_rate")
+    population = _strict_rate(population_rate, "population_rate")
+    return (population / (1 - population)) / (sample / (1 - sample))
+
+
+def _strict_rate(rate: float, name: str) -> float:
+    """Return a rate strictly between 0 and 1 as a float, raising a ValueError naming it."""
+    if isinstance(rate, (bool, np.bool_)) or not _validation.is_real(rate) or not 0 < rate < 1:
+        raise ValueError(
+            f"{name} must be strictly between 0 and 1, got {_validation.shown_argument(rate)}"
+        )
+    return float(rate)
+
+
+def _logistic(log_odds: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+    """Return 1 / (1 + exp(-log_odds)) without overflow."""
+    return np.exp(-np.logaddexp(0, -log_odds))
+
+
+def _log_odds_shift(
+    log_odds: npt.NDArray[np.float64], mass: npt.NDArray[np.float64], wanted: float
+) -> float:
+    """Return the shift of finite log odds that brings their weighted sum of PDs to ``wanted``.
+
+    ``wanted`` lies strictly between 0 and the total of ``mass``, which is
+    positive. The sum rises strictly with the shift, and the shift is found
+    by Newton steps safeguarded by bisection until the bracket holds no
+    float between its ends.
+    """
+    wanted = float(wanted)
+    # The log odds of the level wanted / total, without rounding the level to 1.
+    base = math.log(wanted) - math.log(float(mass.sum()) - wanted)
+    # Every PD lies at or below the level at the lower end and at or above it at the upper end.
+    lower, upper = base - float(log_odds.max()), base - float(log_odds.min())
+    shift = base - float(np.average(log_odds, weights=mass))
+    while True:
+        probability = _logistic(log_odds + shift)
+        excess = float(mass @ probability) - wanted
+        if excess <= 0:
+            lower = shift
+        else:
+            upper = shift
+        slope = float(mass @ (probability * _logistic(-(log_odds + shift))))
+        step = shift - excess / slope if slope > 0 else math.nan
+        if step == shift:
+            return float(shift)
+        if not lower < step < upper:
+            step = 0.5 * (lower + upper)
+            if not lower < step < upper:
+                return float(shift)
+        shift = step
+
+
+def _accuracy_ratio(
+    probability: npt.NDArray[np.float64],
+    mass: npt.NDArray[np.float64],
+    survival: npt.NDArray[np.float64] | None = None,
+) -> float:
+    """Accuracy ratio that PDs imply for distinct scores sorted in increasing order.
+
+    Each score holds ``mass * probability`` events and ``mass * survival``
+    non-events, with ``survival`` 1 - ``probability`` by default; ties count
+    as half, which is the difference of the pairs in and out of order.
+    """
+    events = mass * probability
+    non_events = mass * (1 - probability if survival is None else survival)
+    below = np.cumsum(non_events) - non_events
+    above = non_events.sum() - below - non_events
+    return float(events @ (below - above) / (events.sum() * non_events.sum()))
+
+
+def _step_probabilities(mass: npt.NDArray[np.float64], wanted: float) -> npt.NDArray[np.float64]:
+    """PDs of the limit of a steep curve: 1 for the riskiest scores, until they hold ``wanted``.
+
+    The scores are distinct and sorted in increasing order; the score at the
+    boundary holds the rest, so the PDs sum to ``wanted`` with ``mass``.
+    """
+    riskier = np.cumsum(mass[::-1])[::-1] - mass
+    return np.clip((wanted - riskier) / mass, 0, 1)
+
+
+def _regula_falsi(
+    gap: abc.Callable[[float], tuple[float, float]],
+    lower: tuple[float, float, float],
+    upper: tuple[float, float, float],
+) -> tuple[float, float]:
+    """Return the root of a rising ``gap`` and its second value, to adjacent floats.
+
+    ``lower`` and ``upper`` hold a point below and above the root, its gap
+    and its second value. Illinois steps keep the root in the bracket, and a
+    bisection follows any two steps that leave more than half of it. The
+    result is the largest point found whose gap is at most 0, so the root
+    lies within one float above it.
+    """
+    # The Illinois method halves the gap kept at an end that stays twice in a row.
+    low, low_weight, low_extra = lower
+    high, high_weight = upper[:2]
+    moved = 0
+    steps, width = 0, high - low
+    while True:
+        # The kept gaps can both be 0 once a gap is exactly 0 and the other end has been
+        # halved to 0; bisect then.
+        spread = high_weight - low_weight
+        point = high - high_weight * (high - low) / spread if spread > 0 else math.nan
+        if steps == 2:
+            bisect, steps, width = high - low > 0.5 * width, 0, high - low
+        else:
+            bisect = False
+        if bisect or not low < point < high:
+            point = 0.5 * (low + high)
+            if not low < point < high:
+                break
+        steps += 1
+        point_gap, point_extra = gap(point)
+        if point_gap <= 0:
+            low, low_weight, low_extra = point, point_gap, point_extra
+            if moved < 0:
+                high_weight *= 0.5
+            moved = -1
+        else:
+            high, high_weight = point, point_gap
+            if moved > 0:
+                low_weight *= 0.5
+            moved = 1
+    return low, low_extra
 
 
 def _check_unit_interval(values: npt.NDArray[np.float64], name: str) -> None:

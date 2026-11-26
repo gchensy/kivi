@@ -1,9 +1,9 @@
 Calibration
 ===========
 
-A PD model is calibrated when its probabilities match the default rates that are later observed. Calibration is a separate question from ranking: a model can order applicants well and still predict default rates that are too low for the whole portfolio. :mod:`kivi.calibration` corrects probabilities for the sampling of the development data, builds a master scale, summarizes its grades and tests them, and maps a score to probabilities with Platt scaling or isotonic regression.
+A PD model is calibrated when its probabilities match the default rates that are later observed. Calibration is a separate question from ranking: a model can order applicants well and still predict default rates that are too low for the whole portfolio. :mod:`kivi.calibration` corrects probabilities for the sampling of the development data, builds a master scale, summarizes its grades and tests them, maps a score to probabilities with Platt scaling or isotonic regression, and brings the PDs to a long-run average default rate.
 
-Calibration follows :doc:`metrics`, which measures the ranking, and comes before :doc:`lgd`, which estimates the other two risk parameters of the same loans, and the :doc:`credit strategy <strategy>`, which sets cut-offs on the calibrated PDs. :func:`~kivi.calibration.prior_correction` and :func:`~kivi.calibration.corrected_intercept` correct for the sampling; :func:`~kivi.calibration.master_scale`, :func:`~kivi.calibration.fit_grade_pd` and :func:`~kivi.calibration.assign_grades` build and apply a master scale; :func:`~kivi.calibration.calibration_table`, :func:`~kivi.calibration.binomial_test`, :func:`~kivi.calibration.jeffreys_test`, :func:`~kivi.calibration.hosmer_lemeshow`, :func:`~kivi.calibration.spiegelhalter_test`, :func:`~kivi.calibration.brier_decomposition`, :func:`~kivi.calibration.herfindahl_index` and :func:`~kivi.calibration.concentration_test` count and test the grades; :func:`~kivi.calibration.backtest_table` back-tests continuous estimates such as LGDs; and :func:`~kivi.calibration.platt_fit`, :func:`~kivi.calibration.platt_predict`, :func:`~kivi.calibration.isotonic_fit` and :func:`~kivi.calibration.isotonic_predict` recalibrate a score. :doc:`validation` collects the tests that the European Central Bank asks for in a validation report.
+Calibration follows :doc:`metrics`, which measures the ranking, and comes before :doc:`lgd`, which estimates the other two risk parameters of the same loans, and the :doc:`credit strategy <strategy>`, which sets cut-offs on the calibrated PDs. :func:`~kivi.calibration.prior_correction` and :func:`~kivi.calibration.corrected_intercept` correct for the sampling; :func:`~kivi.calibration.master_scale`, :func:`~kivi.calibration.fit_grade_pd` and :func:`~kivi.calibration.assign_grades` build and apply a master scale; :func:`~kivi.calibration.calibration_table`, :func:`~kivi.calibration.binomial_test`, :func:`~kivi.calibration.jeffreys_test`, :func:`~kivi.calibration.hosmer_lemeshow`, :func:`~kivi.calibration.spiegelhalter_test`, :func:`~kivi.calibration.brier_decomposition`, :func:`~kivi.calibration.herfindahl_index` and :func:`~kivi.calibration.concentration_test` count and test the grades; :func:`~kivi.calibration.backtest_table` back-tests continuous estimates such as LGDs; :func:`~kivi.calibration.platt_fit`, :func:`~kivi.calibration.platt_predict`, :func:`~kivi.calibration.isotonic_fit` and :func:`~kivi.calibration.isotonic_predict` recalibrate a score; and :func:`~kivi.calibration.central_tendency_shift` and :func:`~kivi.calibration.quasi_moment_fit` calibrate PDs to a central tendency. :doc:`validation` collects the tests that the European Central Bank asks for in a validation report.
 
 Correcting for oversampling
 ---------------------------
@@ -502,9 +502,84 @@ H = 13.94, p = 0.530
 
 The step function follows the development sample closely, so some bands are small: the smallest holds four customers of the monitoring sample. Fit isotonic regression on a large sample, and check its bands on another sample as above. A band without events has a probability of 0, so floor the probabilities where a PD of zero is not allowed.
 
+Calibrating to a central tendency
+---------------------------------
+
+The PDs of an IRB model must correspond to the long-run average default rate, the average of the one-year default rates over a period with good and bad years that :func:`~kivi.vintage.default_rate_table` in :doc:`vintage` computes (EBA/GL/2017/16, section 5.3). A model developed on recent years predicts the default rate of those years instead, so its PDs are brought to the long-run level, the central tendency, on a calibration sample comparable to the current portfolio. Recalibrating to the event rate of a new sample is the same task with another target. Both methods below follow Tasche and keep the order of the obligors, as the guidelines require of a calibration within a calibration segment (paragraph 99), and both come before the margin of conservatism and the PD floors (paragraph 89).
+
+Shifting the log odds
+^^^^^^^^^^^^^^^^^^^^^
+
+Adding the same number :math:`\Delta` to the log odds of every PD keeps the shape of the model and moves the mean PD. :func:`~kivi.calibration.central_tendency_shift` finds the :math:`\Delta` at which the mean PD of the calibration sample equals the central tendency :math:`\tau`:
+
+.. math::
+
+   \frac{\sum_i w_i \, \sigma(\operatorname{logit} p_i + \Delta)}{\sum_i w_i} = \tau,
+   \qquad \sigma(z) = \frac{1}{1 + e^{-z}}.
+
+The development PDs of the bank model average 11.6%, the event rate of the sample. If the long-run average default rate were 8%, the shift would be:
+
+>>> from kivi.calibration import central_tendency_shift
+>>> shift = central_tendency_shift(dev_prob, central_tendency=0.08)
+>>> print(f"{shift:.4f}")
+-0.4547
+>>> long_run_pd = dev_prob / (dev_prob + (1 - dev_prob) * np.exp(-shift))
+>>> print(f"{long_run_pd.mean():.4f}")
+0.0800
+
+The function returns the shift rather than the PDs, because the shift is fitted once on the calibration sample and then applied to every later obligor: the formula above turns any PD into its calibrated value, the intercept of a logistic model becomes ``intercept + shift``, and the points of a scorecard from :doc:`scorecard` fall by ``factor * shift``. PDs of 0 and 1 stay as they are.
+
+The prior correction of the first section multiplies the odds by a ratio of two event rates instead. It assumes that the scores of the current portfolio have the distribution that the model implies at the new rate, which holds for a sample drawn again from the population but not for the calibration sample at hand. On the development sample, it misses the target:
+
+>>> print(f"{prior_correction(dev_prob, sample_rate=0.116, population_rate=0.08).mean():.4f}")
+0.0829
+
+Tasche calls the shift the scaled likelihood ratio: the likelihood ratio of the grades, the odds of survival in a grade relative to those of the portfolio, is multiplied by one constant. In his comparison on rating agency data it calibrated better than the alternatives and than the common practice of multiplying all PDs by the ratio of the target to their mean, which can exceed 1 and carries the default rate of the development period into the forecast. The EBA guidelines describe this adjustment of the PDs of a recent sample to the long-run average of the calibration segment as one of the calibration philosophies they accept.
+
+Quasi moment matching
+^^^^^^^^^^^^^^^^^^^^^
+
+A shift keeps the slope of the PD curve. When the PDs come from a few grades with too few defaults to fit a curve, or when the slope itself should change, quasi moment matching fits the logistic curve :math:`1 / (1 + \exp(-(a s + b)))` of a score :math:`s` to two targets: the mean PD equals the central tendency, and the accuracy ratio that the curve implies equals a target accuracy ratio. The curve implies, for each score, a share :math:`p` of events and :math:`1 - p` of non-events, whose Gini coefficient, counting ties as half, is the accuracy ratio of :func:`~kivi.metrics.gini`. The accuracy ratio, unlike the variance of the PDs, does not depend on the share of defaulters, so the accuracy ratio of the development sample can carry over to a portfolio with another default rate.
+
+:func:`~kivi.calibration.quasi_moment_fit` returns the slope and the intercept, which :func:`~kivi.calibration.platt_predict` applies. Here the score is the number of the grade of the master scale from above, counted from the best grade, and the target is the accuracy ratio of those grades on the development sample, below that of the PDs because the grades tie the customers within each grade:
+
+>>> from kivi.calibration import quasi_moment_fit
+>>> from kivi.metrics import gini
+>>> number = assign_grades(dev_prob, scale).cat.codes + 1
+>>> accuracy_ratio = gini(number, target)
+>>> print(f"{accuracy_ratio:.4f}")
+0.3470
+>>> slope, intercept = quasi_moment_fit(
+...     number, central_tendency=0.08, accuracy_ratio=accuracy_ratio
+... )
+>>> print(f"slope = {slope:.4f}, intercept = {intercept:.4f}")
+slope = 0.7407, intercept = -5.1186
+>>> curve_pd = pd.Series(
+...     platt_predict(np.arange(1, 7), slope, intercept), index=scale.index, name="probability"
+... )
+>>> curve_pd.round(4)
+grade
+A    0.0124
+B    0.0257
+C    0.0523
+D    0.1038
+E    0.1955
+F    0.3376
+Name: probability, dtype: float64
+>>> print(f"{platt_predict(number, slope, intercept).mean():.4f}")
+0.0800
+
+The PDs grow by a factor of about two from grade to grade, as the grid of the scale does, and their mean over the development sample is the central tendency of 8%. The grades are equally spaced here; a score with other spacing, such as the log odds of a model, gives a curve that is logistic in that score.
+
+The curve is logistic in the score as given. For rating grades, Tasche also fits a robust variant, logistic in the normal quantile of the mid-distribution of the grades, the average of the share of obligors at or below a grade and the share below it, counted from the worst grade: of the survivors when the defaults are known and of the whole portfolio otherwise. Compute that quantile, for example with ``statistics.NormalDist().inv_cdf``, negate it so that it rises with the risk, and pass it as the score. On the S&P corporate ratings of 2009, this gives Tasche's published smoothed PDs to the printed precision in 15 of the 17 grades.
+
+For a fixed mean PD, the accuracy ratio rises with the slope, up to the accuracy ratio of the steepest curve, at which the riskiest scores have a PD of 1 and the rest 0. Ties keep that limit below 1, and a target at or above it raises an error that gives the limit. A target accuracy ratio from the development sample assumes that the discrimination of the model carries over: in Tasche's back-test on 26 years of rating agency data, keeping the accuracy ratio was the weakest of the four approaches he compared, and the accuracy ratio of the ratings moved against the default rate over the years. Nor may smoothing replace data: the guidelines rule out smoothed default rates or continuous PDs that make up for too few data or a weak ranking (paragraph 96), so test the calibrated PDs by grade against the default rates as described above.
+
 Sample weights
 --------------
 
 A development sample that keeps every bad but only some of the goods can be weighted back to the portfolio, with each observation weighted by the inverse of its sampling rate. :func:`~kivi.calibration.calibration_table`, :func:`~kivi.calibration.platt_fit` and :func:`~kivi.calibration.isotonic_fit` take such weights in ``weights``: counts become sums of weights, and integer weights give the same result as repeating rows. The binomial, Jeffreys and Hosmer-Lemeshow tests need whole numbers of observations and events, so run them on an unweighted table.
 
 :func:`~kivi.calibration.spiegelhalter_test`, :func:`~kivi.calibration.brier_decomposition` and :func:`~kivi.calibration.backtest_table` take ``weights`` too, as frequency weights: integer weights give the same result as repeating rows, and the tests count the total weight as the number of observations, so inverse sampling rates make their p-values too small. :func:`~kivi.calibration.concentration_test` takes the counts or the exposures of the grades instead of weights.
+
+:func:`~kivi.calibration.central_tendency_shift` and :func:`~kivi.calibration.quasi_moment_fit` take frequency weights as well, such as the number of obligors of each grade when each grade appears once: integer weights give the same result as repeating rows. The central tendency is a mean over obligors, so do not weight by exposure (Basel CRE36.78).
