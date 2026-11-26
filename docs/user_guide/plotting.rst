@@ -1,7 +1,7 @@
 Charts
 ======
 
-A risk report shows its tables as charts: the event rate of each bin, the ROC curve of a score, the shares that moved since development. :mod:`kivi.plotting` draws the result tables of the other modules with matplotlib, one function per table: :func:`~kivi.plotting.woe_chart` for a WOE table, :func:`~kivi.plotting.correlation_chart` for a correlation matrix, :func:`~kivi.plotting.roc_chart` and :func:`~kivi.plotting.precision_recall_chart` for a ROC table, :func:`~kivi.plotting.gains_chart` for a gains table, :func:`~kivi.plotting.distribution_chart` for the events and non-events of a gains or WOE table, :func:`~kivi.plotting.calibration_chart` for a calibration table, :func:`~kivi.plotting.cutoff_chart` for a cut-off table, :func:`~kivi.plotting.psi_chart` for a PSI table, :func:`~kivi.plotting.monitoring_chart` for a monitoring report and :func:`~kivi.plotting.vintage_chart` for a vintage table, :func:`~kivi.plotting.survival_chart` for a survival table, :func:`~kivi.plotting.transition_chart` for a transition matrix, :func:`~kivi.plotting.rule_set_chart` for a rule set table, :func:`~kivi.plotting.profit_chart` for a cut-off table with revenue and loss and :func:`~kivi.plotting.lgd_chart` for an LGD table.
+A risk report shows its tables as charts: the event rate of each bin, the ROC curve of a score, the shares that moved since development. :mod:`kivi.plotting` draws the result tables of the other modules with matplotlib, one function per table: :func:`~kivi.plotting.woe_chart` for a WOE table, :func:`~kivi.plotting.correlation_chart` for a correlation matrix, :func:`~kivi.plotting.roc_chart` and :func:`~kivi.plotting.precision_recall_chart` for a ROC table, :func:`~kivi.plotting.gains_chart` for a gains table, :func:`~kivi.plotting.distribution_chart` for the events and non-events of a gains or WOE table, :func:`~kivi.plotting.calibration_chart` for a calibration table, :func:`~kivi.plotting.cutoff_chart` for a cut-off table, :func:`~kivi.plotting.psi_chart` for a PSI table, :func:`~kivi.plotting.monitoring_chart` for a monitoring report, :func:`~kivi.plotting.vintage_chart` for a vintage table, :func:`~kivi.plotting.survival_chart` for a survival table, :func:`~kivi.plotting.transition_chart` for a transition matrix, :func:`~kivi.plotting.rule_set_chart` for a rule set table, :func:`~kivi.plotting.profit_chart` for a cut-off table with revenue and loss, and :func:`~kivi.plotting.lgd_chart` for an LGD table.
 
 The charts draw the tables of the earlier guides, from :doc:`woe_iv` to :doc:`vintage`, so this page comes last in the user guide, after :doc:`lifetime`.
 
@@ -78,7 +78,7 @@ True
 
 Each function returns the Axes it drew on, ``ax`` when it is given, so that titles, limits and labels can be changed afterwards with matplotlib, as in ``right.set_title("woe")``. :func:`~kivi.plotting.woe_chart` returns the Axes of the bars and that of the line, which is why the figure above has four Axes.
 
-The functions never call ``matplotlib.pyplot.show``, never change ``matplotlib.rcParams`` and never modify the table. Save a figure with ``figure.savefig("woe.png")``, or show it with ``plt.show()`` outside a notebook. The curves that can be compared on one ``ax``, those of :func:`~kivi.plotting.roc_chart`, :func:`~kivi.plotting.precision_recall_chart`, :func:`~kivi.plotting.gains_chart`, :func:`~kivi.plotting.calibration_chart`, :func:`~kivi.plotting.cutoff_chart` and :func:`~kivi.plotting.monitoring_chart`, take the next color of the Axes' color cycle. The other charts use fixed colors. Fonts, grids and spines follow the active matplotlib style, so a style set with ``plt.style.context`` applies to the charts drawn inside it.
+The functions never call ``matplotlib.pyplot.show``, never change ``matplotlib.rcParams`` and never modify the table. Save a figure with ``figure.savefig("woe.png")``, or show it with ``plt.show()`` outside a notebook. The curves that can be compared on one ``ax``, those of :func:`~kivi.plotting.roc_chart`, :func:`~kivi.plotting.precision_recall_chart`, :func:`~kivi.plotting.gains_chart`, :func:`~kivi.plotting.calibration_chart`, :func:`~kivi.plotting.cutoff_chart`, :func:`~kivi.plotting.profit_chart`, :func:`~kivi.plotting.survival_chart` and :func:`~kivi.plotting.monitoring_chart`, take the next color of the Axes' color cycle. The other charts use fixed colors. Fonts, grids and spines follow the active matplotlib style, so a style set with ``plt.style.context`` applies to the charts drawn inside it.
 
 Text inside a chart is limited to column names, such as ``total_share`` and ``event_rate``, and data values, such as the group labels and the IV. Each axis is labeled with the columns it shows, or with the name of the index for the groups and periods. The same chart therefore suits a report in any language; add titles in the language of the report.
 
@@ -491,6 +491,12 @@ A cohort whose curve rises above those of the cohorts before it is worth a close
 Survival curves
 ---------------
 
+.. testcode::
+
+   import matplotlib.pyplot as plt
+
+   plt.close("all")
+
 :func:`~kivi.plotting.survival_chart` draws the ``cumulative_pd`` of a :func:`~kivi.lifetime.survival_table` as steps from period 0, or the ``survival`` with ``column="survival"``. In a loan book with early repayments, a loan that repays leaves the risk set without defaulting, which is a competing risk. The curve of ``cumulative_pd`` is then the cumulative incidence of 90+ days past due, and the chart adds the cumulative incidence of repayment:
 
 >>> import pandas as pd
@@ -539,7 +545,7 @@ Each curve is a step function, because the estimate changes only at the periods 
 Transition matrices
 -------------------
 
-:func:`~kivi.plotting.transition_chart` draws the :func:`~kivi.vintage.transition_matrix` of two consecutive month ends, the states before in the rows and the states after in the columns. A cell is written with its count, or its share for a matrix computed with ``normalize=True``, and shaded by the share of its row, so that the shade shows where each state goes whatever the sizes of the states. The diagonal, the entities that stayed, is outlined in amber:
+:func:`~kivi.plotting.transition_chart` draws the :func:`~kivi.vintage.transition_matrix` of two consecutive month ends, the states before in the rows and the states after in the columns. A cell is written with its count, in full below 10,000 and with a suffix ``K``, ``M`` or ``B`` above, or with its share for a matrix computed with ``normalize=True``, and shaded by the share of its row, so that the shade shows where each state goes whatever the sizes of the states. The diagonal, the entities that stayed, is outlined in amber:
 
 >>> from kivi.plotting import transition_chart
 >>> from kivi.vintage import transition_matrix
@@ -550,7 +556,7 @@ Transition matrices
 >>> matrix = transition_matrix(status[known], after[known], states=states)
 >>> ax = transition_chart(matrix)
 >>> [text.get_text() for text in ax.texts][:5]
-['45779', '1068', '0', '0', '0']
+['45.8K', '1068', '0', '0', '0']
 
 .. plot::
    :context: close-figs
@@ -566,12 +572,12 @@ Transition matrices
    states = ["current", "1-29", "30-59", "60-89", "90+"]
    transition_chart(transition_matrix(panel["status"][known], after[known], states=states))
 
-The chart draws a matrix of counts or of shares alike. The roll rates of :func:`~kivi.vintage.roll_rates` are the shares of each row above the diagonal, which the same chart shows for ``transition_matrix(..., normalize=True)``.
+The chart draws a matrix of counts or of shares alike. The roll rates of :func:`~kivi.vintage.roll_rates` are the share of each state that moved to the next worse one, the cell just right of the diagonal of ``transition_matrix(..., normalize=True)``, which the same chart shows with all the other cells. :func:`~kivi.vintage.roll_rates` itself is a Series, one value for each state, and is read as a table, not drawn: a table with a single column raises an error, since every cell of it would be shaded as a whole row.
 
 Rule sets
 ---------
 
-:func:`~kivi.plotting.rule_set_chart` draws a :func:`~kivi.rules.rule_set_table`, the rules applied one after the other. The bars show the ``new_hits`` of each rule, the applicants that it declines and no earlier rule declined, and the line the ``approval_rate`` that is left after it:
+:func:`~kivi.plotting.rule_set_chart` draws a :func:`~kivi.rules.rule_set_table`, the rules applied one after the other. The bars show the ``new_hits`` of each rule, the applicants that it declines and no earlier rule declined, as a share of all applicants, and the line the ``approval_rate`` that is left after it, on the same axis. Each point of the line is therefore the one before it minus the bar of its rule, starting from 100%:
 
 >>> from kivi.plotting import rule_set_chart
 >>> from kivi.rules import rule_set_table
@@ -584,16 +590,16 @@ Rule sets
 ...     }
 ... )
 >>> table = rule_set_table(flags, applications["target"])
->>> bars, line = rule_set_chart(table)
->>> [int(bar.get_height()) for bar in bars.patches]
-[4512, 2785, 797]
->>> line.get_lines()[0].get_ydata().round(3).tolist()
+>>> ax = rule_set_chart(table)
+>>> [round(float(bar.get_height()), 4) for bar in ax.patches]
+[0.1128, 0.0696, 0.0199]
+>>> ax.get_lines()[0].get_ydata().round(3).tolist()
 [0.887, 0.818, 0.798]
 
 .. plot::
    :context: close-figs
    :alt: Bars of the applicants declined by each of three rules, with the approval rate after each rule
-   :caption: The first rule declines 4,512 applicants and the third only 797, with the approval rate falling from 88.7% to 79.8%.
+   :caption: The first rule declines 11.3% of the applicants and the third only 2.0%, with the approval rate falling from 88.7% to 79.8%.
 
    import pandas as pd
    from kivi.datasets import make_applications
@@ -609,7 +615,7 @@ Rule sets
    )
    rule_set_chart(rule_set_table(flags, applications["target"]))
 
-The order of the rules decides the bars, since an applicant who hits two rules counts for the first, but it does not change the last approval rate. Like :func:`~kivi.plotting.woe_chart`, the function returns the Axes of the bars and that of the line.
+The order of the rules decides the bars, since an applicant who hits two rules counts for the first, but it does not change the last approval rate. Both series share one axis and the function returns that one Axes.
 
 Profit by cut-off
 -----------------
@@ -648,7 +654,7 @@ A :func:`~kivi.strategy.cutoff_table` computed with ``loss`` and ``revenue`` has
    )
    profit_chart(table)
 
-The marked point is the first row with the largest profit, and the dotted line marks zero profit. The cut-offs are those of the table, so the maximum is the best of them; a finer ``cutoffs`` locates it more closely.
+Pass a ``label`` to each call to draw the tables of two scores on one ``ax``. The marked point is the first row with the largest profit, and the dotted line marks zero profit. The cut-offs are those of the table, so the maximum is the best of them; a finer ``cutoffs`` locates it more closely.
 
 LGD by group
 ------------

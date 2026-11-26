@@ -9,12 +9,12 @@ non-event counts of a gains or WOE table,
 ``calibration_chart`` a ``kivi.calibration.calibration_table``,
 ``cutoff_chart`` a ``kivi.strategy.cutoff_table``, ``psi_chart`` a
 ``kivi.stability.psi_table``, ``monitoring_chart`` a column of a
-``kivi.monitoring.monitoring_table`` and ``vintage_chart`` a
+``kivi.monitoring.monitoring_table``, ``vintage_chart`` a
 ``kivi.vintage.vintage_table``, ``survival_chart`` a
 ``kivi.lifetime.survival_table``, ``transition_chart`` a
 ``kivi.vintage.transition_matrix``, ``rule_set_chart`` a
 ``kivi.rules.rule_set_table``, ``profit_chart`` a
-``kivi.strategy.cutoff_table`` with revenue and loss and ``lgd_chart`` a
+``kivi.strategy.cutoff_table`` with revenue and loss, and ``lgd_chart`` a
 ``kivi.lgd.lgd_table``.
 
 A function draws on ``ax`` when one is given, such as a panel of a larger
@@ -1220,8 +1220,9 @@ def survival_chart(
         Column to draw. ``survival`` is the all-cause survival, one curve
         whether or not there are competing risks.
     label : str, optional
-        Legend entry of the curve, in place of `column`. It is used only
-        when there is one curve.
+        Legend entry of the curve, in place of `column`. With competing
+        risks it is put in front of the name of each cause, as in
+        ``'high cumulative_pd'`` and ``'high competing'``.
     ax : matplotlib.axes.Axes, optional
         Axes to draw on. A new figure is created when it is not given.
 
@@ -1255,6 +1256,15 @@ def survival_chart(
     after the last one with accounts at risk have no value and end the
     curves.
 
+    The curve starts one period before the first row of the table, so a
+    slice of a table starts at its own first period, and it is drawn one
+    period beyond the last row so that the last change is visible. The
+    limits of the axes cover every curve already drawn on `ax`, so the
+    curves of several tables, each with a `label`, can share one. A table
+    without a single value, which is what `kivi.lifetime.survival_table`
+    gives when nobody is at risk in its first period, draws an empty
+    chart: a flat line at the start value.
+
     Examples
     --------
     >>> from kivi.lifetime import survival_table
@@ -1262,7 +1272,7 @@ def survival_chart(
     >>> table = survival_table([1, 2, 3, 3, 4], [1, 0, 1, 1, 0])
     >>> ax = survival_chart(table)
     >>> ax.lines[0].get_ydata().round(3).tolist()
-    [0.0, 0.2, 0.2, 0.733, 0.733]
+    [0.0, 0.2, 0.2, 0.733, 0.733, 0.733]
     >>> ax.get_xlabel(), ax.get_ylabel()
     ('period', 'cumulative_pd')
     """
@@ -1277,9 +1287,12 @@ def survival_chart(
         needed += ["competing", "at_risk", "survival"]
     table = _table(table, needed, source)
     ax = _axes(ax, (6, 4))
-    periods = np.r_[0.0, table.index.to_numpy(dtype=float)]
-    start = 1.0 if column == "survival" else 0.0
-    curves = [(column if label is None else label, table[column].to_numpy(dtype=float))]
+    index = table.index.to_numpy(dtype=float)
+    # One step before the first period, and one after the last so that its change is visible.
+    periods = np.r_[index[0] - 1, index, index[-1] + 1]
+    curves: list[tuple[str, float, np.ndarray]] = [
+        (column, 1.0 if column == "survival" else 0.0, table[column].to_numpy(dtype=float))
+    ]
     if len(needed) > 1:
         survival = table["survival"].to_numpy(dtype=float)
         previous = np.r_[1.0, survival[:-1]]
@@ -1287,21 +1300,23 @@ def survival_chart(
             share = table["competing"].to_numpy(dtype=float) / table["at_risk"].to_numpy(
                 dtype=float
             )
-        curves.append(("competing", np.cumsum(previous * share)))
-        curves[0] = (column, curves[0][1])
-    for name, values in curves:
+        curves.append(("competing", 0.0, np.cumsum(previous * share)))
+    for name, start, values in curves:
+        entry = name if label is None else f"{label} {name}" if len(curves) > 1 else label
         ax.plot(
             periods,
-            np.r_[start if name != "competing" else 0.0, values],
+            np.r_[start, values, values[-1]],
             drawstyle="steps-post",
             linewidth=2,
-            label=name if len(curves) > 1 or label is not None else None,
+            label=entry if len(curves) > 1 or label is not None else None,
         )
-    ax.set_xlim(0, periods[-1])
+    # dataLim covers the finite points of every curve drawn on ax so far.
+    left, right = ax.dataLim.x0, ax.dataLim.x1
+    ax.set_xlim(left, right if right > left else left + 1)
     if column == "survival":
         ax.set_ylim(0, 1)
     else:
-        upper = min(1.0, 1.1 * max(np.nanmax(values) for _, values in curves))
+        upper = min(1.0, 1.1 * ax.dataLim.y1)
         ax.set_ylim(0, upper if upper > 0 else 1.0)
     _percent(ax.yaxis)
     ax.set_xlabel("period" if table.index.name is None else str(table.index.name))
@@ -1342,23 +1357,25 @@ def transition_chart(
     ImportError
         If matplotlib is not installed.
     ValueError
-        If `table` is not a DataFrame or has no rows or columns, has a
-        column that is not numeric or a negative value, or `ax` is not a
-        matplotlib Axes.
+        If `table` is not a DataFrame, has no rows or fewer than two
+        columns, has a column that is not numeric or a negative value, or
+        `ax` is not a matplotlib Axes.
 
     See Also
     --------
     kivi.vintage.transition_matrix : The table that this chart draws.
-    kivi.vintage.roll_rates : The share of each state that moved to a
-        worse one.
+    kivi.vintage.roll_rates : The share of each state that moved to the
+        next worse one.
     correlation_chart : A heatmap of a correlation matrix.
 
     Notes
     -----
     A cell is outlined when its row label equals its column label, so a
     matrix whose states before and after are not the same set has an
-    outline only where they meet. The values are written as integers when
-    all of them are whole numbers and with two decimals otherwise. The
+    outline only where they meet. Whole numbers below 10,000 are written
+    in full, shares, when no value exceeds 1, with two decimals, and any
+    other value with three significant digits and a suffix ``K``, ``M`` or
+    ``B``, so that weighted counts fit their cells. The
     heatmap is ``ax.images[0]``. The axes are labeled with the names of
     the index and the columns, ``before`` and ``after`` for the output of
     `kivi.vintage.transition_matrix`.
@@ -1382,6 +1399,12 @@ def transition_chart(
         )
     if not len(table) or not table.shape[1]:
         raise ValueError("table must have at least one row and one column")
+    if table.shape[1] < 2:
+        raise ValueError(
+            "table must have at least two columns, one for each state after; "
+            "a Series such as the result of kivi.vintage.roll_rates is read as a table, "
+            "not drawn"
+        )
     for column in range(table.shape[1]):
         _validation.check_real_dtype(
             table.iloc[:, column].dtype, f"column {_validation.shown(table.columns[column])}"
@@ -1403,13 +1426,15 @@ def transition_chart(
         "kivi_transition", ["white", _BLUE]
     )
     ax.imshow(np.where(np.isnan(values), np.nan, shares), cmap=colors, vmin=0, vmax=1)
-    whole = bool(np.all(values[np.isfinite(values)] == np.round(values[np.isfinite(values)])))
+    finite = values[np.isfinite(values)]
+    whole = bool(np.all(finite == np.round(finite)))
+    share = bool(finite.size and finite.max() <= 1)
     for (row, column), value in np.ndenumerate(values):
         if np.isfinite(value):
             ax.text(
                 column,
                 row,
-                f"{value:.0f}" if whole else f"{value:.2f}",
+                _cell(value, whole, share),
                 ha="center",
                 va="center",
                 fontsize="small",
@@ -1441,30 +1466,28 @@ def transition_chart(
 
 def rule_set_chart(
     table: pd.DataFrame, *, ax: "matplotlib.axes.Axes | None" = None
-) -> tuple["matplotlib.axes.Axes", "matplotlib.axes.Axes"]:
-    """Draw the new hits of each rule with the approval rate left after it.
+) -> "matplotlib.axes.Axes":
+    """Draw the share of the book that each rule declines and the approval rate left.
 
     A rule set is a waterfall: each rule declines only the applicants that
-    no earlier rule declined. The bars show ``new_hits`` of each rule, in
-    the order of the table, on the left y-axis, and a line shows the
-    cumulative ``approval_rate`` of the book after the rule on a second
-    y-axis on the right. Like `woe_chart` it has two y-axes and returns
-    two Axes.
+    no earlier rule declined. The bars show the ``new_hits`` of each rule,
+    in the order of the table, as a share of all rows, and a line shows the
+    ``approval_rate`` of the book after the rule, on the same axis. The
+    approval rate after a rule is therefore the one before it minus its
+    bar, and the first starts from 100%.
 
     Parameters
     ----------
     table : pandas.DataFrame
         A table from `kivi.rules.rule_set_table`. It needs the columns
-        ``new_hits`` and ``approval_rate``.
+        ``new_hits``, ``approved`` and ``approval_rate``.
     ax : matplotlib.axes.Axes, optional
-        Axes of the bars. A new figure is created when it is not given.
+        Axes to draw on. A new figure is created when it is not given.
 
     Returns
     -------
-    bars : matplotlib.axes.Axes
-        Axes of the bars, `ax` when it is given.
-    line : matplotlib.axes.Axes
-        Axes of the line, a twin of `bars` that shares its x-axis.
+    matplotlib.axes.Axes
+        The Axes drawn on, `ax` when it is given.
 
     Raises
     ------
@@ -1482,10 +1505,12 @@ def rule_set_chart(
 
     Notes
     -----
-    The tick labels are the rule names of the index. The line starts at
-    the approval rate after the first rule, and the approval rate of the
-    rows is that of the whole book, so the last point is the rate that the
-    rule set approves. Both axes leave room at the top for the legend.
+    The total that the bars are shares of is the ``approved`` of the first
+    rule plus its ``new_hits``, so it counts every row of the rules,
+    outcomes known or not, and is a total weight when the table was
+    computed with weights. The tick labels are the rule names of the index.
+    The legend sits at the top of the Axes, where it covers no bar and no
+    point.
 
     Examples
     --------
@@ -1495,36 +1520,37 @@ def rule_set_chart(
     >>> rules = pd.DataFrame(
     ...     {"high_debt": [True, False, True, False], "young": [False, False, True, True]}
     ... )
-    >>> bars, line = rule_set_chart(rule_set_table(rules))
-    >>> [float(patch.get_height()) for patch in bars.patches]
-    [2.0, 1.0]
-    >>> line.lines[0].get_ydata().tolist()
+    >>> ax = rule_set_chart(rule_set_table(rules))
+    >>> [float(patch.get_height()) for patch in ax.patches]
+    [0.5, 0.25]
+    >>> ax.lines[0].get_ydata().tolist()
     [0.5, 0.25]
     """
-    table = _table(table, ["new_hits", "approval_rate"], "kivi.rules.rule_set_table")
+    table = _table(table, ["new_hits", "approved", "approval_rate"], "kivi.rules.rule_set_table")
     ax = _axes(ax, (7, 4))
     x = np.arange(len(table))
     hits = table["new_hits"].to_numpy(dtype=float)
+    total = hits[0] + float(table["approved"].iloc[0])
+    with np.errstate(divide="ignore", invalid="ignore"):
+        shares = hits / total
     rates = table["approval_rate"].to_numpy(dtype=float)
-    bars = ax.bar(x, hits, width=0.6, color=_LIGHT_BLUE, label="new_hits")
+    bars = ax.bar(x, shares, width=0.6, color=_LIGHT_BLUE, label="new_hits")
+    (curve,) = ax.plot(x, rates, color=_AMBER, marker="o", linewidth=2, label="approval_rate")
     columns = _legend_columns(ax, ["new_hits", "approval_rate"])
-    room = _legend_room(ax, 1 + 2 // columns)
-    ax.set_ylim(0, _top(hits, 0.0, room))
-    ax.set_ylabel("new_hits", color=_BLUE)
+    ax.set_ylim(0, _top(np.r_[shares, rates], 0.0, _legend_room(ax, 1 + 2 // columns)))
+    _percent(ax.yaxis)
+    ax.set_ylabel("new_hits, approval_rate")
     _xlabel(ax, table.index)
     _ticks(ax, x, _labels(table.index))
-    twin = ax.twinx()
-    (curve,) = twin.plot(x, rates, color=_AMBER, marker="o", linewidth=2, label="approval_rate")
-    twin.set_ylim(0, _top(np.r_[rates, 1.0], 0.0, room))
-    _percent(twin.yaxis)
-    twin.set_ylabel("approval_rate", color=_AMBER)
-    twin.grid(False)
-    twin.legend([bars, curve], ["new_hits", "approval_rate"], loc="upper left", ncols=columns)
-    return ax, twin
+    ax.legend([bars, curve], ["new_hits", "approval_rate"], loc="upper left", ncols=columns)
+    return ax
 
 
 def profit_chart(
-    table: pd.DataFrame, *, ax: "matplotlib.axes.Axes | None" = None
+    table: pd.DataFrame,
+    *,
+    label: str | None = None,
+    ax: "matplotlib.axes.Axes | None" = None,
 ) -> "matplotlib.axes.Axes":
     """Draw the profit against the approval rate and mark the best cut-off.
 
@@ -1540,6 +1566,9 @@ def profit_chart(
         A table from `kivi.strategy.cutoff_table` computed with both
         `loss` and `revenue`. It needs the columns ``approval_rate`` and
         ``profit``.
+    label : str, optional
+        Legend entry of the curve. A legend is drawn only when a curve has
+        a label.
     ax : matplotlib.axes.Axes, optional
         Axes to draw on. A new figure is created when it is not given.
 
@@ -1568,7 +1597,10 @@ def profit_chart(
     -----
     The best cut-off is the first row with the largest profit, in the
     order of the table, and rows with a missing profit are left out. Its
-    label shows the index of the row, the cut-off.
+    label shows the index of the row, the cut-off, with four significant
+    digits. The curve takes the next color of the Axes' color cycle, so
+    that the tables of a current and a new score can be compared on one
+    `ax`, each with a `label`; the best cut-off of each is marked in amber.
 
     Examples
     --------
@@ -1588,13 +1620,13 @@ def profit_chart(
         raise ValueError("table must have at least one row with a profit")
     ax = _axes(ax, (5.6, 4.2))
     rate = table["approval_rate"].to_numpy(dtype=float)
-    ax.plot(rate, profit, marker="o", markersize=4, linewidth=2)
+    ax.plot(rate, profit, marker="o", markersize=4, linewidth=2, label=label)
     ax.axhline(0, color=_GRAY, linestyle=":", linewidth=1)
     best = int(np.nanargmax(profit))
     ax.plot([rate[best]], [profit[best]], marker="o", markersize=9, color=_AMBER, linestyle="")
     name = "cutoff" if table.index.name is None else str(table.index.name)
     ax.annotate(
-        f"{name} = {_labels(table.index)[best]}, profit = {profit[best]:,.10g}",
+        f"{name} = {_cutoff_label(table.index[best])}, profit = {profit[best]:,.10g}",
         (rate[best], profit[best]),
         xytext=(0, 10),
         textcoords="offset points",
@@ -1606,6 +1638,8 @@ def profit_chart(
     _percent(ax.xaxis)
     ax.set_xlabel("approval_rate")
     ax.set_ylabel("profit")
+    if label is not None:
+        ax.legend(loc="best")
     return ax
 
 
@@ -1724,6 +1758,26 @@ def _table(table: pd.DataFrame, columns: abc.Sequence[str], source: str) -> pd.D
     for column in columns:
         _validation.check_real_dtype(table[column].dtype, f"{column} of table")
     return table
+
+
+def _cutoff_label(cutoff: object) -> str:
+    """Return a cut-off with four significant digits, or a label as text."""
+    if _validation.is_real(cutoff) and not isinstance(cutoff, (bool, np.bool_)):
+        return f"{cutoff:.4g}"
+    return str(cutoff)
+
+
+def _cell(value: float, whole: bool, share: bool) -> str:
+    """Return the text of a heatmap cell that fits it: whole numbers, shares or K, M, B."""
+    if whole and abs(value) < 10_000:
+        return f"{value:.0f}"
+    if share and not whole:
+        return f"{value:.2f}"
+    magnitude = abs(value)
+    for scale, suffix in ((1e9, "B"), (1e6, "M"), (1e3, "K")):
+        if magnitude >= scale:
+            return f"{value / scale:.3g}{suffix}"
+    return f"{value:.3g}"
 
 
 def _levels(levels: float | abc.Sequence[float]) -> list[float]:

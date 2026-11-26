@@ -3,7 +3,7 @@ Charts
 
 .. module:: kivi.plotting
 
-Draw the result tables of the other modules with matplotlib, one function per table, such as :func:`~kivi.plotting.woe_chart` for a WOE table, :func:`~kivi.plotting.roc_chart` for a ROC table and :func:`~kivi.plotting.monitoring_chart` for a monitoring report, :func:`~kivi.plotting.survival_chart` for a survival table and :func:`~kivi.plotting.profit_chart` for a cut-off table with profit. Each function draws on the Axes passed as ``ax``, or on a new figure, and returns the Axes it drew on. matplotlib is an optional dependency: install it with ``pip install "kivi[plot]"``.
+Draw the result tables of the other modules with matplotlib, one function per table, such as :func:`~kivi.plotting.woe_chart` for a WOE table, :func:`~kivi.plotting.roc_chart` for a ROC table, :func:`~kivi.plotting.monitoring_chart` for a monitoring report, :func:`~kivi.plotting.survival_chart` for a survival table and :func:`~kivi.plotting.profit_chart` for a cut-off table with profit. Each function draws on the Axes passed as ``ax``, or on a new figure, and returns the Axes it drew on. matplotlib is an optional dependency: install it with ``pip install "kivi[plot]"``.
 
 See :doc:`/user_guide/plotting` for examples on the bundled data.
 

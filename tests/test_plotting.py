@@ -289,7 +289,7 @@ TABLES = {
     "psi_chart": ("kivi.stability.psi_table", "psi"),
     "monitoring_chart": ("kivi.monitoring.monitoring_table", "psi"),
     "survival_chart": ("kivi.lifetime.survival_table", "cumulative_pd"),
-    "rule_set_chart": ("kivi.rules.rule_set_table", "new_hits"),
+    "rule_set_chart": ("kivi.rules.rule_set_table", "approved"),
     "profit_chart": ("kivi.strategy.cutoff_table", "profit"),
     "lgd_chart": ("kivi.lgd.lgd_table", "mean"),
 }
@@ -996,13 +996,19 @@ def test_vintage_chart_rejects_another_table(table, message, no_new_figure):
         plotting.vintage_chart(table)
 
 
+def steps(start, values):
+    """The y values of a survival curve: its start, the table and the last value repeated."""
+    values = np.asarray(values, dtype=float)
+    return np.r_[start, values, values[-1]]
+
+
 def test_survival_chart_draws_the_steps_of_the_table():
     table = survival_example()
     ax = plotting.survival_chart(table)
     (line,) = ax.get_lines()
     assert line.get_drawstyle() == "steps-post"
-    np.testing.assert_array_equal(line.get_xdata(), [0, 1, 2, 3, 4, 5])
-    np.testing.assert_array_equal(line.get_ydata(), np.r_[0.0, table["cumulative_pd"]])
+    np.testing.assert_array_equal(line.get_xdata(), [0, 1, 2, 3, 4, 5, 6])
+    np.testing.assert_array_equal(line.get_ydata(), steps(0.0, table["cumulative_pd"]))
     assert (ax.get_xlabel(), ax.get_ylabel()) == ("period", "cumulative_pd")
     assert ax.get_legend() is None
 
@@ -1011,7 +1017,7 @@ def test_survival_chart_draws_the_survival_from_one():
     table = survival_example()
     ax = plotting.survival_chart(table, column="survival", label="men")
     (line,) = ax.get_lines()
-    np.testing.assert_array_equal(line.get_ydata(), np.r_[1.0, table["survival"]])
+    np.testing.assert_array_equal(line.get_ydata(), steps(1.0, table["survival"]))
     assert ax.get_ylim() == (0, 1)
     assert [text.get_text() for text in ax.get_legend().get_texts()] == ["men"]
 
@@ -1020,19 +1026,24 @@ def test_survival_chart_draws_both_causes_with_competing_risks():
     table = competing_example()
     ax = plotting.survival_chart(table)
     event, competing = ax.get_lines()
-    np.testing.assert_array_equal(event.get_ydata(), np.r_[0.0, table["cumulative_pd"]])
+    np.testing.assert_array_equal(event.get_ydata(), steps(0.0, table["cumulative_pd"]))
     # Period 1: one event of 6; period 3: one event and one competing of 4 left, S = 5/6 * ...
     previous = np.r_[1.0, table["survival"].to_numpy()[:-1]]
     expected = np.cumsum(previous * table["competing"] / table["at_risk"])
-    np.testing.assert_allclose(competing.get_ydata(), np.r_[0.0, expected])
+    np.testing.assert_allclose(competing.get_ydata(), steps(0.0, expected))
     assert competing.get_ydata()[-1] > 0
     # The two causes and the survival add up to one.
     np.testing.assert_allclose(
-        event.get_ydata()[1:] + competing.get_ydata()[1:] + table["survival"], 1.0
+        event.get_ydata()[1:-1] + competing.get_ydata()[1:-1] + table["survival"], 1.0
     )
     assert [text.get_text() for text in ax.get_legend().get_texts()] == [
         "cumulative_pd",
         "competing",
+    ]
+    labeled = plotting.survival_chart(table, label="high")
+    assert [text.get_text() for text in labeled.get_legend().get_texts()] == [
+        "high cumulative_pd",
+        "high competing",
     ]
 
 
@@ -1041,11 +1052,38 @@ def test_survival_chart_competing_risks_leave_the_survival_a_single_curve():
     assert len(ax.get_lines()) == 1
 
 
+def test_survival_chart_keeps_the_limits_of_the_curves_already_drawn():
+    high = survival_table([1, 2, 3, 3, 4], [1, 1, 1, 1, 0])
+    low = survival_table(range(1, 11), [0, 0, 1] + [0] * 7)
+    ax = plotting.survival_chart(high, label="high")
+    plotting.survival_chart(low, label="low", ax=ax)
+    assert ax.get_ylim()[1] >= high["cumulative_pd"].max()
+    assert ax.get_xlim()[1] >= 11
+    reverse = plotting.survival_chart(low, label="low")
+    plotting.survival_chart(high, label="high", ax=reverse)
+    assert reverse.get_xlim()[1] >= 11 and reverse.get_ylim()[1] >= 0.8
+    assert [line.get_label() for line in ax.get_lines()] == ["high", "low"]
+
+
+def test_survival_chart_starts_a_slice_at_its_own_first_period():
+    ax = plotting.survival_chart(survival_example().iloc[2:])
+    assert ax.get_lines()[0].get_xdata()[0] == 2
+
+
+def test_survival_chart_draws_an_empty_chart_for_a_table_without_values(recwarn):
+    table = survival_table([3, 4, 5], [1, 0, 1], entry=[2, 2, 2])
+    assert table["cumulative_pd"].isna().all()
+    ax = plotting.survival_chart(table)
+    assert ax.get_xlim()[1] > ax.get_xlim()[0]
+    assert ax.get_ylim() == (0, 1.0)
+    assert not recwarn.list
+
+
 def test_survival_chart_ends_the_curve_where_no_account_is_at_risk():
     table = survival_table([1, 2], [1, 0], entry=[0, 0])
     table.loc[3] = [0, 0, 0, np.nan, np.nan, np.nan]
     ax = plotting.survival_chart(table)
-    assert np.isnan(ax.get_lines()[0].get_ydata()[-1])
+    assert np.isnan(ax.get_lines()[0].get_ydata()[-2])
 
 
 def test_survival_chart_rejects_another_column(no_new_figure):
@@ -1075,6 +1113,14 @@ def test_transition_chart_draws_the_values_and_outlines_the_diagonal():
     assert [label.get_text() for label in ax.get_yticklabels()] == ["a", "b", "c"]
 
 
+def test_transition_chart_writes_weighted_counts_compactly():
+    table = pd.DataFrame(
+        [[300_332_577.87, 1234.5], [12.0, 20_000.0]], index=["a", "b"], columns=["a", "b"]
+    )
+    ax = plotting.transition_chart(table)
+    assert [text.get_text() for text in ax.texts] == ["300M", "1.23K", "12", "20K"]
+
+
 def test_transition_chart_writes_shares_with_two_decimals():
     ax = plotting.transition_chart(
         transition_matrix(["a", "a", "a"], ["a", "b", "b"], normalize=True)
@@ -1100,8 +1146,16 @@ def test_transition_chart_leaves_missing_cells_empty_and_shades_empty_rows_white
     [
         ([[1]], "table must be a DataFrame from kivi.vintage.transition_matrix, got list"),
         (pd.DataFrame(), "table must have at least one row and one column"),
-        (pd.DataFrame({"a": ["x"]}), "column 'a' must be real and numeric, got dtype"),
-        (pd.DataFrame({"a": [1.0, -0.5]}), "table must not have negative values, got -0.5"),
+        (
+            pd.DataFrame({"roll_rate": [0.1, 0.2]}),
+            "table must have at least two columns, one for each state after; a Series such as the "
+            "result of kivi.vintage.roll_rates is read as a table, not drawn",
+        ),
+        (pd.DataFrame({"a": ["x"], "b": [1]}), "column 'a' must be real and numeric, got dtype"),
+        (
+            pd.DataFrame({"a": [1.0, -0.5], "b": [1, 1]}),
+            "table must not have negative values, got -0.5",
+        ),
     ],
 )
 def test_transition_chart_rejects_another_table(table, message, no_new_figure):
@@ -1109,16 +1163,20 @@ def test_transition_chart_rejects_another_table(table, message, no_new_figure):
         plotting.transition_chart(table)
 
 
-def test_rule_set_chart_draws_the_hits_and_the_approval_rate():
+def test_rule_set_chart_draws_the_shares_and_the_approval_rate_on_one_axis():
     table = rule_set_example()
-    bars, line = plotting.rule_set_chart(table)
-    assert [patch.get_height() for patch in bars.patches] == table["new_hits"].tolist()
-    np.testing.assert_array_equal(line.get_lines()[0].get_ydata(), table["approval_rate"])
-    assert line.get_lines()[0].get_color() == AMBER
-    assert bars.get_ylabel() == "new_hits" and line.get_ylabel() == "approval_rate"
-    assert [label.get_text() for label in bars.get_xticklabels()] == ["high_debt", "young"]
-    assert bars.get_xlabel() == "rule"
-    assert not covered(line.get_legend(), [bars, line])
+    ax = plotting.rule_set_chart(table)
+    assert isinstance(ax, matplotlib.axes.Axes) and len(ax.figure.axes) == 1
+    shares = [patch.get_height() for patch in ax.patches]
+    np.testing.assert_allclose(shares, table["new_hits"] / 5)
+    rates = ax.get_lines()[0].get_ydata()
+    np.testing.assert_array_equal(rates, table["approval_rate"])
+    np.testing.assert_allclose(rates, 1 - np.cumsum(shares))
+    assert ax.get_lines()[0].get_color() == AMBER
+    assert ax.get_ylabel() == "new_hits, approval_rate"
+    assert [label.get_text() for label in ax.get_xticklabels()] == ["high_debt", "young"]
+    assert ax.get_xlabel() == "rule"
+    assert not covered(ax.get_legend(), [ax])
 
 
 def test_profit_chart_marks_the_cutoff_with_the_highest_profit():
@@ -1134,6 +1192,21 @@ def test_profit_chart_marks_the_cutoff_with_the_highest_profit():
     assert mark.get_color() == AMBER
     assert ax.texts[0].get_text() == f"cutoff = 0.3, profit = {table.loc[best, 'profit']:,.10g}"
     assert (ax.get_xlabel(), ax.get_ylabel()) == ("approval_rate", "profit")
+
+
+def test_profit_chart_prints_a_cutoff_with_four_significant_digits():
+    table = profit_example()
+    table.index = pd.Index([0.05, 0.2, 0.11883280369928576, 0.6], name="cutoff")
+    ax = plotting.profit_chart(table)
+    assert ax.texts[0].get_text().startswith("cutoff = 0.1188,")
+
+
+def test_profit_chart_labels_a_curve_to_compare_two_scores():
+    table = profit_example()
+    ax = plotting.profit_chart(table, label="current")
+    assert plotting.profit_chart(table, label="new", ax=ax) is ax
+    assert [text.get_text() for text in ax.get_legend().get_texts()] == ["current", "new"]
+    assert plotting.profit_chart(table).get_legend() is None
 
 
 def test_profit_chart_takes_the_first_of_tied_profits_and_skips_missing_ones():
