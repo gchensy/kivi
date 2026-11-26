@@ -629,11 +629,13 @@ def test_optimal_constraints_hold_on_bank_data(reference, column, trend):
     special = [-1] if column == "pdays" else None
     edges = optimal_edges(values, target, trend=trend, special=special, **options)
     table = woe_table(cut(values, edges, special=special), target)
-    intervals = table.loc[[isinstance(label, pd.Interval) for label in table.index]]
+    # Select the rows as arrays: indexing the table hashes its intervals, which pandas 2.0 rejects.
+    interval = np.array([isinstance(label, pd.Interval) for label in table.index])
+    counts = {name: table[name].to_numpy()[interval] for name in ("total", "event", "non_event")}
     fitted = values.ne(-1).sum() if special else len(values)
-    assert 1 <= len(intervals) <= 6
-    assert intervals.total.min() >= 0.04 * fitted
-    assert intervals.event.min() >= 10 and intervals.non_event.min() >= 10
+    assert 1 <= interval.sum() <= 6
+    assert counts["total"].min() >= 0.04 * fitted
+    assert counts["event"].min() >= 10 and counts["non_event"].min() >= 10
     assert woe_trend(table) in ALLOWED_TRENDS[trend]
     assert set(edges[1:-1]) <= set(_fine_bins(*_labeled(values, target, special)[:2], 20)[0])
 
