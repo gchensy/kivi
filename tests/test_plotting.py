@@ -12,11 +12,14 @@ from kivi import plotting
 from kivi.binning import bin_edges
 from kivi.calibration import calibration_table
 from kivi.datasets import load_bank, make_loan_panel
+from kivi.lgd import lgd_table
+from kivi.lifetime import survival_table
 from kivi.metrics import gains_table, ks, roc_table
 from kivi.monitoring import monitoring_table, stability_table
+from kivi.rules import rule_set_table
 from kivi.stability import psi_table
 from kivi.strategy import cutoff_table
-from kivi.vintage import vintage_table
+from kivi.vintage import transition_matrix, vintage_table
 from kivi.woe import woe_table
 
 matplotlib = pytest.importorskip("matplotlib")
@@ -95,6 +98,42 @@ def vintage_example():
     return vintage_table(loan, cohort, month_on_book, bad)
 
 
+def survival_example():
+    return survival_table([1, 2, 3, 3, 4, 5], [1, 0, 1, 1, 0, 0])
+
+
+def competing_example():
+    return survival_table([1, 2, 3, 3, 4, 5], [1, 0, 0, 1, 0, 0], competing=[0, 0, 1, 0, 0, 0])
+
+
+def transition_example():
+    before = ["a", "b", "a", "c", "b", "c", "a", "c"]
+    after = ["a", "b", "b", "c", "c", "c", "a", "b"]
+    return transition_matrix(before, after)
+
+
+def rule_set_example():
+    rules = pd.DataFrame(
+        {"high_debt": [True, False, True, False, False], "young": [False, False, True, True, False]}
+    )
+    return rule_set_table(rules, [1, 0, 1, 0, 0])
+
+
+def profit_example():
+    loss = [0, 0, 0, 5, 0, 5]
+    return cutoff_table(
+        [0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
+        [0, 0, 0, 1, 0, 1],
+        cutoffs=[0.05, 0.2, 0.3, 0.6],
+        loss=loss,
+        revenue=[1] * 6,
+    )
+
+
+def lgd_example():
+    return lgd_table(["a", "a", "b", "b", "c"], [0.0, 0.5, 1.0, 1.2, -0.1])
+
+
 CASES = {
     "woe_chart": woe_example,
     "correlation_chart": correlation_example,
@@ -107,6 +146,11 @@ CASES = {
     "psi_chart": psi_example,
     "monitoring_chart": monitoring_example,
     "vintage_chart": vintage_example,
+    "survival_chart": survival_example,
+    "transition_chart": transition_example,
+    "rule_set_chart": rule_set_example,
+    "profit_chart": profit_example,
+    "lgd_chart": lgd_example,
 }
 
 
@@ -195,8 +239,11 @@ from kivi.metrics import gains_table, roc_table
 from kivi.monitoring import monitoring_table
 from kivi.stability import psi_table
 from kivi.strategy import cutoff_table
-from kivi.vintage import vintage_table
+from kivi.vintage import vintage_table, transition_matrix
 from kivi.woe import woe_table
+from kivi.lgd import lgd_table
+from kivi.lifetime import survival_table
+from kivi.rules import rule_set_table
 
 score = [0.1, 0.4, 0.35, 0.8, 0.2, 0.6]
 target = [0, 0, 1, 1, 0, 1]
@@ -215,6 +262,11 @@ tables = {
         score, ["1", "1", "1", "2", "2", "2"], target, reference_period="1", bins=2
     ),
     "vintage_chart": vintage_table([1, 1, 2], ["a", "a", "b"], [1, 2, 1], [0, 1, 0]),
+    "survival_chart": survival_table([1, 2, 3], [1, 0, 1]),
+    "transition_chart": transition_matrix(list("aab"), list("abb")),
+    "rule_set_chart": rule_set_table(pd.DataFrame({"r": [True, False, False]})),
+    "profit_chart": cutoff_table(score, target, cutoffs=[0.3, 1.0], loss=[1] * 6, revenue=[2] * 6),
+    "lgd_chart": lgd_table(groups, [0.1, 0.5, 1.0, 0.0, 0.3, 0.9]),
 }
 for name, table in tables.items():
     getattr(plotting, name)(table, ax=Figure().add_subplot())
@@ -236,6 +288,10 @@ TABLES = {
     "cutoff_chart": ("kivi.strategy.cutoff_table", "approved_event_rate"),
     "psi_chart": ("kivi.stability.psi_table", "psi"),
     "monitoring_chart": ("kivi.monitoring.monitoring_table", "psi"),
+    "survival_chart": ("kivi.lifetime.survival_table", "cumulative_pd"),
+    "rule_set_chart": ("kivi.rules.rule_set_table", "new_hits"),
+    "profit_chart": ("kivi.strategy.cutoff_table", "profit"),
+    "lgd_chart": ("kivi.lgd.lgd_table", "mean"),
 }
 
 
@@ -938,3 +994,188 @@ def test_vintage_chart_draws_an_unnamed_table():
 def test_vintage_chart_rejects_another_table(table, message, no_new_figure):
     with pytest.raises(ValueError, match=re.escape(message)):
         plotting.vintage_chart(table)
+
+
+def test_survival_chart_draws_the_steps_of_the_table():
+    table = survival_example()
+    ax = plotting.survival_chart(table)
+    (line,) = ax.get_lines()
+    assert line.get_drawstyle() == "steps-post"
+    np.testing.assert_array_equal(line.get_xdata(), [0, 1, 2, 3, 4, 5])
+    np.testing.assert_array_equal(line.get_ydata(), np.r_[0.0, table["cumulative_pd"]])
+    assert (ax.get_xlabel(), ax.get_ylabel()) == ("period", "cumulative_pd")
+    assert ax.get_legend() is None
+
+
+def test_survival_chart_draws_the_survival_from_one():
+    table = survival_example()
+    ax = plotting.survival_chart(table, column="survival", label="men")
+    (line,) = ax.get_lines()
+    np.testing.assert_array_equal(line.get_ydata(), np.r_[1.0, table["survival"]])
+    assert ax.get_ylim() == (0, 1)
+    assert [text.get_text() for text in ax.get_legend().get_texts()] == ["men"]
+
+
+def test_survival_chart_draws_both_causes_with_competing_risks():
+    table = competing_example()
+    ax = plotting.survival_chart(table)
+    event, competing = ax.get_lines()
+    np.testing.assert_array_equal(event.get_ydata(), np.r_[0.0, table["cumulative_pd"]])
+    # Period 1: one event of 6; period 3: one event and one competing of 4 left, S = 5/6 * ...
+    previous = np.r_[1.0, table["survival"].to_numpy()[:-1]]
+    expected = np.cumsum(previous * table["competing"] / table["at_risk"])
+    np.testing.assert_allclose(competing.get_ydata(), np.r_[0.0, expected])
+    assert competing.get_ydata()[-1] > 0
+    # The two causes and the survival add up to one.
+    np.testing.assert_allclose(
+        event.get_ydata()[1:] + competing.get_ydata()[1:] + table["survival"], 1.0
+    )
+    assert [text.get_text() for text in ax.get_legend().get_texts()] == [
+        "cumulative_pd",
+        "competing",
+    ]
+
+
+def test_survival_chart_competing_risks_leave_the_survival_a_single_curve():
+    ax = plotting.survival_chart(competing_example(), column="survival")
+    assert len(ax.get_lines()) == 1
+
+
+def test_survival_chart_ends_the_curve_where_no_account_is_at_risk():
+    table = survival_table([1, 2], [1, 0], entry=[0, 0])
+    table.loc[3] = [0, 0, 0, np.nan, np.nan, np.nan]
+    ax = plotting.survival_chart(table)
+    assert np.isnan(ax.get_lines()[0].get_ydata()[-1])
+
+
+def test_survival_chart_rejects_another_column(no_new_figure):
+    with pytest.raises(
+        ValueError, match="column must be 'cumulative_pd' or 'survival', got 'hazard'"
+    ):
+        plotting.survival_chart(survival_example(), column="hazard")
+
+
+def test_survival_chart_needs_the_columns_of_the_competing_cause(no_new_figure):
+    table = competing_example().drop(columns="at_risk")
+    with pytest.raises(ValueError, match=r"missing \['at_risk'\]"):
+        plotting.survival_chart(table)
+
+
+def test_transition_chart_draws_the_values_and_outlines_the_diagonal():
+    table = transition_example()
+    ax = plotting.transition_chart(table)
+    assert [text.get_text() for text in ax.texts] == ["2", "1", "0", "0", "1", "1", "0", "1", "2"]
+    # The shade is the share of the row.
+    image = ax.images[0].get_array()
+    np.testing.assert_allclose(image, table.to_numpy() / table.to_numpy().sum(axis=1)[:, None])
+    corners = sorted(patch.get_xy() for patch in ax.patches)
+    assert corners == [(-0.5, -0.5), (0.5, 0.5), (1.5, 1.5)]
+    assert all(patch.get_edgecolor()[:3] == matplotlib.colors.to_rgb(AMBER) for patch in ax.patches)
+    assert (ax.get_xlabel(), ax.get_ylabel()) == ("after", "before")
+    assert [label.get_text() for label in ax.get_yticklabels()] == ["a", "b", "c"]
+
+
+def test_transition_chart_writes_shares_with_two_decimals():
+    ax = plotting.transition_chart(
+        transition_matrix(["a", "a", "a"], ["a", "b", "b"], normalize=True)
+    )
+    assert [text.get_text() for text in ax.texts] == ["0.33", "0.67"]
+
+
+def test_transition_chart_outlines_only_the_states_that_meet():
+    table = pd.DataFrame([[1, 2], [3, 4]], index=["a", "b"], columns=["b", "c"])
+    ax = plotting.transition_chart(table)
+    assert [patch.get_xy() for patch in ax.patches] == [(-0.5, 0.5)]
+
+
+def test_transition_chart_leaves_missing_cells_empty_and_shades_empty_rows_white():
+    table = pd.DataFrame([[0.0, 0.0], [np.nan, 1.0]], index=["a", "b"], columns=["a", "b"])
+    ax = plotting.transition_chart(table)
+    assert [text.get_text() for text in ax.texts] == ["0", "0", "1"]
+    assert ax.images[0].get_array()[0].tolist() == [0.0, 0.0]
+
+
+@pytest.mark.parametrize(
+    ("table", "message"),
+    [
+        ([[1]], "table must be a DataFrame from kivi.vintage.transition_matrix, got list"),
+        (pd.DataFrame(), "table must have at least one row and one column"),
+        (pd.DataFrame({"a": ["x"]}), "column 'a' must be real and numeric, got dtype"),
+        (pd.DataFrame({"a": [1.0, -0.5]}), "table must not have negative values, got -0.5"),
+    ],
+)
+def test_transition_chart_rejects_another_table(table, message, no_new_figure):
+    with pytest.raises(ValueError, match=re.escape(message)):
+        plotting.transition_chart(table)
+
+
+def test_rule_set_chart_draws_the_hits_and_the_approval_rate():
+    table = rule_set_example()
+    bars, line = plotting.rule_set_chart(table)
+    assert [patch.get_height() for patch in bars.patches] == table["new_hits"].tolist()
+    np.testing.assert_array_equal(line.get_lines()[0].get_ydata(), table["approval_rate"])
+    assert line.get_lines()[0].get_color() == AMBER
+    assert bars.get_ylabel() == "new_hits" and line.get_ylabel() == "approval_rate"
+    assert [label.get_text() for label in bars.get_xticklabels()] == ["high_debt", "young"]
+    assert bars.get_xlabel() == "rule"
+    assert not covered(line.get_legend(), [bars, line])
+
+
+def test_profit_chart_marks_the_cutoff_with_the_highest_profit():
+    table = profit_example()
+    ax = plotting.profit_chart(table)
+    line, mark = ax.get_lines()[0], ax.get_lines()[2]
+    np.testing.assert_array_equal(line.get_xdata(), table["approval_rate"])
+    np.testing.assert_array_equal(line.get_ydata(), table["profit"])
+    best = table["profit"].idxmax()
+    assert best == 0.3 and table["profit"].max() > 0
+    assert mark.get_xdata().tolist() == [table.loc[best, "approval_rate"]]
+    assert mark.get_ydata().tolist() == [table.loc[best, "profit"]]
+    assert mark.get_color() == AMBER
+    assert ax.texts[0].get_text() == f"cutoff = 0.3, profit = {table.loc[best, 'profit']:,.10g}"
+    assert (ax.get_xlabel(), ax.get_ylabel()) == ("approval_rate", "profit")
+
+
+def test_profit_chart_takes_the_first_of_tied_profits_and_skips_missing_ones():
+    table = pd.DataFrame(
+        {"approval_rate": [0.2, 0.5, 0.9], "profit": [np.nan, 2.0, 2.0]},
+        index=pd.Index(["x", "y", "z"], name="cut"),
+    )
+    ax = plotting.profit_chart(table)
+    assert ax.texts[0].get_text() == "cut = y, profit = 2"
+
+
+def test_profit_chart_needs_a_profit(no_new_figure):
+    table = profit_example().assign(profit=np.nan)
+    with pytest.raises(ValueError, match="table must have at least one row with a profit"):
+        plotting.profit_chart(table)
+
+
+def test_profit_chart_names_the_columns_of_a_table_without_revenue(no_new_figure):
+    table = cutoff_table(SCORE, TARGET, cutoffs=[0.3, 1.0])
+    with pytest.raises(ValueError, match=r"missing \['profit'\]"):
+        plotting.profit_chart(table)
+
+
+def test_lgd_chart_draws_three_bars_per_group():
+    table = lgd_example()
+    ax = plotting.lgd_chart(table)
+    heights = np.array([patch.get_height() for patch in ax.patches]).reshape(3, 3)
+    np.testing.assert_allclose(heights[0], table["mean"])
+    np.testing.assert_allclose(heights[1], table["zero_share"])
+    np.testing.assert_allclose(heights[2], table["full_share"])
+    assert [patch.get_facecolor()[:3] for patch in ax.patches[::3]] == [
+        matplotlib.colors.to_rgb(color) for color in (BLUE, "#9ca3af", AMBER)
+    ]
+    assert [text.get_text() for text in ax.get_legend().get_texts()] == [
+        "mean",
+        "zero_share",
+        "full_share",
+    ]
+    assert [label.get_text() for label in ax.get_xticklabels()] == ["a", "b", "c"]
+    assert not covered(ax.get_legend(), [ax])
+
+
+def test_lgd_chart_keeps_a_negative_mean_in_view():
+    ax = plotting.lgd_chart(lgd_table(["a", "a"], [-0.4, -0.2], floor=None))
+    assert ax.get_ylim()[0] <= -0.3

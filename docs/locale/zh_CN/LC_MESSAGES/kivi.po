@@ -12,7 +12,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.18.0\n"
+"Generated-By: Babel 2.19.0\n"
 
 msgid "API reference"
 msgstr "API 参考"
@@ -11369,13 +11369,12 @@ msgstr "2 月有一个 region 值缺失，这是 1 月没有的一组。"
 msgid ""
 "Draw the result tables of the other modules with matplotlib, one function per table, such as "
 ":func:`~kivi.plotting.woe_chart` for a WOE table, :func:`~kivi.plotting.roc_chart` for a ROC "
-"table and :func:`~kivi.plotting.monitoring_chart` for a monitoring report. Each function draws on"
-" the Axes passed as ``ax``, or on a new figure, and returns the Axes it drew on. matplotlib is an"
-" optional dependency: install it with ``pip install \"kivi[plot]\"``."
-msgstr ""
-"用 matplotlib 绘制其他模块的结果表，每种表对应一个函数，例如 WOE 表用 :func:`~kivi.plotting.woe_chart` ，ROC 表用 "
-":func:`~kivi.plotting.roc_chart` ，监控报告用 :func:`~kivi.plotting.monitoring_chart` 。每个函数在 ``ax`` 传入的"
-" Axes 上作图，未传入时新建一个图形，并返回所用的 Axes。matplotlib 是可选依赖，用 ``pip install \"kivi[plot]\"`` 安装。"
+"table and :func:`~kivi.plotting.monitoring_chart` for a monitoring report, "
+":func:`~kivi.plotting.survival_chart` for a survival table and "
+":func:`~kivi.plotting.profit_chart` for a cut-off table with profit. Each function draws on the "
+"Axes passed as ``ax``, or on a new figure, and returns the Axes it drew on. matplotlib is an "
+"optional dependency: install it with ``pip install \"kivi[plot]\"``."
+msgstr "用 matplotlib 绘制其他模块的结果表，每种表对应一个函数，例如 WOE 表用 :func:`~kivi.plotting.woe_chart` ，ROC 表用 :func:`~kivi.plotting.roc_chart` ，监控报告用 :func:`~kivi.plotting.monitoring_chart` ，生存表用 :func:`~kivi.plotting.survival_chart` ，含利润的截断点表用 :func:`~kivi.plotting.profit_chart` 。每个函数在 ``ax`` 传入的 Axes 上作图，未传入时新建一个图形，并返回所用的 Axes。matplotlib 是可选依赖，用 ``pip install \"kivi[plot]\"`` 安装。"
 
 msgid "See :doc:`/user_guide/plotting` for examples on the bundled data."
 msgstr "基于内置数据的示例见 :doc:`/user_guide/plotting` 。"
@@ -11457,6 +11456,38 @@ msgstr ":py:obj:`vintage_chart <kivi.plotting.vintage_chart>`\\ \\(table\\, \\*\
 
 msgid "Draw one curve per cohort of its cumulative bad rate by month on book."
 msgstr "为每个批次绘制一条按账龄变化的累计坏账率曲线。"
+
+msgid ""
+":py:obj:`survival_chart <kivi.plotting.survival_chart>`\\ \\(table\\, \\*\\[\\, column\\, "
+"label\\, ax\\]\\)"
+msgstr ":py:obj:`survival_chart <kivi.plotting.survival_chart>`\\ \\(table\\, \\*\\[\\, column\\, label\\, ax\\]\\)"
+
+msgid "Draw the cumulative PD or the survival curve of a survival table as steps."
+msgstr "把生存表的累计 PD 或生存曲线绘制成阶梯线。"
+
+msgid ":py:obj:`transition_chart <kivi.plotting.transition_chart>`\\ \\(table\\, \\*\\[\\, ax\\]\\)"
+msgstr ":py:obj:`transition_chart <kivi.plotting.transition_chart>`\\ \\(table\\, \\*\\[\\, ax\\]\\)"
+
+msgid "Draw a transition matrix as a heatmap with the value in each cell."
+msgstr "把迁移矩阵绘制成热力图，并在每个单元格中标出数值。"
+
+msgid ":py:obj:`rule_set_chart <kivi.plotting.rule_set_chart>`\\ \\(table\\, \\*\\[\\, ax\\]\\)"
+msgstr ":py:obj:`rule_set_chart <kivi.plotting.rule_set_chart>`\\ \\(table\\, \\*\\[\\, ax\\]\\)"
+
+msgid "Draw the new hits of each rule with the approval rate left after it."
+msgstr "绘制每条规则新增命中的数量，以及该规则之后剩余的通过率。"
+
+msgid ":py:obj:`profit_chart <kivi.plotting.profit_chart>`\\ \\(table\\, \\*\\[\\, ax\\]\\)"
+msgstr ":py:obj:`profit_chart <kivi.plotting.profit_chart>`\\ \\(table\\, \\*\\[\\, ax\\]\\)"
+
+msgid "Draw the profit against the approval rate and mark the best cut-off."
+msgstr "绘制利润随通过率的变化，并标出利润最高的截断点。"
+
+msgid ":py:obj:`lgd_chart <kivi.plotting.lgd_chart>`\\ \\(table\\, \\*\\[\\, ax\\]\\)"
+msgstr ":py:obj:`lgd_chart <kivi.plotting.lgd_chart>`\\ \\(table\\, \\*\\[\\, ax\\]\\)"
+
+msgid "Draw the mean LGD of each group with its shares of zero and full losses."
+msgstr "绘制每个分组的平均 LGD，以及零损失和全额损失的占比。"
 
 msgid ""
 "The bars show ``total_share``, the share of the sample in each group, on the left y-axis, and a "
@@ -12016,6 +12047,174 @@ msgstr ""
 "图例位于 Axes "
 "的右侧，不遮挡任何曲线，并以索引的名称为标题。批次不超过八个时，图例列出每个批次；否则列出从第一个到最后一个均匀分布的八个批次，其余批次的颜色深浅介于它们之间。在包含多个子图的图形中，请使用布局引擎（例如"
 " ``layout=\"constrained\"`` ）为图例留出空间。"
+
+msgid ""
+"The curve starts at period 0 with 0 for ``cumulative_pd`` and 1 for ``survival`` and changes at "
+"each period, as steps, which is how the Kaplan-Meier estimate behaves between observations. When "
+"the table was computed with competing risks, the cumulative incidence of the competing cause is "
+"drawn next to that of the event."
+msgstr "曲线从第 0 期开始，累计 PD 为 0，生存概率为 1，此后在每一期以阶梯形式变化，这正是 Kaplan-Meier 估计在两次观测之间的行为。当表是按竞争风险计算时，会在事件的累计发生率旁边画出竞争原因的累计发生率。"
+
+msgid ""
+"A table from `kivi.lifetime.survival_table`. It needs the column named by `column`, and with "
+"competing risks, which is when it has a ``competing`` column, also ``at_risk`` and ``survival``."
+msgstr "由 `kivi.lifetime.survival_table` 得到的表。需要包含 `column` 指定的列；有竞争风险时（即表中有 ``competing`` 列），还需要 ``at_risk`` 和 ``survival`` 列。"
+
+msgid "{'cumulative_pd', 'survival'}, default 'cumulative_pd'"
+msgstr "{'cumulative_pd', 'survival'}，默认 'cumulative_pd'"
+
+msgid ""
+"Column to draw. ``survival`` is the all-cause survival, one curve whether or not there are "
+"competing risks."
+msgstr "要绘制的列。 ``survival`` 是全部原因的生存概率，无论有无竞争风险都只有一条曲线。"
+
+msgid "Legend entry of the curve, in place of `column`. It is used only when there is one curve."
+msgstr "曲线在图例中的名称，取代 `column` 。只有当图中只有一条曲线时才使用。"
+
+msgid ""
+"If `table` is not a DataFrame, lacks a column it needs or has no rows, a column it needs is not "
+"numeric, `column` is neither ``'cumulative_pd'`` nor ``'survival'``, or `ax` is not a matplotlib "
+"Axes."
+msgstr "如果 `table` 不是 DataFrame、缺少所需的列或没有任何行，所需的列不是数值， `column` 既不是 ``'cumulative_pd'`` 也不是 ``'survival'`` ，或者 `ax` 不是 matplotlib 的 Axes。"
+
+msgid ":obj:`vintage_chart`"
+msgstr ":obj:`vintage_chart`"
+
+msgid "Cumulative bad rates by cohort."
+msgstr "按批次统计的累计坏账率。"
+
+msgid ""
+"With competing risks and ``column='cumulative_pd'`` the legend names the curves ``cumulative_pd``"
+" and ``competing``. The cumulative incidence of the competing cause is the sum of the all-cause "
+"survival of the previous period times ``competing`` over ``at_risk``, as that of the event is, so"
+" the two curves and the survival add up to 1. Periods after the last one with accounts at risk "
+"have no value and end the curves."
+msgstr "有竞争风险且 ``column='cumulative_pd'`` 时，图例中的曲线名为 ``cumulative_pd`` 和 ``competing`` 。竞争原因的累计发生率，是上一期的全部原因生存概率乘以 ``competing`` 除以 ``at_risk`` 再累加，事件的累计发生率也是这样算的，因此两条曲线加上生存概率之和为 1。最后一个有账户处于风险中的期数之后没有取值，曲线到此为止。"
+
+msgid ""
+"The rows are the states before and the columns the states after. The shade of a cell is the share"
+" of its row that moved there, so that a table of counts and one of shares look alike, and the "
+"diagonal, the entities that stayed, is outlined in amber."
+msgstr "行是之前的状态，列是之后的状态。单元格的深浅是其所在行中迁移到该处的占比，因此计数表和占比表看上去一样；对角线，即状态未变的个体，用琥珀色描边。"
+
+msgid ""
+"A table from `kivi.vintage.transition_matrix`, counts or shares (``normalize=True``), with the "
+"states before in its index and the states after in its columns. Missing values leave their cells "
+"empty."
+msgstr "由 `kivi.vintage.transition_matrix` 得到的表，可以是计数或占比（ ``normalize=True`` ），索引为之前的状态，列为之后的状态。缺失值对应的单元格留空。"
+
+msgid "Axes to draw on. A new figure, sized to the number of states, is created when it is not given."
+msgstr "用于作图的 Axes。未给出时新建一个图形，其尺寸随状态个数而定。"
+
+msgid ""
+"If `table` is not a DataFrame or has no rows or columns, has a column that is not numeric or a "
+"negative value, or `ax` is not a matplotlib Axes."
+msgstr "如果 `table` 不是 DataFrame 或没有任何行或列，含有非数值的列或负值，或者 `ax` 不是 matplotlib 的 Axes。"
+
+msgid ":obj:`kivi.vintage.roll_rates`"
+msgstr ":obj:`kivi.vintage.roll_rates`"
+
+msgid "The share of each state that moved to a worse one."
+msgstr "每个状态中迁移到更差状态的比例。"
+
+msgid ":obj:`correlation_chart`"
+msgstr ":obj:`correlation_chart`"
+
+msgid "A heatmap of a correlation matrix."
+msgstr "相关系数矩阵的热力图。"
+
+msgid ""
+"A cell is outlined when its row label equals its column label, so a matrix whose states before "
+"and after are not the same set has an outline only where they meet. The values are written as "
+"integers when all of them are whole numbers and with two decimals otherwise. The heatmap is "
+"``ax.images[0]``. The axes are labeled with the names of the index and the columns, ``before`` "
+"and ``after`` for the output of `kivi.vintage.transition_matrix`."
+msgstr "当单元格的行标签与列标签相同时描边，因此之前与之后的状态不是同一组时，只有两者重合之处有描边。所有值都是整数时写成整数，否则保留两位小数。热力图是 ``ax.images[0]`` 。坐标轴用索引和列的名称标注，对 `kivi.vintage.transition_matrix` 的输出是 ``before`` 和 ``after`` 。"
+
+msgid ""
+"A rule set is a waterfall: each rule declines only the applicants that no earlier rule declined. "
+"The bars show ``new_hits`` of each rule, in the order of the table, on the left y-axis, and a "
+"line shows the cumulative ``approval_rate`` of the book after the rule on a second y-axis on the "
+"right. Like `woe_chart` it has two y-axes and returns two Axes."
+msgstr "规则集是一道瀑布：每条规则只拒绝此前的规则都没有拒绝的申请人。柱形按表中的顺序在左侧 y 轴上给出每条规则的 ``new_hits`` ，折线在右侧第二条 y 轴上给出该规则之后全部申请人累计的 ``approval_rate`` 。与 `woe_chart` 一样，它有两条 y 轴，返回两个 Axes。"
+
+msgid "A table from `kivi.rules.rule_set_table`. It needs the columns ``new_hits`` and ``approval_rate``."
+msgstr "由 `kivi.rules.rule_set_table` 得到的表。需要包含 ``new_hits`` 和 ``approval_rate`` 列。"
+
+msgid ":obj:`kivi.rules.rule_set_table`"
+msgstr ":obj:`kivi.rules.rule_set_table`"
+
+msgid ":obj:`cutoff_chart`"
+msgstr ":obj:`cutoff_chart`"
+
+msgid "The same trade-off for a score instead of rules."
+msgstr "对评分而不是规则做同样的取舍。"
+
+msgid ""
+"The tick labels are the rule names of the index. The line starts at the approval rate after the "
+"first rule, and the approval rate of the rows is that of the whole book, so the last point is the"
+" rate that the rule set approves. Both axes leave room at the top for the legend."
+msgstr "刻度标签是索引中的规则名称。折线从第一条规则之后的通过率开始，各行的通过率针对整个客群，因此最后一个点是整套规则的通过率。两条轴都在顶部留出放置图例的空间。"
+
+msgid ""
+"Each cut-off of the table is one point, with ``approval_rate`` on the x-axis and ``profit``, the "
+"revenue minus the loss of the approved book, on the y-axis. The cut-off with the highest profit "
+"is marked in amber and labeled with its value and its profit, and a dotted line marks zero "
+"profit."
+msgstr "表中的每个截断点是一个点，x 轴为 ``approval_rate`` ，y 轴为 ``profit`` ，即通过客群的收入减去损失。利润最高的截断点用琥珀色标出，并标注其取值和利润，点线标出零利润。"
+
+msgid ""
+"A table from `kivi.strategy.cutoff_table` computed with both `loss` and `revenue`. It needs the "
+"columns ``approval_rate`` and ``profit``."
+msgstr "由 `kivi.strategy.cutoff_table` 得到的表，计算时需同时给出 `loss` 和 `revenue` 。需要包含 ``approval_rate`` 和 ``profit`` 列。"
+
+msgid ""
+"If `table` is not a DataFrame, lacks a column it needs or has no rows, a column it needs is not "
+"numeric, no row has a profit, or `ax` is not a matplotlib Axes."
+msgstr "如果 `table` 不是 DataFrame、缺少所需的列或没有任何行，所需的列不是数值，没有一行有利润，或者 `ax` 不是 matplotlib 的 Axes。"
+
+msgid ":obj:`kivi.metrics.expected_maximum_profit`"
+msgstr ":obj:`kivi.metrics.expected_maximum_profit`"
+
+msgid "The profit of the best cut-off under a loss distribution."
+msgstr "在某个损失分布下最优截断点的利润。"
+
+msgid "The event rate against the approval rate."
+msgstr "绘制事件率随通过率的变化。"
+
+msgid ""
+"The best cut-off is the first row with the largest profit, in the order of the table, and rows "
+"with a missing profit are left out. Its label shows the index of the row, the cut-off."
+msgstr "最优截断点是表顺序中利润最大的第一行，利润缺失的行不参与。其标签给出该行的索引，即截断点。"
+
+msgid ""
+"Each group of the table gets three bars: ``mean``, the average LGD, ``zero_share``, the share of "
+"its exposures that lost nothing, and ``full_share``, the share that lost everything or more. The "
+"shares make visible the bimodal shape that a mean hides."
+msgstr "表中的每个分组画三根柱：平均 LGD ``mean`` ，损失为零的敞口占比 ``zero_share`` ，以及损失全部或更多的占比 ``full_share`` 。这两个占比让平均值掩盖的双峰形态一目了然。"
+
+msgid ""
+"A table from `kivi.lgd.lgd_table`. It needs the columns ``mean``, ``zero_share`` and "
+"``full_share``."
+msgstr "由 `kivi.lgd.lgd_table` 得到的表。需要包含 ``mean`` 、 ``zero_share`` 和 ``full_share`` 列。"
+
+msgid ":obj:`kivi.lgd.lgd_table`"
+msgstr ":obj:`kivi.lgd.lgd_table`"
+
+msgid ":obj:`kivi.lgd.workout_lgd`"
+msgstr ":obj:`kivi.lgd.workout_lgd`"
+
+msgid "The realized LGDs of the loans."
+msgstr "这些贷款的实际 LGD。"
+
+msgid "Bars of two shares side by side for each group."
+msgstr "每个分组中并排画出的两个占比。"
+
+msgid ""
+"All three bars are on one percent axis, which runs below 0 or above 100% when a mean LGD does, as"
+" realized LGDs can. The tick labels are the group labels of the index, and the legend sits at the"
+" top, where it covers no bar. A group with a missing ``mean`` has no such bar."
+msgstr "三根柱共用一条百分比坐标轴，平均 LGD 低于 0 或高于 100% 时，坐标轴也随之延伸，实际 LGD 就可能如此。刻度标签是索引中的分组标签，图例在顶部，不会遮住任何柱。 ``mean`` 缺失的分组没有这根柱。"
 
 msgid ""
 "Supply outcomes for rejected applicants, so that a model developed on the approved applicants can"
@@ -14690,9 +14889,6 @@ msgstr "每笔敞口的预期损失，可作为 `loss` 传入。"
 
 msgid "Event rates of the bands between cut-offs."
 msgstr "相邻截断点之间各评分段的事件率。"
-
-msgid ":obj:`kivi.metrics.expected_maximum_profit`"
-msgstr ":obj:`kivi.metrics.expected_maximum_profit`"
 
 msgid "Expected profit of the best cut-off of a score."
 msgstr "评分最优截断点的期望利润。"
@@ -17654,11 +17850,21 @@ msgstr "未发布"
 msgid "Changes merged since the last release."
 msgstr "上次发布以来合并的改动。"
 
-msgid "1.7.0 (2026-11-25)"
-msgstr "1.7.0（2026-11-25）"
-
 msgid "New"
 msgstr "新增"
+
+msgid ""
+":mod:`kivi.plotting` draws the result tables of 1.4 to 1.7: :func:`~kivi.plotting.survival_chart`"
+" (the steps of ``cumulative_pd`` or ``survival``, with both causes under competing risks), "
+":func:`~kivi.plotting.transition_chart` (a transition matrix as a heatmap with the diagonal "
+"outlined), :func:`~kivi.plotting.rule_set_chart` (the ``new_hits`` of each rule with the "
+"``approval_rate``), :func:`~kivi.plotting.profit_chart` (``profit`` against ``approval_rate`` "
+"with the best cut-off marked) and :func:`~kivi.plotting.lgd_chart` (``mean``, ``zero_share`` and "
+"``full_share`` of each group)."
+msgstr ":mod:`kivi.plotting` 新增 1.4 至 1.7 各结果表的图： :func:`~kivi.plotting.survival_chart` （按期的 ``cumulative_pd`` 或 ``survival`` 阶梯线，有竞争风险时画出两类）、 :func:`~kivi.plotting.transition_chart` （把迁移矩阵画成热力图，对角线描边）、 :func:`~kivi.plotting.rule_set_chart` （每条规则的 ``new_hits`` 及 ``approval_rate`` ）、 :func:`~kivi.plotting.profit_chart` （ ``profit`` 对 ``approval_rate`` 的曲线，标出最优截断点）和 :func:`~kivi.plotting.lgd_chart` （各组的 ``mean`` 、 ``zero_share`` 和 ``full_share`` ）。"
+
+msgid "1.7.0 (2026-11-25)"
+msgstr "1.7.0（2026-11-25）"
 
 msgid ""
 "``kivi.strategy.cutoff_table`` takes ``revenue``, a non-negative revenue per observation such as "
@@ -28731,16 +28937,11 @@ msgid ""
 ":func:`~kivi.plotting.calibration_chart` for a calibration table, "
 ":func:`~kivi.plotting.cutoff_chart` for a cut-off table, :func:`~kivi.plotting.psi_chart` for a "
 "PSI table, :func:`~kivi.plotting.monitoring_chart` for a monitoring report and "
-":func:`~kivi.plotting.vintage_chart` for a vintage table."
-msgstr ""
-"风险报告用图表展示各种表：每个分箱的事件率、评分的 ROC 曲线、自开发以来发生变化的占比。 :mod:`kivi.plotting` 用 matplotlib "
-"绘制其他模块的结果表，每种表对应一个函数：WOE 表用 :func:`~kivi.plotting.woe_chart` ，相关系数矩阵用 "
-":func:`~kivi.plotting.correlation_chart` ，ROC 表用 :func:`~kivi.plotting.roc_chart` 和 "
-":func:`~kivi.plotting.precision_recall_chart` ，增益表用 :func:`~kivi.plotting.gains_chart` ，增益表或 WOE "
-"表中的事件和非事件用 :func:`~kivi.plotting.distribution_chart` ，校准表用 "
-":func:`~kivi.plotting.calibration_chart` ，截断点表用 :func:`~kivi.plotting.cutoff_chart` ，PSI 表用 "
-":func:`~kivi.plotting.psi_chart` ，监控报告用 :func:`~kivi.plotting.monitoring_chart` ，Vintage 表用 "
-":func:`~kivi.plotting.vintage_chart` 。"
+":func:`~kivi.plotting.vintage_chart` for a vintage table, :func:`~kivi.plotting.survival_chart` "
+"for a survival table, :func:`~kivi.plotting.transition_chart` for a transition matrix, "
+":func:`~kivi.plotting.rule_set_chart` for a rule set table, :func:`~kivi.plotting.profit_chart` "
+"for a cut-off table with revenue and loss and :func:`~kivi.plotting.lgd_chart` for an LGD table."
+msgstr "风险报告用图表展示各种表：每个分箱的事件率、评分的 ROC 曲线、自开发以来发生变化的占比。 :mod:`kivi.plotting` 用 matplotlib 绘制其他模块的结果表，每种表对应一个函数：WOE 表用 :func:`~kivi.plotting.woe_chart` ，相关系数矩阵用 :func:`~kivi.plotting.correlation_chart` ，ROC 表用 :func:`~kivi.plotting.roc_chart` 和 :func:`~kivi.plotting.precision_recall_chart` ，增益表用 :func:`~kivi.plotting.gains_chart` ，增益表或 WOE 表中的事件和非事件用 :func:`~kivi.plotting.distribution_chart` ，校准表用 :func:`~kivi.plotting.calibration_chart` ，截断点表用 :func:`~kivi.plotting.cutoff_chart` ，PSI 表用 :func:`~kivi.plotting.psi_chart` ，监控报告用 :func:`~kivi.plotting.monitoring_chart` ，Vintage 表用 :func:`~kivi.plotting.vintage_chart` ，生存表用 :func:`~kivi.plotting.survival_chart` ，迁移矩阵用 :func:`~kivi.plotting.transition_chart` ，规则集表用 :func:`~kivi.plotting.rule_set_chart` ，含收入和损失的截断点表用 :func:`~kivi.plotting.profit_chart` ，LGD 表用 :func:`~kivi.plotting.lgd_chart` 。"
 
 msgid ""
 "The charts draw the tables of the earlier guides, from :doc:`woe_iv` to :doc:`vintage`, so this "
@@ -29183,6 +29384,128 @@ msgid ""
 ":func:`~kivi.lifetime.convert_pd`."
 msgstr "如果某个批次的曲线升到之前各批次的曲线之上，就值得仔细查看。此函数接受任何形状相同的表，例如 :func:`~kivi.lifetime.convert_pd` 给出的累计 PD。"
 
+msgid "Survival curves"
+msgstr "生存曲线"
+
+msgid ""
+":func:`~kivi.plotting.survival_chart` draws the ``cumulative_pd`` of a "
+":func:`~kivi.lifetime.survival_table` as steps from period 0, or the ``survival`` with "
+"``column=\"survival\"``. In a loan book with early repayments, a loan that repays leaves the risk"
+" set without defaulting, which is a competing risk. The curve of ``cumulative_pd`` is then the "
+"cumulative incidence of 90+ days past due, and the chart adds the cumulative incidence of "
+"repayment:"
+msgstr ":func:`~kivi.plotting.survival_chart` 把 :func:`~kivi.lifetime.survival_table` 的 ``cumulative_pd`` 从第 0 期起画成阶梯线，用 ``column=\"survival\"`` 则画 ``survival`` 。在有提前还款的贷款组合中，还清的贷款不经违约就离开风险集，这就是竞争风险。此时 ``cumulative_pd`` 的曲线是逾期 90 天以上的累计发生率，图中再加上提前还款的累计发生率："
+
+msgid "Cumulative incidence of 90+ days past due and of early repayment by month on book"
+msgstr "按账龄月数统计的逾期 90 天以上和提前还款的累计发生率"
+
+#, python-format
+msgid "After 24 months 7.6% of the loans have reached 90+ days past due and 19% have repaid early."
+msgstr "24 个月后，7.6% 的贷款进入逾期 90 天以上，19% 提前还清。"
+
+msgid ""
+"Each curve is a step function, because the estimate changes only at the periods where something "
+"happens. Without ``competing`` the chart has one curve, and ``column=\"survival\"`` always draws "
+"one: the share of loans that have neither defaulted nor repaid."
+msgstr "每条曲线都是阶梯函数，因为估计值只在有事件发生的期数才变化。没有 ``competing`` 时图中只有一条曲线， ``column=\"survival\"`` 也总是只画一条：既未违约也未还清的贷款占比。"
+
+msgid "Transition matrices"
+msgstr "转移矩阵"
+
+msgid ""
+":func:`~kivi.plotting.transition_chart` draws the :func:`~kivi.vintage.transition_matrix` of two "
+"consecutive month ends, the states before in the rows and the states after in the columns. A cell"
+" is written with its count, or its share for a matrix computed with ``normalize=True``, and "
+"shaded by the share of its row, so that the shade shows where each state goes whatever the sizes "
+"of the states. The diagonal, the entities that stayed, is outlined in amber:"
+msgstr ":func:`~kivi.plotting.transition_chart` 绘制两个相邻月末之间的 :func:`~kivi.vintage.transition_matrix` ，行是之前的状态，列是之后的状态。单元格写的是计数，对 ``normalize=True`` 算出的矩阵则是占比，深浅取决于其所在行的占比，因此无论各状态的大小，都能看出每个状态流向何处。对角线，即状态未变的个体，用琥珀色描边："
+
+msgid "Heatmap of the transitions between delinquency buckets from one month end to the next"
+msgstr "相邻月末之间各逾期档位迁移的热力图"
+
+msgid "Most loans stay current, and from the bucket 90+ none of them returns."
+msgstr "多数贷款保持正常，进入 90 天以上档位的贷款没有一笔返回。"
+
+msgid ""
+"The chart draws a matrix of counts or of shares alike. The roll rates of "
+":func:`~kivi.vintage.roll_rates` are the shares of each row above the diagonal, which the same "
+"chart shows for ``transition_matrix(..., normalize=True)``."
+msgstr "无论矩阵是计数还是占比，图都能画。 :func:`~kivi.vintage.roll_rates` 的滚动率是每行对角线以上的占比，对 ``transition_matrix(..., normalize=True)`` 用同一张图也能看到。"
+
+msgid "Rule sets"
+msgstr "规则集"
+
+msgid ""
+":func:`~kivi.plotting.rule_set_chart` draws a :func:`~kivi.rules.rule_set_table`, the rules "
+"applied one after the other. The bars show the ``new_hits`` of each rule, the applicants that it "
+"declines and no earlier rule declined, and the line the ``approval_rate`` that is left after it:"
+msgstr ":func:`~kivi.plotting.rule_set_chart` 绘制 :func:`~kivi.rules.rule_set_table` ，即依次应用的规则。柱形是每条规则的 ``new_hits`` ，即它拒绝而此前的规则都没有拒绝的申请人，折线是该规则之后剩下的 ``approval_rate`` ："
+
+msgid "Bars of the applicants declined by each of three rules, with the approval rate after each rule"
+msgstr "三条规则各自拒绝的申请人数柱形，以及每条规则之后的通过率"
+
+msgid ""
+"The first rule declines 4,512 applicants and the third only 797, with the approval rate falling "
+"from 88.7% to 79.8%."
+msgstr "第一条规则拒绝 4,512 名申请人，第三条只有 797 名，通过率从 88.7% 降到 79.8%。"
+
+msgid ""
+"The order of the rules decides the bars, since an applicant who hits two rules counts for the "
+"first, but it does not change the last approval rate. Like :func:`~kivi.plotting.woe_chart`, the "
+"function returns the Axes of the bars and that of the line."
+msgstr "规则的顺序决定各柱的高度，因为命中两条规则的申请人算在前一条上，但不会改变最后的通过率。与 :func:`~kivi.plotting.woe_chart` 一样，该函数返回柱形的 Axes 和折线的 Axes。"
+
+msgid "Profit by cut-off"
+msgstr "按截断点看利润"
+
+msgid ""
+"A :func:`~kivi.strategy.cutoff_table` computed with ``loss`` and ``revenue`` has a ``profit`` "
+"column. :func:`~kivi.plotting.profit_chart` draws it against the ``approval_rate`` and marks the "
+"cut-off with the highest profit, which :func:`~kivi.plotting.cutoff_chart` cannot show, since it "
+"draws the event rate. Here every approved applicant brings a revenue of 600 and every event a "
+"loss of 5,000:"
+msgstr "用 ``loss`` 和 ``revenue`` 计算的 :func:`~kivi.strategy.cutoff_table` 有 ``profit`` 列。 :func:`~kivi.plotting.profit_chart` 把它对 ``approval_rate`` 作图，并标出利润最高的截断点；:func:`~kivi.plotting.cutoff_chart` 画的是事件率，看不出这一点。这里每个通过的申请人带来 600 的收入，每个事件造成 5,000 的损失："
+
+msgid "Profit against the approval rate with the highest profit marked"
+msgstr "利润随通过率的变化，标出最高利润"
+
+msgid ""
+"Profit rises with the approval rate up to 45% and falls after it, and approving the whole book "
+"makes a loss."
+msgstr "通过率到 45% 之前利润上升，之后下降，全部通过时亏损。"
+
+msgid ""
+"The marked point is the first row with the largest profit, and the dotted line marks zero profit."
+" The cut-offs are those of the table, so the maximum is the best of them; a finer ``cutoffs`` "
+"locates it more closely."
+msgstr "标出的点是利润最大的第一行，点线标出零利润。截断点就是表中的那些，所以最大值是其中最好的一个； ``cutoffs`` 取得更细，就能更精确地定位它。"
+
+msgid "LGD by group"
+msgstr "按分组看 LGD"
+
+msgid ""
+":func:`~kivi.plotting.lgd_chart` draws a :func:`~kivi.lgd.lgd_table` with three bars for each "
+"group: the ``mean`` LGD, and the ``zero_share`` and the ``full_share`` of the loans that lost "
+"nothing and everything. The mean hides that realized LGDs are bimodal, which the two shares show."
+" The workouts of the simulated defaults that have closed, with their recoveries and costs "
+"discounted at the rate of each default, give:"
+msgstr ":func:`~kivi.plotting.lgd_chart` 绘制 :func:`~kivi.lgd.lgd_table` ，每个分组三根柱：平均 LGD ``mean`` ，以及损失为零和损失全部的贷款占比 ``zero_share`` 和 ``full_share`` 。平均值掩盖了实际 LGD 呈双峰分布，这两个占比则能显示出来。模拟违约中已经结案的处置，其回收和成本按各笔违约的利率折现，结果如下："
+
+msgid "Mean LGD, share of zero losses and share of full losses of three segments"
+msgstr "三个客群的平均 LGD、零损失占比和全额损失占比"
+
+#, python-format
+msgid ""
+"Secured loans lose 10% on average and sometimes nothing, while unsecured and revolving loans lose"
+" about 70% and often everything."
+msgstr "有担保贷款平均损失 10%，有时一分不损失，而无担保和循环贷款平均损失约 70%，且常常全部损失。"
+
+msgid ""
+"All three bars share one percent axis. :func:`~kivi.lgd.lgd_table` floors the LGDs at 0 by "
+"default, so the axis reaches below 0 only for ``floor=None``, and above 100% when the mean of a "
+"group does."
+msgstr "三根柱共用一条百分比坐标轴。 :func:`~kivi.lgd.lgd_table` 默认把 LGD 下限设为 0，因此只有 ``floor=None`` 时坐标轴才会低于 0；某组的均值高于 100% 时，坐标轴也会高于 100%。"
+
 msgid ""
 "A special value keeps the group that :func:`~kivi.binning.cut` gave it, and the chart labels it "
 "with its code. For ``pdays``, where -1 means that the customer was not contacted before:"
@@ -29198,11 +29521,11 @@ msgid ""
 "The group of missing values is labeled ``NaN``, as in the worked example. A missing value in a "
 "column, such as the ``gini`` of a month without known outcomes or a month on book that a cohort "
 "has not reached, leaves a gap in a line and no bar. A cut-off that approves nothing has a missing"
-" ``approved_event_rate`` and no point on the curve of :func:`~kivi.plotting.cutoff_chart`."
-msgstr ""
-"与计算示例中一样，缺失值分组标为 ``NaN`` 。列中的缺失值（例如没有已知结果的月份的 ``gini`` "
-"，或某个批次尚未到达的账龄月）会在折线上留下缺口，也不画柱形。不通过任何申请人的截断点，其 ``approved_event_rate`` 缺失，在 "
-":func:`~kivi.plotting.cutoff_chart` 的曲线上没有对应的点。"
+" ``approved_event_rate`` and no point on the curve of :func:`~kivi.plotting.cutoff_chart`. "
+"Periods of a survival table after the last one with accounts at risk have no value and end the "
+"curves of :func:`~kivi.plotting.survival_chart`, and :func:`~kivi.plotting.transition_chart` "
+"leaves a missing cell empty."
+msgstr "与计算示例中一样，缺失值分组标为 ``NaN`` 。列中的缺失值（例如没有已知结果的月份的 ``gini`` ，或某个批次尚未到达的账龄月）会在折线上留下缺口，也不画柱形。不通过任何申请人的截断点，其 ``approved_event_rate`` 缺失，在 :func:`~kivi.plotting.cutoff_chart` 的曲线上没有对应的点。生存表中最后一个有账户处于风险中的期数之后没有取值，会使 :func:`~kivi.plotting.survival_chart` 的曲线到此为止， :func:`~kivi.plotting.transition_chart` 则把缺失的单元格留空。"
 
 msgid ""
 "The charts draw a table as it is. They have no ``weights`` argument: draw a table computed with "
@@ -29216,6 +29539,12 @@ msgstr "新图形的尺寸、颜色和标签由函数决定，函数也不转发
 
 msgid "A chart has no title, so that it fits a report in any language. Add one with ``ax.set_title``."
 msgstr "图表不带标题，以便适用于任何语言的报告。可以用 ``ax.set_title`` 添加标题。"
+
+msgid ""
+":func:`~kivi.plotting.profit_chart` marks the best of the cut-offs of the table, not the best "
+"cut-off of the score, and :func:`~kivi.plotting.transition_chart` draws a matrix, not the Series "
+"of :func:`~kivi.vintage.roll_rates`."
+msgstr ":func:`~kivi.plotting.profit_chart` 标出的是表中截断点里最好的一个，而不是评分的最优截断点； :func:`~kivi.plotting.transition_chart` 画的是矩阵，而不是 :func:`~kivi.vintage.roll_rates` 的 Series。"
 
 msgid ""
 ":func:`~kivi.plotting.monitoring_chart` draws one column per call, and "
@@ -32937,9 +33266,6 @@ msgstr "贷款每个月最多再恶化一个档位，因此四个月内从正常
 
 msgid "Balance roll rates weight each loan by its balance at the first month end, as loss forecasts do:"
 msgstr "余额滚动率按第一个月末的余额给每笔贷款加权，这也是损失预测的做法："
-
-msgid "Transition matrices"
-msgstr "转移矩阵"
 
 msgid ""
 ":func:`~kivi.vintage.transition_matrix` shows all the movements, not only the roll to the next "

@@ -1,7 +1,7 @@
 Charts
 ======
 
-A risk report shows its tables as charts: the event rate of each bin, the ROC curve of a score, the shares that moved since development. :mod:`kivi.plotting` draws the result tables of the other modules with matplotlib, one function per table: :func:`~kivi.plotting.woe_chart` for a WOE table, :func:`~kivi.plotting.correlation_chart` for a correlation matrix, :func:`~kivi.plotting.roc_chart` and :func:`~kivi.plotting.precision_recall_chart` for a ROC table, :func:`~kivi.plotting.gains_chart` for a gains table, :func:`~kivi.plotting.distribution_chart` for the events and non-events of a gains or WOE table, :func:`~kivi.plotting.calibration_chart` for a calibration table, :func:`~kivi.plotting.cutoff_chart` for a cut-off table, :func:`~kivi.plotting.psi_chart` for a PSI table, :func:`~kivi.plotting.monitoring_chart` for a monitoring report and :func:`~kivi.plotting.vintage_chart` for a vintage table.
+A risk report shows its tables as charts: the event rate of each bin, the ROC curve of a score, the shares that moved since development. :mod:`kivi.plotting` draws the result tables of the other modules with matplotlib, one function per table: :func:`~kivi.plotting.woe_chart` for a WOE table, :func:`~kivi.plotting.correlation_chart` for a correlation matrix, :func:`~kivi.plotting.roc_chart` and :func:`~kivi.plotting.precision_recall_chart` for a ROC table, :func:`~kivi.plotting.gains_chart` for a gains table, :func:`~kivi.plotting.distribution_chart` for the events and non-events of a gains or WOE table, :func:`~kivi.plotting.calibration_chart` for a calibration table, :func:`~kivi.plotting.cutoff_chart` for a cut-off table, :func:`~kivi.plotting.psi_chart` for a PSI table, :func:`~kivi.plotting.monitoring_chart` for a monitoring report and :func:`~kivi.plotting.vintage_chart` for a vintage table, :func:`~kivi.plotting.survival_chart` for a survival table, :func:`~kivi.plotting.transition_chart` for a transition matrix, :func:`~kivi.plotting.rule_set_chart` for a rule set table, :func:`~kivi.plotting.profit_chart` for a cut-off table with revenue and loss and :func:`~kivi.plotting.lgd_chart` for an LGD table.
 
 The charts draw the tables of the earlier guides, from :doc:`woe_iv` to :doc:`vintage`, so this page comes last in the user guide, after :doc:`lifetime`.
 
@@ -488,6 +488,219 @@ Vintage curves
 
 A cohort whose curve rises above those of the cohorts before it is worth a closer look. The function takes any table of the same shape, such as the cumulative PDs of :func:`~kivi.lifetime.convert_pd`.
 
+Survival curves
+---------------
+
+:func:`~kivi.plotting.survival_chart` draws the ``cumulative_pd`` of a :func:`~kivi.lifetime.survival_table` as steps from period 0, or the ``survival`` with ``column="survival"``. In a loan book with early repayments, a loan that repays leaves the risk set without defaulting, which is a competing risk. The curve of ``cumulative_pd`` is then the cumulative incidence of 90+ days past due, and the chart adds the cumulative incidence of repayment:
+
+>>> import pandas as pd
+>>> from kivi.lifetime import survival_table
+>>> from kivi.plotting import survival_chart
+>>> panel = make_loan_panel(rng=0, prepayment=0.01).sort_values(["loan_id", "month_on_book"])
+>>> last = panel.groupby("loan_id").tail(1).set_index("loan_id")
+>>> first = panel[panel["status"] == "90+"].groupby("loan_id")["month_on_book"].min()
+>>> duration = last["month_on_book"].copy()
+>>> duration[first.index] = first
+>>> event = pd.Series(0, index=duration.index)
+>>> event[first.index] = 1
+>>> repaid = (
+...     (last["balance"] == 0) & (last["month_on_book"] < last["term"]) & (event == 0)
+... ).astype(int)
+>>> table = survival_table(duration, event, competing=repaid)
+>>> ax = survival_chart(table)
+>>> [line.get_label() for line in ax.get_lines()]
+['cumulative_pd', 'competing']
+>>> [round(float(line.get_ydata()[-1]), 3) for line in ax.get_lines()]
+[0.076, 0.19]
+
+.. plot::
+   :context: close-figs
+   :alt: Cumulative incidence of 90+ days past due and of early repayment by month on book
+   :caption: After 24 months 7.6% of the loans have reached 90+ days past due and 19% have repaid early.
+
+   import pandas as pd
+   from kivi.datasets import make_loan_panel
+   from kivi.lifetime import survival_table
+   from kivi.plotting import survival_chart
+   panel = make_loan_panel(rng=0, prepayment=0.01).sort_values(["loan_id", "month_on_book"])
+   last = panel.groupby("loan_id").tail(1).set_index("loan_id")
+   first = panel[panel["status"] == "90+"].groupby("loan_id")["month_on_book"].min()
+   duration = last["month_on_book"].copy()
+   duration[first.index] = first
+   event = pd.Series(0, index=duration.index)
+   event[first.index] = 1
+   repaid = (
+       (last["balance"] == 0) & (last["month_on_book"] < last["term"]) & (event == 0)
+   ).astype(int)
+   survival_chart(survival_table(duration, event, competing=repaid))
+
+Each curve is a step function, because the estimate changes only at the periods where something happens. Without ``competing`` the chart has one curve, and ``column="survival"`` always draws one: the share of loans that have neither defaulted nor repaid.
+
+Transition matrices
+-------------------
+
+:func:`~kivi.plotting.transition_chart` draws the :func:`~kivi.vintage.transition_matrix` of two consecutive month ends, the states before in the rows and the states after in the columns. A cell is written with its count, or its share for a matrix computed with ``normalize=True``, and shaded by the share of its row, so that the shade shows where each state goes whatever the sizes of the states. The diagonal, the entities that stayed, is outlined in amber:
+
+>>> from kivi.plotting import transition_chart
+>>> from kivi.vintage import transition_matrix
+>>> status = panel["status"]
+>>> after = panel.groupby("loan_id")["status"].shift(-1)
+>>> known = after.notna()
+>>> states = ["current", "1-29", "30-59", "60-89", "90+"]
+>>> matrix = transition_matrix(status[known], after[known], states=states)
+>>> ax = transition_chart(matrix)
+>>> [text.get_text() for text in ax.texts][:5]
+['45779', '1068', '0', '0', '0']
+
+.. plot::
+   :context: close-figs
+   :alt: Heatmap of the transitions between delinquency buckets from one month end to the next
+   :caption: Most loans stay current, and from the bucket 90+ none of them returns.
+
+   from kivi.datasets import make_loan_panel
+   from kivi.plotting import transition_chart
+   from kivi.vintage import transition_matrix
+   panel = make_loan_panel(rng=0, prepayment=0.01).sort_values(["loan_id", "month_on_book"])
+   after = panel.groupby("loan_id")["status"].shift(-1)
+   known = after.notna()
+   states = ["current", "1-29", "30-59", "60-89", "90+"]
+   transition_chart(transition_matrix(panel["status"][known], after[known], states=states))
+
+The chart draws a matrix of counts or of shares alike. The roll rates of :func:`~kivi.vintage.roll_rates` are the shares of each row above the diagonal, which the same chart shows for ``transition_matrix(..., normalize=True)``.
+
+Rule sets
+---------
+
+:func:`~kivi.plotting.rule_set_chart` draws a :func:`~kivi.rules.rule_set_table`, the rules applied one after the other. The bars show the ``new_hits`` of each rule, the applicants that it declines and no earlier rule declined, and the line the ``approval_rate`` that is left after it:
+
+>>> from kivi.plotting import rule_set_chart
+>>> from kivi.rules import rule_set_table
+>>> applications = make_applications(n_applicants=40000, rng=0)
+>>> flags = pd.DataFrame(
+...     {
+...         "high_debt": applications["debt_to_income"] >= 0.5,
+...         "young": applications["age"] < 25,
+...         "many_inquiries": applications["inquiries"] >= 4,
+...     }
+... )
+>>> table = rule_set_table(flags, applications["target"])
+>>> bars, line = rule_set_chart(table)
+>>> [int(bar.get_height()) for bar in bars.patches]
+[4512, 2785, 797]
+>>> line.get_lines()[0].get_ydata().round(3).tolist()
+[0.887, 0.818, 0.798]
+
+.. plot::
+   :context: close-figs
+   :alt: Bars of the applicants declined by each of three rules, with the approval rate after each rule
+   :caption: The first rule declines 4,512 applicants and the third only 797, with the approval rate falling from 88.7% to 79.8%.
+
+   import pandas as pd
+   from kivi.datasets import make_applications
+   from kivi.plotting import rule_set_chart
+   from kivi.rules import rule_set_table
+   applications = make_applications(n_applicants=40000, rng=0)
+   flags = pd.DataFrame(
+       {
+           "high_debt": applications["debt_to_income"] >= 0.5,
+           "young": applications["age"] < 25,
+           "many_inquiries": applications["inquiries"] >= 4,
+       }
+   )
+   rule_set_chart(rule_set_table(flags, applications["target"]))
+
+The order of the rules decides the bars, since an applicant who hits two rules counts for the first, but it does not change the last approval rate. Like :func:`~kivi.plotting.woe_chart`, the function returns the Axes of the bars and that of the line.
+
+Profit by cut-off
+-----------------
+
+A :func:`~kivi.strategy.cutoff_table` computed with ``loss`` and ``revenue`` has a ``profit`` column. :func:`~kivi.plotting.profit_chart` draws it against the ``approval_rate`` and marks the cut-off with the highest profit, which :func:`~kivi.plotting.cutoff_chart` cannot show, since it draws the event rate. Here every approved applicant brings a revenue of 600 and every event a loss of 5,000:
+
+>>> from kivi.plotting import profit_chart
+>>> from kivi.strategy import cutoff_table
+>>> table = cutoff_table(
+...     applications["incumbent_pd"],
+...     applications["target"],
+...     cutoffs=20,
+...     loss=5000.0 * applications["target"],
+...     revenue=pd.Series(600.0, index=applications.index),
+... )
+>>> ax = profit_chart(table)
+>>> ax.texts[0].get_text()
+'cutoff = 0.0962, profit = 4,261,600'
+
+.. plot::
+   :context: close-figs
+   :alt: Profit against the approval rate with the highest profit marked
+   :caption: Profit rises with the approval rate up to 45% and falls after it, and approving the whole book makes a loss.
+
+   import pandas as pd
+   from kivi.datasets import make_applications
+   from kivi.plotting import profit_chart
+   from kivi.strategy import cutoff_table
+   applications = make_applications(n_applicants=40000, rng=0)
+   table = cutoff_table(
+       applications["incumbent_pd"],
+       applications["target"],
+       cutoffs=20,
+       loss=5000.0 * applications["target"],
+       revenue=pd.Series(600.0, index=applications.index),
+   )
+   profit_chart(table)
+
+The marked point is the first row with the largest profit, and the dotted line marks zero profit. The cut-offs are those of the table, so the maximum is the best of them; a finer ``cutoffs`` locates it more closely.
+
+LGD by group
+------------
+
+:func:`~kivi.plotting.lgd_chart` draws a :func:`~kivi.lgd.lgd_table` with three bars for each group: the ``mean`` LGD, and the ``zero_share`` and the ``full_share`` of the loans that lost nothing and everything. The mean hides that realized LGDs are bimodal, which the two shares show. The workouts of the simulated defaults that have closed, with their recoveries and costs discounted at the rate of each default, give:
+
+>>> from kivi.datasets import make_defaults, make_recoveries
+>>> from kivi.lgd import lgd_table, workout_lgd
+>>> from kivi.plotting import lgd_chart
+>>> defaults = make_defaults(rng=0)
+>>> flows = make_recoveries(defaults, rng=0)
+>>> closed = defaults[defaults["closing_date"].notna()].set_index("loan_id")
+>>> flows = flows[flows["loan_id"].isin(closed.index)]
+>>> workouts = workout_lgd(
+...     closed.index.to_series(),
+...     closed["default_date"],
+...     closed["ead"],
+...     flows["loan_id"],
+...     flows["date"],
+...     flows["amount"],
+...     rate=closed["discount_rate"],
+... )
+>>> table = lgd_table(closed["segment"], workouts["lgd"])
+>>> ax = lgd_chart(table)
+>>> [round(float(bar.get_height()), 3) for bar in ax.patches[:3]]
+[0.096, 0.777, 0.685]
+
+.. plot::
+   :context: close-figs
+   :alt: Mean LGD, share of zero losses and share of full losses of three segments
+   :caption: Secured loans lose 10% on average and sometimes nothing, while unsecured and revolving loans lose about 70% and often everything.
+
+   from kivi.datasets import make_defaults, make_recoveries
+   from kivi.lgd import lgd_table, workout_lgd
+   from kivi.plotting import lgd_chart
+   defaults = make_defaults(rng=0)
+   flows = make_recoveries(defaults, rng=0)
+   closed = defaults[defaults["closing_date"].notna()].set_index("loan_id")
+   flows = flows[flows["loan_id"].isin(closed.index)]
+   workouts = workout_lgd(
+       closed.index.to_series(),
+       closed["default_date"],
+       closed["ead"],
+       flows["loan_id"],
+       flows["date"],
+       flows["amount"],
+       rate=closed["discount_rate"],
+   )
+   lgd_chart(lgd_table(closed["segment"], workouts["lgd"]))
+
+All three bars share one percent axis. :func:`~kivi.lgd.lgd_table` floors the LGDs at 0 by default, so the axis reaches below 0 only for ``floor=None``, and above 100% when the mean of a group does.
+
 Special values
 --------------
 
@@ -503,7 +716,7 @@ The bar of ``-1`` holds 82.5% of the sample. Charts do not reorder groups, so th
 Missing values
 --------------
 
-The group of missing values is labeled ``NaN``, as in the worked example. A missing value in a column, such as the ``gini`` of a month without known outcomes or a month on book that a cohort has not reached, leaves a gap in a line and no bar. A cut-off that approves nothing has a missing ``approved_event_rate`` and no point on the curve of :func:`~kivi.plotting.cutoff_chart`.
+The group of missing values is labeled ``NaN``, as in the worked example. A missing value in a column, such as the ``gini`` of a month without known outcomes or a month on book that a cohort has not reached, leaves a gap in a line and no bar. A cut-off that approves nothing has a missing ``approved_event_rate`` and no point on the curve of :func:`~kivi.plotting.cutoff_chart`. Periods of a survival table after the last one with accounts at risk have no value and end the curves of :func:`~kivi.plotting.survival_chart`, and :func:`~kivi.plotting.transition_chart` leaves a missing cell empty.
 
 Limits
 ------
@@ -511,6 +724,7 @@ Limits
 * The charts draw a table as it is. They have no ``weights`` argument: draw a table computed with weights to show weighted shares and rates.
 * The functions choose the size of a new figure, the colors and the labels, and pass no other matplotlib properties through; change them on the returned Axes.
 * A chart has no title, so that it fits a report in any language. Add one with ``ax.set_title``.
+* :func:`~kivi.plotting.profit_chart` marks the best of the cut-offs of the table, not the best cut-off of the score, and :func:`~kivi.plotting.transition_chart` draws a matrix, not the Series of :func:`~kivi.vintage.roll_rates`.
 * :func:`~kivi.plotting.monitoring_chart` draws one column per call, and :func:`~kivi.plotting.correlation_chart` one matrix without a color bar; add one with ``figure.colorbar(ax.images[0], ax=ax)``.
 * The charts are static matplotlib figures, not interactive ones.
 
