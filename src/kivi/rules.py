@@ -15,6 +15,7 @@ outcomes and events, as in ``kivi.strategy.swap_set``.
 """
 
 import typing
+import warnings
 from collections import abc
 
 import numpy as np
@@ -87,8 +88,8 @@ def rule_candidates(
         One row per candidate rule, indexed by a name such as
         ``"age <= 25.0"`` in an index named ``rule``. The columns are
         ``variable``, ``operator`` (``">"`` or ``"<="``), ``threshold``,
-        ``hits``, ``hit_rate``, ``event``, ``event_rate`` and ``lift``; see
-        the Notes. The table is empty when no rule qualifies.
+        ``hits``, ``hit_rate``, ``known``, ``event``, ``event_rate`` and
+        ``lift``; see the Notes. The table is empty when no rule qualifies.
 
     Raises
     ------
@@ -105,8 +106,14 @@ def rule_candidates(
         label, a Series argument has an index other than that of `frame`,
         `weights` is not numeric or does not give each row one finite,
         non-negative weight with a positive total, or the fitted rows of a
-        column (known, observed, not special, with a positive weight) lack
-        an event or a non-event.
+        column named in `columns` (known, observed, not special, with a
+        positive weight) lack an event or a non-event.
+
+    Warns
+    -----
+    UserWarning
+        If a column found by default (`columns` is None) has no fitted rows
+        of both classes; the column is skipped.
 
     See Also
     --------
@@ -119,19 +126,31 @@ def rule_candidates(
     -----
     A candidate is a rule that hits the rows with a searched value above
     (``">"``) or at or below (``"<="``) its ``threshold``. Missing values
-    and special codes hit neither side. The columns are those of
-    `rule_table` for the boolean column ``frame[variable] > threshold`` (or
-    ``<=``), so ``hits``, ``hit_rate``, ``event``, ``event_rate`` and
-    ``lift`` are exactly what `rule_table` reports for it, with the same
-    weights: ``lift`` is the event rate of the hits divided by the event
-    rate of all rows with a known outcome, also those with a missing or
-    special value. A rule with no hit with a known outcome has no event rate
-    and is never kept.
+    and special codes hit neither side. The columns are a subset of those of
+    `rule_table`, in its order, and they are exactly what `rule_table`
+    reports, with the same weights, for the rule written as the boolean
+    column ``((frame[variable] > threshold) & ~frame[variable].isin(codes))
+    .fillna(False)`` (or ``<=``), where ``codes`` are the special codes of
+    the column. Without the exclusion of the codes a special code on the
+    chosen side would count as a hit. ``lift`` is the event rate of the hits
+    divided by the event rate of all rows with a known outcome, also those
+    with a missing or special value, and ``event / known`` is ``event_rate``.
+    A rule with no hit with a known outcome has no event rate and is never
+    kept.
+
+    The cut points are fit with ``min_bin_share=min(min_hit_rate, 0.5)``, so
+    a bin of the fit may be as small as the smallest rule that is accepted,
+    and a risky tail smaller than the default 5% of `kivi.binning` can be
+    found.
 
     Of the two sides of a threshold the one with the higher ``event_rate``
     is kept, ``>`` when they are equal. The rules are sorted by ``lift`` from
     highest to lowest, with ties in the order of the columns and then of the
     thresholds.
+
+    A column of `frame` without both classes among its fitted rows is
+    skipped with a warning when `columns` is None, unless no column is left,
+    and raises when it is named in `columns`.
 
     The thresholds and their event rates are found on the same rows, so they
     are optimistic: a rule that looks strong on the development sample tends
@@ -185,12 +204,12 @@ def rule_candidates(
             f"{_validation.shown_argument(min_lift)}"
         )
     _validation.shared_index({"frame": frame, "target": target, "weights": weights}, frames=True)
+    names = _validation.fitted_columns(frame, columns)
     if columns is None:
-        names = [name for name in frame.columns if _validation.is_binned_dtype(frame[name].dtype)]
+        names = [name for name in names if _validation.is_binned_dtype(frame[name].dtype)]
         if not names:
             raise ValueError("frame must have at least one numeric column to search")
     else:
-        names = _validation.fitted_columns(frame, columns)
         for name in names:
             if not _validation.is_binned_dtype(frame[name].dtype):
                 raise ValueError(
@@ -228,7 +247,12 @@ def rule_candidates(
     labels = pd.Series(event.astype(np.int64))
 
     fit = known if mass is None else known & (mass > 0)
-    fitted = {}
+    share = min(float(min_hit_rate), 0.5)
+    total = _total(np.ones(len(frame), dtype=bool), mass)
+    total_event = _total(event, mass)
+    overall = _counts.ratio(np.array([total_event]), np.array([_total(known, mass)]))[0]
+    variables, thresholds, operators, counts = [], [], [], []
+    skipped: list[str] = []
     for name in names:
         values = frame[name].reset_index(drop=True)
         _validation.check_finite_column(values, codes[name], name)
@@ -238,84 +262,84 @@ def rule_candidates(
                 _special.special_positions(values, _special.special_values(list(codes[name]))) < 0
             )
         rows = usable & fit
-        edges = _fit_edges(
-            method,
+        if not rows.any() or labels[rows].nunique() < 2:
+            message = (
+                f"target must contain both 0 and 1 where column {_validation.shown(name)} is "
+                "observed, not special and has a known outcome and a positive weight"
+            )
+            if columns is not None:
+                raise ValueError(message)
+            skipped.append(message)
+            continue
+        function = binning.tree_edges if method == "tree" else binning.ks_edges
+        edges = function(
             values[rows].astype(float),
             labels[rows],
-            max_bins,
-            None if mass is None else pd.Series(mass[rows], index=values.index[rows]),
-            name,
+            max_bins=max_bins,
+            min_bin_share=share,
+            weights=None if mass is None else pd.Series(mass[rows], index=values.index[rows]),
         )
-        fitted[name] = (values.to_numpy(dtype=float, na_value=np.nan), usable, edges[1:-1])
-
-    pairs = []  # (variable, threshold) in column order, then threshold order
-    sides: dict[str, npt.NDArray[np.bool_]] = {}
-    for name, (column, usable, interior) in fitted.items():
-        for threshold in interior:
-            pairs.append((name, float(threshold)))
+        column = values.to_numpy(dtype=float, na_value=np.nan)
+        for threshold in edges[1:-1]:
             with np.errstate(invalid="ignore"):
-                sides[f"{len(sides)}"] = usable & (column > threshold)
-                sides[f"{len(sides)}"] = usable & (column <= threshold)
-    if not pairs:
-        return _empty()
-    hits = pd.DataFrame(sides)
-    table = rule_table(hits, np.where(known, event.astype(float), np.nan), weights=mass)
-    rate = table["event_rate"].to_numpy()
-    upper = np.nan_to_num(rate[0::2], nan=-1.0)
-    lower = np.nan_to_num(rate[1::2], nan=-1.0)
-    use_lower = lower > upper
-    chosen = np.arange(len(pairs)) * 2 + use_lower
-    result = table.iloc[chosen][["hits", "hit_rate", "event", "event_rate", "lift"]].copy()
-    result.insert(0, "threshold", [threshold for _, threshold in pairs])
-    operators = np.where(use_lower, "<=", ">")
-    result.insert(0, "operator", operators)
-    result.insert(0, "variable", [name for name, _ in pairs])
-    result.index = pd.Index(
-        [
-            f"{name} {op} {threshold!r}"
-            for (name, threshold), op in zip(pairs, operators, strict=True)
-        ],
-        name="rule",
+                sides = (usable & (column > threshold), usable & (column <= threshold))
+            measured = []
+            for side in sides:
+                hit, known_hit = _total(side, mass), _total(side & known, mass)
+                event_hit = _total(side & event, mass)
+                measured.append(
+                    (
+                        hit,
+                        known_hit,
+                        event_hit,
+                        _counts.ratio(np.array([event_hit]), np.array([known_hit]))[0],
+                    )
+                )
+            # The riskier side, and ">" when the event rates are equal or unknown.
+            upper, lower = (-1.0 if np.isnan(m[3]) else m[3] for m in measured)
+            lower_side = lower > upper
+            variables.append(name)
+            thresholds.append(float(threshold))
+            operators.append("<=" if lower_side else ">")
+            counts.append(measured[int(lower_side)])
+    if skipped and len(skipped) == len(names):
+        raise ValueError(skipped[0])
+    for message in skipped:
+        warnings.warn(f"{message}; the column is skipped", UserWarning, stacklevel=2)
+    placeholder = not counts
+    if placeholder:
+        # One row of the right types, cut off at the end, so that an empty table has the dtypes
+        # of any other (pandas infers str for a non-empty array of text, not for an empty one).
+        variables, thresholds, operators = [""], [0.0], [">"]
+        counts = [(0, 0, 0, np.nan)]
+    hits = np.array([c[0] for c in counts], dtype=np.int64 if mass is None else np.float64)
+    known_hits = np.array([c[1] for c in counts], dtype=hits.dtype)
+    event_hits = np.array([c[2] for c in counts], dtype=hits.dtype)
+    rate = np.array([c[3] for c in counts], dtype=np.float64)
+    result = pd.DataFrame(
+        {
+            "variable": np.array(variables, dtype=object),
+            "operator": np.array(operators, dtype=object),
+            "threshold": np.array(thresholds, dtype=np.float64),
+            "hits": hits,
+            "hit_rate": hits / total,
+            "known": known_hits,
+            "event": event_hits,
+            "event_rate": rate,
+            "lift": _counts.ratio(rate, np.full(len(rate), overall)),
+        },
+        index=pd.Index(
+            [f"{v} {o} {t!r}" for v, o, t in zip(variables, operators, thresholds, strict=True)],
+            name="rule",
+            dtype=object,
+        ),
     )
+    if placeholder:
+        return result.iloc[:0]
     keep = (result["hit_rate"] >= min_hit_rate) & (result["lift"] >= min_lift)
     result = result[keep.to_numpy(dtype=bool)]
     order = np.argsort(-result["lift"].to_numpy(dtype=float), kind="stable")
     return result.iloc[order]
-
-
-def _fit_edges(
-    method: str,
-    values: pd.Series,
-    labels: pd.Series,
-    max_bins: int,
-    mass: pd.Series | None,
-    name: str,
-) -> npt.NDArray[np.float64]:
-    """Fit the edges of one column on its fitted rows, naming the column in an error."""
-    if not len(values) or labels.min() == labels.max():
-        raise ValueError(
-            f"target must contain both 0 and 1 where column {_validation.shown(name)} is "
-            "observed, not special and has a known outcome and a positive weight"
-        )
-    fit = binning.tree_edges if method == "tree" else binning.ks_edges
-    return fit(values, labels, max_bins=max_bins, weights=mass)
-
-
-def _empty() -> pd.DataFrame:
-    """Return the table of no candidate rules."""
-    return pd.DataFrame(
-        {
-            "variable": pd.Series([], dtype=object),
-            "operator": pd.Series([], dtype=object),
-            "threshold": pd.Series([], dtype=float),
-            "hits": pd.Series([], dtype=float),
-            "hit_rate": pd.Series([], dtype=float),
-            "event": pd.Series([], dtype=float),
-            "event_rate": pd.Series([], dtype=float),
-            "lift": pd.Series([], dtype=float),
-        },
-        index=pd.Index([], name="rule", dtype=object),
-    )
 
 
 def rule_table(

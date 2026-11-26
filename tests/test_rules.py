@@ -558,7 +558,17 @@ def candidate_data(seed=0, n=600):
     return frame, target
 
 
-COLUMNS = ["variable", "operator", "threshold", "hits", "hit_rate", "event", "event_rate", "lift"]
+COLUMNS = [
+    "variable",
+    "operator",
+    "threshold",
+    "hits",
+    "hit_rate",
+    "known",
+    "event",
+    "event_rate",
+    "lift",
+]
 
 
 def column_of(frame, row):
@@ -587,13 +597,13 @@ def test_rule_candidates_match_rule_table(method, weighted):
     for name, row in table.iterrows():
         rule = column_of(frame, row)
         if row["variable"] == "debt":
-            rule &= frame["debt"] != -1
+            rule = rule & ~frame["debt"].isin([-1])
         expected = rule_table(
             pd.DataFrame({"rule": rule.fillna(False)}),
             target,
             weights=weights if weighted else None,
         ).iloc[0]
-        for column in ["hits", "hit_rate", "event", "event_rate", "lift"]:
+        for column in ["hits", "hit_rate", "known", "event", "event_rate", "lift"]:
             assert row[column] == pytest.approx(expected[column], rel=1e-12)
         assert name == f"{row['variable']} {row['operator']} {row['threshold']!r}"
     assert table["lift"].is_monotonic_decreasing
@@ -613,8 +623,6 @@ def test_rule_candidates_pick_the_riskier_side_and_filter():
         assert row["event_rate"] >= rate or np.isnan(rate)
     strict = rule_candidates(frame, target, min_hit_rate=0.1, min_lift=1.5, special={"debt": [-1]})
     assert (strict["hit_rate"] >= 0.1).all() and (strict["lift"] >= 1.5).all()
-    assert set(strict.index) <= set(everything.index)
-    assert strict.index.equals(everything.loc[everything.index.isin(strict.index)].index)
 
 
 def test_rule_candidates_find_the_planted_thresholds():
@@ -717,3 +725,81 @@ def test_rule_candidates_reject_invalid_frames_and_targets():
         rule_candidates(frame, np.zeros(len(frame)))
     with pytest.raises(ValueError, match="infinite values"):
         rule_candidates(frame.assign(age=frame["age"].where(frame["age"] != 30, np.inf)), target)
+
+
+def test_rule_candidates_match_rule_table_on_nullable_columns():
+    frame, target = candidate_data()
+    frame = frame.astype({"age": "Float64", "debt": "Float64"})
+    table = rule_candidates(frame, target, special={"debt": [-1]}, min_hit_rate=0, min_lift=0)
+    assert len(table)
+    for _, row in table.iterrows():
+        values = frame[row["variable"]]
+        rule = values > row["threshold"] if row["operator"] == ">" else values <= row["threshold"]
+        if row["variable"] == "debt":
+            rule = rule & ~values.isin([-1])
+        expected = rule_table(pd.DataFrame({"r": rule.fillna(False).astype(bool)}), target).iloc[0]
+        assert row["hits"] == expected["hits"] and row["lift"] == pytest.approx(expected["lift"])
+        assert row["event"] / row["known"] == pytest.approx(row["event_rate"])
+
+
+def test_rule_candidates_find_rare_tails():
+    rng = np.random.default_rng(0)
+    x = rng.random(5000)
+    y = (rng.random(5000) < np.where(x > 0.98, 0.8, 0.05)).astype(int)
+    frame = pd.DataFrame({"x": x})
+    for method in ("tree", "ks"):
+        table = rule_candidates(frame, y, method=method, min_hit_rate=0.01, min_lift=2)
+        assert table.iloc[0]["operator"] == ">"
+        assert table.iloc[0]["hit_rate"] < 0.05
+        assert 0.9 < table.iloc[0]["threshold"] < 1.0
+
+
+def test_rule_candidates_skip_unusable_columns_with_a_warning():
+    frame, target = candidate_data()
+    frame["empty"] = np.nan
+    frame["one_class"] = np.where(target.fillna(0) == 1, frame["age"], np.nan)
+    with (
+        pytest.warns(UserWarning, match="'empty'.*skipped"),
+        pytest.warns(UserWarning, match="'one_class'.*skipped"),
+    ):
+        table = rule_candidates(frame, target, min_lift=0)
+    assert set(table["variable"]) == {"age", "debt"}
+    with pytest.raises(ValueError, match="both 0 and 1.*'empty'"):
+        rule_candidates(frame, target, columns=["empty"])
+
+
+def test_rule_candidates_column_names():
+    frame, target = candidate_data()
+    repeated = pd.concat([frame, frame[["age"]]], axis=1)
+    for columns in (None, ["age"]):
+        with pytest.raises(ValueError, match="more than one column named"):
+            rule_candidates(repeated, target, columns=columns)
+    numbered = frame[["age", "debt"]].set_axis([1, 2], axis=1)
+    with pytest.raises(ValueError, match="column names must be strings"):
+        rule_candidates(numbered, target)
+    with pytest.raises(ValueError, match="column names must be strings"):
+        rule_candidates(numbered, target, columns=[1])
+
+
+def test_rule_candidates_ties_and_empty_dtypes(monkeypatch):
+    # Both sides of the only cut have the same event rate: the rule is ">".
+    frame = pd.DataFrame({"x": [1.0, 1.0, 2.0, 2.0] * 10})
+    target = [0, 1, 0, 1] * 10
+    monkeypatch.setattr(
+        "kivi.binning.tree_edges", lambda *args, **kwargs: np.array([-np.inf, 1.5, np.inf])
+    )
+    table = rule_candidates(frame, target, min_lift=0)
+    monkeypatch.undo()
+    assert list(table["operator"]) == [">"] and table["lift"].iloc[0] == 1.0
+    # Equal lifts keep the order of the columns, then of the thresholds.
+    twin = pd.DataFrame({"b": [1.0, 2.0] * 20, "a": [1.0, 2.0] * 20})
+    ties = rule_candidates(twin, [0, 1] * 20, min_lift=0, max_bins=2)
+    assert list(ties["variable"]) == ["b", "a"]
+    # An empty result has the dtypes of a non-empty one.
+    frame, target = candidate_data()
+    full = rule_candidates(frame, target, min_hit_rate=0, min_lift=0)
+    empty = rule_candidates(frame, target, min_lift=100)
+    assert empty.empty and (empty.dtypes == full.dtypes).all()
+    assert empty.index.name == "rule"
+    nothing = rule_candidates(pd.DataFrame({"x": np.ones(50)}), [0, 1] * 25)
+    assert nothing.empty and (nothing.dtypes == full.dtypes).all()

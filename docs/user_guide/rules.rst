@@ -370,30 +370,35 @@ The rules above came from a policy. :func:`~kivi.rules.rule_candidates` proposes
 >>> candidates[["operator", "threshold", "hits", "hit_rate", "event_rate", "lift"]].round(3)
                       operator  threshold  hits  hit_rate  event_rate   lift
 rule
+inquiries > 3.0              >       3.00   136     0.023       0.412  2.529
 inquiries > 2.0              >       2.00   475     0.079       0.347  2.133
-debt_to_income > 0.57        >       0.57   327     0.054       0.318  1.953
+debt_to_income > 0.58        >       0.58   283     0.047       0.329  2.018
+income <= 1650.0            <=    1650.00   448     0.075       0.279  1.714
 income <= 1850.0            <=    1850.00   701     0.117       0.262  1.612
 inquiries > 1.0              >       1.00  1475     0.246       0.256  1.574
 debt_to_income > 0.42        >       0.42  1162     0.194       0.248  1.522
+income <= 1790.0            <=    1790.00   621     0.104       0.246  1.513
 
-Without ``columns`` every numeric column is searched, and categorical and boolean columns are skipped (naming one in ``columns`` raises an error). The columns of the table are those of :func:`~kivi.rules.rule_table`, and its ``hits``, ``hit_rate``, ``event``, ``event_rate`` and ``lift`` are exactly what :func:`~kivi.rules.rule_table` reports for the rule, also with ``weights``: the lift is the event rate of the hits divided by the event rate of all known outcomes. Several thresholds of one variable, such as ``inquiries > 2`` and ``inquiries > 1``, overlap and are alternatives, so choose one for each variable. A candidate becomes a rule when you write it as a column of booleans, which :func:`~kivi.rules.rule_table` and :func:`~kivi.rules.rule_set_table` take as they are:
+Without ``columns`` every numeric column is searched, and categorical and boolean columns are skipped (naming one in ``columns`` raises an error). The columns of the table are a subset of those of :func:`~kivi.rules.rule_table`, in its order, and its ``hits``, ``hit_rate``, ``known``, ``event``, ``event_rate`` and ``lift`` are exactly what :func:`~kivi.rules.rule_table` reports for the rule written as a column of booleans (below), also with ``weights``: the lift is the event rate of the hits divided by the event rate of all known outcomes. Several thresholds of one variable, such as ``inquiries > 2`` and ``inquiries > 1``, overlap and are alternatives, so choose one for each variable. A candidate becomes a rule when you write it as a column of booleans, which :func:`~kivi.rules.rule_table` and :func:`~kivi.rules.rule_set_table` take as they are:
 
->>> chosen = candidates.loc[["inquiries > 2.0", "debt_to_income > 0.57", "income <= 1850.0"]]
->>> def as_rules(frame, table):
-...     return pd.DataFrame({
-...         name: frame[row["variable"]].gt(row["threshold"])
-...         if row["operator"] == ">"
-...         else frame[row["variable"]].le(row["threshold"])
-...         for name, row in table.iterrows()
-...     })
+>>> chosen = candidates.loc[["inquiries > 2.0", "debt_to_income > 0.58", "income <= 1850.0"]]
+>>> def as_rules(frame, table, special=None):
+...     special = special or {}
+...     rules = {}
+...     for name, row in table.iterrows():
+...         values = frame[row["variable"]]
+...         hit = values.gt(row["threshold"]) if row["operator"] == ">" else values.le(row["threshold"])
+...         # Special codes and missing values hit no threshold rule.
+...         rules[name] = (hit & ~values.isin(special.get(row["variable"], []))).fillna(False)
+...     return pd.DataFrame(rules)
 >>> rule_set_table(as_rules(development, chosen), development["target"])[
 ...     ["new_hits", "new_event", "approved", "approved_event_rate"]
 ... ].round(3)
                        new_hits  new_event  approved  approved_event_rate
 rule
 inquiries > 2.0             475        165      5525                0.147
-debt_to_income > 0.57       299         87      5226                0.139
-income <= 1850.0            608        144      4618                0.126
+debt_to_income > 0.58       259         77      5266                0.140
+income <= 1850.0            611        145      4655                0.127
 
 The thresholds and their event rates come from the same applicants, so they are optimistic, as the IV of supervised bins is. Measure the chosen rules again on applicants that the search did not see:
 
@@ -405,13 +410,13 @@ The thresholds and their event rates come from the same applicants, so they are 
 ...     axis=1,
 ... )[[("development", "event_rate"), ("validation", "event_rate")]].round(3)
                       development validation
-                       event_rate  event_rate
+                       event_rate event_rate
 rule
-inquiries > 2.0             0.347       0.296
-debt_to_income > 0.57       0.318       0.323
-income <= 1850.0            0.262       0.256
+inquiries > 2.0             0.347      0.296
+debt_to_income > 0.58       0.329      0.341
+income <= 1850.0            0.262      0.256
 
-The ``inquiries`` rule falls from 34.7% to 29.6%, while the other two hold. The shrinkage is part of the price of a search, so judge a rule by its validation event rate, not by its lift in the development sample.
+The ``inquiries`` rule falls from 34.7% to 29.6%, while ``debt_to_income`` holds and ``income`` is nearly unchanged. The shrinkage is part of the price of a search, so judge a rule by its validation event rate, not by its lift in the development sample.
 
 Missing values and special codes hit no threshold rule, and the search leaves them out of the fit. ``special`` names the codes of each column, as :func:`~kivi.spec.fit_spec` does. To decline or flag a special code, write it as a rule of its own and measure it with :func:`~kivi.rules.rule_table`, whose lift shows whether it is risky. Here every twentieth income is replaced by the code ``-1``:
 
@@ -423,9 +428,9 @@ Missing values and special codes hit no threshold rule, and the search leaves th
                   operator  threshold  hits   lift
 rule
 income <= 1640.0        <=     1640.0   419  1.715
+income <= 1850.0        <=     1850.0   673  1.597
+income <= 1750.0        <=     1750.0   545  1.499
 income <= 2420.0        <=     2420.0  1569  1.366
-income <= 2740.0        <=     2740.0  2097  1.251
-income <= 3000.0        <=     3000.0  2517  1.232
 >>> rule_table(pd.DataFrame({"income_unknown": coded["income"] == -1}), coded["target"])[
 ...     ["hits", "event_rate", "lift"]
 ... ].round(3)
@@ -433,7 +438,15 @@ income <= 3000.0        <=     3000.0  2517  1.232
 rule
 income_unknown   300       0.133  0.819
 
-None of the thresholds hits the 300 coded applicants, who default at 13.3%, less often than the sample (a lift of 0.82), so they need no rule.
+None of the thresholds hits the 300 coded applicants, who default at 13.3%, less often than the sample (a lift of 0.82), so they need no rule. Written with the exclusion of the codes, as ``as_rules`` does, the candidates have the counts of the table:
+
+>>> measured = rule_table(as_rules(coded, found, {"income": [-1]}), coded["target"])
+>>> measured["hits"].equals(found["hits"]) and np.allclose(measured["lift"], found["lift"])
+True
+
+Without the exclusion, ``income <= 1640`` would also hit the coded applicants, because ``-1`` is below the threshold.
+
+The cut points are fit with a smallest bin of ``min_hit_rate`` of the applicants, so the search can find a small risky tail, such as the 136 applicants (2.3%) with more than three inquiries in the table above, as well as a broad one.
 
 Limits
 ------
