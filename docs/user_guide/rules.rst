@@ -356,12 +356,91 @@ low_income           0.584     0.260     0.253
 
 Without the weights, the sample of 3,724 applicants overstates every event rate, because it keeps only a quarter of the non-events. The weighted rates differ from those of all applicants only by the sampling of the non-events.
 
+Searching for rules
+-------------------
+
+The rules above came from a policy. :func:`~kivi.rules.rule_candidates` proposes thresholds from the data, one variable at a time. For each numeric column it fits cut points with :func:`~kivi.binning.tree_edges` (or with :func:`~kivi.binning.ks_edges`, ``method="ks"``), takes each interior edge :math:`t` and keeps the side, ``> t`` or ``<= t``, whose hits default more often. It keeps the rules that hit at least ``min_hit_rate`` of the applicants and have at least ``min_lift``, and lists them from the highest lift down. The first 6,000 applications are the development sample here, and the last 4,000 the validation sample:
+
+>>> from kivi.rules import rule_candidates
+>>> development, validation = applications.iloc[:6000], applications.iloc[6000:]
+>>> columns = ["age", "income", "debt_to_income", "inquiries"]
+>>> candidates = rule_candidates(
+...     development, development["target"], columns=columns, min_lift=1.5
+... )
+>>> candidates[["operator", "threshold", "hits", "hit_rate", "event_rate", "lift"]].round(3)
+                      operator  threshold  hits  hit_rate  event_rate   lift
+rule
+inquiries > 2.0              >       2.00   475     0.079       0.347  2.133
+debt_to_income > 0.57        >       0.57   327     0.054       0.318  1.953
+income <= 1850.0            <=    1850.00   701     0.117       0.262  1.612
+inquiries > 1.0              >       1.00  1475     0.246       0.256  1.574
+debt_to_income > 0.42        >       0.42  1162     0.194       0.248  1.522
+
+Without ``columns`` every numeric column is searched, and categorical and boolean columns are skipped (naming one in ``columns`` raises an error). The columns of the table are those of :func:`~kivi.rules.rule_table`, and its ``hits``, ``hit_rate``, ``event``, ``event_rate`` and ``lift`` are exactly what :func:`~kivi.rules.rule_table` reports for the rule, also with ``weights``: the lift is the event rate of the hits divided by the event rate of all known outcomes. Several thresholds of one variable, such as ``inquiries > 2`` and ``inquiries > 1``, overlap and are alternatives, so choose one for each variable. A candidate becomes a rule when you write it as a column of booleans, which :func:`~kivi.rules.rule_table` and :func:`~kivi.rules.rule_set_table` take as they are:
+
+>>> chosen = candidates.loc[["inquiries > 2.0", "debt_to_income > 0.57", "income <= 1850.0"]]
+>>> def as_rules(frame, table):
+...     return pd.DataFrame({
+...         name: frame[row["variable"]].gt(row["threshold"])
+...         if row["operator"] == ">"
+...         else frame[row["variable"]].le(row["threshold"])
+...         for name, row in table.iterrows()
+...     })
+>>> rule_set_table(as_rules(development, chosen), development["target"])[
+...     ["new_hits", "new_event", "approved", "approved_event_rate"]
+... ].round(3)
+                       new_hits  new_event  approved  approved_event_rate
+rule
+inquiries > 2.0             475        165      5525                0.147
+debt_to_income > 0.57       299         87      5226                0.139
+income <= 1850.0            608        144      4618                0.126
+
+The thresholds and their event rates come from the same applicants, so they are optimistic, as the IV of supervised bins is. Measure the chosen rules again on applicants that the search did not see:
+
+>>> pd.concat(
+...     {
+...         "development": rule_table(as_rules(development, chosen), development["target"]),
+...         "validation": rule_table(as_rules(validation, chosen), validation["target"]),
+...     },
+...     axis=1,
+... )[[("development", "event_rate"), ("validation", "event_rate")]].round(3)
+                      development validation
+                       event_rate  event_rate
+rule
+inquiries > 2.0             0.347       0.296
+debt_to_income > 0.57       0.318       0.323
+income <= 1850.0            0.262       0.256
+
+The ``inquiries`` rule falls from 34.7% to 29.6%, while the other two hold. The shrinkage is part of the price of a search, so judge a rule by its validation event rate, not by its lift in the development sample.
+
+Missing values and special codes hit no threshold rule, and the search leaves them out of the fit. ``special`` names the codes of each column, as :func:`~kivi.spec.fit_spec` does. To decline or flag a special code, write it as a rule of its own and measure it with :func:`~kivi.rules.rule_table`, whose lift shows whether it is risky. Here every twentieth income is replaced by the code ``-1``:
+
+>>> coded = development.assign(income=development["income"].mask(np.arange(6000) % 20 == 0, -1))
+>>> found = rule_candidates(
+...     coded, coded["target"], columns=["income"], special={"income": [-1]}, min_lift=1.2
+... )
+>>> found[["operator", "threshold", "hits", "lift"]].round(3)
+                  operator  threshold  hits   lift
+rule
+income <= 1640.0        <=     1640.0   419  1.715
+income <= 2420.0        <=     2420.0  1569  1.366
+income <= 2740.0        <=     2740.0  2097  1.251
+income <= 3000.0        <=     3000.0  2517  1.232
+>>> rule_table(pd.DataFrame({"income_unknown": coded["income"] == -1}), coded["target"])[
+...     ["hits", "event_rate", "lift"]
+... ].round(3)
+                hits  event_rate   lift
+rule
+income_unknown   300       0.133  0.819
+
+None of the thresholds hits the 300 coded applicants, who default at 13.3%, less often than the sample (a lift of 0.82), so they need no rule.
+
 Limits
 ------
 
 * A rule in force declines every applicant it hits, so the outcomes it produces cannot measure it. Only a test group of applicants that are approved despite the rule, or :doc:`reject inference <reject_inference>`, gives its event rate.
 * The tables give no confidence intervals. With a few hundred known outcomes, an event rate is uncertain by several points, and the difference between two rules may be noise.
-* kivi evaluates the rules it is given and does not search for rules or thresholds. Compare candidate thresholds by passing one column for each.
+* :func:`~kivi.rules.rule_candidates` looks at one variable at a time and finds only single thresholds. It does not combine variables, and it does not search categorical columns, where a rule is a list of categories that you write yourself. Its candidates are found and measured on the same applicants, so they are optimistic: re-check them with :func:`~kivi.rules.rule_table` on a validation sample, as shown above, before putting them in the policy.
 * The new hits of a rule depend on the order of the set. Compare rules by their hits and unique hits, and use the waterfall for the decisions of one fixed order.
 
 Errors and warnings
