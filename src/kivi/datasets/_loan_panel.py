@@ -1,10 +1,12 @@
 """Seeded generator of a synthetic monthly panel of instalment loans."""
 
+import math
+
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from .. import _validation
+from .. import _stats, _validation
 
 STATUSES = ("current", "1-29", "30-59", "60-89", "90+")
 FIRST_COHORT = pd.Period("2024-01", freq="M")
@@ -28,9 +30,11 @@ def make_loan_panel(
     n_loans: int = 5000,
     n_months: int = 24,
     prepayment: float = 0.0,
+    correlation: float = 0.0,
+    factors: npt.ArrayLike | None = None,
     rng: int | np.random.Generator | None = None,
 ) -> pd.DataFrame:
-    """Generate a synthetic monthly panel of instalment loans.
+    r"""Generate a synthetic monthly panel of instalment loans.
 
     The loans are originated over `n_months` months and observed at the end
     of every month on book until the month after the last origination month.
@@ -50,6 +54,17 @@ def make_loan_panel(
         Monthly probability that a current loan repays its whole balance
         before its last instalment is due, from 0 to 1. The default, 0,
         gives no early repayments and the same panel as earlier releases.
+    correlation : float, default 0.0
+        Asset correlation of a systematic factor that moves the payments of
+        all loans together each month, from 0 to below 1, as in
+        `kivi.lifetime.conditional_matrix`. The default, 0, gives no
+        economic cycle and the same panel as earlier releases.
+    factors : array_like, optional
+        Value of the standard normal systematic factor in each of the
+        `n_months` months, from February 2024 on; positive values stand for
+        a better economy than on average. By default, with a positive
+        `correlation`, the factors are drawn from `rng`. Only with a
+        positive `correlation`.
     rng : {None, int, numpy.random.Generator}, optional
         Seed or generator passed to `numpy.random.default_rng`. The global
         NumPy random state is not used, so the same seed always returns the
@@ -65,14 +80,17 @@ def make_loan_panel(
     ------
     ValueError
         If `n_loans` or `n_months` is not a positive integer, `prepayment`
-        is not a number from 0 to 1, or `rng` is not a seed or generator that
-        `numpy.random.default_rng` accepts.
+        is not a number from 0 to 1, `correlation` is not a number from 0 to
+        below 1, `factors` is given without a positive `correlation` or does
+        not hold `n_months` finite numbers, or `rng` is not a seed or
+        generator that `numpy.random.default_rng` accepts.
 
     See Also
     --------
     kivi.vintage.vintage_table : Cumulative bad rates by cohort and month on book.
     kivi.vintage.transition_matrix : Movements between delinquency buckets.
     kivi.lifetime.survival_table : PD term structure with early repayments.
+    kivi.lifetime.matrix_correlation : The correlation of the factor, from the monthly movements.
     load_bank : Real data with a binary target.
 
     Notes
@@ -116,6 +134,25 @@ def make_loan_panel(
     all the others: with the same `rng`, every loan follows the same path as
     without `prepayment` until it repays early.
 
+    With `correlation`, the payments depend on a systematic factor
+    :math:`z` of each month. A loan that is not yet 90 days past due
+    misses its instalment, or fails to pay all of its arrears, with
+    probability :math:`w`, and rolls to the next bucket, paying nothing,
+    with probability :math:`v \le w`. Given the factor, each of them
+    becomes
+
+    .. math::
+
+       \Phi\!\left(\frac{\Phi^{-1}(w) - \sqrt{\rho}\,z}{\sqrt{1 - \rho}}\right),
+
+    the shift of `kivi.lifetime.conditional_matrix`, so averaged over the
+    factor every loan keeps its probabilities. The factor moves the misses
+    of current loans and the cures and rolls of delinquent ones together.
+    The factors drawn by default come after all the other random numbers,
+    also those of `prepayment`. The monthly movements of the whole panel
+    mix loans of different risk and age, so their matrix shifts with the
+    factor only approximately as `conditional_matrix` gives.
+
     Examples
     --------
     >>> from kivi.datasets import make_loan_panel
@@ -144,6 +181,14 @@ def make_loan_panel(
     >>> early = (last["balance"] == 0) & (last["month_on_book"] < last["term"])
     >>> int(early.sum()), int((last["status"] == "90+").sum())
     (962, 182)
+
+    In a year of bad months, more loans fall behind than in a year of good
+    ones:
+
+    >>> bad = make_loan_panel(n_months=12, correlation=0.05, factors=[-1.5] * 12, rng=0)
+    >>> good = make_loan_panel(n_months=12, correlation=0.05, factors=[1.5] * 12, rng=0)
+    >>> int((bad["status"] != "current").sum()), int((good["status"] != "current").sum())
+    (3790, 488)
     """
     n_loans = _validation.check_count(n_loans, "n_loans")
     n_months = _validation.check_count(n_months, "n_months")
@@ -156,6 +201,16 @@ def make_loan_panel(
             "prepayment must be a monthly probability from 0 to 1, got "
             f"{_validation.shown_argument(prepayment)}"
         )
+    if (
+        isinstance(correlation, (bool, np.bool_))
+        or not _validation.is_real(correlation)
+        or not 0 <= correlation < 1
+    ):
+        raise ValueError(
+            "correlation must be a number from 0 to below 1, got "
+            f"{_validation.shown_argument(correlation)}"
+        )
+    path = None if factors is None else _factor_path(factors, n_months, correlation)
     rng = _validation.as_generator(rng)
 
     cohort = np.sort(rng.integers(0, n_months, n_loans))
@@ -174,6 +229,8 @@ def make_loan_panel(
     # draws for early repayments come after all of them, so that they leave these unchanged.
     draws = rng.random((n_months, n_loans))
     early = rng.random((n_months, n_loans)) if prepayment > 0 else None
+    if path is None and correlation > 0:
+        path = rng.standard_normal(n_months)
     rows, months, paid_rows, missed_rows = [], [], [], []
     month: int | npt.NDArray[np.int_]
     for month in range(1, n_months + 1):
@@ -188,6 +245,10 @@ def make_loan_panel(
         late = np.clip(bucket - 1, 0, 2)
         cure = np.where(bucket == 0, 1 - miss, _CURE[late])
         stay = np.where(bucket == 0, 0.0, _STAY[late])
+        if path is not None:
+            cure, stay = _given_factor(
+                cure, stay, on_book & (bucket < 4), path[month - 1], correlation
+            )
         pays_all = on_book & (bucket < 4) & (draw < cure)
         pays_one = on_book & (bucket < 4) & ~pays_all & (draw < cure + stay)
         paid = np.where(pays_all, due, np.where(pays_one, np.minimum(paid + 1, due), paid))
@@ -227,3 +288,46 @@ def make_loan_panel(
             "status": pd.Categorical.from_codes(status, categories=STATUSES, ordered=True),  # type: ignore[call-overload]  # categories may be any list-like
         }
     )
+
+
+def _factor_path(
+    factors: npt.ArrayLike, n_months: int, correlation: float
+) -> npt.NDArray[np.float64]:
+    """Return the factors of the months as a float array."""
+    if not correlation > 0:
+        raise ValueError(
+            "factors must be given only with a positive correlation, got correlation "
+            f"{_validation.shown_argument(correlation)}"
+        )
+    path = _validation.as_real(factors, "factors")
+    if path.shape != (n_months,):
+        raise ValueError(
+            f"factors must hold one number for each of the {n_months} months, got shape "
+            f"{path.shape}"
+        )
+    invalid = ~np.isfinite(path)
+    if invalid.any():
+        raise ValueError(f"factors must be finite, got {_validation.shown(path[invalid][0])}")
+    return path
+
+
+def _given_factor(
+    cure: npt.NDArray[np.float64],
+    stay: npt.NDArray[np.float64],
+    shifted: npt.NDArray[np.bool_],
+    factor: float,
+    correlation: float,
+) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+    """Return the chances of paying all and of paying one instalment, given the factor."""
+    # The chances of not paying all and of paying nothing, the worse ends as in conditional_matrix.
+    worse = np.stack([1 - cure, 1 - cure - stay])[:, shifted]
+    quantile = np.full(worse.shape, -np.inf)
+    possible = worse > 0
+    quantile[possible] = _stats.normal_quantile(worse[possible])
+    given = _stats.normal_cdf(
+        (quantile - math.sqrt(correlation) * factor) / math.sqrt(1 - correlation)
+    )
+    cure, stay = cure.copy(), stay.copy()
+    cure[shifted] = 1 - given[0]
+    stay[shifted] = given[0] - given[1]
+    return cure, stay

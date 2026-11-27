@@ -3,7 +3,7 @@ Lifetime PD and expected credit loss
 
 IFRS 9 requires a lender to hold a loss allowance for the credit losses that it expects on its loans. While the credit risk of a loan has not increased significantly since it was granted, the allowance covers the losses from defaults in the next 12 months; once it has, and once the loan is in default, it covers the losses over the remaining life of the loan. Both need the probability of a default in each period after the reporting date, a PD term structure, rather than the single 12-month PD of a scorecard.
 
-The term structures come from the vintage curves and the transition matrices of :doc:`vintage`, or from the durations of the loans until they default, repay or are last observed, and the loss allowance is the last step of this user guide. :func:`~kivi.lifetime.convert_pd` converts a term structure between cumulative, marginal and conditional PDs, :func:`~kivi.lifetime.transition_pd` projects one from a transition matrix, :func:`~kivi.lifetime.survival_table` estimates one from loans that are censored, repaid early or observed only from some age on, :func:`~kivi.lifetime.expected_credit_loss` gives the 12-month and the lifetime expected credit loss of each account, :func:`~kivi.lifetime.significant_increase` and :func:`~kivi.lifetime.assign_stages` allocate the accounts to the three stages, and :func:`~kivi.lifetime.stage_table` sums the loss allowance of each stage.
+The term structures come from the vintage curves and the transition matrices of :doc:`vintage`, or from the durations of the loans until they default, repay or are last observed, and the loss allowance is the last step of this user guide. :func:`~kivi.lifetime.convert_pd` converts a term structure between cumulative, marginal and conditional PDs, :func:`~kivi.lifetime.transition_pd` projects one from a transition matrix, :func:`~kivi.lifetime.conditional_matrix` shifts a transition matrix to the economy of a scenario, :func:`~kivi.lifetime.matrix_factor` and :func:`~kivi.lifetime.matrix_correlation` estimate its factor and correlation from observed movements, :func:`~kivi.lifetime.survival_table` estimates one from loans that are censored, repaid early or observed only from some age on, :func:`~kivi.lifetime.expected_credit_loss` gives the 12-month and the lifetime expected credit loss of each account, :func:`~kivi.lifetime.significant_increase` and :func:`~kivi.lifetime.assign_stages` allocate the accounts to the three stages, and :func:`~kivi.lifetime.stage_table` sums the loss allowance of each stage.
 
 Definitions
 -----------
@@ -212,6 +212,137 @@ current    0.1440
 60-89      0.8869
 90+        1.0000
 dtype: float64
+
+The economy in a transition matrix
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The monthly matrix averages the movements over the months of the panel. In a bad month more loans miss an instalment and fewer cure, and in a good one the reverse. :func:`~kivi.lifetime.conditional_matrix` shifts the whole matrix with the one-factor model of Belkin, Suchower and Forest: the movements from each state follow a standard normal credit index, cut at thresholds that reproduce the row of the matrix, and the index of every loan shares a systematic factor :math:`z` with the asset correlation :math:`\rho`, as in :doc:`capital`. The states must be ordered from the best to the worst, as the delinquency buckets are here. With a correlation of 0.05 and a factor 1.5 standard deviations below its median:
+
+>>> from kivi.lifetime import conditional_matrix
+>>> downturn = conditional_matrix(monthly, correlation=0.05, factor=-1.5)
+>>> downturn.round(4)
+after    current    1-29   30-59   60-89     90+
+before
+current   0.9562  0.0438  0.0000  0.0000  0.0000
+1-29      0.3736  0.2093  0.4170  0.0000  0.0000
+30-59     0.1575  0.0000  0.1582  0.6843  0.0000
+60-89     0.0531  0.0000  0.0000  0.1264  0.8205
+90+       0.0000  0.0000  0.0000  0.0000  1.0000
+
+Nearly twice as many current loans miss an instalment as in ``monthly``, 4.38% against 2.27%, delinquent loans cure less often and roll more often, and the movements that the matrix rules out, such as skipping a bucket, stay impossible. The default column is the conditional PD of :func:`~kivi.capital.conditional_pd`: 0.8205 for a loan at 60 to 89 days past due, against 0.7118 in ``monthly``.
+
+A factor of 0 is the economy of the median month, not of the average one. The PDs rise faster in bad months than they fall in good ones, so the median month has fewer misses than ``monthly``, and only the average over the standard normal factor gives ``monthly`` back. With Gauss–Hermite quadrature over the factor:
+
+>>> nodes, weights = np.polynomial.hermite_e.hermegauss(40)
+>>> average = sum(
+...     w * conditional_matrix(monthly, correlation=0.05, factor=z) for z, w in zip(nodes, weights)
+... ) / weights.sum()
+>>> median = conditional_matrix(monthly, correlation=0.05, factor=0.0)
+>>> pd.DataFrame(
+...     {
+...         "monthly": monthly.loc["current"],
+...         "median": median.loc["current"],
+...         "average": average.loc["current"],
+...     }
+... ).round(4)
+         monthly  median  average
+after
+current   0.9773  0.9799   0.9773
+1-29      0.0227  0.0201   0.0227
+30-59     0.0000  0.0000   0.0000
+60-89     0.0000  0.0000   0.0000
+90+       0.0000  0.0000   0.0000
+
+The factor and the correlation belong to the period of the matrix, here a month. A path with a factor for each month multiplies the shifted matrices, and the default column of the product is the cumulative PD, as :func:`~kivi.lifetime.transition_pd` gives it for the powers of one matrix. Kept for a year, the downturn more than triples the 12-month PD of a current loan:
+
+>>> pd.DataFrame(
+...     {
+...         "monthly": transition_pd(monthly, horizons=12)[12],
+...         "downturn": transition_pd(downturn, horizons=12)[12],
+...     }
+... ).round(4)
+         monthly  downturn
+state
+current   0.0393    0.1345
+1-29      0.2420    0.4690
+30-59     0.6041    0.7902
+60-89     0.8731    0.9464
+90+       1.0000    1.0000
+
+The average over the factor gives ``monthly`` back for one month, and for twelve months when each month has a factor of its own. A factor kept for the whole year gives other PDs than the twelfth power of ``monthly``. Averaged over the standard normal factor:
+
+>>> kept = sum(
+...     w * transition_pd(conditional_matrix(monthly, correlation=0.05, factor=z), horizons=12)
+...     for z, w in zip(nodes, weights)
+... ) / weights.sum()
+>>> pd.DataFrame({"monthly": transition_pd(monthly, horizons=12)[12], "kept": kept[12]}).round(4)
+         monthly    kept
+state
+current   0.0393  0.0507
+1-29      0.2420  0.2584
+30-59     0.6041  0.6061
+60-89     0.8731  0.8701
+90+       1.0000  1.0000
+
+For a current loan, a bad year compounds the misses month after month, and the average rises from 3.93% to 5.07%. For a loan at 60 to 89 days past due, which defaults directly, it falls slightly, and with two states it always falls. The same factor in every month is a strong assumption about the economy.
+
+Factors from observed matrices
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+From the history of a portfolio, :func:`~kivi.lifetime.matrix_factor` estimates the factor of each month: the maximum-likelihood factor under which the shifted matrix explains the movements of the month best. :func:`~kivi.lifetime.matrix_correlation` estimates the correlation as Belkin, Suchower and Forest do, so that the factors of the months have a sample variance of 1, as the standard normal factor of the model has. The panel above has no economic cycle: its factors would follow the ageing of its young book, and their correlation would say nothing about the economy. :func:`~kivi.datasets.make_loan_panel` simulates a cycle with ``correlation`` and ``factors``. Here are five years of months with a correlation of 0.05 and known factors, and each row of ``moves`` is the move of a loan into a month, driven by the factor of that month:
+
+>>> from kivi.lifetime import matrix_correlation, matrix_factor
+>>> true_factors = np.random.default_rng(1).standard_normal(60)
+>>> cyclical = make_loan_panel(n_months=60, correlation=0.05, factors=true_factors, rng=0)
+>>> earlier = cyclical[["loan_id", "month_on_book", "status"]].assign(
+...     month_on_book=cyclical["month_on_book"] + 1
+... )
+>>> all_moves = cyclical.merge(earlier, on=["loan_id", "month_on_book"], suffixes=("", "_before"))
+>>> moves = all_moves[all_moves["month"] >= "2024-05"]
+
+The first months hold few loans, too young to fall behind: in March 2024 all 102 loans stayed current, which no finite factor explains best (see :ref:`lifetime-errors`), and in April 6 of 186 fell behind, which gives a finite factor, but one that rests on a handful of young loans. The example therefore starts in May. The long-run matrix pools the months, and each month gets its own count matrix:
+
+>>> long_run = transition_matrix(moves["status_before"], moves["status"], normalize=True)
+>>> counts = {
+...     month: transition_matrix(group["status_before"], group["status"], states=long_run.index)
+...     for month, group in moves.groupby("month")
+... }
+>>> correlation = matrix_correlation(counts, long_run)
+>>> print(f"{correlation:.4f}")
+0.0521
+>>> factors = pd.Series(
+...     {month: matrix_factor(c, long_run, correlation=correlation) for month, c in counts.items()}
+... )
+>>> factors.groupby(factors.index.year).mean().round(2)
+2024   -0.36
+2025   -0.24
+2026    0.20
+2027   -0.17
+2028    0.08
+2029    0.23
+dtype: float64
+
+The mean of the factors is not forced to 0. The factor absorbs every change that moves all rows together, also a change in the mix of the portfolio, such as its age: in 2024 most loans are near the peak of their seasoning, around their sixth month on book, and miss more instalments than the long-run matrix of all ages gives, so the factors of 2024 come out lower than the economy alone would make them. The long-run matrix and the monthly counts should therefore describe comparable loans, segmented by age or by product if need be. With a real history, a macroeconomic model of the user's own links the factors to forecasts of the economy. Another route estimates the correlation from a series of default rates with :func:`~kivi.capital.vasicek_fit` and the factors with :func:`~kivi.capital.systematic_factor`.
+
+.. admonition:: Simulation check
+   :class: kivi-check
+
+   The panel was simulated with the factors ``true_factors``, the first for February 2024:
+
+   >>> truth = pd.Series(true_factors, index=pd.period_range("2024-02", periods=60, freq="M"))
+   >>> truth = truth[factors.index]
+   >>> print(f"{np.corrcoef(factors, truth)[0, 1]:.2f}, {truth.var():.2f}")
+   0.89, 0.78
+   >>> pd.DataFrame({"estimated": factors, "true": truth}).groupby(factors.index.year).mean().round(2)
+         estimated  true
+   2024      -0.36  0.10
+   2025      -0.24 -0.04
+   2026       0.20 -0.04
+   2027      -0.17 -0.34
+   2028       0.08  0.01
+   2029       0.23 -0.31
+
+   The estimated factors follow the true ones closely, with a correlation of 0.89, while their yearly means drift with the age of the book, from below the true ones in 2024 to above them later. Because their variance is set to 1, the estimated correlation is about the true 0.05 times the sample variance of the true factors, 0.78 here; the binomial noise of a few thousand loans a month and the ageing of the book add to the variance of the estimates and raise it.
 
 Term structures from survival tables
 ------------------------------------
@@ -496,24 +627,24 @@ These are the first loans of each bucket with more than two years to run. The li
 Economic scenarios
 ^^^^^^^^^^^^^^^^^^
 
-IFRS 9 measures the ECL as an unbiased, probability-weighted amount over a range of possible outcomes that reflects forecasts of economic conditions (paragraphs 5.5.17 and B5.5.42). The PDs above are averages over the months of the panel. The one-factor model of :doc:`capital` shifts them to the economy of a scenario: :func:`~kivi.capital.conditional_pd` gives the PD of a period given the systematic factor :math:`z`, which is 0 in the median economy and negative in worse ones. The three scenarios below, with their factors and probabilities, and the asset correlation of 0.1 are assumptions of the example: a forecast sets the scenarios, and :func:`~kivi.capital.vasicek_fit` estimates the correlation from a history of default rates. Each scenario shifts the monthly conditional PDs of the states not in default, whose PDs of 0 stay 0, and the 90+ loans keep a PD of 1:
+IFRS 9 measures the ECL as an unbiased, probability-weighted amount over a range of possible outcomes that reflects forecasts of economic conditions (paragraphs 5.5.17 and B5.5.42). The PDs above come from ``monthly``, the average of the months of the panel. :func:`~kivi.lifetime.conditional_matrix` shifts it to the economy of a scenario, with the correlation estimated from the movements of the cyclical panel above. The three scenarios below, with their factors and probabilities, are assumptions of the example, where a forecast would set them. Each scenario keeps its factor for the first 12 months and then returns to ``monthly``, the long-run matrix, rather than to a factor of 0, the median economy. The 90+ row of ``monthly`` already stays in default, so the products keep the loans that reach 90+ there:
 
->>> from kivi.capital import conditional_pd
->>> hazard = convert_pd(cumulative, kind="cumulative", to="conditional").drop(index="90+")
 >>> scenarios = pd.DataFrame(
 ...     {"factor": [1.0, 0.0, -1.5], "weight": [0.25, 0.5, 0.25]},
 ...     index=pd.Index(["upside", "base", "downturn"], name="scenario"),
 ... )
 >>> results = {}
 >>> for scenario, factor in scenarios["factor"].items():
-...     shifted = conditional_pd(hazard.where(hazard > 0).to_numpy(), correlation=0.1, factor=factor)
-...     shifted = pd.DataFrame(shifted, index=hazard.index, columns=hazard.columns).fillna(0.0)
-...     states = pd.concat(
-...         [convert_pd(shifted, kind="conditional", to="marginal"), marginal.loc[["90+"]]]
-...     )
-...     scenario_pd = states.loc[book["status"]].set_axis(book.index)
+...     shifted = conditional_matrix(monthly, correlation=correlation, factor=factor)
+...     path, paths = np.eye(len(monthly)), {}
+...     for horizon in range(1, 37):
+...         path = path @ (shifted if horizon <= 12 else monthly).to_numpy()
+...         paths[horizon] = path[:, -1]
+...     path_pd = pd.DataFrame(paths, index=monthly.index)
+...     marginal_pd = convert_pd(path_pd, kind="cumulative", to="marginal")
+...     scenario_pd = marginal_pd.loc[book["status"]].set_axis(book.index)
 ...     results[scenario] = {
-...         "current_pd": convert_pd(shifted, kind="conditional", to="cumulative").loc["current", 12],
+...         "current_pd": path_pd.loc["current", 12],
 ...         "twelve_month": expected_credit_loss(scenario_pd, 0.45, ead, rate=rate, horizon=12).sum(),
 ...         "lifetime": expected_credit_loss(scenario_pd, 0.45, ead, rate=rate).sum(),
 ...     }
@@ -522,12 +653,12 @@ IFRS 9 measures the ECL as an unbiased, probability-weighted amount over a range
 >>> by_scenario.round({"current_pd": 4, "twelve_month": 0, "lifetime": 0})
           current_pd  twelve_month   lifetime
 scenario
-upside        0.0090      782085.0   808892.0
-base          0.0259      909598.0   984824.0
-downturn      0.1028     1400455.0  1667506.0
-weighted      0.0409     1000434.0  1111511.0
+upside        0.0110      804584.0   889048.0
+base          0.0348      966051.0  1072313.0
+downturn      0.1374     1597923.0  1766638.0
+weighted      0.0545     1083652.0  1200078.0
 
-``current_pd`` is the 12-month PD of a current loan: 2.59% in the median economy, below the average of 3.93%, and 10.28% in the downturn. The weighted ECL is 10% above that of the base scenario over 12 months and 13% above it over the lifetime, because the PDs rise faster as the economy worsens than they fall as it improves, and the downturn here lies further from the base than the upside: the ECL of the most likely scenario alone would understate the weighted amount. Each scenario keeps its factor for the life of the loans; a path of factors, one per year, would shift the months of each year with the factor of that year.
+``current_pd`` is the 12-month PD of a current loan: 3.48% in the base scenario, the median economy kept for a year, below the 3.93% of ``monthly``, and 13.74% in the downturn. The shifted matrix moves every bucket, so the scenarios change the cures and the rolls of the delinquent loans as well as the misses of the current ones. The weighted ECL is 12% above that of the base scenario, over 12 months and over the lifetime: the PDs rise faster as the economy worsens than they fall as it improves, the downturn lies further from the base than the upside, and a factor kept for a year compounds the misses of current loans, as the average over the factor above shows. The ECL of the most likely scenario alone would understate the weighted amount.
 
 Stage allocation
 ----------------
@@ -633,11 +764,15 @@ Limits
 
 - A transition matrix gives a term structure only as far as the movements are a time-homogeneous Markov chain: the same probabilities in every period, whatever the age of a loan or the time it has spent in its state.
 - IFRS 9 asks for an unbiased, probability-weighted amount that reflects forecasts of economic conditions. These functions compute the ECL of one set of PDs, LGDs and EADs: compute it for each economic scenario and weight the results with the probabilities of the scenarios, as in the example above. The shift of the one-factor model moves all PDs with one factor; a model of the PDs on macroeconomic variables, or LGDs and EADs that also depend on the scenario, need their own estimates.
+- :func:`~kivi.lifetime.conditional_matrix` moves every state with one factor and one correlation, while correlations estimated for each rating grade can differ widely. Its factor and correlation belong to the period of the matrix, and a factor kept over several periods gives average PDs that differ from those of the power of the long-run matrix, higher for some states and lower for others. The factors of :func:`~kivi.lifetime.matrix_factor` absorb every change that moves the rows together, also a change in the mix of the portfolio, and :func:`~kivi.lifetime.matrix_correlation` rests on few periods in most histories.
+- The states of :func:`~kivi.lifetime.conditional_matrix` are ordered by credit quality. Exits that have no place in that order, such as early repayment or write-off, must be left out of the matrix and its rows divided by their sums, which gives the movements of the loans that do not exit and higher PDs; treat early repayment as a competing risk with :func:`~kivi.lifetime.survival_table` instead.
 - Early repayment enters through the EAD schedule, through the vintage curves, which count repaid loans as not bad, and through the cumulative incidence of :func:`~kivi.lifetime.survival_table`.
 - :func:`~kivi.lifetime.survival_table` assumes that censoring and late entry tell nothing about the risk of a loan, as when the data simply end. It estimates one curve for the loans it is given, without confidence intervals; split the loans into segments, or fit a discrete-time hazard model, to let the curve depend on their characteristics.
 - For revolving facilities, such as credit cards, IFRS 9 measures the expected credit losses over the period in which the lender is exposed to credit risk, which can be longer than the contractual period (paragraphs B5.5.39 and B5.5.40). Choose the periods and the EAD schedule, including drawings of undrawn limits, for that period.
 - :func:`~kivi.lifetime.significant_increase` does not apply the exemption for exposures with low credit risk at the reporting date (paragraph 5.5.10); combine its flags with a low-risk criterion of your own.
 - :func:`~kivi.lifetime.assign_stages` looks at one reporting date. Probation periods, during which an exposure that no longer meets a criterion stays in its stage, need the history of each exposure and are not applied, and neither are the rules for assets that are credit-impaired when they are purchased or originated.
+
+.. _lifetime-errors:
 
 Errors and warnings
 -------------------
@@ -658,6 +793,17 @@ state
 A        0.019019  0.478693
 B        0.200000  0.773781
 D        1.000000  1.000000
+
+:func:`~kivi.lifetime.matrix_factor` has no finite estimate when every movement of a period is to the best state, or every one to the worst state, that its state can reach. In March 2024 all 102 loans of the cyclical panel stayed current, which a higher factor always explains better:
+
+>>> march = all_moves[all_moves["month"] == "2024-03"]
+>>> march_counts = transition_matrix(march["status_before"], march["status"], states=long_run.index)
+>>> matrix_factor(march_counts, long_run, correlation=correlation)
+Traceback (most recent call last):
+...
+ValueError: the factor is not finite: every movement in counts is to the best state that its state can reach
+
+Leave such periods out, or pool them with the next one. :func:`~kivi.lifetime.matrix_correlation` names the period of the error, by its label in a mapping or its position in a list.
 
 ``relative`` is a ratio, not an increase: for a PD that rose by more than 50%, pass 1.5 rather than 0.5.
 

@@ -272,6 +272,99 @@ def test_panel_without_prepayment_advances_a_generator_as_before():
     assert generator.integers(2**62) != 2163598577890985217
 
 
+@pytest.mark.parametrize(("n_loans", "n_months", "seed"), list(PANEL_DIGESTS))
+def test_panel_without_a_cycle_is_unchanged(n_loans, n_months, seed):
+    kwargs = {"n_loans": n_loans, "n_months": n_months, "rng": seed}
+    panel = make_loan_panel(**kwargs)
+    for correlation in (0, 0.0, np.float64(0.0)):
+        pd.testing.assert_frame_equal(make_loan_panel(correlation=correlation, **kwargs), panel)
+    assert (
+        panel_digest(make_loan_panel(correlation=0.0, **kwargs))
+        == PANEL_DIGESTS[n_loans, n_months, seed]
+    )
+
+
+def test_panel_without_a_cycle_advances_a_generator_as_before():
+    generator = np.random.default_rng(5)
+    make_loan_panel(n_loans=50, n_months=4, correlation=0.0, rng=generator)
+    assert generator.integers(2**62) == 2163598577890985217
+
+
+@pytest.mark.parametrize("prepayment", [0.0, 0.05])
+def test_cycle_factors_are_drawn_after_all_other_random_numbers(prepayment):
+    kwargs = {"n_loans": 300, "n_months": 12, "prepayment": prepayment}
+    generator = np.random.default_rng(5)
+    make_loan_panel(rng=generator, **kwargs)
+    factors = generator.standard_normal(12)
+    drawn = make_loan_panel(correlation=0.1, rng=np.random.default_rng(5), **kwargs)
+    given = make_loan_panel(
+        correlation=0.1, factors=factors, rng=np.random.default_rng(5), **kwargs
+    )
+    pd.testing.assert_frame_equal(drawn, given)
+    # Given factors leave the generator where the panel without a cycle leaves it.
+    first, second = np.random.default_rng(5), np.random.default_rng(5)
+    make_loan_panel(rng=first, **kwargs)
+    make_loan_panel(correlation=0.1, factors=factors, rng=second, **kwargs)
+    assert first.integers(2**62) == second.integers(2**62)
+
+
+def cure_rate(panel):
+    """Share of the loans 1 to 89 days past due that are current a month later."""
+    later = panel[["loan_id", "month_on_book", "status"]].assign(
+        month_on_book=panel["month_on_book"] - 1
+    )
+    pairs = panel.merge(later, on=["loan_id", "month_on_book"], suffixes=("", "_next"))
+    behind = pairs[pairs["status"].isin(["1-29", "30-59", "60-89"])]
+    return float((behind["status_next"] == "current").mean())
+
+
+def test_cycle_moves_misses_and_cures_together():
+    kwargs = {"n_loans": 3000, "n_months": 18, "correlation": 0.05, "rng": 0}
+    bad = make_loan_panel(factors=[-1.5] * 18, **kwargs)
+    good = make_loan_panel(factors=[1.5] * 18, **kwargs)
+    assert (bad["status"] != "current").mean() > 2 * (good["status"] != "current").mean()
+    assert cure_rate(bad) < cure_rate(good)
+    # The same factors and seed give the same panel, as a list or an array.
+    pd.testing.assert_frame_equal(make_loan_panel(factors=np.full(18, -1.5), **kwargs), bad)
+
+
+def test_panel_with_a_cycle_keeps_the_columns_and_dtypes():
+    panel = make_loan_panel(n_loans=300, n_months=12, correlation=0.1, rng=3)
+    plain = make_loan_panel(n_loans=300, n_months=12, rng=3)
+    assert list(panel.columns) == COLUMNS
+    pd.testing.assert_series_equal(panel.dtypes, plain.dtypes)
+    assert panel["status"].cat.ordered
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "message"),
+    [
+        ({"correlation": True}, "correlation must be a number from 0 to below 1, got True"),
+        ({"correlation": 1.0}, "correlation must be a number from 0 to below 1, got 1.0"),
+        ({"correlation": -0.1}, "correlation must be a number from 0 to below 1, got -0.1"),
+        ({"correlation": np.nan}, "correlation must be a number from 0 to below 1, got nan"),
+        ({"correlation": "0.1"}, "correlation must be a number from 0 to below 1, got '0.1'"),
+        (
+            {"factors": [0.0] * 12},
+            "factors must be given only with a positive correlation, got correlation 0.0",
+        ),
+        (
+            {"correlation": 0.1, "factors": [0.0] * 11},
+            r"factors must hold one number for each of the 12 months, got shape \(11,\)",
+        ),
+        (
+            {"correlation": 0.1, "factors": [[0.0] * 12]},
+            r"factors must hold one number for each of the 12 months, got shape \(1, 12\)",
+        ),
+        ({"correlation": 0.1, "factors": [0.0] * 11 + [np.inf]}, "factors must be finite, got inf"),
+        ({"correlation": 0.1, "factors": [True] * 12}, "factors must be real and numeric"),
+    ],
+)
+def test_panel_rejects_an_invalid_cycle(kwargs, message):
+    with pytest.raises(ValueError, match=message):
+        make_loan_panel(n_loans=50, n_months=12, rng=0, **kwargs)
+
+
 def test_prepaid_panel_keeps_the_columns_and_dtypes(repaying):
     assert list(repaying.columns) == COLUMNS
     for column in ["loan_id", "month_on_book", "term"]:
