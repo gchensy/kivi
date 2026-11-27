@@ -51,10 +51,11 @@ _TOLERANCE = 1e-9
 # them stays below 2 eps times the PD, so a margin of 4 eps keeps ties from counting.
 _TIES = 4 * np.finfo(float).eps
 _ROOT_TWO_PI = math.sqrt(2 * math.pi)
+_HALF_LOG_TWO_PI = 0.5 * math.log(2 * math.pi)
 # From here on, the asymptotic series of the Mills ratio to t**-11 is exact to about 3e-15.
 _MILLS_SERIES_FROM = 35.0
-# The golden-section search for a correlation with a variance of at most 1 stops at this width.
-_GOLDEN_TOLERANCE = 1e-6
+# matrix_correlation searches the correlations up to the last of this grid.
+_CORRELATION_GRID = tuple(step / 100 for step in range(1, 100))
 
 
 @typing.overload
@@ -409,9 +410,11 @@ def conditional_matrix(
     averaged over the standard normal factor, the result of one period is
     `matrix`. The same holds for a path of independent factors, one per
     period, whose product averages to the power of `matrix`, but not for
-    one factor kept over several periods, whose average product gives
-    higher PDs than the power. The factor and the correlation belong to the
-    period of `matrix`, such as a month or a year.
+    one factor kept over several periods, whose average product differs
+    from the power: with two states its PD is lower, and with more states
+    it can be higher for some states and lower for others. The factor and
+    the correlation belong to the period of `matrix`, such as a month or a
+    year.
 
     The thresholds follow the CreditMetrics Technical Document (Gupton,
     Finger and Bhatia, 1997, section 8.4), and the conditional matrix is
@@ -456,8 +459,10 @@ def conditional_matrix(
     rho = _checked_correlation(correlation, positive=False)
     z = _checked_factor(factor)
     order = _credit_order(len(states), default)
-    rows = probabilities[np.ix_(order[:-1], order)]
-    bounds = (_thresholds(rows) - math.sqrt(rho) * z) / math.sqrt(1 - rho)
+    rows = _credit_rows(probabilities, order)
+    # A factor near the largest float shifts the thresholds beyond it, to infinity.
+    with np.errstate(over="ignore"):
+        bounds = (_thresholds(rows) - math.sqrt(rho) * z) / math.sqrt(1 - rho)
     result = np.zeros((len(states), len(states)))
     result[np.ix_(order[:-1], order)] = _interval_probabilities(bounds[:, :-1], bounds[:, 1:])
     result[default, default] = 1.0
@@ -619,8 +624,8 @@ def matrix_correlation(
         If `matrix` or `default_state` is not valid, as for
         `conditional_matrix`; if `counts` is a single matrix or has fewer
         than two periods, or the counts of a period are not valid, as for
-        `matrix_factor`; or if no correlation gives the factors a variance
-        of 1, because they are all equal or vary too much.
+        `matrix_factor`; or if no correlation up to 0.99 gives the factors
+        a variance of 1, because they are all equal or vary too much.
 
     See Also
     --------
@@ -633,12 +638,16 @@ def matrix_correlation(
     The sample variance is taken with ``ddof=1``, as in
     `kivi.capital.vasicek_fit`, and the mean of the factors is not forced
     to 0. The variance falls steeply from infinity as the correlation
-    rises from 0, flattens out towards a minimum, usually above 0.5, and
-    can rise again towards 1, a shape checked numerically rather than
-    proven. Near the minimum the variance hardly depends on the
-    correlation, so data with a high correlation can give a variance of 1
-    at two correlations or at none. The result is the smallest correlation
-    with a variance of 1, where the variance falls, found by bisection.
+    rises from 0 and flattens out near 0.5; at higher correlations it can
+    rise and fall again, a shape checked numerically rather than proven.
+    The result is the smallest correlation up to 0.99 with a variance of 1:
+    a grid in steps of 0.01 finds the first correlation with a variance of
+    at most 1, and bisection the correlation between it and the step
+    before. Above about 0.5 the unit-variance condition does not identify
+    the correlation, and the true one may be a larger root: the expected
+    counts of six periods whose factors have a sample variance of 1, under
+    the correlations 0.6, 0.7, 0.8 and 0.9 and the matrix of Witzany (2020,
+    table 2), give 0.557, 0.503, 0.462 and 0.431.
 
     Because the variance of the estimated factors is set to 1, the estimate
     is about the true correlation times the sample variance of the true
@@ -699,12 +708,21 @@ def matrix_correlation(
             )
         return result
 
-    # The variance falls from infinity as the correlation rises from 0, reaches a minimum and can
-    # rise again towards 1. A correlation with a variance of at most 1 bounds the first one at
-    # which it is 1, where the variance falls.
-    high = 0.5 if variance(0.5) <= 1 else _variance_at_most_one(variance)
+    # The variance falls steeply from infinity as the correlation rises from 0, but it need not
+    # keep falling: the first step of the grid with a variance of at most 1 bounds the smallest
+    # correlation with a variance of 1.
+    low = 0.0
+    for high in _CORRELATION_GRID:
+        if variance(high) <= 1:
+            break
+        low = high
+    else:
+        raise ValueError(
+            "counts vary too much between the periods: the variance of their factors stays above "
+            f"1 for every correlation up to {_CORRELATION_GRID[-1]}"
+        )
     # Bisection ends when no number lies between the two ends.
-    low, middle = 0.0, high / 2
+    middle = (low + high) / 2
     while low < middle < high:
         if variance(middle) > 1:
             low = middle
@@ -1852,6 +1870,16 @@ def _credit_order(size: int, default: int) -> npt.NDArray[np.intp]:
     return np.append(np.delete(np.arange(size), default), default)
 
 
+def _credit_rows(probabilities: np.ndarray, order: np.ndarray) -> npt.NDArray[np.float64]:
+    """Return the rows other than the default state's, in credit order, divided by their sums.
+
+    Rows may add up to 1 within 1e-9 only; thresholds taken from the two ends of such a row
+    could cross around a probability smaller than its error.
+    """
+    rows = probabilities[np.ix_(order[:-1], order)]
+    return rows / rows.sum(axis=1, keepdims=True)
+
+
 def _thresholds(rows: np.ndarray) -> npt.NDArray[np.float64]:
     """Bounds of the credit index for each row of probabilities in the order of credit quality.
 
@@ -1902,21 +1930,35 @@ def _mills_ratio(t: np.ndarray) -> npt.NDArray[np.float64]:
     return result
 
 
-def _density_ratio(a: np.ndarray, b: np.ndarray) -> npt.NDArray[np.float64]:
-    """Return (phi(b) - phi(a)) / (Phi(b) - Phi(a)) for a < b and a + b <= 0, without underflow."""
-    numerator = np.empty(b.shape)
+def _log_density_ratio(a: np.ndarray, b: np.ndarray) -> npt.NDArray[np.float64]:
+    """Return log((phi(b) - phi(a)) / (Phi(b) - Phi(a))) for a < b and a + b <= 0.
+
+    The ratio is at least 0. Its logarithm keeps the size of a ratio whose densities underflow,
+    far out in the tails, and is -inf where the ratio is 0.
+    """
+    # phi(a) / phi(b) = exp(exponent) is at most 1, because |a| >= |b|.
+    exponent = (b - a) * (b + a) / 2
+    log_numerator = np.empty(b.shape)
     denominator = np.empty(b.shape)
     across = b > 0
-    numerator[across] = _density(b[across]) - _density(a[across])
-    denominator[across] = 1 - _stats.normal_cdf(-b[across]) - _stats.normal_cdf(a[across])
-    low, high = a[~across], b[~across]
-    # Divided by phi(high): phi(low) / phi(high) = exp(exponent) is at most 1.
-    exponent = (high - low) * (high + low) / 2
-    numerator[~across] = -np.expm1(exponent)
-    denominator[~across] = _mills_ratio(-high) - np.exp(exponent) * _mills_ratio(-low)
-    # An interval narrower than the rounding of its ends has the slope of the log density at its
-    # middle.
-    return np.divide(numerator, denominator, out=-(a + b) / 2, where=denominator > 0)
+    below = ~across
+    with np.errstate(divide="ignore"):
+        # Around 0, log(phi(b) - phi(a)) = log(phi(b)) + log(1 - phi(a) / phi(b)).
+        log_numerator[across] = (
+            -0.5 * b[across] ** 2 - _HALF_LOG_TWO_PI + np.log(-np.expm1(exponent[across]))
+        )
+        denominator[across] = 1 - _stats.normal_cdf(-b[across]) - _stats.normal_cdf(a[across])
+        # Below 0, numerator and denominator are divided by phi(b).
+        log_numerator[below] = np.log(-np.expm1(exponent[below]))
+        denominator[below] = _mills_ratio(-b[below]) - np.exp(exponent[below]) * _mills_ratio(
+            -a[below]
+        )
+        positive = denominator > 0
+        ratio = log_numerator - np.log(np.where(positive, denominator, 1.0))
+        # An interval narrower than the rounding of its ends has the slope of the log density at
+        # its middle.
+        narrow = np.log(np.where(positive, 1.0, -(a + b) / 2))
+    return np.where(positive, ratio, narrow)
 
 
 class _Cells:
@@ -1934,7 +1976,11 @@ class _Cells:
         self.periods = periods
 
     def score(self, z: np.ndarray, rho: float) -> npt.NDArray[np.float64]:
-        """Return the derivative of each period's log-likelihood over sqrt(rho / (1 - rho))."""
+        """Return numbers with the signs of the derivatives of the periods' log-likelihoods.
+
+        The terms of each period are scaled by the largest one, so that terms whose densities
+        underflow, at correlations near 1, still decide the sign.
+        """
         shift = math.sqrt(rho) * z[self.period]
         scale = math.sqrt(1 - rho)
         upper = (self.upper - shift) / scale
@@ -1943,7 +1989,12 @@ class _Cells:
         mirror = upper + lower > 0
         a = np.where(mirror, -upper, lower)
         b = np.where(mirror, -lower, upper)
-        terms = np.where(mirror, 1.0, -1.0) * self.counts * _density_ratio(a, b)
+        sizes = np.log(self.counts) + _log_density_ratio(a, b)
+        largest = np.full(self.periods, -np.inf)
+        np.maximum.at(largest, self.period, sizes)
+        # A period whose terms are all 0 has a score of 0.
+        offset = np.where(np.isfinite(largest), largest, 0.0)[self.period]
+        terms = np.where(mirror, 1.0, -1.0) * np.exp(sizes - offset)
         return np.bincount(self.period, weights=terms, minlength=self.periods)
 
     def factors(self, rho: float) -> npt.NDArray[np.float64]:
@@ -1977,7 +2028,7 @@ class _MatrixModel:
     def __init__(self, probabilities: np.ndarray, states: pd.Index, default: int) -> None:
         self.states = states
         self.order = _credit_order(len(states), default)
-        self.rows = probabilities[np.ix_(self.order[:-1], self.order)]
+        self.rows = _credit_rows(probabilities, self.order)
         bounds = _thresholds(self.rows)
         self.upper, self.lower = bounds[:, :-1], bounds[:, 1:]
         # A state that can move to one state only carries no information on the factor.
@@ -2021,33 +2072,6 @@ class _MatrixModel:
             parts.append((upper, lower, counts[observed], np.full(observed.sum(), position)))
         upper, lower, counts, period = (np.concatenate(part) for part in zip(*parts, strict=True))
         return _Cells(upper, lower, counts, period, len(matrices))
-
-
-def _variance_at_most_one(variance: abc.Callable[[float], float]) -> float:
-    """Return a correlation at which the variance of the factors is at most 1.
-
-    Golden-section search for the minimum of the variance, which stops at the first
-    correlation with a variance of at most 1.
-    """
-    ratio = (math.sqrt(5) - 1) / 2
-    low, high = 0.0, 1.0
-    left, right = high - ratio * (high - low), low + ratio * (high - low)
-    at_left, at_right = variance(left), variance(right)
-    while min(at_left, at_right) > 1:
-        if high - low < _GOLDEN_TOLERANCE:
-            raise ValueError(
-                "counts vary too much between the periods: the variance of their factors stays "
-                "above 1 for every correlation below 1"
-            )
-        if at_left < at_right:
-            high, right, at_right = right, left, at_left
-            left = high - ratio * (high - low)
-            at_left = variance(left)
-        else:
-            low, left, at_left = left, right, at_right
-            right = low + ratio * (high - low)
-            at_right = variance(right)
-    return left if at_left <= 1 else right
 
 
 def _count_matrix(
@@ -2108,7 +2132,7 @@ def _periods(
     else:
         raise ValueError(
             "counts must be a mapping, a Series, a list or a tuple of count matrices, one per "
-            f"period, got {type(counts).__name__}"
+            f"period, got {_validation.shown_argument(counts)}"
         )
     if len(values) < 2:
         raise ValueError(f"counts must have at least two periods, got {len(values)}")

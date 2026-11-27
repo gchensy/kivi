@@ -717,14 +717,32 @@ def test_independent_factors_average_to_the_power_of_the_matrix(monthly):
     np.testing.assert_allclose(average, power, rtol=1e-12, atol=1e-15)
 
 
-def test_a_factor_kept_for_a_year_raises_the_average_pd(monthly):
+def kept_factor_pd(matrix, correlation, horizon):
+    """Cumulative PD of one factor kept for every period, averaged over the factor."""
     nodes, weights = gauss_hermite()
-    kept = sum(
-        w * transition_pd(conditional_matrix(monthly, correlation=0.1, factor=z), horizons=12)[12]
+    return sum(
+        w
+        * transition_pd(
+            conditional_matrix(matrix, correlation=correlation, factor=z), horizons=horizon
+        )[horizon]
         for z, w in zip(nodes, weights, strict=True)
     )
+
+
+def test_a_factor_kept_for_a_year_differs_from_the_power(monthly):
     long_run = transition_pd(monthly, horizons=12)[12]
+    kept = kept_factor_pd(monthly, 0.1, 12)
+    # Higher for current loans, whose misses compound, and lower for 60-89, which defaults
+    # directly.
     assert kept.loc["current"] > 1.1 * long_run.loc["current"]
+    assert kept.loc["60-89"] < long_run.loc["60-89"]
+    # With two states the average is always lower, by Jensen's inequality.
+    two = pd.DataFrame([[0.98, 0.02], [0.0, 1.0]])
+    assert kept_factor_pd(two, 0.1, 12).iloc[0] < transition_pd(two, horizons=12)[12].iloc[0]
+    # The hand example is lower in both states.
+    assert (
+        kept_factor_pd(MATRIX, 0.1, 12).iloc[:2] < transition_pd(MATRIX, horizons=12)[12].iloc[:2]
+    ).all()
 
 
 def test_conditional_matrix_at_extreme_factors_and_correlations():
@@ -1043,7 +1061,10 @@ def test_matrix_correlation_of_factors_that_vary_too_much():
     sizes = [500, 800, 1200, 1500, 1000, 700, 200, 50, 0]
     factors = 2 * standardized([-1.4, 0.3, 0.9, -0.2, 1.6, -0.7])
     counts = [expected_counts(witzany_matrix(), 0.1, z, sizes) for z in factors]
-    with pytest.raises(ValueError, match="the variance of their factors stays above 1"):
+    with pytest.raises(
+        ValueError,
+        match="the variance of their factors stays above 1 for every correlation up to 0.99$",
+    ):
         matrix_correlation(counts, witzany_matrix())
 
 
@@ -1053,9 +1074,10 @@ def test_matrix_correlation_of_factors_that_vary_too_much():
         (
             MATRIX,
             "counts must be a mapping, a Series, a list or a tuple of count matrices, one per "
-            "period, got DataFrame",
+            "period, got",
         ),
-        (np.zeros((2, 3, 3)), "got ndarray"),
+        (np.zeros((2, 3, 3)), r"one per period, got \[\[\[0.0, 0.0, 0.0\]"),
+        ("2024", "one per period, got '2024'"),
         (
             [[[850, 110, 40], [60, 280, 160], [0, 0, 0]]],
             "counts must have at least two periods, got 1",
@@ -1133,14 +1155,24 @@ def test_matrix_functions_against_scipy():
 
     def shifted(correlation, z):
         b = (bounds - np.sqrt(correlation) * z) / np.sqrt(1 - correlation)
-        return stats.norm.cdf(b[:, :-1]) - stats.norm.cdf(b[:, 1:])
+        upper, lower = b[:, :-1], b[:, 1:]
+        # The smaller tails: the upper ones for an interval above 0.
+        return np.where(
+            lower >= 0,
+            stats.norm.sf(lower) - stats.norm.sf(upper),
+            np.where(
+                upper <= 0,
+                stats.norm.cdf(upper) - stats.norm.cdf(lower),
+                1 - stats.norm.sf(upper) - stats.norm.cdf(lower),
+            ),
+        )
 
     for correlation, z in ((0.08, -2.3), (0.3, 1.1)):
         np.testing.assert_allclose(
             conditional_matrix(matrix, correlation=correlation, factor=z).to_numpy()[:-1],
             shifted(correlation, z),
-            rtol=1e-9,
-            atol=1e-13,
+            rtol=1e-12,
+            atol=0,
         )
 
     def score(z, counts, correlation):
@@ -1174,6 +1206,97 @@ def test_matrix_functions_against_scipy():
         lambda r: np.var([factor(c, r) for c in periods], ddof=1) - 1, 0.01, 0.5, xtol=1e-14
     )
     assert matrix_correlation(periods, matrix) == pytest.approx(expected, abs=1e-8)
+
+
+def test_matrix_factor_near_a_correlation_of_1():
+    # Every observed cell holds the shifted factor, and the densities of their ends underflow:
+    # the terms of the score must keep their sizes relative to each other.
+    matrix = [[0.72, 0.12, 0.16], [0.0003, 0.97, 0.0297], [0.0, 0.0, 1.0]]
+    stay = [[10, 0, 0], [0, 10, 0], [0, 0, 0]]
+    estimates = [matrix_factor(stay, matrix, correlation=rho) for rho in (0.99, 0.999, 0.9999)]
+    assert estimates[1] == pytest.approx(1.4250991759905434, abs=1e-9)
+    assert np.all(np.abs(np.diff(estimates)) < 0.01)
+    # Their variance over these periods stays above 1 up to 0.99, so no correlation is returned.
+    periods = [
+        stay,
+        stay,
+        [[0, 1, 9], [0, 0, 10], [0, 0, 0]],
+        [[3, 1, 6], [0, 8, 2], [0, 0, 0]],
+        stay,
+    ]
+    with pytest.raises(ValueError, match="stays above 1 for every correlation up to 0.99$"):
+        matrix_correlation(periods, matrix)
+
+
+def test_matrix_factor_near_a_correlation_of_1_against_scipy_in_logs():
+    special = pytest.importorskip("scipy.special")
+    stats = pytest.importorskip("scipy.stats")
+    matrix = np.array([[0.72, 0.12, 0.16], [0.0003, 0.97, 0.0297], [0.0, 0.0, 1.0]])
+    bounds = []
+    for row in matrix[:-1]:
+        worse = np.cumsum(row[::-1])[::-1][1:]
+        bounds.append(np.concatenate([[np.inf], stats.norm.ppf(worse), [-np.inf]]))
+    bounds = np.array(bounds)
+
+    def score_sign(z, counts, correlation):
+        b = (bounds - np.sqrt(correlation) * z) / np.sqrt(1 - correlation)
+        upper, lower = b[:, :-1], b[:, 1:]
+        observed = np.asarray(counts, dtype=float)[:-1] > 0
+        upper, lower, n = upper[observed], lower[observed], np.asarray(counts, float)[:-1][observed]
+        # log P from the smaller tail, and log |phi(upper) - phi(lower)| with its sign.
+        mirror = upper + lower > 0
+        high = np.where(mirror, -lower, upper)
+        low = np.where(mirror, -upper, lower)
+        log_high = special.log_ndtr(high)
+        log_p = log_high + np.log1p(-np.exp(special.log_ndtr(low) - log_high))
+        pdf_upper, pdf_lower = stats.norm.logpdf(upper), stats.norm.logpdf(lower)
+        # d log P / dz has the sign of phi(lower) - phi(upper).
+        sign = np.sign(pdf_lower - pdf_upper)
+        log_difference = np.maximum(pdf_upper, pdf_lower) + np.log1p(
+            -np.exp(-np.abs(pdf_upper - pdf_lower))
+        )
+        _, total = special.logsumexp(np.log(n) + log_difference - log_p, b=sign, return_sign=True)
+        return total
+
+    rng = np.random.default_rng(8)
+    cases = [[[10, 0, 0], [0, 10, 0], [0, 0, 0]]]
+    for _ in range(4):
+        probabilities = conditional_matrix(
+            matrix, correlation=0.999, factor=rng.normal()
+        ).to_numpy()
+        cases.append(np.array([rng.multinomial(12, p) for p in probabilities[:-1]] + [np.zeros(3)]))
+    for counts in cases:
+        try:
+            estimate = matrix_factor(counts, matrix, correlation=0.999)
+        except ValueError:
+            continue
+        low, high = estimate - 0.5, estimate + 0.5
+        assert score_sign(low, counts, 0.999) > 0 > score_sign(high, counts, 0.999)
+        for _ in range(60):
+            middle = (low + high) / 2
+            if score_sign(middle, counts, 0.999) > 0:
+                low = middle
+            else:
+                high = middle
+        assert estimate == pytest.approx(low, abs=1e-9)
+
+
+def test_conditional_matrix_of_rows_that_add_up_to_1_within_rounding():
+    # The thresholds of the middle state come from both ends of a row that adds up to
+    # 1 + 5e-10 and would cross without dividing the row by its sum.
+    matrix = [[0.5 + 5e-10, 1e-11, 0.5], [0.2, 0.5, 0.3], [0.0, 0.0, 1.0]]
+    shifted = conditional_matrix(matrix, correlation=0.1, factor=-1.0)
+    assert (shifted.to_numpy() >= 0).all()
+    assert shifted.iloc[0, 1] == pytest.approx(1e-11, rel=0.5)
+    transition_pd(shifted, horizons=2)
+
+
+def test_conditional_matrix_at_factors_near_the_largest_float():
+    matrix = [[0.72, 0.12, 0.16], [0.0003, 0.97, 0.0297], [0.0, 0.0, 1.0]]
+    best = conditional_matrix(matrix, correlation=0.9, factor=1e308).to_numpy()
+    worst = conditional_matrix(matrix, correlation=0.9, factor=-1e308).to_numpy()
+    np.testing.assert_array_equal(best, [[1, 0, 0], [1, 0, 0], [0, 0, 1]])
+    np.testing.assert_array_equal(worst, [[0, 0, 1], [0, 0, 1], [0, 0, 1]])
 
 
 # survival_table

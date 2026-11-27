@@ -269,16 +269,22 @@ current   0.0393    0.1345
 60-89     0.8731    0.9464
 90+       1.0000    1.0000
 
-The average over the factor gives ``monthly`` back for one month, and for twelve months when each month has a factor of its own. A factor kept for the whole year gives more, because a bad year compounds its misses month after month. Averaged over the standard normal factor:
+The average over the factor gives ``monthly`` back for one month, and for twelve months when each month has a factor of its own. A factor kept for the whole year gives other PDs than the twelfth power of ``monthly``. Averaged over the standard normal factor:
 
 >>> kept = sum(
 ...     w * transition_pd(conditional_matrix(monthly, correlation=0.05, factor=z), horizons=12)
 ...     for z, w in zip(nodes, weights)
 ... ) / weights.sum()
->>> print(f"{kept.loc['current', 12]:.4f}")
-0.0507
+>>> pd.DataFrame({"monthly": transition_pd(monthly, horizons=12)[12], "kept": kept[12]}).round(4)
+         monthly    kept
+state
+current   0.0393  0.0507
+1-29      0.2420  0.2584
+30-59     0.6041  0.6061
+60-89     0.8731  0.8701
+90+       1.0000  1.0000
 
-Kept for a year, the median factor gives less than ``monthly`` and the average over the factor gives more, 5.07% rather than 3.93%: the same factor in every month is a strong assumption about the economy.
+For a current loan, a bad year compounds the misses month after month, and the average rises from 3.93% to 5.07%. For a loan at 60 to 89 days past due, which defaults directly, it falls slightly, and with two states it always falls. The same factor in every month is a strong assumption about the economy.
 
 Factors from observed matrices
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -294,7 +300,7 @@ From the history of a portfolio, :func:`~kivi.lifetime.matrix_factor` estimates 
 >>> all_moves = cyclical.merge(earlier, on=["loan_id", "month_on_book"], suffixes=("", "_before"))
 >>> moves = all_moves[all_moves["month"] >= "2024-05"]
 
-The first months hold few loans, too young to fall behind: in March 2024 all 102 loans stayed current, which no finite factor explains best (see :ref:`lifetime-errors`), so the example starts in May. The long-run matrix pools the months, and each month gets its own count matrix:
+The first months hold few loans, too young to fall behind: in March 2024 all 102 loans stayed current, which no finite factor explains best (see :ref:`lifetime-errors`), and in April 6 of 186 fell behind, which gives a finite factor, but one that rests on a handful of young loans. The example therefore starts in May. The long-run matrix pools the months, and each month gets its own count matrix:
 
 >>> long_run = transition_matrix(moves["status_before"], moves["status"], normalize=True)
 >>> counts = {
@@ -652,7 +658,7 @@ base          0.0348      966051.0  1072313.0
 downturn      0.1374     1597923.0  1766638.0
 weighted      0.0545     1083652.0  1200078.0
 
-``current_pd`` is the 12-month PD of a current loan: 3.48% in the base scenario, the median economy kept for a year, below the 3.93% of ``monthly``, and 13.74% in the downturn. The shifted matrix moves every bucket, so the scenarios change the cures and the rolls of the delinquent loans as well as the misses of the current ones. The weighted ECL is 12% above that of the base scenario, over 12 months and over the lifetime: the PDs rise faster as the economy worsens than they fall as it improves, the downturn lies further from the base than the upside, and a factor kept for a year compounds, as the average over the factor above shows. The ECL of the most likely scenario alone would understate the weighted amount.
+``current_pd`` is the 12-month PD of a current loan: 3.48% in the base scenario, the median economy kept for a year, below the 3.93% of ``monthly``, and 13.74% in the downturn. The shifted matrix moves every bucket, so the scenarios change the cures and the rolls of the delinquent loans as well as the misses of the current ones. The weighted ECL is 12% above that of the base scenario, over 12 months and over the lifetime: the PDs rise faster as the economy worsens than they fall as it improves, the downturn lies further from the base than the upside, and a factor kept for a year compounds the misses of current loans, as the average over the factor above shows. The ECL of the most likely scenario alone would understate the weighted amount.
 
 Stage allocation
 ----------------
@@ -758,7 +764,7 @@ Limits
 
 - A transition matrix gives a term structure only as far as the movements are a time-homogeneous Markov chain: the same probabilities in every period, whatever the age of a loan or the time it has spent in its state.
 - IFRS 9 asks for an unbiased, probability-weighted amount that reflects forecasts of economic conditions. These functions compute the ECL of one set of PDs, LGDs and EADs: compute it for each economic scenario and weight the results with the probabilities of the scenarios, as in the example above. The shift of the one-factor model moves all PDs with one factor; a model of the PDs on macroeconomic variables, or LGDs and EADs that also depend on the scenario, need their own estimates.
-- :func:`~kivi.lifetime.conditional_matrix` moves every state with one factor and one correlation, while correlations estimated for each rating grade can differ widely. Its factor and correlation belong to the period of the matrix, and a factor kept over several periods gives higher PDs on average than the power of the long-run matrix. The factors of :func:`~kivi.lifetime.matrix_factor` absorb every change that moves the rows together, also a change in the mix of the portfolio, and :func:`~kivi.lifetime.matrix_correlation` rests on few periods in most histories.
+- :func:`~kivi.lifetime.conditional_matrix` moves every state with one factor and one correlation, while correlations estimated for each rating grade can differ widely. Its factor and correlation belong to the period of the matrix, and a factor kept over several periods gives average PDs that differ from those of the power of the long-run matrix, higher for some states and lower for others. The factors of :func:`~kivi.lifetime.matrix_factor` absorb every change that moves the rows together, also a change in the mix of the portfolio, and :func:`~kivi.lifetime.matrix_correlation` rests on few periods in most histories.
 - The states of :func:`~kivi.lifetime.conditional_matrix` are ordered by credit quality. Exits that have no place in that order, such as early repayment or write-off, must be left out of the matrix and its rows divided by their sums, which gives the movements of the loans that do not exit and higher PDs; treat early repayment as a competing risk with :func:`~kivi.lifetime.survival_table` instead.
 - Early repayment enters through the EAD schedule, through the vintage curves, which count repaid loans as not bad, and through the cumulative incidence of :func:`~kivi.lifetime.survival_table`.
 - :func:`~kivi.lifetime.survival_table` assumes that censoring and late entry tell nothing about the risk of a loan, as when the data simply end. It estimates one curve for the loans it is given, without confidence intervals; split the loans into segments, or fit a discrete-time hazard model, to let the curve depend on their characteristics.
