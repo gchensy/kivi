@@ -1,0 +1,714 @@
+{
+  "format": "kivi.ScorecardSpec",
+  "format_version": 1,
+  "kivi_version": "1.10.0",
+  "scaling": {
+    "pdo": 20.0,
+    "base_score": 600.0,
+    "base_odds": 50.0
+  },
+  "binning": {
+    "format": "kivi.BinningSpec",
+    "format_version": 2,
+    "kivi_version": "1.10.0",
+    "smoothing": 0.5,
+    "variables": [
+      {
+        "name": "pdays",
+        "kind": "numeric",
+        "edges": [
+          {
+            "float": "-inf"
+          },
+          100.0,
+          177.0,
+          192.0,
+          370.0,
+          {
+            "float": "inf"
+          }
+        ],
+        "special": [
+          -1
+        ],
+        "unseen": "raise",
+        "table": [
+          {
+            "bin": -1,
+            "non_event": 2247,
+            "event": 228,
+            "total": 2475,
+            "non_event_share": 0.8472850678733032,
+            "event_share": 0.6551724137931034,
+            "total_share": 0.825,
+            "event_rate": 0.09212121212121212,
+            "woe": -0.2571387716996097,
+            "iv": 0.04939961189813457
+          },
+          {
+            "bin": {
+              "interval": [
+                {
+                  "float": "-inf"
+                },
+                100.0
+              ],
+              "closed": "right"
+            },
+            "non_event": 48,
+            "event": 47,
+            "total": 95,
+            "non_event_share": 0.01809954751131222,
+            "event_share": 0.13505747126436782,
+            "total_share": 0.03166666666666667,
+            "event_rate": 0.49473684210526314,
+            "woe": 2.0098134623334465,
+            "iv": 0.23506360968545992
+          },
+          {
+            "bin": {
+              "interval": [
+                100.0,
+                177.0
+              ],
+              "closed": "right"
+            },
+            "non_event": 104,
+            "event": 18,
+            "total": 122,
+            "non_event_share": 0.0392156862745098,
+            "event_share": 0.05172413793103448,
+            "total_share": 0.04066666666666666,
+            "event_rate": 0.14754098360655737,
+            "woe": 0.27684773028607074,
+            "iv": 0.003462936450501899
+          },
+          {
+            "bin": {
+              "interval": [
+                177.0,
+                192.0
+              ],
+              "closed": "right"
+            },
+            "non_event": 25,
+            "event": 27,
+            "total": 52,
+            "non_event_share": 0.00942684766214178,
+            "event_share": 0.07758620689655173,
+            "total_share": 0.017333333333333333,
+            "event_rate": 0.5192307692307693,
+            "woe": 2.1078279126674073,
+            "iv": 0.1436681999038143
+          },
+          {
+            "bin": {
+              "interval": [
+                192.0,
+                370.0
+              ],
+              "closed": "right"
+            },
+            "non_event": 209,
+            "event": 17,
+            "total": 226,
+            "non_event_share": 0.07880844645550528,
+            "event_share": 0.04885057471264368,
+            "total_share": 0.07533333333333334,
+            "event_rate": 0.0752212389380531,
+            "woe": -0.4782540363773161,
+            "iv": 0.0143274730822975
+          },
+          {
+            "bin": {
+              "interval": [
+                370.0,
+                {
+                  "float": "inf"
+                }
+              ],
+              "closed": "right"
+            },
+            "non_event": 19,
+            "event": 11,
+            "total": 30,
+            "non_event_share": 0.007164404223227752,
+            "event_share": 0.031609195402298854,
+            "total_share": 0.01,
+            "event_rate": 0.36666666666666664,
+            "woe": 1.4843231651632092,
+            "iv": 0.036283969814672516
+          }
+        ]
+      },
+      {
+        "name": "age",
+        "kind": "numeric",
+        "edges": [
+          {
+            "float": "-inf"
+          },
+          29.0,
+          59.0,
+          {
+            "float": "inf"
+          }
+        ],
+        "special": [],
+        "unseen": "raise",
+        "table": [
+          {
+            "bin": {
+              "interval": [
+                {
+                  "float": "-inf"
+                },
+                29.0
+              ],
+              "closed": "right"
+            },
+            "non_event": 278,
+            "event": 52,
+            "total": 330,
+            "non_event_share": 0.1048265460030166,
+            "event_share": 0.14942528735632185,
+            "total_share": 0.11,
+            "event_rate": 0.15757575757575756,
+            "woe": 0.3544894764220692,
+            "iv": 0.015809784471416465
+          },
+          {
+            "bin": {
+              "interval": [
+                29.0,
+                59.0
+              ],
+              "closed": "right"
+            },
+            "non_event": 2297,
+            "event": 268,
+            "total": 2565,
+            "non_event_share": 0.8661387631975868,
+            "event_share": 0.7701149425287356,
+            "total_share": 0.855,
+            "event_rate": 0.10448343079922028,
+            "woe": -0.11750535064696292,
+            "iv": 0.011283312718154444
+          },
+          {
+            "bin": {
+              "interval": [
+                59.0,
+                {
+                  "float": "inf"
+                }
+              ],
+              "closed": "right"
+            },
+            "non_event": 77,
+            "event": 28,
+            "total": 105,
+            "non_event_share": 0.029034690799396683,
+            "event_share": 0.08045977011494253,
+            "total_share": 0.035,
+            "event_rate": 0.26666666666666666,
+            "woe": 1.0192659598527989,
+            "iv": 0.05241583282906615
+          }
+        ]
+      },
+      {
+        "name": "balance",
+        "kind": "numeric",
+        "edges": [
+          {
+            "float": "-inf"
+          },
+          69.0,
+          461.0,
+          1448.0,
+          {
+            "float": "inf"
+          }
+        ],
+        "special": [],
+        "unseen": 0.1,
+        "table": [
+          {
+            "bin": {
+              "interval": [
+                {
+                  "float": "-inf"
+                },
+                69.0
+              ],
+              "closed": "right"
+            },
+            "non_event": 683,
+            "event": 49,
+            "total": 732,
+            "non_event_share": 0.2575414781297134,
+            "event_share": 0.14080459770114942,
+            "total_share": 0.244,
+            "event_rate": 0.06693989071038252,
+            "woe": -0.6038076899288846,
+            "iv": 0.07048662610107563
+          },
+          {
+            "bin": {
+              "interval": [
+                69.0,
+                461.0
+              ],
+              "closed": "right"
+            },
+            "non_event": 654,
+            "event": 77,
+            "total": 731,
+            "non_event_share": 0.24660633484162897,
+            "event_share": 0.22126436781609196,
+            "total_share": 0.24366666666666667,
+            "event_rate": 0.10533515731874145,
+            "woe": -0.10843505807223607,
+            "iv": 0.0027479576660787972
+          },
+          {
+            "bin": {
+              "interval": [
+                461.0,
+                1448.0
+              ],
+              "closed": "right"
+            },
+            "non_event": 633,
+            "event": 98,
+            "total": 731,
+            "non_event_share": 0.23868778280542988,
+            "event_share": 0.28160919540229884,
+            "total_share": 0.24366666666666667,
+            "event_rate": 0.13406292749658003,
+            "woe": 0.16536392805767441,
+            "iv": 0.0070976533848024
+          },
+          {
+            "bin": {
+              "interval": [
+                1448.0,
+                {
+                  "float": "inf"
+                }
+              ],
+              "closed": "right"
+            },
+            "non_event": 616,
+            "event": 115,
+            "total": 731,
+            "non_event_share": 0.23227752639517346,
+            "event_share": 0.33045977011494254,
+            "total_share": 0.24366666666666667,
+            "event_rate": 0.1573187414500684,
+            "woe": 0.35255203636100907,
+            "iv": 0.034614349957897486
+          },
+          {
+            "bin": null,
+            "non_event": 66,
+            "event": 9,
+            "total": 75,
+            "non_event_share": 0.024886877828054297,
+            "event_share": 0.02586206896551724,
+            "total_share": 0.025,
+            "event_rate": 0.12,
+            "woe": 0.03843670684107277,
+            "iv": 3.7483135864675474e-05
+          }
+        ]
+      },
+      {
+        "name": "housing",
+        "kind": "categorical",
+        "unseen": "raise",
+        "table": [
+          {
+            "bin": "no",
+            "non_event": 1098,
+            "event": 201,
+            "total": 1299,
+            "non_event_share": 0.41402714932126694,
+            "event_share": 0.5775862068965517,
+            "total_share": 0.433,
+            "event_rate": 0.15473441108545036,
+            "woe": 0.33292615752087873,
+            "iv": 0.05445308856627573
+          },
+          {
+            "bin": "yes",
+            "non_event": 1554,
+            "event": 147,
+            "total": 1701,
+            "non_event_share": 0.5859728506787331,
+            "event_share": 0.4224137931034483,
+            "total_share": 0.567,
+            "event_rate": 0.08641975308641975,
+            "woe": -0.3272880726175776,
+            "iv": 0.053530928712962354
+          }
+        ]
+      },
+      {
+        "name": "contact",
+        "kind": "categorical",
+        "unseen": 0.0,
+        "table": [
+          {
+            "bin": "cellular",
+            "non_event": 1677,
+            "event": 280,
+            "total": 1957,
+            "non_event_share": 0.6323529411764706,
+            "event_share": 0.8045977011494253,
+            "total_share": 0.6523333333333333,
+            "event_rate": 0.1430761369443025,
+            "woe": 0.24089471287731962,
+            "iv": 0.04149285199830777
+          },
+          {
+            "bin": "unknown",
+            "non_event": 820,
+            "event": 43,
+            "total": 863,
+            "non_event_share": 0.3092006033182504,
+            "event_share": 0.1235632183908046,
+            "total_share": 0.2876666666666667,
+            "event_rate": 0.04982618771726535,
+            "woe": -0.9172373530334575,
+            "iv": 0.17027354357490346
+          },
+          {
+            "bin": "telephone",
+            "non_event": 155,
+            "event": 25,
+            "total": 180,
+            "non_event_share": 0.058446455505279035,
+            "event_share": 0.07183908045977011,
+            "total_share": 0.06,
+            "event_rate": 0.1388888888888889,
+            "woe": 0.20631757948023277,
+            "iv": 0.002763133963497161
+          }
+        ]
+      },
+      {
+        "name": "job",
+        "kind": "categorical",
+        "groups": [
+          {
+            "group": "services",
+            "categories": [
+              "services"
+            ]
+          },
+          {
+            "group": "management",
+            "categories": [
+              "management"
+            ]
+          },
+          {
+            "group": "blue-collar",
+            "categories": [
+              "blue-collar"
+            ]
+          },
+          {
+            "group": "technician",
+            "categories": [
+              "technician"
+            ]
+          },
+          {
+            "group": "admin.",
+            "categories": [
+              "admin."
+            ]
+          },
+          {
+            "group": "retired",
+            "categories": [
+              "retired"
+            ]
+          },
+          {
+            "group": "other",
+            "categories": [
+              "unemployed",
+              "self-employed",
+              "entrepreneur",
+              "student",
+              "housemaid",
+              "unknown"
+            ]
+          }
+        ],
+        "unseen": {
+          "group": "other"
+        },
+        "table": [
+          {
+            "bin": "services",
+            "non_event": 246,
+            "event": 23,
+            "total": 269,
+            "non_event_share": 0.09276018099547512,
+            "event_share": 0.06609195402298851,
+            "total_share": 0.08966666666666667,
+            "event_rate": 0.08550185873605948,
+            "woe": -0.3389704484719344,
+            "iv": 0.009039740856815123
+          },
+          {
+            "bin": "management",
+            "non_event": 558,
+            "event": 96,
+            "total": 654,
+            "non_event_share": 0.21040723981900453,
+            "event_share": 0.27586206896551724,
+            "total_share": 0.218,
+            "event_rate": 0.14678899082568808,
+            "woe": 0.27085610061780413,
+            "iv": 0.017728839789229026
+          },
+          {
+            "bin": "blue-collar",
+            "non_event": 576,
+            "event": 43,
+            "total": 619,
+            "non_event_share": 0.2171945701357466,
+            "event_share": 0.1235632183908046,
+            "total_share": 0.20633333333333334,
+            "event_rate": 0.06946688206785137,
+            "woe": -0.5640406734710501,
+            "iv": 0.05281189069622188
+          },
+          {
+            "bin": "technician",
+            "non_event": 459,
+            "event": 60,
+            "total": 519,
+            "non_event_share": 0.17307692307692307,
+            "event_share": 0.1724137931034483,
+            "total_share": 0.173,
+            "event_rate": 0.11560693641618497,
+            "woe": -0.0038387763071656015,
+            "iv": 2.5456076307463594e-06
+          },
+          {
+            "bin": "admin.",
+            "non_event": 275,
+            "event": 38,
+            "total": 313,
+            "non_event_share": 0.10369532428355958,
+            "event_share": 0.10919540229885058,
+            "total_share": 0.10433333333333333,
+            "event_rate": 0.12140575079872204,
+            "woe": 0.051681933591093264,
+            "iv": 0.0002842546667321013
+          },
+          {
+            "bin": "retired",
+            "non_event": 121,
+            "event": 29,
+            "total": 150,
+            "non_event_share": 0.04562594268476621,
+            "event_share": 0.08333333333333333,
+            "total_share": 0.05,
+            "event_rate": 0.19333333333333333,
+            "woe": 0.6023721559210117,
+            "iv": 0.02271388219913317
+          },
+          {
+            "bin": "other",
+            "non_event": 417,
+            "event": 59,
+            "total": 476,
+            "non_event_share": 0.15723981900452488,
+            "event_share": 0.16954022988505746,
+            "total_share": 0.15866666666666668,
+            "event_rate": 0.12394957983193278,
+            "woe": 0.07531809363819669,
+            "iv": 0.0009264434984882459
+          }
+        ]
+      },
+      {
+        "name": "education",
+        "kind": "categorical",
+        "groups": [
+          {
+            "group": "unknown, primary, secondary",
+            "categories": [
+              "unknown",
+              "primary",
+              "secondary"
+            ]
+          },
+          {
+            "group": "tertiary",
+            "categories": [
+              "tertiary"
+            ]
+          }
+        ],
+        "unseen": "raise",
+        "table": [
+          {
+            "bin": "unknown, primary, secondary",
+            "non_event": 1872,
+            "event": 213,
+            "total": 2085,
+            "non_event_share": 0.7058823529411765,
+            "event_share": 0.6120689655172413,
+            "total_share": 0.695,
+            "event_rate": 0.10215827338129496,
+            "woe": -0.14260361979683356,
+            "iv": 0.0133781286320559
+          },
+          {
+            "bin": "tertiary",
+            "non_event": 780,
+            "event": 135,
+            "total": 915,
+            "non_event_share": 0.29411764705882354,
+            "event_share": 0.3879310344827586,
+            "total_share": 0.305,
+            "event_rate": 0.14754098360655737,
+            "woe": 0.27684773028607074,
+            "iv": 0.02597202337876424
+          }
+        ]
+      }
+    ]
+  },
+  "points": {
+    "pdays": [
+      85.0,
+      26.0,
+      71.0,
+      24.0,
+      91.0,
+      40.0
+    ],
+    "age": [
+      71.0,
+      81.0,
+      58.0
+    ],
+    "balance": [
+      89.0,
+      80.0,
+      75.0,
+      72.0,
+      78.0
+    ],
+    "housing": [
+      71.0,
+      86.0
+    ],
+    "contact": [
+      74.0,
+      95.0,
+      74.0
+    ],
+    "job": [
+      84.0,
+      74.0,
+      87.0,
+      78.0,
+      77.0,
+      69.0,
+      77.0
+    ],
+    "education": [
+      80.0,
+      74.0
+    ]
+  },
+  "unseen_points": {
+    "balance": 77.0,
+    "contact": 78.0
+  },
+  "calibration": {
+    "kind": "isotonic",
+    "edges": [
+      {
+        "float": "-inf"
+      },
+      491.0,
+      510.0,
+      516.0,
+      521.0,
+      527.0,
+      538.0,
+      543.0,
+      554.0,
+      558.0,
+      565.0,
+      568.0,
+      572.0,
+      579.0,
+      583.0,
+      {
+        "float": "inf"
+      }
+    ],
+    "probability": [
+      0.5578947368421052,
+      0.4090909090909091,
+      0.38095238095238093,
+      0.34210526315789475,
+      0.19047619047619047,
+      0.15613382899628253,
+      0.125,
+      0.11787072243346007,
+      0.08333333333333333,
+      0.0804953560371517,
+      0.06818181818181818,
+      0.06153846153846154,
+      0.05592105263157895,
+      0.043478260869565216,
+      0.02506265664160401
+    ]
+  },
+  "scale": [
+    {
+      "grade": "A",
+      "lower": 0.0,
+      "probability": 0.02,
+      "upper": 0.028284271247461905
+    },
+    {
+      "grade": "B",
+      "lower": 0.028284271247461905,
+      "probability": 0.04000000000000001,
+      "upper": 0.05656854249492382
+    },
+    {
+      "grade": "C",
+      "lower": 0.05656854249492382,
+      "probability": 0.08000000000000003,
+      "upper": 0.11313708498984763
+    },
+    {
+      "grade": "D",
+      "lower": 0.11313708498984763,
+      "probability": 0.16,
+      "upper": 0.2262741699796952
+    },
+    {
+      "grade": "E",
+      "lower": 0.2262741699796952,
+      "probability": 0.32,
+      "upper": 1.0
+    }
+  ]
+}

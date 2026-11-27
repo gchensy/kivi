@@ -1,0 +1,1 @@
+* ``kivi.scorecard.score_scaling``, ``pd_to_score``, ``score_to_pd``, ``points_table``, ``woe_to_points`` and ``reason_codes`` raise a ``ValueError`` rather than an ``OverflowError`` for an integer argument too large for a float, such as ``pdo=10**400``.
