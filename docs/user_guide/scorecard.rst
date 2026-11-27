@@ -3,7 +3,7 @@ Scorecard
 
 A scorecard turns a logistic regression on WOE values into points. Every applicant receives the points of their group in each variable, and the points add up to a score that stands for the odds of a good outcome. kivi takes the coefficients and the intercept as plain numbers, so the model can come from any library.
 
-The scorecard follows :doc:`variable selection <selection>` and :doc:`reject_inference`, which give the coefficients, and comes before :doc:`metrics`, which evaluates the score. Where there are too few defaults to fit a model, :doc:`expert` weighs the factors by judgment instead. :func:`~kivi.scorecard.score_scaling`, :func:`~kivi.scorecard.pd_to_score` and :func:`~kivi.scorecard.score_to_pd` set the scale, :func:`~kivi.scorecard.points_table` and :func:`~kivi.scorecard.woe_to_points` give the points, and :func:`~kivi.scorecard.reason_codes` explains a score.
+The scorecard follows :doc:`variable selection <selection>` and :doc:`reject_inference`, which give the coefficients, and comes before :doc:`metrics`, which evaluates the score. Where there are too few defaults to fit a model, :doc:`expert` weighs the factors by judgment instead. :func:`~kivi.scorecard.score_scaling`, :func:`~kivi.scorecard.pd_to_score` and :func:`~kivi.scorecard.score_to_pd` set the scale, :func:`~kivi.scorecard.points_table` and :func:`~kivi.scorecard.woe_to_points` give the points, :func:`~kivi.scorecard.reason_codes` explains a score, and :class:`~kivi.scorecard.ScorecardSpec` keeps the whole scorecard for production and saves it as versioned JSON.
 
 Scaling
 -------
@@ -125,6 +125,8 @@ True
 
 Deployed scorecards usually round the points to whole numbers. Round the points table and the applicant points in the same way, with ``table.round()`` and ``points.round()``: ``woe_to_points`` computes each point exactly as :func:`~kivi.scorecard.points_table` does, so the rounded values match. The rounded total can differ from the exact score by up to half a point per variable.
 
+:class:`~kivi.scorecard.ScorecardSpec` keeps the rounded points table and scores with it; see :ref:`scorecard-saving`.
+
 Reason codes
 ------------
 
@@ -165,3 +167,158 @@ The first applicant's housing points are those of a WOE of 0, so only the teleph
 .. note::
 
    A model developed on a sample that over- or undersamples bad outcomes has an intercept for that sample. Correct it with :func:`kivi.calibration.corrected_intercept` before building the points table; see :doc:`calibration`.
+
+.. _scorecard-saving:
+
+Saving the scorecard
+--------------------
+
+Production needs more than the points table: the binning that groups each characteristic, the scaling, the points of values that development did not have and, often, a calibration of the PD and a master scale. :class:`~kivi.scorecard.ScorecardSpec` keeps them in one object, which scores any sample and saves itself as versioned JSON. :meth:`~kivi.scorecard.ScorecardSpec.from_model` builds it from a :class:`~kivi.spec.BinningSpec` and the coefficients of the model. :func:`~kivi.spec.fit_spec` with the age edges of the example gives the groups and the WOE of the tables above, and here gives housing statuses that development did not have a WOE of 0:
+
+>>> from kivi.scorecard import ScorecardSpec
+>>> from kivi.spec import fit_spec
+>>> binning = fit_spec(
+...     development[list(coefficients)], target, bins={"age": age_edges}, unseen={"housing": 0.0}
+... )
+>>> card = ScorecardSpec.from_model(binning, coefficients, intercept, **scale, decimals=0)
+>>> card.table
+                   bin       woe  points
+variable
+poutcome       unknown -0.257139   143.0
+poutcome       failure  0.213512   131.0
+poutcome         other  0.591650   121.0
+poutcome       success  2.548123    70.0
+contact       cellular  0.240895   132.0
+contact        unknown -0.917237   154.0
+contact      telephone  0.206318   132.0
+housing             no  0.332926   130.0
+housing            yes -0.327288   143.0
+age       (-inf, 25.0]  0.794104   120.0
+age       (25.0, 35.0] -0.032419   137.0
+age       (35.0, 45.0] -0.166358   140.0
+age       (45.0, 55.0] -0.000122   136.0
+age       (55.0, 65.0]  0.038437   136.0
+age        (65.0, inf]  1.114576   113.0
+
+``from_model`` keeps the columns of the binning that have a coefficient, in the order of the coefficients, gives their groups the points of :func:`~kivi.scorecard.points_table` and rounds them to ``decimals`` with pandas ``round``, which rounds halves to even. To deploy points adjusted by hand, change the ``points`` column of ``card.table`` and pass the table back with ``dataclasses.replace``, which checks that ``bin`` and ``woe`` are still those of the binning.
+
+:meth:`~kivi.scorecard.ScorecardSpec.score` adds the rounded points column by column rather than with a matrix product, so applicants in the same groups get exactly the same score on every computer:
+
+>>> card.score(monitoring).head(3)
+3000    545.0
+3001    580.0
+3002    555.0
+Name: score, dtype: float64
+
+These scores differ from the exact ones above, 545.2, 579.7 and 554.9, by less than half a point per variable, and the PD follows from the rounded score, as in production.
+
+Unseen groups
+^^^^^^^^^^^^^
+
+A value whose group is not in its column's table is treated as the ``unseen`` policy of the binning says. A column with the policy ``"raise"`` raises an error, as :meth:`~kivi.spec.BinningSpec.woe_transform` does, and a grouped column whose policy names a group gives the value the points of that group. A column with an unseen WOE needs points for it, and rounded points cannot be turned back into a coefficient, so the specification keeps them in ``unseen_points``. :meth:`~kivi.scorecard.ScorecardSpec.from_model` computes them with :func:`~kivi.scorecard.woe_to_points` and rounds them with the table:
+
+>>> dict(card.unseen_points)
+{'housing': 136.0}
+>>> new = pd.DataFrame({
+...     "poutcome": ["unknown", "success"],
+...     "contact": ["telephone", "cellular"],
+...     "housing": ["rented", "no"],
+...     "age": [30, 70],
+... })
+>>> card.points(new)
+   poutcome  contact  housing    age
+0     143.0    132.0    136.0  137.0
+1      70.0    132.0    130.0  113.0
+>>> card.reason_codes(new)
+   reason_1 reason_2 reason_3
+0   contact      age     None
+1  poutcome      age  contact
+
+:meth:`~kivi.scorecard.ScorecardSpec.reason_codes` ranks the costs as :func:`~kivi.scorecard.reason_codes` does, but it knows which values were unseen: an unseen value costs nothing, even when its points equal those of a group. The rented home of the first applicant is therefore not one of their reasons.
+
+Calibration and grades
+^^^^^^^^^^^^^^^^^^^^^^
+
+A score :math:`s` stands for the log odds of the event :math:`\ell = (\mathrm{offset} - s) / \mathrm{factor}`. :meth:`~kivi.scorecard.ScorecardSpec.probability` computes them from the score directly, so that a PD near 0 or 1 is not rounded first, and without calibration gives :math:`\sigma(\ell) = 1 / (1 + e^{-\ell})`, the PD of :func:`~kivi.scorecard.score_to_pd`. A calibration changes the PD and leaves the points as they are:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 34 26 40
+
+   * - ``calibration``
+     - PD
+     - Fitted with
+   * - ``{"kind": "shift", "shift": shift}``
+     - :math:`\sigma(\ell + \mathrm{shift})`
+     - :func:`~kivi.calibration.central_tendency_shift` of the uncalibrated PDs
+   * - ``{"kind": "platt", "slope": slope, "intercept": intercept}``
+     - :math:`\sigma(\mathrm{slope} \cdot \ell + \mathrm{intercept})`
+     - :func:`~kivi.calibration.platt_fit` or :func:`~kivi.calibration.quasi_moment_fit` of the log odds :math:`\ell`
+   * - ``{"kind": "isotonic", "edges": edges, "probability": probability}``
+     - The ``probability`` of the band of :math:`s`, as :func:`~kivi.calibration.isotonic_predict` gives it
+     - :func:`~kivi.calibration.isotonic_fit` of the scores with ``increasing=False``, because a higher score means a lower risk
+
+A Platt calibration fitted to the scores rather than to :math:`\ell` would differ only by the linear conversion between the two, so the specification takes the one on the log odds alone. ``scale``, a :func:`~kivi.calibration.master_scale` result, gives :meth:`~kivi.scorecard.ScorecardSpec.grade` the grade of each calibrated PD. Below, the PDs are shifted to a long-run average default rate of 15%, above the 11.6% of the development sample:
+
+>>> import dataclasses
+>>> from kivi.calibration import central_tendency_shift, master_scale
+>>> shift = central_tendency_shift(card.probability(development), central_tendency=0.15)
+>>> card = dataclasses.replace(
+...     card,
+...     calibration={"kind": "shift", "shift": shift},
+...     scale=master_scale(np.geomspace(0.05, 0.4, 4), labels=list("ABCD")),
+... )
+>>> print(f"{card.probability(development).mean():.4f}")
+0.1500
+>>> card.grade(monitoring).value_counts(sort=False)
+grade
+A    328
+B    456
+C    634
+D    103
+Name: count, dtype: int64
+
+``dataclasses.replace`` checks the new specification again, as the constructor does.
+
+Saving and loading
+^^^^^^^^^^^^^^^^^^
+
+:meth:`~kivi.scorecard.ScorecardSpec.to_json` writes the whole scorecard as JSON text, and :meth:`~kivi.scorecard.ScorecardSpec.from_json` reads it back into an equal specification, which scores, calibrates and grades every sample identically:
+
+>>> text = card.to_json(indent=2)
+>>> loaded = ScorecardSpec.from_json(text)
+>>> loaded == card
+True
+>>> loaded.grade(monitoring).equals(card.grade(monitoring))
+True
+
+Two specifications are equal when their JSON text is the same, which includes the version of kivi. Save the text as UTF-8, as for a :class:`~kivi.spec.BinningSpec`; see :ref:`spec-saving`. The time-window features of a :class:`~kivi.features.FeatureSpec` are computed from other tables before the scorecard scores an application, so they are not part of the specification; save the two files side by side.
+
+The text always has these keys, with ``null`` for a field that is not set:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 75
+
+   * - Key
+     - Content
+   * - ``format``
+     - Always ``"kivi.ScorecardSpec"``.
+   * - ``format_version``
+     - Version of the format, 1. ``ScorecardSpec.FORMAT_VERSION`` is the newest version. A file with a newer version raises an error that asks for a newer kivi, instead of being read in part.
+   * - ``kivi_version``
+     - Version of kivi that built the specification.
+   * - ``scaling``
+     - ``pdo``, ``base_score`` and ``base_odds``.
+   * - ``binning``
+     - The binning as :meth:`~kivi.spec.BinningSpec.to_dict` writes it, with its own format version.
+   * - ``points``
+     - For each column, the list of the points of its groups, in the order of the rows of its table in ``binning``.
+   * - ``unseen_points``
+     - The points of unseen groups, by column.
+   * - ``calibration``
+     - The calibration, with ``{"float": "inf"}`` and ``{"float": "-inf"}`` for the infinite outer edges of an isotonic calibration.
+   * - ``scale``
+     - One entry per grade, with its label ``grade`` and its ``lower``, ``probability`` and ``upper``.
+
+:meth:`~kivi.scorecard.ScorecardSpec.from_json` checks every value and rejects ``NaN`` and ``Infinity`` in the text and objects that repeat a key, so a damaged or hand-edited file fails with a message instead of scoring with wrong values.

@@ -1120,7 +1120,7 @@ class FeatureSpec:
                 f"text must be JSON text as a str or bytes, got {type(text).__name__}; read a "
                 'file first, for example with Path(...).read_text(encoding="utf-8")'
             )
-        return cls.from_dict(json.loads(text, object_pairs_hook=_unique_keys))
+        return cls.from_dict(json.loads(text, object_pairs_hook=_validation.unique_keys))
 
 
 def _checked_group(
@@ -1397,18 +1397,6 @@ def _json_kind(value: object) -> str:
     if isinstance(value, dict):
         return "an object"
     return "a string" if isinstance(value, str) else type(value).__name__
-
-
-def _unique_keys(pairs: list[tuple[str, typing.Any]]) -> dict[str, typing.Any]:
-    """Return the pairs of a JSON object as a dict, rejecting a repeated key."""
-    result: dict[str, typing.Any] = {}
-    for key, value in pairs:
-        if key in result:
-            raise ValueError(
-                f"JSON objects must not repeat a key, got {_validation.shown(key)} twice"
-            )
-        result[key] = value
-    return result
 
 
 def _tables(tables: object, names: list[str], argument: str) -> dict[str, tuple[pd.DataFrame, str]]:

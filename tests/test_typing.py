@@ -31,6 +31,7 @@ from kivi import (
     lifetime,
     reject_inference,
     scorecard,
+    spec,
     strategy,
     woe,
 )
@@ -45,6 +46,16 @@ LABEL_TABLE = woe.woe_table(LABELS, pd.Series([0, 1, 0]))
 GROUPS = binning.category_groups(["a", "a", "a", "b", "c"], min_share=0.3)
 CURVES = pd.DataFrame([[0.01, 0.03], [0.02, 0.05]], index=["x", "y"], columns=[1, 2])
 SCALE = calibration.master_scale(pd.Series([0.01, 0.05, 0.2], index=["A", "B", "C"]))
+FRAME = pd.DataFrame({"x": [0.1, 0.2, 0.4]})
+CARD = scorecard.ScorecardSpec.from_model(
+    spec.fit_spec(FRAME, [0, 1, 1], bins=2),
+    {"x": 0.5},
+    -1.0,
+    pdo=20,
+    base_score=600,
+    base_odds=50,
+    scale=SCALE,
+)
 """
 
 CASES = {
@@ -326,6 +337,17 @@ CASES = {
         "capital.most_prudent_pd(np.zeros(2), np.ones(2) * 10, correlation=0.1)",
         "npt.NDArray[np.float64]",
     ),
+    # The fields that return a copy on each access, and the methods of a ScorecardSpec.
+    "ScorecardSpec-table": ("CARD.table", "pd.DataFrame"),
+    "ScorecardSpec-from_json": (
+        "scorecard.ScorecardSpec.from_json(CARD.to_json())",
+        "scorecard.ScorecardSpec",
+    ),
+    "ScorecardSpec-points": ("CARD.points(FRAME)", "pd.DataFrame"),
+    "ScorecardSpec-score": ("CARD.score(FRAME)", "pd.Series"),
+    "ScorecardSpec-probability": ("CARD.probability(FRAME)", "pd.Series"),
+    "ScorecardSpec-grade": ("CARD.grade(FRAME)", "pd.Series"),
+    "ScorecardSpec-reason_codes": ("CARD.reason_codes(FRAME)", "pd.DataFrame"),
 }
 
 ARRAY_LIKE = """
@@ -344,6 +366,8 @@ def array_like(values: npt.ArrayLike, frame: pd.DataFrame) -> None:
     # Series overload and to the catch-all and so infers Any, where pyright infers the Series; with
     # either checker, the methods of a Series raise no error.
     scorecard.pd_to_score(frame["p"], pdo=20, base_score=600, base_odds=50).round(2).index
+    # A scale may be unset.
+    typing.assert_type(CARD.scale, pd.DataFrame | None)
     woe.woe_transform(binning.cut(SERIES, EDGES), TABLE).round(2).index
 """
 
