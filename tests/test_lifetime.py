@@ -1016,6 +1016,32 @@ def test_matrix_correlation_gives_factors_a_variance_of_1():
     assert matrix_correlation(frames, MATRIX) == correlation
 
 
+def test_matrix_correlation_does_not_depend_on_the_order_of_the_periods():
+    # Correctly rounded sums and one batch order make the result the same to the last bit.
+    rng = np.random.default_rng(12)
+    matrix = witzany_matrix()
+    periods = {}
+    months = pd.period_range("2020-01", periods=14, freq="M")
+    for month, factor in zip(months, rng.normal(size=14), strict=True):
+        probabilities = conditional_matrix(matrix, correlation=0.1, factor=factor).to_numpy()
+        sizes = rng.integers(30, 400, 8)
+        periods[month] = np.array(
+            [
+                rng.multinomial(size, row)
+                for size, row in zip(sizes, probabilities[:-1], strict=True)
+            ]
+            + [np.zeros(9)]
+        )
+    expected = matrix_correlation(periods, matrix)
+    months = list(periods)
+    for _ in range(6):
+        shuffled = [months[k] for k in rng.permutation(len(months))]
+        assert matrix_correlation([periods[month] for month in shuffled], matrix) == expected
+        assert matrix_correlation({month: periods[month] for month in shuffled}, matrix) == expected
+    reversed_mapping = dict(reversed(list(periods.items())))
+    assert matrix_correlation(reversed_mapping, matrix) == expected
+
+
 def test_matrix_correlation_with_a_default_state_that_is_not_last():
     sizes = [500, 800, 0]
     counts = [expected_counts(MATRIX, 0.1, z, sizes) for z in standardized([-1, 0.5, 1.2])]

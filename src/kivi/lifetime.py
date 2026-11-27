@@ -697,10 +697,15 @@ def matrix_correlation(
         _count_matrix(value, matrix, states, default, where)
         for value, where in zip(values, wheres, strict=True)
     ]
-    cells = model.cells(matrices, wheres)
+    # Check the periods in the order given, so that an error names the first invalid one.
+    model.cells(matrices, wheres)
+    # The factors are computed in one batch. In a canonical order of the periods, the batch is
+    # the same whatever the order of counts, and so are the factors to the last bit.
+    canonical = sorted(range(len(matrices)), key=lambda period: matrices[period].tobytes())
+    cells = model.cells([matrices[k] for k in canonical], [wheres[k] for k in canonical])
 
     def variance(rho: float) -> float:
-        result = float(np.var(cells.factors(rho), ddof=1))
+        result = _sample_variance(cells.factors(rho))
         if result == 0:
             raise ValueError(
                 "counts must differ between the periods; their factors are all equal, so no "
@@ -2072,6 +2077,12 @@ class _MatrixModel:
             parts.append((upper, lower, counts[observed], np.full(observed.sum(), position)))
         upper, lower, counts, period = (np.concatenate(part) for part in zip(*parts, strict=True))
         return _Cells(upper, lower, counts, period, len(matrices))
+
+
+def _sample_variance(values: np.ndarray) -> float:
+    """Return the sample variance (ddof=1) from correctly rounded sums, the same in any order."""
+    mean = math.fsum(values) / len(values)
+    return math.fsum((values - mean) ** 2) / (len(values) - 1)
 
 
 def _count_matrix(
