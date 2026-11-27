@@ -5,6 +5,10 @@ rates of ``kivi.vintage.vintage_table``, between cumulative, marginal and
 conditional PDs, ``transition_pd`` projects cumulative PDs from a
 transition matrix, and ``survival_table`` estimates them from accounts that
 are censored, repaid early or observed only from some age on.
+``conditional_matrix`` shifts a transition matrix to the state of the
+economy in the one-factor model of Belkin, Suchower and Forest, and
+``matrix_factor`` and ``matrix_correlation`` estimate the factor of a
+period and the correlation from observed movements.
 ``expected_credit_loss`` turns marginal PDs, LGDs and exposures into the
 discounted 12-month or lifetime expected credit loss of each account.
 ``significant_increase`` and ``assign_stages`` allocate the
@@ -25,11 +29,14 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from . import _counts, _validation
+from . import _counts, _stats, _validation
 
 __all__ = [
     "convert_pd",
     "transition_pd",
+    "conditional_matrix",
+    "matrix_factor",
+    "matrix_correlation",
     "survival_table",
     "expected_credit_loss",
     "significant_increase",
@@ -43,6 +50,11 @@ _TOLERANCE = 1e-9
 # The rounding of a PD, of a threshold and of the product or the difference that compares
 # them stays below 2 eps times the PD, so a margin of 4 eps keeps ties from counting.
 _TIES = 4 * np.finfo(float).eps
+_ROOT_TWO_PI = math.sqrt(2 * math.pi)
+# From here on, the asymptotic series of the Mills ratio to t**-11 is exact to about 3e-15.
+_MILLS_SERIES_FROM = 35.0
+# The golden-section search for a correlation with a variance of at most 1 stops at this width.
+_GOLDEN_TOLERANCE = 1e-6
 
 
 @typing.overload
@@ -294,20 +306,7 @@ def transition_pd(
     """
     probabilities, states = _transition_probabilities(matrix)
     steps = _horizons(horizons)
-    if default_state is None:
-        default = len(states) - 1
-    else:
-        try:
-            default = states.get_loc(default_state)  # type: ignore[assignment]  # an int when found
-            # get_loc also finds the interval that holds a number; the label itself must match.
-            found = _validation.is_integral(default) and bool(states[default] == default_state)
-        except (KeyError, TypeError, ValueError, pd.errors.InvalidIndexError):
-            found = False
-        if not found:
-            raise ValueError(
-                "default_state must be one of the states, got "
-                f"{_validation.shown_argument(default_state)}"
-            )
+    default = _default_position(states, default_state)
     _check_transition_rows(probabilities, states, default)
 
     absorbing = probabilities.copy()
@@ -327,6 +326,392 @@ def transition_pd(
     result = np.minimum(np.maximum.accumulate(result, axis=1), 1.0)
     index = states.rename("state") if states.nlevels == 1 else states
     return pd.DataFrame(result, index=index, columns=pd.Index(steps, name="horizon"))
+
+
+def conditional_matrix(
+    matrix: npt.ArrayLike | pd.DataFrame,
+    *,
+    correlation: float,
+    factor: float,
+    default_state: abc.Hashable | None = None,
+) -> pd.DataFrame:
+    r"""Shift a transition matrix to the state of the economy in a one-factor model.
+
+    In the one-parameter representation of Belkin, Suchower and Forest
+    (1998), the movements from each state follow a standard normal credit
+    index, binned by thresholds that reproduce the row of the long-run
+    matrix, as in CreditMetrics. The index of every borrower shares one
+    systematic factor, so given the factor the whole matrix shifts: in a
+    good economy defaults and downgrades become rarer and upgrades more
+    frequent, and in a bad one the reverse. Its default column is the
+    conditional PD of `kivi.capital.conditional_pd`.
+
+    Parameters
+    ----------
+    matrix : array_like or pandas.DataFrame
+        Square matrix of the long-run probabilities of moving between the
+        states over one period, as for `transition_pd`, with the states in
+        the order of credit quality from the best to the worst. Each row
+        holds probabilities from 0 to 1 that add up to 1, except that the
+        row of the default state is not used. The states of a DataFrame
+        are its index, which must equal its columns; the states of an
+        array are the positions 0, 1, and so on.
+    correlation : float
+        Asset correlation :math:`\rho` of the one-factor model, from 0 to
+        below 1.
+    factor : float
+        Value :math:`z` of the standard normal systematic factor in the
+        period, finite; positive values stand for a better economy than on
+        average.
+    default_state : optional
+        Label of the default state, the worst state whatever its position.
+        By default the last state.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The matrix given the factor, with the index and the columns of
+        `matrix`, or positions for an array. Each row adds up to 1, and the
+        row of the default state stays in default with probability 1.
+
+    Raises
+    ------
+    ValueError
+        If `matrix` or `default_state` is not valid, as for `transition_pd`,
+        `correlation` is not a real number from 0 to below 1, or `factor`
+        is not a finite real number.
+
+    See Also
+    --------
+    matrix_factor : Estimate the factor of a period from its movements.
+    matrix_correlation : Estimate the correlation from the movements of several periods.
+    transition_pd : Cumulative PD from the powers of a transition matrix.
+    kivi.capital.conditional_pd : The conditional PD, the default column of the result.
+
+    Notes
+    -----
+    With the states ordered from the best to the worst and the default
+    state last, let :math:`C_{ij}` be the long-run probability of moving
+    from state :math:`i` to state :math:`j` or a worse one. The index
+    :math:`X = \sqrt{\rho}\,Z + \sqrt{1 - \rho}\,Y` of a borrower in state
+    :math:`i` lands in state :math:`j` or a worse one when it falls below
+    :math:`b_{ij} = \Phi^{-1}(C_{ij})`, and given :math:`Z = z`
+
+    .. math::
+
+       C_{ij}(z) = \Phi\!\left(\frac{b_{ij} - \sqrt{\rho}\,z}{\sqrt{1 - \rho}}\right).
+
+    Each entry of the result is the difference of two consecutive
+    :math:`C_{ij}(z)`, computed from the smaller tails, so entries of 0
+    and 1 stay exact and small ones keep their relative accuracy.
+
+    A factor of 0 gives the matrix of the median economy, not `matrix`:
+    averaged over the standard normal factor, the result of one period is
+    `matrix`. The same holds for a path of independent factors, one per
+    period, whose product averages to the power of `matrix`, but not for
+    one factor kept over several periods, whose average product gives
+    higher PDs than the power. The factor and the correlation belong to the
+    period of `matrix`, such as a month or a year.
+
+    The thresholds follow the CreditMetrics Technical Document (Gupton,
+    Finger and Bhatia, 1997, section 8.4), and the conditional matrix is
+    that of Witzany (2020, eq. 10). Exits that have no place in the order of
+    credit quality, such as early repayment, must be left out and the rows
+    divided by their sums first, which gives the movements of the loans
+    that do not exit.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from kivi.lifetime import conditional_matrix, transition_pd
+    >>> states = ["A", "B", "D"]
+    >>> matrix = pd.DataFrame(
+    ...     [[0.90, 0.08, 0.02], [0.10, 0.70, 0.20], [0.00, 0.00, 1.00]],
+    ...     index=states,
+    ...     columns=states,
+    ... )
+    >>> shifted = conditional_matrix(matrix, correlation=0.1, factor=-1.0)
+    >>> shifted.round(4)
+            A       B       D
+    A  0.8456  0.1209  0.0335
+    B  0.0461  0.6641  0.2899
+    D  0.0000  0.0000  1.0000
+
+    With the factor one standard deviation below its median, state A
+    defaults with probability 0.0335 instead of 0.02, which is
+    ``conditional_pd(0.02, correlation=0.1, factor=-1.0)``, and moves to B
+    more often, while B returns to A less often. Kept for three periods,
+    the factor gives these cumulative PDs:
+
+    >>> transition_pd(shifted, horizons=3).round(4)
+    horizon       1       2       3
+    state
+    A        0.0335  0.0969  0.1740
+    B        0.2899  0.4839  0.6157
+    D        1.0000  1.0000  1.0000
+    """
+    probabilities, states = _transition_probabilities(matrix)
+    default = _default_position(states, default_state)
+    _check_transition_rows(probabilities, states, default)
+    rho = _checked_correlation(correlation, positive=False)
+    z = _checked_factor(factor)
+    order = _credit_order(len(states), default)
+    rows = probabilities[np.ix_(order[:-1], order)]
+    bounds = (_thresholds(rows) - math.sqrt(rho) * z) / math.sqrt(1 - rho)
+    result = np.zeros((len(states), len(states)))
+    result[np.ix_(order[:-1], order)] = _interval_probabilities(bounds[:, :-1], bounds[:, 1:])
+    result[default, default] = 1.0
+    if isinstance(matrix, pd.DataFrame):
+        return pd.DataFrame(result, index=matrix.index, columns=matrix.columns)
+    return pd.DataFrame(result)
+
+
+def matrix_factor(
+    counts: npt.ArrayLike | pd.DataFrame,
+    matrix: npt.ArrayLike | pd.DataFrame,
+    *,
+    correlation: float,
+    default_state: abc.Hashable | None = None,
+) -> float:
+    r"""Estimate the systematic factor of a period from its movements between states.
+
+    The factor is the value under which `conditional_matrix` explains the
+    movements of the period best: the maximum-likelihood estimate of the
+    multinomial distribution of each state's movements. A negative factor
+    marks a period worse than on average, with more defaults and
+    downgrades than `matrix` gives.
+
+    Parameters
+    ----------
+    counts : array_like or pandas.DataFrame
+        Square matrix of the numbers of entities that moved between the
+        states in the period, such as `kivi.vintage.transition_matrix`
+        without ``normalize``, or sums of frequency weights. A DataFrame
+        must have the index and the columns of `matrix` if that is a
+        DataFrame; arrays are matched by position. The counts are
+        non-negative and finite, except that the row of the default state
+        is not used.
+    matrix : array_like or pandas.DataFrame
+        Long-run transition matrix, as for `conditional_matrix`, with the
+        states ordered from the best to the worst.
+    correlation : float
+        Asset correlation of the one-factor model, strictly between 0 and 1.
+    default_state : optional
+        Label of the default state, as for `conditional_matrix`.
+
+    Returns
+    -------
+    float
+        The estimated factor.
+
+    Raises
+    ------
+    ValueError
+        If `matrix`, `correlation` or `default_state` is not valid, as for
+        `conditional_matrix`, or `correlation` is 0; if `counts` does not
+        match `matrix`, has a negative, missing or infinite count outside
+        the row of the default state, or has no movement from a state that
+        can move to more than one state; if an entity moved where `matrix`
+        gives a probability of 0; or if the factor is not finite, because
+        every movement is to the best or every one to the worst state that
+        its state can reach.
+
+    See Also
+    --------
+    conditional_matrix : The transition matrix given the factor.
+    matrix_correlation : The correlation under which the factors of several periods vary as Z.
+    kivi.capital.systematic_factor : The factor that a default rate implies.
+
+    Notes
+    -----
+    With :math:`n_{ij}` entities moving from state :math:`i` to state
+    :math:`j` and the probabilities :math:`p_{ij}(z)` of
+    `conditional_matrix`, the factor maximizes
+
+    .. math::
+
+       \ell(z) = \sum_{i \ne d} \sum_j n_{ij} \log p_{ij}(z)
+
+    over the states :math:`i` other than the default state :math:`d`. Each
+    term is concave in :math:`z`, because the normal density is log-concave,
+    so the maximum is unique; it is found by bisection on the derivative.
+    Counts scaled by a constant give the same factor, and with two states
+    the factor is the one `kivi.capital.systematic_factor` gives for the
+    default rate.
+
+    Belkin, Suchower and Forest (1998) instead minimize, as restated by
+    Shao, Li and Li (2018, eq. 1.5), the squared differences between the
+    observed and the conditional probabilities, each weighted by the number
+    of entities of its state over the binomial variance
+    :math:`p_{ij}(z)(1 - p_{ij}(z))`. That weight grows without bound for a
+    rare movement, so that a single entity moving from the best state to
+    one it reaches with probability 0.00001 can move the factor by a
+    quarter of a standard deviation; the likelihood is not as fragile.
+
+    The factor absorbs every change that moves the rows together, also a
+    change in the mix of the portfolio, such as its age, so `counts` and
+    `matrix` should describe comparable portfolios.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from kivi.lifetime import conditional_matrix, matrix_factor
+    >>> states = ["A", "B", "D"]
+    >>> matrix = pd.DataFrame(
+    ...     [[0.90, 0.08, 0.02], [0.10, 0.70, 0.20], [0.00, 0.00, 1.00]],
+    ...     index=states,
+    ...     columns=states,
+    ... )
+    >>> counts = pd.DataFrame(
+    ...     [[850, 110, 40], [60, 280, 160], [0, 0, 0]], index=states, columns=states
+    ... )
+    >>> print(f"{matrix_factor(counts, matrix, correlation=0.1):.4f}")
+    -0.8425
+
+    Both states defaulted more often than `matrix` gives, 4% of A against
+    2% and 32% of B against 20%, so the period was worse than on average.
+    """
+    probabilities, states = _transition_probabilities(matrix)
+    default = _default_position(states, default_state)
+    _check_transition_rows(probabilities, states, default)
+    rho = _checked_correlation(correlation, positive=True)
+    model = _MatrixModel(probabilities, states, default)
+    cells = model.cells([_count_matrix(counts, matrix, states, default, "")], [""])
+    return float(cells.factors(rho)[0])
+
+
+def matrix_correlation(
+    counts: abc.Mapping[abc.Hashable, npt.ArrayLike | pd.DataFrame]
+    | abc.Sequence[npt.ArrayLike | pd.DataFrame]
+    | pd.Series,
+    matrix: npt.ArrayLike | pd.DataFrame,
+    *,
+    default_state: abc.Hashable | None = None,
+) -> float:
+    r"""Estimate the asset correlation from the movements of several periods.
+
+    Belkin, Suchower and Forest (1998) choose the correlation under which
+    the factors of the periods vary as much as the standard normal factor
+    of the model: their sample variance is 1. The factor of each period is
+    the one of `matrix_factor`.
+
+    Parameters
+    ----------
+    counts : mapping, sequence or pandas.Series
+        Count matrices of the periods, at least two, each as for
+        `matrix_factor`: a mapping or a Series from the label of each
+        period, such as its month, to its counts, or a list or tuple of
+        counts. Errors name the label or the position of the period.
+    matrix : array_like or pandas.DataFrame
+        Long-run transition matrix, as for `conditional_matrix`, with the
+        states ordered from the best to the worst.
+    default_state : optional
+        Label of the default state, as for `conditional_matrix`.
+
+    Returns
+    -------
+    float
+        The correlation, strictly between 0 and 1.
+
+    Raises
+    ------
+    ValueError
+        If `matrix` or `default_state` is not valid, as for
+        `conditional_matrix`; if `counts` is a single matrix or has fewer
+        than two periods, or the counts of a period are not valid, as for
+        `matrix_factor`; or if no correlation gives the factors a variance
+        of 1, because they are all equal or vary too much.
+
+    See Also
+    --------
+    matrix_factor : The factor of one period, given the correlation.
+    conditional_matrix : The transition matrix given the factor.
+    kivi.capital.vasicek_fit : The correlation from a series of default rates.
+
+    Notes
+    -----
+    The sample variance is taken with ``ddof=1``, as in
+    `kivi.capital.vasicek_fit`, and the mean of the factors is not forced
+    to 0. The variance falls steeply from infinity as the correlation
+    rises from 0, flattens out towards a minimum, usually above 0.5, and
+    can rise again towards 1, a shape checked numerically rather than
+    proven. Near the minimum the variance hardly depends on the
+    correlation, so data with a high correlation can give a variance of 1
+    at two correlations or at none. The result is the smallest correlation
+    with a variance of 1, where the variance falls, found by bisection.
+
+    Because the variance of the estimated factors is set to 1, the estimate
+    is about the true correlation times the sample variance of the true
+    factors of the periods, so a few periods give an uncertain estimate.
+    The binomial noise of small portfolios adds to the variance of the
+    factors and raises the estimate.
+
+    The unit-variance condition is that of Belkin, Suchower and Forest, as
+    restated by Shao, Li and Li (2018, section 2); they estimate the factors
+    by weighted least squares instead (see `matrix_factor`). Another route
+    estimates the correlation from a series of default rates with
+    `kivi.capital.vasicek_fit` and the factors with
+    `kivi.capital.systematic_factor`.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from kivi.lifetime import matrix_correlation, matrix_factor
+    >>> states = ["A", "B", "D"]
+    >>> matrix = pd.DataFrame(
+    ...     [[0.90, 0.08, 0.02], [0.10, 0.70, 0.20], [0.00, 0.00, 1.00]],
+    ...     index=states,
+    ...     columns=states,
+    ... )
+    >>> years = {
+    ...     2023: [[930, 60, 10], [130, 740, 130], [0, 0, 0]],
+    ...     2024: [[850, 110, 40], [60, 280, 160], [0, 0, 0]],
+    ...     2025: [[900, 80, 20], [100, 700, 200], [0, 0, 0]],
+    ... }
+    >>> correlation = matrix_correlation(years, matrix)
+    >>> print(f"{correlation:.4f}")
+    0.0515
+    >>> factors = [matrix_factor(c, matrix, correlation=correlation) for c in years.values()]
+    >>> [round(factor, 4) for factor in factors]
+    [0.8946, -1.1045, -0.0529]
+
+    The counts are lists matched to the states of `matrix` by position.
+    With this correlation, the factors of the three years have a sample
+    variance of 1.
+    """
+    probabilities, states = _transition_probabilities(matrix)
+    default = _default_position(states, default_state)
+    _check_transition_rows(probabilities, states, default)
+    wheres, values = _periods(counts)
+    model = _MatrixModel(probabilities, states, default)
+    matrices = [
+        _count_matrix(value, matrix, states, default, where)
+        for value, where in zip(values, wheres, strict=True)
+    ]
+    cells = model.cells(matrices, wheres)
+
+    def variance(rho: float) -> float:
+        result = float(np.var(cells.factors(rho), ddof=1))
+        if result == 0:
+            raise ValueError(
+                "counts must differ between the periods; their factors are all equal, so no "
+                "correlation gives them a variance of 1"
+            )
+        return result
+
+    # The variance falls from infinity as the correlation rises from 0, reaches a minimum and can
+    # rise again towards 1. A correlation with a variance of at most 1 bounds the first one at
+    # which it is 1, where the variance falls.
+    high = 0.5 if variance(0.5) <= 1 else _variance_at_most_one(variance)
+    # Bisection ends when no number lies between the two ends.
+    low, middle = 0.0, high / 2
+    while low < middle < high:
+        if variance(middle) > 1:
+            low = middle
+        else:
+            high = middle
+        middle = (low + high) / 2
+    return middle
 
 
 def survival_table(
@@ -1388,6 +1773,24 @@ def _transition_probabilities(
     return _float_frame(frame, "matrix"), states
 
 
+def _default_position(states: pd.Index, default_state: abc.Hashable | None) -> int:
+    """Return the position of the default state, by default the last one."""
+    if default_state is None:
+        return len(states) - 1
+    try:
+        default = states.get_loc(default_state)
+        # get_loc also finds the interval that holds a number; the label itself must match.
+        found = _validation.is_integral(default) and bool(states[default] == default_state)
+    except (KeyError, TypeError, ValueError, pd.errors.InvalidIndexError):
+        found = False
+    if not found:
+        raise ValueError(
+            "default_state must be one of the states, got "
+            f"{_validation.shown_argument(default_state)}"
+        )
+    return typing.cast(int, default)
+
+
 def _check_transition_rows(probabilities: np.ndarray, states: pd.Index, default: int) -> None:
     """Rows other than the default state's hold probabilities that add up to 1."""
     rows = np.delete(np.arange(len(states)), default)
@@ -1413,6 +1816,303 @@ def _check_transition_rows(probabilities: np.ndarray, states: pd.Index, default:
                 f"the rows of matrix must add up to 1, got {float(total)!r} for state "
                 f"{_validation.shown(state)}; divide each row by its sum"
             )
+
+
+def _checked_correlation(correlation: object, *, positive: bool) -> float:
+    """Return a correlation from 0, or above 0 when positive, to below 1 as a float."""
+    if isinstance(correlation, (bool, np.bool_)) or not _validation.is_real(correlation):
+        valid = False
+    else:
+        value = float(correlation)
+        valid = 0 < value < 1 if positive else 0 <= value < 1
+    if not valid:
+        interval = "strictly between 0 and 1" if positive else "from 0 to below 1"
+        raise ValueError(
+            f"correlation must be a number {interval}, got "
+            f"{_validation.shown_argument(correlation)}"
+        )
+    return float(typing.cast(float, correlation))
+
+
+def _checked_factor(factor: object) -> float:
+    """Return a finite real factor as a float."""
+    if (
+        isinstance(factor, (bool, np.bool_))
+        or not _validation.is_real(factor)
+        or not math.isfinite(factor)
+    ):
+        raise ValueError(
+            f"factor must be a finite number, got {_validation.shown_argument(factor)}"
+        )
+    return float(factor)
+
+
+def _credit_order(size: int, default: int) -> npt.NDArray[np.intp]:
+    """Positions of the states from the best to the worst: the others in order, then default."""
+    return np.append(np.delete(np.arange(size), default), default)
+
+
+def _thresholds(rows: np.ndarray) -> npt.NDArray[np.float64]:
+    """Bounds of the credit index for each row of probabilities in the order of credit quality.
+
+    Column j holds the threshold below which the index lands in state j or a worse one, so
+    column 0 is +inf and the last column -inf, and state j lies between columns j + 1 and j.
+    Each threshold is the quantile of the smaller of its two tails, summed from its own end.
+    """
+    worse = np.cumsum(rows[:, ::-1], axis=1)[:, ::-1][:, 1:]
+    better = np.cumsum(rows, axis=1)[:, :-1]
+    lower = worse <= 0.5
+    tail = np.where(lower, worse, better)
+    quantile = np.full(tail.shape, -np.inf)
+    positive = tail > 0
+    quantile[positive] = _stats.normal_quantile(tail[positive])
+    inner = np.where(lower, quantile, -quantile)
+    edge = np.full((len(rows), 1), np.inf)
+    return np.concatenate([edge, inner, -edge], axis=1)
+
+
+def _interval_probabilities(upper: np.ndarray, lower: np.ndarray) -> npt.NDArray[np.float64]:
+    """Return Phi(upper) - Phi(lower) for upper >= lower, from the smaller tails.
+
+    Equal bounds give exactly 0 and the whole line exactly 1.
+    """
+    above = _stats.normal_cdf(-lower) - _stats.normal_cdf(-upper)
+    below = _stats.normal_cdf(upper) - _stats.normal_cdf(lower)
+    across = 1 - _stats.normal_cdf(-upper) - _stats.normal_cdf(lower)
+    return np.where(lower >= 0, above, np.where(upper <= 0, below, across))
+
+
+def _density(x: np.ndarray) -> npt.NDArray[np.float64]:
+    """Return the density of the standard normal distribution."""
+    return np.exp(-0.5 * x * x) / _ROOT_TWO_PI
+
+
+def _mills_ratio(t: np.ndarray) -> npt.NDArray[np.float64]:
+    """Return the upper tail over the density, Q(t) / phi(t), for t >= 0; 0 at infinity."""
+    result = np.zeros(t.shape)
+    near = t < _MILLS_SERIES_FROM
+    result[near] = _stats.normal_cdf(-t[near]) / _density(t[near])
+    far = ~near & np.isfinite(t)
+    # The asymptotic series 1/t (1 - 1/t^2 + 3/t^4 - 15/t^6 + 105/t^8 - 945/t^10).
+    inverse = 1 / t[far] ** 2
+    series = 1 - inverse * (
+        1 - 3 * inverse * (1 - 5 * inverse * (1 - 7 * inverse * (1 - 9 * inverse)))
+    )
+    result[far] = series / t[far]
+    return result
+
+
+def _density_ratio(a: np.ndarray, b: np.ndarray) -> npt.NDArray[np.float64]:
+    """Return (phi(b) - phi(a)) / (Phi(b) - Phi(a)) for a < b and a + b <= 0, without underflow."""
+    numerator = np.empty(b.shape)
+    denominator = np.empty(b.shape)
+    across = b > 0
+    numerator[across] = _density(b[across]) - _density(a[across])
+    denominator[across] = 1 - _stats.normal_cdf(-b[across]) - _stats.normal_cdf(a[across])
+    low, high = a[~across], b[~across]
+    # Divided by phi(high): phi(low) / phi(high) = exp(exponent) is at most 1.
+    exponent = (high - low) * (high + low) / 2
+    numerator[~across] = -np.expm1(exponent)
+    denominator[~across] = _mills_ratio(-high) - np.exp(exponent) * _mills_ratio(-low)
+    # An interval narrower than the rounding of its ends has the slope of the log density at its
+    # middle.
+    return np.divide(numerator, denominator, out=-(a + b) / 2, where=denominator > 0)
+
+
+class _Cells:
+    """The movements of each period that carry information on its factor."""
+
+    def __init__(
+        self,
+        upper: np.ndarray,
+        lower: np.ndarray,
+        counts: np.ndarray,
+        period: np.ndarray,
+        periods: int,
+    ) -> None:
+        self.upper, self.lower, self.counts, self.period = upper, lower, counts, period
+        self.periods = periods
+
+    def score(self, z: np.ndarray, rho: float) -> npt.NDArray[np.float64]:
+        """Return the derivative of each period's log-likelihood over sqrt(rho / (1 - rho))."""
+        shift = math.sqrt(rho) * z[self.period]
+        scale = math.sqrt(1 - rho)
+        upper = (self.upper - shift) / scale
+        lower = (self.lower - shift) / scale
+        # An interval mostly above 0 is mirrored below it, where its tail cannot underflow.
+        mirror = upper + lower > 0
+        a = np.where(mirror, -upper, lower)
+        b = np.where(mirror, -lower, upper)
+        terms = np.where(mirror, 1.0, -1.0) * self.counts * _density_ratio(a, b)
+        return np.bincount(self.period, weights=terms, minlength=self.periods)
+
+    def factors(self, rho: float) -> npt.NDArray[np.float64]:
+        """Return the factor of each period: the root of its score, which falls with z."""
+        zero = np.zeros(self.periods)
+        start = self.score(zero, rho)
+        low = np.where(start < 0, -1.0, 0.0)
+        high = np.where(start > 0, 1.0, 0.0)
+        while True:
+            up = self.score(high, rho) > 0
+            down = self.score(low, rho) < 0
+            if not (up.any() or down.any()):
+                break
+            low, high = np.where(up, high, low), np.where(up, 2 * high, high)
+            low, high = np.where(down, 2 * low, low), np.where(down, low, high)
+        # Bisection ends when no number lies between the two ends.
+        middle = (low + high) / 2
+        active = (low < middle) & (middle < high)
+        while active.any():
+            above = self.score(middle, rho) > 0
+            low = np.where(active & above, middle, low)
+            high = np.where(active & ~above, middle, high)
+            middle = (low + high) / 2
+            active = (low < middle) & (middle < high)
+        return middle
+
+
+class _MatrixModel:
+    """The thresholds of a long-run transition matrix in the order of credit quality."""
+
+    def __init__(self, probabilities: np.ndarray, states: pd.Index, default: int) -> None:
+        self.states = states
+        self.order = _credit_order(len(states), default)
+        self.rows = probabilities[np.ix_(self.order[:-1], self.order)]
+        bounds = _thresholds(self.rows)
+        self.upper, self.lower = bounds[:, :-1], bounds[:, 1:]
+        # A state that can move to one state only carries no information on the factor.
+        self.informative = (self.rows > 0).sum(axis=1) > 1
+
+    def state(self, position: int) -> object:
+        """Return the label of a state as a Python scalar, or a tuple of them."""
+        return self.states[position : position + 1].tolist()[0]
+
+    def cells(self, matrices: list[np.ndarray], wheres: list[str]) -> _Cells:
+        """Check the counts of each period and collect their informative movements."""
+        parts: list[tuple[np.ndarray, ...]] = []
+        for position, (values, where) in enumerate(zip(matrices, wheres, strict=True)):
+            counts = values[np.ix_(self.order[:-1], self.order)]
+            if not counts.any():
+                raise ValueError(
+                    f"counts must have movements outside the row of the default state{where}"
+                )
+            impossible = (counts > 0) & (self.rows == 0)
+            if impossible.any():
+                row, column = np.argwhere(impossible)[0]
+                raise ValueError(
+                    f"counts has {_validation.shown(counts[row, column])} movements from state "
+                    f"{_validation.shown(self.state(self.order[row]))} to state "
+                    f"{_validation.shown(self.state(self.order[column]))}{where}, which matrix "
+                    "gives a probability of 0"
+                )
+            observed = (counts > 0) & self.informative[:, None]
+            if not observed.any():
+                raise ValueError(
+                    "counts must have movements from a state that matrix lets move to more than "
+                    f"one state{where}"
+                )
+            upper, lower = self.upper[observed], self.lower[observed]
+            for bound, end in ((upper, "best"), (lower, "worst")):
+                if not np.isfinite(bound).any():
+                    raise ValueError(
+                        f"the factor is not finite{where}: every movement in counts is to the "
+                        f"{end} state that its state can reach"
+                    )
+            parts.append((upper, lower, counts[observed], np.full(observed.sum(), position)))
+        upper, lower, counts, period = (np.concatenate(part) for part in zip(*parts, strict=True))
+        return _Cells(upper, lower, counts, period, len(matrices))
+
+
+def _variance_at_most_one(variance: abc.Callable[[float], float]) -> float:
+    """Return a correlation at which the variance of the factors is at most 1.
+
+    Golden-section search for the minimum of the variance, which stops at the first
+    correlation with a variance of at most 1.
+    """
+    ratio = (math.sqrt(5) - 1) / 2
+    low, high = 0.0, 1.0
+    left, right = high - ratio * (high - low), low + ratio * (high - low)
+    at_left, at_right = variance(left), variance(right)
+    while min(at_left, at_right) > 1:
+        if high - low < _GOLDEN_TOLERANCE:
+            raise ValueError(
+                "counts vary too much between the periods: the variance of their factors stays "
+                "above 1 for every correlation below 1"
+            )
+        if at_left < at_right:
+            high, right, at_right = right, left, at_left
+            left = high - ratio * (high - low)
+            at_left = variance(left)
+        else:
+            low, left, at_left = left, right, at_right
+            right = low + ratio * (high - low)
+            at_right = variance(right)
+    return left if at_left <= 1 else right
+
+
+def _count_matrix(
+    counts: npt.ArrayLike | pd.DataFrame,
+    matrix: npt.ArrayLike | pd.DataFrame,
+    states: pd.Index,
+    default: int,
+    where: str,
+) -> npt.NDArray[np.float64]:
+    """Return the counts of a period as a float array matched to the states of matrix."""
+    if np.ndim(counts) != 2:
+        raise ValueError(f"counts must be two-dimensional, got {np.ndim(counts)} dimensions{where}")
+    frame = counts if isinstance(counts, pd.DataFrame) else pd.DataFrame(counts)  # type: ignore[arg-type]  # takes any 2-D array_like
+    size = len(states)
+    if frame.shape != (size, size):
+        raise ValueError(
+            f"counts must have the shape of matrix, {(size, size)}, got {frame.shape}{where}"
+        )
+    if isinstance(counts, pd.DataFrame) and isinstance(matrix, pd.DataFrame):
+        if not (frame.index.equals(states) and frame.columns.equals(states)):
+            raise ValueError(
+                "counts must have the states of matrix in its index and its columns, got "
+                f"{list(frame.index)} and {list(frame.columns)}{where}"
+            )
+    try:
+        values = _float_frame(frame, "counts")
+    except ValueError as error:
+        raise ValueError(f"{error}{where}") from None
+    for row in np.delete(np.arange(size), default):
+        state = states[row : row + 1].tolist()[0]
+        if np.isnan(values[row]).any():
+            raise ValueError(
+                "counts must not have missing values outside the row of the default state, got "
+                f"one in the row of state {_validation.shown(state)}{where}"
+            )
+        invalid = ~np.isfinite(values[row]) | (values[row] < 0)
+        if invalid.any():
+            raise ValueError(
+                f"counts must be non-negative and finite, got {float(values[row][invalid][0])!r} "
+                f"in the row of state {_validation.shown(state)}{where}"
+            )
+    return values
+
+
+def _periods(
+    counts: abc.Mapping[abc.Hashable, npt.ArrayLike | pd.DataFrame]
+    | abc.Sequence[npt.ArrayLike | pd.DataFrame]
+    | pd.Series,
+) -> tuple[list[str], list[typing.Any]]:
+    """Return how errors name each period, and the counts of the periods."""
+    if isinstance(counts, (abc.Mapping, pd.Series)):
+        items = list(counts.items())
+        wheres = [f" for period {_validation.shown(label)}" for label, _ in items]
+        values = [value for _, value in items]
+    elif isinstance(counts, (list, tuple)):
+        wheres = [f" at position {position}" for position in range(len(counts))]
+        values = list(counts)
+    else:
+        raise ValueError(
+            "counts must be a mapping, a Series, a list or a tuple of count matrices, one per "
+            f"period, got {type(counts).__name__}"
+        )
+    if len(values) < 2:
+        raise ValueError(f"counts must have at least two periods, got {len(values)}")
+    return wheres, values
 
 
 def _horizons(horizons: int | npt.ArrayLike) -> npt.NDArray[np.int64]:

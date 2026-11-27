@@ -81,6 +81,20 @@ Early repayments
 
 A 2% chance a month repays 962 of the 5,000 loans early. The early repayments use random numbers of their own, drawn after all the others, so with the same ``rng`` every loan follows the same path as without ``prepayment`` until it repays early. Fewer loans therefore stay on book long enough to reach their term or 90+: 454 loans repay on schedule and 182 reach 90+, against 584 and 205 without early repayments.
 
+An economic cycle
+^^^^^^^^^^^^^^^^^
+
+``correlation`` and ``factors`` add an economic cycle, for the transition matrices of :doc:`lifetime`. Every month a systematic factor moves the payments of all loans together, in the one-factor model of :func:`~kivi.lifetime.conditional_matrix`: a loan that is not yet 90 days past due misses its instalment, or fails to pay its arrears, more often when the factor of the month is negative and less often when it is positive, and averaged over the factor it keeps its probabilities. ``correlation`` is the asset correlation of the factor; the default, 0, gives the panel above, the same as in earlier releases. ``factors`` holds the factor of each month from February 2024 on, so that an estimate can be compared with it. Without ``factors``, they are drawn from ``rng`` after all the other random numbers. A cycle stuck in a bad economy or in a good one changes how many loans reach 90+:
+
+>>> def reached_90(panel):
+...     return int((panel.groupby("loan_id").tail(1)["status"] == "90+").sum())
+>>> bad = make_loan_panel(n_loans=5000, n_months=24, correlation=0.05, factors=[-1.0] * 24, rng=0)
+>>> good = make_loan_panel(n_loans=5000, n_months=24, correlation=0.05, factors=[1.0] * 24, rng=0)
+>>> reached_90(bad), reached_90(good)
+(450, 68)
+
+With a factor of −1 in every month, 450 loans reach 90+, and with a factor of 1, 68, against 205 without the cycle. The factor moves the misses of current loans and the cures and rolls of delinquent ones, but not the early repayments of ``prepayment``.
+
 Synthetic loan applications
 ---------------------------
 

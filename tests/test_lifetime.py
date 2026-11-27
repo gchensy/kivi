@@ -1,14 +1,19 @@
 import itertools
+from statistics import NormalDist
 
 import numpy as np
 import pandas as pd
 import pytest
 
+from kivi.capital import conditional_pd, systematic_factor
 from kivi.datasets import make_loan_panel
 from kivi.lifetime import (
     assign_stages,
+    conditional_matrix,
     convert_pd,
     expected_credit_loss,
+    matrix_correlation,
+    matrix_factor,
     significant_increase,
     stage_table,
     survival_table,
@@ -463,6 +468,712 @@ def test_transition_pd_rejects_invalid_horizons(horizons):
 def test_transition_pd_rejects_unknown_default_states(default_state):
     with pytest.raises(ValueError, match="default_state must be one of the states, got"):
         transition_pd(MATRIX, horizons=2, default_state=default_state)
+
+
+# conditional_matrix, matrix_factor and matrix_correlation
+
+# CreditMetrics Technical Document (1997), table 8.4: the one-year transition probabilities of
+# a BB obligor from AAA to default, in percent, and table 8.5: its asset return thresholds from
+# Z_AA down to Z_Def, in standard deviations.
+CREDITMETRICS_BB = [0.03, 0.14, 0.67, 7.73, 80.53, 8.84, 1.00, 1.06]
+CREDITMETRICS_THRESHOLDS = [3.43, 2.93, 2.39, 1.37, -1.23, -2.04, -2.30]
+
+# Witzany, "Stressing of migration matrices for IFRS 9 and ICAAP calculations", FFA Working
+# Paper 1/2020, table 2: Moody's one-year TTC matrix (1920-2011) and table 3: the matrix stressed
+# with Z = Phi^-1(0.01) and rho = 0.08, in percent, states Aaa, Aa, A, Baa, Ba, B, Caa, Ca-C, D.
+WITZANY_TTC = [
+    [90.397, 8.532, 0.868, 0.167, 0.033, 0.001, 0.001, 0.000, 0.000],
+    [1.265, 89.829, 7.808, 0.791, 0.182, 0.041, 0.006, 0.005, 0.072],
+    [0.082, 3.056, 89.932, 5.915, 0.744, 0.128, 0.030, 0.009, 0.102],
+    [0.044, 0.305, 4.748, 88.255, 5.342, 0.846, 0.141, 0.016, 0.303],
+    [0.008, 0.093, 0.527, 6.684, 82.843, 7.681, 0.657, 0.076, 1.433],
+    [0.007, 0.054, 0.170, 0.660, 6.558, 81.429, 6.337, 0.599, 4.187],
+    [0.000, 0.023, 0.031, 0.201, 0.871, 9.529, 71.462, 4.291, 13.592],
+    [0.000, 0.029, 0.126, 0.068, 0.577, 3.678, 9.212, 58.606, 27.704],
+    [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 100.000],
+]
+WITZANY_STRESSED = [
+    [74.985, 20.673, 3.294, 0.820, 0.205, 0.008, 0.008, 0.000, 0.009],
+    [0.127, 76.231, 19.210, 2.935, 0.816, 0.201, 0.033, 0.028, 0.419],
+    [0.004, 0.428, 80.027, 15.395, 2.808, 0.575, 0.143, 0.042, 0.578],
+    [0.002, 0.022, 0.817, 80.233, 13.808, 3.003, 0.574, 0.069, 1.474],
+    [0.000, 0.004, 0.046, 1.337, 73.128, 17.717, 1.997, 0.241, 5.530],
+    [0.000, 0.002, 0.011, 0.066, 1.344, 70.683, 13.230, 1.467, 13.196],
+    [0.000, 0.001, 0.001, 0.013, 0.093, 2.253, 58.394, 6.954, 32.290],
+    [0.000, 0.001, 0.007, 0.005, 0.056, 0.633, 2.683, 43.858, 52.757],
+    [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 100.000],
+]
+# Cells of table 3 that the rounding of table 2 does not explain (design document, section 2.2):
+# with the printed inputs the default column of A, Baa, Ba and B gives these values, as
+# kivi.capital.conditional_pd does, and Aaa -> D would need an input printed as 0.001.
+WITZANY_EXCEPTIONS = {
+    (0, 8): 0.0000,
+    (2, 8): 0.5709,
+    (3, 8): 1.4802,
+    (4, 8): 5.5324,
+    (5, 8): 13.1995,
+    (5, 5): 70.6806,
+}
+
+
+def witzany_matrix():
+    table = np.array(WITZANY_TTC)
+    return table / table.sum(axis=1, keepdims=True)
+
+
+def gauss_hermite(nodes=80):
+    """Nodes and weights of the standard normal distribution."""
+    points, weights = np.polynomial.hermite_e.hermegauss(nodes)
+    return points, weights / weights.sum()
+
+
+def expected_counts(matrix, correlation, factor, sizes):
+    """Counts with the exact proportions of the conditional matrix; the default row is empty."""
+    shifted = conditional_matrix(matrix, correlation=correlation, factor=factor).to_numpy()
+    counts = np.asarray(sizes, dtype=float)[:, None] * shifted
+    counts[-1] = 0.0
+    return counts
+
+
+def normal_cdf(x):
+    return np.vectorize(NormalDist().cdf, otypes=[float])(x)
+
+
+def log_likelihood(z, counts, matrix, correlation):
+    """Multinomial log-likelihood of the counts, with the thresholds of statistics.NormalDist."""
+    total = 0.0
+    for row, values in zip(np.asarray(matrix)[:-1], np.asarray(counts)[:-1], strict=True):
+        worse = np.cumsum(row[::-1])[::-1]
+        bounds = (
+            [np.inf]
+            + [
+                NormalDist().inv_cdf(w) if 0 < w < 1 else (-np.inf if w <= 0 else np.inf)
+                for w in worse[1:]
+            ]
+            + [-np.inf]
+        )
+        shifted = (np.array(bounds) - np.sqrt(correlation) * z) / np.sqrt(1 - correlation)
+        cells = normal_cdf(shifted[:-1]) - normal_cdf(shifted[1:])
+        observed = values > 0
+        total += float(np.sum(values[observed] * np.log(cells[observed])))
+    return total
+
+
+def test_conditional_matrix_reproduces_the_creditmetrics_thresholds():
+    matrix = np.eye(8)
+    matrix[4] = np.array(CREDITMETRICS_BB) / 100
+    correlation, factor = 0.1, 0.7
+    shifted = conditional_matrix(matrix, correlation=correlation, factor=factor).to_numpy()[4]
+    # Moving to state j or a worse one: the cumulative sums from the default state upwards.
+    worse = np.cumsum(shifted[::-1])[::-1][1:]
+    thresholds = [
+        NormalDist().inv_cdf(w) * np.sqrt(1 - correlation) + np.sqrt(correlation) * factor
+        for w in worse
+    ]
+    np.testing.assert_allclose(thresholds, CREDITMETRICS_THRESHOLDS, rtol=0, atol=0.005)
+
+
+def test_conditional_matrix_reproduces_witzany_table_3():
+    shifted = conditional_matrix(
+        witzany_matrix(), correlation=0.08, factor=NormalDist().inv_cdf(0.01)
+    ).to_numpy()
+    percent = 100 * shifted
+    expected = np.array(WITZANY_STRESSED)
+    checked = np.ones((8, 9), dtype=bool)
+    for (row, column), value in WITZANY_EXCEPTIONS.items():
+        checked[row, column] = False
+        assert percent[row, column] == pytest.approx(value, abs=5e-5)
+    np.testing.assert_allclose(percent[:8][checked], expected[:8][checked], rtol=0, atol=0.0035)
+    # The exceptions in the default column are the conditional PDs of the printed inputs.
+    default = [2, 3, 4, 5]
+    stressed = conditional_pd(
+        witzany_matrix()[default, 8], correlation=0.08, factor=NormalDist().inv_cdf(0.01)
+    )
+    np.testing.assert_allclose(shifted[default, 8], stressed, rtol=1e-12)
+    assert shifted[0, 8] == 0
+
+
+def test_conditional_matrix_with_no_correlation_returns_the_matrix():
+    matrix = witzany_matrix()
+    for factor in (-3.0, 0.0, 1.7):
+        shifted = conditional_matrix(matrix, correlation=0.0, factor=factor).to_numpy()
+        positive = matrix > 0
+        np.testing.assert_allclose(shifted[positive], matrix[positive], rtol=1e-12)
+        assert (shifted[~positive] == 0).all()
+
+
+def test_conditional_matrix_averages_to_the_matrix_over_the_factor():
+    # Tiny cells next to large ones keep their relative accuracy.
+    matrix = np.array(
+        [
+            [1 - 3.2e-9, 3e-9, 1e-10, 1e-10],
+            [0.3, 0.5, 0.2 - 1e-12, 1e-12],
+            [1e-11, 0.4, 0.6 - 2e-11, 1e-11],
+            [0.0, 0.0, 0.0, 1.0],
+        ]
+    )
+    nodes, weights = gauss_hermite()
+    for correlation in (0.05, 0.3):
+        average = sum(
+            w * conditional_matrix(matrix, correlation=correlation, factor=z).to_numpy()
+            for z, w in zip(nodes, weights, strict=True)
+        )
+        np.testing.assert_allclose(average, matrix, rtol=1e-12, atol=0)
+    average = sum(
+        w * conditional_matrix(witzany_matrix(), correlation=0.08, factor=z).to_numpy()
+        for z, w in zip(nodes, weights, strict=True)
+    )
+    np.testing.assert_allclose(average, witzany_matrix(), rtol=1e-12, atol=0)
+
+
+def test_conditional_matrix_shifts_every_row_with_the_factor(monthly):
+    previous = None
+    for factor in np.linspace(-4, 4, 17):
+        shifted = conditional_matrix(monthly, correlation=0.1, factor=factor).to_numpy()
+        np.testing.assert_allclose(shifted.sum(axis=1), 1.0, rtol=0, atol=1e-15)
+        assert ((shifted >= 0) & (shifted <= 1)).all()
+        # Movements that the matrix rules out stay impossible, and 90+ stays in default.
+        assert (shifted[monthly.to_numpy() == 0] == 0).all()
+        np.testing.assert_array_equal(shifted[4], [0, 0, 0, 0, 1])
+        # Moving to a state or a worse one becomes less likely as the economy improves.
+        worse = np.cumsum(shifted[:, ::-1], axis=1)[:, ::-1]
+        if previous is not None:
+            assert (worse <= previous + 1e-15).all()
+        previous = worse
+
+
+def test_conditional_matrix_default_column_is_the_conditional_pd():
+    matrix = witzany_matrix()
+    for correlation, factor in ((0.08, -2.0), (0.2, 1.0), (0.5, 0.3)):
+        shifted = conditional_matrix(matrix, correlation=correlation, factor=factor)
+        expected = conditional_pd(matrix[1:8, 8], correlation=correlation, factor=factor)
+        np.testing.assert_allclose(shifted.iloc[1:8, 8], expected, rtol=1e-12)
+
+
+def test_conditional_matrix_agrees_with_a_simulation_of_the_credit_index():
+    matrix = MATRIX.to_numpy()
+    correlation, factor = 0.2, -0.8
+    rng = np.random.default_rng(11)
+    index = np.sqrt(correlation) * factor + np.sqrt(1 - correlation) * rng.standard_normal(200_000)
+    shifted = conditional_matrix(matrix, correlation=correlation, factor=factor).to_numpy()
+    for row in (0, 1):
+        # Below the threshold of B or worse, the index moves to B; below that of D, to D.
+        to_b_or_worse = NormalDist().inv_cdf(matrix[row, 1] + matrix[row, 2])
+        to_d = NormalDist().inv_cdf(matrix[row, 2])
+        states = (index <= to_b_or_worse).astype(int) + (index <= to_d).astype(int)
+        frequency = np.bincount(states, minlength=3) / len(index)
+        error = np.sqrt(shifted[row] * (1 - shifted[row]) / len(index))
+        assert (np.abs(frequency - shifted[row]) <= 5 * error + 1e-12).all()
+
+
+def test_conditional_matrix_keeps_the_labels_and_the_order():
+    named = MATRIX.rename_axis(index="before", columns="after")
+    shifted = conditional_matrix(named, correlation=0.1, factor=-1.0)
+    assert shifted.index.equals(pd.Index(STATES, name="before"))
+    assert shifted.columns.equals(pd.Index(STATES, name="after"))
+    array = conditional_matrix(MATRIX.to_numpy(), correlation=0.1, factor=-1.0)
+    assert array.index.equals(pd.RangeIndex(3)) and array.columns.equals(pd.RangeIndex(3))
+    np.testing.assert_array_equal(array.to_numpy(), shifted.to_numpy())
+    # The default state is the worst one wherever it sits; the others keep their order.
+    order = ["D", "A", "B"]
+    reordered = conditional_matrix(
+        MATRIX.loc[order, order], correlation=0.1, factor=-1.0, default_state="D"
+    )
+    expected = conditional_matrix(MATRIX, correlation=0.1, factor=-1.0).loc[order, order]
+    pd.testing.assert_frame_equal(reordered, expected, rtol=1e-15)
+
+
+def test_conditional_matrix_hand_example():
+    shifted = conditional_matrix(MATRIX, correlation=0.1, factor=-1.0)
+    expected = [[0.8456, 0.1209, 0.0335], [0.0461, 0.6641, 0.2899], [0.0, 0.0, 1.0]]
+    np.testing.assert_allclose(shifted.to_numpy(), expected, rtol=0, atol=5e-5)
+
+
+def test_conditional_matrix_makes_the_default_state_absorbing():
+    cures = MATRIX.copy()
+    cures.loc["D"] = [0.3, 0.1, 0.6]
+    expected = conditional_matrix(MATRIX, correlation=0.1, factor=0.5)
+    pd.testing.assert_frame_equal(conditional_matrix(cures, correlation=0.1, factor=0.5), expected)
+    cures.loc["D"] = np.nan
+    pd.testing.assert_frame_equal(conditional_matrix(cures, correlation=0.1, factor=0.5), expected)
+
+
+def test_conditional_matrix_paths_multiply_into_cumulative_pds(monthly):
+    shifted = conditional_matrix(monthly, correlation=0.05, factor=-1.0)
+    product = np.linalg.multi_dot([shifted.to_numpy()] * 6)
+    via_product = transition_pd(pd.DataFrame(product, monthly.index, monthly.columns), horizons=1)
+    np.testing.assert_allclose(via_product[1], transition_pd(shifted, horizons=6)[6], rtol=1e-12)
+
+
+def test_independent_factors_average_to_the_power_of_the_matrix(monthly):
+    nodes, weights = gauss_hermite(30)
+    matrices = [conditional_matrix(monthly, correlation=0.1, factor=z).to_numpy() for z in nodes]
+    average = sum(
+        wa * wb * a @ b
+        for a, wa in zip(matrices, weights, strict=True)
+        for b, wb in zip(matrices, weights, strict=True)
+    )
+    power = absorbing(monthly, 4) @ absorbing(monthly, 4)
+    np.testing.assert_allclose(average, power, rtol=1e-12, atol=1e-15)
+
+
+def test_a_factor_kept_for_a_year_raises_the_average_pd(monthly):
+    nodes, weights = gauss_hermite()
+    kept = sum(
+        w * transition_pd(conditional_matrix(monthly, correlation=0.1, factor=z), horizons=12)[12]
+        for z, w in zip(nodes, weights, strict=True)
+    )
+    long_run = transition_pd(monthly, horizons=12)[12]
+    assert kept.loc["current"] > 1.1 * long_run.loc["current"]
+
+
+def test_conditional_matrix_at_extreme_factors_and_correlations():
+    matrix = witzany_matrix()
+    for correlation, factor in ((0.999, 30.0), (0.999, -30.0), (0.5, 60.0), (1e-12, -1e6)):
+        shifted = conditional_matrix(matrix, correlation=correlation, factor=factor).to_numpy()
+        assert np.isfinite(shifted).all()
+        np.testing.assert_allclose(shifted.sum(axis=1), 1.0, rtol=0, atol=1e-12)
+
+
+def test_conditional_matrix_does_not_mutate_its_input():
+    matrix = MATRIX.copy()
+    original = matrix.copy()
+    conditional_matrix(matrix, correlation=0.1, factor=1.0)
+    pd.testing.assert_frame_equal(matrix, original)
+
+
+@pytest.mark.parametrize(
+    "correlation", [-0.1, 1.0, 1.5, np.nan, True, np.bool_(False), "0.1", None]
+)
+def test_conditional_matrix_rejects_invalid_correlations(correlation):
+    with pytest.raises(ValueError, match="correlation must be a number from 0 to below 1, got"):
+        conditional_matrix(MATRIX, correlation=correlation, factor=0.0)
+
+
+@pytest.mark.parametrize("factor", [np.inf, -np.inf, np.nan, True, "1", None, [1.0]])
+def test_conditional_matrix_rejects_invalid_factors(factor):
+    with pytest.raises(ValueError, match="factor must be a finite number, got"):
+        conditional_matrix(MATRIX, correlation=0.1, factor=factor)
+
+
+def test_conditional_matrix_checks_the_matrix_as_transition_pd_does():
+    with pytest.raises(
+        ValueError, match="the rows of matrix must add up to 1, got 0.9 for state 0"
+    ):
+        conditional_matrix([[0.5, 0.4], [0.0, 1.0]], correlation=0.1, factor=0.0)
+    with pytest.raises(ValueError, match="default_state must be one of the states, got 'E'"):
+        conditional_matrix(MATRIX, correlation=0.1, factor=0.0, default_state="E")
+
+
+@pytest.mark.parametrize("correlation", [0.01, 0.1, 0.5])
+@pytest.mark.parametrize("factor", [-4.0, -1.2, 0.0, 0.4, 4.0])
+def test_matrix_factor_recovers_the_factor_of_expected_counts(correlation, factor):
+    sizes = [500, 800, 1200, 1500, 1000, 700, 200, 50, 0]
+    counts = expected_counts(witzany_matrix(), correlation, factor, sizes)
+    estimate = matrix_factor(counts, witzany_matrix(), correlation=correlation)
+    assert estimate == pytest.approx(factor, abs=1e-9)
+
+
+def test_matrix_factor_maximizes_the_likelihood():
+    rng = np.random.default_rng(3)
+    matrix = witzany_matrix()
+    grid = np.arange(-8, 8.0005, 0.001)
+    for _ in range(3):
+        correlation = rng.uniform(0.02, 0.4)
+        shifted = conditional_matrix(
+            matrix, correlation=correlation, factor=rng.normal()
+        ).to_numpy()
+        counts = np.array([rng.multinomial(60, row) for row in shifted[:-1]] + [np.zeros(9)])
+        estimate = matrix_factor(counts, matrix, correlation=correlation)
+        coarse = grid[::100]
+        values = [log_likelihood(z, counts, matrix, correlation) for z in coarse]
+        near = coarse[int(np.argmax(values))]
+        fine = grid[np.abs(grid - near) <= 0.1]
+        best = fine[int(np.argmax([log_likelihood(z, counts, matrix, correlation) for z in fine]))]
+        assert abs(estimate - best) <= 0.001
+
+
+def test_matrix_factor_of_two_states_is_the_systematic_factor():
+    matrix = [[0.97, 0.03], [0.0, 1.0]]
+    for defaults in (1, 30, 70, 400):
+        counts = [[1000 - defaults, defaults], [0, 0]]
+        estimate = matrix_factor(counts, matrix, correlation=0.12)
+        expected = systematic_factor(defaults / 1000, 0.03, correlation=0.12)
+        assert estimate == pytest.approx(expected, rel=1e-12)
+
+
+def test_matrix_factor_of_scaled_counts_and_weights():
+    counts = np.array([[850, 110, 40], [60, 280, 160], [0, 0, 0]], dtype=float)
+    estimate = matrix_factor(counts, MATRIX, correlation=0.1)
+    assert estimate == pytest.approx(-0.8425, abs=5e-5)
+    assert matrix_factor(7 * counts, MATRIX, correlation=0.1) == pytest.approx(estimate, rel=1e-12)
+    # Integer weights count as repeated entities.
+    before = ["A", "A", "A", "B", "B", "B"]
+    after = ["A", "B", "D", "A", "B", "D"]
+    weights = [850, 110, 40, 60, 280, 160]
+    weighted = transition_matrix(before, after, states=STATES, weights=weights)
+    repeated = transition_matrix(
+        np.repeat(before, weights), np.repeat(after, weights), states=STATES
+    )
+    assert matrix_factor(weighted, MATRIX, correlation=0.1) == matrix_factor(
+        repeated, MATRIX, correlation=0.1
+    )
+    # A state without entities in the period adds nothing, whatever its row of the matrix.
+    only_a = counts.copy()
+    only_a[1] = 0
+    other = MATRIX.copy()
+    other.loc["B"] = [0.3, 0.3, 0.4]
+    assert matrix_factor(only_a, MATRIX, correlation=0.1) == matrix_factor(
+        only_a, other, correlation=0.1
+    )
+
+
+def test_matrix_factor_is_robust_to_a_rare_movement():
+    matrix = witzany_matrix()
+    counts = np.round(expected_counts(matrix, 0.08, 0.0, [1000] * 9))
+    base = matrix_factor(counts, matrix, correlation=0.08)
+    counts[0, 0] -= 1
+    counts[0, 6] += 1
+    # One Aaa -> Caa movement, with a long-run probability of 0.001%.
+    assert abs(matrix_factor(counts, matrix, correlation=0.08) - base) < 0.01
+
+
+def test_matrix_factor_with_a_default_state_that_is_not_last():
+    counts = pd.DataFrame([[850, 110, 40], [60, 280, 160], [0, 0, 0]], index=STATES, columns=STATES)
+    order = ["D", "A", "B"]
+    expected = matrix_factor(counts, MATRIX, correlation=0.1)
+    estimate = matrix_factor(
+        counts.loc[order, order], MATRIX.loc[order, order], correlation=0.1, default_state="D"
+    )
+    assert estimate == pytest.approx(expected, rel=1e-12)
+
+
+def test_matrix_factor_ignores_the_row_of_the_default_state():
+    counts = pd.DataFrame([[850, 110, 40], [60, 280, 160], [5, 3, 9]], index=STATES, columns=STATES)
+    expected = matrix_factor(counts.iloc[:2].reindex(STATES, fill_value=0), MATRIX, correlation=0.1)
+    assert matrix_factor(counts, MATRIX, correlation=0.1) == expected
+    counts.loc["D"] = np.nan
+    matrix = MATRIX.copy()
+    matrix.loc["D"] = np.nan
+    assert matrix_factor(counts, matrix, correlation=0.1) == expected
+
+
+def test_matrix_factor_matches_counts_and_matrix_by_position_unless_both_are_frames():
+    counts = [[850, 110, 40], [60, 280, 160], [0, 0, 0]]
+    expected = matrix_factor(counts, MATRIX, correlation=0.1)
+    frame = pd.DataFrame(counts, index=list("xyz"), columns=list("xyz"))
+    assert matrix_factor(frame, MATRIX.to_numpy(), correlation=0.1) == expected
+    with pytest.raises(
+        ValueError, match=r"states of matrix in its index and its columns, got \['x'"
+    ):
+        matrix_factor(frame, MATRIX, correlation=0.1)
+
+
+def test_matrix_factor_at_extreme_correlations():
+    matrix = witzany_matrix()
+    for correlation in (0.999, 1e-6):
+        counts = np.round(expected_counts(matrix, correlation, -0.5, [400] * 9))
+        estimate = matrix_factor(counts, matrix, correlation=correlation)
+        assert np.isfinite(estimate)
+    counts = expected_counts(matrix, 0.999, -0.5, [400] * 9)
+    assert matrix_factor(counts, matrix, correlation=0.999) == pytest.approx(-0.5, abs=1e-6)
+
+
+def test_matrix_factor_of_a_state_narrower_than_rounding():
+    # The middle state's thresholds round to the same number: its likelihood term is the slope
+    # of the log density there, and the estimate stays finite.
+    matrix = [[0.5, 1e-17, 0.5], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+    for counts in ([[40, 1, 59], [0, 0, 0], [0, 0, 0]], [[60, 1, 39], [0, 0, 0], [0, 0, 0]]):
+        assert np.isfinite(matrix_factor(counts, matrix, correlation=0.2))
+
+
+@pytest.mark.parametrize(
+    ("counts", "message"),
+    [
+        ([1, 2, 3], "counts must be two-dimensional, got 1 dimensions"),
+        ([[1, 2], [3, 4]], r"counts must have the shape of matrix, \(3, 3\), got \(2, 2\)"),
+        (
+            [[True, False, False], [False, True, False], [False, False, True]],
+            "counts must be real and numeric, got dtype bool",
+        ),
+        (
+            [[1, np.nan, 1], [1, 1, 1], [0, 0, 0]],
+            "counts must not have missing values outside the row of the default state, got one "
+            "in the row of state 0",
+        ),
+        (
+            [[1, -1, 1], [1, 1, 1], [0, 0, 0]],
+            r"non-negative and finite, got -1.0 in the row of state 0",
+        ),
+        (
+            [[1, 1, 1], [1, np.inf, 1], [0, 0, 0]],
+            r"non-negative and finite, got inf in the row of state 1",
+        ),
+        (
+            [[0, 0, 0], [0, 0, 0], [5, 0, 1]],
+            "counts must have movements outside the row of the default state",
+        ),
+        (
+            [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            "counts must have movements outside the row of the default state",
+        ),
+    ],
+)
+def test_matrix_factor_rejects_invalid_counts(counts, message):
+    matrix = [[0.9, 0.1, 0.0], [0.1, 0.8, 0.1], [0.0, 0.0, 1.0]]
+    with pytest.raises(ValueError, match=message):
+        matrix_factor(counts, matrix, correlation=0.1)
+
+
+def test_matrix_factor_rejects_counts_that_matrix_rules_out():
+    counts = pd.DataFrame([[850, 110, 40], [60, 280, 160], [0, 0, 0]], index=STATES, columns=STATES)
+    matrix = MATRIX.copy()
+    matrix.loc["A"] = [0.9, 0.1, 0.0]
+    with pytest.raises(
+        ValueError,
+        match=r"counts has 40.0 movements from state 'A' to state 'D', which matrix gives a "
+        "probability of 0",
+    ):
+        matrix_factor(counts, matrix, correlation=0.1)
+
+
+def test_matrix_factor_needs_a_state_that_can_move_to_more_than_one_state():
+    matrix = [[1.0, 0.0, 0.0], [0.1, 0.8, 0.1], [0.0, 0.0, 1.0]]
+    with pytest.raises(
+        ValueError, match="movements from a state that matrix lets move to more than one state"
+    ):
+        matrix_factor([[50, 0, 0], [0, 0, 0], [0, 0, 0]], matrix, correlation=0.1)
+
+
+def test_matrix_factor_without_a_finite_estimate():
+    matrix = [[0.9, 0.1, 0.0], [0.1, 0.8, 0.1], [0.0, 0.0, 1.0]]
+    # Every movement is to the best state that its state can reach, or to the worst one.
+    with pytest.raises(
+        ValueError, match=r"not finite: every movement in counts is to the best state"
+    ):
+        matrix_factor([[90, 0, 0], [5, 0, 0], [0, 0, 0]], matrix, correlation=0.1)
+    with pytest.raises(
+        ValueError, match=r"not finite: every movement in counts is to the worst state"
+    ):
+        matrix_factor([[0, 10, 0], [0, 0, 5], [0, 0, 0]], matrix, correlation=0.1)
+
+
+@pytest.mark.parametrize("correlation", [0.0, 1.0, -0.2, True, np.nan, "0.1"])
+def test_matrix_factor_rejects_invalid_correlations(correlation):
+    with pytest.raises(
+        ValueError, match="correlation must be a number strictly between 0 and 1, got"
+    ):
+        matrix_factor([[850, 110, 40], [60, 280, 160], [0, 0, 0]], MATRIX, correlation=correlation)
+
+
+def standardized(values):
+    values = np.asarray(values, dtype=float)
+    return (values - values.mean()) / values.std(ddof=1)
+
+
+@pytest.mark.parametrize("correlation", [0.02, 0.08, 0.3])
+def test_matrix_correlation_recovers_the_correlation_of_expected_counts(correlation):
+    factors = standardized([-1.4, 0.3, 0.9, -0.2, 1.6, -0.7])
+    sizes = [500, 800, 1200, 1500, 1000, 700, 200, 50, 0]
+    counts = [expected_counts(witzany_matrix(), correlation, z, sizes) for z in factors]
+    estimate = matrix_correlation(counts, witzany_matrix())
+    assert estimate == pytest.approx(correlation, abs=1e-9)
+
+
+def test_matrix_correlation_gives_factors_a_variance_of_1():
+    years = {
+        2023: [[930, 60, 10], [130, 740, 130], [0, 0, 0]],
+        2024: [[850, 110, 40], [60, 280, 160], [0, 0, 0]],
+        2025: [[900, 80, 20], [100, 700, 200], [0, 0, 0]],
+    }
+    correlation = matrix_correlation(years, MATRIX)
+    assert correlation == pytest.approx(0.0515, abs=5e-5)
+    factors = [matrix_factor(c, MATRIX, correlation=correlation) for c in years.values()]
+    assert np.var(factors, ddof=1) == pytest.approx(1, abs=1e-9)
+    # A list, a tuple, a Series and another order give the same correlation.
+    values = list(years.values())
+    assert matrix_correlation(values, MATRIX) == correlation
+    assert matrix_correlation(tuple(values[::-1]), MATRIX) == correlation
+    frames = pd.Series({year: pd.DataFrame(c, STATES, STATES) for year, c in years.items()})
+    assert matrix_correlation(frames, MATRIX) == correlation
+
+
+def test_matrix_correlation_with_a_default_state_that_is_not_last():
+    sizes = [500, 800, 0]
+    counts = [expected_counts(MATRIX, 0.1, z, sizes) for z in standardized([-1, 0.5, 1.2])]
+    order = [2, 0, 1]
+    reordered = [c[np.ix_(order, order)] for c in counts]
+    estimate = matrix_correlation(
+        reordered, MATRIX.to_numpy()[np.ix_(order, order)], default_state=0
+    )
+    assert estimate == pytest.approx(matrix_correlation(counts, MATRIX), rel=1e-12)
+
+
+def test_matrix_correlation_needs_periods_that_differ():
+    counts = [[850, 110, 40], [60, 280, 160], [0, 0, 0]]
+    with pytest.raises(ValueError, match="counts must differ between the periods"):
+        matrix_correlation([counts, counts, counts], MATRIX)
+
+
+def test_matrix_correlation_beyond_one_half():
+    # The variance of the factors at 0.5 is above 1, so the search goes past 0.5.
+    factors = standardized([-1.4, 0.3, 0.9, -0.2, 1.6, -0.7])
+    counts = [expected_counts(MATRIX.to_numpy(), 0.6, z, [1000, 1000, 0]) for z in factors]
+    assert matrix_correlation(counts, MATRIX) == pytest.approx(0.6, abs=1e-9)
+
+
+def test_matrix_correlation_is_the_smallest_with_a_variance_of_1():
+    # Near its minimum the variance hardly depends on the correlation: these factors have a
+    # variance of 1 at 0.6, and also at a smaller correlation, which is returned.
+    sizes = [500, 800, 1200, 1500, 1000, 700, 200, 50, 0]
+    factors = standardized([-1.4, 0.3, 0.9, -0.2, 1.6, -0.7])
+    counts = [expected_counts(witzany_matrix(), 0.6, z, sizes) for z in factors]
+    correlation = matrix_correlation(counts, witzany_matrix())
+
+    def variance(rho):
+        return np.var([matrix_factor(c, witzany_matrix(), correlation=rho) for c in counts], ddof=1)
+
+    assert variance(correlation) == pytest.approx(1, abs=1e-9)
+    assert variance(0.6) == pytest.approx(1, abs=1e-9)
+    assert 0.5 < correlation < 0.59
+    assert all(variance(rho) > 1 for rho in np.linspace(0.05, correlation, 8)[:-1])
+
+
+def test_matrix_correlation_of_factors_that_vary_too_much():
+    sizes = [500, 800, 1200, 1500, 1000, 700, 200, 50, 0]
+    factors = 2 * standardized([-1.4, 0.3, 0.9, -0.2, 1.6, -0.7])
+    counts = [expected_counts(witzany_matrix(), 0.1, z, sizes) for z in factors]
+    with pytest.raises(ValueError, match="the variance of their factors stays above 1"):
+        matrix_correlation(counts, witzany_matrix())
+
+
+@pytest.mark.parametrize(
+    ("counts", "message"),
+    [
+        (
+            MATRIX,
+            "counts must be a mapping, a Series, a list or a tuple of count matrices, one per "
+            "period, got DataFrame",
+        ),
+        (np.zeros((2, 3, 3)), "got ndarray"),
+        (
+            [[[850, 110, 40], [60, 280, 160], [0, 0, 0]]],
+            "counts must have at least two periods, got 1",
+        ),
+        ({}, "counts must have at least two periods, got 0"),
+        (
+            {"2024": [[850, 110, 40], [60, 280, 160], [0, 0, 0]], "2025": [[1, 2], [3, 4]]},
+            r"got \(2, 2\) for period '2025'$",
+        ),
+        (
+            [
+                [[850, 110, 40], [60, 280, 160], [0, 0, 0]],
+                [[850, -1, 40], [60, 280, 160], [0, 0, 0]],
+            ],
+            r"got -1.0 in the row of state 'A' at position 1$",
+        ),
+        (
+            {
+                2024: [[850, 110, 40], [60, 280, 160], [0, 0, 0]],
+                2025: [[90, 0, 0], [5, 0, 0], [0, 0, 0]],
+            },
+            r"the factor is not finite for period 2025: every movement",
+        ),
+        (
+            {2024: [[850, 110, 40], [60, 280, 160], [0, 0, 0]], 2025: [[True] * 3] * 3},
+            r"counts must be real and numeric, got dtype bool for period 2025",
+        ),
+    ],
+)
+def test_matrix_correlation_rejects_invalid_counts(counts, message):
+    with pytest.raises(ValueError, match=message):
+        matrix_correlation(counts, MATRIX)
+
+
+def test_matrix_factors_of_a_panel_with_a_cycle():
+    true_factors = np.random.default_rng(1).standard_normal(36)
+    panel = make_loan_panel(
+        n_loans=4000, n_months=36, correlation=0.05, factors=true_factors, rng=0
+    )
+    earlier = panel[["loan_id", "month_on_book", "status"]].assign(
+        month_on_book=panel["month_on_book"] + 1
+    )
+    moves = panel.merge(earlier, on=["loan_id", "month_on_book"], suffixes=("", "_before"))
+    moves = moves[moves["month"] >= "2024-05"]
+    long_run = transition_matrix(moves["status_before"], moves["status"], normalize=True)
+    counts = {
+        month: transition_matrix(group["status_before"], group["status"], states=long_run.index)
+        for month, group in moves.groupby("month")
+    }
+    correlation = matrix_correlation(counts, long_run)
+    assert 0.01 < correlation < 0.15
+    factors = pd.Series(
+        {m: matrix_factor(c, long_run, correlation=correlation) for m, c in counts.items()}
+    )
+    truth = pd.Series(true_factors, index=pd.period_range("2024-02", periods=36, freq="M"))
+    assert np.corrcoef(factors, truth[factors.index])[0, 1] > 0.8
+    shifted = conditional_matrix(long_run, correlation=correlation, factor=factors.iloc[0])
+    cumulative = transition_pd(shifted, horizons=12)
+    marginal = convert_pd(cumulative, kind="cumulative", to="marginal")
+    np.testing.assert_allclose(marginal.sum(axis=1), cumulative[12], rtol=1e-12)
+
+
+def test_matrix_functions_against_scipy():
+    stats = pytest.importorskip("scipy.stats")
+    optimize = pytest.importorskip("scipy.optimize")
+    matrix = witzany_matrix()
+
+    def thresholds(row):
+        worse = np.cumsum(row[::-1])[::-1][1:]
+        better = np.cumsum(row)[:-1]
+        inner = np.where(worse <= 0.5, stats.norm.ppf(worse), -stats.norm.ppf(better))
+        return np.concatenate([[np.inf], inner, [-np.inf]])
+
+    bounds = np.array([thresholds(row) for row in matrix[:-1]])
+
+    def shifted(correlation, z):
+        b = (bounds - np.sqrt(correlation) * z) / np.sqrt(1 - correlation)
+        return stats.norm.cdf(b[:, :-1]) - stats.norm.cdf(b[:, 1:])
+
+    for correlation, z in ((0.08, -2.3), (0.3, 1.1)):
+        np.testing.assert_allclose(
+            conditional_matrix(matrix, correlation=correlation, factor=z).to_numpy()[:-1],
+            shifted(correlation, z),
+            rtol=1e-9,
+            atol=1e-13,
+        )
+
+    def score(z, counts, correlation):
+        b = (bounds - np.sqrt(correlation) * z) / np.sqrt(1 - correlation)
+        cells = stats.norm.cdf(b[:, :-1]) - stats.norm.cdf(b[:, 1:])
+        slope = stats.norm.pdf(b[:, :-1]) - stats.norm.pdf(b[:, 1:])
+        observed = counts[:-1] > 0
+        return float(np.sum(counts[:-1][observed] * -slope[observed] / cells[observed]))
+
+    rng = np.random.default_rng(5)
+    periods = []
+    for z in rng.standard_normal(5):
+        probabilities = conditional_matrix(matrix, correlation=0.1, factor=z).to_numpy()
+        periods.append(
+            np.array([rng.multinomial(400, p) for p in probabilities[:-1]] + [np.zeros(9)])
+        )
+
+    def factor(counts, correlation):
+        low, high = -1.0, 1.0
+        while score(low, counts, correlation) < 0:
+            low *= 2
+        while score(high, counts, correlation) > 0:
+            high *= 2
+        return optimize.brentq(score, low, high, args=(counts, correlation), xtol=1e-14)
+
+    for counts in periods:
+        assert matrix_factor(counts, matrix, correlation=0.1) == pytest.approx(
+            factor(counts, 0.1), abs=1e-8
+        )
+    expected = optimize.brentq(
+        lambda r: np.var([factor(c, r) for c in periods], ddof=1) - 1, 0.01, 0.5, xtol=1e-14
+    )
+    assert matrix_correlation(periods, matrix) == pytest.approx(expected, abs=1e-8)
 
 
 # survival_table
