@@ -234,7 +234,7 @@ A value whose group is not in its column's table is treated as the ``unseen`` po
 0   contact      age     None
 1  poutcome      age  contact
 
-:meth:`~kivi.scorecard.ScorecardSpec.reason_codes` passes ``unseen_points`` to :func:`~kivi.scorecard.reason_codes`, so the rented home of the first applicant is not one of their reasons.
+:meth:`~kivi.scorecard.ScorecardSpec.reason_codes` ranks the costs as :func:`~kivi.scorecard.reason_codes` does, but it knows which values were unseen: an unseen value costs nothing, even when its points equal those of a group. The rented home of the first applicant is therefore not one of their reasons.
 
 Calibration and grades
 ^^^^^^^^^^^^^^^^^^^^^^

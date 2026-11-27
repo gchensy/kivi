@@ -6,9 +6,15 @@ version 1 of the format of `ScorecardSpec` (kivi 1.10.0):
 ``scorecard_spec_1.10.0.json`` with ``to_json(indent=2)`` of `golden_spec`, and
 ``scorecard_spec_1.10.0.scores.json`` with the rows of `golden_frame` and the
 points, scores, probabilities, grades and reason codes that the loaded
-specification gives them. Later releases must read the file and score the
-rows exactly as saved, so the files must not change; a change that breaks
-them needs a new format version.
+specification gives them. ``scorecard_spec_1.10.0.calibrated.json`` holds the
+``to_dict`` of the two `calibrated_specs`, with a shift and a Platt
+calibration and integer grade labels, and the scores, probabilities and
+grades that each gives the rows of `calibrated_frame`. Later releases must
+read the files and score the rows as saved, so the files must not change; a
+change that breaks them needs a new format version. Scores, grades and the
+lookups of an isotonic calibration are compared exactly, and the
+probabilities of a shift or Platt calibration, which go through ``exp`` and
+``log``, to a relative ``RTOL``, because processors round those differently.
 """
 
 import copy
@@ -810,7 +816,8 @@ def test_rounded_scores_are_column_sums_of_the_rounded_table(decimals):
     np.testing.assert_array_equal(card.probability(frame).to_numpy(), score_to_pd(total, **SCALE))
 
 
-@pytest.mark.parametrize("base_score,rounded", [(600.5, 600.0), (601.5, 602.0), (-0.5, -0.0)])
+# -0.5 rounds to -0.0, which the specification stores as 0.0.
+@pytest.mark.parametrize("base_score,rounded", [(600.5, 600.0), (601.5, 602.0), (-0.5, 0.0)])
 def test_rounding_halves_to_even_as_pandas_does(base_score, rounded):
     # With base odds of 1 and no intercept, a WOE of 0 has exactly the base score as points.
     binning = fit_spec(
@@ -821,7 +828,47 @@ def test_rounding_halves_to_even_as_pandas_does(base_score, rounded):
     unrounded = ScorecardSpec.from_model(binning, {"x": 1.0}, 0.0, **scaling)
     assert unrounded.unseen_points["x"] == base_score
     assert card.unseen_points["x"] == rounded
+    assert math.copysign(1.0, card.unseen_points["x"]) == 1.0
     assert card.table["points"].tolist() == unrounded.table["points"].round().tolist()
+
+
+def test_negative_zeros_are_stored_as_zeros():
+    # Points in (-0.5, 0) round to -0.0, which scores exactly as 0.0.
+    binning = fit_spec(
+        pd.DataFrame({"x": [1.0, 2.0, 3.0, 4.0]}), [0, 1, 1, 0], bins=2, unseen={"x": 0.0}
+    )
+    scaling = {"pdo": 20, "base_score": -0.25, "base_odds": 1}
+    card = ScorecardSpec.from_model(binning, {"x": 1.0}, 0.0, **scaling, decimals=0)
+    assert pd.Series(dict(card.unseen_points)).round(0).iloc[0] == 0.0
+    assert math.copysign(1.0, card.unseen_points["x"]) == 1.0
+    table = card.table
+    negative = table.assign(points=[-0.0, -0.0])
+    positive = table.assign(points=[0.0, 0.0])
+    one = ScorecardSpec(binning, negative, **scaling, unseen_points={"x": -0.0})
+    other = ScorecardSpec(binning, positive, **scaling, unseen_points={"x": 0.0})
+    assert one == other and hash(one) == hash(other) and one.to_json() == other.to_json()
+    assert "-0.0" not in one.to_json()
+    assert all(math.copysign(1.0, value) == 1.0 for value in one.table["points"])
+    # So does every other number of the specification.
+    calibrated = dataclasses.replace(
+        one,
+        base_score=-0.0,
+        calibration={"kind": "platt", "slope": 1.0, "intercept": -0.0},
+        scale=master_scale([0.05, 0.5]).assign(lower=[-0.0, np.sqrt(0.05 * 0.5)]),
+    )
+    assert "-0.0" not in calibrated.to_json()
+    isotonic = dataclasses.replace(
+        one,
+        calibration={
+            "kind": "isotonic",
+            "edges": [-np.inf, -0.0, np.inf],
+            "probability": [0.2, -0.0],
+        },
+    )
+    assert "-0.0" not in isotonic.to_json()
+    text = other.to_json().replace('"x": 0.0', '"x": -0.0')
+    assert "-0.0" in text
+    assert ScorecardSpec.from_json(text) == other
 
 
 def test_from_model_keeps_the_columns_of_the_coefficients():
@@ -971,19 +1018,74 @@ def test_missing_values_get_the_points_of_the_missing_group():
     assert card.points(scoring_frame())["balance"].iloc[2] == missing
 
 
-def test_reason_codes_pass_the_unseen_points():
-    card = bank_card(decimals=0)
+@pytest.mark.parametrize("decimals", [None, 0, 1])
+@pytest.mark.parametrize("top,atol", [(3, 1e-4), (2, 0.5), (7, 3.0)])
+def test_reason_codes_match_the_module_function(decimals, top, atol):
+    card = bank_card(decimals=decimals)
     frame = scoring_frame()
     points = card.points(frame)
-    expected = reason_codes(points, card.table, unseen_points=dict(card.unseen_points))
-    assert card.reason_codes(frame).equals(expected)
-    assert card.reason_codes(frame, top=2, atol=0.5).equals(
-        reason_codes(points, card.table, top=2, atol=0.5, unseen_points=card.unseen_points)
+    expected = reason_codes(
+        points, card.table, top=top, atol=atol, unseen_points=dict(card.unseen_points)
     )
+    reasons = card.reason_codes(frame, top=top, atol=atol)
+    # Rows 0, 3 and 4 have unseen values. Their unseen points lie more than 1 point from every
+    # group, so reason_codes matches them to no group as long as atol is smaller.
+    rows = frame.index if atol < 1 else frame.index.delete([0, 3, 4])
+    assert reasons.loc[rows].equals(expected.loc[rows])
+    assert "balance" not in reasons.iloc[[3, 4]].to_numpy().ravel().tolist()
     # The unseen contact costs nothing, so it is not a reason of the first row.
     assert "contact" not in card.reason_codes(frame, top=7).iloc[0].tolist()
     with pytest.raises(ValueError, match="points of 'balance' must match a group of table"):
         reason_codes(points, card.table)
+
+
+@pytest.mark.parametrize("decimals", [None, 0])
+@pytest.mark.parametrize(
+    "column,group,new",
+    [
+        # The worst housing group, and a contact group between the best and the worst.
+        ("housing", "no", "rented"),
+        ("contact", "telephone", "satellite"),
+    ],
+)
+def test_unseen_values_with_the_points_of_a_group_are_no_reason(decimals, column, group, new):
+    bank = load_bank()
+    first = fit_spec(bank, bank["target"], columns=["age", column], bins=3)
+    woe = first.tables[column].loc[[group], "woe"].iloc[0]
+    binning = fit_spec(bank, bank["target"], columns=["age", column], bins=3, unseen={column: woe})
+    card = ScorecardSpec.from_model(
+        binning, {"age": 0.7, column: 0.8}, -2.0, **SCALE, decimals=decimals
+    )
+    table = card.table
+    assert card.unseen_points[column] == _points_of(table, column, group)
+    assert _points_of(table, column, group) < table.loc[[column], "points"].max()
+    best = table.loc[[column]].sort_values("points")["bin"].iloc[-1]
+    frame = pd.DataFrame({"age": [70, 70, 30], column: [new, group, new]})
+    reasons = card.reason_codes(frame, top=2)
+    # An unseen value costs what the best group would.
+    as_best = card.reason_codes(frame.assign(**{column: [best, group, best]}), top=2)
+    assert reasons.iloc[[0, 2]].equals(as_best.iloc[[0, 2]])
+    assert column not in reasons.iloc[[0, 2]].to_numpy().ravel().tolist()
+    assert column in reasons.iloc[1].tolist()
+    # Seen groups cost what reason_codes gives them; it cannot tell the unseen value apart.
+    points = card.points(frame)
+    module = reason_codes(points, table, top=2, unseen_points=dict(card.unseen_points))
+    assert reasons.iloc[[1]].equals(module.iloc[[1]])
+    assert column in module.iloc[0].tolist()
+
+
+@pytest.mark.parametrize(
+    "options,message",
+    [
+        ({"top": 0}, "^top must be a positive integer, got 0$"),
+        ({"top": True}, "^top must be a positive integer, got True$"),
+        ({"atol": 0.0}, "^atol must be a finite positive number, got 0.0$"),
+        ({"atol": np.inf}, "^atol must be a finite positive number, got inf$"),
+    ],
+)
+def test_invalid_reason_options_of_the_card(options, message):
+    with pytest.raises(ValueError, match=message):
+        bank_card().reason_codes(scoring_frame(), **options)
 
 
 # Immutability, equality and the JSON format
@@ -1642,11 +1744,119 @@ def test_nested_binnings_reject_repeated_keys_too():
         ScorecardSpec.from_json(repeated)
 
 
+# An integer that JSON and Python hold exactly but that no float can.
+HUGE = 10**400
+TOO_LARGE = "must be numbers that fit a float, got an integer too large for one$"
+
+
+def with_huge(path):
+    """The dict of `full_card` with HUGE at ``path``, the last key indexing a list if numeric."""
+    data = card_dict()
+    target = data
+    for key in path[:-1]:
+        target = target[key]
+    target[path[-1]] = HUGE
+    return data
+
+
+@pytest.mark.parametrize(
+    "path,message",
+    [
+        (["scaling", "pdo"], f"^pdo of scaling {TOO_LARGE}"),
+        (["points", "age", 0], f"^points of 'age' {TOO_LARGE}"),
+        (["unseen_points", "contact"], f"^unseen_points {TOO_LARGE}"),
+        (["calibration", "edges", 1], f"^edges of the isotonic calibration {TOO_LARGE}"),
+        (
+            ["calibration", "probability", 0],
+            f"^probability of the isotonic calibration {TOO_LARGE}",
+        ),
+        (["scale", 1, "lower"], rf"^lower of scale\[1\] {TOO_LARGE}"),
+    ],
+)
+def test_json_integers_too_large_for_a_float(path, message):
+    data = with_huge(path)
+    with pytest.raises(ValueError, match=message):
+        ScorecardSpec.from_dict(data)
+    with pytest.raises(ValueError, match=message):
+        ScorecardSpec.from_json(json.dumps(data))
+
+
+@pytest.mark.parametrize(
+    "calibration,message",
+    [
+        ({"kind": "shift", "shift": HUGE}, "shift"),
+        ({"kind": "platt", "slope": 1.0, "intercept": HUGE}, "intercept"),
+    ],
+)
+def test_json_calibration_parameters_too_large_for_a_float(calibration, message):
+    data = card_dict()
+    data["calibration"] = calibration
+    with pytest.raises(ValueError, match=f"^the {message} of the calibration {TOO_LARGE}"):
+        ScorecardSpec.from_json(json.dumps(data))
+
+
+def huge_scale():
+    """A master scale whose first PD is HUGE; pandas 2.0 cannot infer floats from it."""
+    scale = master_scale([0.05, 0.2]).astype(object)
+    scale["probability"] = pd.Series([HUGE, 0.2], index=scale.index, dtype=object)
+    return scale
+
+
+def test_arguments_too_large_for_a_float():
+    card = bank_card()
+    for options, message in [
+        ({"pdo": HUGE}, "^pdo must be a finite number, got 1000"),
+        (
+            {"unseen_points": {"balance": HUGE, "contact": 1.0}},
+            "^unseen_points must be finite numbers, got 1000",
+        ),
+        (
+            {"calibration": {"kind": "platt", "slope": HUGE, "intercept": 0.0}},
+            "^the slope of a platt calibration must be a finite number, got 1000",
+        ),
+        (
+            {
+                "calibration": {
+                    "kind": "isotonic",
+                    "edges": [-np.inf, HUGE, np.inf],
+                    "probability": [0.2, 0.1],
+                }
+            },
+            "^calibration must hold numbers that fit a float$",
+        ),
+        (
+            {"scale": huge_scale()},
+            "^scale must hold numbers that fit a float$",
+        ),
+    ]:
+        with pytest.raises(ValueError, match=message):
+            dataclasses.replace(card, **options)
+    table = card.table.astype({"points": object})
+    table.iloc[0, 2] = HUGE
+    with pytest.raises(ValueError, match="^table must hold numbers that fit a float$"):
+        dataclasses.replace(card, table=table)
+    with pytest.raises(ValueError, match="^base_score must be a finite number, got 1000"):
+        score_scaling(**{**SCALE, "base_score": HUGE})
+    with pytest.raises(ValueError, match="^intercept must be a finite number, got 1000"):
+        points_table(TABLES, COEFFICIENTS, HUGE, **SCALE)
+    with pytest.raises(ValueError, match="^coefficients must be finite numbers, got 1000"):
+        woe_to_points(pd.DataFrame({"housing": [0.3]}), {"housing": HUGE}, -2.0, **SCALE)
+    table = points_table(TABLES, COEFFICIENTS, INTERCEPT, **SCALE)
+    points = woe_to_points(
+        pd.DataFrame({"housing": [0.3], "contact": [-0.2]}), COEFFICIENTS, INTERCEPT, **SCALE
+    )
+    with pytest.raises(ValueError, match="^unseen_points must be finite numbers, got 1000"):
+        reason_codes(points, table, unseen_points=HUGE)
+
+
 # Golden files
 
 DATA = pathlib.Path(__file__).parent / "data"
 GOLDEN = DATA / "scorecard_spec_1.10.0.json"
 GOLDEN_SCORES = DATA / "scorecard_spec_1.10.0.scores.json"
+GOLDEN_CALIBRATED = DATA / "scorecard_spec_1.10.0.calibrated.json"
+# The last digits of exp and log may differ from the file's on another CPU.
+RTOL = 1e-12
 
 
 def golden_spec():
@@ -1736,8 +1946,61 @@ def test_the_golden_file_loads_and_scores_as_saved():
     assert card.reason_codes(frame).to_numpy().tolist() == saved["reasons"]
 
 
+def calibrated_specs():
+    """Small specifications with a shift and a Platt calibration and integer grades."""
+    sample = development()
+    binning = dataclasses.replace(
+        fit_spec(sample[["age", "housing"]], sample["target"], bins=3), kivi_version="1.10.0"
+    )
+    card = ScorecardSpec.from_model(
+        binning,
+        {"age": 0.7, "housing": 0.8},
+        -2.0,
+        **SCALE,
+        decimals=0,
+        scale=master_scale(np.geomspace(0.05, 0.4, 4)),
+    )
+    card = dataclasses.replace(card, kivi_version="1.10.0")
+    shift = central_tendency_shift(card.probability(sample), central_tendency=0.15)
+    slope, intercept = platt_fit(development_log_odds(card, sample), sample["target"])
+    return {
+        "shift": dataclasses.replace(card, calibration={"kind": "shift", "shift": shift}),
+        "platt": dataclasses.replace(
+            card, calibration={"kind": "platt", "slope": slope, "intercept": intercept}
+        ),
+    }
+
+
+def calibrated_frame():
+    return load_bank().iloc[3000:3012][["age", "housing"]]
+
+
+def test_the_calibrated_golden_file_loads_and_scores_as_saved():
+    saved = json.loads(GOLDEN_CALIBRATED.read_text(encoding="utf-8"))
+    assert list(saved["cards"]) == ["shift", "platt"]
+    for kind, content in saved["cards"].items():
+        card = ScorecardSpec.from_dict(content["spec"])
+        # The same keys, in the same order, with the same numbers.
+        assert json.dumps(card.to_dict()) == json.dumps(content["spec"])
+        assert ScorecardSpec.from_json(json.dumps(content["spec"])) == card
+        assert card.kivi_version == "1.10.0" and card.calibration["kind"] == kind
+        assert list(content["spec"]["calibration"]) == [
+            "kind",
+            *{"shift": ["shift"], "platt": ["slope", "intercept"]}[kind],
+        ]
+        assert [row["grade"] for row in content["spec"]["scale"]] == [1, 2, 3, 4]
+        assert card.scale.index.dtype == np.int64
+        frame = saved_frame(saved["frame"], card.binning)
+        assert card.score(frame).tolist() == content["score"]
+        np.testing.assert_allclose(
+            card.probability(frame), content["probability"], rtol=RTOL, atol=0
+        )
+        grades = card.grade(frame).astype(object).tolist()
+        assert grades == content["grade"] and all(type(grade) is int for grade in grades)
+
+
 def write_golden_files():
-    """Write the golden files from `golden_spec` and `golden_frame`."""
+    """Write the golden files from `golden_spec`, `calibrated_specs` and their frames."""
     GOLDEN.write_text(golden_spec().to_json(indent=2) + "\n", encoding="utf-8")
     card = ScorecardSpec.from_json(GOLDEN.read_text(encoding="utf-8"))
     frame = golden_frame()
@@ -1756,6 +2019,24 @@ def write_golden_files():
         "reasons": card.reason_codes(frame).to_numpy().tolist(),
     }
     GOLDEN_SCORES.write_text(json.dumps(saved, indent=1) + "\n", encoding="utf-8")
+    frame = calibrated_frame()
+    cards = {}
+    for kind, card in calibrated_specs().items():
+        card = ScorecardSpec.from_dict(card.to_dict())
+        cards[kind] = {
+            "spec": card.to_dict(),
+            "score": card.score(frame).tolist(),
+            "probability": card.probability(frame).tolist(),
+            "grade": card.grade(frame).astype(object).tolist(),
+        }
+    saved = {
+        "frame": {
+            "index": frame.index.tolist(),
+            "columns": {name: frame[name].tolist() for name in frame.columns},
+        },
+        "cards": cards,
+    }
+    GOLDEN_CALIBRATED.write_text(json.dumps(saved, indent=1) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

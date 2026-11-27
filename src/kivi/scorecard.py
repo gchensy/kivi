@@ -1,5 +1,6 @@
 """Scorecard scaling, points, reason codes and saved scorecards."""
 
+import contextlib
 import dataclasses
 import json
 import math
@@ -81,7 +82,7 @@ def score_scaling(*, pdo: float, base_score: float, base_odds: float) -> tuple[f
     factor = 28.8539, offset = 487.1229
     """
     for name, value in (("pdo", pdo), ("base_score", base_score), ("base_odds", base_odds)):
-        if isinstance(value, bool) or not _validation.is_real(value) or not math.isfinite(value):
+        if not _is_finite(value):
             raise ValueError(
                 f"{name} must be a finite number, got {_validation.shown_argument(value)}"
             )
@@ -580,12 +581,7 @@ def reason_codes(
     """
     if not isinstance(points, pd.DataFrame):
         raise ValueError(f"points must be a DataFrame, got {type(points).__name__}")
-    if isinstance(top, bool) or not _validation.is_integral(top) or top < 1:
-        raise ValueError(f"top must be a positive integer, got {_validation.shown_argument(top)}")
-    if isinstance(atol, bool) or not _validation.is_real(atol) or not 0 < atol < math.inf:
-        raise ValueError(
-            f"atol must be a finite positive number, got {_validation.shown_argument(atol)}"
-        )
+    _check_reason_options(top, atol)
     if not isinstance(table, pd.DataFrame) or table.index.name != "variable":  # type: ignore[redundant-expr]  # checked at runtime
         raise ValueError(f"table must be a points_table result, got {_describe(table)}")
     if "points" not in table.columns:
@@ -633,15 +629,32 @@ def reason_codes(
             )
         matched = np.abs(values[:, column] - nearest) <= atol
         cost[:, column] = np.where(matched, group_points[-1] - nearest, 0.0)
+    return _ranked_reasons(cost, points.columns, points.index, top, atol)
+
+
+def _check_reason_options(top: int, atol: float) -> None:
+    """Check the number of reasons and the tolerance of `reason_codes`."""
+    if isinstance(top, bool) or not _validation.is_integral(top) or top < 1:
+        raise ValueError(f"top must be a positive integer, got {_validation.shown_argument(top)}")
+    if isinstance(atol, bool) or not _validation.is_real(atol) or not 0 < atol < math.inf:
+        raise ValueError(
+            f"atol must be a finite positive number, got {_validation.shown_argument(atol)}"
+        )
+
+
+def _ranked_reasons(
+    cost: npt.NDArray[np.float64], variables: pd.Index, index: pd.Index, top: int, atol: float
+) -> pd.DataFrame:
+    """Name the ``top`` costliest variables of each row; costs below about ``atol`` give None."""
     # Costs that differ by less than atol tie, so the stable sort keeps the column order.
     steps = np.round(cost / atol)
     order = np.argsort(-steps, axis=1, kind="stable")[:, :top]
-    names = np.asarray(points.columns, dtype=object)[order]
+    names = np.asarray(variables, dtype=object)[order]
     names[np.take_along_axis(steps, order, axis=1) <= 0] = None
-    reasons = np.full((len(points), top), None, dtype=object)
+    reasons = np.full((len(index), top), None, dtype=object)
     reasons[:, : names.shape[1]] = names
     columns = [f"reason_{rank}" for rank in range(1, top + 1)]
-    return pd.DataFrame(reasons, index=points.index, columns=columns, dtype=object)
+    return pd.DataFrame(reasons, index=index, columns=columns, dtype=object)
 
 
 _FORMAT = "kivi.ScorecardSpec"
@@ -868,19 +881,24 @@ class ScorecardSpec:
                 f"{type(binning).__name__}"
             )
         scaling = score_scaling(pdo=self.pdo, base_score=self.base_score, base_odds=self.base_odds)
-        points = _checked_points(self.__dict__["_table"], binning)
+        with _fitting_floats("table"):
+            points = _checked_points(self.__dict__["_table"], binning)
         unseen = _checked_unseen_points(self.unseen_points, binning)
-        fitted = _checked_calibration(self.calibration)
+        with _fitting_floats("calibration"):
+            fitted = _checked_calibration(self.calibration)
         scale = self.__dict__["_scale"]
         if scale is not None:
-            scale = _checked_scale(scale)
+            with _fitting_floats("scale"):
+                scale = _checked_scale(scale)
         version = kivi.__version__ if self.kivi_version is None else self.kivi_version
         if not isinstance(version, str):
             raise ValueError(
                 f"kivi_version must be a string, got {_validation.shown_argument(version)}"
             )
+        # Adding 0.0 turns -0.0 into 0.0 throughout, so that specifications that score alike
+        # have the same JSON text, and so compare equal and hash alike.
         for name in _SCALING:
-            object.__setattr__(self, name, float(getattr(self, name)))
+            object.__setattr__(self, name, float(getattr(self, name)) + 0.0)
         object.__setattr__(self, "table", _points_frame(binning, points))
         object.__setattr__(
             self, "unseen_points", None if unseen is None else types.MappingProxyType(unseen)
@@ -1287,10 +1305,12 @@ class ScorecardSpec:
     ) -> pd.DataFrame:
         """Name the columns that cost each row of a sample the most points.
 
-        The reasons are those of the module function `reason_codes` for the
-        `points` of each row and `table`. Values whose group was not in
-        development cost nothing in the columns with `unseen_points`, so
-        those columns are not their reasons.
+        A column costs a row the difference between the points of the
+        column's best group and the points of the row's group, and the
+        columns are listed from the largest cost, as by the module function
+        `reason_codes`. A value whose group was not in development costs
+        nothing in a column with `unseen_points`, even when those points
+        equal the points of a group, so the column is not its reason.
 
         Parameters
         ----------
@@ -1300,8 +1320,9 @@ class ScorecardSpec:
         top : int, default 3
             Number of reasons per row.
         atol : float, default 1e-4
-            Largest difference, in points, between the points of a row and
-            those of a group for the row to be in that group.
+            Tolerance in points: costs that differ by less than about `atol`
+            count as equal and keep the order of the columns, and a cost
+            below about `atol` is no cost.
 
         Returns
         -------
@@ -1313,8 +1334,8 @@ class ScorecardSpec:
         Raises
         ------
         ValueError
-            For the reasons that `points` and the module function
-            `reason_codes` give.
+            If `top` is not a positive integer or `atol` is not a finite
+            positive number, or for the reasons that `points` gives.
 
         See Also
         --------
@@ -1342,13 +1363,16 @@ class ScorecardSpec:
         1  housing     None
         2      age     None
         """
-        return reason_codes(
-            self.points(frame),
-            self.__dict__["_table"],
-            top=top,
-            atol=atol,
-            unseen_points=None if self.unseen_points is None else dict(self.unseen_points.items()),
-        )
+        _check_reason_options(top, atol)
+        positions = self._group_positions(frame)
+        names = self.binning.columns
+        cost = np.empty((len(frame), len(names)))
+        for column, (name, points) in enumerate(zip(names, self.__dict__["_points"], strict=True)):
+            position = positions[name]
+            # A seen group costs what reason_codes gives it; an unseen value costs nothing.
+            own = points[np.maximum(position, 0)]
+            cost[:, column] = np.where(position >= 0, points.max() - own, 0.0)
+        return _ranked_reasons(cost, names, frame.index, top, atol)
 
     def to_dict(self) -> dict[str, typing.Any]:
         """Return the scorecard specification as a dict of JSON types.
@@ -1621,15 +1645,27 @@ class ScorecardSpec:
         )
         return cls.from_dict(data)
 
+    def _group_positions(self, frame: pd.DataFrame) -> dict[str, npt.NDArray[np.intp]]:
+        """Return the row of each value's group in its column's table, -1 for an unseen value.
+
+        Only columns with unseen points have unseen values; the other policies raise or name
+        a group, as in BinningSpec.woe_transform.
+        """
+        positions = self.__dict__["_positions"].woe_transform(frame)
+        return {
+            name: positions[name].to_numpy(dtype=float).astype(np.intp)
+            for name in self.binning.columns
+        }
+
     def _point_columns(self, frame: pd.DataFrame) -> dict[str, npt.NDArray[np.float64]]:
         """Return the points of every column, by the position of each value's group."""
-        positions = self.__dict__["_positions"].woe_transform(frame)
+        positions = self._group_positions(frame)
         unseen: dict[str, float] = self.__dict__["_unseen"]
         columns = {}
         for name, points in zip(self.binning.columns, self.__dict__["_points"], strict=True):
-            # The position -1 stands for an unseen group of a column with unseen points.
+            # The position -1 stands for an unseen value of a column with unseen points.
             lookup = np.append(points, unseen.get(name, np.nan))
-            columns[name] = lookup[positions[name].to_numpy(dtype=float).astype(np.intp)]
+            columns[name] = lookup[positions[name]]
         return columns
 
     def _calibrated(self, score: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
@@ -1738,7 +1774,7 @@ def _checked_points(table: object, binning: spec.BinningSpec) -> list[npt.NDArra
                 f"{_validation.shown(groups.index[row])} of {_validation.shown(name)}; round only "
                 "the points column"
             )
-        values = points[rows].copy()
+        values = points[rows] + 0.0
         invalid = np.flatnonzero(~np.isfinite(values))
         if len(invalid):
             row = invalid[0]
@@ -1823,16 +1859,12 @@ def _checked_unseen_points(
     result = {}
     for name in wanted:
         value = given[name]
-        if (
-            isinstance(value, (bool, np.bool_))
-            or not _validation.is_real(value)
-            or not math.isfinite(value)
-        ):
+        if not _is_finite(value):
             raise ValueError(
                 f"unseen_points must be finite numbers, got {_validation.shown(value)} for "
                 f"{_validation.shown(name)}"
             )
-        result[name] = float(value)
+        result[name] = float(value) + 0.0
     return result or None
 
 
@@ -1858,16 +1890,12 @@ def _checked_calibration(value: object) -> dict[str, typing.Any] | None:
         result: dict[str, typing.Any] = {"kind": kind}
         for name in _CALIBRATIONS[kind]:
             number = value[name]
-            if (
-                isinstance(number, (bool, np.bool_))
-                or not _validation.is_real(number)
-                or not math.isfinite(number)
-            ):
+            if not _is_finite(number):
                 raise ValueError(
                     f"the {name} of a {kind} calibration must be a finite number, got "
                     f"{_validation.shown_argument(number)}"
                 )
-            result[name] = float(number)
+            result[name] = float(number) + 0.0
         if kind == "platt" and result["slope"] < 0:
             raise ValueError(
                 "the slope of a platt calibration must not be negative, which would give higher "
@@ -1880,8 +1908,8 @@ def _checked_calibration(value: object) -> dict[str, typing.Any] | None:
         calibration.isotonic_predict(np.empty(0), edges, probability)
     except ValueError as error:
         raise ValueError(f"isotonic calibration: {error}") from None
-    edges = np.array(edges, dtype=float)
-    probability = np.array(probability, dtype=float)
+    edges = np.array(edges, dtype=float) + 0.0
+    probability = np.array(probability, dtype=float) + 0.0
     rising = np.flatnonzero(np.diff(probability) > 0)
     if len(rising):
         band = rising[0]
@@ -1916,9 +1944,9 @@ def _checked_scale(scale: object) -> pd.DataFrame:
     labels = [_grade_label(label) for label in scale.index]
     return pd.DataFrame(
         {
-            "lower": scale["lower"].to_numpy(dtype=float),
-            "probability": probability,
-            "upper": scale["upper"].to_numpy(dtype=float),
+            "lower": scale["lower"].to_numpy(dtype=float) + 0.0,
+            "probability": probability + 0.0,
+            "upper": scale["upper"].to_numpy(dtype=float) + 0.0,
         },
         index=pd.Index(labels, name="grade"),
     )
@@ -1930,7 +1958,7 @@ def _grade_label(label: object) -> str | int | float | bool:
         return bool(label)
     if isinstance(label, numbers.Integral):
         return int(label)
-    if isinstance(label, numbers.Real) and math.isfinite(label):
+    if _is_finite(label):
         return float(label)
     if isinstance(label, str):
         return str(label)
@@ -2015,6 +2043,11 @@ def _decoded_calibration(value: object) -> dict[str, typing.Any] | None:
                 result[name] = [
                     _json_number(item, f"{name} of the isotonic calibration") for item in values
                 ]
+    else:
+        for name, number in value.items():
+            # Numbers are read here; anything else is left for the constructor to reject.
+            if isinstance(number, (int, float)) and not isinstance(number, bool):
+                result[name] = _json_number(number, f"the {name} of the calibration")
     return result
 
 
@@ -2049,7 +2082,12 @@ def _json_number(value: object, where: str) -> float:
         if value["float"] in ("inf", "-inf"):
             return float(value["float"])
     elif isinstance(value, (int, float)) and not isinstance(value, bool):
-        return float(value)
+        try:
+            return float(value)
+        except OverflowError:
+            raise ValueError(
+                f"{where} must be numbers that fit a float, got an integer too large for one"
+            ) from None
     raise ValueError(f"{where} must be numbers, got {_validation.shown(value)}")
 
 
@@ -2076,6 +2114,29 @@ def _check_keys(data: abc.Mapping[str, typing.Any], expected: set[str], where: s
         raise ValueError(f"{where} " + " and ".join(problems))
 
 
+def _is_finite(value: object) -> typing.TypeGuard[float]:
+    """Whether a value is a finite real number other than a boolean.
+
+    An integer too large for a float is not finite, so that it raises a ValueError rather
+    than the OverflowError of ``math.isfinite``.
+    """
+    if isinstance(value, (bool, np.bool_)) or not isinstance(value, numbers.Real):
+        return False
+    try:
+        return math.isfinite(value)
+    except OverflowError:
+        return False
+
+
+@contextlib.contextmanager
+def _fitting_floats(where: str) -> abc.Iterator[None]:
+    """Turn the OverflowError of an integer too large for a float into a ValueError."""
+    try:
+        yield
+    except OverflowError:
+        raise ValueError(f"{where} must hold numbers that fit a float") from None
+
+
 def _unseen_points(
     unseen_points: float | abc.Mapping[object, float] | pd.Series | None, variables: pd.Index
 ) -> npt.NDArray[np.float64]:
@@ -2097,11 +2158,7 @@ def _unseen_points(
         if variable not in by_variable:
             continue
         value = by_variable[variable]
-        if (
-            isinstance(value, bool)
-            or not isinstance(value, numbers.Real)
-            or not math.isfinite(value)
-        ):
+        if not _is_finite(value):
             raise ValueError(
                 f"unseen_points must be finite numbers, got {_validation.shown(value)} for "
                 f"{_validation.shown(variable)}"
@@ -2119,11 +2176,7 @@ def _model_points(
 ) -> tuple[pd.Series, float]:
     """Return the points per unit of WOE and the base points of each variable."""
     factor, offset = score_scaling(pdo=pdo, base_score=base_score, base_odds=base_odds)
-    if (
-        isinstance(intercept, bool)
-        or not _validation.is_real(intercept)
-        or not math.isfinite(intercept)
-    ):
+    if not _is_finite(intercept):
         raise ValueError(
             f"intercept must be a finite number, got {_validation.shown_argument(intercept)}"
         )
@@ -2140,11 +2193,7 @@ def _model_points(
             f"coefficients must name each variable once, got {_validation.shown(repeated)} twice"
         )
     for variable, value in zip(coefficients.index, coefficients.tolist(), strict=True):
-        if (
-            isinstance(value, bool)
-            or not isinstance(value, numbers.Real)
-            or not math.isfinite(value)
-        ):
+        if not _is_finite(value):
             raise ValueError(
                 f"coefficients must be finite numbers, got {_validation.shown(value)} for "
                 f"{_validation.shown(variable)}"
